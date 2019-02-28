@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -1204,6 +1203,10 @@ public class PackageInfoReader {
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.BI2F:
+                case InstructionCodes.D2BI:
+                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1324,12 +1327,12 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTH:
                 case InstructionCodes.STAMP:
                 case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:
@@ -1975,11 +1978,6 @@ public class PackageInfoReader {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return BTypes.typeJSON;
-                    }
-                    return new BJSONType(constraint);
                 case 'D':
                     if (constraint == null) {
                         return BTypes.typeTable;

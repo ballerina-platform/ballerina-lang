@@ -19,20 +19,20 @@ public type InMemoryModeConfig record {
     string username = "";
     string password = "";
     map<any> dbOptions = {};
-    !...
+    !...;
 };
 
 public type ServerModeConfig record {
     string host = "localhost";
     int port = 9090;
     *InMemoryModeConfig;
-    !...
+    !...;
 };
 
 public type EmbeddedModeConfig record {
     string path = "";
     *InMemoryModeConfig;
-    !...
+    !...;
 };
 
 function testAmbiguityResolution() returns (string, string, string) {

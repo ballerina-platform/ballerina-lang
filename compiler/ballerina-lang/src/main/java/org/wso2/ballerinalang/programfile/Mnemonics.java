@@ -219,7 +219,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.S2ANY] = "s2any";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
 
-        mnemonics[InstructionCodes.TYPE_ASSERTION] = "type_assertion";
+        mnemonics[InstructionCodes.TYPE_CAST] = "type_cast";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";
@@ -273,7 +273,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.CLONE] = "clone";
         mnemonics[InstructionCodes.FLUSH] = "flush";
-        mnemonics[InstructionCodes.LENGTHOF] = "length_of";
+        mnemonics[InstructionCodes.LENGTH] = "length_of";
         mnemonics[InstructionCodes.WAITALL] = "wait_all";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "new_struct";
@@ -289,6 +289,10 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.I2BI] = "i2bi";
         mnemonics[InstructionCodes.BI2I] = "bi2i";
+        mnemonics[InstructionCodes.F2BI] = "f2bi";
+        mnemonics[InstructionCodes.BI2F] = "bi2f";
+        mnemonics[InstructionCodes.D2BI] = "d2bi";
+        mnemonics[InstructionCodes.BI2D] = "bi2d";
         mnemonics[InstructionCodes.BIXOR] = "bior";
         mnemonics[InstructionCodes.IXOR] = "ior";
         mnemonics[InstructionCodes.BACONST] = "baconst";

@@ -45,6 +45,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.DecimalValueKind;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.ListUtils;
@@ -383,7 +384,7 @@ public class BVM {
                     execBinaryOpCodes(strand, sf, opcode, operands);
                     break;
 
-                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTH:
                     calculateLength(strand, operands, sf);
                     break;
                 case InstructionCodes.TYPELOAD:
@@ -600,7 +601,7 @@ public class BVM {
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.O2JSON:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                     execTypeCastOpcodes(strand, sf, opcode, operands);
                     break;
 
@@ -610,6 +611,10 @@ public class BVM {
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.BI2F:
+                case InstructionCodes.D2BI:
+                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1120,16 +1125,13 @@ public class BVM {
             sf.refRegs[k] = error;
             return;
         }
-
         try {
             if (valueToBeStamped != null) {
-                valueToBeStamped.stamp(targetType);
+                valueToBeStamped.stamp(targetType, new ArrayList<>());
             }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
-            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                            valueToBeStamped.getType(), targetType));
+            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR, e.getDetail());
             sf.refRegs[k] = error;
         }
     }
@@ -1429,8 +1431,8 @@ public class BVM {
         int i;
         int j;
         int k;
-        BigDecimal lhsValue;
-        BigDecimal rhsValue;
+        BDecimal lhsValue;
+        BDecimal rhsValue;
 
         switch (opcode) {
             case InstructionCodes.IGT:
@@ -1449,9 +1451,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) > 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThan(lhsValue, rhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.IGE:
@@ -1470,9 +1472,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) >= 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThanOrEqual(lhsValue, rhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.ILT:
@@ -1491,9 +1493,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) < 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThan(rhsValue, lhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.ILE:
@@ -1512,9 +1514,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) <= 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = checkDecimalGreaterThanOrEqual(rhsValue, lhsValue) ? 1 : 0;
                 break;
 
             case InstructionCodes.REQ_NULL:
@@ -1842,10 +1844,16 @@ public class BVM {
                 BNewArray list = Optional.of((BNewArray) sf.refRegs[i]).get();
                 long index = sf.longRegs[j];
                 BRefType refReg = sf.refRegs[k];
-                BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG)
-                        ? ((BArrayType) list.getType()).getElementType()
-                        : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
-                if (!checkCast(refReg, elementType)) {
+                BType elementType = null;
+                if (list.getType().getTag() == TypeTags.ARRAY_TAG) {
+                    elementType = ((BArrayType) list.getType()).getElementType();
+                } else {
+                    BTupleType tupleType = (BTupleType) list.getType();
+                    if (isTupleIndexWithinRange(tupleType, index)) {
+                        elementType = tupleType.getTupleTypes().get((int) index);
+                    }
+                }
+                if (elementType != null && !checkCast(refReg, elementType)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
@@ -1945,12 +1953,16 @@ public class BVM {
         }
     }
 
+    private static boolean isTupleIndexWithinRange(BTupleType tuple, long index) {
+        return index >= 0 && index < tuple.getTupleTypes().size();
+    }
+
     private static void execBinaryOpCodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
-        BigDecimal lhsValue;
-        BigDecimal rhsValue;
+        BDecimal lhsValue;
+        BDecimal rhsValue;
 
         switch (opcode) {
             case InstructionCodes.IADD:
@@ -1975,9 +1987,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.refRegs[k] = new BDecimal(lhsValue.add(rhsValue, MathContext.DECIMAL128));
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.refRegs[k] = lhsValue.add(rhsValue);
                 break;
             case InstructionCodes.XMLADD:
                 i = operands[0];
@@ -2005,9 +2017,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.refRegs[k] = new BDecimal(lhsValue.subtract(rhsValue, MathContext.DECIMAL128));
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.refRegs[k] = lhsValue.subtract(rhsValue);
                 break;
             case InstructionCodes.IMUL:
                 i = operands[0];
@@ -2025,9 +2037,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.refRegs[k] = new BDecimal(lhsValue.multiply(rhsValue, MathContext.DECIMAL128));
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.refRegs[k] = lhsValue.multiply(rhsValue);
                 break;
             case InstructionCodes.IDIV:
                 i = operands[0];
@@ -2052,16 +2064,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR,
-                                                           " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
-                sf.refRegs[k] = new BDecimal(lhsValue.divide(rhsValue, MathContext.DECIMAL128));
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.refRegs[k] = lhsValue.divide(rhsValue);
                 break;
             case InstructionCodes.IMOD:
                 i = operands[0];
@@ -2086,16 +2091,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR,
-                                                           " / by zero"));
-                    handleError(ctx);
-                    break;
-                }
-
-                sf.refRegs[k] = new BDecimal(lhsValue.remainder(rhsValue, MathContext.DECIMAL128));
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.refRegs[k] = lhsValue.remainder(rhsValue);
                 break;
             case InstructionCodes.INEG:
                 i = operands[0];
@@ -2146,9 +2144,10 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) == 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0 ? 1 : 0;
                 break;
             case InstructionCodes.REQ:
                 i = operands[0];
@@ -2205,9 +2204,10 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
-                rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
-                sf.intRegs[k] = lhsValue.compareTo(rhsValue) != 0 ? 1 : 0;
+                lhsValue = (BDecimal) sf.refRegs[i];
+                rhsValue = (BDecimal) sf.refRegs[j];
+                sf.intRegs[k] = !isDecimalRealNumber(lhsValue) || !isDecimalRealNumber(rhsValue) ||
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) != 0 ? 1 : 0;
                 break;
             case InstructionCodes.RNE:
                 i = operands[0];
@@ -2448,7 +2448,7 @@ public class BVM {
         TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
-            case InstructionCodes.TYPE_ASSERTION:
+            case InstructionCodes.TYPE_CAST:
                 i = operands[0];
                 cpIndex = operands[1];
                 j = operands[2];
@@ -2458,27 +2458,47 @@ public class BVM {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (bRefTypeValue == null) {
-                    if (expectedType.getTag() == TypeTags.NULL_TAG) {
+                    if (checkIsType(BTypes.typeNull, expectedType, new ArrayList<>())) {
                         sf.refRegs[j] = null;
                         break;
                     }
-                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
                                                            BLangExceptionHelper.getErrorMessage(
-                                                                   RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
-                                                                   "()")));
+                                                                   RuntimeErrors.TYPE_CAST_ERROR, "()",
+                                                                   expectedType)));
                     handleError(ctx);
-                } else if (isSimpleBasicType(expectedType)) {
-                    execExplicitlyTypedExpressionOpCode(ctx, sf, expectedType, bRefTypeValue, j);
-                } else if (expectedType.equals(bRefTypeValue.getType())) {
-                    sf.refRegs[j] = bRefTypeValue;
+                } else if (checkIsType(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
+                    switch (expectedType.getTag()) {
+                        case TypeTags.STRING_TAG:
+                            sf.stringRegs[j] = bRefTypeValue.stringValue();
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            sf.intRegs[j] = ((BBoolean) bRefTypeValue).booleanValue() ? 1 : 0;
+                            break;
+                        case TypeTags.INT_TAG:
+                            sf.longRegs[j] = ((BInteger) bRefTypeValue).intValue();
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            sf.doubleRegs[j] = ((BFloat) bRefTypeValue).floatValue();
+                            break;
+                        case TypeTags.DECIMAL_TAG:
+                            sf.refRegs[j] = ((BDecimal) bRefTypeValue);
+                            break;
+                        case TypeTags.BYTE_TAG:
+                            sf.intRegs[j] = ((BByte) bRefTypeValue).byteValue();
+                            break;
+                        default:
+                            sf.refRegs[j] = bRefTypeValue;
+                    }
+                } else if (containsNumericType(expectedType)) {
+                    execNumericConversionOrCastOpCode(ctx, sf, expectedType, bRefTypeValue, j, false);
                 } else {
                     ctx.setError(
-                            BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
+                            BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
                                                       BLangExceptionHelper.getErrorMessage(
-                                                              RuntimeErrors.TYPE_ASSERTION_ERROR,
-                                                                   (expectedType.getTag() == TypeTags.NULL_TAG ?
-                                                                            "()" : expectedType),
-                                                                   bRefTypeValue.getType())));
+                                                              RuntimeErrors.TYPE_CAST_ERROR, bRefTypeValue.getType(),
+                                                              (expectedType.getTag() == TypeTags.NULL_TAG ? "()" :
+                                                                       expectedType))));
                     handleError(ctx);
                 }
                 break;
@@ -2604,36 +2624,53 @@ public class BVM {
         }
     }
 
-    private static void execExplicitlyTypedExpressionOpCode(Strand ctx, StackFrame sf, BType targetType,
-                                                            BRefType bRefTypeValue, int regIndex) {
+    private static void execNumericConversionOrCastOpCode(Strand ctx, StackFrame sf, BType targetType,
+                                                          BRefType bRefTypeValue, int regIndex,
+                                                          boolean isRefTypeTarget) {
         BType sourceType = bRefTypeValue.getType();
         int targetTag = targetType.getTag();
-        if (!isSimpleBasicType(sourceType) ||
-                (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
-            ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
-                                                   "assertion error: expected '" + targetType + "', found '" +
-                                                           bRefTypeValue.getType() + "'"));
+
+        if ((targetTag == TypeTags.UNION_TAG && ((BUnionType) targetType).getMemberTypes().stream()
+                .filter(BVM::isBasicNumericType).count() > 1) || !isBasicNumericType(sourceType)) {
+            ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_CAST_ERROR,
+                                                   BLangExceptionHelper.getErrorMessage(
+                                                           RuntimeErrors.TYPE_CAST_ERROR, sourceType, targetType)));
             handleError(ctx);
             return;
         }
 
         try {
             switch (targetTag) {
-                case TypeTags.STRING_TAG:
-                    sf.stringRegs[regIndex] = bRefTypeValue.stringValue();
-                    break;
                 case TypeTags.FLOAT_TAG:
-                    sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    if (isRefTypeTarget) {
+                        sf.refRegs[regIndex] = new BFloat(((BValueType) bRefTypeValue).floatValue());
+                    } else {
+                        sf.doubleRegs[regIndex] = ((BValueType) bRefTypeValue).floatValue();
+                    }
                     break;
                 case TypeTags.DECIMAL_TAG:
                     sf.refRegs[regIndex] = new BDecimal(((BValueType) bRefTypeValue).decimalValue());
                     break;
                 case TypeTags.INT_TAG:
-                    sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    if (isRefTypeTarget) {
+                        sf.refRegs[regIndex] = new BInteger(((BValueType) bRefTypeValue).intValue());
+                    } else {
+                        sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).intValue();
+                    }
                     break;
-                case TypeTags.BOOLEAN_TAG:
-                    sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).booleanValue() ? 1 : 0;
+                case TypeTags.BYTE_TAG:
+                    if (isRefTypeTarget) {
+                        sf.refRegs[regIndex] = new BByte(((BValueType) bRefTypeValue).byteValue());
+                    } else {
+                        sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
+                    }
                     break;
+                default:
+                    BType targetNumericType = ((BUnionType) targetType).getMemberTypes().stream()
+                            .filter(BVM::isBasicNumericType)
+                            .findFirst()
+                            .get(); // wouldn't get here if not present
+                    execNumericConversionOrCastOpCode(ctx, sf, targetNumericType, bRefTypeValue, regIndex, true);
             }
         } catch (BallerinaException e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
@@ -2674,16 +2711,82 @@ public class BVM {
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
-                if (isByteLiteral(sf.longRegs[i])) {
-                    sf.refRegs[j] = new BByte((byte) sf.longRegs[i]);
-                } else {
-                    handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
+                if (!isByteLiteral(sf.longRegs[i])) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.INT_TNAME + "' value '" +
+                                                                   sf.longRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
                 }
+                sf.intRegs[j] = new BByte((byte) sf.longRegs[i]).byteValue();
                 break;
             case InstructionCodes.BI2I:
                 i = operands[0];
                 j = operands[1];
                 sf.longRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
+                break;
+            case InstructionCodes.F2BI:
+                i = operands[0];
+                j = operands[1];
+                double floatVal = sf.doubleRegs[i];
+                if (Double.isNaN(floatVal) || Double.isInfinite(floatVal)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.FLOAT_TNAME + "' value '" + floatVal +
+                                                                   "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                long floatAsIntVal = Math.round(floatVal);
+                if (!isByteLiteral(floatAsIntVal)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.FLOAT_TNAME + "' value '" +
+                                                                   floatVal + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.intRegs[j] = (byte) floatAsIntVal;
+                break;
+            case InstructionCodes.BI2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
+                break;
+            case InstructionCodes.D2BI:
+                i = operands[0];
+                j = operands[1];
+
+                DecimalValueKind valueKind = ((BDecimal) sf.refRegs[i]).valueKind;
+                if (valueKind == DecimalValueKind.NOT_A_NUMBER || valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
+                        valueKind == DecimalValueKind.POSITIVE_INFINITY) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
+                                                                   sf.refRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                long doubleAsIntVal = Math.round(Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue()));
+                if (!isByteLiteral(doubleAsIntVal)) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
+                                                                   sf.refRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.BYTE_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+                sf.intRegs[j] = (byte) doubleAsIntVal;
+                break;
+            case InstructionCodes.BI2D:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BDecimal((new BigDecimal(Byte.toUnsignedInt((byte) sf.intRegs[i]),
+                                                             MathContext.DECIMAL128))
+                                                     .setScale(1, BigDecimal.ROUND_HALF_EVEN));
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];
@@ -2691,15 +2794,17 @@ public class BVM {
                 double valueToConvert = sf.doubleRegs[i];
                 if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "'float' value '" + valueToConvert + "' cannot be " +
-                                                                   "converted to 'int'"));
+                                                           "'" + TypeConstants.FLOAT_TNAME + "' value '" +
+                                                                   valueToConvert + "' cannot be converted to '" +
+                                                                   TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
 
                 if (!isFloatWithinIntRange(valueToConvert)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, "out " +
-                            "of range 'float' value '" + valueToConvert + "' cannot be converted to 'int'"));
+                            "of range '" + TypeConstants.FLOAT_TNAME + "' value '" + valueToConvert +
+                            "' cannot be converted to '" + TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
@@ -2784,10 +2889,23 @@ public class BVM {
             case InstructionCodes.D2I:
                 i = operands[0];
                 j = operands[1];
-                if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
+                BDecimal decimal = (BDecimal) sf.refRegs[i];
+                DecimalValueKind decValueKind = decimal.valueKind;
+                if (decValueKind == DecimalValueKind.NOT_A_NUMBER ||
+                        decValueKind == DecimalValueKind.NEGATIVE_INFINITY ||
+                        decValueKind == DecimalValueKind.POSITIVE_INFINITY) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                           "out of range 'decimal' value '" + sf.refRegs[i] +
-                                                                   "' cannot be converted to 'int'"));
+                                                           "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
+                                                                   sf.refRegs[i] + "' cannot be converted to '" +
+                                                                   TypeConstants.INT_TNAME + "'"));
+                    handleError(ctx);
+                    break;
+                }
+
+                if (!isDecimalWithinIntRange((decimal.decimalValue()))) {
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                            "out of range '" + TypeConstants.DECIMAL_TNAME + "' value '" + decimal +
+                                    "' cannot be converted to '" + TypeConstants.INT_TNAME + "'"));
                     handleError(ctx);
                     break;
                 }
@@ -2895,8 +3013,31 @@ public class BVM {
     }
 
     public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
-        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) == -1 &&
-                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) == 1;
+        return decimalValue.compareTo(BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
+                decimalValue.compareTo(BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
+    }
+
+    private static boolean isDecimalRealNumber(BDecimal decimalValue) {
+        return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
+    }
+
+    private static boolean checkDecimalGreaterThan(BDecimal lhsValue, BDecimal rhsValue) {
+        switch (lhsValue.valueKind) {
+            case POSITIVE_INFINITY:
+                return isDecimalRealNumber(rhsValue) || rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY;
+            case ZERO:
+            case OTHER:
+                return rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY || (isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkDecimalGreaterThanOrEqual(BDecimal lhsValue, BDecimal rhsValue) {
+        return checkDecimalGreaterThan(lhsValue, rhsValue) ||
+                (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
     }
 
     private static void execIteratorOperation(Strand ctx, StackFrame sf, Instruction instruction) {
@@ -3117,6 +3258,10 @@ public class BVM {
             return false;
         }
 
+        if (isIgnorableInstruction(ctx)) {
+            return false;
+        }
+        
         LineNumberInfo currentExecLine = debugger
                 .getLineNumber(ctx.currentFrame.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.currentFrame.ip);
         /*
@@ -3157,6 +3302,11 @@ public class BVM {
                 debugger.stopDebugging();
         }
         return false;
+    }
+
+    private static boolean isIgnorableInstruction(Strand ctx) {
+        int opcode = ctx.currentFrame.code[ctx.currentFrame.ip].getOpcode();
+        return opcode == InstructionCodes.GOTO;
     }
 
     /**
@@ -3667,7 +3817,7 @@ public class BVM {
         }
 
         if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(rhsValue, rhsType, lhsType, unresolvedTypes);
+            return checkJSONCast(rhsValue, rhsType, lhsType);
         }
 
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
@@ -3731,9 +3881,6 @@ public class BVM {
                 case TypeTags.MAP_TAG:
                     return checkCastByType(((BMapType) rhsType).getConstrainedType(), lhsType, unresolvedTypes);
                 case TypeTags.ARRAY_TAG:
-                    if (((BJSONType) lhsType).getConstrainedType() != null) {
-                        return false;
-                    }
                     return checkCastByType(((BArrayType) rhsType).getElementType(), lhsType, unresolvedTypes);
                 default:
                     return false;
@@ -3787,7 +3934,7 @@ public class BVM {
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
                 targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return checkObjectEquivalency((BStructureType) sourceMapType.getConstrainedType(),
-                    (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
+                                          (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
         }
 
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
@@ -4127,63 +4274,15 @@ public class BVM {
         return false;
     }
 
-    private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType,
-                                                List<TypePair> unresolvedTypes) {
-        BRecordType sourceConstrainedType = (BRecordType) sourceType.getConstrainedType();
-        BRecordType targetConstrainedType = (BRecordType) targetType.getConstrainedType();
-
-        // Casting to an unconstrained JSON
-        if (targetConstrainedType == null) {
-            return true;
-        }
-
-        // Casting from constrained JSON to constrained JSON
-        if (sourceConstrainedType != null) {
-            if (sourceConstrainedType.equals(targetConstrainedType)) {
-                return true;
-            }
-
-            return checkRecordEquivalency(targetConstrainedType, sourceConstrainedType, unresolvedTypes);
-        }
-
-        // Casting from unconstrained JSON to constrained JSON
-        if (json == null) {
-            return true;
-        }
-
-        // Return false if the JSON is not a json-object
-        if (json.getType().getTag() != TypeTags.JSON_TAG) {
-            return false;
-        }
-
-        BMap<String, BValue> jsonObject = (BMap<String, BValue>) json;
-        Map<String, BField> tFields = targetConstrainedType.getFields();
-        for (Map.Entry<String, BField> tFieldEntry : tFields.entrySet()) {
-            String fieldName = tFieldEntry.getKey();
-            if (!jsonObject.hasKey(fieldName)) {
-                return false;
-            }
-
-            BValue fieldVal = jsonObject.get(fieldName);
-            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFieldEntry.getValue().getFieldType(), unresolvedTypes)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /**
      * Check the compatibility of casting a JSON to a target type.
      *
      * @param json       JSON to cast
      * @param sourceType Type of the source JSON
      * @param targetType Target type
-     * @param unresolvedTypes Unresolved types
      * @return Runtime compatibility for casting
      */
-    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType,
-                                         List<TypePair> unresolvedTypes) {
+    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType) {
         switch (targetType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -4202,22 +4301,13 @@ public class BVM {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType(),
-                            unresolvedTypes)) {
+                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType())) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.JSON_TAG:
-                // If JSON is unconstrained, any JSON value is compatible
-                if (((BJSONType) targetType).getConstrainedType() == null &&
-                        getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
-                    return true;
-                } else if (sourceType.getTag() != TypeTags.JSON_TAG) {
-                    // If JSON is constrained, only JSON objects are compatible
-                    return false;
-                }
-                return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
+                return getElementType(sourceType).getTag() == TypeTags.JSON_TAG;
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
                 return true;
@@ -4866,6 +4956,10 @@ public class BVM {
     }
 
     public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
+        return checkIsLikeType(sourceValue, targetType, new ArrayList<>());
+    }
+
+    public static boolean checkIsLikeType(BValue sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -4873,37 +4967,38 @@ public class BVM {
 
         switch (targetType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
-                return checkIsLikeRecordType(sourceValue, (BRecordType) targetType);
+                return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues);
             case TypeTags.JSON_TAG:
-                return checkIsLikeJSONType(sourceValue, (BJSONType) targetType);
+                return checkIsLikeJSONType(sourceValue, (BJSONType) targetType, unresolvedValues);
             case TypeTags.MAP_TAG:
-                return checkIsLikeMapType(sourceValue, (BMapType) targetType);
+                return checkIsLikeMapType(sourceValue, (BMapType) targetType, unresolvedValues);
             case TypeTags.ARRAY_TAG:
-                return checkIsLikeArrayType(sourceValue, (BArrayType) targetType);
+                return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
-                return checkIsLikeTupleType(sourceValue, (BTupleType) targetType);
+                return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
-                return checkIsLikeAnydataType(sourceValue, targetType);
+                return checkIsLikeAnydataType(sourceValue, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, targetType);
             case TypeTags.UNION_TAG:
                 return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsLikeType(sourceValue, type));
+                        .anyMatch(type -> checkIsLikeType(sourceValue, type, unresolvedValues));
             default:
                 return false;
         }
     }
 
-    private static boolean checkIsLikeAnydataType(BValue sourceValue, BType targetType) {
+    private static boolean checkIsLikeAnydataType(BValue sourceValue, List<TypeValuePair> unresolvedValues) {
         switch (sourceValue.getType().getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
                 return ((BMap) sourceValue).getMap().values().stream()
-                        .allMatch(value -> checkIsLikeType((BValue) value, targetType));
+                        .allMatch(value -> checkIsLikeType((BValue) value, BTypes.typeAnydata, unresolvedValues));
             case TypeTags.ARRAY_TAG:
                 BNewArray arr = (BNewArray) sourceValue;
-                switch (arr.getType().getTag()) {
+                BArrayType arrayType = (BArrayType) arr.getType();
+                switch (arrayType.getElementType().getTag()) {
                     case TypeTags.INT_TAG:
                     case TypeTags.FLOAT_TAG:
                     case TypeTags.DECIMAL_TAG:
@@ -4913,22 +5008,23 @@ public class BVM {
                         return true;
                     default:
                         return Arrays.stream(((BValueArray) sourceValue).getValues())
-                                .allMatch(value -> checkIsLikeType(value, targetType));
+                                .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
                 }
             case TypeTags.TUPLE_TAG:
                 return Arrays.stream(((BValueArray) sourceValue).getValues())
-                        .allMatch(value -> checkIsLikeType(value, targetType));
+                        .allMatch(value -> checkIsLikeType(value, BTypes.typeAnydata, unresolvedValues));
             case TypeTags.ANYDATA_TAG:
                 return true;
             case TypeTags.FINITE_TYPE_TAG:
             case TypeTags.UNION_TAG:
-                return checkIsLikeType(sourceValue, targetType);
+                return checkIsLikeType(sourceValue, BTypes.typeAnydata, unresolvedValues);
             default:
                 return false;
         }
     }
 
-    private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType) {
+    private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType,
+                                                List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
@@ -4950,14 +5046,15 @@ public class BVM {
 
         int bound = (int) source.size();
         for (int i = 0; i < bound; i++) {
-            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i))) {
+            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
+    private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType, 
+                                                List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
@@ -4970,30 +5067,30 @@ public class BVM {
         BType arrayElementType = targetType.getElementType();
         BRefType<?>[] arrayValues = source.getValues();
         for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
+            if (!checkIsLikeType(arrayValues[i], arrayElementType, unresolvedValues)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean checkIsLikeMapType(BValue sourceValue, BMapType targetType) {
+    private static boolean checkIsLikeMapType(BValue sourceValue, BMapType targetType,
+                                              List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BMap)) {
             return false;
         }
 
         for (Object mapEntry : ((BMap) sourceValue).values()) {
-            if (!checkIsLikeType((BValue) mapEntry, targetType.getConstrainedType())) {
+            if (!checkIsLikeType((BValue) mapEntry, targetType.getConstrainedType(), unresolvedValues)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType) {
-        if (targetType.getConstrainedType() != null) {
-            return checkIsLikeType(sourceValue, targetType.getConstrainedType());
-        } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
+    private static boolean checkIsLikeJSONType(BValue sourceValue, BJSONType targetType, 
+                                               List<TypeValuePair> unresolvedValues) {
+        if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
             BValueArray source = (BValueArray) sourceValue;
             if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
@@ -5001,19 +5098,24 @@ public class BVM {
 
             BRefType<?>[] arrayValues = source.getValues();
             for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
-                if (!checkIsLikeType(arrayValues[i], targetType)) {
+                if (!checkIsLikeType(arrayValues[i], targetType, unresolvedValues)) {
                     return false;
                 }
             }
         } else if (sourceValue.getType().getTag() == TypeTags.MAP_TAG) {
             for (BValue value : ((BMap) sourceValue).values()) {
-                if (!checkIsLikeType(value, targetType)) {
+                if (!checkIsLikeType(value, targetType, unresolvedValues)) {
                     return false;
                 }
             }
         } else if (sourceValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+            if (unresolvedValues.contains(typeValuePair)) {
+                return true;
+            }
+            unresolvedValues.add(typeValuePair);
             for (Object object : ((BMap) sourceValue).getMap().values()) {
-                if (!checkIsLikeType((BValue) object, targetType)) {
+                if (!checkIsLikeType((BValue) object, targetType, unresolvedValues)) {
                     return false;
                 }
             }
@@ -5021,11 +5123,17 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsLikeRecordType(BValue sourceValue, BRecordType targetType) {
+    private static boolean checkIsLikeRecordType(BValue sourceValue, BRecordType targetType,
+                                                 List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof BMap)) {
             return false;
         }
 
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+        unresolvedValues.add(typeValuePair);
         Map<String, BType> targetTypeField = new HashMap<>();
         BType restFieldType = targetType.restFieldType;
 
@@ -5047,12 +5155,13 @@ public class BVM {
             String fieldName = valueEntry.getKey().toString();
 
             if (targetTypeField.containsKey(fieldName)) {
-                if (!checkIsLikeType(((BValue) valueEntry.getValue()), targetTypeField.get(fieldName))) {
+                if (!checkIsLikeType(((BValue) valueEntry.getValue()), targetTypeField.get(fieldName),
+                                     unresolvedValues)) {
                     return false;
                 }
             } else {
                 if (!targetType.sealed) {
-                    if (!checkIsLikeType(((BValue) valueEntry.getValue()), restFieldType)) {
+                    if (!checkIsLikeType(((BValue) valueEntry.getValue()), restFieldType, unresolvedValues)) {
                         return false;
                     }
                 } else {
@@ -5069,7 +5178,7 @@ public class BVM {
             return checkIsType(sourceType, targetType, new ArrayList<>());
         }
 
-        return checkIsLikeType(sourceVal, targetType);
+        return checkIsLikeType(sourceVal, targetType, new ArrayList<>());
     }
 
     private static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -5102,8 +5211,7 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
-                return ((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
+                return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
@@ -5115,6 +5223,8 @@ public class BVM {
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
+            case TypeTags.STREAM_TAG:
+                return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
             default:
                 return false;
         }
@@ -5130,22 +5240,6 @@ public class BVM {
 
     private static boolean checkIsJSONType(BType sourceType, BJSONType targetType,
                                          List<TypePair> unresolvedTypes) {
-        // If the target is an constrained JSON, then value also should be of
-        // constrained JSON type. And the constraints should satisfy 'is type'
-        // relationship.
-        if (targetType.getConstrainedType() != null) {
-            if (sourceType.getTag() != TypeTags.JSON_TAG) {
-                return false;
-            }
-
-            BType constraintType = ((BJSONType) sourceType).getConstrainedType();
-            if (constraintType == null) {
-                return false;
-            }
-
-            return checkIsType(constraintType, targetType.getConstrainedType(), unresolvedTypes);
-        }
-
         switch (sourceType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -5153,10 +5247,8 @@ public class BVM {
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
-                return true;
             case TypeTags.JSON_TAG:
-                // JSON should be unconstrained
-                return targetType.getConstrainedType() == null;
+                return true;
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
                 return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
@@ -5221,6 +5313,15 @@ public class BVM {
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
+    private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) sourceType).getMemberTypes().stream()
+                    .allMatch(type -> checkIsType(type, targetType, unresolvedTypes));
+        }
+        return targetType.getMemberTypes().stream()
+                .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));
+    }
+
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
@@ -5279,6 +5380,14 @@ public class BVM {
         }
         return checkContraints(((BFutureType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes);
+    }
+
+    private static boolean checkIsStreamType(BType sourceType, BStreamType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.STREAM_TAG) {
+            return false;
+        }
+        return checkContraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                               unresolvedTypes);
     }
 
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
@@ -5531,6 +5640,19 @@ public class BVM {
         return type.getTag() < TypeTags.JSON_TAG;
     }
 
+    private static boolean isBasicNumericType(BType type) {
+        return type.getTag() < TypeTags.STRING_TAG;
+    }
+
+    private static boolean containsNumericType(BType type) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(BVM::containsNumericType);
+        }
+
+        return isBasicNumericType(type);
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
      *
@@ -5577,6 +5699,30 @@ public class BVM {
 
             return ((ValuePair) otherPair).valueList.containsAll(valueList) &&
                     valueList.containsAll(((ValuePair) otherPair).valueList);
+        }
+    }
+
+    /**
+     * Type vector of size two, to hold the source value and the target type.
+     *
+     * @since 0.990.3
+     */
+    public static class TypeValuePair {
+        BValue sourceValue;
+        BType targetType;
+
+        public TypeValuePair(BValue sourceValue, BType targetType) {
+            this.sourceValue = sourceValue;
+            this.targetType = targetType;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof TypeValuePair)) {
+                return false;
+            }
+            TypeValuePair other = (TypeValuePair) obj;
+            return this.sourceValue.equals(other.sourceValue) && this.targetType.equals(other.targetType);
         }
     }
 }

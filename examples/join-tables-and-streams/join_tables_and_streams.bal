@@ -6,21 +6,21 @@ type Item record {
     string name;
     float price;
     int stockAmount;
-    !...
+    !...;
 };
 
 //This is the `record` that holds order events from customer.
 type Order record {
     string itemName;
     int orderingAmount;
-    !...
+    !...;
 };
 
 //This is the `record` that holds alert events.
 type OutOfStockAlert record {
     string itemName;
     int stockAmount;
-    !...
+    !...;
 };
 
 // This is the input `stream` that uses `Order` as the constraint type.

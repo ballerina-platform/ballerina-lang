@@ -41,6 +41,7 @@ under the License.
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
@@ -73,9 +74,9 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
     </test>
-    <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
         <packages >
-            <package name="org.ballerinalang.test.entry.function.*"/>
+            <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
     </test>
 </suite>

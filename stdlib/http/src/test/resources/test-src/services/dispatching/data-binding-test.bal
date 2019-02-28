@@ -6,13 +6,13 @@ listener http:MockListener testEP = new(9090);
 type Person record {
     string name;
     int age;
-    !...
+    !...;
 };
 
 type Stock record {
     int id;
     float price;
-    !...
+    !...;
 };
 
 service echo on testEP {
@@ -90,7 +90,7 @@ service echo on testEP {
         var jsonPayload = json.convert(persons);
         if (jsonPayload is json) {
             _ = caller->respond(untaint jsonPayload);
-        } else if (jsonPayload is error) {
+        } else {
             _ = caller->respond(untaint string.convert(jsonPayload.detail().message));
         }
     }

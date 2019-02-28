@@ -284,6 +284,7 @@ class LanguageServerWrapperImpl(val serverDefinition: LanguageServerDefinition, 
     if (status == STOPPED && !alreadyShownCrash && !alreadyShownTimeout) {
       setStatus(STARTING)
       try {
+        import scala.collection.JavaConverters._
         val (inputStream, outputStream) = serverDefinition.start(rootPath)
         client = serverDefinition.createLanguageClient
         val initParams = new InitializeParams
@@ -299,7 +300,7 @@ class LanguageServerWrapperImpl(val serverDefinition: LanguageServerDefinition, 
         //workspaceClientCapabilities.setDidChangeConfiguration(new DidChangeConfigurationCapabilities)
         workspaceClientCapabilities.setDidChangeWatchedFiles(new DidChangeWatchedFilesCapabilities)
         workspaceClientCapabilities.setExecuteCommand(new ExecuteCommandCapabilities)
-        workspaceClientCapabilities.setWorkspaceEdit(new WorkspaceEditCapabilities(true))
+        workspaceClientCapabilities.setWorkspaceEdit(new WorkspaceEditCapabilities)
         workspaceClientCapabilities.setSymbol(new SymbolCapabilities)
         workspaceClientCapabilities.setWorkspaceFolders(false)
         workspaceClientCapabilities.setConfiguration(false)
@@ -321,7 +322,7 @@ class LanguageServerWrapperImpl(val serverDefinition: LanguageServerDefinition, 
         textDocumentClientCapabilities.setReferences(new ReferencesCapabilities)
         textDocumentClientCapabilities.setRename(new RenameCapabilities)
         textDocumentClientCapabilities.setSemanticHighlightingCapabilities(new SemanticHighlightingCapabilities(false))
-        textDocumentClientCapabilities.setSignatureHelp(new SignatureHelpCapabilities)
+        textDocumentClientCapabilities.setSignatureHelp(new SignatureHelpCapabilities(new SignatureInformationCapabilities(Seq(MarkupKind.PLAINTEXT).toList.asJava),false))
         textDocumentClientCapabilities.setSynchronization(new SynchronizationCapabilities(true, true, true))
         //textDocumentClientCapabilities.setTypeDefinition(new TypeDefinitionCapabilities)
         initParams.setCapabilities(new ClientCapabilities(workspaceClientCapabilities, textDocumentClientCapabilities, null))

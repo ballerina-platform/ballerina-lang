@@ -75,7 +75,9 @@ public int counter = 0;
 // This sample service is used to mock connection timeouts and service outages.
 // The service outage is mocked by stopping/starting this service.
 // This should run separately from the `retryDemoService` service.
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service mockHelloService on new http:Listener(8080) {
 
     @http:ResourceConfig {

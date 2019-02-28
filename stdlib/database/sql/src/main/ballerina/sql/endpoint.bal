@@ -64,7 +64,7 @@ public type Client client object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public remote function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error {
+    public remote function batchUpdate(@sensitive string sqlQuery, Param?[]... parameters) returns int[]|error {
         return nativeBatchUpdate(self, sqlQuery, ...parameters);
     }
 
@@ -100,5 +100,5 @@ extern function nativeUpdateWithGeneratedKeys(Client sqlClient, @sensitive strin
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
-public extern function close(Client sqlClient);
+public extern function close(Client sqlClient) returns error?;
 

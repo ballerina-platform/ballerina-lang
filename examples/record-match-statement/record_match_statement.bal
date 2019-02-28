@@ -7,7 +7,7 @@ type RecordOne record {
 type RecordTwo record {
     string var1;
     int var2;
-    !...
+    !...;
 };
 
 type RecordThree record {

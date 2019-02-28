@@ -28,7 +28,9 @@ import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -247,7 +249,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                                                      Context context, BValueArray structTypes,
                                                      String databaseProductName)
             throws SQLException {
-        BValueArray bTables = new BValueArray(new BArrayType(BTypes.typeTable));
+        BType returnedTableType =
+                ((BUnionType) context.getCallableUnitInfo().getRetParamTypes()[0]).getMemberTypes().get(0);
+        BValueArray bTables = new BValueArray(returnedTableType);
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(MYSQL) && (structTypes != null && structTypes.size() > 1)) {
@@ -451,15 +455,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return builder.toString();
     }
 
-    protected void closeConnections(SQLDatasource datasource) {
-        // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
-        // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
-        // situation following null check is needed.
-        if (datasource != null) {
-            datasource.closeConnectionPool();
-        }
-    }
-
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,
             boolean loadToMemory) throws SQLException {
         PreparedStatement stmt;
@@ -583,6 +578,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                             break;
                         case TypeTags.BOOLEAN_TAG:
                             paramValue = new BBoolean(((BValueArray) value).getBoolean(i) > 0);
+                            break;
+                        case TypeTags.DECIMAL_TAG:
+                            paramValue = ((BValueArray) value).getRefValue(i);
                             break;
                         // The value parameter of the struct is an array of arrays. Only possibility that should be
                         // supported is, this being an array of byte arrays (blob)
@@ -953,7 +951,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
              List<ColumnDefinition> columnDefinitions, String databaseProductName) {
         return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName));
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName),
+                structType);
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,

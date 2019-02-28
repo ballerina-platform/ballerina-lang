@@ -222,13 +222,6 @@
       "insertText":"future"
     },
     {
-      "label":"self",
-      "kind":"Variable",
-      "detail":"serviceName$$service$1",
-      "sortText":"110",
-      "insertText":"self"
-    },
-    {
       "label":"typedesc",
       "kind":"Keyword",
       "detail":"BType",

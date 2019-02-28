@@ -10,7 +10,7 @@ public type person1 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };
 
 public type employee1 record {
@@ -20,7 +20,7 @@ public type employee1 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };
 
 function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
@@ -39,7 +39,7 @@ public type person2 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };
 
 public type employee2 record {
@@ -49,7 +49,7 @@ public type employee2 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };
 
 function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
@@ -79,7 +79,7 @@ public type employee3 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...
+    !...;
 };
 
 function testEqOfPublicStructs1 () returns (string) {
@@ -108,7 +108,7 @@ type userA record {
     string name = "";
     string address = "";
     string zipcode = "";
-    !...
+    !...;
 };
 
 type userB record {
@@ -116,7 +116,7 @@ type userB record {
     string name = "";
     string address = "";
     string zipcode = "";
-    !...
+    !...;
 };
 
 type userFoo record {
@@ -124,7 +124,7 @@ type userFoo record {
     string name = "";
     string address = "";
     string zipcode = "23468";
-    !...
+    !...;
 };
 
 
@@ -143,7 +143,7 @@ public type userPA record {
     string name = "";
     string address = "";
     string zipcode = "";
-    !...
+    !...;
 };
 
 public type userPB record {
@@ -151,7 +151,7 @@ public type userPB record {
     string name = "";
     string address = "";
     string zipcode = "";
-    !...
+    !...;
 };
 
 
@@ -160,7 +160,7 @@ public type userPFoo record {
     string name = "";
     string address = "";
     string zipcode = "23468";
-    !...
+    !...;
 };
 
 function testRuntimeEqPublicStructsInSamePackage () returns (string|error) {
@@ -199,7 +199,7 @@ type Foo record {
     int d = 0;
     float e = 0.0;
     person1? p = ();
-    !...
+    !...;
 };
 
 type AnotherFoo record {
@@ -209,7 +209,7 @@ type AnotherFoo record {
     int d = 0;
     float e = 0.0;
     person1? p = ();
-    !...
+    !...;
 };
 
 function testRecordEquivalence() returns Foo {

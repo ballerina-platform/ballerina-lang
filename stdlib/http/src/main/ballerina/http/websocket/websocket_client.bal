@@ -126,5 +126,5 @@ public type WebSocketClientEndpointConfig record {
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
     int maxFrameSize = 0;
-    !...
+    !...;
 };

@@ -27,7 +27,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
@@ -35,6 +35,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -61,6 +63,8 @@ public class CodeActionTest {
     private JsonParser parser = new JsonParser();
 
     private Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
+
+    private static final Logger log = LoggerFactory.getLogger(CodeActionTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -183,6 +187,7 @@ public class CodeActionTest {
 
     @DataProvider(name = "codeaction-no-diagnostics-data-provider")
     public Object[][] codeActionDataProvider() {
+        log.info("Test textDocument/codeAction with no diagnostics");
         return new Object[][]{
                 {"singleDocGeneration.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration1.json", "singleDocGeneration.bal"},
@@ -194,6 +199,7 @@ public class CodeActionTest {
 
     @DataProvider(name = "codeaction-diagnostics-data-provider")
     public Object[][] codeActionWithDiagnosticDataProvider() {
+        log.info("Test textDocument/codeAction with diagnostics");
         return new Object[][]{
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
@@ -205,6 +211,7 @@ public class CodeActionTest {
 
     @DataProvider(name = "codeaction-testgen-data-provider")
     public Object[][] testGenCodeActionDataProvider() {
+        log.info("Test textDocument/codeAction for test generation");
         return new Object[][]{
                 {"testGenFunctionCodeAction.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenServiceCodeAction.json", Paths.get("testgen", "module2", "services.bal")}

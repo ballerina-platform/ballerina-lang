@@ -53,5 +53,5 @@ public type Listener object {
 # + interface - the interface that server with to bind
 public type ListenerConfig record {
     string? interface = ();
-    !...
+    !...;
 };

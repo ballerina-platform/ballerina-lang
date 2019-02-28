@@ -81,7 +81,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -347,6 +349,11 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         if (!isSiddhiRuntimeEnabled) {
+
+            if (invocationExpr.expr != null) {
+                invocationExpr.expr.accept(this);
+            }
+
             BSymbol aggregatorTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env,
                     Names.STREAMS_MODULE, names.fromString(AGGREGATOR_OBJECT_NAME), SymTag.OBJECT);
             BSymbol windowTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, Names.STREAMS_MODULE,
@@ -358,6 +365,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (!checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol, Names.STREAMS_MODULE)) {
+                invocationExpr.argExprs.forEach(argExpr -> argExpr.accept(this));
                 typeChecker.checkExpr(invocationExpr, env);
             }
         }
@@ -468,9 +476,25 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         if (!isSiddhiRuntimeEnabled) {
+            bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
             typeChecker.checkExpr(bracedOrTupleExpr, env);
         }
 
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr typeConversionExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeConversionExpr.expr.accept(this);
+            typeChecker.checkExpr(typeConversionExpr, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr typedescExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(typedescExpr, env);
+        }
     }
 
     @Override
@@ -738,7 +762,11 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                     for (int i = 0; i < selectExpressions.size(); i++) {
                         SelectExpressionNode expressionNode = selectExpressions.get(i);
                         BField structField = null;
-                        if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                        if ((isSiddhiRuntimeEnabled && expressionNode.getExpression().getKind() ==
+                                                       NodeKind.FIELD_BASED_ACCESS_EXPR) ||
+                            (expressionNode.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                            ((BLangFieldBasedAccess) expressionNode.getExpression()).expr.type.tag ==
+                                    TypeTags.STREAM)) {
                             String attributeName =
                                     ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
                             String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
@@ -890,11 +918,17 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, name,
                 names.fromIdNode(invocationExpr.name), SymTag.INVOKABLE);
         if (symbol != symTable.notFoundSymbol) {
+            invocationExpr.symbol = symbol;
             BSymbol typeSymbol = symbol.type.getReturnType().tsymbol;
             if (typeSymbol == aggregatorTypeSymbol || typeSymbol == windowTypeSymbol) {
+                invocationExpr.typeChecked = true;
                 invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+                invocationExpr.requiredArgs = invocationExpr.argExprs;
                 return true;
             }
+
+            invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+            invocationExpr.requiredArgs = invocationExpr.argExprs;
             typeChecker.checkExpr(invocationExpr, env);
             return true;
         }

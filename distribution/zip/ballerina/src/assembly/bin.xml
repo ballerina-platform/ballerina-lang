@@ -103,6 +103,7 @@
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
+                <include>org.ballerinalang:ballerina-encoding:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>
@@ -125,6 +126,7 @@
                 <include>org.ballerinalang:ballerina-time:jar</include>
                 <include>org.ballerinalang:ballerina-transactions:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
+                <include>org.ballerinalang:ballerina-privacy:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
@@ -182,6 +184,7 @@
                 <include>io.ballerina.messaging:broker-auth</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
+                <include>com.jcraft:jzlib</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>

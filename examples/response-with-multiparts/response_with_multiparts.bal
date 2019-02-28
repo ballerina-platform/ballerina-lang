@@ -1,4 +1,3 @@
-import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
@@ -10,7 +9,9 @@ http:Client clientEP = new("http://localhost:9092");
 // Creates a listener for the service.
 listener http:Listener multipartEP = new(9090);
 
-@http:ServiceConfig { basePath: "/multiparts" }
+@http:ServiceConfig {
+    basePath: "/multiparts"
+}
 service multipartResponseEncoder on new http:Listener(9092) {
     @http:ResourceConfig {
         methods: ["GET"],
@@ -18,14 +19,12 @@ service multipartResponseEncoder on new http:Listener(9092) {
     }
     resource function multipartSender(http:Caller caller,
                                         http:Request request) {
-
         // Creates an enclosing entity to hold the child parts.
         mime:Entity parentPart = new;
 
         // Creates a child part with the JSON content.
         mime:Entity childPart1 = new;
         childPart1.setJson({ "name": "wso2" });
-
         // Creates another child part with a file.
         mime:Entity childPart2 = new;
         // This file path is relative to where the Ballerina is running.
@@ -35,17 +34,14 @@ service multipartResponseEncoder on new http:Listener(9092) {
             contentType = mime:TEXT_XML);
         // Creates an array to hold the child parts.
         mime:Entity[] childParts = [childPart1, childPart2];
-
         // Sets the child parts to the parent part.
         parentPart.setBodyParts(childParts,
             contentType = mime:MULTIPART_MIXED);
-
         // Creates an array to hold the parent part and set it to the response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
         http:Response outResponse = new;
         outResponse.setBodyParts(immediatePartsToResponse,
             contentType = mime:MULTIPART_FORM_DATA);
-
         var result = caller->respond(outResponse);
         if (result is error) {
             log:printError("Error in responding ", err = result);
@@ -54,13 +50,15 @@ service multipartResponseEncoder on new http:Listener(9092) {
 }
 
 // Binds the listener to the service.
-@http:ServiceConfig { basePath: "/multiparts" }
+@http:ServiceConfig {
+    basePath: "/multiparts"
+}
 service multipartResponseDecoder on multipartEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/decode_in_response"
     }
-    // This `resource` accepts multipart responses.
+    // This resource accepts multipart responses.
     resource function multipartReceiver(http:Caller caller,
                                         http:Request request) {
         http:Response inResponse = new;
@@ -74,10 +72,8 @@ service multipartResponseDecoder on multipartEP {
                 foreach var parentPart in parentParts {
                     handleNestedParts(parentPart);
                 }
-
                 res.setPayload("Body Parts Received!");
             }
-
         } else {
             res.statusCode = 500;
             res.setPayload("Connection error");
@@ -115,20 +111,18 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getXml();
         if (payload is xml) {
             string strValue = io:sprintf("%s", payload);
-            log:printInfo("Xml data: " + strValue);
+             log:printInfo("XML data: " + strValue);
         } else {
-            log:printError("Error in parsing xml data", err = payload);
+             log:printError("Error in parsing XML data", err = payload);
         }
-
     } else if (mime:APPLICATION_JSON == baseType) {
         // Extracts `json` data from the body part.
         var payload = bodyPart.getJson();
         if (payload is json) {
-            log:printInfo("Json data: " + payload.toString());
+            log:printInfo("JSON data: " + payload.toString());
         } else {
-            log:printError("Error in parsing json data", err = payload);
+             log:printError("Error in parsing JSON data", err = payload);
         }
-
     } else if (mime:TEXT_PLAIN == baseType) {
         // Extracts text data from the body part.
         var payload = bodyPart.getText();
@@ -137,7 +131,6 @@ function handleContent(mime:Entity bodyPart) {
         } else {
             log:printError("Error in parsing text data", err = payload);
         }
-
     } else if (mime:APPLICATION_PDF == baseType) {
         //Extracts byte channel from the body part and save it as a file.
         var payload = bodyPart.getByteChannel();
@@ -166,7 +159,6 @@ function getBaseType(string contentType) returns string {
         panic result;
     }
 }
-
 
 // Copies the content from the source channel to the destination channel.
 function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)

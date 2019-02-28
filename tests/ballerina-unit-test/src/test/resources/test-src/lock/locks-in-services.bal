@@ -213,7 +213,7 @@ service sample4 on echoEP {
        workerFunc(p);
 
         http:Response res = new;
-        res.setTextPayload(<string>p.age);
+        res.setTextPayload(string.convert(p.age));
         _ = conn -> respond(res);
     }
 }

@@ -23,14 +23,13 @@ public type Scheduler object {
     private LinkedList toNotifyQueue;
     private boolean running;
     private task:Timer? timer;
-    private function (StreamEvent[] streamEvents) processFunc;
+    private function (StreamEvent?[] streamEvents) processFunc;
 
-    public function __init(function (StreamEvent[] streamEvents) processFunc) {
+    public function __init(function (StreamEvent?[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
         self.timer = ();
         self.processFunc = processFunc;
-
     }
 
     public function notifyAt(int timestamp) {
@@ -42,6 +41,7 @@ public type Scheduler object {
         if (self.toNotifyQueue.getSize() == 1 && self.running == false) {
             lock {
                 if (self.running == false) {
+                    self.running = true;
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
@@ -57,6 +57,10 @@ public type Scheduler object {
         }
     }
 
+    public function wrapperFunc() {
+        _ = self.sendTimerEvents();
+    }
+
     public function sendTimerEvents() returns error? {
         any? first = self.toNotifyQueue.getFirst();
         int currentTime = time:currentTime().time;
@@ -64,7 +68,7 @@ public type Scheduler object {
             _ = self.toNotifyQueue.removeFirst();
             map<anydata> data = {};
             StreamEvent timerEvent = new(("timer", data), "TIMER", <int>first);
-            StreamEvent[] timerEventWrapper = [];
+            StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
             self.processFunc.call(timerEventWrapper);
 
@@ -79,16 +83,20 @@ public type Scheduler object {
         currentTime = time:currentTime().time;
 
         if (first != ()) {
-            self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
-            _ = self.timer.start();
+            if (<int>first - currentTime <= 0) {
+                _ = self.wrapperFunc();
+            } else {
+                self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
+                    function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
+                _ = self.timer.start();
+            }
         } else {
             lock {
                 self.running = false;
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
                     self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                        function (error e) {io:println("Error occured", e.reason());}, 0);
+                        function (error e) {io:println("Error occured: ", e.reason());}, 0);
                     _ = self.timer.start();
                 }
             }

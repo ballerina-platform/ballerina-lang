@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/internal;
 
 byte[] glbVarBlob = [];
 
@@ -147,12 +146,4 @@ function testByteArrayReturn() returns (byte[], byte[], byte[]) {
     byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     byte[] c = [3,4,5,6,7,8,9];
     return (a, b, c);
-}
-
-function testByteArrayToString1(byte[] b) returns string {
-    return internal:byteArrayToString(b, "UTF-8");
-}
-
-function testByteArrayToString2(byte[] b, string encoding) returns string {
-    return internal:byteArrayToString(b, encoding);
 }

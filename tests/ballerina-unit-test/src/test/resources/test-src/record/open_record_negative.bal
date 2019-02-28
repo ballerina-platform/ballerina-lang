@@ -1,7 +1,7 @@
 type Person record {
     string name = "";
     int age = 0;
-    string...
+    string...;
 };
 
 function invalidRestField() {

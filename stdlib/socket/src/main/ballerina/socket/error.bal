@@ -19,5 +19,5 @@
 # + message - the cause for the error
 public type SocketError record {
     string message = "";
-    !...
+    !...;
 };

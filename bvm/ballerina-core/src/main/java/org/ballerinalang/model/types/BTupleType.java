@@ -17,6 +17,7 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,12 +49,12 @@ public class BTupleType extends BType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BValueArray(this);
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return null;
+        return getZeroValue();
     }
 
     @Override

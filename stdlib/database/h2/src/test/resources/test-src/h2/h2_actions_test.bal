@@ -51,7 +51,7 @@ function testSelect() returns (int[]) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return customerIds;
 }
 
@@ -70,7 +70,7 @@ function testUpdate() returns (int) {
     if (insertCountRet is int) {
         insertCount = insertCountRet;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return insertCount;
 }
 
@@ -90,7 +90,7 @@ function testCall() returns (string) {
         dts = ret;
     } else if (ret is ()) {
         return "nil";
-    } else if (ret is error) {
+    } else  {
         return <string> ret.detail().message;
     }
 
@@ -101,7 +101,7 @@ function testCall() returns (string) {
             name = rs.name;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return name;
 }
 
@@ -124,11 +124,11 @@ function testGeneratedKeyOnInsert() returns (string) {
         string[] b;
         (a, b) = x;
         returnVal = b[0];
-    } else if (x is error) {
+    } else {
         returnVal = <string> x.detail().message;
     }
 
-    testDB.stop();
+    _ = testDB.stop();
     return returnVal;
 }
 
@@ -148,24 +148,24 @@ function testBatchUpdate() returns (int[]) {
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
     sql:Parameter para3 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Australia" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4];
 
     //Batch 2
     sql:Parameter para5 = { sqlType: sql:TYPE_INTEGER, value: 11 };
     sql:Parameter para6 = { sqlType: sql:TYPE_VARCHAR, value: "John" };
     sql:Parameter para7 = { sqlType: sql:TYPE_DOUBLE, value: 3400.2 };
     sql:Parameter para8 = { sqlType: sql:TYPE_VARCHAR, value: "UK" };
-    sql:Parameter[] parameters2 = [para5, para6, para7, para8];
+    sql:Parameter?[] parameters2 = [para5, para6, para7, para8];
 
     var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
 
     int [] ret = [];
     if (x is int[]) {
         ret = x;
-    } else if (x is error) {
+    } else {
         ret = [];
     }
-    testDB.stop();
+    _ = testDB.stop();
     return ret;
 }
 
@@ -198,7 +198,7 @@ function testUpdateInMemory() returns (int, string) {
         }
     }
 
-    testDB.stop();
+    _ = testDB.stop();
     return (insertCount, s);
 }
 
@@ -258,7 +258,7 @@ function testCloseConnectionPool(string connectionCountQuery)
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -275,10 +275,10 @@ function selectFunction(h2:Client testDB) returns (int[]) {
                     i += 1;
                 }
             }
-    } else if (val is error) {
+    } else {
         customerIds = [];
     }
-    testDB.stop();
+    _ = testDB.stop();
     return customerIds;
 }
 
@@ -305,6 +305,6 @@ function testH2MemDBUpdate() returns (int, string) {
     if (insertCountRet is int) {
         insertCount = insertCountRet;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (insertCount, data);
 }

@@ -23,17 +23,17 @@ public type BClosedPerson record {
 public type BClosedManager record {
     *BClosedEmployee;
     string dept = "";
-    !...
+    !...;
 };
 
 public type BClosedEmployee record {
     string company = "";
     *BClosedPerson;
-    !...
+    !...;
 };
 
 public type ClosedAddress record {
     string city;
     string country;
-    !...
+    !...;
 };

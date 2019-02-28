@@ -46,13 +46,12 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.stdlib.common.CommonTestUtils.printDiagnostics;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Tests for Ballerina timer tasks.
@@ -71,14 +70,14 @@ public class TimerTest {
     public void testSimpleExecution() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-simple.bal");
 
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int initialDelay = 500;
         int interval = 1000;
         BRunUtil.invokeStateful(timerCompileResult, "scheduleTimer",
                 new BValue[]{new BInteger(initialDelay), new BInteger(interval)});
 
-        await().atMost(30, SECONDS).until(() -> {
+        await().atMost(30, TimeUnit.SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCount");
             return ((BInteger) counts[0]).intValue() >= 5;
         });
@@ -94,7 +93,7 @@ public class TimerTest {
     @Test(description = "Tests running a timer where the onTrigger function generates an error")
     public void testExecutionWithErrorFn() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-error.bal");
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int initialDelay = 500;
         int interval = 1000;
@@ -103,7 +102,7 @@ public class TimerTest {
                 new BValue[]{new BInteger(initialDelay), new BInteger(interval),
                         new BString(errMsg)});
 
-        await().atMost(5, SECONDS).until(() -> {
+        await().atMost(5, TimeUnit.SECONDS).until(() -> {
             BValue[] error = BRunUtil.invokeStateful(timerCompileResult, "getError");
             return error != null && error[0] != null && !error[0].stringValue().isEmpty();
         });
@@ -120,7 +119,7 @@ public class TimerTest {
     @Test(description = "Tests running a timer started within workers")
     public void testSimpleExecutionWithWorkers() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-workers.bal");
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int w1InitialDelay = 500;
         int w1Interval = 1000;
@@ -131,7 +130,7 @@ public class TimerTest {
                         new BInteger(w1InitialDelay), new BInteger(w1Interval),
                         new BInteger(w2InitialDelay), new BInteger(w2Interval),
                         new BString(""), new BString("")});
-        await().atMost(30, SECONDS).until(() -> {
+        await().atMost(30, TimeUnit.SECONDS).until(() -> {
             BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCounts");
             return counts != null && counts[0] != null && counts[1] != null &&
                     ((BInteger) counts[0]).intValue() >= 5 && ((BInteger) counts[1]).intValue() >= 5;
@@ -149,7 +148,7 @@ public class TimerTest {
     @Test(description = "Tests running a timer started within workers  where the onTrigger function generates an error")
     public void testExecutionWithWorkersAndErrorFn() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-workers.bal");
-        printDiagnostics(timerCompileResult);
+        printDiagnostics(timerCompileResult, log);
 
         int w1InitialDelay = 500;
         int w1Interval = 1000;
@@ -163,7 +162,7 @@ public class TimerTest {
                         new BInteger(w1InitialDelay), new BInteger(w1Interval),
                         new BInteger(w2InitialDelay), new BInteger(w2Interval),
                         new BString(w1ErrMsg), new BString(w2ErrMsg)});
-        await().atMost(10, SECONDS).until(() -> {
+        await().atMost(10, TimeUnit.SECONDS).until(() -> {
             BValue[] errors = BRunUtil.invokeStateful(timerCompileResult, "getErrors");
             return errors != null && errors[0] != null && !errors[0].stringValue().isEmpty() &&
                     errors[1] != null && !errors[1].stringValue().isEmpty();
@@ -182,10 +181,5 @@ public class TimerTest {
         BValue[] counts = BRunUtil.invokeStateful(timerCompileResult, "getCounts");
         assertEquals(((BInteger) counts[0]).intValue(), -1, "Count hasn't been reset");
         assertEquals(((BInteger) counts[1]).intValue(), -1, "Count hasn't been reset");
-    }
-
-    private void printDiagnostics(CompileResult timerCompileResult) {
-        Arrays.asList(timerCompileResult.getDiagnostics()).
-                forEach(e -> log.info(e.getMessage() + " : " + e.getPosition()));
     }
 }
