@@ -2376,7 +2376,7 @@
         <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
         <maven.remote.resources.plugin.version>1.6.0</maven.remote.resources.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
-        <maven.resources.plugin.version>2.7</maven.resources.plugin.version>
+        <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
         <maven.scm.plugin.version>1.9.4</maven.scm.plugin.version>
         <maven.scm.publish.plugin.version>1.1</maven.scm.publish.plugin.version>
         <maven.site.plugin.version>3.5</maven.site.plugin.version>
