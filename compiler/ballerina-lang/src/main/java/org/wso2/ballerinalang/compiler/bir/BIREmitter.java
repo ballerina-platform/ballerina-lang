@@ -51,7 +51,16 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIRNode.BIRPackage birPackage) {
         sb.append("module ").append(birPackage.name).append(";").append("\n\n");
+        birPackage.importModules.forEach(birImpModule -> birImpModule.accept(this));
+        sb.append("\n");
         birPackage.functions.forEach(birFunction -> birFunction.accept(this));
+    }
+
+    public void visit(BIRNode.BIRImportModule birImpModule) {
+        sb.append("import ").append(birImpModule.org).append("/");
+        sb.append(birImpModule.name).append(":").append(birImpModule.version).append(";");
+        writePosition(birImpModule.pos);
+        sb.append("\n");
     }
 
     public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
@@ -64,8 +73,9 @@ public class BIREmitter extends BIRVisitor {
         StringJoiner sj = new StringJoiner(",");
         birFunction.type.paramTypes.forEach(paramType -> sj.add(paramType.toString()));
         sb.append(sj.toString()).append(")").append(" -> ").append(birFunction.type.retType);
+        sb.append(" {");
         writePosition(birFunction.pos);
-        sb.append(" {\n");
+        sb.append("\n");
 
         birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
         sb.append("\n");
@@ -162,7 +172,7 @@ public class BIREmitter extends BIRVisitor {
 
 
     private void writePosition(DiagnosticPos pos) {
-        sb.append("\t\t\\\\ pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
+        sb.append("\t\t// pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
         sb.append(pos.eLine).append(":").append(pos.eCol).append("]");
     }
 }
