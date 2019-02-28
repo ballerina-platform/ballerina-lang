@@ -2305,7 +2305,7 @@
         <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
-        <mime4j.version>0.7.2</mime4j.version>
+        <mime4j.version>0.8.2</mime4j.version>
         <staxon.version>1.2.0.wso2v2</staxon.version>
         <jacoco.agent.version>0.8.1</jacoco.agent.version>
         <mockito.version>1.9.0</mockito.version>
