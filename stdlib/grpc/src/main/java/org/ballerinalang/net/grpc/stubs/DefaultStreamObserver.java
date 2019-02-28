@@ -25,12 +25,12 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.callback.ClientCallableUnitCallBack;
 import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class DefaultStreamObserver implements StreamObserver {
         if (headerStruct != null) {
             signatureParams[signatureParams.length - 1] = headerStruct;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
+        CallableUnitCallback callback = new ClientCallableUnitCallBack();
         Executor.submit(resource.getResource(), callback, null, null, signatureParams);
     }
     
@@ -106,7 +106,7 @@ public class DefaultStreamObserver implements StreamObserver {
         if (headerStruct != null && signatureParams.length == 2) {
             signatureParams[1] = headerStruct;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
+        CallableUnitCallback callback = new ClientCallableUnitCallBack();
         Executor.submit(onError.getResource(), callback, null, null, signatureParams);
     }
     
@@ -127,7 +127,7 @@ public class DefaultStreamObserver implements StreamObserver {
         if (headerStruct != null && signatureParams.length == 1) {
             signatureParams[0] = headerStruct;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
+        CallableUnitCallback callback = new ClientCallableUnitCallBack();
         Executor.submit(onCompleted.getResource(), callback, null, null, signatureParams);
     }
 }

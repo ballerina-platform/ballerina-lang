@@ -43,7 +43,7 @@ function testSelectData() returns string {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
     returnData = io:sprintf("%s", j);
-    testDB.stop();
+    _ = testDB.stop();
     return returnData;
 }
 
@@ -67,7 +67,7 @@ function testGeneratedKeyOnInsert() returns string {
     } else {
         ret = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return ret;
 }
 
@@ -110,7 +110,7 @@ function testBatchUpdate() returns string {
     } else {
         returnVal = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return returnVal;
 }
 
@@ -140,7 +140,7 @@ function testInvalidArrayofQueryParameters() returns string {
     } else {
         returnData = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return returnData;
 }
 
