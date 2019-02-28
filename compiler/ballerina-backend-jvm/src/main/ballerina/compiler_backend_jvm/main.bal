@@ -3,11 +3,6 @@ import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
 
-public type JarFile record {
-    map<string> manifestEntries;
-    map<byte[]> jarEntries;
-};
-
 public function main(string... args) {
     //do nothing
 }
@@ -22,46 +17,6 @@ function generateJVMExecutable(byte[] birBinary, string progName) returns JarFil
     bir:PackageParser pkgParser = new(birReader, typeParser);
     bir:Package pkg = pkgParser.parsePackage();
     return generateJarFile(pkg, progName);
-}
-
-function generateJarFile(bir:Package pkg, string progName) returns JarFile {
-    //todo : need to generate java package here based on BIR package(s)
-    invokedClassName = progName;
-    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, invokedClassName, null, OBJECT_VALUE, null);
-
-    map<byte[]> jarEntries = {};
-    map<string> manifestEntries = {};
-
-    bir:Function? mainFunc = getMainFunc(pkg.functions);
-    if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc, cw);
-        manifestEntries["Main-Class"] = invokedClassName;
-    }
-
-    foreach var func in pkg.functions {
-        generateMethod(func, cw);
-    }
-
-    cw.visitEnd();
-
-    byte[] classContent = cw.toByteArray();
-
-    jarEntries[invokedClassName + ".class"] = classContent;
-    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
-    return jarFile;
-}
-
-function getMainFunc(bir:Function[] funcs) returns bir:Function? {
-    bir:Function? userMainFunc = ();
-    foreach var func in funcs {
-        if (func.name.value == "main") {
-            userMainFunc = untaint func;
-            break;
-        }
-    }
-
-    return userMainFunc;
 }
 
 function checkValidBirChannel(bir:ChannelReader reader) {

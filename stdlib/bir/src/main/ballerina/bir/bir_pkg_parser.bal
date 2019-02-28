@@ -63,7 +63,7 @@ public type PackageParser object {
     }
 
     public function parsePackage() returns Package {
-        var pkgIdCp = self.reader.readInt32();
+        PackageId pkgId = self.reader.readPackageCpRef();
         TypeDef[] typeDefs = self.parseTypeDefs();
         var numFuncs = self.reader.readInt32();
         Function[] funcs = [];
@@ -74,7 +74,8 @@ public type PackageParser object {
         }
         //BirEmitter emitter = new({ typeDefs: typeDefs, functions: funcs });
         //emitter.emitPackage();
-        return { typeDefs: typeDefs, functions: funcs };
+        return { typeDefs: typeDefs, functions: funcs , name: {value: pkgId.name}, org: {value: pkgId.org},
+                    versionValue: {value: pkgId.versionValue}};
     }
 
     function parseTypeDefs() returns TypeDef[] {
