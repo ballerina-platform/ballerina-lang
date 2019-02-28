@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -159,7 +160,7 @@ public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
             List<BLangSimpleVariable> params) {
         BType caller = params.get(0).type;
         if (OBJECT.equals(caller.getKind()) && caller.tag == TypeTags.OBJECT_TYPE_TAG) {
-            validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
+            validateEndpointCaller(serviceName, resource, diagnosticLog, new BObjectType(caller.tsymbol));
         }
     }
 }
