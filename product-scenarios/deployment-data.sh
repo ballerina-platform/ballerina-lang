@@ -102,8 +102,8 @@ ConfigFileName=${CONFIG[ConfigFileName]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
-wget https://product-dist.ballerina.io/nightly/0.990.3-SNAPSHOT/ballerina-linux-installer-x64-0.990.3-SNAPSHOT.deb
-sudo dpkg -i ballerina-linux-installer-x64-0.990.3-SNAPSHOT.deb --quiet
+wget https://product-dist.ballerina.io/nightly/0.990.4-SNAPSHOT/ballerina-linux-installer-x64-0.990.4-SNAPSHOT.deb
+sudo dpkg -i ballerina-linux-installer-x64-0.990.4-SNAPSHOT.deb --quiet
 
 ballerina version
 
