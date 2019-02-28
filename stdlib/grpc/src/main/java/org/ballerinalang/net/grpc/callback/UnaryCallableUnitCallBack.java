@@ -15,40 +15,37 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc;
+package org.ballerinalang.net.grpc.callback;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
 
 /**
- * gRPC call back class registered in B7a executor.
+ * Call back class registered for streaming gRPC service in B7a executor.
  *
- * @since 1.0.0
+ * @since 0.995.0
  */
-public class GrpcCallableUnitCallBack implements CallableUnitCallback {
+public class UnaryCallableUnitCallBack extends AbstractCallableUnitCallBack {
 
     private StreamObserver requestSender;
     private boolean emptyResponse;
     
-    public GrpcCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
+    public UnaryCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
+        if (requestSender == null) {
+            throw new ServerRuntimeException("Error while initializing Streaming service callback. StreamObserver is " +
+                    "null");
+        }
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
-    }
-
-    public GrpcCallableUnitCallBack(StreamObserver requestSender) {
-        this.requestSender = requestSender;
-        this.emptyResponse = false;
     }
     
     @Override
     public void notifySuccess() {
-        //check whether sender object is null
-        if (requestSender == null) {
-            return;
-        }
         // check whether connection is closed.
         if (requestSender instanceof ServerCallHandler.ServerCallStreamObserver) {
             ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
@@ -67,14 +64,12 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
         }
         // Notify complete if service impl doesn't call complete;
         requestSender.onCompleted();
+        super.notifySuccess();
     }
     
     @Override
     public void notifyFailure(BError error) {
-        // request sender becomes null when calling callback service resource in client side. in that case we don't
-        // need to handle error.
-        if (requestSender != null) {
-            MessageUtils.handleFailure(requestSender, error);
-        }
+        handleFailure(requestSender, error);
+        super.notifyFailure(error);
     }
 }

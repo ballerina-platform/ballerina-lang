@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -37,7 +36,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +74,7 @@ public class MessageUtils {
         return BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
     }
 
-    public static boolean headersRequired(Resource resource) {
+    static boolean headersRequired(Resource resource) {
         if (resource == null || resource.getParamDetails() == null) {
             throw new RuntimeException("Invalid resource input arguments");
         }
@@ -158,21 +156,6 @@ public class MessageUtils {
     }
     
     /**
-     * Handles failures in GRPC callable unit callback.
-     *
-     * @param streamObserver observer used the send the error back
-     * @param error          error message struct
-     */
-    static void handleFailure(StreamObserver streamObserver, BError error) {
-        String errorMsg = error.stringValue();
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        if (streamObserver != null) {
-            streamObserver.onError(new Message(new StatusRuntimeException(Status.fromCodeValue(Status
-                    .Code.INTERNAL.value()).withDescription(errorMsg))));
-        }
-    }
-    
-    /**
      * Returns wire type corresponding to the field descriptor type.
      * <p>
      * 0 -> int32, int64, uint32, uint64, sint32, sint64, bool, enum
@@ -223,10 +206,8 @@ public class MessageUtils {
             return MethodDescriptor.MethodType.UNARY;
         } else if (methodDescriptorProto.getServerStreaming()) {
             return MethodDescriptor.MethodType.SERVER_STREAMING;
-        } else if (methodDescriptorProto.getClientStreaming()) {
-            return MethodDescriptor.MethodType.CLIENT_STREAMING;
         } else {
-            return MethodDescriptor.MethodType.UNKNOWN;
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
         }
     }
     
@@ -261,7 +242,7 @@ public class MessageUtils {
      * @param contentType gRPC content type
      * @return is valid content type
      */
-    public static boolean isGrpcContentType(String contentType) {
+    static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {
             return false;
         }
@@ -298,7 +279,7 @@ public class MessageUtils {
         return httpCarbonMessage;
     }
 
-    public static Status httpStatusToGrpcStatus(int httpStatusCode) {
+    static Status httpStatusToGrpcStatus(int httpStatusCode) {
         return httpStatusToGrpcCode(httpStatusCode).toStatus()
                 .withDescription("HTTP status code " + httpStatusCode);
     }
