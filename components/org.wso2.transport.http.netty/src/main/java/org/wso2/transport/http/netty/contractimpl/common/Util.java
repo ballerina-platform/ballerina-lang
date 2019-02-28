@@ -879,8 +879,9 @@ public class Util {
     }
 
     public static void setSslHandshakeTimeOut(SSLConfig sslConfig, SslHandler sslHandler) {
-        if (sslConfig.getHandshakeTimeOut() > 0) {
-            sslHandler.setHandshakeTimeout(sslConfig.getHandshakeTimeOut(), TimeUnit.SECONDS);
+        long handshakeTimeout = sslConfig.getHandshakeTimeOut();
+        if (handshakeTimeout > 0) {
+            sslHandler.setHandshakeTimeout(handshakeTimeout, TimeUnit.SECONDS);
         }
     }
 }

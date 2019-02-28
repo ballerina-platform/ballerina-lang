@@ -102,13 +102,14 @@ public class SSLHandlerFactory {
             }
             sslContext = SSLContext.getInstance(protocol);
             sslContext.init(keyManagers, trustManagers, null);
+            int sessionTimeout = sslConfig.getSessionTimeOut();
             if (isServer) {
-                if (sslConfig.getSessionTimeOut() > 0) {
-                    sslContext.getServerSessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+                if (sessionTimeout > 0) {
+                    sslContext.getServerSessionContext().setSessionTimeout(sessionTimeout);
                 }
             } else {
-                if (sslConfig.getSessionTimeOut() > 0) {
-                    sslContext.getClientSessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+                if (sessionTimeout > 0) {
+                    sslContext.getClientSessionContext().setSessionTimeout(sessionTimeout);
                 }
             }
             return sslContext;
@@ -172,8 +173,9 @@ public class SSLHandlerFactory {
         setSslProtocol(sslContextBuilder);
         ReferenceCountedOpenSslContext referenceCountedOpenSslCtx = (ReferenceCountedOpenSslContext) sslContextBuilder
                 .build();
-        if (sslConfig.getSessionTimeOut() > 0) {
-            referenceCountedOpenSslCtx.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        int sessionTimeout = sslConfig.getSessionTimeOut();
+        if (sessionTimeout > 0) {
+            referenceCountedOpenSslCtx.sessionContext().setSessionTimeout(sessionTimeout);
         }
         return referenceCountedOpenSslCtx;
     }
@@ -198,8 +200,9 @@ public class SSLHandlerFactory {
         setSslProtocol(sslContextBuilder);
         ReferenceCountedOpenSslContext referenceCountedOpenSslCtx = (ReferenceCountedOpenSslContext) sslContextBuilder
                 .build();
-        if (sslConfig.getSessionTimeOut() > 0) {
-            referenceCountedOpenSslCtx.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        int sessionTimeout = sslConfig.getSessionTimeOut();
+        if (sessionTimeout > 0) {
+            referenceCountedOpenSslCtx.sessionContext().setSessionTimeout(sessionTimeout);
         }
         return referenceCountedOpenSslCtx;
     }
@@ -262,8 +265,9 @@ public class SSLHandlerFactory {
         setOcspStapling(sslContextBuilder, sslConfig.isOcspStaplingEnabled());
 
         SslContext sslCtx = sslContextBuilder.build();
-        if (sslConfig.getSessionTimeOut() > 0) {
-            sslCtx.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        int sessionTimeout = sslConfig.getSessionTimeOut();
+        if (sessionTimeout > 0) {
+            sslCtx.sessionContext().setSessionTimeout(sessionTimeout);
         }
 
         return sslCtx;
@@ -278,8 +282,9 @@ public class SSLHandlerFactory {
     public SslContext createHttpTLSContextForServer() throws SSLException {
         SslProvider provider = SslProvider.JDK;
         SslContext certsSslContext = serverContextBuilderWithCerts(provider).build();
-        if (sslConfig.getSessionTimeOut() > 0) {
-            certsSslContext.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        int sessionTimeout = sslConfig.getSessionTimeOut();
+        if (sessionTimeout > 0) {
+            certsSslContext.sessionContext().setSessionTimeout(sessionTimeout);
         }
         return certsSslContext;
     }
@@ -293,8 +298,9 @@ public class SSLHandlerFactory {
     public SslContext createHttpTLSContextForClient() throws SSLException {
         SslProvider provider = SslProvider.JDK;
         SslContext certsSslContext = clientContextBuilderWithCerts(provider).build();
-        if (sslConfig.getSessionTimeOut() > 0) {
-            certsSslContext.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        int sessionTimeout = sslConfig.getSessionTimeOut();
+        if (sessionTimeout > 0) {
+            certsSslContext.sessionContext().setSessionTimeout(sessionTimeout);
         }
         return certsSslContext;
     }
@@ -346,8 +352,9 @@ public class SSLHandlerFactory {
         setAlpnConfigs(sslContextBuilder);
         setOcspStapling(sslContextBuilder, enableOcsp);
         SslContext sslContext = sslContextBuilder.build();
-        if (sslConfig.getSessionTimeOut() > 0) {
-            sslContext.sessionContext().setSessionTimeout(sslConfig.getSessionTimeOut());
+        int sessionTimeout = sslConfig.getSessionTimeOut();
+        if (sessionTimeout > 0) {
+            sslContext.sessionContext().setSessionTimeout(sessionTimeout);
         }
         return sslContextBuilder.build();
     }
