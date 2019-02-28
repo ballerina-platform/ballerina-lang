@@ -14,9 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-import ballerina/log;
 import ballerina/auth;
+import ballerina/log;
 
 # Representation of JWT Auth handler for HTTP traffic
 #
