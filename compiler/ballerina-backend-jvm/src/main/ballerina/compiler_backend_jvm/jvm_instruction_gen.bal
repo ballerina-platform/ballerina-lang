@@ -318,6 +318,43 @@ type InstructionGenerator object {
         self.mv.visitInsn(POP);
     }
 
+    # Generate a new instance of an array value
+    # 
+    # + arrayType - type of the new array
+    function generateArrayNewIns(bir:VarRef arrayType) {
+        self.mv.visitTypeInsn(NEW, Array_VALUE);
+        self.mv.visitInsn(DUP);
+        self.mv.visitVarInsn(ALOAD, self.getJVMIndexOfVarRef(arrayType.variableDcl));
+        self.mv.visitMethodInsn(INVOKESPECIAL, Array_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+    }
+    # Generate adding a new value to array
+    function generateArrayStoreIns() {
+        // TODO: visit(var_ref)
+        // TODO: visit(index_expr)
+        // TODO: visit(value_expr)
+        string valueDesc = getMethodArgDesc("int"); //pass the value type
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "add", io:sprintf("(J%s;)V", valueDesc), false);
+    }
+
+    function generateArrayValueLoad() {
+        // TODO: visit(var_ref)
+        // TODO: visit(index_expr)
+        bir:BType bType = (); // need to infer from the instruction
+        if (bType is bir:BTypeInt) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getInt", "(J)J", false);
+        } else if (bType is bir:BTypeString) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getBoolean", "(J)J", false);
+        } else if (bType == "byte") {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getByte", "(J)B", false);
+        } else if (bType == "float") {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getFloat", "(J)D", false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE), false);
+        }
+    }
+
     # Generate code to load an instance of the given type
     # to the top of the stack.
     #

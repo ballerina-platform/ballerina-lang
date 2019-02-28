@@ -32,7 +32,7 @@ import java.math.BigDecimal;
  */
 public class Lists {
 
-    public static Object get(ArrayValue array, long index) {
+    public static Object get(ArrayValue array, int index) {
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             return array.getRefValue(index);
         }
@@ -56,7 +56,7 @@ public class Lists {
         }
     }
 
-    public static void add(ArrayValue array, long index, Object refType) {
+    public static void add(ArrayValue array, int index, Object refType) {
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             array.add(index, refType);
             return;

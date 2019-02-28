@@ -324,7 +324,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(long startIndex, long endIndex) {
+    public XMLValue<?> slice(int startIndex, int endIndex) {
         if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -347,7 +347,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
 
         int j = 0;
         ArrayValue elementsSeq = new ArrayValue();
-        for (long i = startIndex; i < endIndex; i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, sequence.getRefValue(i));
         }
 
@@ -436,7 +436,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> getItem(long index) {
+    public XMLValue<?> getItem(int index) {
         return (XMLValue<?>) this.sequence.getRefValue(index);
     }
 
