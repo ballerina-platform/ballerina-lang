@@ -18,14 +18,24 @@ type BirEmitter object {
 
     function emitPackage() {
         println("################################# Begin bir program #################################");
+        println();
         println("org - ", self.pkg.org.value);
         println("name - ", self.pkg.name.value);
         // println("version - " + pkg.versionValue);
         
         println(); // empty line
+        self.emitImports();
+        println();
+        println();
         self.emitTypeDefs();
         self.emitFunctions();
         println("################################## End bir program ##################################");
+    }
+    
+    function emitImports() {
+        foreach var i in self.pkg.importModules {
+            println("import ", i.modOrg.value, "/", i.modName.value, " ", i.modVersion.value, ";");
+        }
     }
 
     function emitTypeDefs() {
