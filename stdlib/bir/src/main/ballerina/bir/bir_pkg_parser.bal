@@ -10,7 +10,7 @@ public type PackageParser object {
     public function parseVariableDcl() returns VariableDcl {
         var kind = self.parseVarKind();
         VariableDcl dcl = {
-            typeValue: self.reader.readBType(),
+            typeValue: self.typeParser.parseType(),
             name: { value: self.reader.readStringCpRef() },
             kind: kind
         };
@@ -22,7 +22,7 @@ public type PackageParser object {
         var isDeclaration = self.reader.readBoolean();
         var visibility = parseVisibility(self.reader);
         var typeTag = self.reader.readInt8();
-        if (typeTag != self.typeParser.TYPE_TAG_INVOKABL_TYPE) {
+        if (typeTag != self.typeParser.TYPE_TAG_INVOKABLE) {
             error err = error("Illegal function signature type tag" + typeTag);
             panic err;
         }
@@ -41,7 +41,7 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-        FuncBodyParser bodyParser = new(self.reader, localVarMap);
+        FuncBodyParser bodyParser = new(self.reader, self.typeParser, localVarMap);
 
         BasicBlock[] basicBlocks = [];
         var numBB = self.reader.readInt32();
@@ -73,10 +73,13 @@ public type PackageParser object {
             funcs[i] = self.parseFunction();
             i += 1;
         }
-        //BirEmitter emitter = new({ typeDefs: typeDefs, functions: funcs });
-        //emitter.emitPackage();
+
+        BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, functions: funcs,
+                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}});
+        emitter.emitPackage();
+
         return { importModules: importModules, typeDefs: typeDefs, functions: funcs, name: {value: pkgId.name},
-                            org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue} };
+                     org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue} };
     }
 
     function parseImportMods() returns ImportModule[] {

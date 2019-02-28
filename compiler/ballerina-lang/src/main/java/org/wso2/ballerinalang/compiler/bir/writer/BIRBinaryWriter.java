@@ -127,16 +127,16 @@ public class BIRBinaryWriter {
         buf.writeInt(birFunction.localVars.size());
         for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
             buf.writeByte(localVar.kind.getValue());
-            buf.writeInt(addStringCPEntry(localVar.type.getDesc()));
+            localVar.type.accept(typeWriter);
             buf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
         // Write basic blocks
-        writeBasicBlocks(buf, birFunction.basicBlocks);
+        writeBasicBlocks(buf, typeWriter, birFunction.basicBlocks);
     }
 
-    private void writeBasicBlocks(ByteBuf buf, List<BIRBasicBlock> birBBList) {
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, cp);
+    private void writeBasicBlocks(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRBasicBlock> birBBList) {
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
         insWriter.writeBBs(birBBList);
     }
 
