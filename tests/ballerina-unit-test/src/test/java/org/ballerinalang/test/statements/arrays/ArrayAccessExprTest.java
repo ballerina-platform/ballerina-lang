@@ -51,7 +51,6 @@ public class ArrayAccessExprTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"array index out" +
                     " of range: index: 5, size: 0\"\\}.*")
     public void testNonInitArrayAccess() {
-//        CompileResult compileResult = BTestUtils.compile("test-src/statements/arrays/array-access-expr.bal");
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");
     }
@@ -72,6 +71,14 @@ public class ArrayAccessExprTest {
     @Test(description = "Test arrays access with finite type")
     public void testArrayAccessWithFiniteType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessWithFiniteType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test arrays access with unions with finite types")
+    public void testArrayAccessUsingUnionWithFiniteTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayAccessUsingUnionWithFiniteTypes");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -122,6 +129,13 @@ public class ArrayAccessExprTest {
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 3, size: 2.*")
     public void testArrayIndexOutOfRangeErrorWithFiniteTypeIndex() {
         BRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithFiniteTypeIndex");
+    }
+
+    @Test(description = "Test array index out of range with union with finite type",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*array index out of range: index: 4, size: 2.*")
+    public void testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex() {
+        BRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex");
     }
 
     @Test(description = "Test arrays access with a key")

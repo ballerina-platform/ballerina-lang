@@ -2102,17 +2102,20 @@ public class Types {
         List<BType> remainingTypes = getAllTypes(originalType);
         removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
 
+        List<BType> finiteTypesToRemove = new ArrayList<>();
+        List<BType> finiteTypesToAdd = new ArrayList<>();
         for (BType remainingType : remainingTypes) {
             if (remainingType.tag == TypeTags.FINITE) {
                 BFiniteType finiteType = (BFiniteType) remainingType;
-                remainingTypes.remove(finiteType);
+                finiteTypesToRemove.add(finiteType);
                 BType remainingTypeWithMatchesRemoved = getRemainingType(finiteType, removeTypes);
                 if (remainingTypeWithMatchesRemoved != symTable.semanticError) {
-                    remainingTypes.add(remainingTypeWithMatchesRemoved);
+                    finiteTypesToAdd.add(remainingTypeWithMatchesRemoved);
                 }
-                break; // Optimization - since a union type would only have one finite type
             }
         }
+        remainingTypes.removeAll(finiteTypesToRemove);
+        remainingTypes.addAll(finiteTypesToAdd);
 
         if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);

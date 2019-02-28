@@ -2806,14 +2806,17 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess accessExpr, BArrayType arrayType) {
+        return checkArrayIndexBasedAccess(accessExpr.indexExpr.type, arrayType, accessExpr.indexExpr.pos);
+    }
+
+    private BType checkArrayIndexBasedAccess(BType indexExprType, BArrayType arrayType, DiagnosticPos pos) {
         BType actualType = symTable.semanticError;
-        BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (indexExpr.type.tag) {
+        switch (indexExprType.tag) {
             case TypeTags.INT:
                 actualType = arrayType.eType;
                 break;
             case TypeTags.FINITE:
-                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
+                BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
                 boolean validIndexExists = false;
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
                     int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
@@ -2824,26 +2827,51 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 if (!validIndexExists) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_ARRAY_INDEX_EXPR, indexExpr.type);
+                    dlog.error(pos, DiagnosticCode.INVALID_ARRAY_INDEX_EXPR, indexExprType);
                     break;
                 }
                 actualType = arrayType.eType;
                 break;
+            case TypeTags.UNION:
+                // address the case where we have a union of finite types
+                List<BFiniteType> finiteTypes = ((BUnionType) indexExprType).memberTypes.stream()
+                        .filter(memType -> memType.tag == TypeTags.FINITE)
+                        .map(matchedType -> (BFiniteType) matchedType)
+                        .collect(Collectors.toList());
+
+                BFiniteType finiteType;
+                if (finiteTypes.size() == 1) {
+                    finiteType = finiteTypes.get(0);
+                } else {
+                    Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+                    finiteType = new BFiniteType(null, valueSpace);
+                }
+
+                BType elementType = checkArrayIndexBasedAccess(finiteType, arrayType, pos);
+                if (elementType == symTable.semanticError) {
+                    return symTable.semanticError;
+                }
+                actualType = arrayType.eType;
         }
         return actualType;
     }
 
     private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple) {
+        return checkTupleIndexBasedAccess(accessExpr, tuple, accessExpr.indexExpr.type);
+    }
+
+    private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple, BType currentType) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (indexExpr.type.tag) {
+        switch (currentType.tag) {
             case TypeTags.INT:
                 if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
                     actualType = checkTupleFieldType(tuple, indexValue);
                     if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
                         dlog.error(accessExpr.pos,
-                                DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tuple.tupleTypes.size());
+                                   DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tuple.tupleTypes.size());
                     }
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
@@ -2853,7 +2881,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.FINITE:
-                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
+                BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
                     int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
@@ -2863,12 +2891,50 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 if (possibleTypes.size() == 0) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_TUPLE_INDEX_EXPR, indexExpr.type);
+                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_TUPLE_INDEX_EXPR, currentType);
                     break;
                 }
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
                         new BUnionType(null, possibleTypes, false);
                 break;
+
+            case TypeTags.UNION:
+                LinkedHashSet<BType> possibleTypesByMember = new LinkedHashSet<>();
+                List<BFiniteType> finiteTypes = new ArrayList<>();
+                ((BUnionType) currentType).memberTypes.forEach(memType -> {
+                    if (memType.tag == TypeTags.FINITE) {
+                        finiteTypes.add((BFiniteType) memType);
+                    } else {
+                        BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, memType);
+                        if (possibleType.tag == TypeTags.UNION) {
+                            possibleTypesByMember.addAll(((BUnionType) possibleType).memberTypes);
+                        } else {
+                            possibleTypesByMember.add(possibleType);
+                        }
+                    }
+                });
+
+                BFiniteType finiteType;
+                if (finiteTypes.size() == 1) {
+                    finiteType = finiteTypes.get(0);
+                } else {
+                    Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+                    finiteType = new BFiniteType(null, valueSpace);
+                }
+
+                BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, finiteType);
+                if (possibleType.tag == TypeTags.UNION) {
+                    possibleTypesByMember.addAll(((BUnionType) possibleType).memberTypes);
+                } else {
+                    possibleTypesByMember.add(possibleType);
+                }
+
+                if (possibleTypesByMember.contains(symTable.semanticError)) {
+                    return symTable.semanticError;
+                }
+                actualType = possibleTypesByMember.size() == 1 ? possibleTypesByMember.iterator().next() :
+                        new BUnionType(null, possibleTypesByMember, false);
         }
         return actualType;
     }
