@@ -121,7 +121,6 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     private HttpCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
-        return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId),
-                http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getInterfaceId());
+        return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId), http2SourceHandler);
     }
 }

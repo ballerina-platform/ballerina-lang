@@ -42,6 +42,7 @@ import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
@@ -147,8 +148,24 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HttpCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
 
-        SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
-        if (srcHandler == null && LOG.isDebugEnabled()) {
+        Object sourceHandlerObject = httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
+        SourceHandler srcHandler = null;
+        Http2SourceHandler http2SourceHandler = null;
+
+        if (sourceHandlerObject != null) {
+            if (sourceHandlerObject instanceof SourceHandler) {
+                srcHandler = (SourceHandler) sourceHandlerObject;
+            } else if (sourceHandlerObject instanceof Http2SourceHandler) {
+                http2SourceHandler = (Http2SourceHandler) sourceHandlerObject;
+            }
+        }
+
+        //Cannot directly assign srcHandler and http2SourceHandler to inner class ConnectionAvailabilityListener hence
+        //need two new separate variables
+        final SourceHandler http1xSrcHandlder = srcHandler;
+        final Http2SourceHandler http2SrcHandler = http2SourceHandler;
+
+        if (srcHandler == null && http2SourceHandler == null && LOG.isDebugEnabled()) {
             LOG.debug(Constants.SRC_HANDLER + " property not found in the message."
                               + " Message is not originated from the HTTP Server connector");
         }
@@ -176,7 +193,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             }
 
             // Look for the connection from http connection manager
-            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, senderConfiguration,
+            TargetChannel targetChannel = connectionManager.borrowTargetChannel(route, srcHandler, http2SourceHandler,
+                                                                                senderConfiguration,
                                                                                 bootstrapConfig, clientEventGroup);
             Http2ClientChannel freshHttp2ClientChannel = targetChannel.getHttp2ClientChannel();
             outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
@@ -189,10 +207,23 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                         LOG.debug("Created the connection to address: {}",
                                   route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
-                    if (srcHandler != null) {
+
+                    if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http1xSrcHandlder != null) {
                         channelFuture.channel().deregister().addListener(future ->
-                                srcHandler.getEventLoop().register(channelFuture.channel()).addListener(
-                                        future1 -> startExecutingOutboundRequest(protocol, channelFuture)));
+                                                                             http1xSrcHandlder.getEventLoop()
+                                                                                 .register(channelFuture.channel())
+                                                                                 .addListener(
+                                                                                     future1 ->
+                                                                                         startExecutingOutboundRequest(
+                                                                                         protocol, channelFuture)));
+                    } else if (Constants.HTTP_SCHEME.equalsIgnoreCase(protocol) && http2SrcHandler != null) {
+                        channelFuture.channel().deregister().addListener(future ->
+                                                                             http2SrcHandler.getChannelHandlerContext()
+                                                                                 .channel().eventLoop()
+                                                                                 .register(channelFuture.channel())
+                                                                                 .addListener(future1 ->
+                                                                                         startExecutingOutboundRequest(
+                                                                                         protocol, channelFuture)));
                     } else {
                         startExecutingOutboundRequest(protocol, channelFuture);
                     }

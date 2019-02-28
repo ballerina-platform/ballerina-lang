@@ -17,6 +17,7 @@ package org.wso2.transport.http.netty.contractimpl.sender.channel;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -32,6 +33,7 @@ import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.contractimpl.sender.HttpClientChannelInitializer;
@@ -58,7 +60,7 @@ public class TargetChannel {
     private TargetHandler targetHandler;
     private HttpClientChannelInitializer httpClientChannelInitializer;
     private HttpRoute httpRoute;
-    private SourceHandler correlatedSource;
+    private ChannelInboundHandlerAdapter correlatedSource;
     private ChannelFuture channelFuture;
     private ConnectionManager connectionManager;
     private boolean requestHeaderWritten = false;
@@ -123,11 +125,11 @@ public class TargetChannel {
         this.trgHlrConnPoolId = trgHlrConnPoolId;
     }
 
-    public SourceHandler getCorrelatedSource() {
+    public ChannelInboundHandlerAdapter getCorrelatedSource() {
         return correlatedSource;
     }
 
-    public void setCorrelatedSource(SourceHandler correlatedSource) {
+    public void setCorrelatedSource(ChannelInboundHandlerAdapter correlatedSource) {
         this.correlatedSource = correlatedSource;
     }
 
@@ -171,11 +173,19 @@ public class TargetChannel {
 
     public void setCorrelationIdForLogging() {
         ChannelPipeline pipeline = this.getChannel().pipeline();
-        SourceHandler srcHandler = this.getCorrelatedSource();
+        ChannelInboundHandlerAdapter srcHandler = this.getCorrelatedSource();
         if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
             HttpTraceLoggingHandler loggingHandler = (HttpTraceLoggingHandler)
-                    pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
-            loggingHandler.setCorrelatedSourceId(srcHandler.getInboundChannelContext().channel().id().asShortText());
+                pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
+            if (srcHandler instanceof SourceHandler) {
+                SourceHandler h1SourceHandler = (SourceHandler) srcHandler;
+                loggingHandler.setCorrelatedSourceId(
+                    h1SourceHandler.getInboundChannelContext().channel().id().asShortText());
+            } else if (srcHandler instanceof Http2SourceHandler) {
+                Http2SourceHandler h2SourceHandler = (Http2SourceHandler) srcHandler;
+                loggingHandler.setCorrelatedSourceId(
+                    h2SourceHandler.getInboundChannelContext().channel().id().asShortText());
+            }
         }
     }
 
