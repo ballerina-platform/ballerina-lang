@@ -78,6 +78,7 @@ import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.MapCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
@@ -90,6 +91,8 @@ import org.wso2.ballerinalang.compiler.TypeCreater;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.ConstantValue;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -274,6 +277,61 @@ public class PackageInfoReader {
                         .getCPEntry(uniqueNameCPIndex);
 
                 return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
+            case CP_ENTRY_MAP:
+
+                LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+
+                // Size
+                int size = dataInStream.readInt();
+
+                for (int i = 0; i < size; i++) {
+
+                    // Key
+                    int keyCPIndex = dataInStream.readInt();
+                    UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
+
+                    // Value type tag
+                    int typeTag = dataInStream.readInt();
+
+                    // Value
+                    if (typeTag == TypeTags.NULL_TAG) {
+                        // Do nothing
+                    } else if (typeTag == TypeTags.BOOLEAN_TAG) {
+                        boolean value = dataInStream.readBoolean();
+
+                    } else {
+                        int valueCPIndex = dataInStream.readInt();
+
+
+                        if (typeTag == TypeTags.INT_TAG) {
+                            IntegerCPEntry cpEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+
+                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                            ConstantValue constantValue = new ConstantValue();
+                            constantValue.literalValueTypeTag = typeTag;
+                            constantValue.isSimpleLiteral = true;
+                            constantValue.valueCPEntry = valueCPIndex;
+
+                            valueMap.put(keyInfo, constantValue);
+
+
+                        } else if (typeTag == TypeTags.BYTE_TAG) {
+
+                        } else if (typeTag == TypeTags.FLOAT_TAG) {
+
+                        } else if (typeTag == TypeTags.DECIMAL_TAG) {
+
+                        } else if (typeTag == TypeTags.STRING_TAG) {
+
+                        } else if (typeTag == TypeTags.MAP_TAG) {
+
+                        }
+                    }
+
+                }
+
+                return new MapCPEntry(valueMap);
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
@@ -604,9 +662,14 @@ public class PackageInfoReader {
             readSimpleLiteral(packageInfo);
         } else {
             // Read and ignore value cp index.
-            dataInStream.readInt();
+            int i = dataInStream.readInt();
+
+            // Value cp entry
+           int j = dataInStream.readInt();
+
+           int x = 0;
             // Read and ignore map constant value.
-            readMapLiteral(packageInfo);
+//            readMapLiteral(packageInfo);
         }
 
         // Read and ignore attributes.
@@ -644,25 +707,25 @@ public class PackageInfoReader {
         }
     }
 
-    private void readMapLiteral(PackageInfo packageInfo) throws IOException {
-        // Read size.
-        int size = dataInStream.readInt();
-        for (int i = 0; i < size; i++) {
-            // Read and ignore constant name CP index.
-            dataInStream.readInt();
-            // Read simple literal flag.
-            boolean isSimpleLiteral = dataInStream.readBoolean();
-            if (isSimpleLiteral) {
-                // Read simple literal info.
-                readSimpleLiteral(packageInfo);
-            } else {
-                // Read record literal type signature CP index.
-                dataInStream.readInt();
-                // Read map literal info.
-                readMapLiteral(packageInfo);
-            }
-        }
-    }
+//    private void readMapLiteral(PackageInfo packageInfo) throws IOException {
+//        // Read size.
+//        int size = dataInStream.readInt();
+//        for (int i = 0; i < size; i++) {
+//            // Read and ignore constant name CP index.
+//            dataInStream.readInt();
+//            // Read simple literal flag.
+//            boolean isSimpleLiteral = dataInStream.readBoolean();
+//            if (isSimpleLiteral) {
+//                // Read simple literal info.
+//                readSimpleLiteral(packageInfo);
+//            } else {
+//                // Read record literal type signature CP index.
+//                dataInStream.readInt();
+//                // Read map literal info.
+//                readMapLiteral(packageInfo);
+//            }
+//        }
+//    }
 
     private PackageVarInfo getGlobalVarInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
         // Read variable name;

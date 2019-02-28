@@ -41,4 +41,29 @@ public class ConstantValue {
     public boolean booleanValue;
 
     public Map<KeyInfo, ConstantValue> constantValueMap = new HashMap<>();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ConstantValue)) {
+            return false;
+        }
+
+        ConstantValue constantValue = (ConstantValue) obj;
+
+        boolean equals = finiteTypeSigCPIndex == constantValue.finiteTypeSigCPIndex &&
+                valueTypeSigCPIndex == constantValue.valueTypeSigCPIndex &&
+                recordLiteralSigCPIndex == constantValue.recordLiteralSigCPIndex &&
+                isSimpleLiteral == constantValue.isSimpleLiteral &&
+                literalValueTypeTag == constantValue.literalValueTypeTag &&
+                valueCPEntry == constantValue.valueCPEntry &&
+                booleanValue == constantValue.booleanValue;
+
+        if (!equals) {
+            return false;
+        }
+
+        // Todo - Iterate and check map
+
+        return true;
+    }
 }

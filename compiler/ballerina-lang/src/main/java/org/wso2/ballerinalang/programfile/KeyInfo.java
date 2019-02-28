@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.programfile;
 /**
  * Represents a key in constant map literals.
  *
- * @since 0.985.0
+ * @since 0.990.4
  */
 public class KeyInfo {
 
@@ -31,8 +31,27 @@ public class KeyInfo {
         this.name = name;
     }
 
-    public KeyInfo(String name, int nameCPIndex) {
+    KeyInfo(String name, int nameCPIndex) {
         this.name = name;
         this.cpIndex = nameCPIndex;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof KeyInfo)) {
+            return false;
+        }
+        KeyInfo keyInfo = (KeyInfo) obj;
+        return name.equals(keyInfo.name) && cpIndex == keyInfo.cpIndex;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return name + (cpIndex != -1 ? " : " + cpIndex : "");
     }
 }
