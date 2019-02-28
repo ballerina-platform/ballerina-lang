@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -40,6 +41,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 0.961.0
  */
+@Ignore
 public class LocksInMainTest {
 
     @Test(description = "Tests lock within a lock")

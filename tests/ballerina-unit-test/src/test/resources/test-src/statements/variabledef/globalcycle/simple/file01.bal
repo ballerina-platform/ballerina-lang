@@ -32,7 +32,7 @@ public function getEmployee2() returns Employee {
     return employee;
 }
 
-public Employee employee = {
+Employee employee = {
     name: person.name,
     age: person.age,
     empNo: 100

@@ -33,11 +33,11 @@ type Student record {
 
 string var1 = 'abcd;
 
-public string var2 = "";
+string var2 = "";
 
-public string var3 = 'efgh;
+string var3 = 'efgh;
 
-public string var4 = 'ijkl;
+string var4 = 'ijkl;
 
 function contains() returns (boolean) {
     string source = 'HelloWorld;

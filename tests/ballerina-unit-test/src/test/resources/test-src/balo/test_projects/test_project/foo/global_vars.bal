@@ -28,6 +28,10 @@ public function getGlbVarFloatChange() returns float {
     return glbVarFloatChange;
 }
 
+public function setGlbVarFloatChange(float value) {
+    glbVarFloatChange = value;
+}
+
 float glbVarFloat1 = glbVarFloat;
 
 public function getGlbVarFloat1() returns float {
@@ -40,10 +44,18 @@ public function getGlbVarJson() returns json {
     return glbVarJson;
 }
 
+public function setGlbVarJson(json value) {
+    glbVarJson = value;
+}
+
 float glbVarFloatLater = 0.0;
 
 public function getGlbVarFloatLater() returns float {
     return glbVarFloatLater;
+}
+
+public function setGlbVarFloatLater(float value) {
+    glbVarFloatLater = value;
 }
 
 byte glbByte = 234;

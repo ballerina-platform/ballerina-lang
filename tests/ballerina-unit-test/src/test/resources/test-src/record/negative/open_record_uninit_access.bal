@@ -19,7 +19,6 @@ public type Person record {
     int age = 0;
 };
 
-public Person publicPerson;
 Person globalPerson;
 
 function uninitAccess() {
@@ -33,12 +32,6 @@ function uninitAccess() {
     Person p1 = getUninitializedRecord11(p);
 
     Person p2 = getUninitializedRecord21();
-
-    name = publicPerson.name;
-    name = publicPerson["name"] ?: "";
-
-    publicPerson.age = 25;
-    publicPerson["age"] = 30;
 
     name = globalPerson.name;
     name = globalPerson["name"] ?: "";

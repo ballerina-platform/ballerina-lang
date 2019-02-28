@@ -1,6 +1,6 @@
 
-public Person pp;
-public Employee ee;
+Person pp;
+Employee ee;
 
 public function testObjectWithInterface () returns (int, string) {
     Person p;
