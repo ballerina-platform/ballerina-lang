@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -483,11 +484,34 @@ public class BIRGen extends BLangNodeVisitor {
             astMapAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new MapStore(astMapAccessExpr.pos, astMapAccessExpr.type, varRefRegIndex, keyRegIndex, rhsOp));
-
+            emit(new BIRNonTerminator.MapStore(astMapAccessExpr.pos, astMapAccessExpr.type,
+                    varRefRegIndex, keyRegIndex, rhsOp));
         } else {
             // TODO fill
         }
+        this.varAssignment = variableStore;
+    }
+
+
+    public void visit(BLangArrayAccessExpr astArrayAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        if (variableStore) {
+            BIROperand rhsOp = this.env.targetOperand;
+
+            astArrayAccessExpr.expr.accept(this);
+            BIROperand varRefRegIndex = this.env.targetOperand;
+
+            astArrayAccessExpr.indexExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.ArrayStore(astArrayAccessExpr.pos, astArrayAccessExpr.type,
+                    varRefRegIndex, keyRegIndex, rhsOp));
+        } else {
+            // TODO fill
+        }
+
         this.varAssignment = variableStore;
     }
 
