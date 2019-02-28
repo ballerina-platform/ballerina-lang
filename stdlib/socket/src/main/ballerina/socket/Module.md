@@ -12,11 +12,11 @@ import ballerina/socket;
 listener socket:Listener server = new({ port:61598 });
 
 service echoServer on server {
-    resource function onConnect (socket:Caller caller) {
+    resource function onConnect(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady (socket:Caller caller) {
+    resource function onReadReady(socket:Caller caller) {
         var result = caller->read();
         if (result is (byte[], int)) {
             var (content, length) = result;
@@ -56,7 +56,7 @@ service ClientService = service {
         io:println("connect: ", caller.remotePort);
     }
     
-    resource function onReadReady (socket:Caller caller) {
+    resource function onReadReady(socket:Caller caller) {
         var result = caller->read();
         if (result is (byte[], int)) {
             var (content, length) = result;
@@ -86,7 +86,7 @@ service ClientService = service {
     }
 };
 
-function getString(byte[] content) returns string|error {
+function getString(byte[] content) returns string | error {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return characterChannel.read(50);

@@ -270,10 +270,11 @@ public class SelectorManager {
      */
     public void invokeRead(int socketHashId, boolean clientServiceAttached) {
         // Check whether there is any caller->read pending action and read ready socket.
-        if (ReadPendingSocketMap.getInstance().isPending(socketHashId)) {
+        ReadPendingSocketMap readPendingSocketMap = ReadPendingSocketMap.getInstance();
+        if (readPendingSocketMap.isPending(socketHashId)) {
             // Lock the ReadPendingCallback instance. This will prevent duplicate invocation that happen from both
             // read action and selector manager sides.
-            synchronized (ReadPendingSocketMap.getInstance().get(socketHashId)) {
+            synchronized (readPendingSocketMap.get(socketHashId)) {
                 if (ReadReadySocketMap.getInstance().isReadReady(socketHashId)) {
                     // Read ready socket available.
                     read(socketHashId);
@@ -320,24 +321,24 @@ public class SelectorManager {
             callback.getContext().setReturnValues(createReturnValue(callback, bytes));
             callback.getCallback().notifySuccess();
         } catch (NotYetConnectedException e) {
-            BError socketError = SocketUtils.createSocketError(callback.getContext(), "Connection not yet connected");
-            callback.getContext().setReturnValues(socketError);
-            callback.getCallback().notifySuccess();
+            processError(callback, "Connection not yet connected");
         } catch (CancelledKeyException | ClosedChannelException e) {
-            BError socketError = SocketUtils.createSocketError(callback.getContext(), "Connection closed");
-            callback.getContext().setReturnValues(socketError);
-            callback.getCallback().notifySuccess();
+            processError(callback, "Connection closed");
         } catch (IOException e) {
             log.error("Error while read.", e);
-            BError socketError = SocketUtils.createSocketError(callback.getContext(), e.getMessage());
-            callback.getContext().setReturnValues(socketError);
-            callback.getCallback().notifySuccess();
+            processError(callback, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             BError socketError = SocketUtils.createSocketError(callback.getContext(), "Error while on read operation");
             callback.getContext().setReturnValues(socketError);
             callback.getCallback().notifyFailure(socketError);
         }
+    }
+
+    private void processError(ReadPendingCallback callback, String msg) {
+        BError socketError = SocketUtils.createSocketError(callback.getContext(), msg);
+        callback.getContext().setReturnValues(socketError);
+        callback.getCallback().notifySuccess();
     }
 
     private BValueArray createReturnValue(ReadPendingCallback callback, byte[] bytes) {
