@@ -94,7 +94,7 @@ curl http://$EXTERNAL_IP/hello/select -v
 if [ -z ${JMETER_HOME} ]
 then
   echo 'JMETER_HOME env variable not found. Setting up jmeter manually.'
-  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz
+  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz --quiet
   tar -xzf apache-jmeter-4.0.tgz
   export JMETER_HOME=$(pwd)/apache-jmeter-4.0
   JMETER_HOME=$(pwd)/apache-jmeter-4.0
