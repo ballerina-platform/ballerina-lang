@@ -14,7 +14,11 @@ service GlobalVar on echoEP {
     }
     resource function defineGlobalVar (http:Caller caller, http:Request req) {
         http:Response res = new;
-        json responseJson = {"glbVarInt":foo:glbVarInt, "glbVarString":foo:glbVarString, "glbVarFloat":foo:glbVarFloat};
+        json responseJson = {
+            "glbVarInt": foo:getGlbVarInt(),
+            "glbVarString": foo:getGlbVarString(),
+            "glbVarFloat": foo:getGlbVarFloat()
+        };
         res.setJsonPayload(responseJson);
         _ = caller -> respond(res);
     }
@@ -60,11 +64,11 @@ service GlobalVar on echoEP {
     resource function getGlobalArraysAtResourceLevel (http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {
-            "glbArrayElement":foo:glbArray[0],
-            "glbSealedArrayElement":foo:glbSealedArray[1],
-            "glbSealedArray2Element":foo:glbSealedArray2[2],
-            "glbSealed2DArrayElement":foo:glbSealed2DArray[0][0],
-            "glbSealed2DArray2Element":foo:glbSealed2DArray2[0][1]
+            "glbArrayElement": foo:getGlbArray()[0],
+            "glbSealedArrayElement": foo:getGlbSealedArray()[1],
+            "glbSealedArray2Element": foo:getGlbSealedArray2()[2],
+            "glbSealed2DArrayElement": foo:getGlbSealed2DArray()[0][0],
+            "glbSealed2DArray2Element": foo:getGlbSealed2DArray2()[0][1]
         };
         res.setJsonPayload(responseJson);
         _ = caller -> respond(res);

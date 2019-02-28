@@ -295,7 +295,7 @@ function testDataflow_11() returns string {
     }
 }
 
-public int globalVar;
+int globalVar;
 
 function updateGlobalVar() {
     globalVar = 4;
@@ -466,7 +466,6 @@ type C object {
     }
 };
 
-public int publicGlobalVar_1;
 int publicGlobalVar_2;
 
 public type D record {

@@ -33,7 +33,7 @@ public class DataflowAnalysisTest {
     @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 53);
+        Assert.assertEquals(result.getErrorCount(), 51);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 70, 12);
@@ -57,7 +57,6 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 270, 9);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 270, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 290, 20);
-        BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 298, 1);
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 305, 12);
         BAssertUtil.validateError(result, i++, "variable 'globalVar' is not initialized", 309, 13);
         BAssertUtil.validateError(result, i++, "uninitialized field 'd'", 312, 5);
@@ -75,18 +74,17 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 433, 16);
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 461, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 463, 5);
-        BAssertUtil.validateError(result, i++, "variable 'publicGlobalVar_1' is not initialized", 469, 1);
-        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 500, 17);
-        BAssertUtil.validateError(result, i++, "unreachable code", 525, 9);
-        BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 534, 12);
-        BAssertUtil.validateError(result, i++, "unreachable code", 542, 9);
-        BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 555, 5);
-        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 557, 5);
-        BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 585, 12);
-        BAssertUtil.validateError(result, i++, "variable 'fa' is not initialized", 611, 13);
-        BAssertUtil.validateError(result, i++, "variable 'fb' is not initialized", 612, 13);
-        BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 620, 5);
-        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 621, 5);
-        BAssertUtil.validateError(result, i, "uninitialized field 's'", 631, 14);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 499, 17);
+        BAssertUtil.validateError(result, i++, "unreachable code", 524, 9);
+        BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 533, 12);
+        BAssertUtil.validateError(result, i++, "unreachable code", 541, 9);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 554, 5);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 556, 5);
+        BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 584, 12);
+        BAssertUtil.validateError(result, i++, "variable 'fa' is not initialized", 610, 13);
+        BAssertUtil.validateError(result, i++, "variable 'fb' is not initialized", 611, 13);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 619, 5);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 620, 5);
+        BAssertUtil.validateError(result, i, "uninitialized field 's'", 630, 14);
     }
 }

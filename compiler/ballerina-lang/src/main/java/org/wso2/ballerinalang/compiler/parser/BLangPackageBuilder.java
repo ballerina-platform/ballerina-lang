@@ -1755,14 +1755,11 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isPublic, boolean isFinal,
+    void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean isFinal,
                            boolean isDeclaredWithVar, boolean isExpressionAvailable, boolean isListenerVar) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, isDeclaredWithVar,
                 isExpressionAvailable);
 
-        if (isPublic) {
-            var.flagSet.add(Flag.PUBLIC);
-        }
         if (isFinal) {
             var.flagSet.add(Flag.FINAL);
         }

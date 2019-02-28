@@ -51,7 +51,7 @@ function getGlobalVarByteArray3() returns byte[] {
 function getGlobalArrays() returns (int, int, int, int, int, int, int) {
     int[2][3] x = foo:glbSealed2DArray;
     int[3][] x1 = foo:glbSealed2DArray2;
-    return (foo:glbArray.length(), foo:glbSealedArray.length(), foo:glbSealedArray2.length(), x.length(),
+    return (foo:getGlbArray().length(), foo:glbSealedArray.length(), foo:glbSealedArray2.length(), x.length(),
                                                                         x[0].length(), x1.length(), x1[0].length());
 
 }

@@ -361,16 +361,6 @@ public class HtmlDocTest {
     }
 
     @Test(description = "Annotation in a module should be shown in the constructs")
-    public void testGlobalVariables() {
-        BLangPackage bLangPackage = createPackage("public int total = 98;" +
-                "public string content = \"Name\";");
-        Page page = generatePage(bLangPackage);
-        Assert.assertEquals(page.constructs.size(), 2);
-        Assert.assertEquals(page.constructs.get(0).name, "total");
-        Assert.assertEquals(page.constructs.get(1).name, "content");
-    }
-
-    @Test(description = "Annotation in a module should be shown in the constructs")
     public void testConstants() {
         BLangPackage bLangPackage = createPackage("public const string name = \"Ballerina\";" +
                 "public const age = 10;");
@@ -547,16 +537,17 @@ public class HtmlDocTest {
         Assert.assertEquals(enumDoc.valueSet, "POST | GET | FORWARD", "values should be extracted");
     }
 
-    @Test(description = "Global variables should be available via construct with new docerina syntax")
-    public void testGlobalVariablePropertiesExtracted() {
+    @Test(description = "Global final variables should be available via construct with new docerina syntax")
+    public void testFinalVariablePropertiesExtracted() {
         BLangPackage bLangPackage = createPackage("# The Read Append access mode\n" +
-                "public final string RA = \"RA\";");
+                "final string RA = \"RA\";");
 
-        GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
-        Assert.assertEquals(globalVariableDoc.name, "RA", "Global variable name should be extracted");
-        Assert.assertEquals(globalVariableDoc.dataType, "string", "Global variable type should be extracted");
-        Assert.assertEquals(globalVariableDoc.description, "<p>The Read Append access mode</p>\n", "Description of " +
-                "the global variable should be extracted");
+        GlobalVariableDoc globalFinalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
+        Assert.assertEquals(globalFinalVariableDoc.name, "RA", "Global final variable name should be extracted");
+        Assert.assertEquals(globalFinalVariableDoc.dataType, "string",
+                            "Global final variable type should be extracted");
+        Assert.assertEquals(globalFinalVariableDoc.description, "<p>The Read Append access mode</p>\n",
+                            "Description of the global final variable should be extracted");
     }
 
     @Test(description = "Annotation properties should be available via construct", enabled = false)
