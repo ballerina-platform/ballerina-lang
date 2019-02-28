@@ -32,16 +32,22 @@ public type Function record {
 public type BasicBlock record {
     Name id = {};
     Instruction[] instructions = [];
-    Terminator terminator = new Return("RETURN");
+    Terminator terminator = {kind:"RETURN"};
 };
 
 public type Name record {
     string value = "";
 };
 
-public type Instruction Move|BinaryOp|ConstantLoad|NewMap|MapStore;
+public type Instruction record  {
+    InstructionKind kind;
+    any...;
+};
 
-public type Terminator Call|Branch|GOTO|Return;
+public type Terminator record {
+    TerminatorKind kind;
+    any...;
+};
 
 public type ADD "ADD";
 public type SUB "SUB";
@@ -56,8 +62,9 @@ public type LESS_EQUAL "LESS_EQUAL";
 public type AND "AND";
 public type OR "OR";
 
+public type TerminatorKind "GOTO"|"CALL"|"BRANCH"|"RETURN";
 
-public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|BinaryOpInstructionKind;
+public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -191,44 +198,30 @@ public type BInvokableType record {
 
 public type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";
 
+// public type Instruction Move|BinaryOp|ConstantLoad|NewMap|MapStore;
 
-public type ConstantLoad object {
-    public InstructionKind kind;
-    public VarRef lhsOp;
-    public BType typeValue;
-    public int | string value;
-    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue, int | string value) {
-        self.kind = kind;
-        self.lhsOp = lhsOp;
-        self.typeValue = typeValue;
-        self.value = value;
-    }
+public type ConstantLoad record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    BType typeValue;
+    int | string value;
+    !...;
 };
 
-public type NewMap object {
-    public InstructionKind kind;
-    public VarRef lhsOp;
-    public BType typeValue;
-    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue) {
-        self.kind = kind;
-        self.lhsOp = lhsOp;
-        self.typeValue = typeValue;
-    }
+public type NewMap record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    BType typeValue;
+    !...;
 };
 
-public type MapStore object {
-    public InstructionKind kind;
-    public VarRef lhsOp;
-    public VarRef keyOp;
-    public VarRef rhsOp;
-    public BType typeValue;
-    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue, VarRef keyOp, VarRef rhsOp) {
-        self.kind = kind;
-        self.typeValue = typeValue;
-        self.lhsOp = lhsOp;
-        self.keyOp = keyOp;
-        self.rhsOp = rhsOp;
-    }
+public type MapStore record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef keyOp;
+    VarRef rhsOp;
+    BType typeValue; //TODO do we need this?
+    !...;
 };
 
 public type VarRef object {
@@ -244,74 +237,47 @@ public type VarRef object {
 
 public type Kind "VAR_REF"|"CONST";
 
-public type Move object {
-    public InstructionKind kind;
-    public VarRef lhsOp;
-    public Operand rhsOp;
-    public function __init(InstructionKind kind, VarRef lhsOp, Operand rhsOp) {
-        self.kind = kind;
-        self.lhsOp = lhsOp;
-        self.rhsOp = rhsOp;
-    }
+public type Move record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    Operand rhsOp;
+    !...;
 };
 
 public type Operand VarRef;
 
-public type BinaryOp object {
-    public BinaryOpInstructionKind kind;
-    public VarRef lhsOp;
-    public Operand rhsOp1;
-    public Operand rhsOp2;
-    public BType typeValue;
-    public function __init(BinaryOpInstructionKind kind, VarRef lhsOp, Operand rhsOp1, Operand rhsOp2, BType typeValue) {
-        self.kind = kind;
-        self.lhsOp = lhsOp;
-        self.rhsOp1 = rhsOp1;
-        self.rhsOp2 = rhsOp2;
-        self.typeValue= typeValue;
-    }
+public type BinaryOp record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    Operand rhsOp1;
+    Operand rhsOp2;
+    !...;
 };
 
-public type Call object {
-    public Operand[] args;
-    public InstructionKind kind;
-    public VarRef? lhsOp;
-    public Name name;
-    public BasicBlock thenBB;
-    public function __init(Operand[] args, InstructionKind kind, VarRef? lhsOp, Name name, BasicBlock thenBB) {
-        self.args = args;
-        self.kind = kind;
-        self.lhsOp = lhsOp;
-        self.name = name;
-        self.thenBB = thenBB;
-    }
+public type Call record {
+    Operand[] args;
+    TerminatorKind kind;
+    VarRef? lhsOp;
+    Name name;
+    BasicBlock thenBB;
+    !...;
 };
 
-public type Branch object {
-    public BasicBlock falseBB;
-    public InstructionKind kind;
-    public Operand op;
-    public BasicBlock trueBB;
-    public function __init(BasicBlock falseBB, InstructionKind kind, Operand op, BasicBlock trueBB) {
-        self.falseBB = falseBB;
-        self.kind = kind;
-        self.op = op;
-        self.trueBB = trueBB;
-    }
+public type Branch record {
+    BasicBlock falseBB;
+    TerminatorKind kind;
+    Operand op;
+    BasicBlock trueBB;
+    !...;
 };
 
-public type GOTO object {
-    public InstructionKind kind;
-    public BasicBlock targetBB;
-    public function __init(InstructionKind kind, BasicBlock targetBB) {
-        self.kind = kind;
-        self.targetBB = targetBB;
-    }
+public type GOTO record {
+    TerminatorKind kind;
+    BasicBlock targetBB;
+    !...;
 };
 
-public type Return object {
-    public InstructionKind kind;
-    public function __init(InstructionKind kind) {
-        self.kind = kind;
-    }
+public type Return record {
+    TerminatorKind kind;
+    !...;
 };

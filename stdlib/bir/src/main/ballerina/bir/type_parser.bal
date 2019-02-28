@@ -2,18 +2,6 @@ import ballerina/io;
 
 public type TypeParser object {
     BirChannelReader reader;
-    // public int TYPE_TAG_NIL = 10;
-    // public int TYPE_TAG_INT = 1;
-    // public int TYPE_TAG_BYTE = 2;
-    // public int TYPE_TAG_FLOAT = 3;
-    // public int TYPE_TAG_DECIMAL = 4;
-    // public int TYPE_TAG_STRING = 5;
-    // public int TYPE_TAG_BOOLEAN = 6;
-    // public int TYPE_TAG_UNION = 21;
-    // public int TYPE_TAG_ARRAY = 20;
-    // public int TYPE_TAG_INVOKABL_TYPE = 16;
-    // public int TYPE_TAG_RECORD_TYPE = 12;
-    // public int TYPE_TAG_OBJECT_TYPE = 35;
 
     public int TYPE_TAG_INT = 1;
     public int TYPE_TAG_BYTE = TYPE_TAG_INT + 1;

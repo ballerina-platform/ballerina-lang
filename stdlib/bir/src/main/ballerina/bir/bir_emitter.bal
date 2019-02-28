@@ -54,7 +54,7 @@ type BirEmitter object {
         println(" {");
         foreach var v in bFunction.localVars {
             self.typeEmitter.emitType(v.typeValue, tabs="\t");
-            println(" ", v.name.value, "\t// local");
+            println(" ", v.name.value, "\t// ", v.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
