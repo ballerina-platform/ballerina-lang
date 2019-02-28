@@ -4,9 +4,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
 
-    // transitive
-    baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    // transitive
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
 
     implementation project(':ballerina-core')
@@ -18,6 +17,7 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
     testCompile 'org.testcontainers:postgresql:1.7.2'
     testCompile 'org.testcontainers:mysql:1.7.2'
+    testCompile project(':ballerina-system')
 }
 
 description = 'Ballerina - h2'

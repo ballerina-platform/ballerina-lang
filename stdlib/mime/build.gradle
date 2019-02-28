@@ -9,7 +9,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.262'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.270'
     implementation 'org.apache.ws.commons.axiom:axiom-dom:1.2.20'
     implementation 'org.jvnet.mimepull:mimepull:1.9.7'
     implementation project(':ballerina-builtin')
