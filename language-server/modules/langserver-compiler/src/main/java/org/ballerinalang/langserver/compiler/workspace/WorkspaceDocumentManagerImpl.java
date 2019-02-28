@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.compiler.workspace;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,8 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
     private volatile Map<Path, DocumentPair> documentList = new ConcurrentHashMap<>();
+
+    private volatile Map<String, CompilationUnitNode> cUnitCache = new ConcurrentHashMap<>();
 
     private static final WorkspaceDocumentManagerImpl INSTANCE = new WorkspaceDocumentManagerImpl();
 
@@ -88,6 +91,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         if (isFileOpen(filePath)) {
             Optional<Lock> lock = lockFile(filePath);
             documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(updatedContent));
+            cUnitCache.remove(filePath.toString());
             return lock;
         }
         throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
@@ -165,6 +169,21 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public void clearAllFilePaths() {
         documentList.clear();
+    }
+
+    @Override
+    public Optional<CompilationUnitNode> getCompilationUnit(Path path) {
+        return Optional.ofNullable(this.cUnitCache.get(path.toString()));
+    }
+
+    @Override
+    public void addCompilationUnit(Path path, CompilationUnitNode compilationUnitNode) {
+        this.cUnitCache.put(path.toString(), compilationUnitNode);
+    }
+
+    @Override
+    public void removeCompilationUnit(Path path) {
+        this.cUnitCache.remove(path.toString());
     }
 
     private String readFromFileSystem(Path filePath) throws WorkspaceDocumentException {

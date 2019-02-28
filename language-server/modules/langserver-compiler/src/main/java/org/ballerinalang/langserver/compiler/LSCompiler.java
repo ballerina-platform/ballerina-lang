@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -214,6 +215,8 @@ public class LSCompiler {
                                                Class errStrategy,
                                                boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        // Remove the current cunit before compile the package
+        docManager.removeCompilationUnit(Paths.get(URI.create(uri).getPath()));
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
         if (unsavedFileId.isPresent()) {
             // If it is an unsaved file; overrides the file path

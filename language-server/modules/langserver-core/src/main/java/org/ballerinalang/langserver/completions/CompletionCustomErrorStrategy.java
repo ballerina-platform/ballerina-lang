@@ -53,6 +53,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private Token firstTokenOfCursorLine = null;
 
+    private boolean firstTokenOfCursorLineFound = false;
+
     private enum TokenRemovalStrategy { MATCH, SYNC }
 
     public CompletionCustomErrorStrategy(LSContext context) {
@@ -147,9 +149,10 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
         Token currentToken = recognizer.getCurrentToken();
-        if (firstTokenOfCursorLine == null) {
+        if (firstTokenOfCursorLine == null && !firstTokenOfCursorLineFound) {
             firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer);
         }
+        firstTokenOfCursorLineFound = true;
         return firstTokenOfCursorLine != null && currentToken.getTokenIndex() == firstTokenOfCursorLine.getTokenIndex();
     }
 

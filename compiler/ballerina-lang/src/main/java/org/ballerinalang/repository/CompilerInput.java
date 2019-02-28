@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.repository;
 
+import org.ballerinalang.model.tree.CompilationUnitNode;
+
+import java.util.Optional;
+
 /**
  * This represents a Ballerina package source entry.
  * 
@@ -37,5 +41,10 @@ public interface CompilerInput {
      * @return the source code binary encoded
      */
     byte[] getCode();
-    
+
+    default Optional<CompilationUnitNode> getCompilationUnit() {
+        return Optional.empty();
+    }
+
+    default void addCompilationUnit(CompilationUnitNode compilationUnitNode) {}
 }

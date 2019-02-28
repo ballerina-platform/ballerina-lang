@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * This class is responsible for parsing Ballerina source files.
@@ -107,6 +108,11 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
         try {
+
+            Optional<CompilationUnitNode> cachedCUnit = sourceEntry.getCompilationUnit();
+            if (cachedCUnit.isPresent()) {
+                return cachedCUnit.get();
+            }
             BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
             String entryName = sourceEntry.getEntryName();
 
@@ -124,6 +130,8 @@ public class Parser {
             parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
+
+            sourceEntry.addCompilationUnit(compUnit);
             return compUnit;
         } catch (IOException e) {
             throw new RuntimeException("error reading module: " + e.getMessage(), e);

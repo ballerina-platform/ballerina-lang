@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.model.tree.CompilationUnitNode;
+
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
@@ -114,6 +116,14 @@ public interface WorkspaceDocumentManager {
      * @return set of {@link Path}
      */
     Set<Path> getAllFilePaths();
+
+    default Optional<CompilationUnitNode> getCompilationUnit(Path path) {
+        return Optional.empty();
+    }
+
+    default void removeCompilationUnit(Path path) {}
+
+    default void addCompilationUnit(Path path, CompilationUnitNode compilationUnitNode){}
 
     /**
      * Clear all file paths.

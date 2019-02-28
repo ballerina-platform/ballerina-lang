@@ -20,11 +20,13 @@ package org.ballerinalang.langserver.compiler.workspace.repository;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
  * LSInMemorySourceEntry.
@@ -45,5 +47,14 @@ class LSInMemorySourceEntry extends FileSystemSourceInput {
             throw new RuntimeException("Error in loading package source entry '" + getPath() +
                                                "': " + e.getMessage(), e);
         }
+    }
+
+    public Optional<CompilationUnitNode> getCompilationUnit() {
+        return this.documentManager.getCompilationUnit(this.getPath());
+    }
+
+    @Override
+    public void addCompilationUnit(CompilationUnitNode compilationUnitNode) {
+        this.documentManager.addCompilationUnit(this.getPath(), compilationUnitNode);
     }
 }

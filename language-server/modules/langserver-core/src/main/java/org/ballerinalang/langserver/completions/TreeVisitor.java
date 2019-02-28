@@ -168,9 +168,11 @@ public class TreeVisitor extends LSNodeVisitor {
         topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
                 .forEach(topLevelNode -> {
-                    cursorPositionResolver = TopLevelNodeScopeResolver.class;
-                    this.blockOwnerStack.push(evalPkg);
-                    acceptNode((BLangNode) topLevelNode, pkgEnv);
+                    if (this.isCursorWithinNode((DiagnosticPos) topLevelNode.getPosition())) {
+                        cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                        this.blockOwnerStack.push(evalPkg);
+                        acceptNode((BLangNode) topLevelNode, pkgEnv);
+                    }
                 });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
@@ -811,5 +813,12 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(body, blockEnv);
             blockOwnerStack.pop();
         }
+    }
+
+    private boolean isCursorWithinNode(DiagnosticPos pos) {
+        int line = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+        int col = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
+        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(pos);
+        return line >= zeroBasedPos.sLine && line <= zeroBasedPos.eLine;
     }
 }
