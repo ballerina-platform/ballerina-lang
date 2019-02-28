@@ -9,8 +9,7 @@ h2:Client testDB = new({
         path: "./h2-client",
         name: "testdb",
         username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
+        password: ""
     });
 
 public function main() {
@@ -47,6 +46,12 @@ public function main() {
     io:println("\nThe update operation - Drop student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
+
+    // Stop database client.
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return value of the `update` remote function.

@@ -17,13 +17,15 @@
 import ballerina/http;
 
 http:AuthProvider jwtAuthProvider4 = {
-    scheme:"jwt",
-    issuer:"ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "cert",
-    trustStore: {
-        path: "../../../src/test/resources/auth/testtruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    config: {
+        issuer:"ballerina",
+        audience: ["ballerina.io"],
+        certificateAlias: "cert",
+        trustStore: {
+            path: "../../../src/test/resources/auth/testtruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 

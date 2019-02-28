@@ -1980,9 +1980,8 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
-            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
-                    (BLangVariableReference) indexAccessExpr.expr, indexAccessExpr.indexExpr,
-                    (BVarSymbol) indexAccessExpr.symbol, false);
+            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
@@ -1996,6 +1995,9 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TUPLE) {
+            if (indexAccessExpr.indexExpr.type.tag == TypeTags.FINITE) {
+                indexAccessExpr.indexExpr = addConversionExprIfRequired(indexAccessExpr.indexExpr, symTable.intType);
+            }
             targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
@@ -2706,6 +2708,13 @@ public class Desugar extends BLangNodeVisitor {
     }
     @Override
     public void visit(BLangErrorConstructorExpr errConstExpr) {
+        if (errConstExpr.reasonExpr.impConversionExpr != null &&
+                errConstExpr.reasonExpr.impConversionExpr.targetType.tag != TypeTags.STRING) {
+            // Override casts to constants/finite types.
+            // For reason expressions of any form, the cast has to be to string.
+            errConstExpr.reasonExpr.impConversionExpr = null;
+        }
+        errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
         errConstExpr.detailsExpr = rewriteExpr(Optional.ofNullable(errConstExpr.detailsExpr)
                 .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));

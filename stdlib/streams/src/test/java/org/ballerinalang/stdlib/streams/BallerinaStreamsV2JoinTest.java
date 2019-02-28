@@ -49,7 +49,7 @@ public class BallerinaStreamsV2JoinTest {
                 compile("test-src/streamingv2-join-without-window-test.bal");
     }
 
-    @Test(description = "Test stream join query.")
+    @Test(description = "Test stream join query.", enabled = false)
     public void testStreamJoinQuery() {
         BValue[] stocksWithPrices = BRunUtil.invoke(result, "startJoinQuery");
         Assert.assertNotNull(stocksWithPrices);

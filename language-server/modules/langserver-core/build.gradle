@@ -1,0 +1,75 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    dist {
+      transitive false
+    }
+}
+
+dependencies {
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation project(':ballerina-launcher')
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
+    implementation 'com.h2database:h2:1.4.197'
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-builtin')
+    implementation project(':language-server:language-server-compiler')
+    implementation 'commons-io:commons-io:2.6'
+    implementation project(':ballerina-http')
+    implementation project(':ballerina-swagger')
+    implementation project(':swagger-ballerina:swagger-to-ballerina-generator')
+    implementation project(':swagger-ballerina:ballerina-to-swagger')
+    implementation project(':ballerina-h2')
+    implementation project(':ballerina-mysql')
+    implementation project(':ballerina-sql')
+    implementation project(':ballerina-transactions')
+    implementation project(':ballerina-websub')
+    implementation project(':ballerina-jms')
+    implementation project(':ballerina-grpc')
+    implementation project(':testerina:testerina-core')
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.1'
+    implementation 'io.netty:netty-buffer:4.1.19.Final'
+
+    dist 'com.h2database:h2:1.4.197'
+    dist 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
+    dist 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
+    dist 'commons-io:commons-io:2.6'
+    
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Language server - Core'
+
+CopySpec copyJarSpec = copySpec {
+    from configurations.dist
+    into("lib")
+}
+
+CopySpec copyResourceSpec = copySpec {
+    from file("src/main/resources/lang-server-index.sql")
+    into("resources")
+}
+
+task createZip(type: Zip) {
+    with copyJarSpec
+    with copyResourceSpec
+}
+
+artifacts {
+    dist createZip
+}
+
+build {
+    dependsOn createZip
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
