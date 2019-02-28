@@ -91,7 +91,8 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BMapType bMapType) {
-        throwUnimplementedError(bMapType);
+        buff.writeByte(bMapType.tag);
+        bMapType.constraint.accept(this);
     }
 
     @Override
@@ -101,7 +102,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BNoType bNoType) {
-        throwUnimplementedError(bNoType);
+        buff.writeByte(bNoType.tag);
     }
 
     @Override

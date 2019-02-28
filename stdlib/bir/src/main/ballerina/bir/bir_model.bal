@@ -39,7 +39,7 @@ public type Name record {
     string value = "";
 };
 
-public type Instruction Move|BinaryOp|ConstantLoad;
+public type Instruction Move|BinaryOp|ConstantLoad|NewMap|MapStore;
 
 public type Terminator Call|Branch|GOTO|Return;
 
@@ -57,7 +57,7 @@ public type AND "AND";
 public type OR "OR";
 
 
-public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|BinaryOpInstructionKind;
+public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -83,6 +83,10 @@ public type BTypeString "string";
 
 public type BArrayType record {
    BType eType;
+};
+
+public type BMapType record {
+   BType constraint;
 };
 
 public type BRecordType record {
@@ -114,7 +118,7 @@ public type BUnionType record {
 
 
 public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
-                  BInvokableType | BArrayType | BRecordType | BObjectType;
+                  BInvokableType | BArrayType | BRecordType | BObjectType | BMapType;
 
 
 public type BTypeSymbol record {
@@ -192,12 +196,38 @@ public type ConstantLoad object {
     public InstructionKind kind;
     public VarRef lhsOp;
     public BType typeValue;
-    public int value;
-    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue, int value) {
+    public int | string value;
+    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue, int | string value) {
         self.kind = kind;
         self.lhsOp = lhsOp;
         self.typeValue = typeValue;
         self.value = value;
+    }
+};
+
+public type NewMap object {
+    public InstructionKind kind;
+    public VarRef lhsOp;
+    public BType typeValue;
+    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue) {
+        self.kind = kind;
+        self.lhsOp = lhsOp;
+        self.typeValue = typeValue;
+    }
+};
+
+public type MapStore object {
+    public InstructionKind kind;
+    public VarRef lhsOp;
+    public VarRef keyOp;
+    public VarRef rhsOp;
+    public BType typeValue;
+    public function __init(InstructionKind kind, VarRef lhsOp, BType typeValue, VarRef keyOp, VarRef rhsOp) {
+        self.kind = kind;
+        self.typeValue = typeValue;
+        self.lhsOp = lhsOp;
+        self.keyOp = keyOp;
+        self.rhsOp = rhsOp;
     }
 };
 

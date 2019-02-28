@@ -2,18 +2,59 @@ import ballerina/io;
 
 public type TypeParser object {
     BirChannelReader reader;
-    public int TYPE_TAG_NIL = 10;
+    // public int TYPE_TAG_NIL = 10;
+    // public int TYPE_TAG_INT = 1;
+    // public int TYPE_TAG_BYTE = 2;
+    // public int TYPE_TAG_FLOAT = 3;
+    // public int TYPE_TAG_DECIMAL = 4;
+    // public int TYPE_TAG_STRING = 5;
+    // public int TYPE_TAG_BOOLEAN = 6;
+    // public int TYPE_TAG_UNION = 21;
+    // public int TYPE_TAG_ARRAY = 20;
+    // public int TYPE_TAG_INVOKABL_TYPE = 16;
+    // public int TYPE_TAG_RECORD_TYPE = 12;
+    // public int TYPE_TAG_OBJECT_TYPE = 35;
+
     public int TYPE_TAG_INT = 1;
-    public int TYPE_TAG_BYTE = 2;
-    public int TYPE_TAG_FLOAT = 3;
-    public int TYPE_TAG_DECIMAL = 4;
-    public int TYPE_TAG_STRING = 5;
-    public int TYPE_TAG_BOOLEAN = 6;
-    public int TYPE_TAG_UNION = 21;
-    public int TYPE_TAG_ARRAY = 20;
-    public int TYPE_TAG_INVOKABL_TYPE = 16;
-    public int TYPE_TAG_RECORD_TYPE = 12;
-    public int TYPE_TAG_OBJECT_TYPE = 35;
+    public int TYPE_TAG_BYTE = TYPE_TAG_INT + 1;
+    public int TYPE_TAG_FLOAT = TYPE_TAG_BYTE + 1;
+    public int TYPE_TAG_DECIMAL = TYPE_TAG_FLOAT + 1;
+    public int TYPE_TAG_STRING = TYPE_TAG_DECIMAL + 1;
+    public int TYPE_TAG_BOOLEAN = TYPE_TAG_STRING + 1;
+    // All the above types are values type
+    public int TYPE_TAG_JSON = TYPE_TAG_BOOLEAN + 1;
+    public int TYPE_TAG_XML = TYPE_TAG_JSON + 1;
+    public int TYPE_TAG_TABLE = TYPE_TAG_XML + 1;
+    public int TYPE_TAG_NIL = TYPE_TAG_TABLE + 1;
+    public int TYPE_TAG_ANYDATA = TYPE_TAG_NIL + 1;
+    public int TYPE_TAG_RECORD = TYPE_TAG_ANYDATA + 1;
+    public int TYPE_TAG_TYPEDESC = TYPE_TAG_RECORD + 1;
+    public int TYPE_TAG_STREAM = TYPE_TAG_TYPEDESC + 1;
+    public int TYPE_TAG_MAP = TYPE_TAG_STREAM + 1;
+    public int TYPE_TAG_INVOKABLE = TYPE_TAG_MAP + 1;
+    // All the above types are branded types
+    public int TYPE_TAG_ANY = TYPE_TAG_INVOKABLE + 1;
+    public int TYPE_TAG_ENDPOINT = TYPE_TAG_ANY + 1;
+    public int TYPE_TAG_SERVICE = TYPE_TAG_ENDPOINT + 1;
+    public int TYPE_TAG_ARRAY = TYPE_TAG_SERVICE + 1;
+    public int TYPE_TAG_UNION = TYPE_TAG_ARRAY + 1;
+    public int TYPE_TAG_PACKAGE = TYPE_TAG_UNION + 1;
+    public int TYPE_TAG_NONE = TYPE_TAG_PACKAGE + 1;
+    public int TYPE_TAG_VOID = TYPE_TAG_NONE + 1;
+    public int TYPE_TAG_XMLNS = TYPE_TAG_VOID + 1;
+    public int TYPE_TAG_ANNOTATION = TYPE_TAG_XMLNS + 1;
+    public int TYPE_TAG_XML_ATTRIBUTES = TYPE_TAG_ANNOTATION + 1;
+    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_XML_ATTRIBUTES + 1;
+    public int TYPE_TAG_ERROR = TYPE_TAG_SEMANTIC_ERROR + 1;
+    public int TYPE_TAG_ITERATOR = TYPE_TAG_ERROR + 1;
+    public int TYPE_TAG_TUPLE = TYPE_TAG_ITERATOR + 1;
+    public int TYPE_TAG_FUTURE = TYPE_TAG_TUPLE + 1;
+    public int TYPE_TAG_INTERMEDIATE_COLLECTION = TYPE_TAG_FUTURE + 1;
+    public int TYPE_TAG_FINITE = TYPE_TAG_INTERMEDIATE_COLLECTION + 1;
+    public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
+    public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
+    public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
+    public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -37,11 +78,13 @@ public type TypeParser object {
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_ARRAY){
             return self.parseArrayType();
-        } else if (typeTag == self.TYPE_TAG_INVOKABL_TYPE){
+        } else if (typeTag == self.TYPE_TAG_MAP){
+            return self.parseMapType();
+        } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
-        } else if (typeTag == self.TYPE_TAG_RECORD_TYPE){
+        } else if (typeTag == self.TYPE_TAG_RECORD){
             return self.parseRecordType();
-        } else if (typeTag == self.TYPE_TAG_OBJECT_TYPE){
+        } else if (typeTag == self.TYPE_TAG_OBJECT){
             return self.parseObjectType();
         }
         error err = error("Unknown type tag :" + typeTag);
@@ -50,6 +93,10 @@ public type TypeParser object {
 
     function parseArrayType() returns BArrayType {
         return { eType:self.parseType() };
+    }
+
+    function parseMapType() returns BMapType {
+        return { constraint:self.parseType() };
     }
 
     function parseUnionType() returns BUnionType {

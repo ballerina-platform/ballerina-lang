@@ -2,9 +2,11 @@ import ballerina/internal;
 
 public type FuncBodyParser object {
     BirChannelReader reader;
+    TypeParser typeParser;
     map<VariableDcl> localVarMap;
-    public function __init(BirChannelReader reader, map<VariableDcl> localVarMap) {
+    public function __init(BirChannelReader reader,  TypeParser typeParser, map<VariableDcl> localVarMap) {
         self.reader = reader;
+        self.typeParser = typeParser;
         self.localVarMap = localVarMap;
     }
 
@@ -26,14 +28,31 @@ public type FuncBodyParser object {
         var kindTag = self.reader.readInt8();
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
-        if (kindTag == 6){
+        if (kindTag == 8) {
+            var bType = self.typeParser.parseType();
+            kind = "MAP_STORE";
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            return new MapStore(kind, lhsOp, bType, keyOp, rhsOp);
+        } else if (kindTag == 7) {
+            var bType = self.typeParser.parseType();
+            kind = "NEW_MAP";
+            var lhsOp = self.parseVarRef();
+            return new NewMap(kind, lhsOp, bType);
+        } else if (kindTag == 6){
             //TODO: remove redundent
-            var bType = self.reader.readBType();
+            var bType = self.typeParser.parseType();
             kind = "CONST_LOAD";
-            var constLoad = new ConstantLoad(kind,
-                self.parseVarRef(),
-                bType,
-                self.reader.readIntCpRef());
+            var lhsOp = self.parseVarRef();
+
+            int | string value = 0;
+            if (bType is BTypeInt) {
+                value = self.reader.readIntCpRef();
+            } else if (bType is BTypeString) {
+                value = self.reader.readStringCpRef();
+            }
+            var constLoad = new ConstantLoad(kind, lhsOp, bType, value);
             return constLoad;
         } else if (kindTag == 5){
             kind = "MOVE";

@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.MapStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -43,8 +45,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -74,6 +79,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGenEnv env;
     private Names names;
+
+    // Required variables to generate code for assignment statements
+    private boolean varAssignment = false;
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -197,12 +205,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment astAssignStmt) {
-        // TODO The following works only for local variable references.
-        BLangLocalVarRef astVarRef = (BLangLocalVarRef) astAssignStmt.varRef;
-
         astAssignStmt.expr.accept(this);
-        BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(astVarRef.symbol));
-        emit(new Move(astAssignStmt.pos, this.env.targetOperand, varRef));
+
+        this.varAssignment = true;
+        astAssignStmt.varRef.accept(this);
+        this.varAssignment = false;
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -378,14 +385,70 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    public void visit(BLangLocalVarRef astVarRefExpr) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astVarRefExpr.type,
+    public void visit(BLangMapLiteral astMapLiteralExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapLiteralExpr.type,
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand tempVarRef = new BIROperand(tempVarDcl);
-        BIROperand fromVarRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
-        emit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
-        this.env.targetOperand = tempVarRef;
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        emit(new BIRNonTerminator.NewMap(astMapLiteralExpr.pos, astMapLiteralExpr.type, toVarRef));
+        this.env.targetOperand = toVarRef;
+
+        // Handle Map init stuff
+        for (BLangRecordKeyValue keyValue : astMapLiteralExpr.keyValuePairs) {
+            BLangExpression keyExpr = keyValue.key.expr;
+            keyExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            BLangExpression valueExpr = keyValue.valueExpr;
+            valueExpr.accept(this);
+            BIROperand rhsOp = this.env.targetOperand;
+
+            BMapType mapType = (BMapType) astMapLiteralExpr.type;
+
+            emit(new BIRNonTerminator.MapStore(astMapLiteralExpr.pos, mapType, toVarRef, keyRegIndex, rhsOp));
+        }
+
+        this.env.targetOperand = toVarRef;
+    }
+
+    public void visit(BLangMapAccessExpr astMapAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        if (variableStore) {
+            BIROperand rhsOp = this.env.targetOperand;
+
+            astMapAccessExpr.expr.accept(this);
+            BIROperand varRefRegIndex = this.env.targetOperand;
+
+            astMapAccessExpr.indexExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            emit(new MapStore(astMapAccessExpr.pos, astMapAccessExpr.type, varRefRegIndex, keyRegIndex, rhsOp));
+
+        } else {
+            // TODO fill
+        }
+        this.varAssignment = variableStore;
+    }
+
+    public void visit(BLangLocalVarRef astVarRefExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        if (variableStore) {
+            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+            emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
+        } else {
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astVarRefExpr.type,
+                    this.env.nextLocalVarId(names), VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            BIROperand tempVarRef = new BIROperand(tempVarDcl);
+            BIROperand fromVarRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+            emit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
+            this.env.targetOperand = tempVarRef;
+        }
+        this.varAssignment = variableStore;
     }
 
     public void visit(BLangBinaryExpr astBinaryExpr) {
