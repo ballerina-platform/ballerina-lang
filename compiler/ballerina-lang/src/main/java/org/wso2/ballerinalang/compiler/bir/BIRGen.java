@@ -34,10 +34,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -62,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -81,6 +85,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGenEnv env;
     private Names names;
+    private final SymbolTable symTable;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
@@ -98,6 +103,7 @@ public class BIRGen extends BLangNodeVisitor {
         context.put(BIR_GEN, this);
 
         this.names = Names.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
@@ -416,6 +422,51 @@ public class BIRGen extends BLangNodeVisitor {
             emit(new BIRNonTerminator.MapStore(astMapLiteralExpr.pos, mapType, toVarRef, keyRegIndex, rhsOp));
         }
 
+        this.env.targetOperand = toVarRef;
+    }
+
+    public void visit(BLangArrayLiteral astArrayLiteralExpr) {
+        BType etype; //TODO do we need below logic anymore?
+        if (astArrayLiteralExpr.type.tag == TypeTags.ANY) {
+            etype = astArrayLiteralExpr.type;
+        } else {
+            etype = ((BArrayType) astArrayLiteralExpr.type).eType;
+        }
+
+        // Emit create array instruction
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayLiteralExpr.type,
+                this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        long size = astArrayLiteralExpr.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) astArrayLiteralExpr.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) astArrayLiteralExpr.type).size : -1L;
+
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = astArrayLiteralExpr.pos;
+        literal.value = size;
+        literal.type = symTable.intType;
+        literal.accept(this);
+        BIROperand sizeOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewArray(astArrayLiteralExpr.pos, astArrayLiteralExpr.type, toVarRef, sizeOp));
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < astArrayLiteralExpr.exprs.size(); i++) {
+            BLangExpression argExpr = astArrayLiteralExpr.exprs.get(i);
+            argExpr.accept(this);
+            BIROperand exprIndex = this.env.targetOperand;
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = astArrayLiteralExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            indexLiteral.accept(this);
+            BIROperand arrayIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.ArrayStore(astArrayLiteralExpr.pos, etype, toVarRef, arrayIndex, exprIndex));
+        }
         this.env.targetOperand = toVarRef;
     }
 

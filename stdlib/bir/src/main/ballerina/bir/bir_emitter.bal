@@ -122,6 +122,12 @@ type InstructionEmitter object {
             print(" = ", ins.kind, " ", ins.value, " <");
             self.typeEmitter.emitType(ins.typeValue);
             println(">;");
+        } else if (ins is NewArray) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " [");
+            self.opEmitter.emitOp(ins.sizeOp);
+            println("];");
         } else if (ins is NewMap) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -189,6 +195,8 @@ type TypeEmitter object {
             self.emitObjectType(typeVal, tabs);
         } else if (typeVal is BInvokableType) {
             self.emitInvokableType(typeVal, tabs);
+        } else if (typeVal is BArrayType) {
+            self.emitArrayType(typeVal, tabs);
         } else if (typeVal is BUnionType) {
             self.emitUnionType(typeVal, tabs);
         } else if (typeVal is BMapType) {
@@ -232,6 +240,12 @@ type TypeEmitter object {
         }
         print(") -> ");
         self.emitType(bInvokableType.retType);
+    }
+
+    function emitArrayType(BArrayType bArrayType, string tabs) {
+        print(tabs);
+        self.emitType(bArrayType.eType);
+        print("[]");
     }
 
     function emitUnionType(BUnionType bUnionType, string tabs) {

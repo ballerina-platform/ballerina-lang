@@ -28,7 +28,22 @@ public type FuncBodyParser object {
         var kindTag = self.reader.readInt8();
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
-        if (kindTag == INS_MAP_STORE) {
+        if (kindTag == INS_ARRAY_STORE) {
+            var bType = self.typeParser.parseType();
+            kind = "ARRAY_STORE";
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            ArrayStore mapStore = {kind:kind, lhsOp:lhsOp, typeValue:bType, keyOp:keyOp, rhsOp:rhsOp};
+            return mapStore;
+        } else if (kindTag == INS_NEW_ARRAY) {
+            var bType = self.typeParser.parseType();
+            kind = "NEW_ARRAY";
+            var lhsOp = self.parseVarRef();
+            var sizeOp = self.parseVarRef();
+            NewArray newMap = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
+            return newMap;
+        } else if (kindTag == INS_MAP_STORE) {
             var bType = self.typeParser.parseType();
             kind = "MAP_STORE";
             var lhsOp = self.parseVarRef();
