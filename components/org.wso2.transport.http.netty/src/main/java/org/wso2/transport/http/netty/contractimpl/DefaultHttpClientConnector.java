@@ -180,7 +180,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             final HttpRoute route = getTargetRoute(senderConfiguration.getScheme(), httpOutboundRequest);
             if (isHttp2) {
                 // See whether an already upgraded HTTP/2 connection is available
-                Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
+                Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(http2SourceHandler,
+                                                                                                   route);
 
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
@@ -248,12 +249,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 private void prepareTargetChannelForHttp2() {
                     freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
                     connectionManager.getHttp2ConnectionManager().
-                            addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                        addHttp2ClientChannel(freshHttp2ClientChannel.getChannel().eventLoop(), route,
+                                              freshHttp2ClientChannel);
                     freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
-                            new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
+                                                                 new TimeoutHandler(socketIdleTimeout,
+                                                                                    freshHttp2ClientChannel));
 
                     freshHttp2ClientChannel.getChannel().eventLoop().execute(
-                            () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
+                        () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
 

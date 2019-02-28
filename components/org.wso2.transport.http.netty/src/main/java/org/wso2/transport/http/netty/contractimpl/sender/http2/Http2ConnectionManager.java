@@ -18,22 +18,101 @@
 
 package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
-import io.netty.channel.Channel;
+import io.netty.channel.EventLoop;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * {@code Http2ConnectionManager} Manages HTTP/2 connections.
  */
 public class Http2ConnectionManager {
 
-    // Per route connection pools
+    private final ConcurrentHashMap<EventLoop, EventLoopPool> eventLoopPools = new ConcurrentHashMap<>();
+    private final List<EventLoop> eventLoops = new ArrayList<>(); //When source handler is not present
+    private PoolConfiguration poolConfiguration;
+
+    public Http2ConnectionManager(PoolConfiguration poolConfiguration) {
+        this.poolConfiguration = poolConfiguration;
+    }
+
+    public void addHttp2ClientChannel(EventLoop eventLoop, HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+        eventLoops.add(eventLoop);
+        final EventLoopPool eventLoopPool = createOrGetEventLoopPool(eventLoop);
+        String key = generateKey(httpRoute);
+        final EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = createOrGetPerRoutePool(eventLoopPool, key);
+        perRouteConnectionPool.addChannel(http2ClientChannel);
+
+        // Configure a listener to remove connection from pool when it is closed
+        http2ClientChannel.getChannel().closeFuture().
+            addListener(future -> {
+                            EventLoopPool.PerRouteConnectionPool pool = eventLoopPool.fetchConnectionPool(key);
+                            if (pool != null) {
+                                pool.removeChannel(http2ClientChannel);
+                                http2ClientChannel.getDataEventListeners().
+                                    forEach(Http2DataEventListener::destroy);
+                            }
+                        }
+            );
+    }
+
+    private EventLoopPool.PerRouteConnectionPool createOrGetPerRoutePool(EventLoopPool eventLoopPool, String key) {
+        final EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = eventLoopPool.fetchConnectionPool(key);
+        if (perRouteConnectionPool != null) {
+            return perRouteConnectionPool;
+        }
+        return eventLoopPool.getConnectionPools().computeIfAbsent(key, p -> new EventLoopPool.PerRouteConnectionPool(
+            poolConfiguration.getHttp2MaxActiveStreamsPerConnection()));
+    }
+
+    private EventLoopPool createOrGetEventLoopPool(EventLoop eventLoop) {
+        final EventLoopPool pool = eventLoopPools.get(eventLoop);
+        if (pool != null) {
+            return pool;
+        }
+        return eventLoopPools.computeIfAbsent(eventLoop, e -> new EventLoopPool(eventLoop));
+    }
+
+    private String generateKey(HttpRoute httpRoute) {
+        return httpRoute.getScheme() + ":" + httpRoute.getHost() + ":" + httpRoute.getPort();
+    }
+
+    public Http2ClientChannel borrowChannel(Http2SourceHandler http2SrcHandler, HttpRoute httpRoute) {
+        EventLoopPool eventLoopPool;
+        String key = generateKey(httpRoute);
+        EventLoopPool.PerRouteConnectionPool perRouteConnectionPool;
+
+        if (http2SrcHandler != null) {
+            eventLoopPool = createOrGetEventLoopPool(http2SrcHandler.getChannelHandlerContext().channel().eventLoop());
+            perRouteConnectionPool = createOrGetPerRoutePool(eventLoopPool, key);
+
+        } else {
+            //Need a better algorithm to pick eventloop. May be round robin?
+            eventLoopPool = createOrGetEventLoopPool(eventLoops.get(0));
+            perRouteConnectionPool = createOrGetPerRoutePool(eventLoopPool, key);
+        }
+
+        Http2ClientChannel http2ClientChannel = null;
+        if (perRouteConnectionPool != null) {
+            http2ClientChannel = perRouteConnectionPool.fetchTargetChannel();
+        }
+        return http2ClientChannel;
+    }
+
+    void returnClientChannel(EventLoop eventLoop, HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+        String key = generateKey(httpRoute);
+        EventLoopPool.PerRouteConnectionPool
+            perRouteConnectionPool = eventLoopPools.get(eventLoop).fetchConnectionPool(key);
+        if (perRouteConnectionPool != null) {
+            perRouteConnectionPool.addChannel(http2ClientChannel);
+        }
+    }
+
+   /* // Per route connection pools
     private static ConcurrentHashMap<String, PerRouteConnectionPool> connectionPools = new ConcurrentHashMap<>();
     // Lock for synchronizing access
     private Lock lock = new ReentrantLock();
@@ -43,13 +122,13 @@ public class Http2ConnectionManager {
         this.poolConfiguration = poolConfiguration;
     }
 
-    /**
+    *//**
      * Borrows an already active {@link Http2ClientChannel} for a given http route.
      * This will not try to create new connections.
      *
      * @param httpRoute http route
      * @return an active {@code Http2ClientChannel}
-     */
+     *//*
     public Http2ClientChannel borrowChannel(HttpRoute httpRoute) {
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
@@ -72,13 +151,13 @@ public class Http2ConnectionManager {
         return httpRoute.getScheme() + ":" + httpRoute.getHost() + ":" + httpRoute.getPort();
     }
 
-    /**
+    *//**
      * Adds a Http2 Client Channel to the connection pool.
      * Upgraded connection from HTTP/1.1 to HTTP/2 should arrive here.
      *
      * @param httpRoute          host:port pair
      * @param http2ClientChannel Http2 Client Channel
-     */
+     *//*
     public void addHttp2ClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
@@ -112,12 +191,12 @@ public class Http2ConnectionManager {
                 );
     }
 
-    /**
+    *//**
      * Returns the previously exhausted {@code Http2ClientChannel} back to the pool.
      *
      * @param httpRoute          http route
      * @param http2ClientChannel previously exhausted Http2ClientChannel
-     */
+     *//*
     void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
@@ -126,12 +205,12 @@ public class Http2ConnectionManager {
         }
     }
 
-    /**
+    *//**
      * Removes the {@code Http2ClientChannel} from pool.
      *
      * @param httpRoute          the http route
      * @param http2ClientChannel the {@code Http2ClientChannel} to be removed
-     */
+     *//*
     void removeClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
@@ -140,9 +219,9 @@ public class Http2ConnectionManager {
         }
     }
 
-    /**
+    *//**
      * Entity which holds the pool of connections for a given http route.
-     */
+     *//*
     private static class PerRouteConnectionPool {
 
         private BlockingQueue<Http2ClientChannel> http2ClientChannels = new LinkedBlockingQueue<>();
@@ -153,11 +232,11 @@ public class Http2ConnectionManager {
             this.maxActiveStreams = maxActiveStreams;
         }
 
-        /**
-         * Fetches an active {@code TargetChannel} from the pool.
-         *
-         * @return active TargetChannel
-         */
+        *//**
+     * Fetches an active {@code TargetChannel} from the pool.
+     *
+     * @return active TargetChannel
+     *//*
         Http2ClientChannel fetchTargetChannel() {
             if (!http2ClientChannels.isEmpty()) {
                 Http2ClientChannel http2ClientChannel = http2ClientChannels.peek();
@@ -190,5 +269,7 @@ public class Http2ConnectionManager {
         void removeChannel(Http2ClientChannel http2ClientChannel) {
             http2ClientChannels.remove(http2ClientChannel);
         }
-    }
+    }*/
+
+
 }
