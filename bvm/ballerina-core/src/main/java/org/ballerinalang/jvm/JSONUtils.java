@@ -225,7 +225,7 @@ public class JSONUtils {
      * @param index Index of the element needed
      * @return Element at the given index, if the provided JSON is an array. Null, otherwise.
      */
-    public static Object getArrayElement(Object jsonArray, long index) {
+    public static Object getArrayElement(Object jsonArray, int index) {
         if (!isJSONArray(jsonArray)) {
             return null;
         }
@@ -250,7 +250,7 @@ public class JSONUtils {
      * @param index Index of the element to be set
      * @param element Element to be set
      */
-    public static void setArrayElement(Object json, long index, Object element) {
+    public static void setArrayElement(Object json, int index, Object element) {
         if (!isJSONArray(json)) {
             return;
         }
