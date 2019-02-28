@@ -22,6 +22,8 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayStore;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -165,6 +167,21 @@ public class BIRInstructionWriter extends BIRVisitor {
         birMapStore.lhsOp.accept(this);
         birMapStore.keyOp.accept(this);
         birMapStore.rhsOp.accept(this);
+    }
+
+    public void visit(NewArray birNewArray) {
+        buf.writeByte(birNewArray.kind.getValue());
+        birNewArray.type.accept(typeWriter);
+        birNewArray.lhsOp.accept(this);
+        birNewArray.sizeOp.accept(this);
+    }
+
+    public void visit(ArrayStore birArrayStore) {
+        buf.writeByte(birArrayStore.kind.getValue());
+        birArrayStore.type.accept(typeWriter);
+        birArrayStore.lhsOp.accept(this);
+        birArrayStore.keyOp.accept(this);
+        birArrayStore.rhsOp.accept(this);
     }
 
     // Operands

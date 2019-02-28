@@ -71,7 +71,7 @@ public type OR "OR";
 
 public type TerminatorKind "GOTO"|"CALL"|"BRANCH"|"RETURN";
 
-public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|BinaryOpInstructionKind;
+public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|"NEW_ARRAY"|"ARRAY_STORE"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -223,6 +223,23 @@ public type NewMap record {
 };
 
 public type MapStore record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef keyOp;
+    VarRef rhsOp;
+    BType typeValue; //TODO do we need this?
+    !...;
+};
+
+public type NewArray record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef sizeOp;
+    BType typeValue;
+    !...;
+};
+
+public type ArrayStore record {
     InstructionKind kind;
     VarRef lhsOp;
     VarRef keyOp;
