@@ -27,15 +27,21 @@ function generateJVMExecutable(byte[] birBinary, string progName) returns JarFil
 function generateJarFile(bir:Package pkg, string progName) returns JarFile {
     //todo : need to generate java package here based on BIR package(s)
     invokedClassName = progName;
+
+    // TODO: remove once the package init class is introduced
+    typeOwnerClass = progName;
+
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, invokedClassName, null, OBJECT_VALUE, null);
 
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
+    generateUserDefinedTypeFields(cw, pkg.typeDefs);
+
     bir:Function? mainFunc = getMainFunc(pkg.functions);
     if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc, cw);
+        generateMainMethod(mainFunc, cw, pkg);
         manifestEntries["Main-Class"] = invokedClassName;
     }
 

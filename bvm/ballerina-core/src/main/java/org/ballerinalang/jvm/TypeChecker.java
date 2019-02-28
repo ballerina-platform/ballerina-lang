@@ -18,25 +18,25 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BAttachedFunction;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BFiniteType;
+import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BFutureType;
+import org.ballerinalang.jvm.types.BJSONType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BTableType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BAttachedFunction;
-import org.ballerinalang.model.types.BField;
-import org.ballerinalang.model.types.BFiniteType;
-import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BFutureType;
-import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BObjectType;
-import org.ballerinalang.model.types.BRecordType;
-import org.ballerinalang.model.types.BTableType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 
 import java.math.BigDecimal;
@@ -244,7 +244,7 @@ public class TypeChecker {
                 return false;
             }
 
-            if (sourceField == null || !checkIsType(sourceField.fieldType, targetField.fieldType, unresolvedTypes)) {
+            if (sourceField == null || !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -256,7 +256,7 @@ public class TypeChecker {
         }
 
         // If it's an open record, check if they are compatible with the rest field of the target type.
-        return sourceFields.values().stream().filter(field -> !targetFieldNames.contains(field.fieldName))
+        return sourceFields.values().stream().filter(field -> !targetFieldNames.contains(field.name))
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
     }
 
@@ -371,7 +371,7 @@ public class TypeChecker {
         Map<String, BField> rhsFields = rhsType.getFields();
         for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
             BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
-            if (rhsField == null || !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
+            if (rhsField == null || !isSameType(rhsField.type, lhsFieldEntry.getValue().type)) {
                 return false;
             }
         }
@@ -402,7 +402,7 @@ public class TypeChecker {
         for (Map.Entry<String, BField> lhsFieldEntry : lhsType.getFields().entrySet()) {
             BField rhsField = rhsFields.get(lhsFieldEntry.getKey());
             if (rhsField == null || !Flags.isFlagOn(lhsFieldEntry.getValue().flags, Flags.PUBLIC) ||
-                    !isSameType(rhsField.fieldType, lhsFieldEntry.getValue().fieldType)) {
+                    !isSameType(rhsField.type, lhsFieldEntry.getValue().type)) {
                 return false;
             }
         }
@@ -726,7 +726,7 @@ public class TypeChecker {
         BType restFieldType = targetType.restFieldType;
 
         for (BField field : targetType.getFields().values()) {
-            targetTypeField.put(field.getFieldName(), field.fieldType);
+            targetTypeField.put(field.getFieldName(), field.type);
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {

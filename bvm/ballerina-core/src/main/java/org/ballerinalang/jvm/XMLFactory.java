@@ -36,14 +36,14 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;

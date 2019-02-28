@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -60,6 +61,10 @@ public class VisitLdcInsn extends BlockingNativeCallableUnit {
             case TypeTags.STRING_TAG:
                 String stringVal = value.stringValue();
                 mv.visitLdcInsn(stringVal);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                boolean booleanValue = ((BBoolean) value).booleanValue();
+                mv.visitLdcInsn(booleanValue);
                 break;
             default:
                 throw new UnsupportedOperationException();

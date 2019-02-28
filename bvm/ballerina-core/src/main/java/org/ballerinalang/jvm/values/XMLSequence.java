@@ -20,12 +20,12 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
