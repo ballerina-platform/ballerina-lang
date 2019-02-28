@@ -1,5 +1,6 @@
 import ballerina/auth;
 import ballerina/http;
+import ballerina/crypto;
 
 function testCanHandleHttpJwtAuthWithoutHeader() returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
@@ -42,12 +43,30 @@ function createRequest() returns (http:Request) {
 }
 
 function createJwtAuthProvider(string trustStorePath) returns auth:JWTAuthProvider {
-    auth:JWTAuthProviderConfig jwtConfig = {};
-    jwtConfig.issuer = "wso2";
-    jwtConfig.audience = "ballerina";
-    jwtConfig.certificateAlias = "ballerina";
-    jwtConfig.trustStoreFilePath = trustStorePath;
-    jwtConfig.trustStorePassword = "ballerina";
+    crypto:TrustStore trustStore = {
+        path: trustStorePath,
+        password: "ballerina"
+    };
+    auth:JWTAuthProviderConfig jwtConfig = {
+        issuer: "wso2",
+        audience: ["ballerina"],
+        certificateAlias: "ballerina",
+        trustStore: trustStore
+    };
     auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
+}
+
+function generateJwt(auth:JwtHeader header, auth:JwtPayload payload, string keyStorePath) returns string|error {
+    crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
+    auth:JWTIssuerConfig issuerConfig = {
+        keyStore: keyStore,
+        keyAlias: "ballerina",
+        keyPassword: "ballerina"
+    };
+    return auth:issueJwt(header, payload, issuerConfig);
+}
+
+function verifyJwt(string jwt, auth:JWTValidatorConfig config) returns auth:JwtPayload|error {
+    return auth:validateJwt(jwt, config);
 }

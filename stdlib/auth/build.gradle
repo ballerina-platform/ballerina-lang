@@ -1,0 +1,32 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+
+    // // tansitive
+    baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+
+    implementation 'commons-logging:commons-logging:1.1.1'
+    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-internal')
+
+    testCompile 'org.testng:testng:6.13.1'
+    
+}
+
+description = 'Ballerina - Auth'
