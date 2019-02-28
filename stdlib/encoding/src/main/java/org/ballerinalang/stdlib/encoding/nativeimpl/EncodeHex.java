@@ -34,8 +34,7 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
  * @since 0.990.3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "encodeHex",
+        orgName = "ballerina", packageName = "encoding", functionName = "encodeHex",
         args = {
                 @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         },

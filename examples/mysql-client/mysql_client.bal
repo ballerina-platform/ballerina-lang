@@ -8,7 +8,6 @@ mysql:Client testDB = new({
         name: "testdb",
         username: "test",
         password: "test",
-        poolOptions: { maximumPoolSize: 5 },
         dbOptions: { useSSL: false }
     });
 
@@ -49,6 +48,12 @@ public function main() {
     io:println("\nThe update operation - Drop student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
+
+    // Stop database client
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return value of the `update` remote function.

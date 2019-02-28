@@ -130,6 +130,9 @@ public class FormattingTest {
                 {"expectedRecordLiteralExpr.bal", "recordLiteralExpr.bal"},
                 {"expectedStreamingQuery.bal", "streamingQuery.bal"},
                 {"expectedTableQuery.bal", "tableQuery.bal"},
+                {"expectedTypeGuard.bal", "typeGuard.bal"},
+                {"expectedTernaryExpr.bal", "ternaryExpr.bal"},
+                {"expectedStringTemplateLiteral.bal", "stringTemplateLiteral.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }

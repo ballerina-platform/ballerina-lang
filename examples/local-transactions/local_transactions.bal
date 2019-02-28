@@ -70,7 +70,10 @@ public function main() {
     handleUpdate(ret, "Drop table SALARY");
 
     // Close the connection pool.
-    testDB.stop();
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return of the update operation.
