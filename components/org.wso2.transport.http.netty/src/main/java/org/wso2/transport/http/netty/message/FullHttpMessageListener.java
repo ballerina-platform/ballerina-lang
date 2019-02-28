@@ -25,8 +25,11 @@ public interface FullHttpMessageListener {
 
     /**
      * Get notified when all the content are added to the {@link HttpCarbonMessage}.
+     *
+     * @param httpCarbonMessage {@link HttpCarbonMessage} with complete content
+
      */
-    void onComplete();
+    void onComplete(HttpCarbonMessage httpCarbonMessage);
 
     /**
      * Get notified when an error occurred during the accumulation.

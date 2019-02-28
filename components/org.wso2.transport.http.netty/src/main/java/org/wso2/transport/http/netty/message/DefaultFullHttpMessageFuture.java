@@ -57,7 +57,7 @@ public class DefaultFullHttpMessageFuture implements FullHttpMessageFuture {
     @Override
     public void notifySuccess() {
         if (messageListener != null) {
-            messageListener.onComplete();
+            messageListener.onComplete(httpCarbonMessage);
             removeListener();
         }
     }
