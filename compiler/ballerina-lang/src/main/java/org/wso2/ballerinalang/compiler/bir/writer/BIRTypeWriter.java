@@ -186,7 +186,7 @@ public class BIRTypeWriter implements TypeVisitor {
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isPublic(symbol)) {
             return Visibility.PUBLIC;
-        } else if (Symbols.isPrivate(symbol)){
+        } else if (Symbols.isPrivate(symbol)) {
             return Visibility.PRIVATE;
         } else {
             return Visibility.PACKAGE_PRIVATE;

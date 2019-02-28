@@ -58,6 +58,8 @@ public class BIRBinaryWriter {
         int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         birbuf.writeInt(pkgIndex);
 
+        //Write import module declarations
+        writeImportModuleDecls(birbuf, birPackage.importModules);
         // Write type defs
         writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
@@ -79,6 +81,15 @@ public class BIRBinaryWriter {
     }
 
     // private methods
+
+    private void writeImportModuleDecls(ByteBuf buf, List<BIRNode.BIRImportModule> birImpModList) {
+        buf.writeInt(birImpModList.size());
+        birImpModList.forEach(impMod -> {
+            buf.writeInt(addStringCPEntry(impMod.org.value));
+            buf.writeInt(addStringCPEntry(impMod.name.value));
+            buf.writeInt(addStringCPEntry(impMod.version.value));
+        });
+    }
 
     private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());

@@ -20,12 +20,12 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -324,7 +324,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(long startIndex, long endIndex) {
+    public XMLValue<?> slice(int startIndex, int endIndex) {
         if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
             throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -347,7 +347,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
 
         int j = 0;
         ArrayValue elementsSeq = new ArrayValue();
-        for (long i = startIndex; i < endIndex; i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, sequence.getRefValue(i));
         }
 
@@ -436,7 +436,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> getItem(long index) {
+    public XMLValue<?> getItem(int index) {
         return (XMLValue<?>) this.sequence.getRefValue(index);
     }
 

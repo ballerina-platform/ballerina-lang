@@ -19,8 +19,8 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class StreamingJsonValue extends ArrayValue {
     }
 
     @Override
-    public void add(long index, Object value) {
+    public void add(int index, Object value) {
         // If the the index is larger than the size, and data-source has more content,
         // then read data from data-source until the index, or until the end of the data-source.
         while (index >= size && datasource.hasNext()) {
@@ -63,7 +63,7 @@ public class StreamingJsonValue extends ArrayValue {
     }
 
     @Override
-    public Object getRefValue(long index) {
+    public Object getRefValue(int index) {
         // If the the index is larger than the size, and datasource has more content,
         // then read data from data-source until the index, or until the end of the data-source.
         while (index >= size && datasource.hasNext()) {
@@ -124,7 +124,7 @@ public class StreamingJsonValue extends ArrayValue {
     }
 
     @Override
-    public long size() {
+    public int size() {
         if (datasource.hasNext()) {
             buildDatasource();
         }

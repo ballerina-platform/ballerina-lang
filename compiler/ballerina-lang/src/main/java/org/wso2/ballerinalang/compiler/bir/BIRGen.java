@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -100,7 +102,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     public BLangPackage genBIR(BLangPackage astPkg) {
         astPkg.accept(this);
-        astPkg.symbol.bir = this.env.enclPkg;
         return astPkg;
     }
 
@@ -109,10 +110,12 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPackage astPkg) {
         BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
                 astPkg.packageID.name, astPkg.packageID.version);
+        astPkg.symbol.bir = birPkg;
 
         this.env = new BIRGenEnv(birPkg);
         // Lower function nodes in AST to bir function nodes.
         // TODO handle init, start, stop functions
+        astPkg.imports.forEach(impPkg -> impPkg.accept(this));
         astPkg.typeDefinitions.forEach(astTypeDef -> astTypeDef.accept(this));
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
     }
@@ -122,6 +125,11 @@ public class BIRGen extends BLangNodeVisitor {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                 astTypeDefinition.symbol.name, visibility, astTypeDefinition.typeNode.type);
         this.env.enclPkg.typeDefs.add(typeDef);
+    }
+
+    public void visit(BLangImportPackage impPkg) {
+        this.env.enclPkg.importModules.add(new BIRNode.BIRImportModule(impPkg.pos, impPkg.symbol.pkgID.orgName,
+                impPkg.symbol.pkgID.name, impPkg.symbol.pkgID.version));
     }
 
     public void visit(BLangFunction astFunc) {
@@ -477,7 +485,7 @@ public class BIRGen extends BLangNodeVisitor {
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isPublic(symbol)) {
             return Visibility.PUBLIC;
-        } else if (Symbols.isPrivate(symbol)){
+        } else if (Symbols.isPrivate(symbol)) {
             return Visibility.PRIVATE;
         } else {
             return Visibility.PACKAGE_PRIVATE;
