@@ -2293,7 +2293,7 @@
         <carbon.config.version>2.1.8</carbon.config.version>
         <carbon.securevault.version>5.0.4</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.26</slf4j.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.5</commons.lang3.version>
         <jackson.version>2.9.8</jackson.version>
