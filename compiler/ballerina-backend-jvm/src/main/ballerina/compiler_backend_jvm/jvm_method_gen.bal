@@ -130,10 +130,11 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
     return userMainFunc;
 }
 
-function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw) {
+function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
     // todo : generate the global var init class and other crt0 loading
+    generateUserDefinedTypes(mv, pkg.typeDefs);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
 
@@ -152,7 +153,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw) {
     }
 
     // invoke the user's main method
-    mv.visitMethodInsn(INVOKESTATIC, className, "main", desc, false);
+    mv.visitMethodInsn(INVOKESTATIC, invokedClassName, "main", desc, false);
 
     if (!isVoidFunction) {
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);

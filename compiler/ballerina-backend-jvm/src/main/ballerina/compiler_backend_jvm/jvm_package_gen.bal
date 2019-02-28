@@ -12,14 +12,19 @@ function generateJarFile(bir:Package pkg, string progName) returns JarFile {
     string orgName = pkg.org.value;
     string moduleName = pkg.name.value;
 
-    className = getInvocationClassName(untaint orgName, untaint moduleName, progName);
+    invokedClassName = getInvocationClassName(untaint orgName, untaint moduleName, progName);
+
+    // TODO: remove once the package init class is introduced
+    typeOwnerClass = progName;
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, OBJECT_VALUE, null);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, invokedClassName, null, OBJECT_VALUE, null);
+
+    generateUserDefinedTypeFields(cw, pkg.typeDefs);
 
     bir:Function? mainFunc = getMainFunc(pkg.functions);
     if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc, cw);
+        generateMainMethod(mainFunc, cw, pkg);
         manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, progName);
     }
 
@@ -30,7 +35,7 @@ function generateJarFile(bir:Package pkg, string progName) returns JarFile {
     cw.visitEnd();
 
     byte[] classContent = cw.toByteArray();
-    jarEntries[className + ".class"] = classContent;
+    jarEntries[invokedClassName + ".class"] = classContent;
 
     JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
     return jarFile;

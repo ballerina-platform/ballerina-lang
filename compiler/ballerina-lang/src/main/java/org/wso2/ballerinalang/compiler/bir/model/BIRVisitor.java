@@ -40,6 +40,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNode.BIRImportModule birImportModule) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRVariableDcl birVariableDcl) {
         throw new AssertionError();
     }

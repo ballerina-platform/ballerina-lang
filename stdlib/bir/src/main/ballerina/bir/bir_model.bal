@@ -5,12 +5,19 @@ public type PackageId record {
 };
 
 public type Package record {
+    ImportModule[] importModules;
     TypeDef[] typeDefs;
     Function[] functions = [];
     Name name = {};
     Name org = {};
     BType[] types = [];
     Name versionValue = {};
+};
+
+public type ImportModule record {
+    Name modOrg;
+    Name modName;
+    Name modVersion;
 };
 
 public type TypeDef record {

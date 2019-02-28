@@ -19,10 +19,10 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Iterator;
@@ -215,7 +215,7 @@ public abstract class XMLValue<T> implements RefValue {
      * @param endIndex To slice
      * @return sliced sequence
      */
-    public abstract XMLValue<?> slice(long startIndex, long endIndex);
+    public abstract XMLValue<?> slice(int startIndex, int endIndex);
 
     /**
      * Searches in children recursively for elements matching the name and returns a sequence containing them all.
@@ -232,7 +232,7 @@ public abstract class XMLValue<T> implements RefValue {
      * @param index Index of the item to retrieve
      * @return Item at the given index in the sequence
      */
-    public abstract XMLValue<?> getItem(long index);
+    public abstract XMLValue<?> getItem(int index);
 
     /**
      * Get the length of this XML sequence.

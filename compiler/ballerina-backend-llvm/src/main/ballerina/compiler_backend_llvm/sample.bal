@@ -3,6 +3,7 @@ import ballerina/bir;
 function writeSample(string path) {
 
     bir:Package ifSample = {
+        importModules:[],
         functions: [
             {
                 argsCount: 0,

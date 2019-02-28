@@ -18,11 +18,11 @@
 package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;

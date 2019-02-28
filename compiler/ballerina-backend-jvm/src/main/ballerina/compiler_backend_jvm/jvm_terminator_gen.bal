@@ -1,4 +1,4 @@
-string className = "";
+string invokedClassName = "";
 
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
@@ -51,7 +51,7 @@ type TerminatorGenerator object {
 
     function genCallTerm(bir:Call callIns, string funcName) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
-        string jvmClass = className; //todo get the correct class name
+        string jvmClass = invokedClassName; //todo get the correct class name
         string methodName = callIns.name.value;
         string methodDesc = "(";
         foreach var arg in callIns.args {

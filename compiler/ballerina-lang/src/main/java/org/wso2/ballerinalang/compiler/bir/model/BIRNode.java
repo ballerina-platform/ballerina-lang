@@ -48,6 +48,7 @@ public abstract class BIRNode {
         public Name org;
         public Name name;
         public Name version;
+        public List<BIRImportModule> importModules;
         public List<BIRTypeDefinition> typeDefs;
         public List<BIRFunction> functions;
 
@@ -56,8 +57,32 @@ public abstract class BIRNode {
             this.org = org;
             this.name = name;
             this.version = version;
+            this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.functions = new ArrayList<>();
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * An import package definition.
+     *
+     * @since 0.990.0
+     */
+    public static class BIRImportModule extends BIRNode {
+        public Name org;
+        public Name name;
+        public Name version;
+
+        public BIRImportModule(DiagnosticPos pos, Name org, Name name, Name version) {
+            super(pos);
+            this.org = org;
+            this.name = name;
+            this.version = version;
         }
 
         @Override

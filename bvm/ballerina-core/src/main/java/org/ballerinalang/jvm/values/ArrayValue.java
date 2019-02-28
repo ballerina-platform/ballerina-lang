@@ -20,13 +20,13 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -182,77 +182,71 @@ public class ArrayValue implements RefValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
-    public Object getRefValue(long index) {
-        rangeCheckForGet(index, size);
-        return refValues[(int) index];
+    public Object getRefValue(int index) {
+        return refValues[index];
     }
 
-    public long getInt(long index) {
-        rangeCheckForGet(index, size);
-        return intValues[(int) index];
+    public long getInt(int index) {
+        return intValues[index];
     }
 
-    public int getBoolean(long index) {
-        rangeCheckForGet(index, size);
-        return booleanValues[(int) index];
+    public int getBoolean(int index) {
+        return booleanValues[index];
     }
 
-    public byte getByte(long index) {
-        rangeCheckForGet(index, size);
-        return byteValues[(int) index];
+    public byte getByte(int index) {
+        return byteValues[index];
     }
 
-    public double getFloat(long index) {
-        rangeCheckForGet(index, size);
-        return floatValues[(int) index];
+    public double getFloat(int index) {
+        return floatValues[index];
     }
 
-    public String getString(long index) {
-        rangeCheckForGet(index, size);
-        return stringValues[(int) index];
+    public String getString(int index) {
+        return stringValues[index];
     }
 
     // ----------------------------  add methods --------------------------------------------------
 
-    public void add(long index, Object value) {
+    public void add(int index, Object value) {
         handleFrozenArrayValue();
         prepareForAdd(index, refValues.length);
-        refValues[(int) index] = value;
+        refValues[index] = value;
     }
 
-    public void add(long index, long value) {
+    public void add(int index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
-        intValues[(int) index] = value;
+        intValues[index] = value;
     }
 
-    public void add(long index, int value) {
+    public void add(int index, int value) {
         if (elementType.getTag() == TypeTags.INT_TAG) {
-            add(index, (long) value);
+            add(index, value);
             return;
         }
 
         handleFrozenArrayValue();
         prepareForAdd(index, booleanValues.length);
-        booleanValues[(int) index] = value;
+        booleanValues[index] = value;
     }
 
-    public void add(long index, byte value) {
+    public void add(int index, byte value) {
         handleFrozenArrayValue();
         prepareForAdd(index, byteValues.length);
-        byteValues[(int) index] = value;
+        byteValues[index] = value;
     }
 
-    public void add(long index, double value) {
+    public void add(int index, double value) {
         handleFrozenArrayValue();
         prepareForAdd(index, floatValues.length);
-        floatValues[(int) index] = value;
+        floatValues[index] = value;
     }
 
-    public void add(long index, String value) {
+    public void add(int index, String value) {
         handleFrozenArrayValue();
         prepareForAdd(index, stringValues.length);
-        stringValues[(int) index] = value;
+        stringValues[index] = value;
     }
 
     //-------------------------------------------------------------------------------------------------------------
@@ -270,7 +264,7 @@ public class ArrayValue implements RefValue {
     public void stamp(BType type) {
     }
 
-    public long size() {
+    public int size() {
         return size;
     }
     

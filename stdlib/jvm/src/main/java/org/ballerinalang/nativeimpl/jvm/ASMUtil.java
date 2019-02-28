@@ -36,6 +36,7 @@ public class ASMUtil {
 
     public static final String CLASS_WRITER = "ClassWriter";
     public static final String METHOD_VISITOR = "MethodVisitor";
+    public static final String FIELD_VISITOR = "FieldVisitor";
     public static final String LABEL = "Label";
     public static final String JVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "jvm";
     private static final String NATIVE_KEY = "native";

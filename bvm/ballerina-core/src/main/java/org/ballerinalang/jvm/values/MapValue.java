@@ -18,13 +18,13 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
-import org.ballerinalang.model.types.BField;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -250,7 +250,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         try {
             switch (type.getTag()) {
                 case TypeTags.OBJECT_TYPE_TAG:
-                    for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
+                    for (Map.Entry<String, BField> field : ((BObjectType) this.type).getFields().entrySet()) {
                         if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
                             continue;
                         }
