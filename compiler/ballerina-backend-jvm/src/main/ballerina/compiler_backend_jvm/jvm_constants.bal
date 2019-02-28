@@ -204,4 +204,5 @@ const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
 const string ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
 const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
+const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
