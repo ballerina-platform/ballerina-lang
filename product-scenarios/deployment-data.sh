@@ -106,7 +106,7 @@ bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABAS
 #sudo dpkg -i ballerina-linux-installer-x64-0.990.4-SNAPSHOT.deb --quiet
 
 ## Using released version till https://github.com/ballerinax/kubernetes/issues/283 is fixed
-wget https://product-dist.ballerina.io/downloads/0.990.3/ballerina-0.990.3.zip
+wget https://product-dist.ballerina.io/downloads/0.990.3/ballerina-linux-installer-x64-0.990.3.deb
 sudo dpkg -i ballerina-linux-installer-x64-0.990.3.deb --quiet
 
 ballerina version
