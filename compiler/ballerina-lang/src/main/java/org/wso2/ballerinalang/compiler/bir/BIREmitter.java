@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.bir;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.MapStore;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -146,6 +148,21 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birConstantLoad.value).append(";\n");
     }
 
+    public void visit(NewMap birNewMap) {
+        sb.append("\t\t");
+        birNewMap.lhsOp.accept(this);
+        sb.append(" = ").append(birNewMap.kind.name().toLowerCase(Locale.ENGLISH)).append(";\n");
+    }
+
+    public void visit(MapStore birMapStore) {
+        sb.append("\t\t");
+        birMapStore.lhsOp.accept(this);
+        sb.append("[");
+        birMapStore.keyOp.accept(this);
+        sb.append("] = ").append(birMapStore.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birMapStore.rhsOp.accept(this);
+        sb.append(";\n");
+    }
 
     // Terminating instructions
 

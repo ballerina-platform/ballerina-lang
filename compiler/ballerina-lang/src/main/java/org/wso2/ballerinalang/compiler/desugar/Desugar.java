@@ -4523,6 +4523,9 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
 
+        // Add return type as nil to the symbol
+        initFunction.symbol.retType = symTable.nilType;
+
         // Set the taint information to the constructed init function
         initFunction.symbol.taintTable = new HashMap<>();
         TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
