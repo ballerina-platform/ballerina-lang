@@ -42,10 +42,10 @@ public type AbstractSQLClient abstract client object {
     # + sqlQuery - SQL statement to execute
     # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `sql:Result` with the updated row count and key column values,
+    # + return - A `sql:UpdateResult` with the updated row count and key column values,
     #            else `error` will be returned if there is any error
     public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                               returns sql:Result|error;
+                               returns UpdateResult|error;
 
     # The batchUpdate remote function implementation for SQL Client to batch data insert.
     #

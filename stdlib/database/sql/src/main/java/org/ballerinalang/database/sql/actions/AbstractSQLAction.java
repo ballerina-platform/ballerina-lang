@@ -976,7 +976,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private static BMap<String, BValue> createResultRecord(Context context, int count, BMap keyValues) {
         PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
-        StructureTypeInfo resultRecordInfo = sqlPackageInfo.getStructInfo(Constants.SQL_RESULT);
+        StructureTypeInfo resultRecordInfo = sqlPackageInfo.getStructInfo(Constants.SQL_UPDATE_RESULT);
         BMap<String, BValue> resultRecord = BLangVMStructs.createBStruct(resultRecordInfo, count, keyValues);
         resultRecord.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
         return resultRecord;

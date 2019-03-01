@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.context;
 
-import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,7 +40,7 @@ public class ServerLogReader implements Runnable {
     private InputStream inputStream;
     private volatile boolean running = true;
 
-    private ConcurrentHashSet<LogLeecher> leechers = new ConcurrentHashSet<>();
+    private Set<LogLeecher> leechers = ConcurrentHashMap.newKeySet();
 
     /**
      * Initialize the reader with reader name and stream to read.

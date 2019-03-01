@@ -14,34 +14,81 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
+
 # Represents the properties which are used to configure DB connection pool.
+# Default values of the fields can be set through the configuration API.
 #
 # + connectionInitSql - SQL statement that will be executed after every new connection creation before adding it
-#                       to the pool
+#                       to the pool. Default value of this field can be set through the configuration API with the key
+#                       "b7a.sql.connection.init.sql"
 # + dataSourceClassName - Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
 #                         1. In JDBC client when DB specific properties are required (which are given with dbOptions)
-#                         2. In any data client in which XA transactions enabled by isXA property and need to provide a custom XA implementation.
-# + autoCommit - Auto-commit behavior of connections returned from the pool
-# + isXA - Whether Connections are used for a distributed transaction
-# + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections
-# + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool. Default is 30 seconds
-# + idleTimeout - Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes
-# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as maximumPoolSize
-# + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
+#                         2. In any data client in which XA transactions enabled by isXA property and need to provide a
+#                         custom XA implementation.
+#                         Default value of this field can be set through the configuration API with the key
+#                         "b7a.sql.datasource.class.name"
+# + autoCommit - Auto-commit behavior of connections returned from the pool.
+#                Default value of this field can be set through the configuration API with the key
+#                "b7a.sql.connection.auto.commit"
+# + isXA - Whether Connections are used for a distributed transaction.
+#          Default value of this field can be set through the configuration API with the key "b7a.sql.xa.enabled"
+# + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections.
+#                     Default value of this field can be set through the configuration API with the key
+#                     "b7a.sql.max.pool.size"
+# + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool.
+#                       Default is 30 seconds.
+#                       Default value of this field can be set through the configuration API with the key
+#                       "b7a.sql.connection.time.out"
+# + idleTimeout - Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes.
+#                 Default value of this field can be set through the configuration API with the key
+#                 "b7a.sql.connection.idle.time.out"
+# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as
+#                 maximumPoolSize.
+#                 Default value of this field can be set through the configuration API with the key
+#                 "b7a.sql.connection.min.idle.count"
+# + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes.
+#                 Default value of this field can be set through the configuration API with the key
+#                 "b7a.sql.connection.max.life.time"
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
+#                       Default value of this field can be set through the configuration API with the key
+#                       "b7a.sql.validation.time.out"
 public type PoolOptions record {
-    string connectionInitSql = "";
-    string dataSourceClassName = "";
-    boolean autoCommit = true;
-    boolean isXA = false;
-    int maximumPoolSize = 10;
-    int connectionTimeout = 30000;
-    int idleTimeout = 600000;
-    int minimumIdle = -1;
-    int maxLifetime = 1800000;
-    int validationTimeout = 5000;
+    string connectionInitSql = config:getAsString("b7a.sql.connection.init.sql", default = "");
+    string dataSourceClassName = config:getAsString("b7a.sql.datasource.class.name", default = "");
+    boolean autoCommit = config:getAsBoolean("b7a.sql.connection.auto.commit", default = true);
+    boolean isXA = config:getAsBoolean("b7a.sql.xa.enabled", default = false);
+    int maximumPoolSize = config:getAsInt("b7a.sql.max.pool.size", default = 15);
+    int connectionTimeout = config:getAsInt("b7a.sql.connection.time.out", default = 30000);
+    int idleTimeout =  config:getAsInt("b7a.sql.connection.idle.time.out", default = 600000);
+    int minimumIdle = config:getAsInt("b7a.sql.connection.min.idle.count", default = 15);
+    int maxLifetime = config:getAsInt("b7a.sql.connection.max.life.time", default = 1800000);
+    int validationTimeout = config:getAsInt("b7a.sql.validation.time.out", default = 5000);
     !...;
 };
+
+// This is a container object that holds the global pool config and initilizes the internal map of connection pools
+public type GlobalPoolConfigContainer object {
+     private PoolOptions poolConfig = {};
+
+     public function __init() {
+         // poolConfig record is frozen so that it cannot be modified during runtime
+         PoolOptions frozenConfig = self.poolConfig.freeze();
+         self.initGlobalPoolContainer(frozenConfig);
+     }
+
+     extern function initGlobalPoolContainer(PoolOptions poolConfig);
+
+     public function getGlobalPoolConfig() returns PoolOptions {
+        return self.poolConfig;
+     }
+};
+
+// This is an instance of GlobalPoolConfigContainer object type.
+// __init functions of database clients pass poolConfig member of this instance
+// to the extern client creation logic in order to access the internal map
+// of connection pools.
+public final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 
 # The SQL Datatype of the parameter.
 #
@@ -146,7 +193,7 @@ public type Parameter record {
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
-public type Result record {
+public type UpdateResult record {
     int updatedRowCount;
     map<anydata> generatedKeys;
     !...;

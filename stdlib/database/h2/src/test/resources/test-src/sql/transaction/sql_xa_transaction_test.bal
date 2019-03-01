@@ -51,8 +51,8 @@ function testXATransactonSuccess() returns (int, int) {
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
     count2 = getTableCountValColumn(dt2);
 
-    testDB1.stop();
-    testDB2.stop();
+    _ = testDB1.stop();
+    _ = testDB2.stop();
     return (count1, count2);
 }
 
@@ -87,8 +87,8 @@ function testXATransactonSuccessWithDataSource() returns (int, int) {
 
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 10", ResultCount);
     count2 = getTableCountValColumn(dt2);
-    testDB1.stop();
-    testDB2.stop();
+    _ = testDB1.stop();
+    _ = testDB2.stop();
     return (count1, count2);
 }
 
@@ -123,8 +123,8 @@ function testXATransactonSuccessWithH2Client() returns (int, int) {
 
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 11", ResultCount);
     count2 = getTableCountValColumn(dt2);
-    testDB1.stop();
-    testDB2.stop();
+    _ = testDB1.stop();
+    _ = testDB2.stop();
     return (count1, count2);
 }
 
@@ -157,8 +157,8 @@ function testXATransactonFailed1() returns (int, int) {
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
     count2 = getTableCountValColumn(dt2);
 
-    testDB1.stop();
-    testDB2.stop();
+    _ = testDB1.stop();
+    _ = testDB2.stop();
     return (count1, count2);
 }
 
@@ -195,8 +195,8 @@ function testXATransactonFailed2() returns (int, int) {
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
     int count2 = getTableCountValColumn(dt2);
 
-    testDB1.stop();
-    testDB2.stop();
+    _ = testDB1.stop();
+    _ = testDB2.stop();
     return (count1, count2);
 }
 
@@ -234,8 +234,8 @@ function testXATransactonRetry() returns (int, int) {
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
     int count2 = getTableCountValColumn(dt2);
 
-    testDB1.stop();
-    testDB2.stop();
+    _ = testDB1.stop();
+    _ = testDB2.stop();
     return (count1, count2);
 }
 

@@ -96,8 +96,6 @@ public class TextDocumentFormatUtil {
         String path = file.toAbsolutePath().toString();
         String sourceRoot = LSCompilerUtil.getSourceRoot(file);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, path);
-        String[] uriParts = path.split(Pattern.quote(File.separator));
-        String fileName = uriParts[uriParts.length - 1];
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
@@ -118,11 +116,11 @@ public class TextDocumentFormatUtil {
         // else process normally
         if (isTestablePackage(relativePath)) {
             compilationUnit = bLangPackage.getTestablePkg().getCompilationUnits().stream().
-                    filter(compUnit -> ("tests/" + fileName).equals(compUnit.getName()))
+                    filter(compUnit -> (relativePath).equals(compUnit.getName()))
                     .findFirst().orElse(null);
         } else {
             compilationUnit = bLangPackage.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElse(null);
+                    filter(compUnit -> relativePath.equals(compUnit.getName())).findFirst().orElse(null);
         }
 
         JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());

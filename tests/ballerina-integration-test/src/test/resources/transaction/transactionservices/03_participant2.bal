@@ -159,7 +159,7 @@ function saveToDatabaseUpdateHelper1(string uuid) {
     io:println("inserting uuid: " + uuid);
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                                      values ('John', 'Doe', '" + uuid + "', 5000.75, 'USA')");
-    if (result is sql:Result) {
+    if (result is sql:UpdateResult) {
         io:println(result);
     } else {
         io:println("");

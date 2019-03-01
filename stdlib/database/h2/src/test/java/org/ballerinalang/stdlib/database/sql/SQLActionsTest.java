@@ -398,6 +398,13 @@ public class SQLActionsTest {
                 + "Trying to perform hasNext operation over a closed table {})");
     }
 
+    @Test(groups = CONNECTOR_TEST, description = "Test stopping a database client")
+    public void testStopClient() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient");
+        Assert.assertNotNull(returns);
+        Assert.assertNull(returns[0]);
+    }
+
     @AfterSuite
     public void cleanup() {
         if (testDatabase != null) {

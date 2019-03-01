@@ -78,7 +78,7 @@ function validateFieldName (string tableName, string idColumn, string piiColumn)
 # + id - pseudonymized identifier getting inserted
 # + queryResult - results of the insert query
 # + return - pseudonymized identifier if insert was successful, error if insert failed
-function processInsertResult (string id, sql:Result|error queryResult) returns string|error {
+function processInsertResult (string id, sql:UpdateResult|error queryResult) returns string|error {
     if (queryResult is error) {
         return queryResult;
     } else {
@@ -116,7 +116,7 @@ function processSelectResult (string id, table<PiiData>|error queryResult) retur
 # + id - pseudonymized identifier getting deleted
 # + queryResult - results of the delete query
 # + return - nil if deletion was successful, error if deletion failed
-function processDeleteResult (string id, sql:Result|error queryResult) returns error? {
+function processDeleteResult (string id, sql:UpdateResult|error queryResult) returns error? {
     if (queryResult is error) {
         return queryResult;
     } else {

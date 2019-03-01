@@ -27,7 +27,7 @@ public type InMemoryConfig record {
     string name;
     string username;
     string password;
-    sql:PoolOptions poolOptions = {};
+    sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
     !...;
 };
@@ -68,10 +68,11 @@ public type EmbeddedModeConfig record {
 public type Client client object {
     *sql:AbstractSQLClient;
     private sql:Client sqlClient;
+    private boolean clientActive = true;
 
     # Gets called when the H2 client is instantiated.
     public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
-        self.sqlClient = createClient(c);
+        self.sqlClient = createClient(c, sql:globalPoolConfigContainer.getGlobalPoolConfig());
     }
 
     # The call remote function implementation for H2 Client to invoke stored procedures/functions.
@@ -83,6 +84,9 @@ public type Client client object {
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
                                returns @tainted table<record {}>[]|()|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
@@ -95,6 +99,9 @@ public type Client client object {
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
                                   sql:Param... parameters) returns @tainted table<record {}>|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
@@ -104,10 +111,13 @@ public type Client client object {
     # + sqlQuery - SQL statement to execute
     # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - `sql:Result` with the updated row count and key column values,
+    # + return - `sql:UpdateResult` with the updated row count and key column values,
     #             else  `error` will be returned if there is any error
     public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), sql:Param... parameters)
-                               returns sql:Result|error {
+                               returns sql:UpdateResult|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
@@ -125,13 +135,21 @@ public type Client client object {
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
     }
 
     # Stops the JDBC client.
-    public function stop() {
-        sql:close(self.sqlClient);
+    public function stop() returns error? {
+        self.clientActive = false;
+        return sql:close(self.sqlClient);
+    }
+
+    function handleStoppedClientInvocation() returns error {
+        return error("{ballerina/sql}DatabaseError", { message: "Client has been stopped"});
     }
 };
 
-extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config) returns sql:Client;
+extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;

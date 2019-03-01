@@ -47,10 +47,10 @@ public type Client client object {
     # + sqlQuery - SQL statement to execute
     # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `sql:Result` with the updated row count and key column values,
+    # + return - A `sql:UpdateResult` with the updated row count and key column values,
     #            else `error` will be returned if there is any error
     public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                               returns Result|error {
+                               returns UpdateResult|error {
         return nativeUpdate(self, sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
@@ -79,7 +79,7 @@ extern function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedes
    returns @tainted table<record {}>[]|()|error;
 
 extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
-                             Param... parameters) returns Result|error;
+                             Param... parameters) returns UpdateResult|error;
 
 extern function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
     returns int[]|error;
@@ -87,5 +87,5 @@ extern function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
-public extern function close(Client sqlClient);
+public extern function close(Client sqlClient) returns error?;
 

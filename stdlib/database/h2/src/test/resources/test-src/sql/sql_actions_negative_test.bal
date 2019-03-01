@@ -43,7 +43,7 @@ function testSelectData() returns string {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
     returnData = io:sprintf("%s", j);
-    testDB.stop();
+    _ = testDB.stop();
     return returnData;
 }
 
@@ -62,13 +62,13 @@ function testGeneratedKeyOnInsert() returns int|string {
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
 
     io:println(x);
-    if (x is sql:Result) {
+    if (x is sql:UpdateResult) {
         ret = x.generatedKeys.length();
     } else {
         ret = string.convert(x.detail().message);
     }
 
-    testDB.stop();
+    _ = testDB.stop();
     return ret;
 }
 
@@ -85,8 +85,8 @@ function testUpdateReslt() returns int|string {
 
     var x = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 3, 5000.75, 'USA')");
-    testDB.stop();
-    if (x is sql:Result) {
+    _ = testDB.stop();
+    if (x is sql:UpdateResult) {
         x.updatedRowCount = 0;
     } else {
         ret = string.convert(x.detail().message);
@@ -133,7 +133,7 @@ function testBatchUpdate() returns string {
     } else {
         returnVal = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return returnVal;
 }
 
@@ -163,7 +163,7 @@ function testInvalidArrayofQueryParameters() returns string {
     } else {
         returnData = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return returnData;
 }
 

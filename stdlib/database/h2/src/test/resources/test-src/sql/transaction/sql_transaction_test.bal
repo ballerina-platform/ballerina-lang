@@ -51,7 +51,7 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count, committedBlockExecuted, abortedBlockExecuted);
 }
 
@@ -81,7 +81,7 @@ function testTransactionRollback() returns (int, int, boolean) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count, stmtAfterFailureExecuted);
 }
 
@@ -107,7 +107,7 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -135,7 +135,7 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount);
 
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -160,7 +160,7 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -195,7 +195,7 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     count1 = getTableCountValColumn(dt1);
     count2 = getTableCountValColumn(dt2);
     count3 = getTableCountValColumn(dt3);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count1, count2, count3);
 }
 
@@ -238,7 +238,7 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -281,7 +281,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -313,7 +313,7 @@ function testTransactionAbort() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -337,7 +337,7 @@ function testTransactionErrorPanic() returns (int, int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (testTransactionErrorPanicRetVal, catchValue, count);
 }
 
@@ -381,7 +381,7 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, catchValue, count);
 }
 
@@ -414,7 +414,7 @@ function testTransactionCommitted() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -450,7 +450,7 @@ function testTwoTransactions() returns (int, int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal1, returnVal2, count);
 }
 
@@ -474,7 +474,7 @@ function testTransactionWithoutHandlers() returns (int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -499,7 +499,7 @@ function testLocalTransactionFailed() returns (string, int) {
     a = a + " afterTrx";
     var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
     count = getTableCountValColumn(dtRet);
-    testDB.stop();
+    _ = testDB.stop();
     return (a, count);
 }
 
@@ -538,7 +538,7 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
     a = a + " afterTrx";
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount);
     int count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (a, count);
 }
 
@@ -591,12 +591,12 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
     }
     _ = testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
-    testDB1.stop();
+    _ = testDB1.stop();
 
     var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
         ResultCount);
     i = getTableCountValColumn(dt);
-    testDB2.stop();
+    _ = testDB2.stop();
     return i;
 }
 
@@ -628,7 +628,7 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -659,7 +659,7 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -694,7 +694,7 @@ function testNestedThreeLevelTransactionFailed() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -764,7 +764,7 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
     } onretry {
         returnVal = -1;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -794,7 +794,7 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
     } onretry {
         returnVal = -1;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (returnVal, count);
 }
 
@@ -810,7 +810,7 @@ function testCloseConnectionPool() returns (int) {
     int count;
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 

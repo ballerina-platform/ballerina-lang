@@ -1,0 +1,58 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    baloCreat
+    baloImplementation {
+        transitive false
+    }
+}
+
+dependencies {
+    baloCreat project(':lib-creator')
+    annotationProcessor project(':ballerina-lang')
+}
+
+compileJava {
+    def generatedSources = "$buildDir/generated-from-annot"
+    def generatedOutputDir = file("$generatedSources")
+    def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
+    options.compilerArgs += ["-AnativeEntityProviderClass=StandardNativeElementProvider",
+                             "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
+                             "-s", "$generatedSources"]
+
+    doFirst {
+        generatedOutputDir.exists() || generatedOutputDir.mkdirs()
+    }
+}
+
+
+task createBalHome(type: org.gradle.api.tasks.Copy) {
+    from configurations.baloImplementation
+    into "$buildDir/lib"
+
+}
+
+task createBalo(type: JavaExec) {
+    def balFiles = file("src/main/ballerina/")
+    dependsOn createBalHome
+
+    // TODO: don't depend on name ,pass this as a prop form project
+    def loadBuiltinFromBalo = project.name == 'ballerina-builtin'
+
+    main 'org.ballerinalang.stdlib.utils.GenerateBalo'
+    classpath configurations.baloCreat
+    args(loadBuiltinFromBalo, balFiles, "$buildDir/generated-balo/repo/ballerina", "$buildDir")
+
+    inputs.dir(balFiles)
+    inputs.files(configurations.baloImplementation)
+    outputs.dir("$buildDir/generated-balo")
+    outputs.cacheIf { true }
+}
+
+artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
+    builtBy('createBalo')
+}
+
+build {
+    dependsOn createBalo
+}

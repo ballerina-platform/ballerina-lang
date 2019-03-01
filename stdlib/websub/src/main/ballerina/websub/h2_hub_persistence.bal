@@ -61,7 +61,7 @@ public type H2HubPersistenceStore object {
         sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.createdAt };
 
         var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
-        if (ret is sql:Result) {
+        if (ret is sql:UpdateResult) {
             log:printDebug("Successfully removed " + ret.updatedRowCount + " entries for existing subscription");
         } else {
             string errCause = <string> ret.detail().message;
@@ -70,7 +70,7 @@ public type H2HubPersistenceStore object {
 
         ret = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, untaint para1, untaint para2,
                                                     untaint para3, untaint para4, untaint para5);
-        if (ret is sql:Result) {
+        if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for subscription");
         } else {
             string errCause = <string> ret.detail().message;
@@ -86,7 +86,7 @@ public type H2HubPersistenceStore object {
         sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.callback };
         var ret = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
 
-        if (ret is sql:Result) {
+        if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for unsubscription");
         } else {
             string errCause = <string> ret.detail().message;
@@ -100,7 +100,7 @@ public type H2HubPersistenceStore object {
     public function addTopic(string topic) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: topic };
         var ret = self.subscriptionDbClient->update(INSERT_INTO_TOPICS, para1);
-        if (ret is sql:Result) {
+        if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for topic registration");
         } else {
             string errCause = <string> ret.detail().message;
@@ -114,7 +114,7 @@ public type H2HubPersistenceStore object {
     public function removeTopic(string topic) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: topic };
         var ret = self.subscriptionDbClient->update(DELETE_FROM_TOPICS, para1);
-        if (ret is sql:Result) {
+        if (ret is sql:UpdateResult) {
             log:printDebug("Successfully updated " + ret.updatedRowCount + " entries for topic unregistration");
         } else {
             string errCause = <string> ret.detail().message;

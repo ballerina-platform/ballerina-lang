@@ -51,7 +51,7 @@ function testSelect() returns (int[]) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return customerIds;
 }
 
@@ -67,10 +67,10 @@ function testUpdate() returns (int) {
     var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
-    if (insertCountRet is sql:Result) {
+    if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return insertCount;
 }
 
@@ -101,7 +101,7 @@ function testCall() returns (string) {
             name = rs.name;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return name;
 }
 
@@ -118,13 +118,13 @@ function testGeneratedKeyOnInsert() returns string|int {
 
     var x = testDB->update("insert into Customers (name, creditLimit,country) values ('Sam', 1200, 'USA')");
 
-    if (x is sql:Result) {
+    if (x is sql:UpdateResult) {
         returnVal = x.updatedRowCount;
     } else {
         returnVal = <string>x.detail().message;
     }
 
-    testDB.stop();
+    _ = testDB.stop();
     return returnVal;
 }
 
@@ -161,7 +161,7 @@ function testBatchUpdate() returns (int[]) {
     } else {
         ret = [];
     }
-    testDB.stop();
+    _ = testDB.stop();
     return ret;
 }
 
@@ -180,7 +180,7 @@ function testUpdateInMemory() returns (int, string) {
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
                                 values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
-    if (insertCountRet is sql:Result) {
+    if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
 
@@ -193,7 +193,7 @@ function testUpdateInMemory() returns (int, string) {
         }
     }
 
-    testDB.stop();
+    _ = testDB.stop();
     return (insertCount, s);
 }
 
@@ -253,7 +253,7 @@ function testCloseConnectionPool(string connectionCountQuery)
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -273,7 +273,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     } else {
         customerIds = [];
     }
-    testDB.stop();
+    _ = testDB.stop();
     return customerIds;
 }
 
@@ -297,9 +297,9 @@ function testH2MemDBUpdate() returns (int, string) {
         }
     }
     int insertCount = 0;
-    if (insertCountRet is sql:Result) {
+    if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (insertCount, data);
 }

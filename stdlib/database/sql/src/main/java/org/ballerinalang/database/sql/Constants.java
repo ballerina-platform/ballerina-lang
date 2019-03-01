@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.database.sql;
 
+import java.util.UUID;
+
 import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -202,9 +204,10 @@ public final class Constants {
     public static final String SQL_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "sql";
     public static final String SQL_PARAMETER = "Parameter";
     public static final String SQL_CLIENT = "Client";
-    public static final String SQL_RESULT = "Result";
+    public static final String SQL_UPDATE_RESULT = "UpdateResult";
     public static final String SERVER_MODE = "ServerModeConfig";
     public static final String EMBEDDED_MODE = "EmbeddedModeConfig";
+    public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 
     public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
     public static final String SQL_FILE_DB_POSTFIX = "_FILE";

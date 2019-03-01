@@ -38,7 +38,7 @@ public function main() {
         var result = testDB1->update("INSERT INTO CUSTOMER(NAME)
                                         VALUES ('Anne')");
         int key = -1;
-        if (result is sql:Result) {
+        if (result is sql:UpdateResult) {
             int count = result.updatedRowCount;
             key = <int>result.generatedKeys.ID;
             io:println("Inserted row count: " + count);
@@ -67,9 +67,9 @@ public function main() {
     ret = testDB2->update("DROP TABLE SALARY");
     handleUpdate(ret, "Drop Table SALARY");
 
-    // Close the connection pool.
-    testDB1.stop();
-    testDB2.stop();
+    // Stop database clients.
+    stopClient(testDB1);
+    stopClient(testDB2);
 }
 
 function onCommitFunction(string transactionId) {
@@ -81,10 +81,17 @@ function onAbortFunction(string transactionId) {
 }
 
 // Function to handle return values of the `update()` remote function.
-function handleUpdate(sql:Result|error returned, string message) {
-    if (returned is sql:Result) {
+function handleUpdate(sql:UpdateResult|error returned, string message) {
+    if (returned is sql:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + returned.reason());
+    }
+}
+
+function stopClient(h2:Client db) {
+    var stopRet = db.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
     }
 }

@@ -35,7 +35,7 @@ public function main() {
         // This is the second remote function participant in the transaction.
         ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
-        if (ret is sql:Result) {
+        if (ret is sql:UpdateResult) {
             io:println("Inserted count: " + ret.updatedRowCount);
             // If the transaction is forced to abort, it will roll back the transaction
             // and exit the transaction block without retrying.
@@ -71,12 +71,15 @@ public function main() {
     handleUpdate(ret, "Drop table SALARY");
 
     // Close the connection pool.
-    testDB.stop();
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return of the update operation.
-function handleUpdate(sql:Result|error returned, string message) {
-    if (returned is sql:Result) {
+function handleUpdate(sql:UpdateResult|error returned, string message) {
+    if (returned is sql:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + returned.reason());
