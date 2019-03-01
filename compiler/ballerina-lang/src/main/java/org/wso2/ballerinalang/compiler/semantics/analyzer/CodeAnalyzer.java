@@ -1065,7 +1065,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BUnionType unionType = BUnionType.create(null);
 
         if (type.tag == TypeTags.UNION) {
-            unionType.addAll((LinkedHashSet<BType>) ((BUnionType) type).getMemberTypes());
+            LinkedHashSet<BType> memTypes = new LinkedHashSet<>(((BUnionType) type).getMemberTypes());
+            unionType.addAll(memTypes);
         }
 
         unionType.add(type);
