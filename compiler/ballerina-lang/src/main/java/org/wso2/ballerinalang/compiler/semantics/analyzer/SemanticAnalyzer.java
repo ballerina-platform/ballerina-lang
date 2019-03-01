@@ -558,7 +558,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void handleDeclaredWithVar(BLangVariable variable) {
-
         BLangExpression varRefExpr = variable.expr;
         BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, symTable.noType);
 
@@ -572,124 +571,133 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (NodeKind.VARIABLE == variable.getKind()) {
-
-            if (!validateVariableDefinition(varRefExpr)) {
-                rhsType = symTable.semanticError;
-            }
-
-            BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
-
-            Name varName = names.fromIdNode(simpleVariable.name);
-            if (varName == Names.IGNORE) {
-                dlog.error(simpleVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-                return;
-            }
-
-            simpleVariable.type = rhsType;
-
-            int ownerSymTag = env.scope.owner.tag;
-            if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-                // This is a variable declared in a function, an action or a resource
-                // If the variable is parameter then the variable symbol is already defined
-                if (simpleVariable.symbol == null) {
-                    symbolEnter.defineNode(simpleVariable, env);
+        switch (variable.getKind()) {
+            case VARIABLE:
+                if (!validateVariableDefinition(varRefExpr)) {
+                    rhsType = symTable.semanticError;
                 }
-            }
 
-            // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
-            // symbol enter. If the variable is a local variable, the symbol will be created above.
-            simpleVariable.symbol.type = rhsType;
-        } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
-            if (TypeTags.TUPLE != rhsType.tag) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
-                variable.type = symTable.semanticError;
-                return;
-            }
+                BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
 
-            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-            tupleVariable.type = rhsType;
+                Name varName = names.fromIdNode(simpleVariable.name);
+                if (varName == Names.IGNORE) {
+                    dlog.error(simpleVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+                    return;
+                }
 
-            if (!(checkTypeAndVarCountConsistency(tupleVariable))) {
-                tupleVariable.type = symTable.semanticError;
-                return;
-            }
+                simpleVariable.type = rhsType;
 
-            symbolEnter.defineNode(tupleVariable, env);
+                int ownerSymTag = env.scope.owner.tag;
+                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                    // This is a variable declared in a function, an action or a resource
+                    // If the variable is parameter then the variable symbol is already defined
+                    if (simpleVariable.symbol == null) {
+                        symbolEnter.defineNode(simpleVariable, env);
+                    }
+                }
 
-        } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
-            if (TypeTags.RECORD != rhsType.tag && TypeTags.MAP != rhsType.tag && TypeTags.JSON != rhsType.tag) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_RECORD_VAR, rhsType);
-                variable.type = symTable.semanticError;
-            }
+                // Set the type to the symbol. If the variable is a global variable, a symbol is already created in the
+                // symbol enter. If the variable is a local variable, the symbol will be created above.
+                simpleVariable.symbol.type = rhsType;
+                break;
+            case TUPLE_VARIABLE:
+                if (TypeTags.TUPLE != rhsType.tag) {
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                    variable.type = symTable.semanticError;
+                    return;
+                }
 
-            BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
-            recordVariable.type = rhsType;
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                tupleVariable.type = rhsType;
 
-            if (!validateRecordVariable(recordVariable)) {
-                recordVariable.type = symTable.semanticError;
-            }
-        } else if (NodeKind.ERROR_VARIABLE == variable.getKind()) {
-            if (TypeTags.ERROR != rhsType.tag) {
-                dlog.error(variable.expr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
-                variable.type = symTable.semanticError;
-                return;
-            }
-            BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-            errorVariable.type = rhsType;
-            if (!validateErrorVariable(errorVariable)) {
-                errorVariable.type = symTable.semanticError;
-                return;
-            }
-            symbolEnter.defineNode(errorVariable, env);
+                if (!(checkTypeAndVarCountConsistency(tupleVariable))) {
+                    tupleVariable.type = symTable.semanticError;
+                    return;
+                }
+
+                symbolEnter.defineNode(tupleVariable, env);
+
+                break;
+            case RECORD_VARIABLE:
+                if (TypeTags.RECORD != rhsType.tag && TypeTags.MAP != rhsType.tag && TypeTags.JSON != rhsType.tag) {
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_RECORD_VAR, rhsType);
+                    variable.type = symTable.semanticError;
+                }
+
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.type = rhsType;
+
+                if (!validateRecordVariable(recordVariable)) {
+                    recordVariable.type = symTable.semanticError;
+                }
+                break;
+            case ERROR_VARIABLE:
+                if (TypeTags.ERROR != rhsType.tag) {
+                    dlog.error(variable.expr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                    variable.type = symTable.semanticError;
+                    return;
+                }
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                errorVariable.type = rhsType;
+                if (!validateErrorVariable(errorVariable)) {
+                    errorVariable.type = symTable.semanticError;
+                    return;
+                }
+                symbolEnter.defineNode(errorVariable, env);
+                break;
         }
     }
 
     private void handleDeclaredWithVar(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
-        if (NodeKind.VARIABLE == variable.getKind()) {
-            BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
-            Name varName = names.fromIdNode(simpleVariable.name);
-            if (varName == Names.IGNORE) {
-                dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
-                return;
-            }
-
-            simpleVariable.type = rhsType;
-
-            int ownerSymTag = blockEnv.scope.owner.tag;
-            if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
-                // This is a variable declared in a function, an action or a resource
-                // If the variable is parameter then the variable symbol is already defined
-                if (simpleVariable.symbol == null) {
-                    symbolEnter.defineNode(simpleVariable, blockEnv);
+        switch (variable.getKind()) {
+            case VARIABLE:
+                BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+                Name varName = names.fromIdNode(simpleVariable.name);
+                if (varName == Names.IGNORE) {
+                    dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+                    return;
                 }
-            }
-        } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
-            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-            if (TypeTags.TUPLE != rhsType.tag) {
-                dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
-                recursivelyDefineVariables(tupleVariable, blockEnv);
-                return;
-            }
 
-            tupleVariable.type = rhsType;
-            if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type, blockEnv))) {
-                return;
-            }
-            symbolEnter.defineNode(tupleVariable, blockEnv);
-        } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
-            BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
-            recordVariable.type = rhsType;
-            validateRecordVariable(recordVariable, blockEnv);
-        } else if (NodeKind.ERROR_VARIABLE == variable.getKind()) {
-            BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-            if (TypeTags.ERROR != rhsType.tag) {
-                dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
-                recursivelyDefineVariables(errorVariable, blockEnv);
-                return;
-            }
-            errorVariable.type = rhsType;
-            validateErrorVariable(errorVariable);
+                simpleVariable.type = rhsType;
+
+                int ownerSymTag = blockEnv.scope.owner.tag;
+                if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                    // This is a variable declared in a function, an action or a resource
+                    // If the variable is parameter then the variable symbol is already defined
+                    if (simpleVariable.symbol == null) {
+                        symbolEnter.defineNode(simpleVariable, blockEnv);
+                    }
+                }
+                break;
+            case TUPLE_VARIABLE:
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                if (TypeTags.TUPLE != rhsType.tag) {
+                    dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                    recursivelyDefineVariables(tupleVariable, blockEnv);
+                    return;
+                }
+
+                tupleVariable.type = rhsType;
+                if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type, blockEnv))) {
+                    return;
+                }
+                symbolEnter.defineNode(tupleVariable, blockEnv);
+                break;
+            case RECORD_VARIABLE:
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.type = rhsType;
+                validateRecordVariable(recordVariable, blockEnv);
+                break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                if (TypeTags.ERROR != rhsType.tag) {
+                    dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
+                    recursivelyDefineVariables(errorVariable, blockEnv);
+                    return;
+                }
+                errorVariable.type = rhsType;
+                validateErrorVariable(errorVariable);
+                break;
         }
     }
 
@@ -1494,12 +1502,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // TODO: Create issue, once detail is frozen, do the is like check
         if (varRef.detail.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 names.fromIdNode(((BLangSimpleVarRef) varRef.detail).variableName) == Names.IGNORE) {
             return;
         }
         setTypeOfVarReferenceInAssignment(varRef.detail);
+        // TODO: Once detail var is frozen, do the is like check instead of is Assignable
         if (!types.isAssignable(rhsErrorType.detailType, varRef.detail.type)) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, rhsErrorType.detailType);
         }
