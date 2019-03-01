@@ -17,279 +17,278 @@ public class BallerinaParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, EXTERN=5, FINAL=6, SERVICE=7, RESOURCE=8,
-		FUNCTION=9, OBJECT=10, RECORD=11, ANNOTATION=12, PARAMETER=13, TRANSFORMER=14,
-		WORKER=15, LISTENER=16, REMOTE=17, XMLNS=18, RETURNS=19, VERSION=20, DEPRECATED=21,
-		CHANNEL=22, ABSTRACT=23, CLIENT=24, CONST=25, FROM=26, ON=27, SELECT=28,
-		GROUP=29, BY=30, HAVING=31, ORDER=32, WHERE=33, FOLLOWED=34, FOR=35, WINDOW=36,
-		EVENTS=37, EVERY=38, WITHIN=39, LAST=40, FIRST=41, SNAPSHOT=42, OUTPUT=43,
-		INNER=44, OUTER=45, RIGHT=46, LEFT=47, FULL=48, UNIDIRECTIONAL=49, SECOND=50,
-		MINUTE=51, HOUR=52, DAY=53, MONTH=54, YEAR=55, SECONDS=56, MINUTES=57,
-		HOURS=58, DAYS=59, MONTHS=60, YEARS=61, FOREVER=62, LIMIT=63, ASCENDING=64,
-		DESCENDING=65, TYPE_INT=66, TYPE_BYTE=67, TYPE_FLOAT=68, TYPE_DECIMAL=69,
-		TYPE_BOOL=70, TYPE_STRING=71, TYPE_ERROR=72, TYPE_MAP=73, TYPE_JSON=74,
-		TYPE_XML=75, TYPE_TABLE=76, TYPE_STREAM=77, TYPE_ANY=78, TYPE_DESC=79,
-		TYPE=80, TYPE_FUTURE=81, TYPE_ANYDATA=82, VAR=83, NEW=84, OBJECT_INIT=85,
-		IF=86, MATCH=87, ELSE=88, FOREACH=89, WHILE=90, CONTINUE=91, BREAK=92,
-		FORK=93, JOIN=94, SOME=95, ALL=96, TRY=97, CATCH=98, FINALLY=99, THROW=100,
-		PANIC=101, TRAP=102, RETURN=103, TRANSACTION=104, ABORT=105, RETRY=106,
-		ONRETRY=107, RETRIES=108, COMMITTED=109, ABORTED=110, WITH=111, IN=112,
-		LOCK=113, UNTAINT=114, START=115, BUT=116, CHECK=117, PRIMARYKEY=118,
-		IS=119, FLUSH=120, WAIT=121, SEMICOLON=122, COLON=123, DOT=124, COMMA=125,
-		LEFT_BRACE=126, RIGHT_BRACE=127, LEFT_PARENTHESIS=128, RIGHT_PARENTHESIS=129,
-		LEFT_BRACKET=130, RIGHT_BRACKET=131, QUESTION_MARK=132, ASSIGN=133, ADD=134,
-		SUB=135, MUL=136, DIV=137, MOD=138, NOT=139, EQUAL=140, NOT_EQUAL=141,
-		GT=142, LT=143, GT_EQUAL=144, LT_EQUAL=145, AND=146, OR=147, REF_EQUAL=148,
-		REF_NOT_EQUAL=149, BIT_AND=150, BIT_XOR=151, BIT_COMPLEMENT=152, RARROW=153,
-		LARROW=154, AT=155, BACKTICK=156, RANGE=157, ELLIPSIS=158, PIPE=159, EQUAL_GT=160,
-		ELVIS=161, SYNCRARROW=162, COMPOUND_ADD=163, COMPOUND_SUB=164, COMPOUND_MUL=165,
-		COMPOUND_DIV=166, COMPOUND_BIT_AND=167, COMPOUND_BIT_OR=168, COMPOUND_BIT_XOR=169,
-		COMPOUND_LEFT_SHIFT=170, COMPOUND_RIGHT_SHIFT=171, COMPOUND_LOGICAL_SHIFT=172,
-		HALF_OPEN_RANGE=173, DecimalIntegerLiteral=174, HexIntegerLiteral=175,
-		HexadecimalFloatingPointLiteral=176, DecimalFloatingPointNumber=177, BooleanLiteral=178,
-		QuotedStringLiteral=179, SymbolicStringLiteral=180, Base16BlobLiteral=181,
-		Base64BlobLiteral=182, NullLiteral=183, Identifier=184, XMLLiteralStart=185,
-		StringTemplateLiteralStart=186, DocumentationLineStart=187, ParameterDocumentationStart=188,
-		ReturnParameterDocumentationStart=189, DeprecatedTemplateStart=190, ExpressionEnd=191,
-		WS=192, NEW_LINE=193, LINE_COMMENT=194, VARIABLE=195, MODULE=196, ReferenceType=197,
-		DocumentationText=198, SingleBacktickStart=199, DoubleBacktickStart=200,
-		TripleBacktickStart=201, DefinitionReference=202, DocumentationEscapedCharacters=203,
-		DocumentationSpace=204, DocumentationEnd=205, ParameterName=206, DescriptionSeparator=207,
-		DocumentationParamEnd=208, SingleBacktickContent=209, SingleBacktickEnd=210,
-		DoubleBacktickContent=211, DoubleBacktickEnd=212, TripleBacktickContent=213,
-		TripleBacktickEnd=214, XML_COMMENT_START=215, CDATA=216, DTD=217, EntityRef=218,
-		CharRef=219, XML_TAG_OPEN=220, XML_TAG_OPEN_SLASH=221, XML_TAG_SPECIAL_OPEN=222,
-		XMLLiteralEnd=223, XMLTemplateText=224, XMLText=225, XML_TAG_CLOSE=226,
-		XML_TAG_SPECIAL_CLOSE=227, XML_TAG_SLASH_CLOSE=228, SLASH=229, QNAME_SEPARATOR=230,
-		EQUALS=231, DOUBLE_QUOTE=232, SINGLE_QUOTE=233, XMLQName=234, XML_TAG_WS=235,
-		XMLTagExpressionStart=236, DOUBLE_QUOTE_END=237, XMLDoubleQuotedTemplateString=238,
-		XMLDoubleQuotedString=239, SINGLE_QUOTE_END=240, XMLSingleQuotedTemplateString=241,
-		XMLSingleQuotedString=242, XMLPIText=243, XMLPITemplateText=244, XMLCommentText=245,
-		XMLCommentTemplateText=246, TripleBackTickInlineCodeEnd=247, TripleBackTickInlineCode=248,
-		DoubleBackTickInlineCodeEnd=249, DoubleBackTickInlineCode=250, SingleBackTickInlineCodeEnd=251,
-		SingleBackTickInlineCode=252, DeprecatedTemplateEnd=253, SBDeprecatedInlineCodeStart=254,
-		DBDeprecatedInlineCodeStart=255, TBDeprecatedInlineCodeStart=256, DeprecatedTemplateText=257,
-		StringTemplateLiteralEnd=258, StringTemplateExpressionStart=259, StringTemplateText=260;
+		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, EXTERN=5, FINAL=6, SERVICE=7, RESOURCE=8, 
+		FUNCTION=9, OBJECT=10, RECORD=11, ANNOTATION=12, PARAMETER=13, TRANSFORMER=14, 
+		WORKER=15, LISTENER=16, REMOTE=17, XMLNS=18, RETURNS=19, VERSION=20, DEPRECATED=21, 
+		CHANNEL=22, ABSTRACT=23, CLIENT=24, CONST=25, FROM=26, ON=27, SELECT=28, 
+		GROUP=29, BY=30, HAVING=31, ORDER=32, WHERE=33, FOLLOWED=34, FOR=35, WINDOW=36, 
+		EVENTS=37, EVERY=38, WITHIN=39, LAST=40, FIRST=41, SNAPSHOT=42, OUTPUT=43, 
+		INNER=44, OUTER=45, RIGHT=46, LEFT=47, FULL=48, UNIDIRECTIONAL=49, SECOND=50, 
+		MINUTE=51, HOUR=52, DAY=53, MONTH=54, YEAR=55, SECONDS=56, MINUTES=57, 
+		HOURS=58, DAYS=59, MONTHS=60, YEARS=61, FOREVER=62, LIMIT=63, ASCENDING=64, 
+		DESCENDING=65, TYPE_INT=66, TYPE_BYTE=67, TYPE_FLOAT=68, TYPE_DECIMAL=69, 
+		TYPE_BOOL=70, TYPE_STRING=71, TYPE_ERROR=72, TYPE_MAP=73, TYPE_JSON=74, 
+		TYPE_XML=75, TYPE_TABLE=76, TYPE_STREAM=77, TYPE_ANY=78, TYPE_DESC=79, 
+		TYPE=80, TYPE_FUTURE=81, TYPE_ANYDATA=82, VAR=83, NEW=84, OBJECT_INIT=85, 
+		IF=86, MATCH=87, ELSE=88, FOREACH=89, WHILE=90, CONTINUE=91, BREAK=92, 
+		FORK=93, JOIN=94, SOME=95, ALL=96, TRY=97, CATCH=98, FINALLY=99, THROW=100, 
+		PANIC=101, TRAP=102, RETURN=103, TRANSACTION=104, ABORT=105, RETRY=106, 
+		ONRETRY=107, RETRIES=108, COMMITTED=109, ABORTED=110, WITH=111, IN=112, 
+		LOCK=113, UNTAINT=114, START=115, BUT=116, CHECK=117, PRIMARYKEY=118, 
+		IS=119, FLUSH=120, WAIT=121, SEMICOLON=122, COLON=123, DOT=124, COMMA=125, 
+		LEFT_BRACE=126, RIGHT_BRACE=127, LEFT_PARENTHESIS=128, RIGHT_PARENTHESIS=129, 
+		LEFT_BRACKET=130, RIGHT_BRACKET=131, QUESTION_MARK=132, ASSIGN=133, ADD=134, 
+		SUB=135, MUL=136, DIV=137, MOD=138, NOT=139, EQUAL=140, NOT_EQUAL=141, 
+		GT=142, LT=143, GT_EQUAL=144, LT_EQUAL=145, AND=146, OR=147, REF_EQUAL=148, 
+		REF_NOT_EQUAL=149, BIT_AND=150, BIT_XOR=151, BIT_COMPLEMENT=152, RARROW=153, 
+		LARROW=154, AT=155, BACKTICK=156, RANGE=157, ELLIPSIS=158, PIPE=159, EQUAL_GT=160, 
+		ELVIS=161, SYNCRARROW=162, COMPOUND_ADD=163, COMPOUND_SUB=164, COMPOUND_MUL=165, 
+		COMPOUND_DIV=166, COMPOUND_BIT_AND=167, COMPOUND_BIT_OR=168, COMPOUND_BIT_XOR=169, 
+		COMPOUND_LEFT_SHIFT=170, COMPOUND_RIGHT_SHIFT=171, COMPOUND_LOGICAL_SHIFT=172, 
+		HALF_OPEN_RANGE=173, DecimalIntegerLiteral=174, HexIntegerLiteral=175, 
+		HexadecimalFloatingPointLiteral=176, DecimalFloatingPointNumber=177, BooleanLiteral=178, 
+		QuotedStringLiteral=179, SymbolicStringLiteral=180, Base16BlobLiteral=181, 
+		Base64BlobLiteral=182, NullLiteral=183, Identifier=184, XMLLiteralStart=185, 
+		StringTemplateLiteralStart=186, DocumentationLineStart=187, ParameterDocumentationStart=188, 
+		ReturnParameterDocumentationStart=189, DeprecatedTemplateStart=190, WS=191, 
+		NEW_LINE=192, LINE_COMMENT=193, VARIABLE=194, MODULE=195, ReferenceType=196, 
+		DocumentationText=197, SingleBacktickStart=198, DoubleBacktickStart=199, 
+		TripleBacktickStart=200, DefinitionReference=201, DocumentationEscapedCharacters=202, 
+		DocumentationSpace=203, DocumentationEnd=204, ParameterName=205, DescriptionSeparator=206, 
+		DocumentationParamEnd=207, SingleBacktickContent=208, SingleBacktickEnd=209, 
+		DoubleBacktickContent=210, DoubleBacktickEnd=211, TripleBacktickContent=212, 
+		TripleBacktickEnd=213, XML_COMMENT_START=214, CDATA=215, DTD=216, EntityRef=217, 
+		CharRef=218, XML_TAG_OPEN=219, XML_TAG_OPEN_SLASH=220, XML_TAG_SPECIAL_OPEN=221, 
+		XMLLiteralEnd=222, XMLTemplateText=223, XMLText=224, XML_TAG_CLOSE=225, 
+		XML_TAG_SPECIAL_CLOSE=226, XML_TAG_SLASH_CLOSE=227, SLASH=228, QNAME_SEPARATOR=229, 
+		EQUALS=230, DOUBLE_QUOTE=231, SINGLE_QUOTE=232, XMLQName=233, XML_TAG_WS=234, 
+		XMLTagExpressionStart=235, DOUBLE_QUOTE_END=236, XMLDoubleQuotedTemplateString=237, 
+		XMLDoubleQuotedString=238, SINGLE_QUOTE_END=239, XMLSingleQuotedTemplateString=240, 
+		XMLSingleQuotedString=241, XMLPIText=242, XMLPITemplateText=243, XMLCommentText=244, 
+		XMLCommentTemplateText=245, TripleBackTickInlineCodeEnd=246, TripleBackTickInlineCode=247, 
+		DoubleBackTickInlineCodeEnd=248, DoubleBackTickInlineCode=249, SingleBackTickInlineCodeEnd=250, 
+		SingleBackTickInlineCode=251, DeprecatedTemplateEnd=252, SBDeprecatedInlineCodeStart=253, 
+		DBDeprecatedInlineCodeStart=254, TBDeprecatedInlineCodeStart=255, DeprecatedTemplateText=256, 
+		StringTemplateLiteralEnd=257, StringTemplateExpressionStart=258, StringTemplateText=259;
 	public static final int
-		RULE_compilationUnit = 0, RULE_packageName = 1, RULE_version = 2, RULE_importDeclaration = 3,
-		RULE_orgName = 4, RULE_definition = 5, RULE_serviceDefinition = 6, RULE_serviceBody = 7,
-		RULE_serviceBodyMember = 8, RULE_callableUnitBody = 9, RULE_functionDefinition = 10,
-		RULE_lambdaFunction = 11, RULE_arrowFunction = 12, RULE_arrowParam = 13,
-		RULE_callableUnitSignature = 14, RULE_typeDefinition = 15, RULE_objectBody = 16,
-		RULE_typeReference = 17, RULE_objectFieldDefinition = 18, RULE_fieldDefinition = 19,
-		RULE_recordRestFieldDefinition = 20, RULE_sealedLiteral = 21, RULE_restDescriptorPredicate = 22,
-		RULE_objectFunctionDefinition = 23, RULE_annotationDefinition = 24, RULE_constantDefinition = 25,
-		RULE_globalVariableDefinition = 26, RULE_channelType = 27, RULE_attachmentPoint = 28,
-		RULE_workerDeclaration = 29, RULE_workerDefinition = 30, RULE_finiteType = 31,
-		RULE_finiteTypeUnit = 32, RULE_typeName = 33, RULE_recordFieldDefinitionList = 34,
-		RULE_simpleTypeName = 35, RULE_referenceTypeName = 36, RULE_userDefineTypeName = 37,
-		RULE_valueTypeName = 38, RULE_builtInReferenceTypeName = 39, RULE_functionTypeName = 40,
-		RULE_errorTypeName = 41, RULE_xmlNamespaceName = 42, RULE_xmlLocalName = 43,
-		RULE_annotationAttachment = 44, RULE_statement = 45, RULE_variableDefinitionStatement = 46,
-		RULE_recordLiteral = 47, RULE_staticMatchLiterals = 48, RULE_tupleLiteral = 49,
-		RULE_recordKeyValue = 50, RULE_recordKey = 51, RULE_tableLiteral = 52,
-		RULE_tableColumnDefinition = 53, RULE_tableColumn = 54, RULE_tableDataArray = 55,
-		RULE_tableDataList = 56, RULE_tableData = 57, RULE_arrayLiteral = 58,
-		RULE_assignmentStatement = 59, RULE_tupleDestructuringStatement = 60,
-		RULE_recordDestructuringStatement = 61, RULE_errorDestructuringStatement = 62,
-		RULE_compoundAssignmentStatement = 63, RULE_compoundOperator = 64, RULE_variableReferenceList = 65,
-		RULE_ifElseStatement = 66, RULE_ifClause = 67, RULE_elseIfClause = 68,
-		RULE_elseClause = 69, RULE_matchStatement = 70, RULE_matchPatternClause = 71,
-		RULE_bindingPattern = 72, RULE_structuredBindingPattern = 73, RULE_errorBindingPattern = 74,
-		RULE_tupleBindingPattern = 75, RULE_recordBindingPattern = 76, RULE_entryBindingPattern = 77,
-		RULE_fieldBindingPattern = 78, RULE_restBindingPattern = 79, RULE_bindingRefPattern = 80,
-		RULE_structuredRefBindingPattern = 81, RULE_tupleRefBindingPattern = 82,
-		RULE_recordRefBindingPattern = 83, RULE_errorRefBindingPattern = 84, RULE_entryRefBindingPattern = 85,
-		RULE_fieldRefBindingPattern = 86, RULE_restRefBindingPattern = 87, RULE_foreachStatement = 88,
-		RULE_intRangeExpression = 89, RULE_whileStatement = 90, RULE_continueStatement = 91,
-		RULE_breakStatement = 92, RULE_forkJoinStatement = 93, RULE_tryCatchStatement = 94,
-		RULE_catchClauses = 95, RULE_catchClause = 96, RULE_finallyClause = 97,
-		RULE_throwStatement = 98, RULE_panicStatement = 99, RULE_returnStatement = 100,
-		RULE_workerSendAsyncStatement = 101, RULE_flushWorker = 102, RULE_waitForCollection = 103,
-		RULE_waitKeyValue = 104, RULE_variableReference = 105, RULE_field = 106,
-		RULE_index = 107, RULE_xmlAttrib = 108, RULE_functionInvocation = 109,
-		RULE_invocation = 110, RULE_invocationArgList = 111, RULE_invocationArg = 112,
-		RULE_actionInvocation = 113, RULE_expressionList = 114, RULE_expressionStmt = 115,
-		RULE_transactionStatement = 116, RULE_committedAbortedClauses = 117, RULE_transactionClause = 118,
-		RULE_transactionPropertyInitStatement = 119, RULE_transactionPropertyInitStatementList = 120,
-		RULE_lockStatement = 121, RULE_onretryClause = 122, RULE_committedClause = 123,
-		RULE_abortedClause = 124, RULE_abortStatement = 125, RULE_retryStatement = 126,
-		RULE_retriesStatement = 127, RULE_namespaceDeclarationStatement = 128,
-		RULE_namespaceDeclaration = 129, RULE_expression = 130, RULE_typeDescExpr = 131,
-		RULE_typeInitExpr = 132, RULE_errorConstructorExpr = 133, RULE_serviceConstructorExpr = 134,
-		RULE_trapExpr = 135, RULE_shiftExpression = 136, RULE_shiftExprPredicate = 137,
-		RULE_nameReference = 138, RULE_functionNameReference = 139, RULE_returnParameter = 140,
-		RULE_lambdaReturnParameter = 141, RULE_parameterTypeNameList = 142, RULE_parameterTypeName = 143,
-		RULE_parameterList = 144, RULE_parameter = 145, RULE_defaultableParameter = 146,
-		RULE_restParameter = 147, RULE_formalParameterList = 148, RULE_simpleLiteral = 149,
-		RULE_floatingPointLiteral = 150, RULE_integerLiteral = 151, RULE_emptyTupleLiteral = 152,
-		RULE_blobLiteral = 153, RULE_namedArgs = 154, RULE_restArgs = 155, RULE_xmlLiteral = 156,
-		RULE_xmlItem = 157, RULE_content = 158, RULE_comment = 159, RULE_element = 160,
-		RULE_startTag = 161, RULE_closeTag = 162, RULE_emptyTag = 163, RULE_procIns = 164,
-		RULE_attribute = 165, RULE_text = 166, RULE_xmlQuotedString = 167, RULE_xmlSingleQuotedString = 168,
-		RULE_xmlDoubleQuotedString = 169, RULE_xmlQualifiedName = 170, RULE_stringTemplateLiteral = 171,
-		RULE_stringTemplateContent = 172, RULE_anyIdentifierName = 173, RULE_reservedWord = 174,
-		RULE_tableQuery = 175, RULE_foreverStatement = 176, RULE_streamingQueryStatement = 177,
-		RULE_patternClause = 178, RULE_withinClause = 179, RULE_orderByClause = 180,
-		RULE_orderByVariable = 181, RULE_limitClause = 182, RULE_selectClause = 183,
-		RULE_selectExpressionList = 184, RULE_selectExpression = 185, RULE_groupByClause = 186,
-		RULE_havingClause = 187, RULE_streamingAction = 188, RULE_streamingInput = 189,
-		RULE_joinStreamingInput = 190, RULE_outputRateLimit = 191, RULE_patternStreamingInput = 192,
-		RULE_patternStreamingEdgeInput = 193, RULE_whereClause = 194, RULE_windowClause = 195,
-		RULE_orderByType = 196, RULE_joinType = 197, RULE_timeScale = 198, RULE_deprecatedAttachment = 199,
-		RULE_deprecatedText = 200, RULE_deprecatedTemplateInlineCode = 201, RULE_singleBackTickDeprecatedInlineCode = 202,
-		RULE_doubleBackTickDeprecatedInlineCode = 203, RULE_tripleBackTickDeprecatedInlineCode = 204,
-		RULE_documentationString = 205, RULE_documentationLine = 206, RULE_parameterDocumentationLine = 207,
-		RULE_returnParameterDocumentationLine = 208, RULE_documentationContent = 209,
-		RULE_parameterDescriptionLine = 210, RULE_returnParameterDescriptionLine = 211,
-		RULE_documentationText = 212, RULE_documentationReference = 213, RULE_definitionReference = 214,
-		RULE_definitionReferenceType = 215, RULE_parameterDocumentation = 216,
-		RULE_returnParameterDocumentation = 217, RULE_docParameterName = 218,
-		RULE_singleBacktickedBlock = 219, RULE_singleBacktickedContent = 220,
-		RULE_doubleBacktickedBlock = 221, RULE_doubleBacktickedContent = 222,
+		RULE_compilationUnit = 0, RULE_packageName = 1, RULE_version = 2, RULE_importDeclaration = 3, 
+		RULE_orgName = 4, RULE_definition = 5, RULE_serviceDefinition = 6, RULE_serviceBody = 7, 
+		RULE_serviceBodyMember = 8, RULE_callableUnitBody = 9, RULE_functionDefinition = 10, 
+		RULE_lambdaFunction = 11, RULE_arrowFunction = 12, RULE_arrowParam = 13, 
+		RULE_callableUnitSignature = 14, RULE_typeDefinition = 15, RULE_objectBody = 16, 
+		RULE_typeReference = 17, RULE_objectFieldDefinition = 18, RULE_fieldDefinition = 19, 
+		RULE_recordRestFieldDefinition = 20, RULE_sealedLiteral = 21, RULE_restDescriptorPredicate = 22, 
+		RULE_objectFunctionDefinition = 23, RULE_annotationDefinition = 24, RULE_constantDefinition = 25, 
+		RULE_globalVariableDefinition = 26, RULE_channelType = 27, RULE_attachmentPoint = 28, 
+		RULE_workerDeclaration = 29, RULE_workerDefinition = 30, RULE_finiteType = 31, 
+		RULE_finiteTypeUnit = 32, RULE_typeName = 33, RULE_recordFieldDefinitionList = 34, 
+		RULE_simpleTypeName = 35, RULE_referenceTypeName = 36, RULE_userDefineTypeName = 37, 
+		RULE_valueTypeName = 38, RULE_builtInReferenceTypeName = 39, RULE_functionTypeName = 40, 
+		RULE_errorTypeName = 41, RULE_xmlNamespaceName = 42, RULE_xmlLocalName = 43, 
+		RULE_annotationAttachment = 44, RULE_statement = 45, RULE_variableDefinitionStatement = 46, 
+		RULE_recordLiteral = 47, RULE_staticMatchLiterals = 48, RULE_tupleLiteral = 49, 
+		RULE_recordKeyValue = 50, RULE_recordKey = 51, RULE_tableLiteral = 52, 
+		RULE_tableColumnDefinition = 53, RULE_tableColumn = 54, RULE_tableDataArray = 55, 
+		RULE_tableDataList = 56, RULE_tableData = 57, RULE_arrayLiteral = 58, 
+		RULE_assignmentStatement = 59, RULE_tupleDestructuringStatement = 60, 
+		RULE_recordDestructuringStatement = 61, RULE_errorDestructuringStatement = 62, 
+		RULE_compoundAssignmentStatement = 63, RULE_compoundOperator = 64, RULE_variableReferenceList = 65, 
+		RULE_ifElseStatement = 66, RULE_ifClause = 67, RULE_elseIfClause = 68, 
+		RULE_elseClause = 69, RULE_matchStatement = 70, RULE_matchPatternClause = 71, 
+		RULE_bindingPattern = 72, RULE_structuredBindingPattern = 73, RULE_errorBindingPattern = 74, 
+		RULE_tupleBindingPattern = 75, RULE_recordBindingPattern = 76, RULE_entryBindingPattern = 77, 
+		RULE_fieldBindingPattern = 78, RULE_restBindingPattern = 79, RULE_bindingRefPattern = 80, 
+		RULE_structuredRefBindingPattern = 81, RULE_tupleRefBindingPattern = 82, 
+		RULE_recordRefBindingPattern = 83, RULE_errorRefBindingPattern = 84, RULE_entryRefBindingPattern = 85, 
+		RULE_fieldRefBindingPattern = 86, RULE_restRefBindingPattern = 87, RULE_foreachStatement = 88, 
+		RULE_intRangeExpression = 89, RULE_whileStatement = 90, RULE_continueStatement = 91, 
+		RULE_breakStatement = 92, RULE_forkJoinStatement = 93, RULE_tryCatchStatement = 94, 
+		RULE_catchClauses = 95, RULE_catchClause = 96, RULE_finallyClause = 97, 
+		RULE_throwStatement = 98, RULE_panicStatement = 99, RULE_returnStatement = 100, 
+		RULE_workerSendAsyncStatement = 101, RULE_flushWorker = 102, RULE_waitForCollection = 103, 
+		RULE_waitKeyValue = 104, RULE_variableReference = 105, RULE_field = 106, 
+		RULE_index = 107, RULE_xmlAttrib = 108, RULE_functionInvocation = 109, 
+		RULE_invocation = 110, RULE_invocationArgList = 111, RULE_invocationArg = 112, 
+		RULE_actionInvocation = 113, RULE_expressionList = 114, RULE_expressionStmt = 115, 
+		RULE_transactionStatement = 116, RULE_committedAbortedClauses = 117, RULE_transactionClause = 118, 
+		RULE_transactionPropertyInitStatement = 119, RULE_transactionPropertyInitStatementList = 120, 
+		RULE_lockStatement = 121, RULE_onretryClause = 122, RULE_committedClause = 123, 
+		RULE_abortedClause = 124, RULE_abortStatement = 125, RULE_retryStatement = 126, 
+		RULE_retriesStatement = 127, RULE_namespaceDeclarationStatement = 128, 
+		RULE_namespaceDeclaration = 129, RULE_expression = 130, RULE_typeDescExpr = 131, 
+		RULE_typeInitExpr = 132, RULE_errorConstructorExpr = 133, RULE_serviceConstructorExpr = 134, 
+		RULE_trapExpr = 135, RULE_shiftExpression = 136, RULE_shiftExprPredicate = 137, 
+		RULE_nameReference = 138, RULE_functionNameReference = 139, RULE_returnParameter = 140, 
+		RULE_lambdaReturnParameter = 141, RULE_parameterTypeNameList = 142, RULE_parameterTypeName = 143, 
+		RULE_parameterList = 144, RULE_parameter = 145, RULE_defaultableParameter = 146, 
+		RULE_restParameter = 147, RULE_formalParameterList = 148, RULE_simpleLiteral = 149, 
+		RULE_floatingPointLiteral = 150, RULE_integerLiteral = 151, RULE_emptyTupleLiteral = 152, 
+		RULE_blobLiteral = 153, RULE_namedArgs = 154, RULE_restArgs = 155, RULE_xmlLiteral = 156, 
+		RULE_xmlItem = 157, RULE_content = 158, RULE_comment = 159, RULE_element = 160, 
+		RULE_startTag = 161, RULE_closeTag = 162, RULE_emptyTag = 163, RULE_procIns = 164, 
+		RULE_attribute = 165, RULE_text = 166, RULE_xmlQuotedString = 167, RULE_xmlSingleQuotedString = 168, 
+		RULE_xmlDoubleQuotedString = 169, RULE_xmlQualifiedName = 170, RULE_stringTemplateLiteral = 171, 
+		RULE_stringTemplateContent = 172, RULE_anyIdentifierName = 173, RULE_reservedWord = 174, 
+		RULE_tableQuery = 175, RULE_foreverStatement = 176, RULE_streamingQueryStatement = 177, 
+		RULE_patternClause = 178, RULE_withinClause = 179, RULE_orderByClause = 180, 
+		RULE_orderByVariable = 181, RULE_limitClause = 182, RULE_selectClause = 183, 
+		RULE_selectExpressionList = 184, RULE_selectExpression = 185, RULE_groupByClause = 186, 
+		RULE_havingClause = 187, RULE_streamingAction = 188, RULE_streamingInput = 189, 
+		RULE_joinStreamingInput = 190, RULE_outputRateLimit = 191, RULE_patternStreamingInput = 192, 
+		RULE_patternStreamingEdgeInput = 193, RULE_whereClause = 194, RULE_windowClause = 195, 
+		RULE_orderByType = 196, RULE_joinType = 197, RULE_timeScale = 198, RULE_deprecatedAttachment = 199, 
+		RULE_deprecatedText = 200, RULE_deprecatedTemplateInlineCode = 201, RULE_singleBackTickDeprecatedInlineCode = 202, 
+		RULE_doubleBackTickDeprecatedInlineCode = 203, RULE_tripleBackTickDeprecatedInlineCode = 204, 
+		RULE_documentationString = 205, RULE_documentationLine = 206, RULE_parameterDocumentationLine = 207, 
+		RULE_returnParameterDocumentationLine = 208, RULE_documentationContent = 209, 
+		RULE_parameterDescriptionLine = 210, RULE_returnParameterDescriptionLine = 211, 
+		RULE_documentationText = 212, RULE_documentationReference = 213, RULE_definitionReference = 214, 
+		RULE_definitionReferenceType = 215, RULE_parameterDocumentation = 216, 
+		RULE_returnParameterDocumentation = 217, RULE_docParameterName = 218, 
+		RULE_singleBacktickedBlock = 219, RULE_singleBacktickedContent = 220, 
+		RULE_doubleBacktickedBlock = 221, RULE_doubleBacktickedContent = 222, 
 		RULE_tripleBacktickedBlock = 223, RULE_tripleBacktickedContent = 224;
 	public static final String[] ruleNames = {
-		"compilationUnit", "packageName", "version", "importDeclaration", "orgName",
-		"definition", "serviceDefinition", "serviceBody", "serviceBodyMember",
-		"callableUnitBody", "functionDefinition", "lambdaFunction", "arrowFunction",
-		"arrowParam", "callableUnitSignature", "typeDefinition", "objectBody",
-		"typeReference", "objectFieldDefinition", "fieldDefinition", "recordRestFieldDefinition",
-		"sealedLiteral", "restDescriptorPredicate", "objectFunctionDefinition",
-		"annotationDefinition", "constantDefinition", "globalVariableDefinition",
-		"channelType", "attachmentPoint", "workerDeclaration", "workerDefinition",
-		"finiteType", "finiteTypeUnit", "typeName", "recordFieldDefinitionList",
-		"simpleTypeName", "referenceTypeName", "userDefineTypeName", "valueTypeName",
-		"builtInReferenceTypeName", "functionTypeName", "errorTypeName", "xmlNamespaceName",
-		"xmlLocalName", "annotationAttachment", "statement", "variableDefinitionStatement",
-		"recordLiteral", "staticMatchLiterals", "tupleLiteral", "recordKeyValue",
-		"recordKey", "tableLiteral", "tableColumnDefinition", "tableColumn", "tableDataArray",
-		"tableDataList", "tableData", "arrayLiteral", "assignmentStatement", "tupleDestructuringStatement",
-		"recordDestructuringStatement", "errorDestructuringStatement", "compoundAssignmentStatement",
-		"compoundOperator", "variableReferenceList", "ifElseStatement", "ifClause",
-		"elseIfClause", "elseClause", "matchStatement", "matchPatternClause",
-		"bindingPattern", "structuredBindingPattern", "errorBindingPattern", "tupleBindingPattern",
-		"recordBindingPattern", "entryBindingPattern", "fieldBindingPattern",
-		"restBindingPattern", "bindingRefPattern", "structuredRefBindingPattern",
-		"tupleRefBindingPattern", "recordRefBindingPattern", "errorRefBindingPattern",
-		"entryRefBindingPattern", "fieldRefBindingPattern", "restRefBindingPattern",
-		"foreachStatement", "intRangeExpression", "whileStatement", "continueStatement",
-		"breakStatement", "forkJoinStatement", "tryCatchStatement", "catchClauses",
-		"catchClause", "finallyClause", "throwStatement", "panicStatement", "returnStatement",
-		"workerSendAsyncStatement", "flushWorker", "waitForCollection", "waitKeyValue",
-		"variableReference", "field", "index", "xmlAttrib", "functionInvocation",
-		"invocation", "invocationArgList", "invocationArg", "actionInvocation",
-		"expressionList", "expressionStmt", "transactionStatement", "committedAbortedClauses",
-		"transactionClause", "transactionPropertyInitStatement", "transactionPropertyInitStatementList",
-		"lockStatement", "onretryClause", "committedClause", "abortedClause",
-		"abortStatement", "retryStatement", "retriesStatement", "namespaceDeclarationStatement",
-		"namespaceDeclaration", "expression", "typeDescExpr", "typeInitExpr",
-		"errorConstructorExpr", "serviceConstructorExpr", "trapExpr", "shiftExpression",
-		"shiftExprPredicate", "nameReference", "functionNameReference", "returnParameter",
-		"lambdaReturnParameter", "parameterTypeNameList", "parameterTypeName",
-		"parameterList", "parameter", "defaultableParameter", "restParameter",
-		"formalParameterList", "simpleLiteral", "floatingPointLiteral", "integerLiteral",
-		"emptyTupleLiteral", "blobLiteral", "namedArgs", "restArgs", "xmlLiteral",
-		"xmlItem", "content", "comment", "element", "startTag", "closeTag", "emptyTag",
-		"procIns", "attribute", "text", "xmlQuotedString", "xmlSingleQuotedString",
-		"xmlDoubleQuotedString", "xmlQualifiedName", "stringTemplateLiteral",
-		"stringTemplateContent", "anyIdentifierName", "reservedWord", "tableQuery",
-		"foreverStatement", "streamingQueryStatement", "patternClause", "withinClause",
-		"orderByClause", "orderByVariable", "limitClause", "selectClause", "selectExpressionList",
-		"selectExpression", "groupByClause", "havingClause", "streamingAction",
-		"streamingInput", "joinStreamingInput", "outputRateLimit", "patternStreamingInput",
-		"patternStreamingEdgeInput", "whereClause", "windowClause", "orderByType",
-		"joinType", "timeScale", "deprecatedAttachment", "deprecatedText", "deprecatedTemplateInlineCode",
-		"singleBackTickDeprecatedInlineCode", "doubleBackTickDeprecatedInlineCode",
-		"tripleBackTickDeprecatedInlineCode", "documentationString", "documentationLine",
-		"parameterDocumentationLine", "returnParameterDocumentationLine", "documentationContent",
-		"parameterDescriptionLine", "returnParameterDescriptionLine", "documentationText",
-		"documentationReference", "definitionReference", "definitionReferenceType",
-		"parameterDocumentation", "returnParameterDocumentation", "docParameterName",
-		"singleBacktickedBlock", "singleBacktickedContent", "doubleBacktickedBlock",
+		"compilationUnit", "packageName", "version", "importDeclaration", "orgName", 
+		"definition", "serviceDefinition", "serviceBody", "serviceBodyMember", 
+		"callableUnitBody", "functionDefinition", "lambdaFunction", "arrowFunction", 
+		"arrowParam", "callableUnitSignature", "typeDefinition", "objectBody", 
+		"typeReference", "objectFieldDefinition", "fieldDefinition", "recordRestFieldDefinition", 
+		"sealedLiteral", "restDescriptorPredicate", "objectFunctionDefinition", 
+		"annotationDefinition", "constantDefinition", "globalVariableDefinition", 
+		"channelType", "attachmentPoint", "workerDeclaration", "workerDefinition", 
+		"finiteType", "finiteTypeUnit", "typeName", "recordFieldDefinitionList", 
+		"simpleTypeName", "referenceTypeName", "userDefineTypeName", "valueTypeName", 
+		"builtInReferenceTypeName", "functionTypeName", "errorTypeName", "xmlNamespaceName", 
+		"xmlLocalName", "annotationAttachment", "statement", "variableDefinitionStatement", 
+		"recordLiteral", "staticMatchLiterals", "tupleLiteral", "recordKeyValue", 
+		"recordKey", "tableLiteral", "tableColumnDefinition", "tableColumn", "tableDataArray", 
+		"tableDataList", "tableData", "arrayLiteral", "assignmentStatement", "tupleDestructuringStatement", 
+		"recordDestructuringStatement", "errorDestructuringStatement", "compoundAssignmentStatement", 
+		"compoundOperator", "variableReferenceList", "ifElseStatement", "ifClause", 
+		"elseIfClause", "elseClause", "matchStatement", "matchPatternClause", 
+		"bindingPattern", "structuredBindingPattern", "errorBindingPattern", "tupleBindingPattern", 
+		"recordBindingPattern", "entryBindingPattern", "fieldBindingPattern", 
+		"restBindingPattern", "bindingRefPattern", "structuredRefBindingPattern", 
+		"tupleRefBindingPattern", "recordRefBindingPattern", "errorRefBindingPattern", 
+		"entryRefBindingPattern", "fieldRefBindingPattern", "restRefBindingPattern", 
+		"foreachStatement", "intRangeExpression", "whileStatement", "continueStatement", 
+		"breakStatement", "forkJoinStatement", "tryCatchStatement", "catchClauses", 
+		"catchClause", "finallyClause", "throwStatement", "panicStatement", "returnStatement", 
+		"workerSendAsyncStatement", "flushWorker", "waitForCollection", "waitKeyValue", 
+		"variableReference", "field", "index", "xmlAttrib", "functionInvocation", 
+		"invocation", "invocationArgList", "invocationArg", "actionInvocation", 
+		"expressionList", "expressionStmt", "transactionStatement", "committedAbortedClauses", 
+		"transactionClause", "transactionPropertyInitStatement", "transactionPropertyInitStatementList", 
+		"lockStatement", "onretryClause", "committedClause", "abortedClause", 
+		"abortStatement", "retryStatement", "retriesStatement", "namespaceDeclarationStatement", 
+		"namespaceDeclaration", "expression", "typeDescExpr", "typeInitExpr", 
+		"errorConstructorExpr", "serviceConstructorExpr", "trapExpr", "shiftExpression", 
+		"shiftExprPredicate", "nameReference", "functionNameReference", "returnParameter", 
+		"lambdaReturnParameter", "parameterTypeNameList", "parameterTypeName", 
+		"parameterList", "parameter", "defaultableParameter", "restParameter", 
+		"formalParameterList", "simpleLiteral", "floatingPointLiteral", "integerLiteral", 
+		"emptyTupleLiteral", "blobLiteral", "namedArgs", "restArgs", "xmlLiteral", 
+		"xmlItem", "content", "comment", "element", "startTag", "closeTag", "emptyTag", 
+		"procIns", "attribute", "text", "xmlQuotedString", "xmlSingleQuotedString", 
+		"xmlDoubleQuotedString", "xmlQualifiedName", "stringTemplateLiteral", 
+		"stringTemplateContent", "anyIdentifierName", "reservedWord", "tableQuery", 
+		"foreverStatement", "streamingQueryStatement", "patternClause", "withinClause", 
+		"orderByClause", "orderByVariable", "limitClause", "selectClause", "selectExpressionList", 
+		"selectExpression", "groupByClause", "havingClause", "streamingAction", 
+		"streamingInput", "joinStreamingInput", "outputRateLimit", "patternStreamingInput", 
+		"patternStreamingEdgeInput", "whereClause", "windowClause", "orderByType", 
+		"joinType", "timeScale", "deprecatedAttachment", "deprecatedText", "deprecatedTemplateInlineCode", 
+		"singleBackTickDeprecatedInlineCode", "doubleBackTickDeprecatedInlineCode", 
+		"tripleBackTickDeprecatedInlineCode", "documentationString", "documentationLine", 
+		"parameterDocumentationLine", "returnParameterDocumentationLine", "documentationContent", 
+		"parameterDescriptionLine", "returnParameterDescriptionLine", "documentationText", 
+		"documentationReference", "definitionReference", "definitionReferenceType", 
+		"parameterDocumentation", "returnParameterDocumentation", "docParameterName", 
+		"singleBacktickedBlock", "singleBacktickedContent", "doubleBacktickedBlock", 
 		"doubleBacktickedContent", "tripleBacktickedBlock", "tripleBacktickedContent"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'import'", "'as'", "'public'", "'private'", "'extern'", "'final'",
-		"'service'", "'resource'", "'function'", "'object'", "'record'", "'annotation'",
-		"'parameter'", "'transformer'", "'worker'", "'listener'", "'remote'",
-		"'xmlns'", "'returns'", "'version'", "'deprecated'", "'channel'", "'abstract'",
-		"'client'", "'const'", "'from'", "'on'", null, "'group'", "'by'", "'having'",
-		"'order'", "'where'", "'followed'", "'for'", "'window'", null, "'every'",
-		"'within'", null, null, "'snapshot'", null, "'inner'", "'outer'", "'right'",
-		"'left'", "'full'", "'unidirectional'", null, null, null, null, null,
-		null, null, null, null, null, null, null, "'forever'", "'limit'", "'ascending'",
-		"'descending'", "'int'", "'byte'", "'float'", "'decimal'", "'boolean'",
-		"'string'", "'error'", "'map'", "'json'", "'xml'", "'table'", "'stream'",
-		"'any'", "'typedesc'", "'type'", "'future'", "'anydata'", "'var'", "'new'",
-		"'__init'", "'if'", "'match'", "'else'", "'foreach'", "'while'", "'continue'",
-		"'break'", "'fork'", "'join'", "'some'", "'all'", "'try'", "'catch'",
-		"'finally'", "'throw'", "'panic'", "'trap'", "'return'", "'transaction'",
-		"'abort'", "'retry'", "'onretry'", "'retries'", "'committed'", "'aborted'",
-		"'with'", "'in'", "'lock'", "'untaint'", "'start'", "'but'", "'check'",
-		"'primarykey'", "'is'", "'flush'", "'wait'", "';'", "':'", "'.'", "','",
-		"'{'", "'}'", "'('", "')'", "'['", "']'", "'?'", "'='", "'+'", "'-'",
-		"'*'", "'/'", "'%'", "'!'", "'=='", "'!='", "'>'", "'<'", "'>='", "'<='",
-		"'&&'", "'||'", "'==='", "'!=='", "'&'", "'^'", "'~'", "'->'", "'<-'",
-		"'@'", "'`'", "'..'", "'...'", "'|'", "'=>'", "'?:'", "'->>'", "'+='",
-		"'-='", "'*='", "'/='", "'&='", "'|='", "'^='", "'<<='", "'>>='", "'>>>='",
-		"'..<'", null, null, null, null, null, null, null, null, null, "'null'",
-		null, null, null, null, null, null, null, null, null, null, null, "'variable'",
-		"'module'", null, null, null, null, null, null, null, null, null, null,
-		null, null, null, null, null, null, null, null, "'<!--'", null, null,
-		null, null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'",
+		null, "'import'", "'as'", "'public'", "'private'", "'extern'", "'final'", 
+		"'service'", "'resource'", "'function'", "'object'", "'record'", "'annotation'", 
+		"'parameter'", "'transformer'", "'worker'", "'listener'", "'remote'", 
+		"'xmlns'", "'returns'", "'version'", "'deprecated'", "'channel'", "'abstract'", 
+		"'client'", "'const'", "'from'", "'on'", null, "'group'", "'by'", "'having'", 
+		"'order'", "'where'", "'followed'", "'for'", "'window'", null, "'every'", 
+		"'within'", null, null, "'snapshot'", null, "'inner'", "'outer'", "'right'", 
+		"'left'", "'full'", "'unidirectional'", null, null, null, null, null, 
+		null, null, null, null, null, null, null, "'forever'", "'limit'", "'ascending'", 
+		"'descending'", "'int'", "'byte'", "'float'", "'decimal'", "'boolean'", 
+		"'string'", "'error'", "'map'", "'json'", "'xml'", "'table'", "'stream'", 
+		"'any'", "'typedesc'", "'type'", "'future'", "'anydata'", "'var'", "'new'", 
+		"'__init'", "'if'", "'match'", "'else'", "'foreach'", "'while'", "'continue'", 
+		"'break'", "'fork'", "'join'", "'some'", "'all'", "'try'", "'catch'", 
+		"'finally'", "'throw'", "'panic'", "'trap'", "'return'", "'transaction'", 
+		"'abort'", "'retry'", "'onretry'", "'retries'", "'committed'", "'aborted'", 
+		"'with'", "'in'", "'lock'", "'untaint'", "'start'", "'but'", "'check'", 
+		"'primarykey'", "'is'", "'flush'", "'wait'", "';'", "':'", "'.'", "','", 
+		"'{'", "'}'", "'('", "')'", "'['", "']'", "'?'", "'='", "'+'", "'-'", 
+		"'*'", "'/'", "'%'", "'!'", "'=='", "'!='", "'>'", "'<'", "'>='", "'<='", 
+		"'&&'", "'||'", "'==='", "'!=='", "'&'", "'^'", "'~'", "'->'", "'<-'", 
+		"'@'", "'`'", "'..'", "'...'", "'|'", "'=>'", "'?:'", "'->>'", "'+='", 
+		"'-='", "'*='", "'/='", "'&='", "'|='", "'^='", "'<<='", "'>>='", "'>>>='", 
+		"'..<'", null, null, null, null, null, null, null, null, null, "'null'", 
+		null, null, null, null, null, null, null, null, null, null, "'variable'", 
+		"'module'", null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, null, null, null, null, "'<!--'", null, null, 
+		null, null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'", 
 		null, null, null, "'\"'", "'''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERN", "FINAL", "SERVICE",
-		"RESOURCE", "FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER",
-		"TRANSFORMER", "WORKER", "LISTENER", "REMOTE", "XMLNS", "RETURNS", "VERSION",
-		"DEPRECATED", "CHANNEL", "ABSTRACT", "CLIENT", "CONST", "FROM", "ON",
-		"SELECT", "GROUP", "BY", "HAVING", "ORDER", "WHERE", "FOLLOWED", "FOR",
-		"WINDOW", "EVENTS", "EVERY", "WITHIN", "LAST", "FIRST", "SNAPSHOT", "OUTPUT",
-		"INNER", "OUTER", "RIGHT", "LEFT", "FULL", "UNIDIRECTIONAL", "SECOND",
-		"MINUTE", "HOUR", "DAY", "MONTH", "YEAR", "SECONDS", "MINUTES", "HOURS",
-		"DAYS", "MONTHS", "YEARS", "FOREVER", "LIMIT", "ASCENDING", "DESCENDING",
-		"TYPE_INT", "TYPE_BYTE", "TYPE_FLOAT", "TYPE_DECIMAL", "TYPE_BOOL", "TYPE_STRING",
-		"TYPE_ERROR", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM",
-		"TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", "TYPE_ANYDATA", "VAR",
-		"NEW", "OBJECT_INIT", "IF", "MATCH", "ELSE", "FOREACH", "WHILE", "CONTINUE",
-		"BREAK", "FORK", "JOIN", "SOME", "ALL", "TRY", "CATCH", "FINALLY", "THROW",
-		"PANIC", "TRAP", "RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY",
-		"RETRIES", "COMMITTED", "ABORTED", "WITH", "IN", "LOCK", "UNTAINT", "START",
-		"BUT", "CHECK", "PRIMARYKEY", "IS", "FLUSH", "WAIT", "SEMICOLON", "COLON",
-		"DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS",
-		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB",
-		"MUL", "DIV", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL",
-		"LT_EQUAL", "AND", "OR", "REF_EQUAL", "REF_NOT_EQUAL", "BIT_AND", "BIT_XOR",
-		"BIT_COMPLEMENT", "RARROW", "LARROW", "AT", "BACKTICK", "RANGE", "ELLIPSIS",
-		"PIPE", "EQUAL_GT", "ELVIS", "SYNCRARROW", "COMPOUND_ADD", "COMPOUND_SUB",
-		"COMPOUND_MUL", "COMPOUND_DIV", "COMPOUND_BIT_AND", "COMPOUND_BIT_OR",
-		"COMPOUND_BIT_XOR", "COMPOUND_LEFT_SHIFT", "COMPOUND_RIGHT_SHIFT", "COMPOUND_LOGICAL_SHIFT",
-		"HALF_OPEN_RANGE", "DecimalIntegerLiteral", "HexIntegerLiteral", "HexadecimalFloatingPointLiteral",
-		"DecimalFloatingPointNumber", "BooleanLiteral", "QuotedStringLiteral",
-		"SymbolicStringLiteral", "Base16BlobLiteral", "Base64BlobLiteral", "NullLiteral",
-		"Identifier", "XMLLiteralStart", "StringTemplateLiteralStart", "DocumentationLineStart",
-		"ParameterDocumentationStart", "ReturnParameterDocumentationStart", "DeprecatedTemplateStart",
-		"ExpressionEnd", "WS", "NEW_LINE", "LINE_COMMENT", "VARIABLE", "MODULE",
-		"ReferenceType", "DocumentationText", "SingleBacktickStart", "DoubleBacktickStart",
-		"TripleBacktickStart", "DefinitionReference", "DocumentationEscapedCharacters",
-		"DocumentationSpace", "DocumentationEnd", "ParameterName", "DescriptionSeparator",
-		"DocumentationParamEnd", "SingleBacktickContent", "SingleBacktickEnd",
-		"DoubleBacktickContent", "DoubleBacktickEnd", "TripleBacktickContent",
-		"TripleBacktickEnd", "XML_COMMENT_START", "CDATA", "DTD", "EntityRef",
-		"CharRef", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", "XML_TAG_SPECIAL_OPEN",
-		"XMLLiteralEnd", "XMLTemplateText", "XMLText", "XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE",
-		"XML_TAG_SLASH_CLOSE", "SLASH", "QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE",
-		"SINGLE_QUOTE", "XMLQName", "XML_TAG_WS", "XMLTagExpressionStart", "DOUBLE_QUOTE_END",
-		"XMLDoubleQuotedTemplateString", "XMLDoubleQuotedString", "SINGLE_QUOTE_END",
-		"XMLSingleQuotedTemplateString", "XMLSingleQuotedString", "XMLPIText",
-		"XMLPITemplateText", "XMLCommentText", "XMLCommentTemplateText", "TripleBackTickInlineCodeEnd",
-		"TripleBackTickInlineCode", "DoubleBackTickInlineCodeEnd", "DoubleBackTickInlineCode",
-		"SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", "DeprecatedTemplateEnd",
-		"SBDeprecatedInlineCodeStart", "DBDeprecatedInlineCodeStart", "TBDeprecatedInlineCodeStart",
-		"DeprecatedTemplateText", "StringTemplateLiteralEnd", "StringTemplateExpressionStart",
-		"StringTemplateText"
+		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERN", "FINAL", "SERVICE", 
+		"RESOURCE", "FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", 
+		"TRANSFORMER", "WORKER", "LISTENER", "REMOTE", "XMLNS", "RETURNS", "VERSION", 
+		"DEPRECATED", "CHANNEL", "ABSTRACT", "CLIENT", "CONST", "FROM", "ON", 
+		"SELECT", "GROUP", "BY", "HAVING", "ORDER", "WHERE", "FOLLOWED", "FOR", 
+		"WINDOW", "EVENTS", "EVERY", "WITHIN", "LAST", "FIRST", "SNAPSHOT", "OUTPUT", 
+		"INNER", "OUTER", "RIGHT", "LEFT", "FULL", "UNIDIRECTIONAL", "SECOND", 
+		"MINUTE", "HOUR", "DAY", "MONTH", "YEAR", "SECONDS", "MINUTES", "HOURS", 
+		"DAYS", "MONTHS", "YEARS", "FOREVER", "LIMIT", "ASCENDING", "DESCENDING", 
+		"TYPE_INT", "TYPE_BYTE", "TYPE_FLOAT", "TYPE_DECIMAL", "TYPE_BOOL", "TYPE_STRING", 
+		"TYPE_ERROR", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM", 
+		"TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", "TYPE_ANYDATA", "VAR", 
+		"NEW", "OBJECT_INIT", "IF", "MATCH", "ELSE", "FOREACH", "WHILE", "CONTINUE", 
+		"BREAK", "FORK", "JOIN", "SOME", "ALL", "TRY", "CATCH", "FINALLY", "THROW", 
+		"PANIC", "TRAP", "RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY", 
+		"RETRIES", "COMMITTED", "ABORTED", "WITH", "IN", "LOCK", "UNTAINT", "START", 
+		"BUT", "CHECK", "PRIMARYKEY", "IS", "FLUSH", "WAIT", "SEMICOLON", "COLON", 
+		"DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB", 
+		"MUL", "DIV", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", 
+		"LT_EQUAL", "AND", "OR", "REF_EQUAL", "REF_NOT_EQUAL", "BIT_AND", "BIT_XOR", 
+		"BIT_COMPLEMENT", "RARROW", "LARROW", "AT", "BACKTICK", "RANGE", "ELLIPSIS", 
+		"PIPE", "EQUAL_GT", "ELVIS", "SYNCRARROW", "COMPOUND_ADD", "COMPOUND_SUB", 
+		"COMPOUND_MUL", "COMPOUND_DIV", "COMPOUND_BIT_AND", "COMPOUND_BIT_OR", 
+		"COMPOUND_BIT_XOR", "COMPOUND_LEFT_SHIFT", "COMPOUND_RIGHT_SHIFT", "COMPOUND_LOGICAL_SHIFT", 
+		"HALF_OPEN_RANGE", "DecimalIntegerLiteral", "HexIntegerLiteral", "HexadecimalFloatingPointLiteral", 
+		"DecimalFloatingPointNumber", "BooleanLiteral", "QuotedStringLiteral", 
+		"SymbolicStringLiteral", "Base16BlobLiteral", "Base64BlobLiteral", "NullLiteral", 
+		"Identifier", "XMLLiteralStart", "StringTemplateLiteralStart", "DocumentationLineStart", 
+		"ParameterDocumentationStart", "ReturnParameterDocumentationStart", "DeprecatedTemplateStart", 
+		"WS", "NEW_LINE", "LINE_COMMENT", "VARIABLE", "MODULE", "ReferenceType", 
+		"DocumentationText", "SingleBacktickStart", "DoubleBacktickStart", "TripleBacktickStart", 
+		"DefinitionReference", "DocumentationEscapedCharacters", "DocumentationSpace", 
+		"DocumentationEnd", "ParameterName", "DescriptionSeparator", "DocumentationParamEnd", 
+		"SingleBacktickContent", "SingleBacktickEnd", "DoubleBacktickContent", 
+		"DoubleBacktickEnd", "TripleBacktickContent", "TripleBacktickEnd", "XML_COMMENT_START", 
+		"CDATA", "DTD", "EntityRef", "CharRef", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", 
+		"XML_TAG_SPECIAL_OPEN", "XMLLiteralEnd", "XMLTemplateText", "XMLText", 
+		"XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE", "XML_TAG_SLASH_CLOSE", "SLASH", 
+		"QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE", "SINGLE_QUOTE", "XMLQName", 
+		"XML_TAG_WS", "XMLTagExpressionStart", "DOUBLE_QUOTE_END", "XMLDoubleQuotedTemplateString", 
+		"XMLDoubleQuotedString", "SINGLE_QUOTE_END", "XMLSingleQuotedTemplateString", 
+		"XMLSingleQuotedString", "XMLPIText", "XMLPITemplateText", "XMLCommentText", 
+		"XMLCommentTemplateText", "TripleBackTickInlineCodeEnd", "TripleBackTickInlineCode", 
+		"DoubleBackTickInlineCodeEnd", "DoubleBackTickInlineCode", "SingleBackTickInlineCodeEnd", 
+		"SingleBackTickInlineCode", "DeprecatedTemplateEnd", "SBDeprecatedInlineCodeStart", 
+		"DBDeprecatedInlineCodeStart", "TBDeprecatedInlineCodeStart", "DeprecatedTemplateText", 
+		"StringTemplateLiteralEnd", "StringTemplateExpressionStart", "StringTemplateText"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -1040,7 +1039,7 @@ public class BallerinaParser extends Parser {
 			_la = _input.LA(1);
 			if (_la==WORKER) {
 				{
-				setState(543);
+				setState(543); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -1050,7 +1049,7 @@ public class BallerinaParser extends Parser {
 					workerDeclaration();
 					}
 					}
-					setState(545);
+					setState(545); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==WORKER );
@@ -2916,7 +2915,7 @@ public class BallerinaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_typeName; }
-
+	 
 		public TypeNameContext() { }
 		public void copyFrom(TypeNameContext ctx) {
 			super.copyFrom(ctx);
@@ -3247,7 +3246,7 @@ public class BallerinaParser extends Parser {
 						pushNewRecursionContext(_localctx, _startState, RULE_typeName);
 						setState(869);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
-						setState(876);
+						setState(876); 
 						_errHandler.sync(this);
 						_alt = 1;
 						do {
@@ -3285,7 +3284,7 @@ public class BallerinaParser extends Parser {
 							default:
 								throw new NoViableAltException(this);
 							}
-							setState(878);
+							setState(878); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,73,_ctx);
 						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
@@ -3297,7 +3296,7 @@ public class BallerinaParser extends Parser {
 						pushNewRecursionContext(_localctx, _startState, RULE_typeName);
 						setState(880);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(883);
+						setState(883); 
 						_errHandler.sync(this);
 						_alt = 1;
 						do {
@@ -3315,7 +3314,7 @@ public class BallerinaParser extends Parser {
 							default:
 								throw new NoViableAltException(this);
 							}
-							setState(885);
+							setState(885); 
 							_errHandler.sync(this);
 							_alt = getInterpreter().adaptivePredict(_input,74,_ctx);
 						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
@@ -3332,7 +3331,7 @@ public class BallerinaParser extends Parser {
 						}
 						break;
 					}
-					}
+					} 
 				}
 				setState(893);
 				_errHandler.sync(this);
@@ -3436,7 +3435,7 @@ public class BallerinaParser extends Parser {
 					default:
 						throw new NoViableAltException(this);
 					}
-					}
+					} 
 				}
 				setState(900);
 				_errHandler.sync(this);
@@ -4674,7 +4673,7 @@ public class BallerinaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_staticMatchLiterals; }
-
+	 
 		public StaticMatchLiteralsContext() { }
 		public void copyFrom(StaticMatchLiteralsContext ctx) {
 			super.copyFrom(ctx);
@@ -4828,7 +4827,7 @@ public class BallerinaParser extends Parser {
 					setState(1057);
 					staticMatchLiterals(2);
 					}
-					}
+					} 
 				}
 				setState(1062);
 				_errHandler.sync(this);
@@ -5793,7 +5792,7 @@ public class BallerinaParser extends Parser {
 					setState(1167);
 					variableReference(0);
 					}
-					}
+					} 
 				}
 				setState(1172);
 				_errHandler.sync(this);
@@ -5859,7 +5858,7 @@ public class BallerinaParser extends Parser {
 					setState(1174);
 					elseIfClause();
 					}
-					}
+					} 
 				}
 				setState(1179);
 				_errHandler.sync(this);
@@ -6132,7 +6131,7 @@ public class BallerinaParser extends Parser {
 			expression(0);
 			setState(1218);
 			match(LEFT_BRACE);
-			setState(1220);
+			setState(1220); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -6142,7 +6141,7 @@ public class BallerinaParser extends Parser {
 				matchPatternClause();
 				}
 				}
-				setState(1222);
+				setState(1222); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( ((((_la - 83)) & ~0x3f) == 0 && ((1L << (_la - 83)) & ((1L << (VAR - 83)) | (1L << (LEFT_BRACE - 83)) | (1L << (LEFT_PARENTHESIS - 83)) | (1L << (SUB - 83)))) != 0) || ((((_la - 174)) & ~0x3f) == 0 && ((1L << (_la - 174)) & ((1L << (DecimalIntegerLiteral - 174)) | (1L << (HexIntegerLiteral - 174)) | (1L << (HexadecimalFloatingPointLiteral - 174)) | (1L << (DecimalFloatingPointNumber - 174)) | (1L << (BooleanLiteral - 174)) | (1L << (QuotedStringLiteral - 174)) | (1L << (SymbolicStringLiteral - 174)) | (1L << (Base16BlobLiteral - 174)) | (1L << (Base64BlobLiteral - 174)) | (1L << (NullLiteral - 174)) | (1L << (Identifier - 174)))) != 0) );
@@ -6570,7 +6569,7 @@ public class BallerinaParser extends Parser {
 			match(LEFT_PARENTHESIS);
 			setState(1281);
 			bindingPattern();
-			setState(1284);
+			setState(1284); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -6582,7 +6581,7 @@ public class BallerinaParser extends Parser {
 				bindingPattern();
 				}
 				}
-				setState(1286);
+				setState(1286); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==COMMA );
@@ -6699,7 +6698,7 @@ public class BallerinaParser extends Parser {
 						setState(1296);
 						fieldBindingPattern();
 						}
-						}
+						} 
 					}
 					setState(1301);
 					_errHandler.sync(this);
@@ -7010,7 +7009,7 @@ public class BallerinaParser extends Parser {
 			match(LEFT_PARENTHESIS);
 			setState(1329);
 			bindingRefPattern();
-			setState(1332);
+			setState(1332); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -7022,7 +7021,7 @@ public class BallerinaParser extends Parser {
 				bindingRefPattern();
 				}
 				}
-				setState(1334);
+				setState(1334); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==COMMA );
@@ -7249,7 +7248,7 @@ public class BallerinaParser extends Parser {
 						setState(1356);
 						fieldRefBindingPattern();
 						}
-						}
+						} 
 					}
 					setState(1361);
 					_errHandler.sync(this);
@@ -7934,7 +7933,7 @@ public class BallerinaParser extends Parser {
 			case CATCH:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1449);
+				setState(1449); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -7944,7 +7943,7 @@ public class BallerinaParser extends Parser {
 					catchClause();
 					}
 					}
-					setState(1451);
+					setState(1451); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==CATCH );
@@ -8510,7 +8509,7 @@ public class BallerinaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_variableReference; }
-
+	 
 		public VariableReferenceContext() { }
 		public void copyFrom(VariableReferenceContext ctx) {
 			super.copyFrom(ctx);
@@ -8758,7 +8757,7 @@ public class BallerinaParser extends Parser {
 						}
 						break;
 					}
-					}
+					} 
 				}
 				setState(1549);
 				_errHandler.sync(this);
@@ -10159,7 +10158,7 @@ public class BallerinaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expression; }
-
+	 
 		public ExpressionContext() { }
 		public void copyFrom(ExpressionContext ctx) {
 			super.copyFrom(ctx);
@@ -11276,7 +11275,7 @@ public class BallerinaParser extends Parser {
 						}
 						break;
 					}
-					}
+					} 
 				}
 				setState(1808);
 				_errHandler.sync(this);
@@ -12119,7 +12118,7 @@ public class BallerinaParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parameter; }
-
+	 
 		public ParameterContext() { }
 		public void copyFrom(ParameterContext ctx) {
 			super.copyFrom(ctx);
@@ -12472,7 +12471,7 @@ public class BallerinaParser extends Parser {
 							break;
 						}
 						}
-						}
+						} 
 					}
 					setState(1973);
 					_errHandler.sync(this);
@@ -13089,7 +13088,7 @@ public class BallerinaParser extends Parser {
 			setState(2038);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((((_la - 215)) & ~0x3f) == 0 && ((1L << (_la - 215)) & ((1L << (XML_COMMENT_START - 215)) | (1L << (CDATA - 215)) | (1L << (XML_TAG_OPEN - 215)) | (1L << (XML_TAG_SPECIAL_OPEN - 215)))) != 0)) {
+			while (((((_la - 214)) & ~0x3f) == 0 && ((1L << (_la - 214)) & ((1L << (XML_COMMENT_START - 214)) | (1L << (CDATA - 214)) | (1L << (XML_TAG_OPEN - 214)) | (1L << (XML_TAG_SPECIAL_OPEN - 214)))) != 0)) {
 				{
 				{
 				setState(2031);
@@ -13162,9 +13161,9 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> ExpressionEnd() { return getTokens(BallerinaParser.ExpressionEnd); }
-		public TerminalNode ExpressionEnd(int i) {
-			return getToken(BallerinaParser.ExpressionEnd, i);
+		public List<TerminalNode> RIGHT_BRACE() { return getTokens(BallerinaParser.RIGHT_BRACE); }
+		public TerminalNode RIGHT_BRACE(int i) {
+			return getToken(BallerinaParser.RIGHT_BRACE, i);
 		}
 		public CommentContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -13200,7 +13199,7 @@ public class BallerinaParser extends Parser {
 				setState(2043);
 				expression(0);
 				setState(2044);
-				match(ExpressionEnd);
+				match(RIGHT_BRACE);
 				}
 				}
 				setState(2050);
@@ -13477,9 +13476,9 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> ExpressionEnd() { return getTokens(BallerinaParser.ExpressionEnd); }
-		public TerminalNode ExpressionEnd(int i) {
-			return getToken(BallerinaParser.ExpressionEnd, i);
+		public List<TerminalNode> RIGHT_BRACE() { return getTokens(BallerinaParser.RIGHT_BRACE); }
+		public TerminalNode RIGHT_BRACE(int i) {
+			return getToken(BallerinaParser.RIGHT_BRACE, i);
 		}
 		public ProcInsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -13515,7 +13514,7 @@ public class BallerinaParser extends Parser {
 				setState(2086);
 				expression(0);
 				setState(2087);
-				match(ExpressionEnd);
+				match(RIGHT_BRACE);
 				}
 				}
 				setState(2093);
@@ -13595,9 +13594,9 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> ExpressionEnd() { return getTokens(BallerinaParser.ExpressionEnd); }
-		public TerminalNode ExpressionEnd(int i) {
-			return getToken(BallerinaParser.ExpressionEnd, i);
+		public List<TerminalNode> RIGHT_BRACE() { return getTokens(BallerinaParser.RIGHT_BRACE); }
+		public TerminalNode RIGHT_BRACE(int i) {
+			return getToken(BallerinaParser.RIGHT_BRACE, i);
 		}
 		public TerminalNode XMLText() { return getToken(BallerinaParser.XMLText, 0); }
 		public TextContext(ParserRuleContext parent, int invokingState) {
@@ -13624,7 +13623,7 @@ public class BallerinaParser extends Parser {
 			case XMLTemplateText:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2104);
+				setState(2104); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -13635,10 +13634,10 @@ public class BallerinaParser extends Parser {
 					setState(2101);
 					expression(0);
 					setState(2102);
-					match(ExpressionEnd);
+					match(RIGHT_BRACE);
 					}
 					}
-					setState(2106);
+					setState(2106); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==XMLTemplateText );
@@ -13744,9 +13743,9 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> ExpressionEnd() { return getTokens(BallerinaParser.ExpressionEnd); }
-		public TerminalNode ExpressionEnd(int i) {
-			return getToken(BallerinaParser.ExpressionEnd, i);
+		public List<TerminalNode> RIGHT_BRACE() { return getTokens(BallerinaParser.RIGHT_BRACE); }
+		public TerminalNode RIGHT_BRACE(int i) {
+			return getToken(BallerinaParser.RIGHT_BRACE, i);
 		}
 		public TerminalNode XMLSingleQuotedString() { return getToken(BallerinaParser.XMLSingleQuotedString, 0); }
 		public XmlSingleQuotedStringContext(ParserRuleContext parent, int invokingState) {
@@ -13783,7 +13782,7 @@ public class BallerinaParser extends Parser {
 				setState(2120);
 				expression(0);
 				setState(2121);
-				match(ExpressionEnd);
+				match(RIGHT_BRACE);
 				}
 				}
 				setState(2127);
@@ -13827,9 +13826,9 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public List<TerminalNode> ExpressionEnd() { return getTokens(BallerinaParser.ExpressionEnd); }
-		public TerminalNode ExpressionEnd(int i) {
-			return getToken(BallerinaParser.ExpressionEnd, i);
+		public List<TerminalNode> RIGHT_BRACE() { return getTokens(BallerinaParser.RIGHT_BRACE); }
+		public TerminalNode RIGHT_BRACE(int i) {
+			return getToken(BallerinaParser.RIGHT_BRACE, i);
 		}
 		public TerminalNode XMLDoubleQuotedString() { return getToken(BallerinaParser.XMLDoubleQuotedString, 0); }
 		public XmlDoubleQuotedStringContext(ParserRuleContext parent, int invokingState) {
@@ -13866,7 +13865,7 @@ public class BallerinaParser extends Parser {
 				setState(2135);
 				expression(0);
 				setState(2136);
-				match(ExpressionEnd);
+				match(RIGHT_BRACE);
 				}
 				}
 				setState(2142);
@@ -13907,7 +13906,7 @@ public class BallerinaParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode ExpressionEnd() { return getToken(BallerinaParser.ExpressionEnd, 0); }
+		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
 		public XmlQualifiedNameContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -13955,7 +13954,7 @@ public class BallerinaParser extends Parser {
 				setState(2154);
 				expression(0);
 				setState(2155);
-				match(ExpressionEnd);
+				match(RIGHT_BRACE);
 				}
 				break;
 			default:
@@ -14066,7 +14065,7 @@ public class BallerinaParser extends Parser {
 			case StringTemplateExpressionStart:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(2169);
+				setState(2169); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
@@ -14080,7 +14079,7 @@ public class BallerinaParser extends Parser {
 					match(RIGHT_BRACE);
 					}
 					}
-					setState(2171);
+					setState(2171); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( _la==StringTemplateExpressionStart );
@@ -14351,7 +14350,7 @@ public class BallerinaParser extends Parser {
 			match(FOREVER);
 			setState(2200);
 			match(LEFT_BRACE);
-			setState(2202);
+			setState(2202); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -14361,7 +14360,7 @@ public class BallerinaParser extends Parser {
 				streamingQueryStatement();
 				}
 				}
-				setState(2204);
+				setState(2204); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==FROM );
@@ -14652,7 +14651,7 @@ public class BallerinaParser extends Parser {
 					setState(2242);
 					orderByVariable();
 					}
-					}
+					} 
 				}
 				setState(2247);
 				_errHandler.sync(this);
@@ -14948,7 +14947,7 @@ public class BallerinaParser extends Parser {
 					setState(2268);
 					selectExpression();
 					}
-					}
+					} 
 				}
 				setState(2273);
 				_errHandler.sync(this);
@@ -15247,7 +15246,7 @@ public class BallerinaParser extends Parser {
 					setState(2303);
 					functionInvocation();
 					}
-					}
+					} 
 				}
 				setState(2308);
 				_errHandler.sync(this);
@@ -15273,7 +15272,7 @@ public class BallerinaParser extends Parser {
 					setState(2312);
 					functionInvocation();
 					}
-					}
+					} 
 				}
 				setState(2317);
 				_errHandler.sync(this);
@@ -16042,7 +16041,7 @@ public class BallerinaParser extends Parser {
 			match(DeprecatedTemplateStart);
 			setState(2422);
 			_la = _input.LA(1);
-			if (((((_la - 254)) & ~0x3f) == 0 && ((1L << (_la - 254)) & ((1L << (SBDeprecatedInlineCodeStart - 254)) | (1L << (DBDeprecatedInlineCodeStart - 254)) | (1L << (TBDeprecatedInlineCodeStart - 254)) | (1L << (DeprecatedTemplateText - 254)))) != 0)) {
+			if (((((_la - 253)) & ~0x3f) == 0 && ((1L << (_la - 253)) & ((1L << (SBDeprecatedInlineCodeStart - 253)) | (1L << (DBDeprecatedInlineCodeStart - 253)) | (1L << (TBDeprecatedInlineCodeStart - 253)) | (1L << (DeprecatedTemplateText - 253)))) != 0)) {
 				{
 				setState(2421);
 				deprecatedText();
@@ -16106,7 +16105,7 @@ public class BallerinaParser extends Parser {
 				setState(2431);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (((((_la - 254)) & ~0x3f) == 0 && ((1L << (_la - 254)) & ((1L << (SBDeprecatedInlineCodeStart - 254)) | (1L << (DBDeprecatedInlineCodeStart - 254)) | (1L << (TBDeprecatedInlineCodeStart - 254)) | (1L << (DeprecatedTemplateText - 254)))) != 0)) {
+				while (((((_la - 253)) & ~0x3f) == 0 && ((1L << (_la - 253)) & ((1L << (SBDeprecatedInlineCodeStart - 253)) | (1L << (DBDeprecatedInlineCodeStart - 253)) | (1L << (TBDeprecatedInlineCodeStart - 253)) | (1L << (DeprecatedTemplateText - 253)))) != 0)) {
 					{
 					setState(2429);
 					switch (_input.LA(1)) {
@@ -16142,7 +16141,7 @@ public class BallerinaParser extends Parser {
 				setState(2439);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (((((_la - 254)) & ~0x3f) == 0 && ((1L << (_la - 254)) & ((1L << (SBDeprecatedInlineCodeStart - 254)) | (1L << (DBDeprecatedInlineCodeStart - 254)) | (1L << (TBDeprecatedInlineCodeStart - 254)) | (1L << (DeprecatedTemplateText - 254)))) != 0)) {
+				while (((((_la - 253)) & ~0x3f) == 0 && ((1L << (_la - 253)) & ((1L << (SBDeprecatedInlineCodeStart - 253)) | (1L << (DBDeprecatedInlineCodeStart - 253)) | (1L << (TBDeprecatedInlineCodeStart - 253)) | (1L << (DeprecatedTemplateText - 253)))) != 0)) {
 					{
 					setState(2437);
 					switch (_input.LA(1)) {
@@ -16441,7 +16440,7 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2468);
+			setState(2468); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -16451,7 +16450,7 @@ public class BallerinaParser extends Parser {
 				documentationLine();
 				}
 				}
-				setState(2470);
+				setState(2470); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==DocumentationLineStart );
@@ -16680,7 +16679,7 @@ public class BallerinaParser extends Parser {
 			{
 			setState(2499);
 			_la = _input.LA(1);
-			if (((((_la - 195)) & ~0x3f) == 0 && ((1L << (_la - 195)) & ((1L << (VARIABLE - 195)) | (1L << (MODULE - 195)) | (1L << (ReferenceType - 195)) | (1L << (DocumentationText - 195)) | (1L << (SingleBacktickStart - 195)) | (1L << (DoubleBacktickStart - 195)) | (1L << (TripleBacktickStart - 195)) | (1L << (DefinitionReference - 195)))) != 0)) {
+			if (((((_la - 194)) & ~0x3f) == 0 && ((1L << (_la - 194)) & ((1L << (VARIABLE - 194)) | (1L << (MODULE - 194)) | (1L << (ReferenceType - 194)) | (1L << (DocumentationText - 194)) | (1L << (SingleBacktickStart - 194)) | (1L << (DoubleBacktickStart - 194)) | (1L << (TripleBacktickStart - 194)) | (1L << (DefinitionReference - 194)))) != 0)) {
 				{
 				setState(2498);
 				documentationText();
@@ -16730,7 +16729,7 @@ public class BallerinaParser extends Parser {
 			match(DocumentationLineStart);
 			setState(2503);
 			_la = _input.LA(1);
-			if (((((_la - 195)) & ~0x3f) == 0 && ((1L << (_la - 195)) & ((1L << (VARIABLE - 195)) | (1L << (MODULE - 195)) | (1L << (ReferenceType - 195)) | (1L << (DocumentationText - 195)) | (1L << (SingleBacktickStart - 195)) | (1L << (DoubleBacktickStart - 195)) | (1L << (TripleBacktickStart - 195)) | (1L << (DefinitionReference - 195)))) != 0)) {
+			if (((((_la - 194)) & ~0x3f) == 0 && ((1L << (_la - 194)) & ((1L << (VARIABLE - 194)) | (1L << (MODULE - 194)) | (1L << (ReferenceType - 194)) | (1L << (DocumentationText - 194)) | (1L << (SingleBacktickStart - 194)) | (1L << (DoubleBacktickStart - 194)) | (1L << (TripleBacktickStart - 194)) | (1L << (DefinitionReference - 194)))) != 0)) {
 				{
 				setState(2502);
 				documentationText();
@@ -16780,7 +16779,7 @@ public class BallerinaParser extends Parser {
 			match(DocumentationLineStart);
 			setState(2507);
 			_la = _input.LA(1);
-			if (((((_la - 195)) & ~0x3f) == 0 && ((1L << (_la - 195)) & ((1L << (VARIABLE - 195)) | (1L << (MODULE - 195)) | (1L << (ReferenceType - 195)) | (1L << (DocumentationText - 195)) | (1L << (SingleBacktickStart - 195)) | (1L << (DoubleBacktickStart - 195)) | (1L << (TripleBacktickStart - 195)) | (1L << (DefinitionReference - 195)))) != 0)) {
+			if (((((_la - 194)) & ~0x3f) == 0 && ((1L << (_la - 194)) & ((1L << (VARIABLE - 194)) | (1L << (MODULE - 194)) | (1L << (ReferenceType - 194)) | (1L << (DocumentationText - 194)) | (1L << (SingleBacktickStart - 194)) | (1L << (DoubleBacktickStart - 194)) | (1L << (TripleBacktickStart - 194)) | (1L << (DefinitionReference - 194)))) != 0)) {
 				{
 				setState(2506);
 				documentationText();
@@ -16866,7 +16865,7 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(2518);
+			setState(2518); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -16930,10 +16929,10 @@ public class BallerinaParser extends Parser {
 					break;
 				}
 				}
-				setState(2520);
+				setState(2520); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( ((((_la - 195)) & ~0x3f) == 0 && ((1L << (_la - 195)) & ((1L << (VARIABLE - 195)) | (1L << (MODULE - 195)) | (1L << (ReferenceType - 195)) | (1L << (DocumentationText - 195)) | (1L << (SingleBacktickStart - 195)) | (1L << (DoubleBacktickStart - 195)) | (1L << (TripleBacktickStart - 195)) | (1L << (DefinitionReference - 195)))) != 0) );
+			} while ( ((((_la - 194)) & ~0x3f) == 0 && ((1L << (_la - 194)) & ((1L << (VARIABLE - 194)) | (1L << (MODULE - 194)) | (1L << (ReferenceType - 194)) | (1L << (DocumentationText - 194)) | (1L << (SingleBacktickStart - 194)) | (1L << (DoubleBacktickStart - 194)) | (1L << (TripleBacktickStart - 194)) | (1L << (DefinitionReference - 194)))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -17105,7 +17104,7 @@ public class BallerinaParser extends Parser {
 			match(DescriptionSeparator);
 			setState(2533);
 			_la = _input.LA(1);
-			if (((((_la - 195)) & ~0x3f) == 0 && ((1L << (_la - 195)) & ((1L << (VARIABLE - 195)) | (1L << (MODULE - 195)) | (1L << (ReferenceType - 195)) | (1L << (DocumentationText - 195)) | (1L << (SingleBacktickStart - 195)) | (1L << (DoubleBacktickStart - 195)) | (1L << (TripleBacktickStart - 195)) | (1L << (DefinitionReference - 195)))) != 0)) {
+			if (((((_la - 194)) & ~0x3f) == 0 && ((1L << (_la - 194)) & ((1L << (VARIABLE - 194)) | (1L << (MODULE - 194)) | (1L << (ReferenceType - 194)) | (1L << (DocumentationText - 194)) | (1L << (SingleBacktickStart - 194)) | (1L << (DoubleBacktickStart - 194)) | (1L << (TripleBacktickStart - 194)) | (1L << (DefinitionReference - 194)))) != 0)) {
 				{
 				setState(2532);
 				documentationText();
@@ -17155,7 +17154,7 @@ public class BallerinaParser extends Parser {
 			match(ReturnParameterDocumentationStart);
 			setState(2537);
 			_la = _input.LA(1);
-			if (((((_la - 195)) & ~0x3f) == 0 && ((1L << (_la - 195)) & ((1L << (VARIABLE - 195)) | (1L << (MODULE - 195)) | (1L << (ReferenceType - 195)) | (1L << (DocumentationText - 195)) | (1L << (SingleBacktickStart - 195)) | (1L << (DoubleBacktickStart - 195)) | (1L << (TripleBacktickStart - 195)) | (1L << (DefinitionReference - 195)))) != 0)) {
+			if (((((_la - 194)) & ~0x3f) == 0 && ((1L << (_la - 194)) & ((1L << (VARIABLE - 194)) | (1L << (MODULE - 194)) | (1L << (ReferenceType - 194)) | (1L << (DocumentationText - 194)) | (1L << (SingleBacktickStart - 194)) | (1L << (DoubleBacktickStart - 194)) | (1L << (TripleBacktickStart - 194)) | (1L << (DefinitionReference - 194)))) != 0)) {
 				{
 				setState(2536);
 				documentationText();
@@ -17556,7 +17555,7 @@ public class BallerinaParser extends Parser {
 
 	private static final int _serializedATNSegments = 2;
 	private static final String _serializedATNSegment0 =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u0106\u0a02\4\2\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u0105\u0a02\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -18425,65 +18424,65 @@ public class BallerinaParser extends Parser {
 		"\u0135\3\2\2\2\u07d8\u07d9\7\u00ba\2\2\u07d9\u07da\7\u0087\2\2\u07da\u07db"+
 		"\5\u0106\u0084\2\u07db\u0137\3\2\2\2\u07dc\u07dd\7\u00a0\2\2\u07dd\u07de"+
 		"\5\u0106\u0084\2\u07de\u0139\3\2\2\2\u07df\u07e0\7\u00bb\2\2\u07e0\u07e1"+
-		"\5\u013c\u009f\2\u07e1\u07e2\7\u00e1\2\2\u07e2\u013b\3\2\2\2\u07e3\u07e9"+
+		"\5\u013c\u009f\2\u07e1\u07e2\7\u00e0\2\2\u07e2\u013b\3\2\2\2\u07e3\u07e9"+
 		"\5\u0142\u00a2\2\u07e4\u07e9\5\u014a\u00a6\2\u07e5\u07e9\5\u0140\u00a1"+
-		"\2\u07e6\u07e9\5\u014e\u00a8\2\u07e7\u07e9\7\u00da\2\2\u07e8\u07e3\3\2"+
+		"\2\u07e6\u07e9\5\u014e\u00a8\2\u07e7\u07e9\7\u00d9\2\2\u07e8\u07e3\3\2"+
 		"\2\2\u07e8\u07e4\3\2\2\2\u07e8\u07e5\3\2\2\2\u07e8\u07e6\3\2\2\2\u07e8"+
 		"\u07e7\3\2\2\2\u07e9\u013d\3\2\2\2\u07ea\u07ec\5\u014e\u00a8\2\u07eb\u07ea"+
 		"\3\2\2\2\u07eb\u07ec\3\2\2\2\u07ec\u07f8\3\2\2\2\u07ed\u07f2\5\u0142\u00a2"+
-		"\2\u07ee\u07f2\7\u00da\2\2\u07ef\u07f2\5\u014a\u00a6\2\u07f0\u07f2\5\u0140"+
+		"\2\u07ee\u07f2\7\u00d9\2\2\u07ef\u07f2\5\u014a\u00a6\2\u07f0\u07f2\5\u0140"+
 		"\u00a1\2\u07f1\u07ed\3\2\2\2\u07f1\u07ee\3\2\2\2\u07f1\u07ef\3\2\2\2\u07f1"+
 		"\u07f0\3\2\2\2\u07f2\u07f4\3\2\2\2\u07f3\u07f5\5\u014e\u00a8\2\u07f4\u07f3"+
 		"\3\2\2\2\u07f4\u07f5\3\2\2\2\u07f5\u07f7\3\2\2\2\u07f6\u07f1\3\2\2\2\u07f7"+
 		"\u07fa\3\2\2\2\u07f8\u07f6\3\2\2\2\u07f8\u07f9\3\2\2\2\u07f9\u013f\3\2"+
-		"\2\2\u07fa\u07f8\3\2\2\2\u07fb\u0802\7\u00d9\2\2\u07fc\u07fd\7\u00f8\2"+
-		"\2\u07fd\u07fe\5\u0106\u0084\2\u07fe\u07ff\7\u00c1\2\2\u07ff\u0801\3\2"+
+		"\2\2\u07fa\u07f8\3\2\2\2\u07fb\u0802\7\u00d8\2\2\u07fc\u07fd\7\u00f7\2"+
+		"\2\u07fd\u07fe\5\u0106\u0084\2\u07fe\u07ff\7\u0081\2\2\u07ff\u0801\3\2"+
 		"\2\2\u0800\u07fc\3\2\2\2\u0801\u0804\3\2\2\2\u0802\u0800\3\2\2\2\u0802"+
-		"\u0803\3\2\2\2\u0803\u0805\3\2\2\2\u0804\u0802\3\2\2\2\u0805\u0806\7\u00f7"+
+		"\u0803\3\2\2\2\u0803\u0805\3\2\2\2\u0804\u0802\3\2\2\2\u0805\u0806\7\u00f6"+
 		"\2\2\u0806\u0141\3\2\2\2\u0807\u0808\5\u0144\u00a3\2\u0808\u0809\5\u013e"+
 		"\u00a0\2\u0809\u080a\5\u0146\u00a4\2\u080a\u080d\3\2\2\2\u080b\u080d\5"+
 		"\u0148\u00a5\2\u080c\u0807\3\2\2\2\u080c\u080b\3\2\2\2\u080d\u0143\3\2"+
-		"\2\2\u080e\u080f\7\u00de\2\2\u080f\u0813\5\u0156\u00ac\2\u0810\u0812\5"+
+		"\2\2\u080e\u080f\7\u00dd\2\2\u080f\u0813\5\u0156\u00ac\2\u0810\u0812\5"+
 		"\u014c\u00a7\2\u0811\u0810\3\2\2\2\u0812\u0815\3\2\2\2\u0813\u0811\3\2"+
 		"\2\2\u0813\u0814\3\2\2\2\u0814\u0816\3\2\2\2\u0815\u0813\3\2\2\2\u0816"+
-		"\u0817\7\u00e4\2\2\u0817\u0145\3\2\2\2\u0818\u0819\7\u00df\2\2\u0819\u081a"+
-		"\5\u0156\u00ac\2\u081a\u081b\7\u00e4\2\2\u081b\u0147\3\2\2\2\u081c\u081d"+
-		"\7\u00de\2\2\u081d\u0821\5\u0156\u00ac\2\u081e\u0820\5\u014c\u00a7\2\u081f"+
+		"\u0817\7\u00e3\2\2\u0817\u0145\3\2\2\2\u0818\u0819\7\u00de\2\2\u0819\u081a"+
+		"\5\u0156\u00ac\2\u081a\u081b\7\u00e3\2\2\u081b\u0147\3\2\2\2\u081c\u081d"+
+		"\7\u00dd\2\2\u081d\u0821\5\u0156\u00ac\2\u081e\u0820\5\u014c\u00a7\2\u081f"+
 		"\u081e\3\2\2\2\u0820\u0823\3\2\2\2\u0821\u081f\3\2\2\2\u0821\u0822\3\2"+
-		"\2\2\u0822\u0824\3\2\2\2\u0823\u0821\3\2\2\2\u0824\u0825\7\u00e6\2\2\u0825"+
-		"\u0149\3\2\2\2\u0826\u082d\7\u00e0\2\2\u0827\u0828\7\u00f6\2\2\u0828\u0829"+
-		"\5\u0106\u0084\2\u0829\u082a\7\u00c1\2\2\u082a\u082c\3\2\2\2\u082b\u0827"+
+		"\2\2\u0822\u0824\3\2\2\2\u0823\u0821\3\2\2\2\u0824\u0825\7\u00e5\2\2\u0825"+
+		"\u0149\3\2\2\2\u0826\u082d\7\u00df\2\2\u0827\u0828\7\u00f5\2\2\u0828\u0829"+
+		"\5\u0106\u0084\2\u0829\u082a\7\u0081\2\2\u082a\u082c\3\2\2\2\u082b\u0827"+
 		"\3\2\2\2\u082c\u082f\3\2\2\2\u082d\u082b\3\2\2\2\u082d\u082e\3\2\2\2\u082e"+
-		"\u0830\3\2\2\2\u082f\u082d\3\2\2\2\u0830\u0831\7\u00f5\2\2\u0831\u014b"+
-		"\3\2\2\2\u0832\u0833\5\u0156\u00ac\2\u0833\u0834\7\u00e9\2\2\u0834\u0835"+
-		"\5\u0150\u00a9\2\u0835\u014d\3\2\2\2\u0836\u0837\7\u00e2\2\2\u0837\u0838"+
-		"\5\u0106\u0084\2\u0838\u0839\7\u00c1\2\2\u0839\u083b\3\2\2\2\u083a\u0836"+
+		"\u0830\3\2\2\2\u082f\u082d\3\2\2\2\u0830\u0831\7\u00f4\2\2\u0831\u014b"+
+		"\3\2\2\2\u0832\u0833\5\u0156\u00ac\2\u0833\u0834\7\u00e8\2\2\u0834\u0835"+
+		"\5\u0150\u00a9\2\u0835\u014d\3\2\2\2\u0836\u0837\7\u00e1\2\2\u0837\u0838"+
+		"\5\u0106\u0084\2\u0838\u0839\7\u0081\2\2\u0839\u083b\3\2\2\2\u083a\u0836"+
 		"\3\2\2\2\u083b\u083c\3\2\2\2\u083c\u083a\3\2\2\2\u083c\u083d\3\2\2\2\u083d"+
-		"\u083f\3\2\2\2\u083e\u0840\7\u00e3\2\2\u083f\u083e\3\2\2\2\u083f\u0840"+
-		"\3\2\2\2\u0840\u0843\3\2\2\2\u0841\u0843\7\u00e3\2\2\u0842\u083a\3\2\2"+
+		"\u083f\3\2\2\2\u083e\u0840\7\u00e2\2\2\u083f\u083e\3\2\2\2\u083f\u0840"+
+		"\3\2\2\2\u0840\u0843\3\2\2\2\u0841\u0843\7\u00e2\2\2\u0842\u083a\3\2\2"+
 		"\2\u0842\u0841\3\2\2\2\u0843\u014f\3\2\2\2\u0844\u0847\5\u0152\u00aa\2"+
 		"\u0845\u0847\5\u0154\u00ab\2\u0846\u0844\3\2\2\2\u0846\u0845\3\2\2\2\u0847"+
-		"\u0151\3\2\2\2\u0848\u084f\7\u00eb\2\2\u0849\u084a\7\u00f3\2\2\u084a\u084b"+
-		"\5\u0106\u0084\2\u084b\u084c\7\u00c1\2\2\u084c\u084e\3\2\2\2\u084d\u0849"+
+		"\u0151\3\2\2\2\u0848\u084f\7\u00ea\2\2\u0849\u084a\7\u00f2\2\2\u084a\u084b"+
+		"\5\u0106\u0084\2\u084b\u084c\7\u0081\2\2\u084c\u084e\3\2\2\2\u084d\u0849"+
 		"\3\2\2\2\u084e\u0851\3\2\2\2\u084f\u084d\3\2\2\2\u084f\u0850\3\2\2\2\u0850"+
-		"\u0853\3\2\2\2\u0851\u084f\3\2\2\2\u0852\u0854\7\u00f4\2\2\u0853\u0852"+
-		"\3\2\2\2\u0853\u0854\3\2\2\2\u0854\u0855\3\2\2\2\u0855\u0856\7\u00f2\2"+
-		"\2\u0856\u0153\3\2\2\2\u0857\u085e\7\u00ea\2\2\u0858\u0859\7\u00f0\2\2"+
-		"\u0859\u085a\5\u0106\u0084\2\u085a\u085b\7\u00c1\2\2\u085b\u085d\3\2\2"+
+		"\u0853\3\2\2\2\u0851\u084f\3\2\2\2\u0852\u0854\7\u00f3\2\2\u0853\u0852"+
+		"\3\2\2\2\u0853\u0854\3\2\2\2\u0854\u0855\3\2\2\2\u0855\u0856\7\u00f1\2"+
+		"\2\u0856\u0153\3\2\2\2\u0857\u085e\7\u00e9\2\2\u0858\u0859\7\u00ef\2\2"+
+		"\u0859\u085a\5\u0106\u0084\2\u085a\u085b\7\u0081\2\2\u085b\u085d\3\2\2"+
 		"\2\u085c\u0858\3\2\2\2\u085d\u0860\3\2\2\2\u085e\u085c\3\2\2\2\u085e\u085f"+
-		"\3\2\2\2\u085f\u0862\3\2\2\2\u0860\u085e\3\2\2\2\u0861\u0863\7\u00f1\2"+
+		"\3\2\2\2\u085f\u0862\3\2\2\2\u0860\u085e\3\2\2\2\u0861\u0863\7\u00f0\2"+
 		"\2\u0862\u0861\3\2\2\2\u0862\u0863\3\2\2\2\u0863\u0864\3\2\2\2\u0864\u0865"+
-		"\7\u00ef\2\2\u0865\u0155\3\2\2\2\u0866\u0867\7\u00ec\2\2\u0867\u0869\7"+
-		"\u00e8\2\2\u0868\u0866\3\2\2\2\u0868\u0869\3\2\2\2\u0869\u086a\3\2\2\2"+
-		"\u086a\u0870\7\u00ec\2\2\u086b\u086c\7\u00ee\2\2\u086c\u086d\5\u0106\u0084"+
-		"\2\u086d\u086e\7\u00c1\2\2\u086e\u0870\3\2\2\2\u086f\u0868\3\2\2\2\u086f"+
+		"\7\u00ee\2\2\u0865\u0155\3\2\2\2\u0866\u0867\7\u00eb\2\2\u0867\u0869\7"+
+		"\u00e7\2\2\u0868\u0866\3\2\2\2\u0868\u0869\3\2\2\2\u0869\u086a\3\2\2\2"+
+		"\u086a\u0870\7\u00eb\2\2\u086b\u086c\7\u00ed\2\2\u086c\u086d\5\u0106\u0084"+
+		"\2\u086d\u086e\7\u0081\2\2\u086e\u0870\3\2\2\2\u086f\u0868\3\2\2\2\u086f"+
 		"\u086b\3\2\2\2\u0870\u0157\3\2\2\2\u0871\u0873\7\u00bc\2\2\u0872\u0874"+
 		"\5\u015a\u00ae\2\u0873\u0872\3\2\2\2\u0873\u0874\3\2\2\2\u0874\u0875\3"+
-		"\2\2\2\u0875\u0876\7\u0104\2\2\u0876\u0159\3\2\2\2\u0877\u0878\7\u0105"+
+		"\2\2\2\u0875\u0876\7\u0103\2\2\u0876\u0159\3\2\2\2\u0877\u0878\7\u0104"+
 		"\2\2\u0878\u0879\5\u0106\u0084\2\u0879\u087a\7\u0081\2\2\u087a\u087c\3"+
 		"\2\2\2\u087b\u0877\3\2\2\2\u087c\u087d\3\2\2\2\u087d\u087b\3\2\2\2\u087d"+
-		"\u087e\3\2\2\2\u087e\u0880\3\2\2\2\u087f\u0881\7\u0106\2\2\u0880\u087f"+
-		"\3\2\2\2\u0880\u0881\3\2\2\2\u0881\u0884\3\2\2\2\u0882\u0884\7\u0106\2"+
+		"\u087e\3\2\2\2\u087e\u0880\3\2\2\2\u087f\u0881\7\u0105\2\2\u0880\u087f"+
+		"\3\2\2\2\u0880\u0881\3\2\2\2\u0881\u0884\3\2\2\2\u0882\u0884\7\u0105\2"+
 		"\2\u0883\u087b\3\2\2\2\u0883\u0882\3\2\2\2\u0884\u015b\3\2\2\2\u0885\u0888"+
 		"\7\u00ba\2\2\u0886\u0888\5\u015e\u00b0\2\u0887\u0885\3\2\2\2\u0887\u0886"+
 		"\3\2\2\2\u0888\u015d\3\2\2\2\u0889\u088a\t\26\2\2\u088a\u015f\3\2\2\2"+
@@ -18574,22 +18573,22 @@ public class BallerinaParser extends Parser {
 		"\2\2\u0972\u096c\3\2\2\2\u0972\u096f\3\2\2\2\u0973\u018d\3\2\2\2\u0974"+
 		"\u0975\t\32\2\2\u0975\u018f\3\2\2\2\u0976\u0978\7\u00c0\2\2\u0977\u0979"+
 		"\5\u0192\u00ca\2\u0978\u0977\3\2\2\2\u0978\u0979\3\2\2\2\u0979\u097a\3"+
-		"\2\2\2\u097a\u097b\7\u00ff\2\2\u097b\u0191\3\2\2\2\u097c\u0981\5\u0194"+
-		"\u00cb\2\u097d\u0980\7\u0103\2\2\u097e\u0980\5\u0194\u00cb\2\u097f\u097d"+
+		"\2\2\2\u097a\u097b\7\u00fe\2\2\u097b\u0191\3\2\2\2\u097c\u0981\5\u0194"+
+		"\u00cb\2\u097d\u0980\7\u0102\2\2\u097e\u0980\5\u0194\u00cb\2\u097f\u097d"+
 		"\3\2\2\2\u097f\u097e\3\2\2\2\u0980\u0983\3\2\2\2\u0981\u097f\3\2\2\2\u0981"+
-		"\u0982\3\2\2\2\u0982\u098d\3\2\2\2\u0983\u0981\3\2\2\2\u0984\u0989\7\u0103"+
-		"\2\2\u0985\u0988\7\u0103\2\2\u0986\u0988\5\u0194\u00cb\2\u0987\u0985\3"+
+		"\u0982\3\2\2\2\u0982\u098d\3\2\2\2\u0983\u0981\3\2\2\2\u0984\u0989\7\u0102"+
+		"\2\2\u0985\u0988\7\u0102\2\2\u0986\u0988\5\u0194\u00cb\2\u0987\u0985\3"+
 		"\2\2\2\u0987\u0986\3\2\2\2\u0988\u098b\3\2\2\2\u0989\u0987\3\2\2\2\u0989"+
 		"\u098a\3\2\2\2\u098a\u098d\3\2\2\2\u098b\u0989\3\2\2\2\u098c\u097c\3\2"+
 		"\2\2\u098c\u0984\3\2\2\2\u098d\u0193\3\2\2\2\u098e\u0992\5\u0196\u00cc"+
 		"\2\u098f\u0992\5\u0198\u00cd\2\u0990\u0992\5\u019a\u00ce\2\u0991\u098e"+
 		"\3\2\2\2\u0991\u098f\3\2\2\2\u0991\u0990\3\2\2\2\u0992\u0195\3\2\2\2\u0993"+
-		"\u0995\7\u0100\2\2\u0994\u0996\7\u00fe\2\2\u0995\u0994\3\2\2\2\u0995\u0996"+
-		"\3\2\2\2\u0996\u0997\3\2\2\2\u0997\u0998\7\u00fd\2\2\u0998\u0197\3\2\2"+
-		"\2\u0999\u099b\7\u0101\2\2\u099a\u099c\7\u00fc\2\2\u099b\u099a\3\2\2\2"+
-		"\u099b\u099c\3\2\2\2\u099c\u099d\3\2\2\2\u099d\u099e\7\u00fb\2\2\u099e"+
-		"\u0199\3\2\2\2\u099f\u09a1\7\u0102\2\2\u09a0\u09a2\7\u00fa\2\2\u09a1\u09a0"+
-		"\3\2\2\2\u09a1\u09a2\3\2\2\2\u09a2\u09a3\3\2\2\2\u09a3\u09a4\7\u00f9\2"+
+		"\u0995\7\u00ff\2\2\u0994\u0996\7\u00fd\2\2\u0995\u0994\3\2\2\2\u0995\u0996"+
+		"\3\2\2\2\u0996\u0997\3\2\2\2\u0997\u0998\7\u00fc\2\2\u0998\u0197\3\2\2"+
+		"\2\u0999\u099b\7\u0100\2\2\u099a\u099c\7\u00fb\2\2\u099b\u099a\3\2\2\2"+
+		"\u099b\u099c\3\2\2\2\u099c\u099d\3\2\2\2\u099d\u099e\7\u00fa\2\2\u099e"+
+		"\u0199\3\2\2\2\u099f\u09a1\7\u0101\2\2\u09a0\u09a2\7\u00f9\2\2\u09a1\u09a0"+
+		"\3\2\2\2\u09a1\u09a2\3\2\2\2\u09a2\u09a3\3\2\2\2\u09a3\u09a4\7\u00f8\2"+
 		"\2\u09a4\u019b\3\2\2\2\u09a5\u09a7\5\u019e\u00d0\2\u09a6\u09a5\3\2\2\2"+
 		"\u09a7\u09a8\3\2\2\2\u09a8\u09a6\3\2\2\2\u09a8\u09a9\3\2\2\2\u09a9\u09ad"+
 		"\3\2\2\2\u09aa\u09ac\5\u01a0\u00d1\2\u09ab\u09aa\3\2\2\2\u09ac\u09af\3"+
@@ -18607,26 +18606,26 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u09c7\u09c9\7\u00bd\2\2\u09c8\u09ca\5\u01aa\u00d6\2\u09c9\u09c8"+
 		"\3\2\2\2\u09c9\u09ca\3\2\2\2\u09ca\u01a7\3\2\2\2\u09cb\u09cd\7\u00bd\2"+
 		"\2\u09cc\u09ce\5\u01aa\u00d6\2\u09cd\u09cc\3\2\2\2\u09cd\u09ce\3\2\2\2"+
-		"\u09ce\u01a9\3\2\2\2\u09cf\u09d9\7\u00c8\2\2\u09d0\u09d9\7\u00c7\2\2\u09d1"+
-		"\u09d9\7\u00c5\2\2\u09d2\u09d9\7\u00c6\2\2\u09d3\u09d9\5\u01ac\u00d7\2"+
+		"\u09ce\u01a9\3\2\2\2\u09cf\u09d9\7\u00c7\2\2\u09d0\u09d9\7\u00c6\2\2\u09d1"+
+		"\u09d9\7\u00c4\2\2\u09d2\u09d9\7\u00c5\2\2\u09d3\u09d9\5\u01ac\u00d7\2"+
 		"\u09d4\u09d9\5\u01b8\u00dd\2\u09d5\u09d9\5\u01bc\u00df\2\u09d6\u09d9\5"+
-		"\u01c0\u00e1\2\u09d7\u09d9\7\u00cc\2\2\u09d8\u09cf\3\2\2\2\u09d8\u09d0"+
+		"\u01c0\u00e1\2\u09d7\u09d9\7\u00cb\2\2\u09d8\u09cf\3\2\2\2\u09d8\u09d0"+
 		"\3\2\2\2\u09d8\u09d1\3\2\2\2\u09d8\u09d2\3\2\2\2\u09d8\u09d3\3\2\2\2\u09d8"+
 		"\u09d4\3\2\2\2\u09d8\u09d5\3\2\2\2\u09d8\u09d6\3\2\2\2\u09d8\u09d7\3\2"+
 		"\2\2\u09d9\u09da\3\2\2\2\u09da\u09d8\3\2\2\2\u09da\u09db\3\2\2\2\u09db"+
 		"\u01ab\3\2\2\2\u09dc\u09dd\5\u01ae\u00d8\2\u09dd\u01ad\3\2\2\2\u09de\u09df"+
 		"\5\u01b0\u00d9\2\u09df\u09e0\5\u01b8\u00dd\2\u09e0\u01af\3\2\2\2\u09e1"+
-		"\u09e2\7\u00cc\2\2\u09e2\u01b1\3\2\2\2\u09e3\u09e4\7\u00be\2\2\u09e4\u09e5"+
-		"\5\u01b6\u00dc\2\u09e5\u09e7\7\u00d1\2\2\u09e6\u09e8\5\u01aa\u00d6\2\u09e7"+
+		"\u09e2\7\u00cb\2\2\u09e2\u01b1\3\2\2\2\u09e3\u09e4\7\u00be\2\2\u09e4\u09e5"+
+		"\5\u01b6\u00dc\2\u09e5\u09e7\7\u00d0\2\2\u09e6\u09e8\5\u01aa\u00d6\2\u09e7"+
 		"\u09e6\3\2\2\2\u09e7\u09e8\3\2\2\2\u09e8\u01b3\3\2\2\2\u09e9\u09eb\7\u00bf"+
 		"\2\2\u09ea\u09ec\5\u01aa\u00d6\2\u09eb\u09ea\3\2\2\2\u09eb\u09ec\3\2\2"+
-		"\2\u09ec\u01b5\3\2\2\2\u09ed\u09ee\7\u00d0\2\2\u09ee\u01b7\3\2\2\2\u09ef"+
-		"\u09f0\7\u00c9\2\2\u09f0\u09f1\5\u01ba\u00de\2\u09f1\u09f2\7\u00d4\2\2"+
-		"\u09f2\u01b9\3\2\2\2\u09f3\u09f4\7\u00d3\2\2\u09f4\u01bb\3\2\2\2\u09f5"+
-		"\u09f6\7\u00ca\2\2\u09f6\u09f7\5\u01be\u00e0\2\u09f7\u09f8\7\u00d6\2\2"+
-		"\u09f8\u01bd\3\2\2\2\u09f9\u09fa\7\u00d5\2\2\u09fa\u01bf\3\2\2\2\u09fb"+
-		"\u09fc\7\u00cb\2\2\u09fc\u09fd\5\u01c2\u00e2\2\u09fd\u09fe\7\u00d8\2\2"+
-		"\u09fe\u01c1\3\2\2\2\u09ff\u0a00\7\u00d7\2\2\u0a00\u01c3\3\2\2\2\u012f"+
+		"\2\u09ec\u01b5\3\2\2\2\u09ed\u09ee\7\u00cf\2\2\u09ee\u01b7\3\2\2\2\u09ef"+
+		"\u09f0\7\u00c8\2\2\u09f0\u09f1\5\u01ba\u00de\2\u09f1\u09f2\7\u00d3\2\2"+
+		"\u09f2\u01b9\3\2\2\2\u09f3\u09f4\7\u00d2\2\2\u09f4\u01bb\3\2\2\2\u09f5"+
+		"\u09f6\7\u00c9\2\2\u09f6\u09f7\5\u01be\u00e0\2\u09f7\u09f8\7\u00d5\2\2"+
+		"\u09f8\u01bd\3\2\2\2\u09f9\u09fa\7\u00d4\2\2\u09fa\u01bf\3\2\2\2\u09fb"+
+		"\u09fc\7\u00ca\2\2\u09fc\u09fd\5\u01c2\u00e2\2\u09fd\u09fe\7\u00d7\2\2"+
+		"\u09fe\u01c1\3\2\2\2\u09ff\u0a00\7\u00d6\2\2\u0a00\u01c3\3\2\2\2\u012f"+
 		"\u01c6\u01c8\u01cc\u01cf\u01d4\u01da\u01e4\u01e8\u01f1\u01f6\u0202\u0206"+
 		"\u0210\u0217\u021d\u0223\u0228\u022b\u0230\u0233\u0236\u023b\u023e\u0243"+
 		"\u0248\u024d\u025b\u025e\u0263\u026a\u026e\u0271\u027b\u027d\u0287\u028b"+

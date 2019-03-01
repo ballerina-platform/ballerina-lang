@@ -1,7 +1,6 @@
 lexer grammar BallerinaLexer;
 
 @members {
-    boolean inTemplate = false;
     boolean inStringTemplate = false;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
@@ -150,6 +149,7 @@ RIGHT_BRACE         : '}'
 if (inStringTemplate)
 {
     popMode();
+    System.out.println("right-brace - popmode");
 }
 };
 LEFT_PARENTHESIS    : '(' ;
@@ -454,7 +454,7 @@ LetterOrDigit
     ;
 
 XMLLiteralStart
-    :   TYPE_XML WS* BACKTICK   { inTemplate = true; } -> pushMode(XML)
+    :   TYPE_XML WS* BACKTICK   { inStringTemplate = true; } -> pushMode(XML)
     ;
 
 StringTemplateLiteralStart
@@ -476,10 +476,6 @@ ReturnParameterDocumentationStart
 
 DeprecatedTemplateStart
     :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
-    ;
-
-ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 // Whitespace and comments
@@ -647,12 +643,7 @@ XML_TAG_SPECIAL_OPEN
     ;
 
 XMLLiteralEnd
-    :   '`' { inTemplate = false; }          -> popMode
-    ;
-
-fragment
-ExpressionStart
-    :   '{{'
+    :   '`' { inStringTemplate = false; }          -> popMode
     ;
 
 fragment
@@ -661,7 +652,7 @@ INTERPOLATION_START
     ;
 
 XMLTemplateText
-    :   XMLText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    :   XMLText? INTERPOLATION_START            -> pushMode(DEFAULT_MODE)
     ;
 
 XMLText
@@ -671,7 +662,7 @@ XMLText
 
 fragment
 XMLTextChar
-    :   ~[<&`{}]
+    :   ~[<&$`{}]
     |   '\\' [`]
     |   XML_WS
     |   XMLEscapedSequence
@@ -714,7 +705,7 @@ XML_TAG_WS
     ;
 
 XMLTagExpressionStart
-    :   ExpressionStart             -> pushMode(DEFAULT_MODE)
+    :   INTERPOLATION_START             -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -755,7 +746,7 @@ DOUBLE_QUOTE_END
     ;
 
 XMLDoubleQuotedTemplateString
-    :   XMLDoubleQuotedString? ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLDoubleQuotedString? INTERPOLATION_START    { pushMode(DEFAULT_MODE); System.out.println("double q str"); }
     ;
 
 XMLDoubleQuotedString
@@ -765,7 +756,7 @@ XMLDoubleQuotedString
 
 fragment
 XMLDoubleQuotedStringChar
-    :   ~[<"{}\\]
+    :   ~[$<"{}\\]
     |   XMLEscapedSequence
     ;
 
@@ -778,7 +769,7 @@ SINGLE_QUOTE_END
     ;
 
 XMLSingleQuotedTemplateString
-    :   XMLSingleQuotedString? ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLSingleQuotedString? INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
 
 XMLSingleQuotedString
@@ -788,7 +779,7 @@ XMLSingleQuotedString
 
 fragment
 XMLSingleQuotedStringChar
-    :   ~[<'{}\\]
+    :   ~[$<'{}\\]
     |   XMLEscapedSequence
     ;
 
@@ -804,7 +795,7 @@ XMLPIText
     ;
 
 XMLPITemplateText
-    :   XMLPITextFragment ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLPITextFragment INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -814,7 +805,7 @@ XMLPITextFragment
 
 fragment
 XMLPIChar
-    :   ~[{}?>]
+    :   ~[${}?>]
     |   XMLEscapedSequence
     ;
 
@@ -847,7 +838,7 @@ XMLCommentText
     ;
 
 XMLCommentTemplateText
-    :   XMLCommentTextFragment ExpressionStart    -> pushMode(DEFAULT_MODE)
+    :   XMLCommentTextFragment INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -857,7 +848,7 @@ XMLCommentTextFragment
 
 fragment
 XMLCommentChar
-    :   ~[{}>\-]
+    :   ~[${}>\-]
     |   XMLEscapedSequence
     ;
 
