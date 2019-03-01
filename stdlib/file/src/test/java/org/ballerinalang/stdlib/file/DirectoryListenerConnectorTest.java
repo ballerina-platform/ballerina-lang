@@ -57,8 +57,7 @@ public class DirectoryListenerConnectorTest {
             Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"));
             rootDirectory = rootListenFolderPath.toFile();
             rootDirectory.deleteOnExit();
-            String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                    .getAbsolutePath();
+            String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
             testResourceRoot = Paths.get(resourceRoot, "test-src");
         } catch (IOException e) {
             Assert.fail("Unable to create root folder to setup watch.", e);
