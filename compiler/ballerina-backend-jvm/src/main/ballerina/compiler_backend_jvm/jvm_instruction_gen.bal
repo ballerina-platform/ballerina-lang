@@ -1,3 +1,4 @@
+import ballerina/io;
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
@@ -47,6 +48,9 @@ type InstructionGenerator object {
             self.mv.visitVarInsn(ILOAD, rhsIndex);
             self.mv.visitVarInsn(ISTORE, lhsLndex);
         } else if (bType is bir:BTypeString) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BArrayType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
@@ -320,20 +324,33 @@ type InstructionGenerator object {
 
     # Generate a new instance of an array value
     # 
-    # + arrayType - type of the new array
-    function generateArrayNewIns(bir:VarRef arrayType) {
-        self.mv.visitTypeInsn(NEW, Array_VALUE);
+    # + inst - type of the new array
+    function generateArrayNewIns(bir:NewArray inst) {
+        self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
-        self.mv.visitVarInsn(ALOAD, self.getJVMIndexOfVarRef(arrayType.variableDcl));
-        self.mv.visitMethodInsn(INVOKESPECIAL, Array_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        
+        bir:BType arrayType = inst.typeValue;
+        if (arrayType is bir:BArrayType) {
+            loadType(self.mv, arrayType.eType);
+            self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
+            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
+        }
+        self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
     # Generate adding a new value to array
-    function generateArrayStoreIns() {
+    function generateArrayStoreIns(bir:ArrayStore inst) {
         // TODO: visit(var_ref)
         // TODO: visit(index_expr)
         // TODO: visit(value_expr)
+        int varRefIndex = self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, varRefIndex);
+        int keyIndex = self.getJVMIndexOfVarRef(inst.keyOp.variableDcl);
+        self.mv.visitVarInsn(LLOAD, keyIndex);
+        int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
+        self.mv.visitVarInsn(LLOAD, valueIndex); //need to fix, this is only for int
+
         string valueDesc = getMethodArgDesc("int"); //pass the value type
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "add", io:sprintf("(J%s;)V", valueDesc), false);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(JJ)V", valueDesc), false);
     }
 
     function generateArrayValueLoad() {
@@ -341,17 +358,17 @@ type InstructionGenerator object {
         // TODO: visit(index_expr)
         bir:BType bType = (); // need to infer from the instruction
         if (bType is bir:BTypeInt) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getInt", "(J)J", false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
         } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
         } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getBoolean", "(J)J", false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
         } else if (bType == "byte") {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getByte", "(J)B", false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
         } else if (bType == "float") {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getFloat", "(J)D", false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE), false);
         }
     }
 
