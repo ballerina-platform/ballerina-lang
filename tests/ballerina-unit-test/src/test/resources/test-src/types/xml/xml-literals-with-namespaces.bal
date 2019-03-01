@@ -19,9 +19,9 @@ function testElementWithQualifiedName() returns (xml, xml, xml, xml, xml) {
 
     xml x3 = xml `<ns1:root>hello</ns1:root>`;
 
-    xml x4 = xml `<{{"{http://wso2.com}root"}}>hello</{{"{http://wso2.com}root"}}>`;
+    xml x4 = xml `<${"{http://wso2.com}root"}>hello</${"{http://wso2.com}root"}>`;
 
-    xml x5 = xml `<{{"{http://ballerina.com/b}root"}}>hello</{{"{http://ballerina.com/b}root"}}>`;
+    xml x5 = xml `<${"{http://ballerina.com/b}root"}>hello</${"{http://ballerina.com/b}root"}>`;
 
     return (x1, x2, x3, x4, x5);
 }
@@ -38,7 +38,7 @@ function testDefineInlineDefaultNamespace() returns (xml, xml, xml) {
 
     xml x1 = xml `<foo xmlns:nsx="http://wso2.com/aaa" >hello</foo>`;
     xml x2 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="http://wso2.com" >hello</foo>`;
-    xml x3 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="{{defaultNs}}" >hello</foo>`;
+    xml x3 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="${defaultNs}" >hello</foo>`;
     return (x1, x2, x3);
 }
 
@@ -116,9 +116,9 @@ function testComplexXMLLiteral() returns (xml) {
 function testElementWithEmptyUriQualifiedName() returns (xml, xml, xml) {
     xmlns "http://ballerina.com/";
 
-    xml x1 = xml `<{{"{}root"}}>hello</{{"{}root"}}>`;
+    xml x1 = xml `<${"{}root"}>hello</${"{}root"}>`;
 
-    xml x2 = xml `<{{"root"}}>hello</{{"root"}}>`;
+    xml x2 = xml `<${"root"}>hello</${"root"}>`;
 
     xml x3 = xml `<root>hello</root>`;
 

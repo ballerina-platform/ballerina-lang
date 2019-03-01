@@ -110,8 +110,9 @@ public class XMLLiteralTest {
     @Test
     public void testCombinedExpressionsAsElementName() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-invalid-syntax-1.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        BAssertUtil.validateError(negativeResult, 0, "invalid token '${'", 3, 24);
+        BAssertUtil.validateError(negativeResult, 1, "extraneous input '>'", 3, 29);
     }
 
     @Test
@@ -130,7 +131,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "aaa11bbb22ccc{d{}e}{f{");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "aaa11b{{bb22c}}cc{d{}e}{f{");
+        Assert.assertEquals(returns[4].stringValue(), "aaa11b${bb22c}cc{d{}e}{f{");
 
         Assert.assertTrue(returns[5] instanceof BXML);
         Assert.assertEquals(returns[5].stringValue(), " ");
@@ -152,7 +153,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "<!--<aaa11bbb22ccc--d->e->-f<<{>>>-->");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "<!---a-aa11b{{bb22c}}cc{d{}e}{f{-->");
+        Assert.assertEquals(returns[4].stringValue(), "<!---a-aa11b${bb22c}cc{d{}e}{f{-->");
 
         Assert.assertTrue(returns[5] instanceof BXML);
         Assert.assertEquals(returns[5].stringValue(), "<!---->");
@@ -174,7 +175,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[3].stringValue(), "<?foo  <aaa11bbb22ccc??d?e>?f<<{>>>?>");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "<?foo  ?a?aa11b{{bb22c}}cc{d{}e}{f{?>");
+        Assert.assertEquals(returns[4].stringValue(), "<?foo  ?a?aa11b${bb22c}cc{d{}e}{f{?>");
     }
 
     @Test

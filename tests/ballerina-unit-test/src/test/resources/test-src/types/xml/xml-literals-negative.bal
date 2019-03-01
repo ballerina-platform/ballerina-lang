@@ -13,7 +13,7 @@ function xmlUndeclaredElementPrefix() returns (xml) {
 
 function xmlTemplateWithNonXML() {
     map<any> m = {};
-    xml x = xml `<root xmlns="http://default/namespace">{{m}}</root>`;
+    xml x = xml `<root xmlns="http://default/namespace">${m}</root>`;
 }
 
 function defineEmptyNamespaceInline() {
@@ -22,7 +22,7 @@ function defineEmptyNamespaceInline() {
 
 function testExpressionAsElementName() {
     int v1 = 11;
-    // xml x1 = xml `<ns0:{{v1}}>hello</ns0:{{v1}}>`;
+    // xml x1 = xml `<ns0:${v1}>hello</ns0:${v1}>`;
 }
 
 function testTextWithMultiTypeExpressions() {
@@ -30,7 +30,7 @@ function testTextWithMultiTypeExpressions() {
     string v2 = "world";
     xml v3 = xml `<foo>apple</foo>`;
     
-    xml x = xml `hello {{v1}} {{v2}}. How are you {{v3}} ?`;
+    xml x = xml `hello ${v1} ${v2}. How are you ${v3} ?`;
 }
 
 function testRedeclareNamespaces() {

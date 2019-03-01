@@ -149,7 +149,6 @@ RIGHT_BRACE         : '}'
 if (inStringTemplate)
 {
     popMode();
-    System.out.println("right-brace - popmode");
 }
 };
 LEFT_PARENTHESIS    : '(' ;
@@ -643,7 +642,7 @@ XML_TAG_SPECIAL_OPEN
     ;
 
 XMLLiteralEnd
-    :   '`' { inStringTemplate = false; }          -> popMode
+    :   '`' { inStringTemplate = false; }                   -> popMode
     ;
 
 fragment
@@ -652,7 +651,7 @@ INTERPOLATION_START
     ;
 
 XMLTemplateText
-    :   XMLText? INTERPOLATION_START            -> pushMode(DEFAULT_MODE)
+    :   XMLText? INTERPOLATION_START                        -> pushMode(DEFAULT_MODE)
     ;
 
 XMLText
@@ -671,14 +670,17 @@ XMLTextChar
 fragment
 XMLEscapedSequence
     :   '\\\\'
-    |   '\\{{'
-    |   '\\}}'
+    |   '\\${'
+    |   '\\}'
+    |   '\\{'
     ;
 
 fragment
 XMLBracesSequence
     :   '{}'+
     |   '}{'
+    |   '{{'
+    |   '}}'
     |   ('{}')* '{'
     |   '}' ('{}')*
     ;
@@ -705,7 +707,7 @@ XML_TAG_WS
     ;
 
 XMLTagExpressionStart
-    :   INTERPOLATION_START             -> pushMode(DEFAULT_MODE)
+    :   INTERPOLATION_START                                 -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
@@ -746,7 +748,7 @@ DOUBLE_QUOTE_END
     ;
 
 XMLDoubleQuotedTemplateString
-    :   XMLDoubleQuotedString? INTERPOLATION_START    { pushMode(DEFAULT_MODE); System.out.println("double q str"); }
+    :   XMLDoubleQuotedString? INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
 
 XMLDoubleQuotedString
@@ -828,17 +830,17 @@ XMLPISpecialSequence
 // Everything inside an XML comment
 mode XML_COMMENT;
 
-fragment
-XML_COMMENT_END
-    :   '-->'
-    ;
 
-XMLCommentText
-    :   XMLCommentTextFragment XML_COMMENT_END    -> popMode
+XML_COMMENT_END
+    :   '-->'    -> popMode
     ;
 
 XMLCommentTemplateText
     :   XMLCommentTextFragment INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
+    ;
+
+XMLCommentText
+    :   XMLCommentAllowedSequence? (XMLCommentCharNonInterpolation+ XMLCommentAllowedSequence?)
     ;
 
 fragment
@@ -848,8 +850,16 @@ XMLCommentTextFragment
 
 fragment
 XMLCommentChar
-    :   ~[${}>\-]
+    :   ~[>${\-]
+    |   XMLBracesSequence
     |   XMLEscapedSequence
+    |   '\\' [`]
+    ;
+
+fragment
+XMLCommentCharNonInterpolation
+    :   XMLEscapedSequence
+    |   ~[>${-]
     ;
 
 fragment
@@ -863,8 +873,9 @@ XMLCommentAllowedSequence
 fragment
 XMLCommentSpecialSequence
     :   '>'+
-    |   ('>'* '-' '>'+)+
-    |   '-'? '>'* '-'+
+    |   '-' '-' {_input.LA(1) != '>'}?
+    |   '>'* '-' {_input.LA(1) != '-' && _input.LA(2) != '>'}?
+    |   '-' ~'-'
     ;
 
 mode TRIPLE_BACKTICK_INLINE_CODE;
