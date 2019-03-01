@@ -80,6 +80,8 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 
 cat $INPUT_DIR/infrastructure.properties
 
+declare -A CONFIG
+
 read_property_file "$INPUT_DIR/infrastructure.properties" CONFIG
 
 export DATABASE_HOST=${CONFIG[DatabaseHost]}
