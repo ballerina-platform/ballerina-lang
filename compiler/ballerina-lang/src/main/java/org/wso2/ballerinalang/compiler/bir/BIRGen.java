@@ -39,8 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -432,22 +430,13 @@ public class BIRGen extends BLangNodeVisitor {
             valueExpr.accept(this);
             BIROperand rhsOp = this.env.targetOperand;
 
-            BMapType mapType = (BMapType) astMapLiteralExpr.type;
-
-            emit(new BIRNonTerminator.MapStore(astMapLiteralExpr.pos, mapType, toVarRef, keyRegIndex, rhsOp));
+            emit(new BIRNonTerminator.MapStore(astMapLiteralExpr.pos, toVarRef, keyRegIndex, rhsOp));
         }
 
         this.env.targetOperand = toVarRef;
     }
 
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
-        BType etype; //TODO do we need below logic anymore?
-        if (astArrayLiteralExpr.type.tag == TypeTags.ANY) {
-            etype = astArrayLiteralExpr.type;
-        } else {
-            etype = ((BArrayType) astArrayLiteralExpr.type).eType;
-        }
-
         // Emit create array instruction
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayLiteralExpr.type,
                 this.env.nextLocalVarId(names), VarKind.TEMP);
@@ -480,7 +469,7 @@ public class BIRGen extends BLangNodeVisitor {
             indexLiteral.accept(this);
             BIROperand arrayIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.ArrayStore(astArrayLiteralExpr.pos, etype, toVarRef, arrayIndex, exprIndex));
+            emit(new BIRNonTerminator.ArrayStore(astArrayLiteralExpr.pos, toVarRef, arrayIndex, exprIndex));
         }
         this.env.targetOperand = toVarRef;
     }
@@ -498,7 +487,7 @@ public class BIRGen extends BLangNodeVisitor {
             astMapAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.MapStore(astMapAccessExpr.pos, astMapAccessExpr.type,
+            emit(new BIRNonTerminator.MapStore(astMapAccessExpr.pos,
                     varRefRegIndex, keyRegIndex, rhsOp));
         } else {
             // TODO fill
@@ -520,7 +509,7 @@ public class BIRGen extends BLangNodeVisitor {
             astArrayAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.ArrayStore(astArrayAccessExpr.pos, astArrayAccessExpr.type,
+            emit(new BIRNonTerminator.ArrayStore(astArrayAccessExpr.pos,
                     varRefRegIndex, keyRegIndex, rhsOp));
         } else {
             // TODO fill

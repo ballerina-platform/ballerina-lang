@@ -31,12 +31,11 @@ public type FuncBodyParser object {
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
         if (kindTag == INS_ARRAY_STORE) {
-            var bType = self.typeParser.parseType();
             kind = "ARRAY_STORE";
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            ArrayStore mapStore = {kind:kind, lhsOp:lhsOp, typeValue:bType, keyOp:keyOp, rhsOp:rhsOp};
+            ArrayStore mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_NEW_ARRAY) {
             var bType = self.typeParser.parseType();
@@ -46,12 +45,11 @@ public type FuncBodyParser object {
             NewArray newMap = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
             return newMap;
         } else if (kindTag == INS_MAP_STORE) {
-            var bType = self.typeParser.parseType();
             kind = "MAP_STORE";
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            MapStore mapStore = {kind:kind, lhsOp:lhsOp, typeValue:bType, keyOp:keyOp, rhsOp:rhsOp};
+            MapStore mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.typeParser.parseType();

@@ -261,7 +261,6 @@ public type MapStore record {
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    BType typeValue; //TODO do we need this?
     !...;
 };
 
@@ -278,7 +277,6 @@ public type ArrayStore record {
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    BType typeValue; //TODO do we need this?
     !...;
 };
 
