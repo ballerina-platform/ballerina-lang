@@ -29,7 +29,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -41,7 +40,6 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 0.961.0
  */
-@Ignore
 public class LocksInMainTest {
 
     @Test(description = "Tests lock within a lock")
@@ -162,20 +160,6 @@ public class LocksInMainTest {
 
         assertEquals(((BInteger) returns[0]).intValue(), 52);
         assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch inside lock");
-    }
-
-    @Test(description = "Tests locking variables from different package within lock in workers")
-    public void testLockPkgVarsWithinLockInWorkers() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/lock", "pkg.bc");
-
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockWithinLockInWorkers");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
-
-        assertEquals(((BInteger) returns[0]).intValue(), 66);
-        assertEquals(returns[1].stringValue(), "sample output from package");
-
     }
 
     @Test(description = "Tests lock within lock in workers for boolean and blob")
