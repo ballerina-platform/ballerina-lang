@@ -85,7 +85,7 @@ function getMethodDesc(bir:Function func) returns string {
     string desc = "(";
     int i = 0;
     while (i < func.argsCount) {
-        desc = desc + getMethodArgDesc(func.typeValue.paramTypes[i]);
+        desc = desc + getTypeDesc(func.typeValue.paramTypes[i]);
         i += 1;
     }
     string returnType = generateReturnType(func.typeValue.retType);
@@ -94,7 +94,7 @@ function getMethodDesc(bir:Function func) returns string {
     return desc;
 }
 
-function getMethodArgDesc(bir:BType bType) returns string {
+function getTypeDesc(bir:BType bType) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeString) {
@@ -120,6 +120,18 @@ function generateReturnType(bir:BType? bType) returns string {
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+
+    // create instance
+mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+
+mv.visitTypeInsn(NEW, "obj_1");
+mv.visitInsn(DUP);
+mv.visitMethodInsn(INVOKESPECIAL, "obj_1", "<init>", "()V", false);
+mv.visitLdcInsn("f1");
+mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get", "(Ljava/lang/String;)Ljava/lang/Object;", true);
+
+mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+
 
     // todo : generate the global var init class and other crt0 loading
     generateUserDefinedTypes(mv, pkg.typeDefs);

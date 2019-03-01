@@ -452,9 +452,12 @@ public class BValueArray extends BNewArray implements Serializable {
         return byteValues.clone();
     }
 
-    @SuppressWarnings("unchecked")
     public String[] getStringArray() {
         return stringValues;
+    }
+
+    public long[] getIntArray() {
+        return intValues;
     }
 
     @Override

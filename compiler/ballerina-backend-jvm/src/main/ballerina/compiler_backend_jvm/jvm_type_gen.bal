@@ -119,7 +119,7 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField[] fields) {
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", 
-            io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), 
+            io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), 
             true);
 
         // emit a pop, since we are not using the return value from the map.put()
@@ -219,7 +219,7 @@ function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField[] fields) {
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
-            io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE),
+            io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT),
             true);
 
         // emit a pop, since we are not using the return value from the map.put()
