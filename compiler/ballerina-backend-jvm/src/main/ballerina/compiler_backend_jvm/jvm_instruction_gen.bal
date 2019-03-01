@@ -49,6 +49,9 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeString) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BMapType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", moveIns.rhsOp.typeValue));
@@ -300,21 +303,51 @@ type InstructionGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 
-    // TODO following functions are not yet used
-    function generateMapNewIns() {
+    function generateMapNewIns(bir:NewMap mapNewIns) {
         self.mv.visitTypeInsn(NEW, MAP_VALUE);
         self.mv.visitInsn(DUP);
-        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", "()V", false);
+        loadType(self.mv, mapNewIns.typeValue);
+        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
+        int lhsOpIndex = self.getJVMIndexOfVarRef(mapNewIns.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ASTORE, lhsOpIndex);
     }
 
-    function generateMapStoreIns() {
-        // TODO: visit(var_ref)
-        // TODO: visit(key_expr)
-        // TODO: visit(value_expr)
+    function generateMapStoreIns(bir:MapStore mapStoreIns) {
+        // visit var_ref
+        int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, mapIndex);
+
+        // visit key_expr
+        int keyIndex = self.getJVMIndexOfVarRef(mapStoreIns.keyOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, keyIndex);
+
+        // visit value_expr
+        int valueIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
+        bir:BType valueType = mapStoreIns.rhsOp.variableDcl.typeValue;
+        self.loadFromLocalVar(valueType, valueIndex);
+        self.addBoxInsn(valueType);
+
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
                 io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
 
         // emit a pop, since we are not using the return value from the map.put()
         self.mv.visitInsn(POP);
+    }
+
+    function addBoxInsn(bir:BType bType) {
+        if (bType is bir:BTypeInt) {
+           self. mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+        } else {
+            return;
+        }
+    }
+
+    function loadFromLocalVar(bir:BType bType, int valueIndex) {
+        if (bType is bir:BTypeInt) {
+            self.mv.visitVarInsn(LLOAD, valueIndex);
+        } else {
+            self.mv.visitVarInsn(ALOAD, valueIndex);
+        }
     }
 };

@@ -279,6 +279,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
+    } else if (bType is bir:BMapType) {
+        loadMapType(mv, bType);
+        return;
     } else if (bType is bir:BUnionType) {
         loadUnionType(mv, bType);
         return;
@@ -307,6 +310,22 @@ function loadArrayType(jvm:MethodVisitor mv, bir:BArrayType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given map type
+# to the top of the stack.
+#
+# + bType - map type to load
+function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
+    // Create an new map type
+    mv.visitTypeInsn(NEW, MAP_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.constraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given union type
