@@ -46,10 +46,10 @@ public type Scheduler object {
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
-                    _ = self.timer.cancel();
+                    _ = self.timer.stop();
                     self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
-                    _ = self.timer.attachService(schedulerService, serviceParameter = self);
-                    _ = self.timer.run();
+                    _ = self.timer.attach(schedulerService, serviceParameter = self);
+                    _ = self.timer.start();
                 }
             }
         }
@@ -74,7 +74,7 @@ public type Scheduler object {
             currentTime = time:currentTime().time;
         }
 
-        _ = self.timer.cancel();
+        _ = self.timer.stop();
         self.timer = new({ interval: 1 });
 
         first = self.toNotifyQueue.getFirst();
@@ -85,8 +85,8 @@ public type Scheduler object {
                 _ = self.wrapperFunc();
             } else {
                 self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1});
-                _ = self.timer.attachService(schedulerService, serviceParameter = self);
-                _ = self.timer.run();
+                _ = self.timer.attach(schedulerService, serviceParameter = self);
+                _ = self.timer.start();
             }
         } else {
             lock {
@@ -94,8 +94,8 @@ public type Scheduler object {
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
                     self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
-                    _ = self.timer.attachService(schedulerService, serviceParameter = self);
-                    _ = self.timer.run();
+                    _ = self.timer.attach(schedulerService, serviceParameter = self);
+                    _ = self.timer.start();
                 }
             }
         }
@@ -104,11 +104,7 @@ public type Scheduler object {
 };
 
 service schedulerService = service {
-    resource function onTrigger(Scheduler scheduler) returns error? {
-        return scheduler.sendTimerEvents();
-    }
-
-    resource function onError(error e, Scheduler scheduler) {
-        io:println("Error occured: ", e.reason());
+    resource function onTrigger(Scheduler scheduler) {
+        _ = scheduler.sendTimerEvents();
     }
 };
