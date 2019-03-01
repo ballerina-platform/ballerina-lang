@@ -9,9 +9,6 @@ public type Person record {
     int maxAge;
 };
 
-// Use this flag to check whether the service should be stopped or not.
-boolean exitLoop = true;
-
 public function main() {
     // Interval in which the timer should trigger.
     int interval = 1000;
@@ -21,62 +18,46 @@ public function main() {
     task:Scheduler timer = new({ interval: interval });
 
     // Define a person object
-    Person person = { name: "Kurt Kobain", age: 0, maxAge: 27 };
+    Person person = { name: "Sam", age: 0, maxAge: 10 };
 
     // Attaching the service to the timer. This will not start the timer.
     // But it will attach the service to the timer, and also passes the
     // person object into the timer service.
     // Defaultable `serviceParameter` will pass the object into the resources
     // if it is set.
-    _ = timer.attachService(lifeService, serviceParameter = person);
-    _ = timer.attachService(musicService, serviceParameter = person);
+    _ = timer.attach(service1, serviceParameter = person);
+    _ = timer.attach(service2, serviceParameter = person);
 
     // Start the timer.
-    _ = timer.run();
+    _ = timer.start();
 
     // While loop will stop function from exiting until the service ends.
-    while (exitLoop) {
-        // Wait for the service to stop
+    while (person.age < person.maxAge) {
+        // Wait for sometime before stop the service.
     }
 
     // Cancel the timer. This will stop the timer and all the services
     // attached to it.
-    _ = timer.cancel();
+    _ = timer.stop();
 
     io:println("End.");
 }
 
 // Service which will be attached to the timer.
-service lifeService = service {
+service service1 = service {
     // On trigger resource which will trigger when timer runs off.
     // Note the usage of Person object passing inside the function, which we
     // attached with the timer.
-    resource function onTrigger(Person person) returns error? {
+    resource function onTrigger(Person person) {
         person.age = person.age + 1;
-        if (person.age == person.maxAge) {
-            error e = error(" died at ");
-            return e;
-        }
-        io:println(person.name + " is " + person.age + " years old now.");
-    }
-
-    // This will trigger when an error occurs inside the onTrigger() resource.
-    resource function onError(error e, Person person) {
-        exitLoop = false;
-        io:println(person.name + <string> e.reason() + person.age);
+        io:println("Hi " + person.name + " you are " + person.age + " years old now.");
     }
 };
 
-service musicService = service {
-    resource function onTrigger(Person person) returns error? {
-        if (person.age > 16) {
-            io:println(person.name + " is doing music at age " + person.age);
+service service2 = service {
+    resource function onTrigger(Person person) {
+        if (person.age > 5) {
+            io:println(person.name + " is started schooling at age " + person.age);
         }
-    }
-
-    // This will trigger when an error occurs inside the onTrigger() resource.
-    resource function onError(error e, Person person) {
-        exitLoop = false;
-        io:println(person.name + <string> e.reason() + person.age);
     }
 };

@@ -1,9 +1,8 @@
 import ballerina/io;
 import ballerina/task;
+import ballerina/runtime;
 
-boolean runSchedule = true;
 int reminderCount = 0;
-int maximumReminders = 5;
 
 public function main () {
     // Appointment data record is used to provide appointment configurations.
@@ -21,18 +20,16 @@ public function main () {
     task:Scheduler appointment = new({ appointmentDetails: appointmentData });
 
     // Attach the service to the Scheduler.
-    _ = appointment.attachService(appointmentService);
+    _ = appointment.attach(appointmentService);
 
     // Start the scheduler.
-    _ = appointment.run();
+    _ = appointment.start();
 
-    // Wait until an error is occurred.
-    while (runSchedule) {
-
-    }
+    // Wait for sometime
+    runtime:sleep(10000);
 
     // Cancel the appointment.
-    var result = appointment.cancel();
+    var result = appointment.stop();
     if (result is error) {
         io:println("Error occurred while cancelling the task");
         return;
@@ -44,21 +41,8 @@ public function main () {
 // Creating a service on the task Listener.
 service appointmentService = service {
     // This resource triggers when the appointment is due.
-    resource function onTrigger() returns error? {
+    resource function onTrigger() {
         reminderCount = reminderCount + 1;
         io:println("Schedule is due - Reminder: " + reminderCount);
-        // Return an intentional error to demonstrate the error propagation.
-        if (reminderCount == maximumReminders) {
-            error e = error("Maximum reminder count reached.");
-            return e;
-        }
-    }
-
-    // This resource will trigger when an error is returned from the
-    // onTrigger() resource.
-    resource function onError(error e) {
-        io:print("Error occurred while triggering the appointment: ");
-        io:println(e.reason());
-        runSchedule = false;
     }
 };

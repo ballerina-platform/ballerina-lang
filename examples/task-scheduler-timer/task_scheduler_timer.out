@@ -1,36 +1,22 @@
 // A `Person` record is attached to the Scheduler when attaching the service.
 // It is then passed into the resource functions of the service.
-// When the `age` of the `person` reaches the `maxAge`, an error is returned.
-// The global variable `exitLoop` used to track the error, and cancel the
-// `Scheduler`, when an error is returned.
+// When the `age` of the `person` reaches the `maxAge`, while loop is returned.
+// Hence the task is stopped.
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run task_scheduler_timer.bal
-Kurt Kobain is 1 years old now.
-Kurt Kobain is 2 years old now.
-Kurt Kobain is 3 years old now.
-Kurt Kobain is 4 years old now.
-Kurt Kobain is 5 years old now.
-Kurt Kobain is 6 years old now.
-Kurt Kobain is 7 years old now.
-Kurt Kobain is 8 years old now.
-Kurt Kobain is 9 years old now.
-Kurt Kobain is 10 years old now.
-Kurt Kobain is 11 years old now.
-Kurt Kobain is 12 years old now.
-Kurt Kobain is 13 years old now.
-Kurt Kobain is 14 years old now.
-Kurt Kobain is 15 years old now.
-Kurt Kobain is 16 years old now.
-Kurt Kobain is 17 years old now.
-Kurt Kobain is 18 years old now.
-Kurt Kobain is 19 years old now.
-Kurt Kobain is 20 years old now.
-Kurt Kobain is 21 years old now.
-Kurt Kobain is 22 years old now.
-Kurt Kobain is 23 years old now.
-Kurt Kobain is 24 years old now.
-Kurt Kobain is 25 years old now.
-Kurt Kobain is 26 years old now.
-Kurt Kobain died at 27
+Hi Sam you are 1 years old now.
+Hi Sam you are 2 years old now.
+Hi Sam you are 3 years old now.
+Hi Sam you are 4 years old now.
+Hi Sam you are 5 years old now.
+Hi Sam you are 6 years old now.
+Sam is started schooling at age 6
+Hi Sam you are 7 years old now.
+Sam is started schooling at age 7
+Hi Sam you are 8 years old now.
+Sam is started schooling at age 8
+Hi Sam you are 9 years old now.
+Sam is started schooling at age 9
+Hi Sam you are 10 years old now.
 End.

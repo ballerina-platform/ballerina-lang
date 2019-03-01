@@ -3,6 +3,6 @@
 // cron expression or an `AppointmentData` record. Optionally a
 // `noOfRecurrences` field can be used to provide the maximum number of times
 // the appointment should run before shutdown.
-// A service can be attached to the Scheduler using `attachService()` function.
-// THen the Scheduler can be started using `run()` method. When the scheduler
-// needs to be cancelled, `cancel()` method can be called.
+// A service can be attached to the Scheduler using `attach()` function.
+// THen the Scheduler can be started using `start()` method. When the scheduler
+// needs to be cancelled, `stop()` method can be called.
