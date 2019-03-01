@@ -186,7 +186,7 @@ public class ServiceDesugar {
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
         if (((BInvokableType) methodInvocationSymbol.type).retType.tag == TypeTags.UNION
-                && ((BUnionType) ((BInvokableType) methodInvocationSymbol.type).retType).memberTypes.stream()
+                && ((BUnionType) ((BInvokableType) methodInvocationSymbol.type).retType).getMemberTypes().stream()
                 .anyMatch(type -> type.tag == TypeTags.ERROR)) {
             final BLangCheckedExpr checkExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.anyType);
             checkExpr.equivalentErrorTypeList.add(symTable.errorType);
