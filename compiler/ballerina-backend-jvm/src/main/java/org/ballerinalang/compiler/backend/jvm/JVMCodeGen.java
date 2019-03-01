@@ -59,44 +59,48 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * Ballerina compiler JVM backend.
  */
 public class JVMCodeGen {
-    private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
-    private String executableJarFileName = "DEFAULT.jar";
-    private static JVMCodeGen jvmCodeGen = new JVMCodeGen();
+
     private static final PrintStream console = System.out;
+    private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
     private static final String JAR_ENTRIES = "jarEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
+    private static final String JAR_EXT = ".jar";
+    private static final String functionName = "generateExecutableJar";
 
-    private JVMCodeGen() {}
+    public static void generateExecutableJar(Path sourceRootPath,
+                                             String packagePath,
+                                             String targetPath,
+                                             boolean buildCompiledPkg,
+                                             boolean offline,
+                                             boolean lockEnabled,
+                                             boolean skipTests,
+                                             boolean enableExperimentalFeatures) {
+        CompilerContext context = getCompilerContext(sourceRootPath, buildCompiledPkg, offline, lockEnabled, skipTests,
+                enableExperimentalFeatures);
 
-    public static JVMCodeGen getInstance() {
-        return jvmCodeGen;
-    }
+        BLangPackage bLangPackage = compileProgram(context, packagePath);
 
-    public void generateJVMExecutable(Path projectPath, String progPath, Path outputPath) {
-        executableJarFileName = progPath.substring(0, progPath.indexOf("."));
-        CompilerContext context = getCompilerContext(projectPath);
-        BLangPackage bLangPackage = compileProgram(context, progPath);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
 
         PackageID packageID = bLangPackage.packageID;
         BIRNode.BIRPackage bir = bLangPackage.symbol.bir;
-
-        BIREmitter birEmitterjvm = new BIREmitter();
-        String birText = birEmitterjvm.emit(bir);
-        console.println(birText);
-
-        final String functionName = "genExecutableJar";
+        emitBIRText(bir);
         URI resURI = getExecResourceURIFromThisJar();
         byte[] resBytes = readExecResource(resURI);
         ProgramFile programFile = loadProgramFile(resBytes);
@@ -105,8 +109,9 @@ public class JVMCodeGen {
         args[0] = BIRModuleUtils.createBIRContext(programFile, PackageCache.getInstance(context),
                 Names.getInstance(context));
         args[1] = BIRModuleUtils.createModuleID(programFile, packageID.orgName.value,
-                packageID.name.value, packageID.version.value, packageID.isUnnamed, packageID.sourceFileName.value);
-        args[2] = new BString(executableJarFileName);
+                packageID.name.value, packageID.version.value, packageID.isUnnamed,
+                packageID.sourceFileName != null ? packageID.sourceFileName.value : packageID.name.value);
+        args[2] = new BString(cleanupFileExtension(packagePath));
 
         // Generate the jar file
         try {
@@ -115,25 +120,25 @@ public class JVMCodeGen {
             FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
             BValue[] result = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
             LinkedHashMap<String, BValue> classes = ((BMap<String, BValue>) result[0]).getMap();
-            generateJar(outputPath, classes);
-        } catch (Exception e) {
-            throw new BLangCompilerException("jvm class file generation failed: " + e.getMessage(), e);
+            generateJar(sourceRootPath, targetPath, classes);
+        } catch (IOException e) {
+            throw new BLangCompilerException("jvm jar file generation failed: " + e.getMessage(), e);
         }
     }
 
-    private void generateJar(Path outputPath, LinkedHashMap<String, BValue> entries) throws IOException {
+    private static void generateJar(Path outputPath, String targetFileName, LinkedHashMap<String, BValue> entries)
+            throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
         if (entries.containsKey(MANIFEST_ENTRIES)) {
             LinkedHashMap<String, BValue> manifestEntries = ((BMap<String, BValue>) entries.get(MANIFEST_ENTRIES)).
                     getMap();
-            manifestEntries.forEach((k, v) -> {
-                manifest.getMainAttributes().put(new Attributes.Name(k), v.stringValue());
-            });
+            manifestEntries.forEach((k, v) -> manifest.getMainAttributes().
+                    put(new Attributes.Name(k), v.stringValue()));
         }
         JarOutputStream target = new JarOutputStream(new FileOutputStream(outputPath.toString() + "/" +
-                executableJarFileName + ".jar"), manifest);
+                cleanupFileExtension(targetFileName) + JAR_EXT), manifest);
 
         if (entries.containsKey(JAR_ENTRIES)) {
             LinkedHashMap<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(JAR_ENTRIES)).getMap();
@@ -149,22 +154,31 @@ public class JVMCodeGen {
         target.close();
     }
 
-    private BLangPackage compileProgram(CompilerContext context, String progPath) {
+    private static BLangPackage compileProgram(CompilerContext context, String progPath) {
         Compiler compiler = Compiler.getInstance(context);
         return compiler.build(progPath);
     }
 
-    private CompilerContext getCompilerContext(Path projectPath) {
+    private static CompilerContext getCompilerContext(Path sourceRootPath,
+                                                      boolean buildCompiledPkg,
+                                                      boolean offline,
+                                                      boolean lockEnabled,
+                                                      boolean skipTests,
+                                                      boolean enableExperimentalFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, projectPath.toString());
+        options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(true));
-        options.put(LOCK_ENABLED, Boolean.toString(true));
+        options.put(BUILD_COMPILED_MODULE, Boolean.toString(buildCompiledPkg));
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skipTests));
+        options.put(TEST_ENABLED, Boolean.toString(true));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         return context;
     }
 
-    private URI getExecResourceURIFromThisJar() {
+    private static URI getExecResourceURIFromThisJar() {
         URI resURI;
         try {
             URL resourceURL = JVMCodeGen.class.getClassLoader().getResource("META-INF/ballerina/" +
@@ -179,7 +193,7 @@ public class JVMCodeGen {
         return resURI;
     }
 
-    private byte[] readExecResource(URI resURI) {
+    private static byte[] readExecResource(URI resURI) {
         byte[] resBytes;
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
@@ -191,12 +205,30 @@ public class JVMCodeGen {
         return resBytes;
     }
 
-    private ProgramFile loadProgramFile(byte[] resBytes) {
+    private static ProgramFile loadProgramFile(byte[] resBytes) {
         try (ByteArrayInputStream byteAIS = new ByteArrayInputStream(resBytes)) {
             ProgramFileReader programFileReader = new ProgramFileReader();
             return programFileReader.readProgram(byteAIS);
         } catch (IOException e) {
             throw new BLangCompilerException("failed to load embedded executable resource: ", e);
         }
+    }
+
+    private static String cleanupFileExtension(String targetFileName) {
+        String updatedFileName = targetFileName;
+        if (updatedFileName == null || updatedFileName.isEmpty()) {
+            throw new IllegalArgumentException("invalid target file name");
+        }
+
+        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
+            updatedFileName = updatedFileName.substring(0, updatedFileName.length() - BLANG_SOURCE_EXT.length());
+        }
+        return updatedFileName;
+    }
+
+    private static void emitBIRText(BIRNode.BIRPackage bir) {
+        BIREmitter birEmitter = new BIREmitter();
+        String birText = birEmitter.emit(bir);
+        console.println(birText);
     }
 }

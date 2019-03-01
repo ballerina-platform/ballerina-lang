@@ -34,7 +34,6 @@ public type BirChannelReader object {
     }
 
 
-
     // following methods "proxied" since ballerina doesn't support obj inheritance yet
 
     public function readBoolean() returns boolean {

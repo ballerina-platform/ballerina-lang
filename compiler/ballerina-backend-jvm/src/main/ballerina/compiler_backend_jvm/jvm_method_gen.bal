@@ -126,6 +126,18 @@ function generateReturnType(bir:BType? bType) returns string {
     }
 }
 
+function getMainFunc(bir:Function[] funcs) returns bir:Function? {
+    bir:Function? userMainFunc = ();
+    foreach var func in funcs {
+        if (func.name.value == "main") {
+            userMainFunc = untaint func;
+            break;
+        }
+    }
+
+    return userMainFunc;
+}
+
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
@@ -149,7 +161,10 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     // invoke the user's main method
-    mv.visitMethodInsn(INVOKESTATIC, invokedClassName, "main", desc, false);
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
+    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
+
+    mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);
 
     if (!isVoidFunction) {
         bir:BType returnType = userMainFunc.typeValue.retType;

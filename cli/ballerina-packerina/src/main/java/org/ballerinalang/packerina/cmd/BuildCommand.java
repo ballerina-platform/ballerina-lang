@@ -98,8 +98,6 @@ public class BuildCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
-        } else if (jvmTarget) {
-            genJVMExecutable(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag);
@@ -181,19 +179,16 @@ public class BuildCommand implements BLauncherCmd {
                                                                     "directory or a file  with a \'"
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                                                  offline, lockEnabled, skiptests, experimentalFlag);
+
+            if (jvmTarget) {
+                JVMCodeGen.generateExecutableJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                        offline, lockEnabled, skiptests, experimentalFlag);
+            } else {
+                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                        offline, lockEnabled, skiptests, experimentalFlag);
+            }
         }
         Runtime.getRuntime().exit(0);
-    }
-
-    private void genJVMExecutable(Path projectDirPath, List<String> argList) {
-        if (argList == null || argList.size() != 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("no Ballerina program given");
-        }
-        String programName = argList.get(0);
-
-        JVMCodeGen.getInstance().generateJVMExecutable(projectDirPath, programName, projectDirPath);
     }
 
     /**

@@ -67,7 +67,7 @@ public type PackageParser object {
     }
 
     public function parsePackage() returns Package {
-        var pkgIdCp = self.reader.readInt32();
+        PackageId pkgId = self.reader.readPackageIdCpRef();
         ImportModule[] importModules = self.parseImportMods();
         TypeDef[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl[] globalVars = self.parseGlobalVars();
@@ -78,9 +78,13 @@ public type PackageParser object {
             funcs[i] = self.parseFunction();
             i += 1;
         }
-        BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: funcs });
-        emitter.emitPackage();
-        return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: funcs };
+
+//        BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, functions: funcs,
+//                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}});
+//        emitter.emitPackage();
+
+        return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: funcs,
+                name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}};
     }
 
     function parseImportMods() returns ImportModule[] {

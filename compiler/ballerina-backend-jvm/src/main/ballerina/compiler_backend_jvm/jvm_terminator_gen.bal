@@ -1,5 +1,3 @@
-public string invokedClassName = "DEFAULT";
-
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
@@ -54,8 +52,13 @@ type TerminatorGenerator object {
 
     function genCallTerm(bir:Call callIns, string funcName) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
-        string jvmClass = invokedClassName; //todo get the correct class name
         string methodName = callIns.name.value;
+
+        string orgName = callIns.pkgID.org;
+        string moduleName = callIns.pkgID.name;
+
+        string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
+
         string methodDesc = "(";
         foreach var arg in callIns.args {
 

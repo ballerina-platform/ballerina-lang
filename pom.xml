@@ -1775,7 +1775,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1862,7 +1862,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
@@ -1946,7 +1946,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
