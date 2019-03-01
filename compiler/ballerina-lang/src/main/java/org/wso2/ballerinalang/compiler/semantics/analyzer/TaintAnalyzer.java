@@ -187,7 +187,6 @@ import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
-import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * Generate taint-table for each invokable node.
@@ -249,27 +248,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         private BlockedNode blockedNode;
         private BInvokableSymbol ignoredInvokableSymbol = null;
 
-//        private List<BLangFunction> lambdaFunctions = new ArrayList<>();
-//        private List<BInvokableSymbol> lambdaInvokableSymbols = new ArrayList<>();
         private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     }
 
-    private BLangFunction currParentFunction;
-
+    private BLangFunction currTopLevelFunction = null;
+    private boolean topLevelFunctionAllParamsUntaintedAnalysis = false;
+    private Stack<AnalysisState> analysisStateStack = new Stack<>();
 
     private AnalysisState getCurrentAnalysisState() {
         return analysisStateStack.peek();
     }
-
-    private AnalysisState getEnclosingAnalysisState() {
-        AnalysisState currentAnalysisState = analysisStateStack.pop();
-        AnalysisState enclosingEnalysisState = analysisStateStack.peek();
-        analysisStateStack.push(currentAnalysisState);
-        return enclosingEnalysisState;
-    }
-
-
-    Stack<AnalysisState> analysisStateStack = new Stack<>();
 
     public static TaintAnalyzer getInstance(CompilerContext context) {
         TaintAnalyzer taintAnalyzer = context.get(TAINT_ANALYZER_KEY);
@@ -316,8 +304,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     AnalysisState analysisState = new AnalysisState();
                     analysisStateStack.push(analysisState);
                     ((BLangNode) node).accept(this);
-//                    getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
-//                    getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
                     analysisStateStack.pop();
                 });
 
@@ -368,7 +354,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (funcNode.flagSet.contains(Flag.LAMBDA)) {
             funcNode.symbol.taintTable = null;
         } else {
-            currParentFunction = funcNode;
+            currTopLevelFunction = funcNode;
         }
         AnalysisState analysisState = new AnalysisState();
         analysisStateStack.push(analysisState);
@@ -388,22 +374,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
             entryPointPreAnalysis = false;
 
-            // Clear taint tables created for the lamda functions defined within the current function. This will allow
-            // re-generating the taint table for
-//            getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
-//            getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
-
             if (!isBlocked) {
                 visitEntryPoint(funcNode, funcEnv);
             }
         } else {
             visitInvokable(funcNode, funcEnv);
         }
-
-        // Clear taint tables created for the lamda functions defined within the current function. This will allow
-        // re-generating the taint table for each enclosing condition being checked.
-//        getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
-//        getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
         analysisStateStack.pop();
     }
 
@@ -463,9 +439,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-//            if (varNode.expr.getKind() == NodeKind.LAMBDA) {
-//                getCurrentAnalysisState().lambdaInvokableSymbols.add((BInvokableSymbol) varNode.symbol);
-//            }
             analyzeNode(varNode.expr, varInitEnv);
             if (varNode.expr.getKind() == NodeKind.LAMBDA) {
                 Map<Integer, TaintRecord> taintTable = ((BLangLambdaFunction) varNode.expr).function.symbol.taintTable;
@@ -1735,7 +1708,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             boolean isBlocked = false;
             if (invNode.flagSet.contains(Flag.LAMBDA)) {
-                isBlocked = processBlockedNode(currParentFunction);
+                isBlocked = processBlockedNode(currTopLevelFunction);
             } else {
                 isBlocked = processBlockedNode(invNode);
             }
@@ -1781,7 +1754,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void analyzeAllParamsUntaintedReturnTaintedStatus(Map<Integer, TaintRecord> taintTable,
                                                               BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
+        // Identify if current analysis is to identify return tainted status when all parameters are untainted in a top
+        // level function. This is to separately identify if AllParamsUntainted analysis is being done for a top level
+        // function or a lambda functions / worker lambda function.
+        if (currTopLevelFunction == invokableNode) {
+            topLevelFunctionAllParamsUntaintedAnalysis = true;
+        }
         analyzeReturnTaintedStatus(taintTable, invokableNode, symbolEnv, ALL_UNTAINTED_TABLE_ENTRY_INDEX, 0, 0);
+        if (currTopLevelFunction == invokableNode) {
+            topLevelFunctionAllParamsUntaintedAnalysis = false;
+        }
     }
 
     private void analyzeReturnTaintedStatus(Map<Integer, TaintRecord> taintTable, BLangInvokableNode invokableNode,
@@ -1816,7 +1798,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)
-                    && currParentFunction == invokableNode) {
+                    && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis)) {
                     this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
             } else {
                 taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(getCurrentAnalysisState().taintErrorSet)));
