@@ -16,6 +16,9 @@
 
 set -o xtrace
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+. ${parent_path}/utils.sh
+
 WORK_DIR=`pwd`
 
 function usage()
@@ -77,18 +80,7 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 
 cat $INPUT_DIR/infrastructure.properties
 
-pwd
-ls
-
-# Read configuration into an associative array
-declare -A CONFIG
-# IFS is the 'internal field separator'. In this case, your file uses '='
-IFS="="
-while read -r key value
-do
-     CONFIG[$key]=$value
-done < $INPUT_DIR/infrastructure.properties
-unset IFS
+read_property_file CONFIG
 
 export DATABASE_HOST=${CONFIG[DatabaseHost]}
 export DATABASE_PORT=${CONFIG[DatabasePort]}
@@ -102,18 +94,9 @@ ConfigFileName=${CONFIG[ConfigFileName]};
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
-#wget https://product-dist.ballerina.io/nightly/0.990.4-SNAPSHOT/ballerina-linux-installer-x64-0.990.4-SNAPSHOT.deb
-#sudo dpkg -i ballerina-linux-installer-x64-0.990.4-SNAPSHOT.deb --quiet
+install_ballerina "0.990.3"
 
-## Using released version till https://github.com/ballerinax/kubernetes/issues/283 is fixed
-wget https://product-dist.ballerina.io/downloads/0.990.3/ballerina-linux-installer-x64-0.990.3.deb
-sudo dpkg -i ballerina-linux-installer-x64-0.990.3.deb --quiet
-
-ballerina version
-
-wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
-
-tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ./
+download_and_extract_mysql_connector
 
 ballerina build product-scenarios/scenarios/1/data-service.bal
 
@@ -128,14 +111,6 @@ kubectl apply -f kubernetes/
 TIMEOUT=300
 INTERVAL=20
 bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
-
-READY_STATUS=$?
-
-echo "Ready Staus: ${READY_STATUS}"
-if [ ${READY_STATUS} -ne 0 ]; then
-    exit 1;
-fi
-echo "All pods ready!"
 
 # Temporary sleep to check whether app eventually becomes ready..
 # Ideally there should have been a kubernetes readiness probe
