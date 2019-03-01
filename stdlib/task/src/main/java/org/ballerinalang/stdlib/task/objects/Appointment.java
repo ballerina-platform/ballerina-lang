@@ -140,7 +140,7 @@ public class Appointment extends AbstractTask {
                 .build();
 
         if (this.getMaxRuns() > 0) {
-            int repeatCount = (int) (this.getMaxRuns() - 1);
+            int repeatCount = (int) this.getMaxRuns();
             Date endDate = TriggerUtils.computeEndTimeToAllowParticularNumberOfFirings((OperableTrigger) trigger,
                     new BaseCalendar(Calendar.getInstance().getTimeZone()), repeatCount);
 
