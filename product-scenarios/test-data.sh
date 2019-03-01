@@ -16,6 +16,9 @@
 
 set -o xtrace
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+. ${parent_path}/utils.sh
+
 WORK_DIR=`pwd`
 TEST_SCRIPT=test.sh
 
