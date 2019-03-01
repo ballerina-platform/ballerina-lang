@@ -27,3 +27,7 @@ function testGetPathSeparator() returns string {
 function testGetPathListSeparator() returns string {
     return path:PATH_LIST_SEPARATOR;
 }
+
+function testIsAbsolutePath(string path) returns boolean {
+    return path:isAbsolute(path);
+}

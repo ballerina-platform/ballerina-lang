@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.path.nativeimpl;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -72,7 +73,7 @@ public class AbsoluteTest {
 
     @Test(description = "Test illegal windows path conversion")
     public void testIllegalWindowsPath() {
-        String illegal = "/C:/Users/Desktop/workspaces/sra/emm-be/wsm-kap-api-server/target/test-classes/swagger" +
+        String illegal = "/C:/Users/Desktop/workspaces/dk/ballerina/stdlib-path/target/test-classes/absolute" +
                 "\\swagger.json";
         BValue[] args = {new BString(illegal)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
@@ -85,6 +86,33 @@ public class AbsoluteTest {
             log.info("Ballerina Path absolute function. Return value: " + absPath.stringValue());
             assertEquals(absPath.stringValue(), Paths.get(illegal).toAbsolutePath().toString());
         }
+    }
+
+    @Test(description = "Test isAbsolute path function for posix paths")
+    public void testPosixAbsolutePath() {
+        validateAbsolutePath("/A/B/C");
+        validateAbsolutePath("/foo/..");
+        validateAbsolutePath(".");
+        validateAbsolutePath("foo/");
+    }
+
+    @Test(description = "Test isAbsolute path function for windows paths")
+    public void testWindowsAbsolutePath() {
+        validateAbsolutePath("//server");
+        validateAbsolutePath("\\\\server");
+        validateAbsolutePath("C:/foo/..");
+        validateAbsolutePath("C:\\foo\\..");
+        validateAbsolutePath("bar\\baz");
+        validateAbsolutePath("bar/baz");
+        validateAbsolutePath(".");
+    }
+
+    private void validateAbsolutePath(String input) {
+        BValue[] args = {new BString(input)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testIsAbsolutePath", args);
+        BBoolean isAbs = (BBoolean) returns[0];
+        log.info("Ballerina Path: isAbsolute function. " + input + " is absolute: " + isAbs.booleanValue());
+        assertEquals(isAbs.booleanValue(), Paths.get(input).isAbsolute());
     }
 
     @Test(description = "Test path separator value")
