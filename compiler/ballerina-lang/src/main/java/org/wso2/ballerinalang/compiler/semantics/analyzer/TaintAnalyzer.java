@@ -269,14 +269,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     public TaintAnalyzer(CompilerContext context) {
         context.put(TAINT_ANALYZER_KEY, this);
-        this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.symTable = SymbolTable.getInstance(context);
+        names = Names.getInstance(context);
+        dlog = BLangDiagnosticLog.getInstance(context);
+        symTable = SymbolTable.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         blockedNodeList = new ArrayList<>();
         blockedEntryPointNodeList = new ArrayList<>();
+        dlogSet = new LinkedHashSet<>();
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -293,9 +294,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        SymbolEnv prevPkgEnv = this.currPkgEnv;
-        this.currPkgEnv = pkgEnv;
-        this.env = pkgEnv;
+        SymbolEnv prevPkgEnv = currPkgEnv;
+        currPkgEnv = pkgEnv;
+        env = pkgEnv;
 
         // Skip all lambda functions and analyzing them as part of the enclosing function.
         pkgNode.topLevelNodes.stream().filter(node -> node.getKind() != NodeKind.FUNCTION
@@ -314,7 +315,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (dlogSet.size() > 0) {
             dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName));
         }
-        this.currPkgEnv = prevPkgEnv;
+        currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
     }
 
@@ -338,7 +339,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (pkgEnv == null) {
             return;
         }
-        this.env = pkgEnv;
+        env = pkgEnv;
         pkgEnv.node.accept(this);
     }
 
