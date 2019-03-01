@@ -470,12 +470,20 @@
                 "url": "strings"
             },
             {
-                "name": "Task Listener Timer",
-                "url": "task-listener-timer"
+                "name": "Task Scheduler Appointment",
+                "url": "task-scheduler-appointment"
             },
             {
-                "name": "Task Listener Timer",
-                "url": "task-listener-timer"
+                "name": "Task Scheduler Timer",
+                "url": "task-scheduler-timer"
+            },
+            {
+                "name": "Task Service Appointment",
+                "url": "task-service-appointment"
+            },
+            {
+                "name": "Task Service Timer",
+                "url": "task-service-timer"
             }
         ]
     },
