@@ -185,6 +185,8 @@ public type ModuleID record {
     string org = "";
     string name = "";
     string modVersion = "";
+    boolean isUnnamed = false;
+    string sourceFilename = "";
 };
 
 public type Scope record {
