@@ -38,7 +38,7 @@ install:
 
 script:
   - if [ "$BUILD_TYPE" = "MAVEN" ]; then mvn install -B -V; fi
-  - if [ "$BUILD_TYPE" = "GRADLE" ]; then ./gradlew build; fi
+  - if [ "$BUILD_TYPE" = "GRADLE" ]; then ./gradlew build --info --stacktrace; fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
