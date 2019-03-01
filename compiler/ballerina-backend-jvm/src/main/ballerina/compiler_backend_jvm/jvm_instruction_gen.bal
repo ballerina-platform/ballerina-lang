@@ -49,6 +49,9 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeString) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BMapType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", moveIns.rhsOp.typeValue));
@@ -300,17 +303,31 @@ type InstructionGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 
-    // TODO following functions are not yet used
-    function generateMapNewIns() {
+    function generateMapNewIns(bir:NewMap mapNewIns) {
         self.mv.visitTypeInsn(NEW, MAP_VALUE);
         self.mv.visitInsn(DUP);
-        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", "()V", false);
+        loadType(self.mv, mapNewIns.typeValue);
+        self.mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
+        int lhsOpIndex = self.getJVMIndexOfVarRef(mapNewIns.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ASTORE, lhsOpIndex);
     }
 
-    function generateMapStoreIns() {
-        // TODO: visit(var_ref)
-        // TODO: visit(key_expr)
-        // TODO: visit(value_expr)
+    function generateMapStoreIns(bir:MapStore mapStoreIns) {
+        // visit var_ref
+        int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, mapIndex);
+
+        // visit key_expr
+        int keyIndex = self.getJVMIndexOfVarRef(mapStoreIns.keyOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, keyIndex);
+
+        // visit value_expr
+        int valueIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
+        bir:BType valueType = mapStoreIns.rhsOp.variableDcl.typeValue;
+        self.loadFromLocalVar(valueType, valueIndex);
+        self.addBoxInsn(valueType);
+
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
                 io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
 
@@ -318,117 +335,19 @@ type InstructionGenerator object {
         self.mv.visitInsn(POP);
     }
 
-    # Generate a new instance of an array value
-    # 
-    # + arrayType - type of the new array
-    function generateArrayNewIns(bir:VarRef arrayType) {
-        self.mv.visitTypeInsn(NEW, Array_VALUE);
-        self.mv.visitInsn(DUP);
-        self.mv.visitVarInsn(ALOAD, self.getJVMIndexOfVarRef(arrayType.variableDcl));
-        self.mv.visitMethodInsn(INVOKESPECIAL, Array_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-    }
-    # Generate adding a new value to array
-    function generateArrayStoreIns() {
-        // TODO: visit(var_ref)
-        // TODO: visit(index_expr)
-        // TODO: visit(value_expr)
-        string valueDesc = getMethodArgDesc("int"); //pass the value type
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "add", io:sprintf("(J%s;)V", valueDesc), false);
-    }
-
-    function generateArrayValueLoad() {
-        // TODO: visit(var_ref)
-        // TODO: visit(index_expr)
-        bir:BType bType = (); // need to infer from the instruction
+    function addBoxInsn(bir:BType bType) {
         if (bType is bir:BTypeInt) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getInt", "(J)J", false);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getBoolean", "(J)J", false);
-        } else if (bType == "byte") {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getByte", "(J)B", false);
-        } else if (bType == "float") {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getFloat", "(J)D", false);
+           self. mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, Array_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE), false);
+            return;
         }
     }
 
-    # Generate code to load an instance of the given type
-    # to the top of the stack.
-    #
-    # + bType - type to load
-    function loadType(bir:BType bType) {
-        string typeFieldName = "";
+    function loadFromLocalVar(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
-            typeFieldName = "typeInt";
-        } else if (bType is bir:BTypeString) {
-            typeFieldName = "typeString";
-        } else if (bType is bir:BTypeBoolean) {
-            typeFieldName = "typeBoolean";
-        } else if (bType is bir:BTypeNil) {
-            typeFieldName = "typeNull";
-        } else if (bType is bir:BArrayType) {
-            self.loadArrayType(bType);
-            return;
-        } else if (bType is bir:BUnionType) {
-            self.loadUnionType(bType);
-            return;
+            self.mv.visitVarInsn(LLOAD, valueIndex);
         } else {
-            error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
-            panic err;
+            self.mv.visitVarInsn(ALOAD, valueIndex);
         }
-
-        self.mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
-    }
-
-    # Generate code to load an instance of the given array type
-    # to the top of the stack.
-    #
-    # + bType - array type to load
-    function loadArrayType(bir:BArrayType bType) {
-        // Create an new array type
-        self.mv.visitTypeInsn(NEW, ARRAY_TYPE);
-        self.mv.visitInsn(DUP);
-
-        // Load the element type
-        self.loadType(bType.eType);
-
-        // invoke the constructor
-        self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-    }
-
-    # Generate code to load an instance of the given union type
-    # to the top of the stack.
-    #
-    # + bType - union type to load
-    function loadUnionType(bir:BUnionType bType) {
-        // Create the union type
-        self.mv.visitTypeInsn(NEW, UNION_TYPE);
-        self.mv.visitInsn(DUP);
-
-        // Create the members array
-        bir:BType[] memberTypes = bType.members;
-        self.mv.visitLdcInsn(memberTypes.length());
-        self.mv.visitInsn(L2I);
-        self.mv.visitTypeInsn(ANEWARRAY, BTYPE);
-        int i = 0;
-        foreach var memberType in memberTypes {
-            self.mv.visitInsn(DUP);
-            self.mv.visitLdcInsn(i);
-            self.mv.visitInsn(L2I);
-
-            // Load the member type
-            self.loadType(memberType);
-
-            // Add the member to the array
-            self.mv.visitInsn(AASTORE);
-            i += 1;
-        }
-
-        // initialize the union type using the members array
-        self.mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", io:sprintf("([L%s;)V", BTYPE), false);
-        return;
     }
 };
