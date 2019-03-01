@@ -264,6 +264,36 @@
       "insertText":"AuthConfig"
     },
     {
+      "label":"BasicAuthConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":{
+        "left":"BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.\n"
+      },
+      "sortText":"171",
+      "insertText":"BasicAuthConfig"
+    },
+    {
+      "label":"OAuth2AuthConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":{
+        "left":"OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.\n"
+      },
+      "sortText":"171",
+      "insertText":"OAuth2AuthConfig"
+    },
+    {
+      "label":"JwtAuthConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":{
+        "left":"JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.\n"
+      },
+      "sortText":"171",
+      "insertText":"JwtAuthConfig"
+    },
+    {
       "label":"HttpTimeoutError",
       "kind":"Class",
       "detail":"BType",
@@ -881,6 +911,36 @@
       "insertText":"WebSocketClient"
     },
     {
+      "label":"InboundAuthScheme",
+      "kind":"Enum",
+      "detail":"BType",
+      "documentation":{
+        "left":"Inbound authentication schemes."
+      },
+      "sortText":"171",
+      "insertText":"InboundAuthScheme"
+    },
+    {
+      "label":"OutboundAuthScheme",
+      "kind":"Enum",
+      "detail":"BType",
+      "documentation":{
+        "left":"Outbound authentication schemes."
+      },
+      "sortText":"171",
+      "insertText":"OutboundAuthScheme"
+    },
+    {
+      "label":"AuthStoreProvider",
+      "kind":"Enum",
+      "detail":"BType",
+      "documentation":{
+        "left":"Authentication storage providers for BasicAuth scheme."
+      },
+      "sortText":"171",
+      "insertText":"AuthStoreProvider"
+    },
+    {
       "label":"CachingPolicy",
       "kind":"Enum",
       "detail":"BType",
@@ -929,13 +989,6 @@
       },
       "sortText":"171",
       "insertText":"RedirectCode"
-    },
-    {
-      "label":"AuthScheme",
-      "kind":"Enum",
-      "detail":"BType",
-      "sortText":"171",
-      "insertText":"AuthScheme"
     },
     {
       "label":"CredentialBearer",

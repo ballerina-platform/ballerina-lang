@@ -62,7 +62,8 @@ public enum RuntimeErrors {
     CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037"),
     CANNOT_CONVERT_NULL("cannot.convert.null", "RUNTIME_0038"),
     INCOMPATIBLE_CONVERT_OPERATION("incompatible.convert.operation", "RUNTIME_0039"),
-    INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0040");
+    INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0040"),
+    TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0038");
 
     private String errorMsgKey;
     private String errorCode;

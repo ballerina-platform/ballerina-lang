@@ -8,8 +8,10 @@ import ballerina/log;
 http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
         scheme: http:BASIC_AUTH,
-        username: "tom",
-        password: "1234"
+        config: {
+            username: "tom",
+            password: "1234"
+        }
     }
 });
 
@@ -30,8 +32,8 @@ public function main() {
 
 // Create a basic authentication provider with the relevant configurations.
 http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 listener http:Listener ep  = new(9090, config = {

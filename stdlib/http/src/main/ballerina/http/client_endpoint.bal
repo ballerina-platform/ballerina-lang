@@ -321,9 +321,26 @@ public type ProxyConfig record {
 
 # AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
-# + scheme - Scheme of the configuration (Basic, OAuth2, JWT etc.)
+# + scheme - Authentication scheme
+# + config - Configuration related to the selected authenticator.
+public type AuthConfig record {
+    OutboundAuthScheme scheme;
+    BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
+    !...;
+};
+
+# BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.
+#
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
+public type BasicAuthConfig record {
+    string username;
+    string password;
+    !...;
+};
+
+# OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
+#
 # + accessToken - Access token for OAuth2 authentication
 # + refreshToken - Refresh token for OAuth2 authentication
 # + refreshUrl - Refresh token URL for OAuth2 authentication
@@ -334,10 +351,7 @@ public type ProxyConfig record {
 # + clientSecret - Client secret for OAuth2 authentication
 # + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
 # + scopes - Scope of the access request
-public type AuthConfig record {
-    AuthScheme scheme;
-    string username = "";
-    string password = "";
+public type OAuth2AuthConfig record {
     string accessToken = "";
     string refreshToken = "";
     string refreshUrl = "";
@@ -346,8 +360,16 @@ public type AuthConfig record {
     string tokenUrl = "";
     string clientId = "";
     string clientSecret = "";
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     string[] scopes = [];
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    !...;
+};
+
+# JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.
+#
+# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+public type JwtAuthConfig record {
+    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
     !...;
 };
 

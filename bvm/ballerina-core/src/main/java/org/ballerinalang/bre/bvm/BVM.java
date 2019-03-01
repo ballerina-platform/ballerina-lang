@@ -1644,10 +1644,16 @@ public class BVM {
                 BNewArray list = Optional.of((BNewArray) sf.refRegs[i]).get();
                 long index = sf.longRegs[j];
                 BRefType refReg = sf.refRegs[k];
-                BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG)
-                        ? ((BArrayType) list.getType()).getElementType()
-                        : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
-                if (!checkCast(refReg, elementType)) {
+                BType elementType = null;
+                if (list.getType().getTag() == TypeTags.ARRAY_TAG) {
+                    elementType = ((BArrayType) list.getType()).getElementType();
+                } else {
+                    BTupleType tupleType = (BTupleType) list.getType();
+                    if (isTupleIndexWithinRange(tupleType, index)) {
+                        elementType = tupleType.getTupleTypes().get((int) index);
+                    }
+                }
+                if (elementType != null && !checkCast(refReg, elementType)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
@@ -1745,6 +1751,10 @@ public class BVM {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private static boolean isTupleIndexWithinRange(BTupleType tuple, long index) {
+        return index >= 0 && index < tuple.getTupleTypes().size();
     }
 
     private static void execBinaryOpCodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
