@@ -224,14 +224,14 @@ public class ServiceTest {
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
-    public void testGetFormParamsEmptyresponseMsgPayload() {
+    public void testGetFormParamsEmptyResponseMsgPayload() {
         String path = "/echo/getFormParams";
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "POST", "");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Error occurred while retrieving " +
-                "text data from entity : String payload is null");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg),
+                            "Error occurred while extracting text data from entity : Empty content");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")
