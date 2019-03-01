@@ -78,8 +78,8 @@ public type Cache object {
         };
         task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
 
-        _ = cacheCleanupTimer.attachService(cacheCleanupService);
-        _ = cacheCleanupTimer.run();
+        _ = cacheCleanupTimer.attach(cacheCleanupService);
+        _ = cacheCleanupTimer.start();
 
     }
 
