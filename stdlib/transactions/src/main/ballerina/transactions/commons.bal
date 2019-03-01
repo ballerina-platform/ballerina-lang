@@ -39,8 +39,8 @@ listener task:Listener timer = new({
 });
 
 service scheduleTimer on timer {
-    resource function onTrigger() returns error? {
-        return cleanupTransactions();
+    resource function onTrigger() {
+        _ = cleanupTransactions();
     }
 }
 
