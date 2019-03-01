@@ -5,8 +5,8 @@ public type PackageId record {
 };
 
 public type Package record {
-    ImportModule[] importModules;
-    TypeDef[] typeDefs;
+    ImportModule[] importModules = [];
+    TypeDef[] typeDefs = [];
     Function[] functions = [];
     Name name = {};
     Name org = {};
@@ -71,7 +71,7 @@ public type OR "OR";
 
 public type TerminatorKind "GOTO"|"CALL"|"BRANCH"|"RETURN";
 
-public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|BinaryOpInstructionKind;
+public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|"NEW_ARRAY"|"ARRAY_STORE"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -143,7 +143,7 @@ public type BTypeSymbol record {
     SymbolKind kind = "OTHER";
     Name name = {};
 //BSymbol owner;
-    PackageID pkgID = {};
+    ModuleID pkgID = {};
     Scope scopeValue = {};
     int tag = 0;
     boolean tainted = false;
@@ -174,17 +174,19 @@ public type BSymbol record {
     SymbolKind kind = "OTHER";
     Name name = {};
 //BSymbol owner;
-    PackageID pkgID = {};
+    ModuleID pkgID = {};
 //Scope scopeValue;
     int tag = 0;
     boolean tainted = false;
     BType typeValue = "()";
 };
 
-public type PackageID record {
-    Name orgName = {};
-    Name sourceFileName = {};
-    Name versionValue = {};
+public type ModuleID record {
+    string org = "";
+    string name = "";
+    string modVersion = "";
+    boolean isUnnamed = false;
+    string sourceFilename = "";
 };
 
 public type Scope record {
@@ -223,6 +225,23 @@ public type NewMap record {
 };
 
 public type MapStore record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef keyOp;
+    VarRef rhsOp;
+    BType typeValue; //TODO do we need this?
+    !...;
+};
+
+public type NewArray record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef sizeOp;
+    BType typeValue;
+    !...;
+};
+
+public type ArrayStore record {
     InstructionKind kind;
     VarRef lhsOp;
     VarRef keyOp;

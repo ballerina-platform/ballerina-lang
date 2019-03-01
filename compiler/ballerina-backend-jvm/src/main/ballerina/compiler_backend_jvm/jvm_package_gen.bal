@@ -1,60 +1,108 @@
-public type JarFile record {
-    map<string> manifestEntries;
-    map<byte[]> jarEntries;
-};
+final map<string> fullQualifiedClassNames = {};
 
-function generateJarFile(bir:Package pkg, string progName) returns JarFile {
-    map<byte[]> jarEntries = {};
-    map<string> manifestEntries = {};
+function lookupFullQualifiedClassName(string key) returns string {
+    var result = fullQualifiedClassNames[key];
 
-    //todo : need to generate java package/classes here based on BIR imported package(s)
+    if (result is string) {
+        return result;
+    } else {
+        error err = error("cannot find full qualified class for method : " + key);
+        panic err;
+    }
+}
 
-    string orgName = pkg.org.value;
-    string moduleName = pkg.name.value;
+public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries) {
 
-    invokedClassName = getInvocationClassName(untaint orgName, untaint moduleName, progName);
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+
+    // TODO: need to get source file name
+    string moduleClass = getModuleClassName(untaint orgName, untaint moduleName, untaint moduleName);
 
     // TODO: remove once the package init class is introduced
-    typeOwnerClass = progName;
+    typeOwnerClass = moduleClass;
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, invokedClassName, null, OBJECT_VALUE, null);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT_VALUE, null);
 
-    generateUserDefinedTypeFields(cw, pkg.typeDefs);
+    generateUserDefinedTypeFields(cw, module.typeDefs);
 
-    bir:Function? mainFunc = getMainFunc(pkg.functions);
-    if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc, cw, pkg);
-        manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, progName);
+    string pkgName = getPackageName(orgName, moduleName);
+
+    // populate function to class name mapping
+    foreach var func in module.functions {
+        fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
     }
 
-    foreach var func in pkg.functions {
+    // generate methods
+    foreach var func in module.functions {
         generateMethod(func, cw);
     }
 
     cw.visitEnd();
 
     byte[] classContent = cw.toByteArray();
-    jarEntries[invokedClassName + ".class"] = classContent;
-
-    JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
-    return jarFile;
+    pkgEntries[moduleClass + ".class"] = classContent;
 }
 
-function getInvocationClassName(string orgName, string moduleName, string progName) returns string {
-    string name = progName;
+public function generateEntryPackage(bir:Package module, map<byte[]> pkgEntries, map<string> manifestEntries) {
+
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+
+    // TODO: need to get source file name
+    string moduleClass = getModuleClassName(untaint orgName, untaint moduleName, untaint moduleName);
+
+    // TODO: remove once the package init class is introduced
+    typeOwnerClass = moduleClass;
+
+    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT_VALUE, null);
+
+    generateUserDefinedTypeFields(cw, module.typeDefs);
+
+    string pkgName = getPackageName(orgName, moduleName);
+
+    // populate function to class name mapping
+    foreach var func in module.functions {
+        fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
+    }
+
+    bir:Function? mainFunc = getMainFunc(module.functions);
+    if (mainFunc is bir:Function) {
+        generateMainMethod(mainFunc, cw, module, pkgName);
+        manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, moduleName);
+    }
+
+    // generate methods
+    foreach var func in module.functions {
+        generateMethod(func, cw);
+    }
+
+    cw.visitEnd();
+
+    byte[] classContent = cw.toByteArray();
+    pkgEntries[moduleClass + ".class"] = classContent;
+}
+
+function getModuleClassName(string orgName, string moduleName, string sourceFileName) returns string {
+    string name = sourceFileName;
 
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/" + progName;
+        name = orgName + "/" + moduleName + "/" + sourceFileName;
     }
     return name;
 }
 
-function getMainClassName(string orgName, string moduleName, string progName) returns string {
-    string name = progName;
+function getMainClassName(string orgName, string moduleName, string sourceFileName) returns string {
+    string name = sourceFileName;
 
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "." + moduleName + "." + progName;
+        name = orgName + "." + moduleName + "." + sourceFileName;
     }
     return name;
+}
+
+function getPackageName(string orgName, string moduleName) returns string {
+    return orgName + "/" + moduleName + "/";
 }

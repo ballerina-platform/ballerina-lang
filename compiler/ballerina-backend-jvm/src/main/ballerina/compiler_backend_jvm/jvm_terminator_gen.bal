@@ -1,5 +1,3 @@
-string invokedClassName = "";
-
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
@@ -27,6 +25,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeString) {
                 self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 self.mv.visitInsn(ARETURN);
+            } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                self.mv.visitInsn(ARETURN);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                 io:sprintf("%s", func.typeValue.retType));
@@ -51,8 +52,10 @@ type TerminatorGenerator object {
 
     function genCallTerm(bir:Call callIns, string funcName) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
-        string jvmClass = invokedClassName; //todo get the correct class name
         string methodName = callIns.name.value;
+
+        string jvmClass = lookupFullQualifiedClassName(methodName);
+
         string methodDesc = "(";
         foreach var arg in callIns.args {
 

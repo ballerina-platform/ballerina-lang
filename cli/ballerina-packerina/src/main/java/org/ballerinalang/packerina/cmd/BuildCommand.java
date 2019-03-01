@@ -181,7 +181,7 @@ public class BuildCommand implements BLauncherCmd {
             }
 
             if (jvmTarget) {
-                JVMCodeGen.generateJVMExecutable(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                JVMCodeGen.generateExecutableJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag);
             } else {
                 BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,

@@ -20,21 +20,24 @@ package org.ballerinalang.compiler.backend.jvm;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.nativeimpl.bir.BIRModuleUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -70,15 +73,15 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
  * Ballerina compiler JVM backend.
  */
 public class JVMCodeGen {
+
     private static final PrintStream console = System.out;
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
     private static final String JAR_ENTRIES = "jarEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
     private static final String JAR_EXT = ".jar";
-    private static final String functionName = "generateJVMExecutable";
+    private static final String functionName = "generateExecutableJar";
 
-
-    public static void generateJVMExecutable(Path sourceRootPath,
+    public static void generateExecutableJar(Path sourceRootPath,
                                              String packagePath,
                                              String targetPath,
                                              boolean buildCompiledPkg,
@@ -86,28 +89,30 @@ public class JVMCodeGen {
                                              boolean lockEnabled,
                                              boolean skipTests,
                                              boolean enableExperimentalFeatures) {
-        BLangPackage bLangPackage = compileProgram(sourceRootPath, packagePath, buildCompiledPkg, offline, lockEnabled,
-                skipTests, enableExperimentalFeatures);
+        CompilerContext context = getCompilerContext(sourceRootPath, buildCompiledPkg, offline, lockEnabled, skipTests,
+                enableExperimentalFeatures);
+
+        BLangPackage bLangPackage = compileProgram(context, packagePath);
 
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
 
+        PackageID packageID = bLangPackage.packageID;
         BIRNode.BIRPackage bir = bLangPackage.symbol.bir;
-        BIREmitter birEmitterjvm = new BIREmitter();
-        String birText = birEmitterjvm.emit(bir);
-        console.println(birText);
-
-
+        emitBIRText(bir);
         URI resURI = getExecResourceURIFromThisJar();
         byte[] resBytes = readExecResource(resURI);
         ProgramFile programFile = loadProgramFile(resBytes);
 
-        BValue[] args = new BValue[2];
-        BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
-        args[0] = new BValueArray(binaryWriter.serialize());
+        BValue[] args = new BValue[3];
+        args[0] = BIRModuleUtils.createBIRContext(programFile, PackageCache.getInstance(context),
+                Names.getInstance(context));
+        args[1] = BIRModuleUtils.createModuleID(programFile, packageID.orgName.value,
+                packageID.name.value, packageID.version.value, packageID.isUnnamed,
+                packageID.sourceFileName != null ? packageID.sourceFileName.value : packageID.name.value);
         targetPath = cleanupExecutableJarFileName(targetPath);
-        args[1] = new BString(targetPath);
+        args[2] = new BString(targetPath);
 
         // Generate the jar file
         try {
@@ -150,13 +155,17 @@ public class JVMCodeGen {
         target.close();
     }
 
-    private static BLangPackage compileProgram(Path sourceRootPath,
-                                               String packagePath,
-                                               boolean buildCompiledPkg,
-                                               boolean offline,
-                                               boolean lockEnabled,
-                                               boolean skipTests,
-                                               boolean enableExperimentalFeatures) {
+    private static BLangPackage compileProgram(CompilerContext context, String progPath) {
+        Compiler compiler = Compiler.getInstance(context);
+        return compiler.build(progPath);
+    }
+
+    private static CompilerContext getCompilerContext(Path sourceRootPath,
+                                                      boolean buildCompiledPkg,
+                                                      boolean offline,
+                                                      boolean lockEnabled,
+                                                      boolean skipTests,
+                                                      boolean enableExperimentalFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -167,9 +176,7 @@ public class JVMCodeGen {
         options.put(SKIP_TESTS, Boolean.toString(skipTests));
         options.put(TEST_ENABLED, Boolean.toString(true));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
-
-        Compiler compiler = Compiler.getInstance(context);
-        return compiler.build(packagePath);
+        return context;
     }
 
     private static URI getExecResourceURIFromThisJar() {
@@ -218,5 +225,11 @@ public class JVMCodeGen {
             updatedFileName = updatedFileName.substring(0, updatedFileName.length() - BLANG_SOURCE_EXT.length());
         }
         return updatedFileName;
+    }
+
+    private static void emitBIRText(BIRNode.BIRPackage bir) {
+        BIREmitter birEmitter = new BIREmitter();
+        String birText = birEmitter.emit(bir);
+        console.println(birText);
     }
 }

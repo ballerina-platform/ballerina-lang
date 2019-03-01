@@ -55,6 +55,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                 instGen.generateMoveIns(inst);
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
+            } else if (inst is bir:NewMap) {
+                instGen.generateMapNewIns(inst);
+            } else if (inst is bir:MapStore) {
+                instGen.generateMapStoreIns(inst);
             } else {
                 error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -99,6 +103,8 @@ function getMethodArgDesc(bir:BType bType) returns string {
         return "J";
     } else if (bType is bir:BTypeString) {
         return "Ljava/lang/String;";
+    } else if (bType is bir:BMapType) {
+        return io:sprintf("L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -112,6 +118,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")J";
     } else if (bType is bir:BTypeString) {
         return ")Ljava/lang/String;";
+    } else if (bType is bir:BMapType) {
+        return io:sprintf(")L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -130,7 +138,7 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
     return userMainFunc;
 }
 
-function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
+function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg, string pkgName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
     // todo : generate the global var init class and other crt0 loading
@@ -153,10 +161,18 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     // invoke the user's main method
-    mv.visitMethodInsn(INVOKESTATIC, invokedClassName, "main", desc, false);
+
+    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
+
+    mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);
 
     if (!isVoidFunction) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+        bir:BType returnType = userMainFunc.typeValue.retType;
+        if (returnType is bir:BTypeInt) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+        }
     }
 
     mv.visitInsn(RETURN);
