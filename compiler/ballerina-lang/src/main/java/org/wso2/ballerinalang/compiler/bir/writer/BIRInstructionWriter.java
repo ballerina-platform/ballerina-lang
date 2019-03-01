@@ -163,7 +163,6 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNonTerminator.MapStore birMapStore) {
         buf.writeByte(birMapStore.kind.getValue());
-        birMapStore.type.accept(typeWriter);
         birMapStore.lhsOp.accept(this);
         birMapStore.keyOp.accept(this);
         birMapStore.rhsOp.accept(this);
@@ -178,7 +177,6 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(ArrayStore birArrayStore) {
         buf.writeByte(birArrayStore.kind.getValue());
-        birArrayStore.type.accept(typeWriter);
         birArrayStore.lhsOp.accept(this);
         birArrayStore.keyOp.accept(this);
         birArrayStore.rhsOp.accept(this);
@@ -186,6 +184,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Operands
     public void visit(BIROperand birOperand) {
+        buf.writeByte(birOperand.variableDcl.kind.getValue());
         // TODO use the integer index of the variable.
         addCpAndWriteString(birOperand.variableDcl.name.value);
     }

@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -31,6 +32,8 @@ public interface TypeVisitor {
     void visit(BArrayType bArrayType);
 
     void visit(BBuiltInRefType bBuiltInRefType);
+
+    void visit(BAnyType bAnyType);
 
     void visit(BErrorType bErrorType);
 

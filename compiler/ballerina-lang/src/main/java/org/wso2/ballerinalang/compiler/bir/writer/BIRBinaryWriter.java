@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
@@ -62,6 +63,8 @@ public class BIRBinaryWriter {
         writeImportModuleDecls(birbuf, birPackage.importModules);
         // Write type defs
         writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
+        // Write global vars
+        writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
         // Write functions
         writeFunctions(birbuf, typeWriter, birPackage.functions);
 
@@ -94,6 +97,20 @@ public class BIRBinaryWriter {
     private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
         birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
+    }
+
+    private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
+        buf.writeInt(birGlobalVars.size());
+        for (BIRGlobalVariableDcl birGlobalVar : birGlobalVars) {
+            buf.writeByte(birGlobalVar.kind.getValue());
+            // Name
+            buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
+            // Visibility
+            buf.writeByte(birGlobalVar.visibility.value());
+
+            // Function type as a CP Index
+            birGlobalVar.type.accept(typeWriter);
+        }
     }
 
     private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {

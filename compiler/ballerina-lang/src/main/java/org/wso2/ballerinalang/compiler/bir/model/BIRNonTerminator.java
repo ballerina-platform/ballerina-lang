@@ -189,11 +189,9 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public BIROperand lhsOp;
         public BIROperand keyOp;
         public BIROperand rhsOp;
-        public BType type;
 
-        public MapStore(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
+        public MapStore(DiagnosticPos pos, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
             super(pos, InstructionKind.MAP_STORE);
-            this.type = type;
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
@@ -241,11 +239,9 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public BIROperand lhsOp;
         public BIROperand keyOp;
         public BIROperand rhsOp;
-        public BType type;
 
-        public ArrayStore(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
+        public ArrayStore(DiagnosticPos pos, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
             super(pos, InstructionKind.ARRAY_STORE);
-            this.type = type;
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
