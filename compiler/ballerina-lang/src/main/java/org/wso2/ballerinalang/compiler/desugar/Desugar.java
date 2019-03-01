@@ -1890,17 +1890,21 @@ public class Desugar extends BLangNodeVisitor {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
                 BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
                 if (((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag == TypeTags.MAP) {
-                    BLangRecordLiteral literal = ASTBuilderUtil.createEmptyRecordLiteral(varRefExpr.pos,
-                            symbol.literalValueType);
-                    literal.isConst = true;
-                    // Todo - Create copies of all of the key-value pairs?
-                    literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
-                    // Todo - Remove?
-                    literal.type = symbol.literalValueType;
-                    BLangExpression expr = rewriteExpr(addConversionExprIfRequired(literal, varRefExpr.type));
+
+
+//                    BLangRecordLiteral literal = ASTBuilderUtil.createEmptyRecordLiteral(varRefExpr.pos,
+//                            symbol.literalValueType);
+//                    literal.isConst = true;
+//                    // Todo - Create copies of all of the key-value pairs?
+//                    literal.keyValuePairs.addAll(((BLangRecordLiteral) symbol.literalValue).keyValuePairs);
+//                    // Todo - Remove?
+//                    literal.type = symbol.literalValueType;
+//                    BLangExpression expr =
+//                            rewriteExpr(addConversionExprIfRequired((BLangRecordLiteral) symbol.literalValue,
+//                                    varRefExpr.type));
                     // Set the name of the reference. This is later needed to log compilation errors.
-                    ((BLangMapLiteral) expr).name = symbol.name;
-                    result = expr;
+                    //                    ((BLangMapLiteral) expr).name = symbol.name;
+                    symbol.literalValue = result = rewriteExpr((BLangRecordLiteral) symbol.literalValue);
                     return;
                 } else {
                     // We need to get a copy of the literal value and set it as the result. Otherwise there will be
