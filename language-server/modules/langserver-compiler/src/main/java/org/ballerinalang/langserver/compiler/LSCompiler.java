@@ -129,6 +129,8 @@ public class LSCompiler {
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
+            // Remove the current cunit before compile the package
+            documentManager.removeCompilationUnit(filePath);
             bLangPackage = compiler.compile(packageName);
             LSPackageCache.getInstance(context).invalidate(bLangPackage.packageID);
         } catch (RuntimeException e) {
