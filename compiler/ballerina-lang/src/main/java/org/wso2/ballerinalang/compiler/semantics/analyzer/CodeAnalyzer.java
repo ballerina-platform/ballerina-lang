@@ -2048,12 +2048,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
+        receive.sendExpr = send.expr;
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
         types.checkType(send, send.type, receive.matchingSendsError);
         addImplicitCast(send.expr.type, receive);
+        receive.sendExpr = send;
     }
 
     private void addImplicitCast(BType actualType, BLangWorkerReceive receive) {

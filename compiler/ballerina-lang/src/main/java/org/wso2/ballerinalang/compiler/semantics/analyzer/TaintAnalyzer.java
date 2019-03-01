@@ -215,13 +215,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean entryPointPreAnalysis;
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
-    private boolean blockedOnWorkerInteraction;
-    private boolean workerInteractionReanalysis;
-    private boolean workerAnalysis;
-    private String lambdaIdentifier;
 
-    private Map<String, TaintedStatus> workerInteractionTaintedStatusMap = new HashMap<>();
-    private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
+    private Set<TaintRecord.TaintError> dlogSet = new LinkedHashSet<>();
     private List<BlockedNode> blockedNodeList = new ArrayList<>();
     private List<BlockedNode> blockedEntryPointNodeList = new ArrayList<>();
 
@@ -242,8 +237,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private AnalyzerPhase analyzerPhase;
 
     private class AnalysisState {
-        private String currLambdaIdentifier;
-
         private TaintedStatus taintedStatus;
         private TaintedStatus returnTaintedStatus;
 
@@ -256,9 +249,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         private BlockedNode blockedNode;
         private BInvokableSymbol ignoredInvokableSymbol = null;
 
-        private List<BLangFunction> lambdaFunctions = new ArrayList<>();
-        private List<BInvokableSymbol> lambdaInvokableSymbols = new ArrayList<>();
+//        private List<BLangFunction> lambdaFunctions = new ArrayList<>();
+//        private List<BInvokableSymbol> lambdaInvokableSymbols = new ArrayList<>();
+        private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     }
+
+    private BLangFunction currParentFunction;
 
 
     private AnalysisState getCurrentAnalysisState() {
@@ -314,14 +310,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.env = pkgEnv;
 
         // Skip all lambda functions and analyzing them as part of the enclosing function.
-        pkgNode.topLevelNodes.stream().filter(node -> !(node.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) node).flagSet.contains(Flag.LAMBDA)))
+        pkgNode.topLevelNodes.stream().filter(node -> node.getKind() != NodeKind.FUNCTION
+                || !((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
                 .forEach(node -> {
                     AnalysisState analysisState = new AnalysisState();
                     analysisStateStack.push(analysisState);
                     ((BLangNode) node).accept(this);
-                    getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
-                    getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
+//                    getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
+//                    getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
                     analysisStateStack.pop();
                 });
 
@@ -329,6 +325,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         resolveBlockedInvokable(blockedNodeList);
         resolveBlockedInvokable(blockedEntryPointNodeList);
 
+        if (dlogSet.size() > 0) {
+            dlogSet.forEach(dlogEntry -> {
+                dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName);
+            });
+        }
         this.currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
     }
@@ -364,12 +365,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        if (funcNode.flagSet.contains(Flag.LAMBDA)) {
+            funcNode.symbol.taintTable = null;
+        } else {
+            currParentFunction = funcNode;
+        }
         AnalysisState analysisState = new AnalysisState();
         analysisStateStack.push(analysisState);
-
-        if (funcNode.flagSet.contains(Flag.LAMBDA)) {
-            getCurrentAnalysisState().currLambdaIdentifier = lambdaIdentifier;
-        }
 
         List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
         funcNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
@@ -388,38 +390,21 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
             // Clear taint tables created for the lamda functions defined within the current function. This will allow
             // re-generating the taint table for
-            getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
-            getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
+//            getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
+//            getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
 
             if (!isBlocked) {
                 visitEntryPoint(funcNode, funcEnv);
-                resolveBlockedWorkerInteractions(funcNode);
             }
         } else {
             visitInvokable(funcNode, funcEnv);
-            resolveBlockedWorkerInteractions(funcNode);
         }
 
         // Clear taint tables created for the lamda functions defined within the current function. This will allow
-        // re-generating the taint table for
-        getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
-        getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
+        // re-generating the taint table for each enclosing condition being checked.
+//        getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
+//        getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
         analysisStateStack.pop();
-        // Reset worker interaction tracking when analyzing top level function.
-        if (!funcNode.flagSet.contains(Flag.LAMBDA)) {
-            this.workerInteractionTaintedStatusMap = new HashMap<>();
-            this.blockedOnWorkerInteraction = false;
-        }
-    }
-
-    private void resolveBlockedWorkerInteractions(BLangFunction funcNode) {
-        // Re-run the function analysis if analysis was blocked on a worker interaction.
-        if (this.blockedOnWorkerInteraction && !funcNode.flagSet.contains(Flag.LAMBDA)) {
-            getCurrentAnalysisState().lambdaFunctions.forEach(func -> func.symbol.taintTable = null);
-            getCurrentAnalysisState().lambdaInvokableSymbols.forEach(symbol -> symbol.taintTable = null);
-            this.blockedOnWorkerInteraction = false;
-            visit(funcNode);
-        }
     }
 
     @Override
@@ -478,14 +463,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-            if (varNode.expr.getKind() == NodeKind.LAMBDA) {
-                lambdaIdentifier = varNode.name.value;
-                getCurrentAnalysisState().lambdaInvokableSymbols.add((BInvokableSymbol) varNode.symbol);
-            }
+//            if (varNode.expr.getKind() == NodeKind.LAMBDA) {
+//                getCurrentAnalysisState().lambdaInvokableSymbols.add((BInvokableSymbol) varNode.symbol);
+//            }
             analyzeNode(varNode.expr, varInitEnv);
             if (varNode.expr.getKind() == NodeKind.LAMBDA) {
                 Map<Integer, TaintRecord> taintTable = ((BLangLambdaFunction) varNode.expr).function.symbol.taintTable;
-                ((BInvokableSymbol) varNode.symbol).taintTable = taintTable;
+                if (varNode.symbol.kind == SymbolKind.FUNCTION) {
+                    ((BInvokableSymbol) varNode.symbol).taintTable = taintTable;
+                }
             }
             setTaintedStatus(varNode, getCurrentAnalysisState().taintedStatus);
         }
@@ -870,35 +856,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             return;
         }
         workerSendNode.expr.accept(this);
-        TaintedStatus taintedStatus = this.workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
-        if (taintedStatus == null) {
-            this.workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier.value,
-                    getCurrentAnalysisState().taintedStatus);
-        } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-            // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
-            // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
-            // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
-            // interactions)
-            this.workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier.value, TaintedStatus.TAINTED);
-        }
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         syncSendExpr.expr.accept(this);
-        TaintedStatus taintedStatus = this.workerInteractionTaintedStatusMap.get(syncSendExpr.workerIdentifier);
-        if (taintedStatus == null) {
-            this.workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier.value,
-                    getCurrentAnalysisState().taintedStatus);
-        } else if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-            // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
-            // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
-            // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
-            // interactions)
-            this.workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier.value, TaintedStatus.TAINTED);
-        }
-        // TODO: tainted status for the sync send expression should be handled properly since it will return error or
-        //  nil
     }
 
     @Override
@@ -911,12 +873,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             analyzeExprList(exprList);
             return;
         }
-        String workerIdentifier = getCurrentAnalysisState().currLambdaIdentifier;
-        getCurrentAnalysisState().taintedStatus = this.workerInteractionTaintedStatusMap
-                .get(workerIdentifier.substring(WORKER_LAMBDA_VAR_PREFIX.length(), workerIdentifier.length()));
-        if (getCurrentAnalysisState().taintedStatus == null) {
-            this.blockedOnWorkerInteraction = true;
-        }
+        workerReceiveNode.sendExpr.accept(this);
     }
 
     // Expressions
@@ -1330,14 +1287,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        getCurrentAnalysisState().lambdaFunctions.add(bLangLambdaFunction.function);
-        if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-            workerAnalysis = true;
-            bLangLambdaFunction.function.accept(this);
-            workerAnalysis = false;
-        } else {
-            bLangLambdaFunction.function.accept(this);
-        }
+        bLangLambdaFunction.function.accept(this);
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
     }
 
@@ -1700,15 +1650,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void setTaintedStatus(BLangVariableReference varNode, TaintedStatus taintedStatus) {
         if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || (varNode.symbol != null
                 && !varNode.symbol.tainted))) {
-            // Taint information should always set to the original symbol
-            BSymbol symbol;
-            if ((varNode.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-                BVarSymbol varSymbol = (BVarSymbol) varNode.symbol;
-                symbol = varSymbol.originalSymbol == null ? varSymbol : varSymbol.originalSymbol;
-            } else {
-                symbol = varNode.symbol;
-            }
-            setTaintedStatus(symbol, taintedStatus);
+            setTaintedStatus(varNode.symbol, taintedStatus);
         }
     }
 
@@ -1749,7 +1691,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean isBlocked = processBlockedNode(invNode);
         if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
-            this.taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
+            this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
         }
     }
 
@@ -1791,15 +1733,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                 analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
             }
-            boolean isBlocked = processBlockedNode(invNode);
-
+            boolean isBlocked = false;
+            if (invNode.flagSet.contains(Flag.LAMBDA)) {
+                isBlocked = processBlockedNode(currParentFunction);
+            } else {
+                isBlocked = processBlockedNode(invNode);
+            }
             if (isBlocked) {
                 return true;
             }
+
             int requiredParamCount = invNode.requiredParams.size();
             int defaultableParamCount = invNode.defaultableParams.size();
             int totalParamCount = requiredParamCount + defaultableParamCount + (invNode.restParam == null ? 0 : 1);
-            if (this.taintErrorSet.size() > 0) {
+            if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
                 // If taint error occurred when no parameter is tainted, there is no point of checking tainted status of
                 // returns when each parameter is tainted. An compiler error will get generated for the usage anyway,
                 // hence adding dummy table to the function to make sure remaining analysis stays intact.
@@ -1809,7 +1756,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     taintTable.put(paramIndex, new TaintRecord(TaintedStatus.UNTAINTED, paramTaintedStatus));
                 }
-                this.taintErrorSet.clear();
+                getCurrentAnalysisState().taintErrorSet.clear();
             } else {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount,
@@ -1824,7 +1771,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                         analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
                     }
-                    this.taintErrorSet.clear();
+                    getCurrentAnalysisState().taintErrorSet.clear();
                 }
             }
             invNode.symbol.taintTable = taintTable;
@@ -1859,7 +1806,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
         analyzeReturnTaintedStatus(invokableNode, symbolEnv);
-        if (this.taintErrorSet.size() > 0) {
+        if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
             // When invocation returns an error (due to passing a tainted argument to a sensitive parameter) add current
             // error to the table for future reference. However, if taint-error is raised when analyzing all-parameters
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
@@ -1868,10 +1815,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (!entryPointPreAnalysis && paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX &&
                     (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
-                            || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
-                this.taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
+                            || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)
+                    && currParentFunction == invokableNode) {
+                    this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
             } else {
-                taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(this.taintErrorSet)));
+                taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(getCurrentAnalysisState().taintErrorSet)));
             }
         } else if (getCurrentAnalysisState().blockedNode == null) {
             // This is when taint analysis was successful for the function body without any blocking invocations.
@@ -1982,7 +1930,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             getCurrentAnalysisState().blockedNode = null;
             // Discard any error generated if invokable was found to be blocked. This will avoid duplicates when
             // blocked invokable is re-examined.
-            this.taintErrorSet.clear();
+            getCurrentAnalysisState().taintErrorSet.clear();
             isBlocked = true;
         }
         return isBlocked;
@@ -2018,14 +1966,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void addTaintError(DiagnosticPos diagnosticPos, String paramName, DiagnosticCode diagnosticCode) {
         TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, diagnosticCode);
-        this.taintErrorSet.add(taintError);
+        getCurrentAnalysisState().taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }
     }
 
     private void addTaintError(List<TaintRecord.TaintError> taintErrors) {
-        this.taintErrorSet.addAll(taintErrors);
+        getCurrentAnalysisState().taintErrorSet.addAll(taintErrors);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }

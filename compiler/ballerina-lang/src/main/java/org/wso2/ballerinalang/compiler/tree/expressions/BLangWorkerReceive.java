@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 
 /**
  * Implementation of {@link BLangWorkerReceive}.
@@ -38,6 +39,7 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     public SymbolEnv env;
     public BType workerType;
     public BType matchingSendsError;
+    public BLangExpression sendExpr;
 
     @Override
     public BLangExpression getKeyExpression() {
