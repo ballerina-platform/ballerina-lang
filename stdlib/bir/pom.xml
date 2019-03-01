@@ -135,7 +135,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.llvm.generated.providers
+                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.bir.generated.providers
                         </nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>

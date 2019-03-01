@@ -415,6 +415,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-bir</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
