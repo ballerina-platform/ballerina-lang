@@ -7,6 +7,10 @@ This section will focus on styling the top level definitions available in the Ba
   ```ballerina
   import ballerina/http;
 
+  // Global variable definitions.
+  const int MIN_AGE = 20;
+  int repititions = 0;
+
   function func1() {
       int a = 0;
   }

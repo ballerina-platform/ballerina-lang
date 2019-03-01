@@ -26,7 +26,7 @@ Following will list down where a single whitespace can apply.
   a = -a;
   ``` 
 
-* Any `binary` and `ternary` operators should start and follow by a single space.
+* There should be a single space before and after any `binary` or `ternary` operator.
 
   ```ballerina
   var fullName = firstName + lastName;
@@ -74,7 +74,7 @@ Following will list down where a single whitespace can apply.
             [{"1", "test", "No:123 hty RD"}]
         }
     ```
-* If block is empty, no space between opening `{` and closing `}` brace.
+* If a block is empty, no space between opening `{` and closing `}` brace.
   ```ballerina
   function func1() {}
   ``` 

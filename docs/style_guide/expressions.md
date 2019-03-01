@@ -3,6 +3,14 @@
 ## Record Literals
 
 * When formatting fields in record literal 
+    - If empty, with no fields
+      - both braces will be placed on same line.
+      - No spaces between opening and closing brace.
+      
+      ```ballerina
+          Person p = {};
+      ```
+      
     - Can arrange fields horizontally 
       - Shouldn't have any spaces before comma.
       - Should have a single space after comma. 
@@ -42,7 +50,7 @@
 
   ```
 * If it is not possible to arrange tuple on a single line, may be with line length limit,
-  each field in the tuple should be on its own block indented line.
+  each field in the tuple should be on its own block-indented line.
   
   - Trailing comma always should be on a end of a line and inline with a field.
   - Parentheses act as a block and indented as blocks. So space before opening parentheses
@@ -57,3 +65,66 @@
   
     ```
 ## Function Invocation
+
+* Always try to keep function invocation in a single line.
+* No spaces between function name and the opening parentheses `(`,
+  opening parentheses and first argument or last parentheses and the last parentheses.
+* No space between argument and the trailing comma `,`
+
+  ```ballerina
+  setAgeForEmployee(employeeName, employeeID);
+  ```
+* If unable to keep the function invocation on a single line, due to exceeding max line length,
+  each argument should be splitted in to its own block-indented line.
+  
+  - Trailing comma always should be on a end of the line and inline with a argument.
+  - No space before opening parentheses
+  - closing parentheses is on it's own line and indented to align with the parent.
+    
+    ```ballerina
+    
+    setAgeForEmployee(
+        employeeName,
+        employeeID
+    );
+    
+    ```
+## Array Literals
+
+* For simple arrays should placed on a single line.
+  - No spaces around the brackets.
+  - No spaces between the opening bracket and value.
+  - No spaces between the closing bracket and value.
+  - No spaces between a value and a trailing comma.
+  
+  ```ballerina
+  string[] names = ["john", "doe", "jane", "doe"];
+  ```
+* If array cannot be placed on a single line, due to exceeding the max line length,
+  each value should be splitted in to its own block-indented line.
+  
+  - Trailing comma always should be on a end of the line and inline with a value.
+  - Single space before the opening bracket.
+  - Closing bracket is on it's own line and indented to align with the parent.
+    
+    ```ballerina
+    
+    string[] names = [
+        "john",
+        "doe",
+        "jane",
+        "doe"
+    ];
+    
+    ```
+## Type Conversion
+
+* No spaces around angle brackets `<>`.
+* No spaces around the type. `<string>`.
+* No spaces between the closing angle bracket and reference to be converted.
+
+  ```ballerina
+  string name = <string>json.name;
+  ```
+
+## Match Patterns
