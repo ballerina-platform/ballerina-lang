@@ -45,6 +45,9 @@ public class TaskConstants {
     // Allowed resource function names
     public static final String RESOURCE_ON_TRIGGER = "onTrigger";
 
+    // Defaultable parameter names
+    public static final String PARAMETER_ATTACHMENT = "attachment";
+
     // Common field for TimerConfiguration and AppointmentConfiguration
     public static final String FIELD_NO_OF_RUNS = "noOfRecurrences";
 
@@ -60,7 +63,6 @@ public class TaskConstants {
     public static final String FIELD_MONTHS = "months";
     public static final String FIELD_DAYS_OF_WEEK = "daysOfWeek";
     public static final String FIELD_YEAR = "year";
-    public static final String FIELD_SERVICE_PARAMETER = "serviceParameter";
 
     // Fields related to TaskError struct.
     public static final String TASK_ERROR_CODE = "{ballerina/task}TaskError";

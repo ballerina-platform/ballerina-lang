@@ -21,7 +21,7 @@ public function main() {
             interval: 2000,
             initialDelay: 1000
         });
-    var result = timer.attach(timerService, serviceParameter = getCount);
+    var result = timer.attach(timerService, attachment = getCount);
     result = timer.start();
 }
 

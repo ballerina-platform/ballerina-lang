@@ -33,11 +33,11 @@ import org.ballerinalang.stdlib.task.objects.Task;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SERVICE_PARAMETER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_SERVICE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
@@ -63,11 +63,11 @@ public class Register extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
-        BValue serviceParameters = ((BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_SERVICE))
-                .get(FIELD_SERVICE_PARAMETER);
+        BValue attachments = ((BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_SERVICE))
+                .get(PARAMETER_ATTACHMENT);
         ServiceWithParameters serviceWithParameters;
-        if (Objects.nonNull(serviceParameters)) {
-            serviceWithParameters = new ServiceWithParameters(service, serviceParameters);
+        if (Objects.nonNull(attachments)) {
+            serviceWithParameters = new ServiceWithParameters(service, attachments);
         } else {
             serviceWithParameters = new ServiceWithParameters(service);
         }

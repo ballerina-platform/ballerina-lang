@@ -25,12 +25,12 @@ public type Scheduler object {
     # Attaches the provided service to the task.
     #
     # + serviceToAttach - Service which needs to be attached to the task.
-    # + serviceParameter - An optional parameter which needs to passed inside the resources.
+    # + attachment - An optional parameter which needs to passed inside the resources.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
-    public function attach(service serviceToAttach, any serviceParameter = ()) returns error? {
-        if (serviceParameter != ()) {
-            map<any> serviceParameters = { serviceParameter: serviceParameter };
-            return self.taskListener.register(serviceToAttach, serviceParameters);
+    public function attach(service serviceToAttach, any attachment = ()) returns error? {
+        if (attachment != ()) {
+            map<any> attachments = { attachment: attachment };
+            return self.taskListener.register(serviceToAttach, attachments);
         }
         return self.taskListener.register(serviceToAttach, {});
     }

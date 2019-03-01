@@ -28,16 +28,16 @@ import org.ballerinalang.model.values.BValue;
  */
 public class ServiceWithParameters {
     private Service service;
-    private BValue serviceParameter;
+    private BValue attachment;
 
-    public ServiceWithParameters(Service service, BValue serviceParameter) {
+    public ServiceWithParameters(Service service, BValue attachment) {
         this.service = service;
-        this.serviceParameter = serviceParameter;
+        this.attachment = attachment;
     }
 
     public ServiceWithParameters(Service service) {
         this.service = service;
-        this.serviceParameter = null;
+        this.attachment = null;
     }
 
 
@@ -45,8 +45,8 @@ public class ServiceWithParameters {
         return service;
     }
 
-    public BValue getServiceParameter() {
-        return this.serviceParameter;
+    public BValue getAttachment() {
+        return this.attachment;
     }
 
     public String getName() {

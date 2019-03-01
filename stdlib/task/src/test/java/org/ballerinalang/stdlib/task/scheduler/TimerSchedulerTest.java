@@ -55,7 +55,7 @@ public class TimerSchedulerTest {
     }
 
     @Test(description = "Test service parameter passing")
-    public void testTimerServiceParameter() {
+    public void testTimerAttachment() {
         CompileResult compileResult = BCompileUtil.compile(
                 "scheduler/timer/service_parameter.bal");
         BRunUtil.invoke(compileResult, "attachTimer");

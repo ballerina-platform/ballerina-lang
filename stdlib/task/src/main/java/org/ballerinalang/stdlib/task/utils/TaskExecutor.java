@@ -50,8 +50,8 @@ public class TaskExecutor {
     private static List<BValue> getParameterList(FunctionInfo function, ServiceWithParameters serviceWithParameters) {
         List<BValue> functionParameters = new ArrayList<>();
         functionParameters.add(serviceWithParameters.getService().getBValue());
-        if (function.getParamTypes().length > 1 && Objects.nonNull(serviceWithParameters.getServiceParameter())) {
-            functionParameters.add(serviceWithParameters.getServiceParameter());
+        if (function.getParamTypes().length > 1 && Objects.nonNull(serviceWithParameters.getAttachment())) {
+            functionParameters.add(serviceWithParameters.getAttachment());
         }
         return functionParameters;
     }

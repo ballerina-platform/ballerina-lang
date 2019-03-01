@@ -19,7 +19,7 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" parallel="true">
+<suite name="ballerina-test-suite" parallel="false">
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-test-suite">
         <classes>
