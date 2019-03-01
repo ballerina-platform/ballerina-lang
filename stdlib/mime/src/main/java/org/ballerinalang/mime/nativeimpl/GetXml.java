@@ -19,7 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Locale;
 
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
@@ -52,39 +52,48 @@ import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
         returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetXml extends BlockingNativeCallableUnit {
+public class GetXml extends AbstractGetPayloadHandler {
 
     @Override
-    public void execute(Context context) {
-        BXML result;
+    @SuppressWarnings("unchecked")
+    public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
-                    baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX))) {
-                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                if (dataSource != null) {
-                    if (dataSource instanceof BXML) {
-                        result = (BXML) dataSource;
-                    } else {
-                        // Build the XML from string representation of the payload.
-                        BString payload = MimeUtil.getMessageAsString(dataSource);
-                        result = XMLUtils.parse(payload.stringValue());
-                    }
-                } else {
-                    result = EntityBodyHandler.constructXmlDataSource(entityStruct);
-                    EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message data source has been constructed
-                    entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-                }
-                context.setReturnValues(result);
-            } else {
-                context.setReturnValues(MimeUtil.createError(context, "Entity body is not xml " +
-                        "compatible since the received content-type is : " + baseType));
+            BXML result;
+            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            String baseType = HeaderUtil.getBaseType(entityObj);
+            if (!isXmlContentType(baseType)) {
+                createErrorAndNotify(context, callback, "Entity body is not xml " + COMPATIBLE_SINCE_CONTENT_TYPE +
+                        baseType);
+                return;
             }
-        } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while retrieving xml data from entity : " + e.getMessage()));
+
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            if (dataSource != null) {
+                if (dataSource instanceof BXML) {
+                    result = (BXML) dataSource;
+                } else {
+                    // Build the XML from string representation of the payload.
+                    BString payload = MimeUtil.getMessageAsString(dataSource);
+                    result = XMLUtils.parse(payload.stringValue());
+                }
+                setReturnValuesAndNotify(context, callback, result);
+                return;
+            }
+
+            if (isStreamingRequired(entityObj)) {
+                result = EntityBodyHandler.constructXmlDataSource(entityObj);
+                updateDataSourceAndNotify(context, callback, entityObj, result);
+            } else {
+                constructNonBlockingDataSource(context, callback, entityObj, SourceType.XML);
+            }
+        } catch (Exception ex) {
+            createErrorAndNotify(context, callback,
+                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
+    }
+
+    private boolean isXmlContentType(String baseType) {
+        return baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
+                baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX));
     }
 }
