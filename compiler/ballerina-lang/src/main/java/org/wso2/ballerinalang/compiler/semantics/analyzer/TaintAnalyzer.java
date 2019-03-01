@@ -312,9 +312,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         resolveBlockedInvokable(blockedEntryPointNodeList);
 
         if (dlogSet.size() > 0) {
-            dlogSet.forEach(dlogEntry -> {
-                dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName);
-            });
+            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName));
         }
         this.currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
@@ -1705,7 +1703,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                 analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
             }
-            boolean isBlocked = false;
+            boolean isBlocked;
             if (invNode.flagSet.contains(Flag.LAMBDA)) {
                 isBlocked = processBlockedNode(currTopLevelFunction);
             } else {
@@ -1783,7 +1781,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             } else if (paramIndex < requiredParamCount + defaultableParamCount) {
                 invokableNode.defaultableParams.get(paramIndex - requiredParamCount).var.symbol.tainted = true;
             } else {
-                invokableNode.restParam.symbol.tainted = true;
+                if (invokableNode.restParam != null) {
+                    invokableNode.restParam.symbol.tainted = true;
+                }
             }
         }
         analyzeReturnTaintedStatus(invokableNode, symbolEnv);
