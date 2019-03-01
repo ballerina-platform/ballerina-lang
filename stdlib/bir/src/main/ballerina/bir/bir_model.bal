@@ -7,6 +7,7 @@ public type PackageId record {
 public type Package record {
     ImportModule[] importModules = [];
     TypeDef[] typeDefs = [];
+    GlobalVariableDcl[] globalVars = [];
     Function[] functions = [];
     Name name = {};
     Name org = {};
@@ -48,12 +49,12 @@ public type Name record {
 
 public type Instruction record  {
     InstructionKind kind;
-    any...;
+    any...; // This is to type match with Object type fields in subtypes
 };
 
 public type Terminator record {
     TerminatorKind kind;
-    any...;
+    any...; // This is to type match with Object type fields in subtypes
 };
 
 public type ADD "ADD";
@@ -76,16 +77,43 @@ public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|"NEW_ARRAY
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
 
+public type LocalVarKind "LOCAL";
+
+public type TempVarKind "TEMP";
+
+public type ReturnVarKind "RETURN";
+
+public type GlobalVarKind "GLOBAL";
 
 public type ArgVarKind "ARG";
 
-public type VarKind "LOCAL" | "TEMP" | "RETURN" | ArgVarKind;
+public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | GlobalVarKind | ArgVarKind;
+
+
+public type ClosedSealed "CLOSED_SEALED";
+
+public type OpenSealed "OPEN_SEALED";
+
+public type UnSealed "UNSEALED";
+
+public type ArrayState ClosedSealed | OpenSealed | UnSealed;
 
 public type VariableDcl record {
     VarKind kind = "LOCAL";
     Name name = {};
     BType typeValue = "()";
+    any...; // This is to type match with Object type fields in subtypes
 };
+
+public type GlobalVariableDcl record {
+    VarKind kind = "GLOBAL";
+    Name name = {};
+    BType typeValue = "()";
+    Visibility visibility = "PACKAGE_PRIVATE";
+    !...;
+};
+
+public type BTypeAny "any";
 
 public type BTypeNil "()";
 
@@ -96,11 +124,17 @@ public type BTypeBoolean "boolean";
 public type BTypeString "string";
 
 public type BArrayType record {
-   BType eType;
+    ArrayState state;
+    BType eType;
 };
 
 public type BMapType record {
-   BType constraint;
+    BType constraint;
+};
+
+public type BErrorType record {
+    BType reasonType;
+    BType detailType;
 };
 
 public type BRecordType record {
@@ -131,8 +165,8 @@ public type BUnionType record {
 };
 
 
-public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
-                  BInvokableType | BArrayType | BRecordType | BObjectType | BMapType;
+public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
+                  BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
 
 
 public type BTypeSymbol record {
@@ -207,8 +241,6 @@ public type BInvokableType record {
 
 public type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";
 
-// public type Instruction Move|BinaryOp|ConstantLoad|NewMap|MapStore;
-
 public type ConstantLoad record {
     InstructionKind kind;
     VarRef lhsOp;
@@ -229,7 +261,6 @@ public type MapStore record {
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    BType typeValue; //TODO do we need this?
     !...;
 };
 
@@ -246,7 +277,6 @@ public type ArrayStore record {
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    BType typeValue; //TODO do we need this?
     !...;
 };
 
@@ -266,24 +296,23 @@ public type Kind "VAR_REF"|"CONST";
 public type Move record {
     InstructionKind kind;
     VarRef lhsOp;
-    Operand rhsOp;
+    VarRef rhsOp;
     !...;
 };
-
-public type Operand VarRef;
 
 public type BinaryOp record {
     InstructionKind kind;
     VarRef lhsOp;
-    Operand rhsOp1;
-    Operand rhsOp2;
+    VarRef rhsOp1;
+    VarRef rhsOp2;
     !...;
 };
 
 public type Call record {
-    Operand[] args;
+    VarRef[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
+    PackageId pkgID;
     Name name;
     BasicBlock thenBB;
     !...;
@@ -292,7 +321,7 @@ public type Call record {
 public type Branch record {
     BasicBlock falseBB;
     TerminatorKind kind;
-    Operand op;
+    VarRef op;
     BasicBlock trueBB;
     !...;
 };

@@ -24,10 +24,16 @@ type BirEmitter object {
         // println("version - " + pkg.versionValue);
         
         println(); // empty line
+        println("// Import Declarations");
         self.emitImports();
         println();
-        println();
+        println("// Type Definitions");
         self.emitTypeDefs();
+        println();
+        println("// Global Variables");
+        self.emitGlobalVars();
+        println();
+        println("// Function Definitions");
         self.emitFunctions();
         println("################################## End bir program ##################################");
     }
@@ -49,6 +55,14 @@ type BirEmitter object {
         print(bTypeDef.visibility, " type ", bTypeDef.name.value, " ");
         self.typeEmitter.emitType(bTypeDef.typeValue);
         println(";");
+    }
+
+    function emitGlobalVars() {
+        foreach var bGlobalVar in self.pkg.globalVars {
+            print(bGlobalVar.visibility, " ");
+            self.typeEmitter.emitType(bGlobalVar.typeValue);
+            println(" ", bGlobalVar.name.value, ";");
+        }
     }
 
     function emitFunctions() {
@@ -151,7 +165,7 @@ type TerminalEmitter object {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
             }
-            print(term.name.value, "(");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.versionValue, ":", term.name.value, "(");
             int i = 0;
             foreach var o in term.args {
                 if (i != 0) {
@@ -174,10 +188,11 @@ type TerminalEmitter object {
 };
 
 type OperandEmitter object {
-    function emitOp(Operand op, string tabs = "") {
-        // if (op is VarRef) {
-            print(op.variableDcl.name.value);
-        // }
+    function emitOp(VarRef op, string tabs = "") {
+        if (op.variableDcl.kind is GlobalVarKind) {
+            print("G");
+        }
+        print(op.variableDcl.name.value);
         // TODO add the rest, currently only have var ref
     }
 };
@@ -185,7 +200,9 @@ type OperandEmitter object {
 type TypeEmitter object {
     
     function emitType(BType typeVal, string tabs = "") {
-        if (typeVal is BTypeInt) {
+        if (typeVal is BTypeAny) {
+            print(tabs, typeVal);
+        } else if (typeVal is BTypeInt) {
             print(tabs, typeVal);
         } else if (typeVal is BTypeString) {
             print(tabs, typeVal);
@@ -203,6 +220,8 @@ type TypeEmitter object {
             self.emitMapType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
+        } else if (typeVal is BErrorType) {
+            self.emitErrorType(typeVal, tabs);
         }
     }
 
@@ -245,6 +264,7 @@ type TypeEmitter object {
     function emitArrayType(BArrayType bArrayType, string tabs) {
         print(tabs);
         self.emitType(bArrayType.eType);
+        print("<", bArrayType.state, ">");
         print("[]");
     }
 
@@ -263,6 +283,14 @@ type TypeEmitter object {
         print(tabs, "map<");
         self.emitType(bMapType.constraint);
         print(">");
+    }
+
+    function emitErrorType(BErrorType bErrorType, string tabs) {
+        print(tabs, "error{r-");
+        self.emitType(bErrorType.reasonType);
+        print(", d-");
+        self.emitType(bErrorType.detailType);
+        print("}");
     }
 };
 
