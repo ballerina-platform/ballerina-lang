@@ -30,6 +30,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BArrayType) {
                 self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 self.mv.visitInsn(ARETURN);
+            } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                self.mv.visitInsn(ARETURN);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                 io:sprintf("%s", func.typeValue.retType));

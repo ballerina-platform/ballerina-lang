@@ -35,6 +35,8 @@ function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typeDefs) 
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
             createRecordType(mv, bType, typeDef.name.value);
+        } else if (bType is bir:BObjectType) {
+            createObjectType(mv, bType, typeDef.name.value);
         } else {
             error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
             panic err;
@@ -52,10 +54,17 @@ function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typeDefs) 
         if (bType is bir:BRecordType) {
             mv.visitInsn(DUP);
             addRecordFields(mv, bType.fields);
-            addRestField(mv, bType.restFieldType);
+            addRecordRestField(mv, bType.restFieldType);
+        } else if (bType is bir:BObjectType) {
+            mv.visitInsn(DUP);
+            addObjectFields(mv, bType.fields);
         }
     }
 }
+
+// -------------------------------------------------------
+//              Record type generation methods
+// -------------------------------------------------------
 
 # Create a runtime type instance for the record.
 #
@@ -71,6 +80,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
     mv.visitLdcInsn(name);
 
     // Load package path
+    // TODO: get it from the type
     mv.visitLdcInsn("pkg");
 
     // Load flags
@@ -80,7 +90,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
     // Load 'sealed' flag
     mv.visitLdcInsn(recordType.sealed);
 
-    // initialize the union type using the members array
+    // initialize the record type
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
             io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
             false);
@@ -89,7 +99,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
 
 # Add the field type information of a record type. The record type is assumed 
 # to be at the top of the stack.
-# 
+#
 # + mv - method visitor
 # + fields - record fields to be added
 function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField[] fields) {
@@ -105,7 +115,7 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField[] fields) {
         mv.visitLdcInsn(field.name.value);
 
         // create and load field type
-        createBField(mv, field);
+        createRecordField(mv, field);
 
         // Add the field to the map
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", 
@@ -124,7 +134,7 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField[] fields) {
 #
 # + mv - method visitor
 # + field - field Parameter Description
-function createBField(jvm:MethodVisitor mv, bir:BRecordField field) {
+function createRecordField(jvm:MethodVisitor mv, bir:BRecordField field) {
     mv.visitTypeInsn(NEW, BFIELD);
     mv.visitInsn(DUP);
 
@@ -139,21 +149,118 @@ function createBField(jvm:MethodVisitor mv, bir:BRecordField field) {
     mv.visitLdcInsn(0);
     mv.visitInsn(L2I);
 
-    mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>", 
-            io:sprintf("(L%s;L%s;I)V", BTYPE, STRING_VALUE), 
+    mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
+            io:sprintf("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
             false);
 }
 
-# Add the rest field to a record type. The record type is assumed 
+# Add the rest field to a record type. The record type is assumed
 # to be at the top of the stack.
 #
 # + mv - method visitor
 # + restFieldType - type of the rest field
-function addRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
+function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
     // Load the rest field type
     loadType(mv, restFieldType);
     mv.visitFieldInsn(PUTFIELD, RECORD_TYPE, "restFieldType", io:sprintf("L%s;", BTYPE));
 }
+
+// -------------------------------------------------------
+//              Object type generation methods
+// -------------------------------------------------------
+
+# Create a runtime type instance for the object.
+#
+# + mv - method visitor
+# + objectType - object type
+# + name - name of the object
+function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
+    // Create the record type
+    mv.visitTypeInsn(NEW, OBJECT_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load type name
+    mv.visitLdcInsn(name);
+
+    // Load package path
+    // TODO: get it from the type
+    mv.visitLdcInsn("pkg");
+
+    // Load flags
+    mv.visitLdcInsn(0);
+    mv.visitInsn(L2I);
+
+    // initialize the object
+    mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
+            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, STRING_VALUE),
+            false);
+    return;
+}
+
+# Add the field type information of a object type. The object type is assumed
+# to be at the top of the stack.
+#
+# + mv - method visitor
+# + fields - object fields to be added
+function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField[] fields) {
+    // Create the fields map
+    mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
+
+    foreach var field in fields {
+        mv.visitInsn(DUP);
+
+        // Load field name
+        mv.visitLdcInsn(field.name.value);
+
+        // create and load field type
+        createObjectField(mv, field);
+
+        // Add the field to the map
+        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
+            io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE),
+            true);
+
+        // emit a pop, since we are not using the return value from the map.put()
+        mv.visitInsn(POP);
+    }
+
+    // Set the fields of the record
+    mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE, "setFields", io:sprintf("(L%s;)V", MAP), false);
+}
+
+# Create a field information for objects.
+#
+# + mv - method visitor
+# + field - object field
+function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
+    mv.visitTypeInsn(NEW, BFIELD);
+    mv.visitInsn(DUP);
+
+    // Load the field type
+    loadType(mv, field.typeValue);
+
+    // Load field name
+    mv.visitLdcInsn(field.name.value);
+
+    // Load flags
+    // TODO: get the flags
+    int visibility = 0;
+    if (field.visibility == "PACKAGE_PRIVATE") {
+        visibility = 1;
+    }
+    mv.visitLdcInsn(visibility);
+    mv.visitInsn(L2I);
+
+    mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
+            io:sprintf("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
+            false);
+}
+
+// -------------------------------------------------------
+//              Type loading methods
+// -------------------------------------------------------
 
 # Generate code to load an instance of the given type
 # to the top of the stack.
@@ -171,6 +278,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
         typeFieldName = "typeNull";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
+        return;
+    } else if (bType is bir:BMapType) {
+        loadMapType(mv, bType);
         return;
     } else if (bType is bir:BUnionType) {
         loadUnionType(mv, bType);
@@ -200,6 +310,22 @@ function loadArrayType(jvm:MethodVisitor mv, bir:BArrayType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given map type
+# to the top of the stack.
+#
+# + bType - map type to load
+function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
+    // Create an new map type
+    mv.visitTypeInsn(NEW, MAP_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.constraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given union type
