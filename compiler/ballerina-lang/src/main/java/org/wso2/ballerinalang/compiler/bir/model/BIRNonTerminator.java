@@ -154,4 +154,106 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * A new map instruction.
+     * <p>
+     * e.g., map a = {}
+     *
+     * @since 0.980.0
+     */
+    public static class NewMap extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BType type;
+
+        public NewMap(DiagnosticPos pos, BType type, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_MAP);
+            this.type = type;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A map store instruction.
+     * <p>
+     * e.g., a["b"] = 10 (int)
+     *
+     * @since 0.980.0
+     */
+    public static class MapStore extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand keyOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public MapStore(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.MAP_STORE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A new array instruction.
+     * <p>
+     * e.g., map a = {}
+     *
+     * @since 0.980.0
+     */
+    public static class NewArray extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand sizeOp;
+        public BType type;
+
+        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp) {
+            super(pos, InstructionKind.NEW_ARRAY);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.sizeOp = sizeOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A map store instruction.
+     * <p>
+     * e.g., a["b"] = 10 (int)
+     *
+     * @since 0.980.0
+     */
+    public static class ArrayStore extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand keyOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public ArrayStore(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.ARRAY_STORE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

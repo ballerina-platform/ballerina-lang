@@ -55,6 +55,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                 instGen.generateMoveIns(inst);
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
+            } else if (inst is bir:NewMap) {
+                instGen.generateMapNewIns(inst);
+            } else if (inst is bir:MapStore) {
+                instGen.generateMapStoreIns(inst);
             } else {
                 error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -71,7 +75,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             termGen.genCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
-        } else {
+        } else if (terminator is bir:Return) {
             termGen.genReturnTerm(terminator, returnVarRefIndex, func);
         }
         j += 1;
@@ -99,6 +103,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return "J";
     } else if (bType is bir:BTypeString) {
         return "Ljava/lang/String;";
+    } else if (bType is bir:BMapType) {
+        return io:sprintf("L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -112,6 +118,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")J";
     } else if (bType is bir:BTypeString) {
         return ")Ljava/lang/String;";
+    } else if (bType is bir:BMapType) {
+        return io:sprintf(")L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -144,7 +152,12 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitMethodInsn(INVOKESTATIC, invokedClassName, "main", desc, false);
 
     if (!isVoidFunction) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+        bir:BType returnType = userMainFunc.typeValue.retType;
+        if (returnType is bir:BTypeInt) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+        }
     }
 
     mv.visitInsn(RETURN);

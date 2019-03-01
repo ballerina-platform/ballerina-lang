@@ -12,6 +12,11 @@ public function main(string... args) {
     //do nothing
 }
 
+function genExecutableJar(bir:BIRContext birContext, bir:ModuleID entryModId, string destFilePath) returns JarFile {
+    bir:Package entryMod = birContext.lookupBIRModule(entryModId);
+    return generateJarFile(entryMod, destFilePath);
+}
+
 function generateJVMExecutable(byte[] birBinary, string progName) returns JarFile {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(birBinary);
     bir:ChannelReader reader = new(byteChannel);

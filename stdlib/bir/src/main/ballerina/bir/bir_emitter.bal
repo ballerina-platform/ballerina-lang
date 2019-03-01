@@ -18,14 +18,24 @@ type BirEmitter object {
 
     function emitPackage() {
         println("################################# Begin bir program #################################");
+        println();
         println("org - ", self.pkg.org.value);
         println("name - ", self.pkg.name.value);
         // println("version - " + pkg.versionValue);
         
         println(); // empty line
+        self.emitImports();
+        println();
+        println();
         self.emitTypeDefs();
         self.emitFunctions();
         println("################################## End bir program ##################################");
+    }
+    
+    function emitImports() {
+        foreach var i in self.pkg.importModules {
+            println("import ", i.modOrg.value, "/", i.modName.value, " ", i.modVersion.value, ";");
+        }
     }
 
     function emitTypeDefs() {
@@ -38,7 +48,7 @@ type BirEmitter object {
     function emitTypeDef(TypeDef bTypeDef) {
         print(bTypeDef.visibility, " type ", bTypeDef.name.value, " ");
         self.typeEmitter.emitType(bTypeDef.typeValue);
-        println();
+        println(";");
     }
 
     function emitFunctions() {
@@ -54,7 +64,7 @@ type BirEmitter object {
         println(" {");
         foreach var v in bFunction.localVars {
             self.typeEmitter.emitType(v.typeValue, tabs="\t");
-            println(" ", v.name.value, "\t// local");
+            println(" ", v.name.value, "\t// ", v.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
@@ -76,18 +86,22 @@ type BirEmitter object {
 
 type InstructionEmitter object {
     private OperandEmitter opEmitter;
+    private TypeEmitter typeEmitter;
 
     function __init() {
         self.opEmitter = new;
+        self.typeEmitter = new;
     }
 
     function emitIns(Instruction ins, string tabs = "") {
-        if (ins is Move) {
+        if (ins is MapStore) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
-            print(" = ", ins.kind, " ");
+            print("[");
+            self.opEmitter.emitOp(ins.keyOp);
+            print("] = ", ins.kind, " ");
             self.opEmitter.emitOp(ins.rhsOp);
-            println();
+            println(";");
         } else if (ins is BinaryOp) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -95,12 +109,30 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.rhsOp1);
             print(" ");
             self.opEmitter.emitOp(ins.rhsOp2);
-            println();
+            println(";");
+        } else if (ins is Move) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } else if (ins is ConstantLoad) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
-            println(" = ", ins.kind, " ", ins.value);
-        }
+            print(" = ", ins.kind, " ", ins.value, " <");
+            self.typeEmitter.emitType(ins.typeValue);
+            println(">;");
+        } else if (ins is NewArray) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " [");
+            self.opEmitter.emitOp(ins.sizeOp);
+            println("];");
+        } else if (ins is NewMap) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            println(" = ", ins.kind, ";");
+        } 
     }
 };
 
@@ -163,6 +195,12 @@ type TypeEmitter object {
             self.emitObjectType(typeVal, tabs);
         } else if (typeVal is BInvokableType) {
             self.emitInvokableType(typeVal, tabs);
+        } else if (typeVal is BArrayType) {
+            self.emitArrayType(typeVal, tabs);
+        } else if (typeVal is BUnionType) {
+            self.emitUnionType(typeVal, tabs);
+        } else if (typeVal is BMapType) {
+            self.emitMapType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
         }
@@ -174,13 +212,15 @@ type TypeEmitter object {
             self.emitType(f.typeValue, tabs = tabs + "\t");
             println(" ", f.name.value);
         }
+        self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
+        println("...");
         print(tabs, "}");
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
         println("object {");
         foreach var f in bObjectType.fields {
-            print(tabs, f.visibility);
+            print(tabs + "\t", f.visibility, " ");
             self.emitType(f.typeValue);
             println(" ", f.name.value);
         }
@@ -200,6 +240,29 @@ type TypeEmitter object {
         }
         print(") -> ");
         self.emitType(bInvokableType.retType);
+    }
+
+    function emitArrayType(BArrayType bArrayType, string tabs) {
+        print(tabs);
+        self.emitType(bArrayType.eType);
+        print("[]");
+    }
+
+    function emitUnionType(BUnionType bUnionType, string tabs) {
+        int i = 0;
+        foreach var t in bUnionType.members {
+            if (i != 0) {
+                print(" | ");
+            }
+            self.emitType(t, tabs = tabs);
+            i = i + 1;
+        }
+    }
+
+    function emitMapType(BMapType bMapType, string tabs) {
+        print(tabs, "map<");
+        self.emitType(bMapType.constraint);
+        print(">");
     }
 };
 

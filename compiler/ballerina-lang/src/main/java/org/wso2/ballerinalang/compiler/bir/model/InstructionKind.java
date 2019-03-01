@@ -32,19 +32,23 @@ public enum InstructionKind {
     // Non-terminating instructions
     MOVE((byte) 5),
     CONST_LOAD((byte) 6),
+    NEW_MAP((byte) 7),
+    MAP_STORE((byte) 8),
+    NEW_ARRAY((byte) 9),
+    ARRAY_STORE((byte) 10),
 
     // Binary expression related instructions.
-    ADD((byte) 7),
-    SUB((byte) 8),
-    MUL((byte) 9),
-    DIV((byte) 10),
-    MOD((byte) 11),
-    EQUAL((byte) 12),
-    NOT_EQUAL((byte) 13),
-    GREATER_THAN((byte) 14),
-    GREATER_EQUAL((byte) 15),
-    LESS_THAN((byte) 16),
-    LESS_EQUAL((byte) 17);
+    ADD((byte) 20),
+    SUB((byte) 21),
+    MUL((byte) 22),
+    DIV((byte) 23),
+    MOD((byte) 24),
+    EQUAL((byte) 25),
+    NOT_EQUAL((byte) 26),
+    GREATER_THAN((byte) 27),
+    GREATER_EQUAL((byte) 28),
+    LESS_THAN((byte) 29),
+    LESS_EQUAL((byte) 30);
 
     byte value;
 

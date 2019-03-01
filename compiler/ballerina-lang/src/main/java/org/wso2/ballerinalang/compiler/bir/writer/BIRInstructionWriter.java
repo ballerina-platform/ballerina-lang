@@ -22,11 +22,14 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayStore;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.BooleanCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -39,10 +42,12 @@ import java.util.List;
  */
 public class BIRInstructionWriter extends BIRVisitor {
     private ByteBuf buf;
+    private BIRTypeWriter typeWriter;
     private ConstantPool cp;
 
-    public BIRInstructionWriter(ByteBuf buf, ConstantPool cp) {
+    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp) {
         this.buf = buf;
+        this.typeWriter = typeWriter;
         this.cp = cp;
     }
 
@@ -129,7 +134,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         buf.writeByte(birConstantLoad.kind.getValue());
-        addCpAndWriteString(birConstantLoad.type.getDesc());
+        birConstantLoad.type.accept(typeWriter);
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
@@ -140,11 +145,43 @@ public class BIRInstructionWriter extends BIRVisitor {
             case TypeTags.BOOLEAN:
                 buf.writeInt(cp.addCPEntry(new BooleanCPEntry((Boolean) birConstantLoad.value)));
                 break;
+            case TypeTags.STRING:
+                buf.writeInt(cp.addCPEntry(new StringCPEntry((String) birConstantLoad.value)));
+                break;
             case TypeTags.NIL:
                 break;
             default:
                 throw new IllegalStateException("unsupported constant type: " + type.getDesc());
         }
+    }
+
+    public void visit(BIRNonTerminator.NewMap birNewMap) {
+        buf.writeByte(birNewMap.kind.getValue());
+        birNewMap.type.accept(typeWriter);
+        birNewMap.lhsOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.MapStore birMapStore) {
+        buf.writeByte(birMapStore.kind.getValue());
+        birMapStore.type.accept(typeWriter);
+        birMapStore.lhsOp.accept(this);
+        birMapStore.keyOp.accept(this);
+        birMapStore.rhsOp.accept(this);
+    }
+
+    public void visit(NewArray birNewArray) {
+        buf.writeByte(birNewArray.kind.getValue());
+        birNewArray.type.accept(typeWriter);
+        birNewArray.lhsOp.accept(this);
+        birNewArray.sizeOp.accept(this);
+    }
+
+    public void visit(ArrayStore birArrayStore) {
+        buf.writeByte(birArrayStore.kind.getValue());
+        birArrayStore.type.accept(typeWriter);
+        birArrayStore.lhsOp.accept(this);
+        birArrayStore.keyOp.accept(this);
+        birArrayStore.rhsOp.accept(this);
     }
 
     // Operands
