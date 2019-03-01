@@ -290,45 +290,64 @@ public class PackageInfoReader {
                     int keyCPIndex = dataInStream.readInt();
                     UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
 
-                    // Value type tag
-                    int typeTag = dataInStream.readInt();
+                    boolean isSimpleLiteral = dataInStream.readBoolean();
 
-                    // Value
-                    if (typeTag == TypeTags.NULL_TAG) {
-                        // Do nothing
-                    } else if (typeTag == TypeTags.BOOLEAN_TAG) {
-                        boolean value = dataInStream.readBoolean();
-
-                    } else {
-                        int valueCPIndex = dataInStream.readInt();
+                    if (isSimpleLiteral) {
 
 
-                        if (typeTag == TypeTags.INT_TAG) {
-                            IntegerCPEntry cpEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                        // Value type tag
+                        int typeTag = dataInStream.readInt();
+
+                        // Value
+                        if (typeTag == TypeTags.NULL_TAG) {
+                            // Do nothing
+                        } else if (typeTag == TypeTags.BOOLEAN_TAG) {
+                            boolean value = dataInStream.readBoolean();
+
+                            ConstantValue constantValue = new ConstantValue();
+                            constantValue.booleanValue = value;
+                            constantValue.literalValueTypeTag = typeTag;
+
+                            constantValue.isSimpleLiteral = true;
+
 
                             KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
 
-                            ConstantValue constantValue = new ConstantValue();
-                            constantValue.literalValueTypeTag = typeTag;
-                            constantValue.isSimpleLiteral = true;
-                            constantValue.valueCPEntry = valueCPIndex;
 
                             valueMap.put(keyInfo, constantValue);
 
+                        } else {
 
-                        } else if (typeTag == TypeTags.BYTE_TAG) {
 
-                        } else if (typeTag == TypeTags.FLOAT_TAG) {
+                            int valueCPIndex = dataInStream.readInt();
 
-                        } else if (typeTag == TypeTags.DECIMAL_TAG) {
+                            ConstantValue constantValue = new ConstantValue();
+                            constantValue.valueCPEntry = valueCPIndex;
+                            constantValue.literalValueTypeTag = typeTag;
 
-                        } else if (typeTag == TypeTags.STRING_TAG) {
+                            constantValue.isSimpleLiteral = true;
 
-                        } else if (typeTag == TypeTags.MAP_TAG) {
+
+                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+
+                            valueMap.put(keyInfo, constantValue);
 
                         }
-                    }
+                    } else {
+                        int valueCPIndex = dataInStream.readInt();
 
+                        MapCPEntry cpEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
+
+                        ConstantValue constantValue = new ConstantValue();
+                        constantValue.valueCPEntry = valueCPIndex;
+
+                        constantValue.constantValueMap = cpEntry.getValue();
+
+                        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                        valueMap.put(keyInfo, constantValue);
+                    }
                 }
 
                 return new MapCPEntry(valueMap);
@@ -667,7 +686,6 @@ public class PackageInfoReader {
             // Value cp entry
            int j = dataInStream.readInt();
 
-           int x = 0;
             // Read and ignore map constant value.
 //            readMapLiteral(packageInfo);
         }

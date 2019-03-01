@@ -70,7 +70,9 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
@@ -320,21 +322,78 @@ public class CompiledPackageSymbolEnter {
                 return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
 
             case CP_ENTRY_MAP:
+                LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+
+                // Size
                 int size = dataInStream.readInt();
 
                 for (int i = 0; i < size; i++) {
-                    int keyCPIndex = dataInStream.readInt();
 
-                    int typeTag = dataInStream.readInt();
-                    if (typeTag == 6) {
-                        boolean value = dataInStream.readBoolean();
+                    // Key
+                    int keyCPIndex = dataInStream.readInt();
+                    UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
+
+                    boolean isSimpleLiteral = dataInStream.readBoolean();
+
+                    if (isSimpleLiteral) {
+
+
+                        // Value type tag
+                        int typeTag = dataInStream.readInt();
+
+                        // Value
+                        if (typeTag == TypeTags.NIL) {
+                            // Do nothing
+                        } else if (typeTag == TypeTags.BOOLEAN) {
+                            boolean value = dataInStream.readBoolean();
+
+                            ConstantValue constantValue = new ConstantValue();
+                            constantValue.booleanValue = value;
+                            constantValue.literalValueTypeTag = typeTag;
+
+                            constantValue.isSimpleLiteral = true;
+
+
+                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+
+                            valueMap.put(keyInfo, constantValue);
+
+                        } else {
+
+
+                            int valueCPIndex = dataInStream.readInt();
+
+                            ConstantValue constantValue = new ConstantValue();
+                            constantValue.valueCPEntry = valueCPIndex;
+                            constantValue.literalValueTypeTag = typeTag;
+
+                            constantValue.isSimpleLiteral = true;
+
+
+                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+
+                            valueMap.put(keyInfo, constantValue);
+
+                        }
                     } else {
                         int valueCPIndex = dataInStream.readInt();
-                    }
 
+                        MapCPEntry cpEntry = (MapCPEntry) constantPool[valueCPIndex];
+
+                        ConstantValue constantValue = new ConstantValue();
+                        constantValue.valueCPEntry = valueCPIndex;
+
+                        constantValue.constantValueMap = cpEntry.getValue();
+
+                        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                        valueMap.put(keyInfo, constantValue);
+                    }
                 }
 
-                return new MapCPEntry(new LinkedHashMap<>());
+                return new MapCPEntry(valueMap);
 
             default:
                 throw new BLangCompilerException("invalid constant pool entry " + cpEntryType.getValue());
@@ -686,9 +745,12 @@ public class CompiledPackageSymbolEnter {
                     valueType, valueType, enclScope.owner);
 
            int valueCPEntry = dataInStream.readInt();
-           int i = 0;
 
-//            constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
+            MapCPEntry constantPoolEntry = (MapCPEntry)this.env.constantPool[valueCPEntry];
+
+            constantSymbol.literalValue = constantPoolEntry.getValue();
+
+            //            constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
 //            constantSymbol.literalValueTypeTag = valueType.tag;
         }
 

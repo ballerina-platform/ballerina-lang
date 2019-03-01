@@ -157,8 +157,14 @@ public class PackageInfoWriter {
                         // Key
                         dataOutStream.writeInt(key.cpIndex);
 
-                        // Value type tag
-                        dataOutStream.writeInt(value.literalValueTypeTag);
+                        dataOutStream.writeBoolean(value.isSimpleLiteral);
+
+                        if(value.isSimpleLiteral) {
+                            // Value type tag
+                            dataOutStream.writeInt(value.literalValueTypeTag);
+                        }else{
+//                            dataOutStream.writeInt(value.recordLiteralSigCPIndex);
+                        }
 
                         // Value
                         if (value.literalValueTypeTag == TypeTags.NIL) {
