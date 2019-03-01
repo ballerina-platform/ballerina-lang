@@ -177,8 +177,10 @@ public class Timer extends AbstractTask {
         quartzJobs.put(triggerId, job.getKey());
     }
 
-    private SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
-        SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule().withIntervalInMilliseconds(interval);
+    private static SimpleScheduleBuilder createSchedulerBuilder(long interval, long maxRuns) {
+        SimpleScheduleBuilder simpleScheduleBuilder = simpleSchedule()
+                .withIntervalInMilliseconds(interval)
+                .withMisfireHandlingInstructionNextWithExistingCount();
         if (maxRuns > 0) {
             // Quartz uses number of repeats, but we count total number of runs.
             // Hence we subtract 1 from the maxRuns to get the repeat count.

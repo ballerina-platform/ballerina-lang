@@ -22,6 +22,7 @@ package org.ballerinalang.stdlib.task.objects;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskJob;
+import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -135,7 +136,7 @@ public class Appointment extends AbstractTask {
         JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(triggerId).build();
         CronTrigger trigger = newTrigger()
                 .withIdentity(triggerId)
-                .withSchedule(cronSchedule(this.getCronExpression()))
+                .withSchedule(buildCronScheduler(this.getCronExpression()))
                 .build();
 
         if (this.getMaxRuns() > 0) {
@@ -148,5 +149,9 @@ public class Appointment extends AbstractTask {
         }
         scheduler.scheduleJob(job, trigger);
         quartzJobs.put(triggerId, job.getKey());
+    }
+
+    private static CronScheduleBuilder buildCronScheduler(String cronExpression) {
+        return cronSchedule(cronExpression).withMisfireHandlingInstructionDoNothing();
     }
 }
