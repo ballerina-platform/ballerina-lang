@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -41,6 +42,8 @@ class BIRGenEnv {
     BIRFunction enclFunc;
     // This is a cache which can be stored inside the BIRFunction
     Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
+    // This is a global variable cache
+    Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
 

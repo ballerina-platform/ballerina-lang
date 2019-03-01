@@ -186,6 +186,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Operands
     public void visit(BIROperand birOperand) {
+        buf.writeByte(birOperand.variableDcl.kind.getValue());
         // TODO use the integer index of the variable.
         addCpAndWriteString(birOperand.variableDcl.name.value);
     }

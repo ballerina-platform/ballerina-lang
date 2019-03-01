@@ -50,7 +50,9 @@ public type TypeParser object {
 
     public function parseType() returns BType {
         var typeTag = self.reader.readInt8();
-        if (typeTag == self.TYPE_TAG_NIL ){
+        if (typeTag == self.TYPE_TAG_ANY){
+            return "any";
+        } else if (typeTag == self.TYPE_TAG_NIL ){
             return "()";
         } else if (typeTag == self.TYPE_TAG_INT){
             return "int";
@@ -74,13 +76,15 @@ public type TypeParser object {
             return self.parseRecordType();
         } else if (typeTag == self.TYPE_TAG_OBJECT){
             return self.parseObjectType();
+        } else if (typeTag == self.TYPE_TAG_ERROR){
+            return self.parseErrorType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
     }
 
     function parseArrayType() returns BArrayType {
-        return { eType:self.parseType() };
+        return { state:self.parseArrayState(), eType:self.parseType() };
     }
 
     function parseMapType() returns BMapType {
@@ -133,6 +137,10 @@ public type TypeParser object {
         return {name:{value:self.reader.readStringCpRef()}, visibility:parseVisibility(self.reader), typeValue:self.parseType()};
     }
 
+    function parseErrorType() returns BErrorType {
+        return {reasonType:self.parseType(), detailType:self.parseType()};
+    }
+
     function parseTypes() returns BType[] {
         int count = self.reader.readInt32();
         int i = 0;
@@ -143,5 +151,18 @@ public type TypeParser object {
             i = i + 1;
         }
         return types;
+    }
+
+    function parseArrayState() returns ArrayState {
+        int b = self.reader.readInt8();
+        if (b == 1) {
+            return "CLOSED_SEALED";
+        } else if (b == 2) {
+            return "OPEN_SEALED";
+        } else if (b == 3) {
+            return "UNSEALED";
+        } 
+        error err = error("unknown array state tag " + b);
+        panic err;
     }
 };

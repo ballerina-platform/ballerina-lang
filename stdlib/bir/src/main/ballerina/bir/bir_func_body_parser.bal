@@ -4,10 +4,12 @@ public type FuncBodyParser object {
     BirChannelReader reader;
     TypeParser typeParser;
     map<VariableDcl> localVarMap;
-    public function __init(BirChannelReader reader,  TypeParser typeParser, map<VariableDcl> localVarMap) {
+    map<VariableDcl> globalVarMap;
+    public function __init(BirChannelReader reader,  TypeParser typeParser, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap) {
         self.reader = reader;
         self.typeParser = typeParser;
         self.localVarMap = localVarMap;
+        self.globalVarMap = globalVarMap;
     }
 
     public function parseBB() returns BasicBlock {
@@ -106,7 +108,7 @@ public type FuncBodyParser object {
             var pkgIdCp = self.reader.readInt32();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
-            Operand[] args = [];
+            VarRef[] args = [];
             int i = 0;
             while (i < argsCount) {
                 args[i] = self.parseVarRef();
@@ -128,8 +130,9 @@ public type FuncBodyParser object {
 
 
     public function parseVarRef() returns VarRef {
+        var kind = parseVarKind(self.reader);
         var varName = self.reader.readStringCpRef();
-        var decl = getDecl(self.localVarMap, varName);
+        var decl = getDecl(self.globalVarMap, self.localVarMap, kind, varName);
         return new VarRef("VAR_REF", decl.typeValue, decl);
     }
 
@@ -173,7 +176,16 @@ public type FuncBodyParser object {
 
 };
 
-function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableDcl {
+function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarKind kind, string varName) returns VariableDcl {
+    if (kind is GlobalVarKind) {
+        var posibalDcl = globalVarMap[varName];
+        if (posibalDcl is VariableDcl) {
+            return posibalDcl;
+        } else {
+            error err = error("local var missing " + varName);
+            panic err;
+        }
+    }
     var posibalDcl = localVarMap[varName];
     if (posibalDcl is VariableDcl) {
         return posibalDcl;
