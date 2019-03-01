@@ -146,3 +146,24 @@ function foo6(any|error f) returns string {
     }
     return "Default";
 }
+
+type Fin1 "Error One"|"Error Two";
+type Fin2 "Error Three"|"Error Four";
+
+function testFiniteTypedReasonVariable() returns string[] {
+    error<Fin1, map<string|boolean>> err1 = error("Error One", { message: "msgOne", fatal: true });
+    error<Fin2, map<string|boolean>> err2 = error("Error Three", { message: "msgTwo", fatal: false });
+
+    error<Fin2, map<string|boolean>>|error<Fin1, map<string|boolean>> err3 = err1;
+    error<Fin2, map<string|boolean>>|error<Fin1, map<string|boolean>> err4 = err2;
+
+    string[] results = [matching(err3), matching(err4)];
+    return results;
+}
+
+function matching(error<Fin2, map<string|boolean>>|error<Fin1, map<string|boolean>> a) returns string {
+    match a {
+        var error(reason, detail) => return io:sprintf("%s %s", reason, detail);
+        var x => return "Failed";
+    }
+}

@@ -82,10 +82,8 @@ type FooError error <string, Foo>;
 
 function testBasicErrorVariableWithRecordDetails() returns (string, string, string, boolean, Foo) {
     FooError err1 = error("Error One", { message: "Something Wrong", fatal: true });
-    FooError
-    error (res1, rec) = err1;
-    FooError
-    error (res2, { message, fatal }) = error("Error One", { message: "Something Wrong", fatal: true });
+    FooError error (res1, rec) = err1;
+    FooError error (res2, { message, fatal }) = error("Error One", { message: "Something Wrong", fatal: true });
     return (res1, res2, message, fatal, rec);
 }
 
@@ -135,7 +133,8 @@ function testErrorWithAnonErrorType() returns (string, string?) {
     return (reason, message);
 }
 
-function testErrorWithUnderscore() returns (string, string, string, string, string, string, string, string) {
+function testErrorWithUnderscore() returns (string, string, string, string, string, string, string, string,
+                                               string?, string?, string?) {
     error <string, map<string>> err = error("Error Code", { message: "Fatal" });
     error <string, map<string>> error (reason, _) = err;
     error <string, map<string>> error (reason2) = err;
@@ -143,12 +142,16 @@ function testErrorWithUnderscore() returns (string, string, string, string, stri
     SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
     SMS error (reason3, _) = err1;
     SMS error (reason4) = err1;
+    SMS error (_, detail) = err1;
 
     FooError err2 = error("Error Two", { message: "Something Wrong", fatal: true });
     FooError error (reason5, _) = err2;
     FooError error (reason6) = err2;
+    FooError error (_, detail2) = err2;
     var error (reason7, _) = err2;
     var error (reason8) = err2;
+    var error (_, detail3) = err2;
 
-    return (reason, reason2, reason3, reason4, reason5, reason6, reason7, reason8);
+    return (reason, reason2, reason3, reason4, reason5, reason6, reason7, reason8,
+    detail["message"], detail2["message"], detail3["message"]);
 }

@@ -688,20 +688,6 @@ public class BLangPackageBuilder {
         return memberVar;
     }
 
-    void addErrorVariableDefStatment(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
-        BLangErrorVariable var = (BLangErrorVariable) this.varStack.pop();
-        BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
-        var.setInitialExpression(this.exprNodeStack.pop());
-        varDefNode.pos = pos;
-        varDefNode.setVariable(var);
-        varDefNode.addWS(ws);
-        var.isDeclaredWithVar = isDeclaredWithVar;
-        if (!isDeclaredWithVar) {
-            var.setTypeNode(this.typeNodeStack.pop());
-        }
-        addStmtToCurrentBlock(varDefNode);
-    }
-
     void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String detailIdentifier,
                           boolean hasRecordVariable) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
@@ -1003,6 +989,12 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
+    void addErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
+                                      boolean isDeclaredWithVar) {
+        BLangErrorVariableDef varDefNode = createErrorVariableDef(pos, ws, isFinal, true, isDeclaredWithVar);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
     private BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
                                                          boolean isExpressionAvailable, boolean isDeclaredWithVar) {
         BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
@@ -1010,6 +1002,26 @@ public class BLangPackageBuilder {
             markVariableAsFinal(var);
         }
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
+        if (isExpressionAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        varDefNode.pos = pos;
+        varDefNode.setVariable(var);
+        varDefNode.addWS(ws);
+        var.isDeclaredWithVar = isDeclaredWithVar;
+        if (!isDeclaredWithVar) {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
+        return varDefNode;
+    }
+
+    private BLangErrorVariableDef createErrorVariableDef(DiagnosticPos pos, Set<Whitespace> ws, boolean isFinal,
+                                                         boolean isExpressionAvailable, boolean isDeclaredWithVar) {
+        BLangErrorVariable var = (BLangErrorVariable) this.varStack.pop();
+        if (isFinal) {
+            markVariableAsFinal(var);
+        }
+        BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
         if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
@@ -2279,6 +2291,12 @@ public class BLangPackageBuilder {
     void addForeachStatementWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
                                                           boolean isDeclaredWithVar) {
         BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false, false, isDeclaredWithVar);
+        addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void addForeachStatementWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                          boolean isDeclaredWithVar) {
+        BLangErrorVariableDef variableDefinitionNode = createErrorVariableDef(pos, ws, false, false, isDeclaredWithVar);
         addForeachStatement(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 

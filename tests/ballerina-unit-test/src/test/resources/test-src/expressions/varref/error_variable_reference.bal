@@ -230,3 +230,27 @@ function testErrorWithRestParam() returns map<string> {
 
     return detailMap;
 }
+
+function testErrorWithUnderscore() returns (string, map<string>) {
+    error<string, map<string>> errWithMap = error("Error", { message: "Fatal", fatal: "true" });
+
+    string reason;
+    map<string> detail;
+
+    error(reason, _) = errWithMap;
+    error(_, detail) = errWithMap;
+
+    return (reason, detail);
+}
+
+function testDetailMapConstrainedToJSON() returns (json, json) {
+    error<string, map<json>> err1 = error("ErrorReason", { message: "broken", fatal: true });
+
+    string reason2;
+    json message;
+    json fatal;
+
+    error(reason2, { message, fatal }) = err1;
+
+    return (message, fatal);
+}

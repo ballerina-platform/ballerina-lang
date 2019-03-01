@@ -67,3 +67,27 @@ function errorVarWithConstrainedMap() {
     var error (reason, { message }) = err;
     string m = message; // incompatible types: expected 'string', found 'string?'
 }
+
+function errorVarWithUnderscore() {
+    error <string, map<string>> err = error("Error Code", { message: "Fatal" });
+    var error (_, _) = err; // no new variables on left side
+    var error (_) = err; // no new variables on left side
+}
+
+
+function testDetailMapConstrainedToJSON() returns (json, json) {
+    error<string, map<json>> err1 = error("ErrorReason", { message: "broken", fatal: true });
+
+    var error(reason1, { message, fatal }) = err1;
+    error<string, map<json>> error(reason2, { message: msg, fatal: fat }) = err1;
+
+    if message is json { // unnecessary condition: expression will always evaluate to 'true'
+
+    }
+
+    if msg is json { // unnecessary condition: expression will always evaluate to 'true'
+
+    }
+
+    return (message, fatal);
+}

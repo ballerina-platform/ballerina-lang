@@ -84,3 +84,22 @@ function testErrorPattern5() returns string {
     }
     return "Default";
 }
+
+type Fin1 "Error One"|"Error Two";
+type Fin2 "Error Three"|"Error Four";
+
+function testMapWithErrors1() returns string {
+    error<Fin1, map<anydata>> err1 = error("Error One", { message: "msgOne", fatal: true });
+    error<Fin2, map<anydata>>|error<Fin1, map<anydata>> err3 = err1;
+    return matching(err3);
+}
+
+function matching(error<Fin2, map<anydata>>|error<Fin1, map<anydata>> a) returns string {
+
+    match a {
+        var error(reason, detail) => {
+            reason = "Invalid String"; // incompatible types: expected 'Error Three|Error Four|Error One|Error Two', found 'string'
+        }
+    }
+    return "Fail";
+}

@@ -197,7 +197,7 @@ public class ErrorVariableDefinitionTest {
     @Test(description = "Test error variable with ignore as the detail variable")
     public void testErrorWithUnderscore() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore");
-        Assert.assertEquals(returns.length, 8);
+        Assert.assertEquals(returns.length, 11);
         Assert.assertEquals(returns[0].stringValue(), "Error Code");
         Assert.assertEquals(returns[1].stringValue(), "Error Code");
         Assert.assertEquals(returns[2].stringValue(), "Error One");
@@ -206,11 +206,14 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[5].stringValue(), "Error Two");
         Assert.assertEquals(returns[6].stringValue(), "Error Two");
         Assert.assertEquals(returns[7].stringValue(), "Error Two");
+        Assert.assertEquals(returns[8].stringValue(), "Msg One");
+        Assert.assertEquals(returns[9].stringValue(), "Something Wrong");
+        Assert.assertEquals(returns[10].stringValue(), "Something Wrong");
     }
 
     @Test
     public void testNegativeErrorVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -234,5 +237,13 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'any'", 62, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 68, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "no new variables on left side", 73, 9);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "no new variables on left side", 74, 9);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unnecessary condition: expression will always evaluate to 'true'", 84, 8);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unnecessary condition: expression will always evaluate to 'true'", 88, 8);
     }
 }

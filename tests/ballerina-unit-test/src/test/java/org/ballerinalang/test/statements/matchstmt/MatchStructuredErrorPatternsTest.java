@@ -131,9 +131,20 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1Something Wrong");
     }
 
+    @Test(description = "Test error pattern matching with union of finite type reason")
+    public void testFiniteTypedReasonVariable() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypedReasonVariable");
+        Assert.assertEquals(returns.length, 1);
+        BValueArray results = (BValueArray) returns[0];
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.getString(++i), msg + "a record : true");
+        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
+    }
+
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
@@ -147,5 +158,7 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 64, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 78, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 83, 13);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'Error Three|Error Four|Error One|Error Two', found 'string'", 105, 22);
     }
 }

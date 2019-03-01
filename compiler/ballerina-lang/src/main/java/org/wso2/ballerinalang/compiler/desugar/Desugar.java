@@ -919,19 +919,23 @@ public class Desugar extends BLangNodeVisitor {
      */
     private void createVarDefStmts(BLangErrorVariable parentErrorVariable, BLangBlockStmt parentBlockStmt,
                                    BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexBasedAccess) {
-        parentErrorVariable.reason.expr = createErrorReasonBuiltinFunction(parentErrorVariable.reason.pos,
+        parentErrorVariable.reason.expr = generateErrorReasonBuiltinFunction(parentErrorVariable.reason.pos,
                 parentErrorVariable.reason.type, errorVarySymbol, parentIndexBasedAccess);
-        BLangSimpleVariableDef reasonVariableDef =
-                ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.reason.pos, parentBlockStmt);
-        reasonVariableDef.var = parentErrorVariable.reason;
+        if (names.fromIdNode((parentErrorVariable.reason).name) == Names.IGNORE) {
+            parentErrorVariable.reason = null;
+        } else {
+            BLangSimpleVariableDef reasonVariableDef =
+                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.reason.pos, parentBlockStmt);
+            reasonVariableDef.var = parentErrorVariable.reason;
+        }
+
         if (parentErrorVariable.detail == null) {
             return;
         }
-        parentErrorVariable.detail.expr = createErrorDetailBuiltinFunction(parentErrorVariable.detail.pos,
+        parentErrorVariable.detail.expr = generateErrorDetailBuiltinFunction(parentErrorVariable.detail.pos,
                 parentErrorVariable.detail.type, parentBlockStmt, errorVarySymbol, parentIndexBasedAccess);
         if (parentErrorVariable.detail.getKind() == NodeKind.VARIABLE) {
-            BLangIdentifier name = ((BLangSimpleVariable) parentErrorVariable.detail).name;
-            if (names.fromIdNode(name) == Names.IGNORE) {
+            if (names.fromIdNode(((BLangSimpleVariable) parentErrorVariable.detail).name) == Names.IGNORE) {
                 parentErrorVariable.detail = null;
                 return;
             }
@@ -946,10 +950,11 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangInvocation createErrorDetailBuiltinFunction(DiagnosticPos pos, BType detailType,
-                                                             BLangBlockStmt parentBlockStmt,
-                                                             BVarSymbol errorVarySymbol,
-                                                             BLangIndexBasedAccess parentIndexBasedAccess) {
+    // TODO: Move the logic on binding patterns to a seperate class
+    private BLangInvocation generateErrorDetailBuiltinFunction(DiagnosticPos pos, BType detailType,
+                                                               BLangBlockStmt parentBlockStmt,
+                                                               BVarSymbol errorVarySymbol,
+                                                               BLangIndexBasedAccess parentIndexBasedAccess) {
         BLangInvocation detailInvocation = createInvocationNode(
                 ERROR_DETAIL_FUNCTION_NAME, new ArrayList<>(), detailType);
         detailInvocation.builtinMethodInvocation = true;
@@ -973,9 +978,9 @@ public class Desugar extends BLangNodeVisitor {
         return detailInvocation;
     }
 
-    private BLangInvocation createErrorReasonBuiltinFunction(DiagnosticPos pos, BType reasonType,
-                                                             BVarSymbol errorVarSymbol,
-                                                             BLangIndexBasedAccess parentIndexBasedAccess) {
+    private BLangInvocation generateErrorReasonBuiltinFunction(DiagnosticPos pos, BType reasonType,
+                                                               BVarSymbol errorVarSymbol,
+                                                               BLangIndexBasedAccess parentIndexBasedAccess) {
         BLangInvocation reasonInvocation = createInvocationNode(ERROR_REASON_FUNCTION_NAME,
                 new ArrayList<>(), reasonType);
         reasonInvocation.builtinMethodInvocation = true;
@@ -1494,15 +1499,24 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createVarRefAssignmentStmts(BLangErrorVarRef parentErrorVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol errorVarySymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
-        BLangAssignment reasonAssignment = ASTBuilderUtil.createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
-        reasonAssignment.expr = createErrorReasonBuiltinFunction(parentErrorVarRef.reason.pos,
-                symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
-        reasonAssignment.expr = addConversionExprIfRequired(reasonAssignment.expr, parentErrorVarRef.reason.type);
-        reasonAssignment.varRef = parentErrorVarRef.reason;
+        if (parentErrorVarRef.reason.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.reason).variableName) != Names.IGNORE) {
+            BLangAssignment reasonAssignment = ASTBuilderUtil
+                    .createAssignmentStmt(parentBlockStmt.pos, parentBlockStmt);
+            reasonAssignment.expr = generateErrorReasonBuiltinFunction(parentErrorVarRef.reason.pos,
+                    symTable.stringType, errorVarySymbol, parentIndexAccessExpr);
+            reasonAssignment.expr = addConversionExprIfRequired(reasonAssignment.expr, parentErrorVarRef.reason.type);
+            reasonAssignment.varRef = parentErrorVarRef.reason;
+        }
+
         if (parentErrorVarRef.detail == null) {
             return;
         }
-        BLangInvocation errorDetailBuiltinFunction = createErrorDetailBuiltinFunction(parentErrorVarRef.detail.pos,
+        if (parentErrorVarRef.detail.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                names.fromIdNode(((BLangSimpleVarRef) parentErrorVarRef.detail).variableName) == Names.IGNORE) {
+            return;
+        }
+        BLangInvocation errorDetailBuiltinFunction = generateErrorDetailBuiltinFunction(parentErrorVarRef.detail.pos,
                 parentErrorVarRef.detail.type, parentBlockStmt, errorVarySymbol, parentIndexAccessExpr);
         if (parentErrorVarRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             ASTBuilderUtil.createRecordDestructureStmt(parentErrorVarRef.pos,
@@ -3989,7 +4003,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
             BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
-            return new BErrorType(null, errorVariable.reason.type,
+            return new BErrorType(null, symTable.stringType,
                     errorVariable.detail == null || errorVariable.detail.type == symTable.noType ?
                             symTable.mapAnydataType : getStructuredBindingPatternType(errorVariable.detail));
         }

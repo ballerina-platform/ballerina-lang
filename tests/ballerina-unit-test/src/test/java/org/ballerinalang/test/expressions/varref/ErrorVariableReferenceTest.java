@@ -193,6 +193,24 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(results.get("extra").stringValue(), "extra");
     }
 
+    @Test(description = "Test simple error var ref with underscore")
+    public void testErrorWithUnderscore() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "Error");
+        Map<String, BValue> results = ((BMap) returns[1]).getMap();
+        Assert.assertEquals(results.get("message").stringValue(), "Fatal");
+        Assert.assertEquals(results.get("fatal").stringValue(), "true");
+    }
+
+    @Test(description = "Test error variable with ignore as the detail variable")
+    public void testDetailMapConstrainedToJSON() {
+        BValue[] returns = BRunUtil.invoke(result, "testDetailMapConstrainedToJSON");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "broken");
+        Assert.assertEquals(returns[1].stringValue(), "true");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
