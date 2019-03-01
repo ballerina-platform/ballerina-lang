@@ -1962,7 +1962,8 @@ public class Types {
         }
 
         BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType = BUnionType.create(null, (LinkedHashSet<BType>) unionType.getMemberTypes());
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>(unionType.getMemberTypes());
+        BUnionType errorLiftedType = BUnionType.create(null, memTypes);
 
         // Lift nil always. Lift error only if safe navigation is used.
         errorLiftedType.remove(symTable.nilType);

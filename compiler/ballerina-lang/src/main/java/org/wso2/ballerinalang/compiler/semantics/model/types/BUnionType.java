@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public Set<BType> getMemberTypes() {
-        return memberTypes;
+        return Collections.unmodifiableSet(this.memberTypes);
     }
 
     @Override
