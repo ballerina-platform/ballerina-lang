@@ -284,7 +284,7 @@
         "openport": "0.0.6",
         "ps-node": "^0.1.6",
         "toml": "^3.0.0",
-        "vscode-debugadapter": "^1.33.0",
+        "vscode-debugadapter": "^1.34.0",
         "vscode-debugprotocol": "^1.34.0",
         "vscode-languageclient": "5.1.1",
         "ws": "^6.1.4"
@@ -308,6 +308,6 @@
         "typescript": "^3.3.3333",
         "vsce": "^1.57.0",
         "vscode": "1.1.21",
-        "vscode-debugadapter-testsupport": "^1.32.0"
+        "vscode-debugadapter-testsupport": "^1.34.0"
     }
 }
