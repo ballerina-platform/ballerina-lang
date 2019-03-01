@@ -19,18 +19,16 @@ package org.ballerinalang.database.mysql;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * Returns the MySQL Client connector.
@@ -48,9 +46,10 @@ public class CreateClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> configBStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
-        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
+        BMap<String, BValue> clientEndpointConfig = (BMap<String, BValue>) context.getRefArgument(0);
+        BMap<String, BRefType> globalPoolOptions = (BMap<String, BRefType>) context.getRefArgument(1);
+        BMap<String, BRefType> dbOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
         if (dbOptions != null) {
             urlOptions =
@@ -58,7 +57,9 @@ public class CreateClient extends BlockingNativeCallableUnit {
                             Constants.JDBCUrlSeparators.MYSQL_SEPARATOR, dbOptions);
         }
         BMap<String, BValue> sqlClient = SQLDatasourceUtils
-                .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions);
+                .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions,
+                        globalPoolOptions);
+        sqlClient.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
         context.setReturnValues(sqlClient);
     }
 }

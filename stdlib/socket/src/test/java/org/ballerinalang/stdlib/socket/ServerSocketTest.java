@@ -30,7 +30,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -52,8 +51,7 @@ public class ServerSocketTest {
 
     @BeforeClass
     public void setup() {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         testResourceRoot = Paths.get(resourceRoot, "test-src");
         normalServer = BServiceUtil.setupProgramFile(this, testResourceRoot.resolve("server_socket.bal").toString());
         boolean connectionStatus;

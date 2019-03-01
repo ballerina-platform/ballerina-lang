@@ -97,7 +97,7 @@ function checkTableCount(string tablePrefix) returns (int) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 

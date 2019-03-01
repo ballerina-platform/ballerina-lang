@@ -73,8 +73,11 @@ service publisher on publisherServiceEP {
             log:printError("Error responding on notify request", err = err);
         }
 
-        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
-        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
+        if (subscriber != "skip_subscriber_check") {
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
+        }
+
         if (mode == "internal") {
             err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
             if (err is error) {

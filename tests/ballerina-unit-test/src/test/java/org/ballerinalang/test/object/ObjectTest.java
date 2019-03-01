@@ -449,12 +449,10 @@ public class ObjectTest {
     @Test(description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 18, 12);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 22, 12);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 26, 26);
-        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 27, 19);
-        BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.", 27, 19);
+        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'other'", 27, 19);
+        BAssertUtil.validateError(result, 2, "invalid variable definition; can not infer the assignment type.", 27, 19);
     }
 
     @Test(description = "Negative test to test returning different type without type name")
@@ -534,20 +532,28 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'extern' function", 23, 5);
     }
 
-    @Test(description = "Negative test to test nillable initialization")
+    @Test(description = "Test nillable initialization")
+    @SuppressWarnings("unchecked")
     public void testNillableInitialization() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_nillable_init.bal");
-        Assert.assertEquals(result.getErrorCount(), 10);
-        BAssertUtil.validateError(result, 0, "cannot infer type of the object from 'Person?'", 1, 14);
-        BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 2, 14);
-        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 5, 18);
-        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'Person?'", 6, 18);
-        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'Person?'", 8, 10);
-        BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'Person?'", 10, 10);
-        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 19, 25);
-        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 20, 25);
-        BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 25, 19);
-        BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 26, 19);
+        BValue[] personInstances = BRunUtil.invoke(result, "getPersonInstances");
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[0]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[1]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[2]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[3]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[4]), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) personInstances[5]), 0);
+
+        BValue[] results = BRunUtil.invoke(result, "getEmployeeInstance");
+        BMap<String, BValue> employee = (BMap<String, BValue>) results[0];
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p3")), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p4")), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p5")), 0);
+        Assert.assertEquals(getAgeField((BMap<String, BValue>) employee.get("p6")), 0);
+    }
+
+    private long getAgeField(BMap<String, BValue> person) {
+        return ((BInteger) person.get("age")).intValue();
     }
 
     @Test(description = "Negative test to test object visibility modifiers")
@@ -661,5 +667,73 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 12500);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 15000);
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 12500);
+    }
+
+    @Test(description = "Test initialization of object union")
+    @SuppressWarnings("unchecked")
+    public void testUnionTypeObjectInit() {
+        CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
+
+        BValue[] a = BRunUtil.invoke(objectTypeUnion, "getObj4");
+        BMap<String, BValue> aMap = (BMap<String, BValue>) a[0];
+        Assert.assertEquals(((BInteger) aMap.get("val")).intValue(), 4);
+
+        BValue[] ab = BRunUtil.invoke(objectTypeUnion, "getObj0");
+        BMap<String, BValue> bMap = (BMap<String, BValue>) ab[0];
+        Assert.assertEquals(((BInteger) bMap.get("val")).intValue(), 0);
+
+        BValue[] tupple = BRunUtil.invoke(objectTypeUnion, "getLocals");
+        BMap<String, BValue> localObj4 = (BMap<String, BValue>) tupple[0];
+        Assert.assertEquals(((BInteger) localObj4.get("val")).intValue(), 4);
+
+        BMap<String, BValue> localObj0 = (BMap<String, BValue>) tupple[1];
+        Assert.assertEquals(((BInteger) localObj0.get("val")).intValue(), 0);
+
+        BMap<String, BValue> localObj3 = (BMap<String, BValue>) tupple[2];
+        Assert.assertEquals(((BInteger) localObj3.get("val")).intValue(), 3);
+    }
+
+    @Test(description = "Test initialization of object union with union members of mixed types")
+    @SuppressWarnings("unchecked")
+    public void testUnionTypeObjectInitMixedMember() {
+        CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
+
+        BValue[] a = BRunUtil.invoke(objectTypeUnion, "getMixedUnionMembers");
+        BMap<String, BValue> aMap = (BMap<String, BValue>) a[0];
+        Assert.assertEquals(((BInteger) aMap.get("val")).intValue(), 0);
+    }
+
+    @Test(description = "Test return new() when return type is a union")
+    @SuppressWarnings("unchecked")
+    public void testUnionTypeOReturnType() {
+        CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
+
+        BValue[] a = BRunUtil.invoke(objectTypeUnion, "returnDifferentObectInit1");
+        BMap<String, BValue> aMap = (BMap<String, BValue>) a[0];
+        Assert.assertEquals(((BInteger) aMap.get("age")).intValue(), 5);
+    }
+
+    @Test(description = "Test choosing union member differentiating on rest param type")
+    @SuppressWarnings("unchecked")
+    public void testUnionTypeSelectOnRestParamType() {
+        CompileResult objectTypeUnion = BCompileUtil.compile("test-src/object/object_type_union.bal");
+
+        BValue[] a = BRunUtil.invoke(objectTypeUnion, "selectOnRestParam");
+        BMap<String, BValue> aMap = (BMap<String, BValue>) a[0];
+        Assert.assertEquals(((BInteger) aMap.get("val")).intValue(), 5);
+
+        BValue[] b = BRunUtil.invoke(objectTypeUnion, "selectOnRestParamInReturnType");
+        BMap<String, BValue> retChoose = (BMap<String, BValue>) b[0];
+        Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
+    }
+
+    @Test(description = "Negative test for object union type inference")
+    public void testNegativeUnionTypeInit() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        BAssertUtil.validateError(resultNegative, 0, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 48, 25);
+        BAssertUtil.validateError(resultNegative, 1, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 49, 25);
+        BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from 'Obj|Obj2|Obj3|Obj4'",
+                50, 46);
     }
 }

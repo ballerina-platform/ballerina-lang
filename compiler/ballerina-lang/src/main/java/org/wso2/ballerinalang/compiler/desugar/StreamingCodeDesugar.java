@@ -586,9 +586,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         foreach.isDeclaredWithVar = true;
         foreach.varType = foreachVariable.type;
         foreach.resultType = indexAccessExpr.type;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(indexAccessExpr.type);
-        foreach.nillableResultType = new BUnionType(null, memberTypes, true);
+        foreach.nillableResultType = BUnionType.create(null, indexAccessExpr.type, symTable.nilType);
         return foreach;
     }
 
