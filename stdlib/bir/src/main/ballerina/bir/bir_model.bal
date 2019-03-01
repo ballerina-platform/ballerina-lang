@@ -312,6 +312,7 @@ public type Call record {
     VarRef[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
+    PackageId pkgID;
     Name name;
     BasicBlock thenBB;
     !...;

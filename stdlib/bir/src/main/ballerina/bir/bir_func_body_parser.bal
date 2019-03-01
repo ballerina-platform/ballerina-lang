@@ -103,7 +103,7 @@ public type FuncBodyParser object {
             return ret;
         } else if (kindTag == INS_CALL){
             TerminatorKind kind = "CALL";
-            var pkgIdCp = self.reader.readInt32();
+            var pkgId = self.reader.readPackageIdCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
             VarRef[] args = [];
@@ -118,7 +118,7 @@ public type FuncBodyParser object {
                 lhsOp = self.parseVarRef();
             }
             BasicBlock thenBB = self.parseBBRef();
-            Call call = {args:args, kind:kind, lhsOp:lhsOp, name:{ value: name }, thenBB:thenBB};
+            Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
 
         }

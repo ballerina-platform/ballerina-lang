@@ -165,7 +165,7 @@ type TerminalEmitter object {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
             }
-            print(term.name.value, "(");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.versionValue, ":", term.name.value, "(");
             int i = 0;
             foreach var o in term.args {
                 if (i != 0) {
