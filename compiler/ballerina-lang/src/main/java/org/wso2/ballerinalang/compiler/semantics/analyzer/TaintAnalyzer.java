@@ -368,8 +368,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         if (funcNode.flagSet.contains(Flag.RESOURCE) || CompilerUtils.isMainFunction(funcNode)) {
-            // This is to analyze the entry-point function and attach taint table to it. If entry-point analysis is
-            // blocked calling visitEntryPoint function will result in generating duplicate error messages.
+            // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
             entryPointPreAnalysis = false;
@@ -1794,11 +1793,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
             // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
-            if (!entryPointPreAnalysis && paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX &&
-                    (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
+            if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX
+                    && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis)
+                    && (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
-                            || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)
-                    && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis)) {
+                            || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
                     this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
             } else {
                 taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(getCurrentAnalysisState().taintErrorSet)));
