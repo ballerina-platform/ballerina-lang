@@ -21,9 +21,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.MapStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
@@ -91,6 +95,22 @@ public abstract class BIRVisitor {
     }
 
     public void visit(ConstantLoad birConstantLoad) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewMap birNewMap) {
+        throw new AssertionError();
+    }
+
+    public void visit(MapStore birMapStore) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewArray birNewArray) {
+        throw new AssertionError();
+    }
+
+    public void visit(ArrayStore birArrayStore) {
         throw new AssertionError();
     }
 

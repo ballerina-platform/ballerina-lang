@@ -71,7 +71,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             termGen.genCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
-        } else {
+        } else if (terminator is bir:Return) {
             termGen.genReturnTerm(terminator, returnVarRefIndex, func);
         }
         j += 1;

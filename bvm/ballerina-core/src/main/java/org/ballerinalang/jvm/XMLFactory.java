@@ -536,7 +536,7 @@ public class XMLFactory {
         long count = sequence.size();
         ArrayList<OMElement> childArray = new ArrayList<>();
         ArrayList<OMText> textArray = new ArrayList<>();
-        for (long i = 0; i < count; ++i) {
+        for (int i = 0; i < count; ++i) {
             XMLItem xmlItem = (XMLItem) sequence.getRefValue(i);
             OMNode omNode = xmlItem.value();
             if (OMNode.ELEMENT_NODE == omNode.getType()) {
