@@ -33,7 +33,7 @@ function write_to_properties_file() {
 function install_ballerina() {
     local ballerina_version=$1
     wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-linux-installer-x64-${ballerina_version}.deb
-    sudo dpkg -i ballerina-linux-installer-x64-${ballerina_version}.deb --quiet
+    sudo dpkg -i ballerina-linux-installer-x64-${ballerina_version}.deb
 
     ballerina version
 }
