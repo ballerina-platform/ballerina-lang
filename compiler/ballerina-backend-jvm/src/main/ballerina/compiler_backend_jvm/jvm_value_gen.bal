@@ -1,31 +1,39 @@
 public type ObjectGenerator object {
 
-    // hold the mapping between the object name and the class name
-    map<string> valueClass = {};
-
-    public function generateClasses(bir:TypeDef[] typeDefs, map<byte[]> jarEntries) {
+    public function generateValueClasses(bir:TypeDef[] typeDefs, map<byte[]> jarEntries) {
         foreach var typeDef in typeDefs {
             bir:BType bType = typeDef.typeValue;
             if (bType is bir:BObjectType) {
                 string className = typeDef.name.value;
-                byte[] bytes = self.createObjectValueClass(bType, className);
+                byte[] bytes = self.createClass(bType, className);
                 jarEntries[className + ".class"] = bytes;
             }
         }
     }
 
+    // TODO: add args to the signature
+    # Create an value instance of a given object type  
+    public function createInstance(jvm:MethodVisitor mv, string typeName) {
+        mv.visitTypeInsn(NEW, typeName);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
+    }
+
     // Private methods
 
-    function createObjectValueClass(bir:BObjectType objectType, string className) returns byte[] {
+    function createClass(bir:BObjectType objectType, string className) returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, OBJECT, [OBJECT_VALUE]);
 
         bir:BObjectField[] fields = objectType.fields;
         self.createFields(cw, fields);
+
+        // TODO:
         // self.createInit(cw);
+
         self.createCallMethod(cw);
         self.createGetMethod(cw, fields, className);
-        self.createSetMethod(cw, fields);
+        self.createSetMethod(cw, fields, className);
         cw.visitEnd();
         return cw.toByteArray();
     }
@@ -59,44 +67,17 @@ public type ObjectGenerator object {
     }
 
     function createGetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields, string className) {
-        int size = fields.length();
-        jvm:Label[] labels = [];
-        int[] hashCodes = [];
-
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                 io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), null, null);
         mv.visitCode();
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ASTORE, 2);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
 
-        // Create labels for the cases
-        int i = 0;
-        foreach var field in fields {
-            labels[i] = new jvm:Label();
-            hashCodes[i] = field.name.value.hashCode();
-            i += 1;
-        }
+        int fieldNameRegIndex = 2;
         jvm:Label defaultCaseLabel = new jvm:Label();
-        mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
+        jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
+        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
+                defaultCaseLabel);
 
-        jvm:Label[] targetLabels = [];
-        i = 0;
-        while (i < size) {
-            mv.visitLabel(labels[i]);
-            mv.visitVarInsn(ALOAD, 2);
-            mv.visitLdcInsn(fields[i].name.value);
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
-                    io:sprintf("(L%s;)Z", OBJECT), false);
-            jvm:Label targetLabel = new jvm:Label();
-            mv.visitJumpInsn(IFNE, targetLabel);
-            mv.visitJumpInsn(GOTO, defaultCaseLabel);
-            targetLabels[i] = targetLabel;
-            i += 1;
-        }
-
-        i = 0;
+        int i = 0;
         foreach var field in fields {
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
@@ -107,6 +88,62 @@ public type ObjectGenerator object {
             i += 1;
         }
 
+        self.createDefaultCase(mv, defaultCaseLabel);
+        mv.visitMaxs(fields.length() + 10, fields.length() + 10);
+        mv.visitEnd();
+    }
+
+    function createSetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
+                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT),
+                null, null);
+        mv.visitCode();
+
+        int fieldNameRegIndex = 3;
+        jvm:Label defaultCaseLabel = new jvm:Label();
+        jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
+        jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
+                defaultCaseLabel);
+
+        // case body
+        int i = 0;
+        foreach var field in fields {
+            jvm:Label targetLabel = targetLabels[i];
+            mv.visitLabel(targetLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 2);
+            addUnboxInsn(mv, field.typeValue);
+            mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            mv.visitInsn(RETURN);
+            i += 1;
+        }
+
+        self.createDefaultCase(mv, defaultCaseLabel);
+        mv.visitMaxs(fields.length() + 10, fields.length() + 10);
+        mv.visitEnd();
+    }
+
+    function createLabelsforSwitch(jvm:MethodVisitor mv, int fieldNameRegIndex, bir:BObjectField[] fields, 
+            jvm:Label defaultCaseLabel) returns jvm:Label[] {
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
+
+        // Create labels for the cases
+        int i = 0;
+        jvm:Label[] labels = [];
+        int[] hashCodes = [];
+        foreach var field in fields {
+            labels[i] = new jvm:Label();
+            hashCodes[i] = field.name.value.hashCode();
+            i += 1;
+        }
+        mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
+        return labels;
+    }
+
+    function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel) {
         mv.visitLabel(defaultCaseLabel);
         mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
         mv.visitInsn(DUP);
@@ -114,25 +151,43 @@ public type ObjectGenerator object {
         mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>",
                 io:sprintf("(L%s;)V", STRING_VALUE), false);
         mv.visitInsn(ATHROW);
-
-        mv.visitMaxs(size + 10, size + 10);
-        mv.visitEnd();
     }
 
-    function createSetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;[L%s;)V", STRING_VALUE, OBJECT),
-                null, null);
-        mv.visitCode();
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(5, 5);
-        mv.visitEnd();
+    function createLabelsForEqualCheck(jvm:MethodVisitor mv, int fieldNameRegIndex, bir:BObjectField[] fields,
+            jvm:Label[] labels, jvm:Label defaultCaseLabel) returns jvm:Label[] {
+        jvm:Label[] targetLabels = [];
+        int i = 0;
+        foreach var field in fields {
+            mv.visitLabel(labels[i]);
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+            mv.visitLdcInsn(field.name.value);
+            mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
+                    io:sprintf("(L%s;)Z", OBJECT), false);
+            jvm:Label targetLabel = new jvm:Label();
+            mv.visitJumpInsn(IFNE, targetLabel);
+            mv.visitJumpInsn(GOTO, defaultCaseLabel);
+            targetLabels[i] = targetLabel;
+            i += 1;
+        }
+
+        return targetLabels;
     }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
     if (bType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+    } else {
+        return;
+    }
+}
+
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
+    if (bType is bir:BTypeInt) {
+        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
+    } if (bType is bir:BTypeString) {
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else {
         return;
     }

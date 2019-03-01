@@ -34,8 +34,10 @@ function generateJarFile(bir:Package pkg, string progName) returns JarFile {
     // TODO: remove once the package init class is introduced
     typeOwnerClass = progName;
 
+    // Generate the classes for object values
+    ObjectGenerator objGen = new();
+    objGen.generateValueClasses(pkg.typeDefs, jarEntries);
 
-    testObjectClass(pkg, jarEntries);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, invokedClassName, null, OBJECT, null);
 
@@ -100,28 +102,6 @@ function checkVersion(bir:ChannelReader reader) {
 function openReadableFile(string filePath) returns io:ReadableByteChannel {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     return byteChannel;
-}
-
-function testObjectClass(bir:Package pkg, map<byte[]> jarEntries) {
-    bir:BObjectField f1 = { name : { value : "f1" }, 
-                            visibility : "PACKAGE_PRIVATE", 
-                            typeValue : "int"};
-
-    bir:BObjectField f2 = { name : { value : "f2" }, 
-                            visibility : "PACKAGE_PRIVATE", 
-                            typeValue : "int"};
-
-    bir:BObjectType obj_1 = { fields : [f1, f2]};
-
-    bir:TypeDef td1 = {
-                        name: { value: "obj_1" },
-                        visibility : "PACKAGE_PRIVATE",
-                        typeValue : obj_1
-                    };
-
-    // bir:TypeDef typeDef = new 
-    ObjectGenerator objGen = new();
-    objGen.generateClasses([td1], jarEntries);
 }
 
 function arrayEq(byte[] x, byte[] y) returns boolean {
