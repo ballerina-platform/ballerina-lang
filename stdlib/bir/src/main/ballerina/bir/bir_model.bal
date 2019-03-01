@@ -5,9 +5,9 @@ public type PackageId record {
 };
 
 public type Package record {
-    ImportModule[] importModules;
-    TypeDef[] typeDefs;
-    GlobalVariableDcl[] globalVars;
+    ImportModule[] importModules = [];
+    TypeDef[] typeDefs = [];
+    GlobalVariableDcl[] globalVars = [];
     Function[] functions = [];
     Name name = {};
     Name org = {};
@@ -177,7 +177,7 @@ public type BTypeSymbol record {
     SymbolKind kind = "OTHER";
     Name name = {};
 //BSymbol owner;
-    PackageID pkgID = {};
+    ModuleID pkgID = {};
     Scope scopeValue = {};
     int tag = 0;
     boolean tainted = false;
@@ -208,17 +208,19 @@ public type BSymbol record {
     SymbolKind kind = "OTHER";
     Name name = {};
 //BSymbol owner;
-    PackageID pkgID = {};
+    ModuleID pkgID = {};
 //Scope scopeValue;
     int tag = 0;
     boolean tainted = false;
     BType typeValue = "()";
 };
 
-public type PackageID record {
-    Name orgName = {};
-    Name sourceFileName = {};
-    Name versionValue = {};
+public type ModuleID record {
+    string org = "";
+    string name = "";
+    string modVersion = "";
+    boolean isUnnamed = false;
+    string sourceFilename = "";
 };
 
 public type Scope record {
