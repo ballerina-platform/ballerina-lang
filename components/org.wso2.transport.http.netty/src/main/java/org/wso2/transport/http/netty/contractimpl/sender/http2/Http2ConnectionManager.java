@@ -91,7 +91,10 @@ public class Http2ConnectionManager {
             perRouteConnectionPool = createOrGetPerRoutePool(eventLoopPool, key);
 
         } else {
-            //Need a better algorithm to pick eventloop. May be round robin?
+            if (eventLoops.isEmpty()) {
+                return null;
+            }
+            //Need a better algorithm to pick an eventloop. May be round robin?
             eventLoopPool = createOrGetEventLoopPool(eventLoops.get(0));
             perRouteConnectionPool = createOrGetPerRoutePool(eventLoopPool, key);
         }
@@ -103,13 +106,28 @@ public class Http2ConnectionManager {
         return http2ClientChannel;
     }
 
-    void returnClientChannel(EventLoop eventLoop, HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
-        String key = generateKey(httpRoute);
-        EventLoopPool.PerRouteConnectionPool
-            perRouteConnectionPool = eventLoopPools.get(eventLoop).fetchConnectionPool(key);
+    void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+        EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = fetchPerRoutePool(httpRoute,
+                                                                                        http2ClientChannel.getChannel()
+                                                                                            .eventLoop());
         if (perRouteConnectionPool != null) {
             perRouteConnectionPool.addChannel(http2ClientChannel);
         }
+    }
+
+    void removeClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+        EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = fetchPerRoutePool(httpRoute,
+                                                                                        http2ClientChannel.getChannel()
+                                                                                            .eventLoop());
+        if (perRouteConnectionPool != null) {
+            perRouteConnectionPool.removeChannel(http2ClientChannel);
+        }
+    }
+
+    private EventLoopPool.PerRouteConnectionPool fetchPerRoutePool(HttpRoute httpRoute,
+                                                                   EventLoop eventLoop) {
+        String key = generateKey(httpRoute);
+        return eventLoopPools.get(eventLoop).fetchConnectionPool(key);
     }
 
    /* // Per route connection pools

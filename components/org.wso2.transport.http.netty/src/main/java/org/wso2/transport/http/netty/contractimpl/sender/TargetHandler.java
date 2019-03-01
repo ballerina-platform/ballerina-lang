@@ -171,7 +171,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private void handoverChannelToHttp2ConnectionManager() {
         connectionManager.getHttp2ConnectionManager().
-                addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
+            addHttp2ClientChannel(targetChannel.getChannel().eventLoop(), targetChannel.getHttpRoute(),
+                                  targetChannel.getHttp2ClientChannel());
     }
 
     public void closeChannel(ChannelHandlerContext ctx) {

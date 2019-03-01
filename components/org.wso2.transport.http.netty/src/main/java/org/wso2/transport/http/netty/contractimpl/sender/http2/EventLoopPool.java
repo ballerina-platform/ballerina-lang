@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Per pool for eventloops.
+ */
 public class EventLoopPool {
 
     private Map<String, PerRouteConnectionPool> connectionPools = new HashMap<>();
