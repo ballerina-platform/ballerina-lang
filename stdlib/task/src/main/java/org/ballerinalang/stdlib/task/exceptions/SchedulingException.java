@@ -17,7 +17,7 @@
  *
  *
  */
-package org.ballerinalang.stdlib.task;
+package org.ballerinalang.stdlib.task.exceptions;
 
 /**
  * This exception is thrown when scheduling fails.

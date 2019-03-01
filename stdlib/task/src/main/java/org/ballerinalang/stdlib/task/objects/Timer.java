@@ -20,7 +20,7 @@
 package org.ballerinalang.stdlib.task.objects;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;

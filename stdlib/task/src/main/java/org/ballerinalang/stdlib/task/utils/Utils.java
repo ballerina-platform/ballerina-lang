@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 

@@ -19,7 +19,7 @@
  */
 package org.ballerinalang.stdlib.task.api;
 
-import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 
 /**
  * Task listener server connector.

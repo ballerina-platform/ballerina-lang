@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.utils.Utils;
 
