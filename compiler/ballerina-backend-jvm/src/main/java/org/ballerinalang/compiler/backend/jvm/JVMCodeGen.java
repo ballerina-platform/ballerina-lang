@@ -111,8 +111,7 @@ public class JVMCodeGen {
         args[1] = BIRModuleUtils.createModuleID(programFile, packageID.orgName.value,
                 packageID.name.value, packageID.version.value, packageID.isUnnamed,
                 packageID.sourceFileName != null ? packageID.sourceFileName.value : packageID.name.value);
-        targetPath = cleanupExecutableJarFileName(targetPath);
-        args[2] = new BString(targetPath);
+        args[2] = new BString(cleanupFileExtension(packagePath));
 
         // Generate the jar file
         try {
@@ -139,7 +138,7 @@ public class JVMCodeGen {
                     put(new Attributes.Name(k), v.stringValue()));
         }
         JarOutputStream target = new JarOutputStream(new FileOutputStream(outputPath.toString() + "/" +
-                targetFileName + JAR_EXT), manifest);
+                cleanupFileExtension(targetFileName) + JAR_EXT), manifest);
 
         if (entries.containsKey(JAR_ENTRIES)) {
             LinkedHashMap<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(JAR_ENTRIES)).getMap();
@@ -215,7 +214,7 @@ public class JVMCodeGen {
         }
     }
 
-    private static String cleanupExecutableJarFileName(String targetFileName) {
+    private static String cleanupFileExtension(String targetFileName) {
         String updatedFileName = targetFileName;
         if (updatedFileName == null || updatedFileName.isEmpty()) {
             throw new IllegalArgumentException("invalid target file name");

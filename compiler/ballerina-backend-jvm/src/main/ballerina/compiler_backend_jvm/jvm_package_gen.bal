@@ -45,13 +45,13 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     pkgEntries[moduleClass + ".class"] = classContent;
 }
 
-public function generateEntryPackage(bir:Package module, map<byte[]> pkgEntries, map<string> manifestEntries) {
+public function generateEntryPackage(bir:Package module, string sourceFileName, map<byte[]> pkgEntries,
+        map<string> manifestEntries) {
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
 
-    // TODO: need to get source file name
-    string moduleClass = getModuleClassName(untaint orgName, untaint moduleName, untaint moduleName);
+    string moduleClass = getModuleClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
@@ -70,8 +70,8 @@ public function generateEntryPackage(bir:Package module, map<byte[]> pkgEntries,
 
     bir:Function? mainFunc = getMainFunc(module.functions);
     if (mainFunc is bir:Function) {
-        generateMainMethod(mainFunc, cw, module, pkgName);
-        manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, moduleName);
+        generateMainMethod(mainFunc, cw, module);
+        manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, sourceFileName);
     }
 
     // generate methods
@@ -104,5 +104,11 @@ function getMainClassName(string orgName, string moduleName, string sourceFileNa
 }
 
 function getPackageName(string orgName, string moduleName) returns string {
-    return orgName + "/" + moduleName + "/";
+    string name = "";
+
+    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
+        name = orgName + "/" + moduleName + "/";
+    }
+
+    return name;
 }

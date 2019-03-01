@@ -28,7 +28,7 @@ function generateExecutableJar(bir:BIRContext birContext, bir:ModuleID entryModI
         generateImportedPackage(module, jarEntries);
     }
 
-    generateEntryPackage(entryMod, jarEntries, manifestEntries);
+    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries);
 
     JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
     return jarFile;

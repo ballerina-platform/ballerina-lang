@@ -138,7 +138,7 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
     return userMainFunc;
 }
 
-function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg, string pkgName) {
+function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
     // todo : generate the global var init class and other crt0 loading
@@ -161,7 +161,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     // invoke the user's main method
-
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
     mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);

@@ -54,7 +54,10 @@ type TerminatorGenerator object {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string methodName = callIns.name.value;
 
-        string jvmClass = lookupFullQualifiedClassName(methodName);
+        string orgName = callIns.pkgID.org;
+        string moduleName = callIns.pkgID.name;
+
+        string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
 
         string methodDesc = "(";
         foreach var arg in callIns.args {
