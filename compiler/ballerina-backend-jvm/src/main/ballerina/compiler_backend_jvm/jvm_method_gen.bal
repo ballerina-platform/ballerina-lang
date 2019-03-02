@@ -55,6 +55,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                 instGen.generateMoveIns(inst);
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
+            } else if (inst is bir:NewArray) {
+                instGen.generateArrayNewIns(inst);
+            } else if (inst is bir:ArrayStore) {
+                instGen.generateArrayStoreIns(inst);
             } else if (inst is bir:NewMap) {
                 instGen.generateMapNewIns(inst);
             } else if (inst is bir:MapStore) {
@@ -105,6 +109,8 @@ function getMethodArgDesc(bir:BType bType) returns string {
         return "Ljava/lang/String;";
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BArrayType) {
+        return io:sprintf("L%s;", ARRAY_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -118,6 +124,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")J";
     } else if (bType is bir:BTypeString) {
         return ")Ljava/lang/String;";
+    } else if (bType is bir:BArrayType) {
+        return io:sprintf(")L%s;", ARRAY_VALUE);
     } else if (bType is bir:BMapType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
     } else {

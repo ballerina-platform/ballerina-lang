@@ -25,6 +25,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeString) {
                 self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 self.mv.visitInsn(ARETURN);
+            } else if (bType is bir:BArrayType) {
+                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                self.mv.visitInsn(ARETURN);
             } else if (bType is bir:BMapType) {
                 self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 self.mv.visitInsn(ARETURN);
