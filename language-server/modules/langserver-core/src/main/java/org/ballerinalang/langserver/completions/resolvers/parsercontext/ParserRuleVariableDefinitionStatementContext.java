@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -21,9 +21,9 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
 
 /**
- * Completion Item Resolver for the panic statement context.
+ * Parser rule based variable definition statement context resolver.
  */
-public class ParserRulePanicStatementContext implements CompletionItemsContext {
+public class ParserRuleVariableDefinitionStatementContext implements CompletionItemsContext {
     @Override
     public CompletionItemsContext resolve(LSContext context) {
         return this;

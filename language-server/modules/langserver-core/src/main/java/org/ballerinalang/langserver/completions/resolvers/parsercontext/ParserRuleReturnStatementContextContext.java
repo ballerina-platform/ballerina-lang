@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,13 +19,17 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 /**
- * Completion Item Resolver for the panic statement context.
+ * Completion Item resolver for Return Statement context.
+ *
+ * @since 0.982.0
  */
-public class ParserRulePanicStatementContext implements CompletionItemsContext {
+public class ParserRuleReturnStatementContextContext implements CompletionItemsContext {
     @Override
     public CompletionItemsContext resolve(LSContext context) {
-        return this;
+        return CompletionItemResolver.get(BallerinaParser.VariableDefinitionStatementContext.class, context);
     }
 }

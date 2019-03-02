@@ -21,26 +21,18 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.eclipse.lsp4j.CompletionItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Block statement Context Resolver.
+ * Completion item resolver for BLangResource context.
  */
-public class BlockStatementContextResolver extends AbstractItemResolver {
+public class ResourceContext implements CompletionItemsContext {
+
     @Override
-    public List<CompletionItem> resolveItems(LSContext completionContext) {
-        AbstractItemResolver itemResolver;
-
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+    public CompletionItemsContext resolve(LSContext context) {
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         if (parserRuleContext != null) {
-            itemResolver = CompletionItemResolver.get(parserRuleContext.getClass());
-        } else {
-            itemResolver = CompletionItemResolver.get(StatementContextResolver.class);
+            return CompletionItemResolver.get(parserRuleContext.getClass(), context);
         }
-
-        return new ArrayList<>(itemResolver.resolveItems(completionContext));
+        return this;
     }
 }

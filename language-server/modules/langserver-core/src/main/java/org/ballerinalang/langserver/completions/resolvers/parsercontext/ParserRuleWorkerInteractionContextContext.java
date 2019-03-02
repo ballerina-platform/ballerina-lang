@@ -17,15 +17,29 @@
  */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 /**
- * Completion Item Resolver for the panic statement context.
+ * Worker interaction context resolver for the completion items.
+ *
+ * @since 0.983.0
  */
-public class ParserRulePanicStatementContext implements CompletionItemsContext {
+public class ParserRuleWorkerInteractionContextContext implements CompletionItemsContext {
     @Override
     public CompletionItemsContext resolve(LSContext context) {
+        ParserRuleContext contextParent = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getParent();
+        if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext) {
+            contextParent = contextParent.getParent();
+        }
+        if (contextParent != null) {
+            return CompletionItemResolver.get(contextParent.getClass(), context);
+        }
+
         return this;
     }
 }
