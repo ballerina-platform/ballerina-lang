@@ -161,7 +161,8 @@ public enum CompletionItemResolver {
     /**
      * Get the resolver by the class.
      *
-     * @param ctx                           context class to extract the relevant resolver
+     * @param context                       context class to extract the relevant resolver
+     * @param ctx                           LS Context
      * @return {@link AbstractItemContext}     Item resolver for the given context
      */
     public static CompletionItemsContext get(Class context, LSContext ctx) {
