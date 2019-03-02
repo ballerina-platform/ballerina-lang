@@ -16,6 +16,9 @@ language: java
 
 sudo: required
 
+git:
+    quiet: true
+
 env:
   - BUILD_TYPE=MAVEN
   - BUILD_TYPE=GRADLE
@@ -37,7 +40,7 @@ install:
   - npm install -g npm@'5.6.0'
 
 script:
-  - if [ "$BUILD_TYPE" = "MAVEN" ]; then mvn install -B -V; fi
+  - if [ "$BUILD_TYPE" = "MAVEN" ]; then mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn; fi
   - if [ "$BUILD_TYPE" = "GRADLE" ]; then ./gradlew build --info --stacktrace -scan; fi
 
 after_success:
