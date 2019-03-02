@@ -53,8 +53,8 @@ class OpenApiLicense extends React.Component<OpenApiLicenseProps, any> {
                         return (
                             <InlineEdit
                                 editableObject={{
-                                    urlPath: "",
-                                    urlText: "",
+                                    name: "",
+                                    url: "",
                                 }}
                                 changeModel={context!.openApiJson}
                                 changeAttribute={{key: "info.license", changeValue: ""}}
