@@ -15,14 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -37,16 +38,24 @@ import java.util.stream.Collectors;
  * 
  * @since v0.982.0
  */
-public class ParserRuleDefinitionContextResolver extends AbstractItemResolver {
+public class ParserRuleDefinitionCompletionProvider extends AbstractSubCompletionProvider {
     @Override
-    public List<CompletionItem> resolveItems(LSContext context) {
-        List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
+    public List<CompletionItem> resolveItems(LSContext ctx) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<String> consumedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
-            return new ArrayList<>();
+        List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
+        if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
+            // Provides completions after public keyword
+            completionItems.addAll(addTopLevelItems(ctx));
+            completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         }
-        return context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+
+        if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
+            return completionItems;
+        }
+        return ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                 .map(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;

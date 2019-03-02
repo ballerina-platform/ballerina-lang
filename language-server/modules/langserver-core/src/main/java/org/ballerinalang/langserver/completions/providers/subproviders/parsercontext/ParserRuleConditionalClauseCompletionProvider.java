@@ -15,13 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -41,11 +41,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Item resolver for the if clause.
+ * Item provider for the if clause.
  * @since 0.965.0
  */
-public class ParserRuleConditionalClauseContextResolver extends AbstractItemResolver {
-    
+public class ParserRuleConditionalClauseCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

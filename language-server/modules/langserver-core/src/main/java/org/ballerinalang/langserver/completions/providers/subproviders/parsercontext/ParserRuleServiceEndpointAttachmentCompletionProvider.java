@@ -14,12 +14,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 
@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Completion item resolver for the service endpoint attachment context.
+ * Completion item provider for the service endpoint attachment context.
  */
-public class ParserRuleServiceEndpointAttachmentContextResolver extends AbstractItemResolver {
+public class ParserRuleServiceEndpointAttachmentCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext context) {
         List<SymbolInfo> endpointSymbols = (context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)).stream()

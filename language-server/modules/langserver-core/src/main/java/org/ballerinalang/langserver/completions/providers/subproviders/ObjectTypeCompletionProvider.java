@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -40,7 +39,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -56,11 +54,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Completion item resolver for the object type.
+ * Completion item provider for the object type.
  */
-public class ObjectTypeContextResolver extends AbstractItemResolver {
-
-    private static final Logger logger = LoggerFactory.getLogger(ObjectTypeContextResolver.class);
+public class ObjectTypeCompletionProvider extends AbstractSubCompletionProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectTypeCompletionProvider.class);
 
     @Override
     public List<CompletionItem> resolveItems(LSContext context) {
@@ -83,13 +80,6 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(eitherList, context));
-        } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
-            // If the popped tokens contains the equal symbol, then the variable definition is being writing
-            context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
-                    new BallerinaParser.VariableDefinitionStatementContext(null, -1));
-            return CompletionItemResolver
-                    .get(BallerinaParser.VariableDefinitionStatementContext.class)
-                    .resolveItems(context);
         } else {
             fillTypes(context, completionItems);
             completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context, isSnippet));
@@ -160,7 +150,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                     }
                 }
             } catch (LSIndexException e) {
-                logger.warn("Error retrieving Completion Items from Index DB.");
+                LOGGER.warn("Error retrieving Completion Items from Index DB.");
                 this.fillSymbolsInPackageOnFallback(completionItems, ctx, realPkgName);
             }
         } else {

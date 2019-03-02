@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
@@ -49,10 +49,9 @@ import static org.ballerinalang.langserver.completions.util.MatchStatementResolv
 import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getVariableValueDestructurePattern;
 
 /**
- * Completion Item resolver for the match statement parser rule context.
+ * Completion Item provider for the match statement parser rule context.
  */
-public class ParserRuleMatchStatementContextResolver extends AbstractItemResolver {
-    
+public class ParserRuleMatchStatementCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

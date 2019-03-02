@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
@@ -35,8 +35,7 @@ import java.util.stream.Stream;
 /**
  * Completion Item Resolver for the Package name context.
  */
-public class PackageNameContextResolver extends AbstractItemResolver {
-    
+public class PackageNameCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

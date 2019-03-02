@@ -54,7 +54,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         this.setPriorities(completionItems);
     }
 
-    private void populateWhenCursorBeforeOrAfterEp(LSServiceOperationContext ctx, List<CompletionItem> completionItems,
+    private void populateWhenCursorBeforeOrAfterEp(LSContext ctx, List<CompletionItem> completionItems,
                                                    boolean snippetCapability) {
         CompletionItem workerSnippet = this.getWorkerSnippet(ctx, snippetCapability);
         this.setPriorities(completionItems);
@@ -62,7 +62,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         completionItems.add(workerSnippet);
     }
 
-    private CompletionItem getWorkerSnippet(LSServiceOperationContext ctx, boolean isSnippet) {
+    private CompletionItem getWorkerSnippet(LSContext ctx, boolean isSnippet) {
         return Snippet.DEF_WORKER.get().build(ctx, isSnippet);
     }
     

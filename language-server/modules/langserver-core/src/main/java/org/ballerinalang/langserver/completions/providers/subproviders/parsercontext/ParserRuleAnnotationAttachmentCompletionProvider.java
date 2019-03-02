@@ -16,14 +16,14 @@
 *  under the License.
 */
 
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -32,8 +32,7 @@ import java.util.List;
 /**
  * Annotation Attachment Resolver to resolve the corresponding annotation attachments.
  */
-public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver {
-    
+public class ParserRuleAnnotationAttachmentCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext ctx) {
         if (ctx.get(CompletionKeys.NEXT_NODE_KEY) == null) {

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
@@ -29,7 +29,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionException;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -63,7 +63,7 @@ import java.util.stream.IntStream;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
+public class ParserRuleVariableDefinitionCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     @SuppressWarnings("unchecked")
     public List<CompletionItem> resolveItems(LSContext context) {

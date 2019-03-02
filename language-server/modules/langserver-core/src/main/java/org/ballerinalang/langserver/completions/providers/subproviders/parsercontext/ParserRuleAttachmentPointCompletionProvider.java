@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * annotation body context resolver for the completion items.
  */
-public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolver {
+public class ParserRuleAttachmentPointCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Statement context resolver for resolving the items of the statement context.
+ * Statement context provider for resolving the items of the statement context.
  */
-public class StatementContextResolver extends AbstractItemResolver {
+public class StatementCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext context) {
         // Add the visible static completion items

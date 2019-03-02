@@ -55,7 +55,7 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         }
     }
 
-    private void populateWhenCursorBeforeOrAfterEp(LSServiceOperationContext ctx, List<CompletionItem> completionItems,
+    private void populateWhenCursorBeforeOrAfterEp(LSContext ctx, List<CompletionItem> completionItems,
                                                    boolean snippetCapability) {
         CompletionItem xmlnsSnippet = Snippet.STMT_NAMESPACE_DECLARATION.get().build(ctx, snippetCapability);
         CompletionItem resSnippet = this.getResourceSnippet(ctx, snippetCapability);
@@ -67,7 +67,7 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         completionItems.add(resSnippet);
     }
 
-    private CompletionItem getResourceSnippet(LSServiceOperationContext ctx, boolean snippetCapability) {
+    private CompletionItem getResourceSnippet(LSContext ctx, boolean snippetCapability) {
         return Snippet.DEF_RESOURCE.get().build(ctx, snippetCapability);
     }
 }

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.resolvers.parsercontext;
+package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
@@ -25,7 +25,9 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -48,7 +50,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGener
  *
  * @since v0.982.0
  */
-public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemResolver {
+public class ParserRuleFunctionDefinitionCompletionProvider extends AbstractSubCompletionProvider {
     private static List<String> getFuncArguments(BInvokableSymbol bInvokableSymbol) {
         List<String> list = new ArrayList<>();
         if (bInvokableSymbol.type instanceof BInvokableType) {
@@ -73,7 +75,13 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
         List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
+        boolean snippetSupport = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                .getCompletionItem()
+                .getSnippetSupport();
+        if (consumedTokens.size() >= 1 && consumedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
+            // Completion after the extern keyword. Only the signature of function should suggest
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context, snippetSupport));
+        } else if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
                 && CommonUtil.getLastItem(consumedTokens).equals(".")) {
             String objectName = consumedTokens.get(1);
             Optional filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)

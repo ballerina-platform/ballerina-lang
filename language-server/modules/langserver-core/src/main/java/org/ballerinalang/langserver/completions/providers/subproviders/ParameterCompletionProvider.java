@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -25,9 +25,9 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.List;
 
 /**
- * Parameter context resolver for resolving the items of the parameter context.
+ * Parameter context provider for resolving the items of the parameter context.
  */
-public class ParameterContextResolver extends AbstractItemResolver {
+public class ParameterCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext completionContext) {
         return this.getBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));

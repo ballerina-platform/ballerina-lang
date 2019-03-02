@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -45,9 +45,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Completion Item resolver for the Match Expression.
+ * Completion Item provider for the Match Expression.
  */
-public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
+public class BLangMatchExpressionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -57,10 +57,13 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
         if (!symbolEnvNode.getKind().equals(NodeKind.MATCH_EXPRESSION)) {
             return completionItems;
         }
-        
+
         BLangExpression bLangExpression = ((BLangMatchExpression) symbolEnvNode).expr;
         if (bLangExpression instanceof BLangInvocation) {
-            bType = ((BInvokableType) ((BLangInvocation) bLangExpression).symbol.type).retType;
+            BType type = ((BLangInvocation) bLangExpression).symbol.type;
+            if (type instanceof BInvokableType) {
+                bType = ((BInvokableType) type).retType;
+            }
         } else if (bLangExpression instanceof BLangSimpleVarRef) {
             bType = ((BLangSimpleVarRef) bLangExpression).type;
         }

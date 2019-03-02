@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -50,10 +50,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Interface for completion item resolvers.
+ * Interface for completion item providers.
  */
-public abstract class AbstractItemResolver {
-
+public abstract class AbstractSubCompletionProvider {
     public abstract List<CompletionItem> resolveItems(LSContext completionContext);
 
     /**
@@ -126,7 +125,7 @@ public abstract class AbstractItemResolver {
      * @param ctx                   Completion operation context
      * @return {@link Boolean}      Whether annotation context start or not
      */
-    boolean isAnnotationStart(LSContext ctx) {
+    public boolean isAnnotationStart(LSContext ctx) {
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 4);
         return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY);
     }
@@ -137,7 +136,7 @@ public abstract class AbstractItemResolver {
      * @param visibleSymbols    List of visible symbols
      * @return {@link List}     List of completion items
      */
-    List<CompletionItem> getBasicTypes(List<SymbolInfo> visibleSymbols) {
+    protected List<CompletionItem> getBasicTypes(List<SymbolInfo> visibleSymbols) {
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         List<CompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbolInfo -> {
@@ -191,6 +190,48 @@ public abstract class AbstractItemResolver {
         completionItems.add(trapExpression);
 
         return completionItems;
+    }
+
+
+    /**
+     * Add top level items to the given completionItems List.
+     *
+     * @param context LS Context
+     * @return {@link List}     List of populated completion items
+     */
+    protected List<CompletionItem> addTopLevelItems(LSContext context) {
+        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                .getSnippetSupport();
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        completionItems.add(getStaticItem(context, Snippet.KW_IMPORT, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_MAIN_FUNCTION, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSOCKET, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_RECORD, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_TYPE, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_FINAL, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_CONST, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_EXTERN, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.DEF_ERROR, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_LISTENER, snippetCapability));
+        return completionItems;
+    }
+
+    private CompletionItem getStaticItem(LSContext ctx, Snippet snippet, boolean isSnippet) {
+        return snippet.get().build(ctx, isSnippet);
+    }
+
+
+    protected boolean isAccessModifierToken(String token) {
+        return token.equals(ItemResolverConstants.PUBLIC_KEYWORD)
+                || token.equals(ItemResolverConstants.CONST_KEYWORD)
+                || token.equals(ItemResolverConstants.FINAL_KEYWORD);
     }
 
     /**

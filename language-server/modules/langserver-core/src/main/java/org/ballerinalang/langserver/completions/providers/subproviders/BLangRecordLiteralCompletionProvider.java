@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 /**
  * Completion Item Resolver for BLangRecordLiteral.
  */
-public class BLangRecordLiteralContextResolver extends AbstractItemResolver {
+public class BLangRecordLiteralCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -74,7 +74,7 @@ public class BLangRecordLiteralContextResolver extends AbstractItemResolver {
                 break;
             }
         }
-        if (filteredFields.isEmpty()) {
+        if (filteredFields.isEmpty() && recordLiteral.type instanceof BStructureType) {
             filteredFields.addAll(((BStructureType) recordLiteral.type).getFields());
         }
 

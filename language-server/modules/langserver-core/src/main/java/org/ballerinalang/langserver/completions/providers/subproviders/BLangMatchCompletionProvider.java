@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.resolvers;
+package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -42,9 +42,9 @@ import static org.ballerinalang.langserver.completions.util.MatchStatementResolv
 import static org.ballerinalang.langserver.completions.util.MatchStatementResolverUtil.getVariableValueDestructurePattern;
 
 /**
- * Completion Item resolver for the BLangMatch Scope.
+ * Completion Item provider for the BLangMatch Scope.
  */
-public class BLangMatchContextResolver extends AbstractItemResolver {
+public class BLangMatchCompletionProvider extends AbstractSubCompletionProvider {
 
     private static final String LABEL_STRUCTURED_FIXED = "Structured Fixed Value Match";
     private static final String LABEL_VARIABLE_VALUE = "Variable Value Destructure Match";
@@ -64,9 +64,10 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
         
         switch (bLangMatch.expr.type.getKind()) {
             case UNION: {
-                Set<BType> memberTypes = ((BUnionType) bLangMatch.expr.type).getMemberTypes();
-                memberTypes.forEach(bType ->
-                        completionItems.addAll(getPatternClauseForType(bType, ctx)));
+                if (bLangMatch.expr.type instanceof BUnionType) {
+                    Set<BType> memberTypes = ((BUnionType) bLangMatch.expr.type).getMemberTypes();
+                    memberTypes.forEach(bType -> completionItems.addAll(getPatternClauseForType(bType, ctx)));
+                }
                 break;
             }
             case RECORD:
