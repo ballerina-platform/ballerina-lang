@@ -27,6 +27,7 @@ export interface InlineEditContactProps {
     onEnableEditing: (e: React.MouseEvent<HTMLElement>) => void;
     onTextValueChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void;
     onExitEditing: () => void;
+    onCancelEditing: () => void;
     placeholderText?: string;
 }
 
@@ -38,7 +39,7 @@ class InlineEditContact extends React.Component<InlineEditContactProps, any> {
     public render() {
 
         const { onEnableEditing, placeholderText, isEditing,
-                editableString, onTextValueChange, onExitEditing } = this.props;
+                editableString, onTextValueChange, onExitEditing, onCancelEditing } = this.props;
 
         if (isEditing) {
             return (
@@ -50,25 +51,28 @@ class InlineEditContact extends React.Component<InlineEditContactProps, any> {
                                 size="mini"
                                 placeholder="Name"
                                 onChange={onTextValueChange}
+                                value={editableString.name}
                             />
                             <Form.Input
                                 id="url"
                                 size="mini"
                                 placeholder="URL"
                                 onChange={onTextValueChange}
+                                value={editableString.url}
                             />
                             <Form.Input
                                 id="email"
                                 size="mini"
                                 placeholder="Email"
                                 onChange={onTextValueChange}
+                                value={editableString.email}
                             />
                             <Form.Button size="mini"
                                 onClick={onExitEditing} >
                                 <i className="fw fw-check"></i>
                                 </Form.Button>
                             <Form.Button size="mini"
-                                onClick={onExitEditing} >
+                                onClick={onCancelEditing} >
                                 <i className="fw fw-close"></i>
                                 </Form.Button>
                         </Form.Group>

@@ -27,10 +27,12 @@ export interface InlineEditLicenceProps {
     onEnableEditing: (e: React.MouseEvent<HTMLElement>) => void;
     onTextValueChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void;
     onExitEditing: () => void;
+    onCancelEditing: () => void;
     placeholderText?: string;
 }
 
 class InlineEditLicense extends React.Component<InlineEditLicenceProps, any> {
+
     constructor(props: InlineEditLicenceProps) {
         super(props);
     }
@@ -38,11 +40,11 @@ class InlineEditLicense extends React.Component<InlineEditLicenceProps, any> {
     public render() {
 
         const { onEnableEditing, placeholderText, isEditing,
-                editableString, onExitEditing, onTextValueChange} = this.props;
+                editableString, onExitEditing, onTextValueChange, onCancelEditing} = this.props;
 
         if (isEditing) {
             return (
-                <div className={"inline-editor editing "}>
+                <div className={"inline-editor editing "} >
                     <Form>
                         <Form.Group>
                             <Form.Input
@@ -55,7 +57,8 @@ class InlineEditLicense extends React.Component<InlineEditLicenceProps, any> {
                             <Form.Input
                                 id="url"
                                 size="mini"
-                                placeholder={editableString.urlPath}
+                                placeholder="URL"
+                                value={editableString.urlPath}
                                 onChange={onTextValueChange}
                             />
                             <Form.Button size="mini"
@@ -63,7 +66,7 @@ class InlineEditLicense extends React.Component<InlineEditLicenceProps, any> {
                                 <i className="fw fw-check"></i>
                                 </Form.Button>
                             <Form.Button size="mini"
-                                onClick={onExitEditing} >
+                                onClick={onCancelEditing} >
                                 <i className="fw fw-close"></i>
                                 </Form.Button>
                         </Form.Group>
