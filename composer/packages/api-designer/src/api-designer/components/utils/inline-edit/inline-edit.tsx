@@ -20,6 +20,8 @@
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
 
+import ComponentFocusDetector from "../component-focus-detection";
+
 import InlineEditContact from "./inline-edit-contact";
 import InlineEditLicense from "./inline-edit-license";
 import InlineEditParagraph from "./inline-edit-paragraph";
@@ -35,10 +37,12 @@ export interface OpenApiInlineEditProps {
     changeModel: Swagger.OpenAPIObject;
     changeAttribute: AttributeObject;
     isMarkdown?: boolean;
+    isTermsOfService?: boolean;
 }
 
 export interface OpenApiInlineEditState {
     editText: string | Swagger.LicenseObject | Swagger.ContactObject | URL;
+    initialValue: string | Swagger.LicenseObject | Swagger.ContactObject | URL;
     isEditing: boolean;
     valueChanged: boolean;
 }
@@ -64,7 +68,10 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
         super(props);
 
         this.state = {
-            editText: this.props.editableObject,
+            editText: typeof this.props.editableObject !== "string" ?
+                { ...this.props.editableObject } : this.props.editableObject,
+            initialValue: typeof this.props.editableObject !== "string" ?
+                { ...this.props.editableObject } : this.props.editableObject,
             isEditing: false,
             valueChanged: false
         };
@@ -73,6 +80,7 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
         this.onExitEditing = this.onExitEditing.bind(this);
         this.onKeyDownEvent = this.onKeyDownEvent.bind(this);
         this.onTextValueChange = this.onTextValueChange.bind(this);
+        this.onCancelEditing = this.onCancelEditing.bind(this);
     }
 
     /**
@@ -81,7 +89,26 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
     public render() {
 
         const { isEditing, editText } = this.state;
-        const { paragraph, placeholderText } = this.props;
+        const { paragraph, placeholderText, isMarkdown, isTermsOfService } = this.props;
+
+        if (typeof editText === "string" && paragraph && isMarkdown) {
+            return (
+                <InlineEditParagraph isMarkdown editableString={editText} isEditing={isEditing}
+                    onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
+                    onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
+                />
+            );
+        }
+
+        if (typeof editText === "string" && isTermsOfService) {
+            return (
+                <InlineEditString isTermsOfService editableString={editText} isEditing={isEditing}
+                    onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
+                    onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
+                    onKeyDownEvent={this.onKeyDownEvent}
+                />
+            );
+        }
 
         if (typeof editText === "string") {
             return (
@@ -93,37 +120,36 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
             );
         }
 
-        if (typeof editText === "string" && paragraph) {
-            return (
-                <InlineEditParagraph editableString={editText} isEditing={isEditing}
-                    onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
-                    onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
-                />
-            );
-        }
-
         if (this.isContactObj(editText)) {
             return (
-                <InlineEditContact editableString={editText} isEditing={isEditing}
-                onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
-                onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
-             />
+                <ComponentFocusDetector onClickedOut={this.onCancelEditing}>
+                    <InlineEditContact editableString={editText} isEditing={isEditing}
+                        onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
+                        onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
+                        onCancelEditing={this.onCancelEditing} />
+                </ComponentFocusDetector>
             );
         }
 
         if (this.isLicenseObj(editText)) {
             return (
-                <InlineEditLicense editableString={editText} isEditing={isEditing}
-                onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
-                onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing} />
+                <ComponentFocusDetector onClickedOut={this.onCancelEditing}>
+                    <InlineEditLicense editableString={editText} isEditing={isEditing}
+                        onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
+                        onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
+                        onCancelEditing={this.onCancelEditing} />
+                </ComponentFocusDetector>
             );
         }
 
         if (this.isURLObj(editText)) {
             return (
-                <InlineEditURL editableString={editText} isEditing={isEditing}
-                    onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
-                    onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing} />
+                <ComponentFocusDetector onClickedOut={this.onCancelEditing}>
+                    <InlineEditURL editableString={editText} isEditing={isEditing}
+                        onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
+                        onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
+                        onCancelEditing={this.onCancelEditing} />
+                </ComponentFocusDetector>
             );
         }
 
@@ -139,14 +165,23 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
         });
     }
 
-    private onExitEditing() {
+    private onCancelEditing() {
+        const initialValue = typeof this.state.initialValue !== "string" ?
+            { ...this.state.initialValue } : this.state.initialValue;
+        this.setState({
+            editText: initialValue,
+            isEditing: false
+        });
+    }
+
+    private onExitEditing(isCancel?: boolean) {
         this.setState({
             isEditing: false
         }, () => {
             const { changeModel, changeAttribute } = this.props;
-            const { editText } = this.state;
+            const { editText, initialValue } = this.state;
 
-            if (editText) {
+            if (editText !== initialValue) {
                 this.persistUpdatedValue(changeModel, changeAttribute);
                 this.setState({
                     valueChanged: false
@@ -234,8 +269,8 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
                 model.info.description = description;
                 break;
             case "info.termsOfService":
-                const termsObj = editText as URL;
-                model.info.termsOfService = termsObj.urlPath;
+                const termsOfService = editText as string;
+                model.info.termsOfService = termsOfService;
                 break;
             case "info.license":
                 const licenseObj = editText as Swagger.LicenseObject;
