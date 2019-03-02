@@ -1740,7 +1740,7 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tests/ballerina-examples-test</module>
                 <module>tool-plugins/intellij</module>
-                <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/vscode</module>-->
 
                 <module>benchmarks</module>
             </modules>
@@ -1912,7 +1912,7 @@
                 <module>tests/ballerina-examples-test</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
-                <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/vscode</module>-->
                 <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
@@ -2100,12 +2100,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-plugin</artifactId>
                     <version>${maven.scm.plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-scm-publish-plugin</artifactId>
-                    <version>${maven.scm.publish.plugin.version}</version>
-                    <!-- last version compatible with Maven 2: latest is configured in profile -->
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -2313,7 +2307,7 @@
         <rs-api.version>2.0</rs-api.version>
         <msf4j.version>2.6.4</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
-        <javax-transaction-version>1.2</javax-transaction-version>
+        <javax-transaction-version>1.3</javax-transaction-version>
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.9.8</jackson-core.version>
@@ -2334,7 +2328,7 @@
         <maven.checkstyle.version>7.8.2</maven.checkstyle.version>
         <maven.clean.plugin.version>3.0.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
-        <maven.dependency.plugin.version>2.10</maven.dependency.plugin.version>
+        <maven.dependency.plugin.version>3.1.1</maven.dependency.plugin.version>
         <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
         <maven.docck.plugin.version>1.1</maven.docck.plugin.version>
         <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
@@ -2350,7 +2344,6 @@
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
         <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
         <maven.scm.plugin.version>1.9.4</maven.scm.plugin.version>
-        <maven.scm.publish.plugin.version>1.1</maven.scm.publish.plugin.version>
         <maven.site.plugin.version>3.5</maven.site.plugin.version>
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
