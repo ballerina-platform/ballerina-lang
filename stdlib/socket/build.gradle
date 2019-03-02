@@ -8,6 +8,7 @@ dependencies {
     implementation project(':ballerina-builtin')
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-launcher')
+    testCompile 'org.awaitility:awaitility:3.0.0'
 }
 
 description = 'Ballerina - Socket'
