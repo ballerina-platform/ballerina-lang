@@ -83,7 +83,7 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # YOUR TEST EXECUTION LOGIC GOES HERE
 # A sample execution for maven-based testng/junit tests is shown below.
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
-declare -A deloyment_props
+declare -A deployment_props
 read_property_file "$INPUT_DIR/deployment.properties" deployment_props
 
 EXTERNAL_IP=${deployment_props["ExternalIP"]}
