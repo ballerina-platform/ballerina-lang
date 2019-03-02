@@ -1740,7 +1740,7 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tests/ballerina-examples-test</module>
                 <module>tool-plugins/intellij</module>
-                <!--<module>tool-plugins/vscode</module>-->
+                <module>tool-plugins/vscode</module>
 
                 <module>benchmarks</module>
             </modules>
@@ -1912,7 +1912,7 @@
                 <module>tests/ballerina-examples-test</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
-                <!--<module>tool-plugins/vscode</module>-->
+                <module>tool-plugins/vscode</module>
                 <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
