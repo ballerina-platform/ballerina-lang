@@ -38,6 +38,7 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
 
     public render() {
         const { info } = this.props;
+
         return(
             <OpenApiContextConsumer>
                 {(context: OpenApiContext | null) => {
@@ -50,7 +51,8 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
                                         changeAttribute={{key: "info.version", changeValue: ""}}
                                         editableObject={info.version}
                                         changeModel={context!.openApiJson}
-                                        placeholderText=" + Description"
+                                        paragraph
+                                        placeholderText=" + Version"
                                         onValueChange={context!.onInlineValueChange}
                                     />
                                 </Header.Subheader>
@@ -65,10 +67,8 @@ class OpenApiInfo extends React.Component<OpenApiInfoProps, any> {
                                 onValueChange={context!.onInlineValueChange}
                             />
                             <InlineEdit
-                                editableObject={{
-                                    urlPath: info.termsOfService ? info.termsOfService : "",
-                                    urlText: "Terms of Service"
-                                }}
+                                editableObject={info.termsOfService ? info.termsOfService : ""}
+                                isTermsOfService
                                 changeAttribute={{key: "info.termsOfService", changeValue: ""}}
                                 changeModel={context!.openApiJson}
                                 placeholderText="+ Terms of service link"
