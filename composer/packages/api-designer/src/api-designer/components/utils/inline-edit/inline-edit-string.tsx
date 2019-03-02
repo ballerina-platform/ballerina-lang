@@ -28,6 +28,7 @@ export interface InlineEditStringProps {
     onExitEditing: () => void;
     onKeyDownEvent: (e: React.KeyboardEvent) => void;
     placeholderText?: string;
+    isTermsOfService?: boolean;
 }
 
 class InlineEditString extends React.Component<InlineEditStringProps, any> {
@@ -39,7 +40,7 @@ class InlineEditString extends React.Component<InlineEditStringProps, any> {
     public render() {
 
         const { onEnableEditing, placeholderText, isEditing,
-                editableString, onTextValueChange, onExitEditing, onKeyDownEvent } = this.props;
+                editableString, onTextValueChange, onExitEditing, onKeyDownEvent, isTermsOfService } = this.props;
 
         if (isEditing) {
             return (
@@ -67,6 +68,20 @@ class InlineEditString extends React.Component<InlineEditStringProps, any> {
                         {placeholderText}
                         <i className="fw fw-edit edit-icon"></i>
                     </span>
+                </div>
+            );
+        }
+
+        if (isTermsOfService) {
+            return (
+                <div className="inline-editor url">
+                    <span className="inline-editor-span" onClick={onEnableEditing}>
+                        + Terms of Service
+                        <i className="fw fw-edit edit-icon"></i>
+                    </span>
+                    <a className="activate-edit inline-editor-span" href={editableString} target="_blank">
+                        <i className="fw fw-link"></i>
+                    </a>
                 </div>
             );
         }
