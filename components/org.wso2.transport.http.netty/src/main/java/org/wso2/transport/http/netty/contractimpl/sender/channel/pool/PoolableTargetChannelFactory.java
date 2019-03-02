@@ -40,8 +40,8 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PoolableTargetChannelFactory.class);
 
-    private final EventLoopGroup eventLoopGroup;
-    private final Class eventLoopClass;
+    private EventLoopGroup eventLoopGroup;
+    private Class eventLoopClass;
     private final HttpRoute httpRoute;
     private final SenderConfiguration senderConfiguration;
     private final BootstrapConfiguration bootstrapConfiguration;
@@ -160,5 +160,13 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     @Override
     public void passivateObject(Object o) throws Exception {
 
+    }
+
+    public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
+        this.eventLoopGroup = eventLoopGroup;
+    }
+
+    public void setEventLoopClass(Class eventLoopClass) {
+        this.eventLoopClass = eventLoopClass;
     }
 }

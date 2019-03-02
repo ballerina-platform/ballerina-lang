@@ -44,11 +44,13 @@ public class ConnectionManager {
     private final String connectionManagerId;
     private final PoolConfiguration poolConfiguration;
     private final Map<String, GenericObjectPool> globalConnPool;
+    private final Map<String, PoolableTargetChannelFactory> globalFactoryObjects;
     private final Http2ConnectionManager http2ConnectionManager;
 
     public ConnectionManager(PoolConfiguration poolConfiguration) {
         this.poolConfiguration = poolConfiguration;
         globalConnPool = new ConcurrentHashMap<>();
+        globalFactoryObjects = new ConcurrentHashMap<>();
         http2ConnectionManager = new Http2ConnectionManager(poolConfiguration);
         connectionManagerId = "-" + UUID.randomUUID().toString();
     }
@@ -126,7 +128,9 @@ public class ConnectionManager {
                                                  clientEventGroup, eventLoopClass);
                 }
                 trgHlrConnPool = globalConnPool.get(httpRoute.toString());
-                trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
+                PoolableTargetChannelFactory channelFactory = globalFactoryObjects.get(httpRoute.toString());
+                trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool, channelFactory, clientEventGroup,
+                                                               eventLoopClass);
             }
             srcHlrConnPool.put(trgHlrConnPoolId, trgHlrConnPool);
         }
@@ -141,6 +145,7 @@ public class ConnectionManager {
                                                  httpRoute, senderConfig, bootstrapConfig, this);
         GenericObjectPool trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
         globalConnPool.put(httpRoute.toString(), trgHlrConnPool);
+        globalFactoryObjects.put(httpRoute.toString(), poolableTargetChannelFactory);
     }
 
     private TargetChannel getTargetChannel(SourceHandler sourceHandler, Http2SourceHandler http2SourceHandler,
@@ -224,9 +229,14 @@ public class ConnectionManager {
         return http2ConnectionManager;
     }
 
-    private GenericObjectPool createPoolForRoutePerSrcHndlr(GenericObjectPool genericObjectPool) {
-        return new GenericObjectPool(new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool),
-                                     instantiateAndConfigureConfig());
+    private GenericObjectPool createPoolForRoutePerSrcHndlr(GenericObjectPool genericObjectPool,
+                                                            PoolableTargetChannelFactory channelFactory,
+                                                            EventLoopGroup clientEventGroup,
+                                                            Class eventLoopClass) {
+        return new GenericObjectPool(
+            new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool, channelFactory, clientEventGroup,
+                                                        eventLoopClass),
+            instantiateAndConfigureConfig());
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
