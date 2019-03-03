@@ -33,6 +33,7 @@ public class BConstantSymbol extends BSymbol implements ConstantSymbol {
     public int literalValueTypeTag;
     public BType literalValueType;
 
+    // Keep the index in the symbol so it can be easily accessed in constant references.
     public int valueCPIndex;
 
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType finiteType, BType valueType, BSymbol owner) {

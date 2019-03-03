@@ -145,10 +145,8 @@ public class PackageInfoWriter {
                 case CP_ENTRY_MAP:
                     MapCPEntry mapCPEntry = (MapCPEntry) cpEntry;
 
-
                     // Size
                     dataOutStream.writeInt(mapCPEntry.getValue().size());
-
 
                     for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.getValue().entrySet()) {
                         KeyInfo key = entry.getKey();
@@ -157,6 +155,7 @@ public class PackageInfoWriter {
                         // Key
                         dataOutStream.writeInt(key.cpIndex);
 
+                        // Todo - use enum
                         dataOutStream.writeBoolean(value.isSimpleLiteral);
                         dataOutStream.writeBoolean(value.isConstRef);
 
@@ -170,22 +169,17 @@ public class PackageInfoWriter {
                             } else if (value.literalValueTypeTag == TypeTags.BOOLEAN) {
                                 dataOutStream.writeBoolean(value.booleanValue);
                             } else {
-                                dataOutStream.writeInt(value.valueCPEntry);
+                                dataOutStream.writeInt(value.valueCPEntryIndex);
                             }
 
                         } else if (value.isConstRef) {
-                            int aa = 0;
+                            // Todo - remove recordLiteralSigCPIndex
                             dataOutStream.writeInt(value.recordLiteralSigCPIndex);
-                            dataOutStream.writeInt(value.valueCPEntry);
+                            dataOutStream.writeInt(value.valueCPEntryIndex);
                         } else {
-                            //                            dataOutStream.writeInt(value.recordLiteralSigCPIndex);
                             throw new RuntimeException("unexpected type");
                         }
-
-
                     }
-
-
                     break;
             }
         }
@@ -289,7 +283,7 @@ public class PackageInfoWriter {
                 dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
 
                 // Value cp entry
-                dataOutStream.writeInt(constantInfo.constantValue.valueCPEntry);
+                dataOutStream.writeInt(constantInfo.constantValue.valueCPEntryIndex);
 
                 // Write the map literal info.
 //                writeMapLiteral(dataOutStream, constantInfo.constantValue.constantValueMap);
@@ -314,7 +308,7 @@ public class PackageInfoWriter {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
-                dataOutStream.writeInt(constantValue.valueCPEntry);
+                dataOutStream.writeInt(constantValue.valueCPEntryIndex);
                 break;
             case TypeTags.NIL:
                 break;

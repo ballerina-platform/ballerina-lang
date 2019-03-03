@@ -787,10 +787,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
 
-        // If the map literal is a constant, we need to freeze it so that it cant be updated in the runtime.
-        if (mapLiteral.isConst) {
-            emit(InstructionCodes.FREEZE, mapVarRegIndex, mapVarRegIndex);
-        }
+//        // If the map literal is a constant, we need to freeze it so that it cant be updated in the runtime.
+//        if (mapLiteral.isConst) {
+//            emit(InstructionCodes.FREEZE, mapVarRegIndex, mapVarRegIndex);
+//        }
     }
 
     @Override
@@ -2181,8 +2181,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
 
-//        constantSymbol.varIndex = getPVIndex(constantSymbol.type.tag);
-
         // Add the constant name to the CP and get index.
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
 
@@ -2190,6 +2188,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
         // Set the flags.
         constantInfo.flags = constantSymbol.flags;
+
         // Add the constant info to the package info.
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
@@ -2208,16 +2207,19 @@ public class CodeGenerator extends BLangNodeVisitor {
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
             constantValue.literalValueTypeTag = value.type.tag;
 
+            // Todo - use a flag
             constantInfo.isSimpleLiteral = true;
             constantInfo.constantValue = constantValue;
         } else {
-            // Set the value type (record type). This is needed when we recreate the record literal.
+            // Set the value type (record type). This is needed when recreating the record literal.
             constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
+
             // Get key-value info.
             ConstantValue constantValue = new ConstantValue();
+
             constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
 
-            constantInfo.constantValue = constantValue;
+
 
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
@@ -2225,12 +2227,14 @@ public class CodeGenerator extends BLangNodeVisitor {
                 keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
             }
 
-            constantValue.valueCPEntry = constantSymbol.valueCPIndex =
+            constantValue.valueCPEntryIndex = constantSymbol.valueCPIndex =
                     currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
 
 
+            constantInfo.constantValue = constantValue;
+
 //            constantValue.constantValueMap =
-//                    ((MapCPEntry) currentPkgInfo.getCPEntry(constantValue.valueCPEntry)).getValue();
+//                    ((MapCPEntry) currentPkgInfo.getCPEntry(constantValue.valueCPEntryIndex)).getValue();
         }
 
         // Add documentation attributes.
@@ -2247,19 +2251,19 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValue.booleanValue = (Boolean) literalValue.value;
                 break;
             case TypeTags.INT:
-                constantValue.valueCPEntry =
+                constantValue.valueCPEntryIndex =
                         currentPkgInfo.addCPEntry(new IntegerCPEntry((Long) literalValue.value));
                 break;
             case TypeTags.BYTE:
-                constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new ByteCPEntry((Byte) literalValue.value));
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry((Byte) literalValue.value));
                 break;
             case TypeTags.FLOAT:
-                constantValue.valueCPEntry =
+                constantValue.valueCPEntryIndex =
                         currentPkgInfo.addCPEntry(new FloatCPEntry((Double) literalValue.value));
                 break;
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
-                constantValue.valueCPEntry =
+                constantValue.valueCPEntryIndex =
                         currentPkgInfo.addCPEntry(new UTF8CPEntry((String) literalValue.value));
                 break;
             case TypeTags.NIL:
@@ -2276,7 +2280,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Iterate through key-value pairs.
         for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
-            // Get the key.
+
+            // Todo - verify whether key is a literal
+            // Get the key. Key will always be a literal.
             String key = ((BLangLiteral) keyValue.key.expr).value.toString();
 
             BLangExpression valueExpr = keyValue.valueExpr;
@@ -2310,13 +2316,17 @@ public class CodeGenerator extends BLangNodeVisitor {
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
 
-                constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
-            } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
-                // Create a new constant value.
-                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
 
-                BSymbol symbol = ((BLangSimpleVarRef.BLangConstRef) valueExpr).symbol;
+            } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
+
+                // Create a new constant value.
+
+                BSymbol symbol = ((BLangConstRef) valueExpr).symbol;
                 Object literalValue = ((BConstantSymbol) symbol).literalValue;
+
+                ConstantValue constantValue = new ConstantValue();
                 constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) literalValue);
                 constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
                 constantValue.isConstRef = true;
@@ -2330,7 +2340,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
 
-                constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
 
             } else {
                 throw new RuntimeException("unexpected node kind");

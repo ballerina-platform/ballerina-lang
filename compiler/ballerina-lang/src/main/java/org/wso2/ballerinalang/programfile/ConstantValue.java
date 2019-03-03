@@ -32,12 +32,13 @@ public class ConstantValue {
 
     public int recordLiteralSigCPIndex = -1;
 
+    // Todo - use enum to identify the type
     public boolean isSimpleLiteral;
     public boolean isConstRef;
 
     public int literalValueTypeTag = -1;
 
-    public int valueCPEntry = -1;
+    public int valueCPEntryIndex = -1;
 
     public boolean booleanValue;
 
@@ -56,7 +57,7 @@ public class ConstantValue {
                 recordLiteralSigCPIndex == constantValue.recordLiteralSigCPIndex &&
                 isSimpleLiteral == constantValue.isSimpleLiteral &&
                 literalValueTypeTag == constantValue.literalValueTypeTag &&
-                valueCPEntry == constantValue.valueCPEntry &&
+                valueCPEntryIndex == constantValue.valueCPEntryIndex &&
                 booleanValue == constantValue.booleanValue;
 
         if (!equals) {
@@ -64,6 +65,8 @@ public class ConstantValue {
         }
 
         // Todo - Iterate and check map
+
+        // Todo - Iterate map or check valueCPEntryIndex instead?
 
         return true;
     }

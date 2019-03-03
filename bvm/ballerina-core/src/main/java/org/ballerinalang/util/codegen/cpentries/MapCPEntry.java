@@ -33,6 +33,8 @@ import java.util.Map;
 public class MapCPEntry implements ConstantPoolEntry {
 
     private Map<KeyInfo, ConstantValue> value;
+
+    // Todo - remove type
     private BType type;
 
     // Todo - freeze value

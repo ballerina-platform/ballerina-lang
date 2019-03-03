@@ -330,7 +330,7 @@ public class PackageInfoReader {
                             int valueCPIndex = dataInStream.readInt();
 
                             ConstantValue constantValue = new ConstantValue();
-                            constantValue.valueCPEntry = valueCPIndex;
+                            constantValue.valueCPEntryIndex = valueCPIndex;
                             constantValue.literalValueTypeTag = typeTag;
 
                             constantValue.isSimpleLiteral = true;
@@ -355,7 +355,7 @@ public class PackageInfoReader {
                         MapCPEntry cpEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
 
                         ConstantValue constantValue = new ConstantValue();
-                        constantValue.valueCPEntry = valueCPIndex;
+                        constantValue.valueCPEntryIndex = valueCPIndex;
 
                         constantValue.constantValueMap = cpEntry.getValue();
 
@@ -369,7 +369,7 @@ public class PackageInfoReader {
                         MapCPEntry cpEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
 
                         ConstantValue constantValue = new ConstantValue();
-                        constantValue.valueCPEntry = valueCPIndex;
+                        constantValue.valueCPEntryIndex = valueCPIndex;
 
                         constantValue.constantValueMap = cpEntry.getValue();
 

@@ -58,9 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
@@ -101,7 +99,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -365,7 +362,7 @@ public class CompiledPackageSymbolEnter {
                             int valueCPIndex = dataInStream.readInt();
 
                             ConstantValue constantValue = new ConstantValue();
-                            constantValue.valueCPEntry = valueCPIndex;
+                            constantValue.valueCPEntryIndex = valueCPIndex;
                             constantValue.literalValueTypeTag = typeTag;
 
                             constantValue.isSimpleLiteral = true;
@@ -383,7 +380,7 @@ public class CompiledPackageSymbolEnter {
                         MapCPEntry cpEntry = (MapCPEntry) constantPool[valueCPIndex];
 
                         ConstantValue constantValue = new ConstantValue();
-                        constantValue.valueCPEntry = valueCPIndex;
+                        constantValue.valueCPEntryIndex = valueCPIndex;
 
                         constantValue.constantValueMap = cpEntry.getValue();
 
