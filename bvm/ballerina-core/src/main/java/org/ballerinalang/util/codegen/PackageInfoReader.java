@@ -1307,7 +1307,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BCONST_0:
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
-//                case InstructionCodes.RCONST:
                 case InstructionCodes.GOTO:
                 case InstructionCodes.PANIC:
                 case InstructionCodes.NEWXMLSEQ:
@@ -1624,6 +1623,7 @@ public class PackageInfoReader {
                 case InstructionCodes.SGSTORE:
                 case InstructionCodes.BGSTORE:
                 case InstructionCodes.RGSTORE:
+                case InstructionCodes.MCONST:
                     int pkgRefCPIndex = codeStream.readInt();
                     i = codeStream.readInt();
                     j = codeStream.readInt();

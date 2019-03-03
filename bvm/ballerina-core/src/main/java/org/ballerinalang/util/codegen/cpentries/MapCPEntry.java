@@ -38,11 +38,13 @@ public class MapCPEntry implements ConstantPoolEntry {
     private BType type;
 
     // Todo - freeze value
-    private BMap<String, BRefType> bMap = new BMap<>();
+    public BMap<String, BRefType> bMap = new BMap<>();
 
     public MapCPEntry(Map<KeyInfo, ConstantValue> value, BType type) {
         this.value = value;
         this.type = type;
+
+        bMap.put("test", null);
     }
 
     public Map<KeyInfo, ConstantValue> getValue() {

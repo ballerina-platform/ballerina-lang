@@ -991,7 +991,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Todo - Add new instruction code
 
-//        emit(InstructionCodes.RCONST);
+        emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex),
+                getOperand(((BConstantSymbol) constRef.symbol).valueCPIndex), constRef.regIndex);
 
         //        Operand gvIndex = ((BVarSymbol) packageVarRef.varSymbol).varIndex;
         //
