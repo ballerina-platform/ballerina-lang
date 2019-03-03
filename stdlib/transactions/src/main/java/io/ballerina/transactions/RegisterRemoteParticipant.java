@@ -21,6 +21,7 @@ package io.ballerina.transactions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;

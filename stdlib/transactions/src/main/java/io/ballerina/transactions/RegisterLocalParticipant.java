@@ -21,6 +21,7 @@ package io.ballerina.transactions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;
@@ -60,8 +61,8 @@ public class RegisterLocalParticipant extends BlockingNativeCallableUnit {
         }
         String transactionBlockId = ctx.getStringArgument(0);
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        BFunctionPointer fpCommitted = (BFunctionPointer) ctx.getRefArgument(0);
-        BFunctionPointer fpAborted = (BFunctionPointer) ctx.getRefArgument(1);
+        BFunctionPointer fpCommitted = (BFunctionPointer) ctx.getNullableRefArgument(0);
+        BFunctionPointer fpAborted = (BFunctionPointer) ctx.getNullableRefArgument(1);
         // Register committed and aborted function handler if exists.
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                                                          transactionBlockId, fpCommitted, fpAborted, ctx.getStrand());
