@@ -39,6 +39,11 @@ public class TCPSocketCallback implements CallableUnitCallback {
         this.socketService = socketService;
     }
 
+    public TCPSocketCallback(SocketService socketService, boolean executeFailureOnce) {
+        this.socketService = socketService;
+        this.executeFailureOnce = executeFailureOnce;
+    }
+
     @Override
     public void notifySuccess() {
         log.debug("Socket resource dispatch succeed.");
@@ -52,8 +57,7 @@ public class TCPSocketCallback implements CallableUnitCallback {
         }
         if (!executeFailureOnce) {
             // This is the first failure. Hence dispatching to onError.
-            executeFailureOnce = true;
-            SelectorDispatcher.invokeOnError(socketService, this, error);
+            SelectorDispatcher.invokeOnError(socketService, new TCPSocketCallback(socketService, true), error);
         } else {
             log.error("NotifyFailure hit twice, hence preventing error dispatching. Cause: " + errorMsg);
         }

@@ -78,7 +78,7 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
             name = x.name;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (id, age, salary, name);
 }
 
@@ -103,7 +103,7 @@ function testForEachInTableWithIndex() returns (string, string) {
             i += 1;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (idStr, indexStr);
 }
 
@@ -131,7 +131,7 @@ function testForEachInTable() returns (int, int, float, string) {
     int age = ageValue;
     float salary = salValue;
     string name = nameValue;
-    testDB.stop();
+    _ = testDB.stop();
     return (id, age, salary, name);
 }
 
@@ -149,7 +149,7 @@ function testCountInTable() returns (int) {
     if (dt is table<Person>) {
         count = dt.count();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -173,7 +173,7 @@ function testFilterTable() returns (int, int, int) {
         id1 = personBelow35[0].id;
         id2 = personBelow35[1].id;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (count, id1, id2);
 }
 
@@ -199,7 +199,7 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
         id1 = personBelow35[0].id;
         id2 = personBelow35[1].id;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (count, id1, id2);
 }
 
@@ -217,7 +217,7 @@ function testFilterTableWithCount() returns (int) {
     if (dt is table<Person>) {
         count = dt.filter(isBelow35).count();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -235,7 +235,7 @@ function testMapTable() returns (string[]) {
     if (dt is table<Person>) {
         names = dt.map(getName);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return names;
 }
 
@@ -252,7 +252,7 @@ function testMapWithFilterTable() returns (string[]) {
     if (dt is table<Person>) {
         names = dt.map(getName).filter(isGeraterThan4String);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return names;
 }
 
@@ -270,7 +270,7 @@ function testFilterWithMapTable() returns (string[]) {
     if (dt is table<Person>) {
         names = dt.filter(isGeraterThan4).map(getName);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return names;
 }
 
@@ -288,7 +288,7 @@ function testFilterWithMapAndCountTable() returns (int) {
     if (dt is table<Person>) {
         count = dt.filter(isGeraterThan4).map(getName).count();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -306,7 +306,7 @@ function testAverageWithTable() returns (float) {
     if (dt is table<Person>) {
         avgSal = dt.map(getSalary).average();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return avgSal;
 }
 
@@ -324,7 +324,7 @@ function testMinWithTable() returns (float) {
     if (dt is table<Person>) {
         avgSal = dt.map(getSalary).min();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return avgSal;
 }
 
@@ -342,7 +342,7 @@ function testMaxWithTable() returns (float) {
     if (dt is table<Person>) {
         avgSal = dt.map(getSalary).max();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return avgSal;
 }
 
@@ -360,7 +360,7 @@ function testSumWithTable() returns (float) {
     if (dt is table<Person>) {
         avgSal = dt.map(getSalary).sum();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return avgSal;
 }
 
@@ -384,7 +384,7 @@ function testCloseConnectionPool() returns (int) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 

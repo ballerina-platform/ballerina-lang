@@ -25,8 +25,8 @@ The `byteArrayToString` function can be used to encode a byte array into a strin
 ## Samples
 
 ```ballerina
-import ballerina/io;
 import ballerina/encoding;
+import ballerina/io;
 
 public function main() returns error? {
      string charEncoding = "UTF-8";
@@ -38,16 +38,16 @@ public function main() returns error? {
      string output = encoding:encodeHex(inputByteArr)
      io:println("Hex encoded string : " + output);
 
-     // Hex encoded string, decoded back into a byte array
+     // Hex encoded string, decoded back into a byte array.
      inputByteArr = check encoding:decodeHex(output)
 
      output = encoding:encodeBase64(inputByteArr)
      io:println("Base64 encoded string : " + output);
 
-     // Base64 encoded string, decoded back into a byte array
+     // Base64 encoded string, decoded back into a byte array.
      inputByteArr = check encoding:decodeBase64(output)
 
-     // Convert byte array into a string
+     // Convert byte array into a string.
      string finalString = encoding:byteArrayToString(inputByteArr);
 }
 ```
