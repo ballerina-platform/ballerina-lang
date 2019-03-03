@@ -21,6 +21,8 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-math')
     implementation project(':ballerina-crypto')
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Streams'
