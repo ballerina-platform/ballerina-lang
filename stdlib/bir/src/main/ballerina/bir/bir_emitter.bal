@@ -108,7 +108,7 @@ type InstructionEmitter object {
     }
 
     function emitIns(Instruction ins, string tabs = "") {
-        if (ins is MapStore) {
+        if (ins is FieldAccess) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print("[");

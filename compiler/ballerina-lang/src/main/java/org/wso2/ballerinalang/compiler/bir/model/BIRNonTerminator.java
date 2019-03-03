@@ -179,31 +179,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A map store instruction.
-     * <p>
-     * e.g., a["b"] = 10 (int)
-     *
-     * @since 0.980.0
-     */
-    public static class MapStore extends BIRNonTerminator {
-        public BIROperand lhsOp;
-        public BIROperand keyOp;
-        public BIROperand rhsOp;
-
-        public MapStore(DiagnosticPos pos, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
-            super(pos, InstructionKind.MAP_STORE);
-            this.lhsOp = lhsOp;
-            this.keyOp = keyOp;
-            this.rhsOp = rhsOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * A new array instruction.
      * <p>
      * e.g., map a = {}
@@ -229,19 +204,21 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A map store instruction.
+     * A field access expression
      * <p>
      * e.g., a["b"] = 10 (int)
+     * or
+     * _1 = mapload _3 _2
      *
      * @since 0.980.0
      */
-    public static class ArrayStore extends BIRNonTerminator {
+    public static class FieldAccess extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand keyOp;
         public BIROperand rhsOp;
 
-        public ArrayStore(DiagnosticPos pos, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
-            super(pos, InstructionKind.ARRAY_STORE);
+        public FieldAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
+            super(pos, kind);
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
