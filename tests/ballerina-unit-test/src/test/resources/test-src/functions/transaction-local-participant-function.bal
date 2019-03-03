@@ -17,33 +17,34 @@
 import ballerina/io;
 import ballerina/transactions;
 
-string S = "";
-
+map<string> S = {"log":""};
 
 @transactions:Participant {
     oncommit:commitFunc,
     onabort:abortFunc
 }
 public function participantFoo() {
-    S = S + " in-participantFoo";
+    S["log"] = <string>S["log"] + " in-participantFoo";
     io:println("Hello, World!");
 }
 
 public function commitFunc(string trxId) {
-    S = S + " commitFun";
-    io:println("commitFunc");
+    S["log"] = <string>S["log"] + " commitFun";
+    io:println("[][[][][[][[][[]" + trxId);
+    io:println("commitFunc" + trxId);
 }
 
 public function abortFunc(string trxId) {
-    S = S + " abortFunc";
-    io:println("abortFunc");
+    S["log"] = <string>S["log"] + " abortFunc";
+    io:println("abortFunc"+trxId);
 }
 
 
 @transactions:Participant {
 }
 public function erroredFunc() {
-    S = S + " in-participantErroredFunc";
+    io:println("error: **************************[][][][][]**********************************");
+    S["log"] = <string>S["log"] + " in-participantErroredFunc";
     int k = 5;
     if (k == 5) {
         io:println("throw!!");
@@ -56,35 +57,39 @@ boolean thrown1 = false;
 boolean thrown2 = false;
 
 function initiatorFunc(boolean error1, boolean error2) returns string {
+
+    int b1= 2;
     transaction with retries=2 {
-        S = S + " in-trx-block";
+       
+        S["log"] = <string>S["log"] + " in-trx-block";
         participantFoo();
 
         if (thrown1 && !thrown2 && error2) {
             thrown2 = true;
             var er = trap erroredFunc();
             if (er is error) {
-                S = S + " " + er.reason();
+                S["log"] = <string>S["log"] + " " + er.reason();
             }
         }
         if (!thrown1 && error1) {
             thrown1 = true;
             var er = trap erroredFunc();
             if (er is error) {
-                S = S + " " + er.reason();
+                S["log"] = <string>S["log"] + " " + er.reason();
             }
         }
 
-        S = S + " in-trx-lastline";
+        S["log"] = <string>S["log"] + " in-trx-lastline";
     } onretry {
-        S = S + " onretry-block";
+        S["log"] = <string>S["log"] + " onretry-block";
     } committed {
-        S = S + " committed-block";
+        S["log"] = <string>S["log"] + " committed-block";
     } aborted {
-        S = S + " aborted-block";
+        S["log"] = <string>S["log"] + " aborted-block";
     }
-    S = S + " after-trx";
-    return S;
+    int a21  =10;
+    S["log"] = <string>S["log"] + " after-trx";
+    return <string>S["log"];
 }
 
 function blowUp()  returns int {
@@ -97,53 +102,55 @@ function blowUp()  returns int {
 
 
 function initiatorWithLocalNonParticipantError() returns string {
-    string s = "";
+    map<string> s = {"log":""};
     transaction {
-        s += " in-trx";
-        var t = trap nonParticipantNestedTrxStmt(s);
+        s["log"] = <string>s["log"] + " in-trx";
+        var t = trap nonParticipantNestedTrxStmt(<string>s["log"]);
         if (t is string) {
-            s += t;
+            s["log"] = <string>s["log"] + t;
+            s["log"] = <string>s["log"] + t;
         } else {
-            s += " trapped:[" + <string>t.detail().message + "]";
+            s["log"] = <string>s["log"] + " trapped:[" + <string>t.detail().message + "]";
         }
-        s += " last-line";
+        s["log"] = <string>s["log"] + " last-line";
     } onretry {
-        s += " onretry";
+        s["log"] = <string>s["log"] + " onretry";
     } committed {
-        s += " committed";
+        s["log"] = <string>s["log"] + " committed";
     } aborted {
-        s += " aborted";
+        s["log"] = <string>s["log"] + " aborted";
     }
-    return s;
+    return <string>s["log"];
 }
 
 function nonParticipantNestedTrxStmt(string s) returns string {
-    string q = s;
+    map<string> q = {"log":s};
     transaction {
-        q += " in-local-nonparticipant-trx";
+        q["log"] = " in-local-nonparticipant-trx";
     }
-    return q;
+    return <string>q["log"];
 }
 
 function nonParticipantFunctionNesting(string failureCondition) returns string {
-    string s = "";
-    S = "";
+    map<string> s = {"log":""};
+    S["log"] = "";
     transaction {
-        s = " in-trx";
-        s = nonParticipant(failureCondition, s);
-        s += " in-trx-last-line";
+        s["log"] = " in-trx";
+        s["log"] = nonParticipant(failureCondition, <string>s["log"]);
+        s["log"] = <string>s["log"] + " in-trx-last-line";
     } onretry {
-        s += " onretry";
+        s["log"] = <string>s["log"] + " onretry";
     } committed {
-        s += " committed";
+        s["log"] = <string>s["log"] + " committed";
     } aborted {
-        s += " aborted";
+        s["log"] = <string>s["log"] + " aborted";
     }
-    return s + " |" + S;
+    return <string>s["log"] + " |" + <string>S["log"];
 }
 
 function nonParticipant(string failureCondition, string s) returns string {
     string p = s + " in-non-participant";
+    io:println(p);
     var q = trap localParticipant(failureCondition, p);
     if (q is string) {
         p = q;
@@ -157,33 +164,37 @@ function nonParticipant(string failureCondition, string s) returns string {
     } else {
         p = p2;
     }
+    io:println("****()()())()()()()*************" + p);
     return p;
 }
 
-function participantInNonStrand() returns string {
-    string s = "";
-    S = "";
-    transaction {
-        s += " in-trx";
-        var t = trap startANewStrand(s);
-        if (t is string) {
-            s += t;
-        } else {
-            s += " trapped:[" + t.reason() + "]";
-        }
-        s += " last-line";
-    } onretry {
-        s += " onretry";
-    } committed {
-        s += " committed";
-    } aborted {
-        s += " aborted";
-    }
+map<string> S2 = {"log":""};
 
-    if (S != "") {
-        s += " | " + S;
+function participantInNonStrand() returns string {
+    map<string> s = {"log":""};
+    S2["log"] = "";
+    transaction {
+        s["log"] = <string>s["log"] + " in-trx";
+        var t = trap startANewStrand(<string>s["log"]);
+        if (t is string) {
+            s["log"] = <string>s["log"] + t;
+        } else {
+            s["log"] = <string>s["log"] + " trapped:[" + t.reason() + "]";
+        }
+        s["log"] = <string>s["log"] + " last-line";
+        
+    } onretry {
+        s["log"] = <string>s["log"] + " onretry";
+    } committed {
+        s["log"] = <string>s["log"] + " committed";
+    } aborted {
+        s["log"] = <string>s["log"] + " aborted";
     }
-    return s;
+    io:println(<string>S["log"]);
+    if (<string>S2["log"] != "") {
+        s["log"] = <string>s["log"] + " | " + <string>S2["log"];
+    }
+    return <string>s["log"];
 }
 
 function startANewStrand(string s) returns string {
@@ -197,7 +208,7 @@ function onSomeOtherStrand(string s) {
     io:println("in some other strand");
     var r = trap otherStrand(s);
     if (r is error) {
-        S += "error in otherStrand: " + r.reason();
+        S2["log"] = <string>S2["log"] + "error in otherStrand: " + r.reason();
         io:println("trapped error from otherStrand()");
     }
 }
@@ -219,10 +230,12 @@ public function otherStrand(string s) {
     onabort:abortFunc
 }
 public function localParticipant(string failureCondition, string s) returns string {
+    io:println("*********===============================******"+failureCondition);
     if (failureCondition == "participantFail") {
         error er = error("failed");
         panic er;
     }
+    io:println("*********=================^^^^^^^==============******"+failureCondition);
     return s + " localParticipant";
 }
 

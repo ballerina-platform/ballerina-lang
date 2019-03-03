@@ -1,24 +1,24 @@
 function testTransaction(int i) returns (string) {
-    string a = "start";
+    map<string> logMap = {"log":"start"};
     transaction with retries = -4 {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    a = a + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testTransactionStmtVariableRetry() returns (string) {
     int retryCount = getRetryCount();
-    string a = "start";
+    map<string> logMap = {"log":"start"};
     transaction with retries = retryCount {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    a = a + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function getRetryCount() returns (int) {
@@ -26,12 +26,12 @@ function getRetryCount() returns (int) {
 }
 
 function testTransactionRetry2(int i) returns (string) {
-    string a = "start";
+    map<string> logMap = {"log":"start"};
     transaction with retries = 4.5 {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    a = a + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }

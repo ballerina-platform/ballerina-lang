@@ -14,19 +14,19 @@ string workerTest = "";
 
 int attemptCount = 0;
 function testTransactionStmt(int i) returns (string) {
-    string a = "start";
-    var result = trap testTransactionStmtHelper2(a, i);
+    map<string> logMap = {"log":"start"};
+    var result = trap testTransactionStmtHelper2(<string>logMap["log"], i);
     if (result is string) {
-        a = result;
+        logMap["log"] = result;
     } else if (result is error) {
-        a = a + <string>result.reason();
+        logMap["log"] = <string>logMap["log"] + <string>result.reason();
     }
-    a = a + " rc:" + attemptCount + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " rc:" + attemptCount + " end";
+    return <string>logMap["log"] ;
 }
 
 function testTransactionStmtHelper1(string status, int i) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     if (i == -1) {
         error err = error(" err" );
         panic err;
@@ -34,55 +34,57 @@ function testTransactionStmtHelper1(string status, int i) returns string {
         TrxError err = error(" trxErr", { data: "test" });
         panic err;
     }
-    return a;
+    return  <string>logMap["log"] ;
 }
 
 function testTransactionStmtHelper2(string status, int i) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     attemptCount = 0;
     transaction {
         attemptCount += 1;
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         if (i == 0) {
-            a = a + " abort";
+            logMap["log"] = <string>logMap["log"] + " abort";
             abort;
         } else {
-            var result = testTransactionStmtHelper1(a, i);
-            a = result;
+            var result = testTransactionStmtHelper1(<string>logMap["log"], i);
+            logMap["log"] = result;
         }
-        a = a + " endTrx";
+        logMap["log"] = <string>logMap["log"] + " endTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    return a;
+    // test variables declaration after transaction block.
+    string temp = <string>logMap["log"];
+    return temp;
 }
 
 function testAbortStatement() returns (string) {
-    string str = "BeforeTR ";
+    map<string> logMap = {"log":"BeforeTR "};
     int i = 0;
     transaction {
-        str = str + "WithinTR ";
+        logMap["log"] = <string>logMap["log"] + "WithinTR ";
         if (i == 0) {
-            str = str + "BeforAbort ";
+            logMap["log"] = <string>logMap["log"] + "BeforAbort ";
             abort;
         }
-        str = str + "AfterIf ";
+        logMap["log"] = <string>logMap["log"] + "AfterIf ";
     }
-    str = str + "AfterTR ";
-    return str;
+    logMap["log"] = <string>logMap["log"] + "AfterTR ";
+    return <string>logMap["log"] ;
 }
 
 
 function testOptionalFailed(int i) returns (string) {
-    string a = "start";
-    var result = trap testOptionalFailedHelper2(i, a);
+    map<string> logMap = {"log":"start"};
+    var result = trap testOptionalFailedHelper2(i, <string>logMap["log"]);
     if (result is string) {
-        a = result;
+        logMap["log"] = result;
     } else if (result is TrxError) {
-        a += <string>result.reason();
+        logMap["log"] = <string>logMap["log"] + <string>result.reason();
     }
-    a = a + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return  <string>logMap["log"] ;
 }
 
 function testOptionalFailedHelper1(int i, string status) returns string {
@@ -98,55 +100,55 @@ function testOptionalFailedHelper1(int i, string status) returns string {
 }
 
 function testOptionalFailedHelper2(int i, string status) returns string {
-    string a = status;
+    map<string> logMap = { "log":status};
     transaction {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         if (i == 0) {
-            a = a + " abort";
+            logMap["log"] = <string>logMap["log"] + " abort";
             abort;
         } else {
-            var result = trap testOptionalFailedHelper1(i, a);
+            var result = trap testOptionalFailedHelper1(i, <string>logMap["log"]);
             if (result is string) {
-                a = result;
+                logMap["log"] = result;
             } else if (result is TrxError) {
-                a += <string>result.reason();
+                logMap["log"] = <string>logMap["log"] + <string>result.reason();
             }
         }
-        a = a + " endTrx";
+         logMap["log"] = <string>logMap["log"] + " endTrx";
     }
-    return a;
+    return  <string>logMap["log"] ;
 }
 
 function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (string) {
-    string a = "start";
+    map<string> logMap = {"log":"start"};
     attemptCount = 0;
-    var result = trap testTransactionStmtWithFailedAndNonDefaultRetriesHelper1(i, a);
+    var result = trap testTransactionStmtWithFailedAndNonDefaultRetriesHelper1(i, <string>logMap["log"]);
     if (result is string) {
-        a = result;
+       logMap["log"] = result;
     } else if (result is error) {
-        a = a + result.reason();
+        logMap["log"] = <string>logMap["log"] + result.reason();
     }
-    a = a + " rc:" + attemptCount + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " rc:" + attemptCount + " end";
+    return <string>logMap["log"];
 }
 
 function testTransactionStmtWithFailedAndNonDefaultRetriesHelper1(int i, string status) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     transaction with retries = 4 {
         attemptCount += 1;
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         if (i == 0) {
-            a = a + " abort";
+            logMap["log"] = <string>logMap["log"] + " abort";
             abort;
         } else {
-            var result = testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(i, a);
-            a += result;
+            var result = testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(i,  <string>logMap["log"]);
+            logMap["log"] = <string>logMap["log"] + result;
         }
-        a = a + " endTrx";
+        logMap["log"] = <string>logMap["log"] + " endTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(int i, string status) returns string {
@@ -183,18 +185,18 @@ function testTransactionStmtWithRetryOffHelper1(int i) {
 }
 
 function testTransactionStmtWithRetryOffHelper2(int i, string status) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     transaction with retries = 0 {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         var result = trap testTransactionStmtWithRetryOffHelper1(i);
         if (result is TrxError) {
-            a += <string>result.reason();
+             logMap["log"] =  <string>logMap["log"] + <string>result.reason();
         }
-        a = a + " endTrx";
+        logMap["log"] = <string>logMap["log"] + " endTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testTransactionStmtWithConstRetryFailed() returns (string) {
@@ -211,19 +213,19 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
 }
 
 function testTransactionStmtWithConstRetryFailedHelper(string status) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     int i = 0;
     transaction with retries = RETRYCOUNT {
         attemptCount += 1;
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         if (i == 0) {
             error err = error(" err" );
             panic err;
         }
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testTransactionStmtWithConstRetryFailed2() returns (string) {
@@ -239,18 +241,18 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
 }
 
 function testTransactionStmtWithConstRetryFailed2Helper(string status) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     int i = 0;
     transaction with retries = RETRYCOUNT_2 {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         if (i == 0) {
             error err = error(" err" );
             panic err;
         }
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testTransactionStmtWithConstRetrySuccess() returns (string) {
@@ -266,13 +268,13 @@ function testTransactionStmtWithConstRetrySuccess() returns (string) {
 }
 
 function testTransactionStmtWithConstRetrySuccessHelper(string status) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     transaction with retries = RETRYCOUNT {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testMultipleTransactionStmtSuccess() returns (string) {
@@ -288,89 +290,89 @@ function testMultipleTransactionStmtSuccess() returns (string) {
 }
 
 function testMultipleTransactionStmtSuccessHelper(string status) returns string {
-    string a = status;
+    map<string> logMap = {"log":status};
     transaction {
-        a = a + " inFirstTrxBlock";
+        logMap["log"] = <string>logMap["log"] + " inFirstTrxBlock";
     } onretry {
-        a = a + " inFirstTrxFailed";
+        logMap["log"] = <string>logMap["log"] + " inFirstTrxFailed";
     }
-    a = a + " inFirstTrxEnd";
+    logMap["log"] = <string>logMap["log"] + " inFirstTrxEnd";
     transaction {
-        a = a + " inSecTrxBlock";
+        logMap["log"] = <string>logMap["log"] + " inSecTrxBlock";
     } onretry {
-        a = a + " inSecTrxFailed";
+        logMap["log"] = <string>logMap["log"] + " inSecTrxFailed";
     }
-    a = a + " inFSecTrxEnd";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " inFSecTrxEnd";
+    return <string>logMap["log"];
 }
 
-string failingTrxLog = "";
+map<string> failingTrxLog = {"log":""};
 function testMultipleTransactionStmtFailed1() returns (string) {
     string a = "start";
     var result = trap testMultipleTransactionStmtFailed1Helper(a);
     if (result is string) {
-        a = failingTrxLog;
+        a =  <string>failingTrxLog["log"] ;
     } else if (result is error) {
-        a = failingTrxLog + result.reason();
+        a =  <string>failingTrxLog["log"]  + result.reason();
     }
     a = a + " end";
     return a;
 }
 
 function testMultipleTransactionStmtFailed1Helper(string status) returns string {
-    failingTrxLog = status;
+    failingTrxLog["log"]  = status;
     int i = 0;
     transaction with retries = 2 {
-        failingTrxLog = failingTrxLog + " inFirstTrxBlock";
+        failingTrxLog["log"] = <string>failingTrxLog["log"] +  " inFirstTrxBlock";
         if (i == 0) {
             error err = error(" err" );
             panic err;
         }
     } onretry {
-        failingTrxLog = failingTrxLog + " inFirstTrxFld";
+        failingTrxLog["log"] = <string>failingTrxLog["log"] + " inFirstTrxFld";
     } aborted {
-        failingTrxLog += " aborted";
+        failingTrxLog["log"] = <string>failingTrxLog["log"] +  " aborted";
     }
-    failingTrxLog = failingTrxLog + " inFirstTrxEnd";
+    failingTrxLog["log"] = <string>failingTrxLog["log"] +  " inFirstTrxEnd";
     transaction {
-        failingTrxLog = failingTrxLog + " inSecTrxBlock";
+        failingTrxLog["log"] = <string>failingTrxLog["log"] +  " inSecTrxBlock";
     }
-    failingTrxLog = failingTrxLog + " inFSecTrxEnd";
-    return failingTrxLog;
+    failingTrxLog["log"] = <string>failingTrxLog["log"] +  " inFSecTrxEnd";
+    return <string>failingTrxLog["log"];
 }
 
-string log2 = "";
+ map<string> logMap2 = {"log":""};
 function testMultipleTransactionStmtFailed2() returns (string) {
-    log2 = "start";
+    logMap2 = {"log":"start"};
     int i = 0;
-    var result = trap testMultipleTransactionStmtFailed2Helper(log2);
+    var result = trap testMultipleTransactionStmtFailed2Helper(<string>logMap2["log"]);
     if (result is string) {
-        log2 = result;
+        logMap2["log"] = result;
     } else if (result is error) {
-        log2 += result.reason();
+        logMap2["log"] = <string>logMap2["log"] +  result.reason();
     }
     transaction {
-        log2 = log2 + " inSecTrxBlock";
+        logMap2["log"] = <string>logMap2["log"]  + " inSecTrxBlock";
     }
-    log2 = log2 + " inFSecTrxEnd";
-    log2 = log2 + " end";
-    return log2;
+    logMap2["log"] = <string>logMap2["log"] +  " inFSecTrxEnd";
+    logMap2["log"] = <string>logMap2["log"] +  " end";
+    return <string>logMap2["log"];
 }
 
 function testMultipleTransactionStmtFailed2Helper(string status) returns string {
     int i = 0;
-    log2 = status;
+    logMap2["log"] = status;
     transaction with retries = 2 {
-        log2 = log2 + " inFirstTrxBlock";
+        logMap2["log"] = <string>logMap2["log"] + " inFirstTrxBlock";
         if (i == 0) {
             error err = error(" err" );
             panic err;
         }
     } onretry {
-        log2 = log2 + " inFirstTrxFld";
+        logMap2["log"] = <string>logMap2["log"] + " inFirstTrxFld";
     }
-    log2 = log2 + " inFirstTrxEnd";
-    return log2;
+    logMap2["log"] = <string>logMap2["log"] + " inFirstTrxEnd";
+    return <string>logMap2["log"];
 }
 
 function transactionWithBreak() returns (string) {
@@ -400,30 +402,30 @@ function transactionWithContinue() returns (string) {
 }
 
 function testTransactionStmtWithFail() returns (string) {
-    string a = "start ";
+    map<string> logMap = {"log":"start "}; 
     int i = 0;
 
     transaction with retries = 4 {
-        a = a + " inTrx";
+        logMap["log"] = <string>logMap["log"] + " inTrx";
         if (i == 0) {
             retry;
         }
     } onretry {
-        a = a + " inFailed";
+        logMap["log"] = <string>logMap["log"] + " inFailed";
     }
-    a = a + " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testValidReturn() returns (string) {
-    string a = "start ";
+    map<string> logMap = {"log":"start "}; 
     int i = 0;
     transaction with retries = 4 {
-        a = a + " inOuterTxstart ";
-        a = a + testReturn();
-        a = a + " endOuterTx";
+        logMap["log"] = <string>logMap["log"] + " inOuterTxstart ";
+        logMap["log"] = <string>logMap["log"] + testReturn();
+        logMap["log"] = <string>logMap["log"] + " endOuterTx";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testReturn() returns (string) {

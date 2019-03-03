@@ -1,52 +1,52 @@
 function testCorrectTransactionBlock() returns (string) {
-    string a = "";
+    map<string> logMap = {"log":""};
     transaction with retries=2 {
         } onretry {
-            a = a + " retry";
+            logMap["log"] = <string>logMap["log"] + " retry";
         } committed {
-            a = a + " committed";
+            logMap["log"] = <string>logMap["log"] + " committed";
         } aborted {
-            a = a + " aborted";
+            logMap["log"] = <string>logMap["log"] + " aborted";
         }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testTwoAbortedBlocks() returns (string) {
-    string a = "";
+    map<string> logMap = {"log":""};
     transaction with retries=2 {
     } onretry {
-        a = a + " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } aborted {
-        a = a + " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     } aborted {
-        a = a + " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testTwoCommittedBlocks() returns (string) {
-    string a = "";
+    map<string> logMap = {"log":""};
     transaction with retries=2 {
     } onretry {
-        a = a + " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        a = a + " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     } committed {
-        a = a + " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     }
-    return a;
+    return <string>logMap["log"];
 }
 
 function testNestedTrxBlocks() returns (string) {
-    string a = "";
+    map<string> logMap = {"log":""};
     transaction with retries=2 {
         transaction {
             a += "nested block";
         }
     } onretry {
-        a = a + " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        a = a + " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     }
-    return a;
+    return <string>logMap["log"];
 }

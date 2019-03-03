@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 public type TrxError record {
     string message;
     error? cause;
@@ -21,37 +22,39 @@ public type TrxError record {
     !...;
 };
 
+map<string> logMap = {"log":""};
+
 function testTransactionFailing() returns string|error {
     return trap testTransactionStmtWithCommitedAndAbortedBlocks(2, false);
 }
 
 function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, boolean requestAbort) returns (string) {
-    string a = "";
-    a = a + "start";
-    a = a + " fc-" + failureCutOff;
-    int count = 0;
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + "start";
+    logMap["log"] = <string>logMap["log"] + " fc-" + failureCutOff;
+    map<int> count = {"count":0};
     transaction with retries=2 {
-        a = a + " inTrx";
-        count = count + 1;
-        if (count <= failureCutOff) {
-            a = a + " blowUp";
+        logMap["log"] = <string>logMap["log"]+ " inTrx";
+        count["count"] = <int>count["count"] + 1;
+        if (<int>count["count"] <= failureCutOff) {
+            logMap["log"] = <string>logMap["log"] + " blowUp";
             int bV = blowUp();
         }
 
         if (requestAbort) {
-            a = a + " aborting";
+            logMap["log"] = <string>logMap["log"] + " aborting";
             abort;
         }
-        a = a + " endTrx";
+        logMap["log"] = <string>logMap["log"] + " endTrx";
     } onretry {
-        a = a + " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        a = a + " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     } aborted {
-        a = a + " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     }
-    a = (a + " end");
-    return a;
+   logMap["log"] = (<string>logMap["log"] + " end");
+    return <string>logMap["log"];
 }
 
 function blowUp()  returns int {
@@ -67,217 +70,217 @@ function runtimeNestedTransactions(boolean trapError) returns string {
         if (trapError) {
             var res = trap functionWithATransactionStmt();
             if (res is string) {
-                ss += res;
+                logMap["log"] = <string>logMap["log"] + res;
             } else {
-                ss += " trapped[err: " + <string>res.detail().message + "]";
+                logMap["log"] = <string>logMap["log"] + " trapped[err: " + <string>res.detail().message + "]";
             }
         } else {
             var res = functionWithATransactionStmt();
-            ss += res;
+            logMap["log"] = <string>logMap["log"] + res;
         }
     } onretry {
-        ss += " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        ss += " outer-committed";
+        logMap["log"] = <string>logMap["log"] + " outer-committed";
     } aborted {
-        ss += " outer-aborted";
+        logMap["log"] = <string>logMap["log"] + " outer-aborted";
     }
-    ss += " endTrx";
-    return ss;
+    logMap["log"] = <string>logMap["log"] + " endTrx";
+    return <string>logMap["log"] ;
 }
 
 function functionWithATransactionStmt() returns string {
-    ss = ss + " in func";
+    logMap["log"] = <string>logMap["log"] + " in func";
     transaction {
-        ss += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
     } onretry {
-        ss += " retry-func-trx";
+        logMap["log"] = <string>logMap["log"] + " retry-func-trx";
     } committed {
-        ss += " committed-fun-trx";
+        logMap["log"] = <string>logMap["log"] + " committed-fun-trx";
     }
-    ss += " after-fun-trx";
-    return ss;
+    logMap["log"] = <string>logMap["log"] + " after-fun-trx";
+    return  <string>logMap["log"];
 }
 
-string ss = "";
+
 function runtimeNestedTransactionErrorTraped() returns string {
-    ss = "";
-    ss += runtimeNestedTransactions(true);
-    return ss;
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + runtimeNestedTransactions(true);
+    return <string>logMap["log"];
 }
 
 function runtimeNestedTransactionsError() returns string {
-    ss = "";
+    logMap["log"] = "";
     var res = trap runtimeNestedTransactions(false);
     if (res is string) {
-        ss += res;
+        logMap["log"] = <string>logMap["log"] + res;
     } else {
-        ss += " [err: " + <string>res.detail().message + "]";
+        logMap["log"] = <string>logMap["log"] + " [err: " + <string>res.detail().message + "]";
     }
-    return ss;
+    return <string>logMap["log"];
 }
 
 function testAbortStatementWithNoAbortBlock() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
         abort;
     } onretry {
-        a += " retry";
+       logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testAbortStatementWithAbortBlock() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
         abort;
     } onretry {
-        a += " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] +  " committed";
     } aborted {
-        a += " aborted";
+        logMap["log"] = <string>logMap["log"] +  " aborted";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] +  " end";
+    return <string>logMap["log"];
 }
 
 function testTrxSuccessWithAbortBlock() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] +  "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
     } onretry {
-        a += " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     } aborted {
-        a += " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testAbortedCommittedBlockMixedUpCommitted() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
     } onretry {
-        a += " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } aborted {
-        a += " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testAbortedCommittedBlockMixedUpAborted() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
         abort;
     } onretry {
-        a += " retry";
+        logMap["log"] = <string>logMap["log"] + " retry";
     } aborted {
-        a += " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testAbortedCommittedBlockMixedUpNoRetryBlockAborted() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "";
+    logMap["log"] = <string>logMap["log"] + "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
         abort;
     } aborted {
-        a += " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 function testAbortedCommittedBlockMixedUpNoRetryBlockCommitted() returns (string) {
-    string a = "";
-    a = a + "start";
+    logMap["log"] = "start";
     int count = 0;
     transaction with retries=2 {
-        a += " in-trx";
+        logMap["log"] = <string>logMap["log"] + " in-trx";
     } aborted {
-        a += " aborted";
+        logMap["log"] = <string>logMap["log"] + " aborted";
     } committed {
-        a += " committed";
+        logMap["log"] = <string>logMap["log"] + " committed";
     }
-    a += " end";
-    return a;
+    logMap["log"] = <string>logMap["log"] + " end";
+    return <string>logMap["log"];
 }
 
 
 function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, boolean fail2) returns string {
-    string a = "start";
+    logMap["log"] = "start";
     int count = 0;
-    boolean failed1 = false;
-    boolean failed2 = false;
+    map<boolean> failed1 = {"fail":false};
+    map<boolean> failed2 = {"fail":false};
 
     transaction with retries=2 {
-        a += " in-trx-1";
+        logMap["log"] = <string>logMap["log"] + " in-trx-1";
         if (abort1) {
             abort;
         }
-        if (fail1 && !failed1) {
-            failed1 = true;
+        if (fail1 && !<boolean>failed1["fail"]) {
+            failed1["fail"] = true;
             error err = error("TransactionError");
             panic err;
         }
     } onretry {
-        a += " retry-1";
+        logMap["log"] = <string>logMap["log"] + " retry-1";
     } committed {
-        a += " committed-1";
+        logMap["log"] = <string>logMap["log"] + " committed-1";
     } aborted {
-        a += " aborted-1";
+        logMap["log"] = <string>logMap["log"] + " aborted-1";
     }
 
-    a += " end-1";
+    logMap["log"] = <string>logMap["log"] + " end-1";
 
     transaction with retries=2 {
-        a += " in-trx-2";
+        logMap["log"] = <string>logMap["log"] + " in-trx-2";
         if (abort2) {
             abort;
         }
-        if (fail2 && !failed2) {
-            failed2 = true;
+        if (fail2 && !<boolean>failed2["fail"]) {
+            failed2["fail"] = true;
             error err = error("TransactionError");
             panic err;
         }
     } onretry {
-        a += " retry-2";
+        logMap["log"] = <string>logMap["log"] + " retry-2";
     } committed {
-        a += " committed-2";
+        logMap["log"] = <string>logMap["log"] + " committed-2";
     } aborted {
-        a += " aborted-2";
+        logMap["log"] = <string>logMap["log"] + " aborted-2";
     }
-    a += " end-2";
-    return a;
+
+    logMap["log"] = <string>logMap["log"] + " end-2";
+    return <string>logMap["log"];
 }
