@@ -281,16 +281,24 @@ public class PackageInfoReader {
 
                 LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
 
+                BType type = null;
+
                 // Size
                 int size = dataInStream.readInt();
 
                 for (int i = 0; i < size; i++) {
+
+                    type = null;
 
                     // Key
                     int keyCPIndex = dataInStream.readInt();
                     UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
 
                     boolean isSimpleLiteral = dataInStream.readBoolean();
+                    boolean isConstRef = dataInStream.readBoolean();
+
+
+
 
                     if (isSimpleLiteral) {
 
@@ -334,6 +342,27 @@ public class PackageInfoReader {
                             valueMap.put(keyInfo, constantValue);
 
                         }
+                    } else if (isConstRef) {
+
+                        int recordLiteralSigCPIndex = dataInStream.readInt();
+                        UTF8CPEntry typeDesc =
+                                (UTF8CPEntry) constantPool.getCPEntry(recordLiteralSigCPIndex);
+
+                        type = getBTypeFromDescriptor((PackageInfo) constantPool, typeDesc.getValue());
+
+                        int valueCPIndex = dataInStream.readInt();
+
+                        MapCPEntry cpEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
+
+                        ConstantValue constantValue = new ConstantValue();
+                        constantValue.valueCPEntry = valueCPIndex;
+
+                        constantValue.constantValueMap = cpEntry.getValue();
+
+                        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                        valueMap.put(keyInfo, constantValue);
+
                     } else {
                         int valueCPIndex = dataInStream.readInt();
 
@@ -350,7 +379,7 @@ public class PackageInfoReader {
                     }
                 }
 
-                return new MapCPEntry(valueMap);
+                return new MapCPEntry(valueMap, type);
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
@@ -1278,6 +1307,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BCONST_0:
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
+//                case InstructionCodes.RCONST:
                 case InstructionCodes.GOTO:
                 case InstructionCodes.PANIC:
                 case InstructionCodes.NEWXMLSEQ:

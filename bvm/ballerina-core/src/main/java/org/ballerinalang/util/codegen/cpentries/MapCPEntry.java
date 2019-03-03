@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.KeyInfo;
 
@@ -30,9 +33,14 @@ import java.util.Map;
 public class MapCPEntry implements ConstantPoolEntry {
 
     private Map<KeyInfo, ConstantValue> value;
+    private BType type;
 
-    public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
+    // Todo - freeze value
+    private BMap<String, BRefType> bMap = new BMap<>();
+
+    public MapCPEntry(Map<KeyInfo, ConstantValue> value, BType type) {
         this.value = value;
+        this.type = type;
     }
 
     public Map<KeyInfo, ConstantValue> getValue() {

@@ -158,22 +158,31 @@ public class PackageInfoWriter {
                         dataOutStream.writeInt(key.cpIndex);
 
                         dataOutStream.writeBoolean(value.isSimpleLiteral);
+                        dataOutStream.writeBoolean(value.isConstRef);
 
-                        if(value.isSimpleLiteral) {
+                        if (value.isSimpleLiteral) {
                             // Value type tag
                             dataOutStream.writeInt(value.literalValueTypeTag);
-                        }else{
-//                            dataOutStream.writeInt(value.recordLiteralSigCPIndex);
+
+                            // Value
+                            if (value.literalValueTypeTag == TypeTags.NIL) {
+                                // Do nothing
+                            } else if (value.literalValueTypeTag == TypeTags.BOOLEAN) {
+                                dataOutStream.writeBoolean(value.booleanValue);
+                            } else {
+                                dataOutStream.writeInt(value.valueCPEntry);
+                            }
+
+                        } else if (value.isConstRef) {
+                            int aa = 0;
+                            dataOutStream.writeInt(value.recordLiteralSigCPIndex);
+                            dataOutStream.writeInt(value.valueCPEntry);
+                        } else {
+                            //                            dataOutStream.writeInt(value.recordLiteralSigCPIndex);
+                            throw new RuntimeException("unexpected type");
                         }
 
-                        // Value
-                        if (value.literalValueTypeTag == TypeTags.NIL) {
-                            // Do nothing
-                        } else if (value.literalValueTypeTag == TypeTags.BOOLEAN) {
-                            dataOutStream.writeBoolean(value.booleanValue);
-                        } else {
-                            dataOutStream.writeInt(value.valueCPEntry);
-                        }
+
                     }
 
 

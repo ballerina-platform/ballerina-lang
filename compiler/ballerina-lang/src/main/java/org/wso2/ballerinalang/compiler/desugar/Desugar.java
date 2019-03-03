@@ -130,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangR
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -1904,8 +1905,8 @@ public class Desugar extends BLangNodeVisitor {
 //                                    varRefExpr.type));
                     // Set the name of the reference. This is later needed to log compilation errors.
                     //                    ((BLangMapLiteral) expr).name = symbol.name;
-                    symbol.literalValue = result = rewriteExpr((BLangRecordLiteral) symbol.literalValue);
-                    return;
+//                    symbol.literalValue = rewriteExpr((BLangRecordLiteral) symbol.literalValue);
+                    genVarRefExpr = new BLangConstRef(symbol);
                 } else {
                     // We need to get a copy of the literal value and set it as the result. Otherwise there will be
                     // issues because registry allocation will be only done one time.

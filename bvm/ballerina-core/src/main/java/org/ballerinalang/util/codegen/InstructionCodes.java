@@ -46,6 +46,10 @@ public interface InstructionCodes {
     int BICONST = RCONST_NULL + 1;
     int DCONST = BICONST + 1;
 
+//    int RCONST = DCONST + 1;
+
+//    int IMOVE = RCONST + 1;
+
     int IMOVE = DCONST + 1;
     int FMOVE = IMOVE + 1;
     int SMOVE = FMOVE + 1;

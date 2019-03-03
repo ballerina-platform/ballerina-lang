@@ -33,6 +33,7 @@ public class ConstantValue {
     public int recordLiteralSigCPIndex = -1;
 
     public boolean isSimpleLiteral;
+    public boolean isConstRef;
 
     public int literalValueTypeTag = -1;
 

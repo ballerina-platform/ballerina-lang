@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -933,11 +934,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangLocalVarRef localVarRef) {
         if (localVarRef.regIndex != null && (localVarRef.regIndex.isLHSIndex || localVarRef.regIndex.isVarIndex)) {
             emit(getOpcode(localVarRef.type.tag, InstructionCodes.IMOVE),
-                    localVarRef.varSymbol.varIndex, localVarRef.regIndex);
+                    ((BVarSymbol) localVarRef.varSymbol).varIndex, localVarRef.regIndex);
             return;
         }
 
-        localVarRef.regIndex = localVarRef.varSymbol.varIndex;
+        localVarRef.regIndex = ((BVarSymbol) localVarRef.varSymbol).varIndex;
     }
 
     @Override
@@ -963,7 +964,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BSymbol ownerSymbol = packageVarRef.symbol.owner;
         pkgSymbol = (BPackageSymbol) ownerSymbol;
 
-        Operand gvIndex = packageVarRef.varSymbol.varIndex;
+        Operand gvIndex = ((BVarSymbol) packageVarRef.varSymbol).varIndex;
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
         if (varAssignment) {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
@@ -973,6 +974,35 @@ public class CodeGenerator extends BLangNodeVisitor {
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        BPackageSymbol pkgSymbol;
+        BSymbol ownerSymbol = constRef.symbol.owner;
+        pkgSymbol = (BPackageSymbol) ownerSymbol;
+
+//        RegIndex constIndex = ((BConstantSymbol) constRef.varSymbol).varIndex;
+
+        constRef.regIndex = calcAndGetExprRegIndex(constRef);
+//                constIndex;
+
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+
+        // Todo - Add new instruction code
+
+//        emit(InstructionCodes.RCONST);
+
+        //        Operand gvIndex = ((BVarSymbol) packageVarRef.varSymbol).varIndex;
+        //
+        //        if (varAssignment) {
+        //            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
+        //            emit(opcode, getOperand(pkgRefCPIndex), packageVarRef.regIndex, gvIndex);
+        //        } else {
+        //            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
+        //            packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
+        //            emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
+        //        }
     }
 
     @Override
@@ -2151,6 +2181,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
 
+//        constantSymbol.varIndex = getPVIndex(constantSymbol.type.tag);
+
         // Add the constant name to the CP and get index.
         int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
 
@@ -2193,8 +2225,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                 keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
             }
 
-            constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
+            constantValue.valueCPEntry = constantSymbol.valueCPIndex =
+                    currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
 
+
+//            constantValue.constantValueMap =
+//                    ((MapCPEntry) currentPkgInfo.getCPEntry(constantValue.valueCPEntry)).getValue();
         }
 
         // Add documentation attributes.
@@ -2275,6 +2311,27 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
 
                 constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
+            } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
+                // Create a new constant value.
+                ConstantValue constantValue = new ConstantValue();
+
+                BSymbol symbol = ((BLangSimpleVarRef.BLangConstRef) valueExpr).symbol;
+                Object literalValue = ((BConstantSymbol) symbol).literalValue;
+                constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) literalValue);
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
+                constantValue.isConstRef = true;
+
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+
+                for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    KeyInfo keyInfo = entry.getKey();
+                    keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+                }
+
+                constantValue.valueCPEntry = currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
+
             } else {
                 throw new RuntimeException("unexpected node kind");
             }
