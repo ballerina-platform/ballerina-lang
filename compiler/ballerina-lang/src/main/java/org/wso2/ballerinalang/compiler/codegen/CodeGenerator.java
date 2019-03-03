@@ -1797,7 +1797,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
-            this.emitTransactionParticipantBeginIfApplicable(body);
+          //  this.emitTransactionParticipantBeginIfApplicable(body);
             this.genNode(body, invokableSymbolEnv);
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);

@@ -83,8 +83,9 @@ public class SymbolTable {
             Names.EMPTY);
     public static final PackageID UTILS = new PackageID(Names.BUILTIN_ORG, Names.UTILS_PACKAGE, Names.EMPTY);
 
-    public static final String CLONE_FUNCTION = "cloneValue";
-
+    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE, 
+                                                              Names.EMPTY);
+    
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
 

@@ -157,7 +157,7 @@ public class TransactionLocalContext {
 
     public boolean onTransactionEnd(String transactionBlockId) {
         boolean isOuterTx = false;
-        transactionBlockIdStack.pop();
+  //      transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
             transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId);

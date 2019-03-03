@@ -14,152 +14,160 @@
 // specific language governing permissions and limitations
 // under the License.
 
-extern function cleanupTransactionContext(string transactionBlockId);
+import ballerina/io;
+import ballerina/log;
 
-function runTransaction(function () trxFunc) returns int|error {
-    trxFunc.call();
-    return 0;
-}
-
-function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int|error trxFunc,
-                                   function () retryFunc, function () committedFunc, function () abortedFunc) 
-             returns error? {
+function beginTransactionInitiator(string transactionBlockId, int rMax, function () returns int trxFunc,
+                                   function () retryFunc, function () committedFunc,
+                                   function () abortedFunc) returns error? {
     boolean isTrxSuccess = false;
+    io:println("********started TRX*********");
     int rCnt = 1;
     if (rMax < 0) {
-        error err = error("invalid transaction retry count");
+        error err = error("TransactionError", { message: "invalid retry count" });
         panic err;
     }
     // If global tx enabled, it is managed via transaction coordinator.Otherwise it is managed locally
     // without any interaction with the transaction coordinator.
     if (isNestedTransaction()) {
         // Starting a transaction within already infected transaction.
-        error err = error("dynamically nested transactions are not allowed");
+        error err = error("{ballerina}TransactionError",
+        { message: "dynamically nested transactions are not allowed" });
         panic err;
     }
-    TransactionContext txnContext = check beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
-    string transactionId = txnContext.transactionId;
-    setTransactionContext(txnContext);
+    TransactionContext txnContext;
+    string transactionId = "";
     int|error trxResult = -1;
     error? abortResult = ();
     error? committedResult = ();
     error? retryResult = ();
     error? rollbackResult = ();
     while (true) {
-        trxResult = -1;
-        abortResult = ();
-        committedResult = ();
-        retryResult = ();
-        rollbackResult = ();
+        txnContext = check beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
+        transactionId = txnContext.transactionId;
+        setTransactionContext(txnContext);
         trxResult = trap trxFunc.call();
         if (trxResult is int) {
-            if (trxResult == 0) {
+            // If transaction result == 0, means it is successful.
+            if (trxResult == 0) { 
+                io:println("********Trx success********");
                 var endSuccess = trap endTransaction(transactionId, transactionBlockId);
                 if (endSuccess is string) {
+                    io:println("********End Trx success********" + endSuccess);
                     if (endSuccess == OUTCOME_COMMITTED) {
                         isTrxSuccess = true;
-                        return;
+                        break;
                     }
                 }
             }
-             if (trxResult == 1) { // retry
+            // If transaction result == 0, means it was retried.
+            if (trxResult == 1) { 
+                io:println("********Trx retry*******");
                 abortResult = trap abortTransaction(transactionId, transactionBlockId);
             }
-            // If transaction result == -1, means it aborted.
+            // If transaction result == -1, means it was aborted.
             if (trxResult == -1) { // abort
-                return;
+                io:println("********Trx aborted*******");
+                break;
             }
-        }
-        rCnt = +1;
-        // retry
-        if (rCnt < rMax) {
-            rollbackResult = trap rollbackTransaction(transactionBlockId);
-            retryResult = trap retryFunc.call();
         } else {
-            return;
+            log:printDebug(trxResult.reason());
+        }
+        rCnt = rCnt + 1;
+        // retry
+        if (rCnt <= rMax) {
+            rollbackResult = trap rollbackTransaction(transactionBlockId);
+            if (rollbackResult is error) {
+                log:printDebug(rollbackResult.reason());
+            }
+            io:println("***********RETRY ******");
+            retryResult = trap retryFunc.call();
+            if (retryResult is error) {
+                log:printDebug(retryResult.reason());
+            }
+        } else {
+            break;
         }
     }
+    io:println("************isTrxSuccess**********" + isTrxSuccess);
     if (isTrxSuccess) {
         committedResult = trap committedFunc.call();
+        if (committedResult is error) {
+            log:printDebug(committedResult.reason());
+        }
     } else {
         abortResult = trap handleAbortTransaction(transactionId, transactionBlockId, abortedFunc);
+        if (abortResult is error) {
+            log:printDebug(abortResult.reason());
+        }
     }
     cleanupTransactionContext(transactionBlockId);
     if (trxResult is error) {
         panic trxResult;
     }
-    if (committedResult is error) {
-        panic committedResult;
-    }
-    if (abortResult is error) {
-        panic abortResult;
-    }
-    if (retryResult is error) {
-        panic retryResult;
-    }
-    if (rollbackResult is error) {
-        panic rollbackResult;
-    }
 }
 
-
-function beginLocalParticipant(string transactionBlockId, function () committedFunc,
-                               function () abortedFunc, function () trxFunc) returns error|any {
+function beginLocalParticipant(string transactionBlockId, function () returns any|error|() trxFunc,
+                               function () committedFunc,function () abortedFunc) returns any|error|() {
+    io:println("************Paritcipant  begin local**********");
     TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
-    if (txnContext is TransactionContext) {
-        TransactionContext|error returnContext = check beginTransaction(txnContext.transactionId, transactionBlockId,
+    if (txnContext is ()) {
+        io:println("************Paritcipant  no trxr**********");
+        return <any|error|()>trxFunc.call();
+    } else {
+        TransactionContext|error returnContext = beginTransaction(txnContext.transactionId, transactionBlockId,
             txnContext.registerAtURL, txnContext.coordinationType);
         if (returnContext is error) {
             notifyLocalParticipantOnFailure();
             panic returnContext;
         }
-        var result = trap trxFunc.call();
+        io:println("********call*********");
+        var result = trap <any|error|()>trxFunc.call();
+        io:println("********calldone*********");
         if (result is error) {
             notifyLocalParticipantOnFailure();
             panic result;
         }
+        if (result is string) {
+            io:println("************Paritcipant  string*********"+ result);
+        }
         return result;
     }
-    return trxFunc.call();
 }
 
-function beginRemoteParticipant(string transactionBlockId, function () committedFunc,
-                                function () abortedFunc, function () trxFunc) returns error|any {
+
+function beginRemoteParticipant(string transactionBlockId, function () returns string|any|error|() trxFunc,
+                                function () committedFunc,function () abortedFunc) returns string|any|error|() {
     TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
-    if (txnContext is TransactionContext) {
-        TransactionContext|error returnContext = check beginTransaction(txnContext.transactionId, transactionBlockId,
+    io:println("************Paritcipant  begin remote**********");
+    if (txnContext is ()) {
+        io:println("************No trx*********");
+        return trxFunc.call();
+    } else {
+        TransactionContext|error returnContext = beginTransaction(txnContext.transactionId, transactionBlockId,
             txnContext.registerAtURL, txnContext.coordinationType);
         if (returnContext is error) {
             notifyRemoteParticipantOnFailure();
             panic returnContext;
         }
-        var result = trap trxFunc.call();
+        string|any|error|() result = trap trxFunc.call();
         if (result is error) {
             notifyRemoteParticipantOnFailure();
-            panic result;
         }
         return result;
     }
-    return trxFunc.call();
 }
 
 function handleAbortTransaction(string transactionId, string transactionBlockId,
-                                function () abortedFunc) returns error? {
+                                function () returns error? abortedFunc) returns error? {
     var result = trap abortTransaction(transactionId, transactionBlockId);
     notifyResourceManagerOnAbort(transactionBlockId);
-    abortedFunc.call();
+    var abortResult = trap abortedFunc.call();
     if (result is error) {
         panic result;
     }
-}
-
-function handleCompletedTransaction(string transactionId, string transactionBlockId,
-                                    function () abortedFunc) returns error? {
-    var result = trap endTransaction(transactionId, transactionBlockId);
-    notifyResourceManagerOnAbort(transactionBlockId);
-    abortedFunc.call();
-    if (result is error) {
-        panic result;
+    if (abortResult is error) {
+        panic abortResult;
     }
 }
 
@@ -324,3 +332,6 @@ extern function notifyRemoteParticipantOnFailure();
 extern function notifyResourceManagerOnAbort(string transactionBlockId);
 
 extern function rollbackTransaction(string transactionBlockId) returns error?;
+
+extern function cleanupTransactionContext(string transactionBlockId);
+
