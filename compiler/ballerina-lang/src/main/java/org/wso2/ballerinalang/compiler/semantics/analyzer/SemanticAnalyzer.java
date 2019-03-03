@@ -1597,6 +1597,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
         }
+        transactionNode.closureVarSymbols = env.scope.entries
+                .values().stream().map(scopeEntry -> scopeEntry.symbol)
+                .filter(bSymbol -> bSymbol instanceof BVarSymbol)
+                .map(sc -> (BVarSymbol) sc)
+                .collect(Collectors.toSet());
+        env.scope.owner.scope.entries
+                .values().stream().map(scopeEntry -> scopeEntry.symbol)
+                .filter(bSymbol -> bSymbol instanceof BVarSymbol)
+                .map(sc -> (BVarSymbol) sc)
+                .forEach(transactionNode.closureVarSymbols::add);
     }
 
     @Override
