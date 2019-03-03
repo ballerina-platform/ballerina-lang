@@ -126,5 +126,3 @@
   ```ballerina
   string name = <string>json.name;
   ```
-
-## Match Patterns
