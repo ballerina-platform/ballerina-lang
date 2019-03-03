@@ -1740,7 +1740,7 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tests/ballerina-examples-test</module>
                 <module>tool-plugins/intellij</module>
-                <!--<module>tool-plugins/vscode</module>-->
+                <module>tool-plugins/vscode</module>
 
                 <module>benchmarks</module>
             </modules>
@@ -1912,7 +1912,7 @@
                 <module>tests/ballerina-examples-test</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
-                <!--<module>tool-plugins/vscode</module>-->
+                <module>tool-plugins/vscode</module>
                 <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
@@ -2333,13 +2333,13 @@
         <maven.docck.plugin.version>1.1</maven.docck.plugin.version>
         <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
         <maven.failsafe.plugin.version>2.19.1</maven.failsafe.plugin.version>
-        <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
+        <maven.spotbugsplugin.version>3.1.11</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>3.2.0</maven.invoker.plugin.version>
         <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
         <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
-        <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
+        <maven.plugin.plugin.version>3.6.0</maven.plugin.plugin.version>
         <maven.remote.resources.plugin.version>1.6.0</maven.remote.resources.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
         <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
@@ -2352,9 +2352,9 @@
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
-        <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
+        <clirr.maven.plugin.version>2.8</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
-        <awaitility.version>3.0.0</awaitility.version>
+        <awaitility.version>3.1.6</awaitility.version>
 
         <!-- gRPC support for microservice -->
         <com.google.protobuf.version>3.5.1</com.google.protobuf.version>

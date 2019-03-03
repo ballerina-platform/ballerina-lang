@@ -304,7 +304,7 @@
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.13.0",
         "ts-node": "^8.0.2",
-        "tslint": "^5.13.0",
+        "tslint": "^5.13.1",
         "typescript": "^3.3.3333",
         "vsce": "^1.57.0",
         "vscode": "1.1.21",
