@@ -78,6 +78,7 @@ Following will list down where a single whitespace can apply.
   ```ballerina
   function func1() {}
   ``` 
+* All statements inside a block should block-indent.
 ### Parentheses
 * No space between opening `(` and closing `)` parentheses if it is empty.
 * No space before closing parentheses `)` and after opening parentheses `(`.

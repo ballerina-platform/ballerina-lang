@@ -2,8 +2,19 @@
 
 * Statement are indented as to the context (top level or in a block). 
 
-## Assignment
-### Compound Assignment
+## Variable Definition
+* No spaces around optional operator `?`
+  
+  ```ballerina
+  string? name;
+  ```
+
+## Compound Assignment
+* Single spaces around compound operators such as `-=`, `+=`.
+
+  ```ballerina
+  name += lastName;
+  ```
 
 ## Flow Control
 
@@ -113,18 +124,51 @@
   - Closing brace should be on it own line and indented to align with the pattern start position.
   
     ```ballerina
-    function typeGuard1((string, int) | ClosedBar1 | ClosedBar2 | (int, boolean) | int | float x) returns string {
+    function typeGuard1((string, int) | (int, boolean) | int | float x) returns string {
         match x {
             var (s, i) if s is string => {
                 string matchedString = "Matched with string : " + s + " added text with " + io:sprintf("%s", i);
                 return matchedString;
             }
-            var (s, i) if s is float => {
-                string matchedFloat = "Matched with float : " + io:sprintf("%s", s + 4.5) + " with " + io:sprintf("%s", i);
-                return matchedFloat;
+            var (s, i) if s is int => {
+                string matchedInt = "Matched with int : " + io:sprintf("%s", s + 4) + " with " + io:sprintf("%s", i);
+                return matchedInt;
             }
         }
+        
+        return "";
     }
     ```
-## Worker Statement
+* If pattern statement block is empty both braces should be on the same line and there shouldn't be any spaces between
+  them.
+  
+  ```ballerina
+    function typeGuard1((string, int) | (int, boolean) | int | float x) returns string {
+        match x {
+            var (s, i) if s is string => {}
+            var (s, i) if s is int => {}
+        }
+        
+        return "";
+    }
+  ```
+## Transaction Statement
+
+* Each sub clauses such as `onretry`, `committed`, `aborted` must be start on the same line 
+  as the closing brace of the previous clause block.
+* If blocks are empty there should be an empty line between braces. 
+  
+  ```ballerina
+  function func1() {
+      transaction with retries = 2 {
+          
+      } onretry {
+          
+      } aborted {
+          
+      } committed {
+          
+      }
+  }
+  ```
 
