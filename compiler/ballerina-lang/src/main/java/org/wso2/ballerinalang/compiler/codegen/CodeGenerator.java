@@ -1290,7 +1290,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 list.add(new Operand(1)); // Todo - Cleanup counts
                 list.add(iExpr.regIndex);
 
-                BType resultType = ((BUnionType) iExpr.type).memberTypes.iterator().next();
+                BType resultType = ((BUnionType) iExpr.type).iterator().next();
                 list.add(getTypeCPIndex(resultType));
 
 
