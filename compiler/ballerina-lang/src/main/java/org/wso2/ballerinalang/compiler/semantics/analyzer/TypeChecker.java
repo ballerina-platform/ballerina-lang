@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
@@ -148,6 +149,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -761,15 +763,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = varSym.type;
                 BLangInvokableNode encInvokable = env.enclInvokable;
                 if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        !(symbol.owner instanceof BPackageSymbol)) {
+                        !(symbol.owner instanceof BPackageSymbol) &&
+                        !isFunctionArgument (varSym, encInvokable.requiredParams)) {
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                     ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv,
                             symbol.name, SymTag.VARIABLE);
-                    if (symbolWrapper.bSymbol != symTable.notFoundSymbol && !isFunctionArgument
-                            (symbolWrapper.bSymbol, env.enclInvokable.requiredParams) && !env.enclInvokable.flagSet
-                            .contains(Flag.ATTACHED) && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
-                        ((BLangFunction) env.enclInvokable).closureVarsWithResolvedLevels.putIfAbsent((BVarSymbol)
+                    if (symbolWrapper.bSymbol != symTable.notFoundSymbol && !encInvokable.flagSet
+                            .contains(Flag.ATTACHED)) {
+                        ((BLangFunction) encInvokable).resolvedClosures.putIfAbsent((BVarSymbol)
                                 symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
+
+                        updatePrecedingNodes(symbolWrapper);
                     }
                 }
                 if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
@@ -778,13 +782,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     // and is not an invokable at this phase.
                     symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
                             env.enclPkg.packageID, null, symbol.owner);
-                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv,
-                            symbol.name, SymTag.VARIABLE);
-                    if (symbolWrapper.bSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(symbolWrapper.bSymbol, ((BLangArrowFunction) env.node).params)) {
-                        ((BLangArrowFunction) env.node).closureVarsWithResolvedLevels.putIfAbsent(
-                                (BVarSymbol) symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
+
+                    if (!isFunctionArgument(varSym, ((BLangArrowFunction) env.node).params)) {
+                        SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                        ClosureSymbolWrapper symbolWrapper = symResolver.lookupClosureVarSymbol(encInvokableEnv,
+                                symbol.name, SymTag.VARIABLE);
+                        if (symbolWrapper.bSymbol != symTable.notFoundSymbol) {
+                            ((BLangArrowFunction) env.node).resolvedClosures.putIfAbsent(
+                                    (BVarSymbol) symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
+                            updatePrecedingNodes(symbolWrapper);
+                        }
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -809,6 +816,46 @@ public class TypeChecker extends BLangNodeVisitor {
 
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    private void updatePrecedingNodes(ClosureSymbolWrapper symbolWrapper) {
+        SymbolEnv env = this.env;
+        while (env != null && env.node.getKind() != NodeKind.PACKAGE) {
+            boolean stopUpdating = updateClosures(env, symbolWrapper);
+            if (stopUpdating) {
+                break;
+            }
+            env = env.enclEnv;
+        }
+    }
+
+    private boolean updateClosures(SymbolEnv enclEnv, ClosureSymbolWrapper symbolWrapper) {
+        if (enclEnv.enclInvokable != null) {
+            Scope.ScopeEntry scopeEntry = enclEnv.enclInvokable.body.scope.lookup(symbolWrapper.bSymbol.name);
+            if (scopeEntry != NOT_FOUND_ENTRY) {
+                return true;
+            }
+        }
+        if (enclEnv.node.getKind() == NodeKind.FUNCTION) {
+            if (((BLangInvokableNode) enclEnv.node).flagSet.contains(Flag.LAMBDA)) {
+                BLangInvokableNode bLangInvokableNode = (BLangInvokableNode) enclEnv.node;
+                if (!isFunctionArgument(symbolWrapper.bSymbol, bLangInvokableNode.requiredParams) &&
+                        !bLangInvokableNode.flagSet.contains(Flag.ATTACHED)) {
+                    ((BLangFunction) enclEnv.node).resolvedClosures.putIfAbsent((BVarSymbol)
+                            symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
+                } else {
+                    return true;
+                }
+            }
+        } else if (enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            if (!isFunctionArgument(symbolWrapper.bSymbol, ((BLangArrowFunction) enclEnv.node).params)) {
+                ((BLangArrowFunction) enclEnv.node).resolvedClosures.putIfAbsent(
+                        (BVarSymbol) symbolWrapper.bSymbol, symbolWrapper.resolvedLevel);
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

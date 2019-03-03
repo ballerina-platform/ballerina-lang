@@ -133,13 +133,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 20, STEP_IN, 1, expMap1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 8, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", FILE, 40, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", FILE, 24, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 27, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 28, STEP_IN, 1));
@@ -147,9 +141,6 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 31, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 37, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", FILE, 40, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN, 1));
@@ -161,7 +152,7 @@ public class VMDebuggerTest {
         populateExpressionMap(expMap2, "s", SUCCESS, "large");
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1, expMap2));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 24, 0, new ArrayList<>(), false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 21, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -327,9 +318,6 @@ public class VMDebuggerTest {
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 5, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 13, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 14, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 15, STEP_OVER, 1));
@@ -355,7 +343,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("cal", "Local", new BInteger(80)));
         variables.add(Util.createVariable("args", "Local", new BValueArray(new String[]{"Hello", "World"})));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 16, 2, variables, true);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 15, 2, variables, true);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-package-init.bal", breakPoints, expRes);
     }
@@ -368,34 +356,19 @@ public class VMDebuggerTest {
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", file, 6, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 8, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", file, 34, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 51, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_IN, 1));
-        // Add another debug point. For closure variables at desugar we add a map for every function and every block
-        // node and this has the same position as the function node.
-        debugPoints.add(Util.createDebugPoint(".", file, 34, STEP_IN, 2));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 40, STEP_OVER, 1));
@@ -418,7 +391,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 41, 0, new ArrayList<>(), false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 35, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }

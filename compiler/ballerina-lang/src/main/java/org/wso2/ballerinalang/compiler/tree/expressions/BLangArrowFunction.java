@@ -47,7 +47,7 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     public BType funcType;
     public IdentifierNode functionName;
     public BLangInvokableNode function;
-    public Map<BVarSymbol, Integer> closureVarsWithResolvedLevels = new LinkedHashMap<>();
+    public Map<BVarSymbol, Integer> resolvedClosures = new LinkedHashMap<>();
     public SymbolEnv.ExposedClosureHolder exposedClosureHolder = new SymbolEnv.ExposedClosureHolder();
     public int enclEnvCount;
     public SymbolEnv cachedEnv;
