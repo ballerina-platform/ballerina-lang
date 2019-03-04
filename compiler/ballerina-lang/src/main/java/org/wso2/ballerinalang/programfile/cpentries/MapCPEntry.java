@@ -17,10 +17,10 @@
  */
 package org.wso2.ballerinalang.programfile.cpentries;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.KeyInfo;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -30,11 +30,18 @@ import java.util.Map;
  */
 public class MapCPEntry implements ConstantPoolEntry {
 
+    private BConstantSymbol symbol;
+    // Todo - Rename to cpEntryIndex
     private int valueCPEntryIndex = -1;
     private Map<KeyInfo, ConstantValue> value;
 
     public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
         this.value = value;
+    }
+
+    public MapCPEntry(BConstantSymbol symbol, Map<KeyInfo, ConstantValue> value) {
+        this.value = value;
+        this.symbol = symbol;
     }
 
     public Map<KeyInfo, ConstantValue> getValue() {
@@ -61,6 +68,10 @@ public class MapCPEntry implements ConstantPoolEntry {
         }
 
         MapCPEntry mapCPEntry = (MapCPEntry) o;
+
+        if (mapCPEntry.symbol != symbol) {
+            return false;
+        }
 
         if (value.size() != mapCPEntry.value.size()) {
             return false;

@@ -75,6 +75,10 @@ public class MapCPEntry implements ConstantPoolEntry {
 
         MapCPEntry mapCPEntry = (MapCPEntry) o;
 
+//        if (mapCPEntry.symbol != symbol) {
+//            return false;
+//        }
+
         if (value.size() != mapCPEntry.value.size()) {
             return false;
         }
