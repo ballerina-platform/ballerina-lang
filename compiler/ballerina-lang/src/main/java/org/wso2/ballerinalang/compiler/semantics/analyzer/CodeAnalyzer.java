@@ -173,7 +173,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -1339,11 +1338,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordLiteral recordLiteral) {
         List<BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
-        keyValuePairs.forEach(kv -> {
-            analyzeExpr(kv.valueExpr);
-        });
+        keyValuePairs.forEach(kv -> analyzeExpr(kv.valueExpr));
 
-        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
+        Set<Object> names = new HashSet<>();
         for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
