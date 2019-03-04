@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -51,7 +52,8 @@ public class MapCPEntry implements ConstantPoolEntry {
         this.valueCPEntryIndex = valueCPEntryIndex;
         this.value = value;
         this.bMap = bValueMap;
-        // Todo - Freeze value
+
+        this.bMap.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
     }
 
     public Map<KeyInfo, ConstantValue> getValue() {
