@@ -118,6 +118,21 @@ public class TestUtil {
         return httpServer;
     }
 
+    public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer, int bossGroupSize,
+                                             int workerGroupsize) {
+        HttpServer httpServer = new HttpServer(port, channelInitializer, bossGroupSize, workerGroupsize);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ServerThread serverThread = new ServerThread(latch, httpServer);
+        try {
+            serverThread.start();
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Thread Interrupted while sleeping ", e);
+        }
+        return httpServer;
+    }
+
     public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer) {
         HttpsServer httpServer = new HttpsServer(port, channelInitializer);
         CountDownLatch latch = new CountDownLatch(1);

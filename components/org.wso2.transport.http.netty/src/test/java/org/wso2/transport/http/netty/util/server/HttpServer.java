@@ -50,6 +50,13 @@ public class HttpServer implements TestServer {
         this.channelInitializer = channelInitializer;
     }
 
+    public HttpServer(int port, ChannelInitializer channelInitializer, int bossGroupSize, int workerGroupSize) {
+        this.port = port;
+        this.channelInitializer = channelInitializer;
+        this.bossGroupSize = bossGroupSize;
+        this.workerGroupSize = workerGroupSize;
+    }
+
     /**
      * Start the HttpServer
      */
