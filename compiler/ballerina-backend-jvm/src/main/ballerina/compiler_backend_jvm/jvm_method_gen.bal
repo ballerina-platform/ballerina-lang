@@ -72,6 +72,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         if (returnType is bir:BTypeInt) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, returnVarRefIndex);
+        } if (returnType is bir:BTypeString) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, returnVarRefIndex);
         } else if (returnType is bir:BMapType) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, returnVarRefIndex);
@@ -415,6 +418,8 @@ function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv
 
     if (targetType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
+    } else if (targetType is bir:BTypeString) {
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
         panic err;
