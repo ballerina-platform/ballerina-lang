@@ -75,6 +75,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -89,6 +90,7 @@ public class JVMCodeGen {
     private static final String MANIFEST_ENTRIES = "manifestEntries";
     private static final String JAR_EXT = ".jar";
     private static final String functionName = "generateExecutableJar";
+    private static final String BALLERINA_CORE_JAR_NAME = "ballerina-core";
 
     public static void generateExecutableJar(Path sourceRootPath,
                                              String packagePath,
@@ -166,7 +168,15 @@ public class JVMCodeGen {
     }
 
     private static void writeBallerinaRuntimeDependency(JarOutputStream target) throws IOException {
-        ZipFile zipFile = new ZipFile(getBallerinaRuntimeDependency());
+        String ballerinaHome = System.getProperty(BALLERINA_HOME);
+        Path ballerinaRuntimeLib = Paths.get(ballerinaHome, BALLERINA_HOME_BRE, BALLERINA_HOME_LIB);
+
+        File ballerinaRuntimeJar =  Arrays.stream(Objects.requireNonNull(ballerinaRuntimeLib.toFile().listFiles()))
+                .filter(file -> file.getName().contains(BALLERINA_CORE_JAR_NAME))
+                .findFirst()
+                .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
+
+        ZipFile zipFile = new ZipFile(ballerinaRuntimeJar);
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry jarEntry = entries.nextElement();
@@ -190,16 +200,6 @@ public class JVMCodeGen {
                 target.closeEntry();
             }
         }
-    }
-
-    private static File getBallerinaRuntimeDependency() {
-        String ballerinaHome = System.getProperty(BALLERINA_HOME);
-        Path ballerinaLib = Paths.get(ballerinaHome, "bre", BALLERINA_HOME_LIB);
-
-        return Arrays.stream(Objects.requireNonNull(ballerinaLib.toFile().listFiles()))
-                .filter(file -> file.getName().contains("ballerina-core"))
-                .findFirst()
-                .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
     }
 
     private static BLangPackage compileProgram(CompilerContext context, String progPath) {
