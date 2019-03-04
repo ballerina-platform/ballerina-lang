@@ -557,8 +557,7 @@ public class Desugar extends BLangNodeVisitor {
         handleClosures(funcNode);
 
         // Create a map symbol for the function statement
-        BUnionType constraintTypeOfMap = new BUnionType(null,  new LinkedHashSet<BType>() {{
-            add(symTable.anyType); add(symTable.errorType); }}, true);
+        BUnionType constraintTypeOfMap = BUnionType.create(null, symTable.anyType, symTable.errorType);
 
         if (!funcNode.exposedClosureHolder.closuresExposed.isEmpty()) {
             BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapFunc$" + funClosureMapCount),
@@ -737,11 +736,10 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangBlockStmt block) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(block, env);
         if (!block.exposedClosureHolder.closuresExposed.isEmpty()) {
-            BUnionType constrainedTypeOfMap = new BUnionType(null, new LinkedHashSet<BType>() {{
-                add(symTable.anyType); add(symTable.errorType); }}, true);
+            BUnionType constraintTypeOfMap = BUnionType.create(null, symTable.anyType, symTable.errorType);
             // Create a map symbol for every block statement
             BVarSymbol mapSymbol = new BVarSymbol(0, names.fromString("$mapBlock$" + blockClosureMapCount),
-                    block.scope.owner.pkgID, new BMapType(TypeTags.MAP, constrainedTypeOfMap, null), block.scope.owner);
+                    block.scope.owner.pkgID, new BMapType(TypeTags.MAP, constraintTypeOfMap, null), block.scope.owner);
             block.exposedClosureHolder.mapSymbol = mapSymbol;
             blockEnv.exposedClosureHolder = block.exposedClosureHolder;
 
