@@ -35,6 +35,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             } else if (bType is bir:BTypeBoolean) {
                 mv.visitInsn(ICONST_0);
                 mv.visitVarInsn(ISTORE, index);
+            } else if (bType is bir:BTypeString) {
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, index);
+            } else if (bType is bir:BMapType) {
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, index);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                             io:sprintf("%s", bType));
@@ -62,8 +68,18 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
 
     if (!isVoidFunc) {
         returnVarRefIndex = indexMap.getIndex(localVars[0]);
-        mv.visitInsn(LCONST_0);
-        mv.visitVarInsn(LSTORE, returnVarRefIndex);
+        bir:BType returnType = func.typeValue.retType;
+        if (returnType is bir:BTypeInt) {
+            mv.visitInsn(LCONST_0);
+            mv.visitVarInsn(LSTORE, returnVarRefIndex);
+        } else if (returnType is bir:BMapType) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, returnVarRefIndex);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                                            io:sprintf("%s", returnType));
+            panic err;
+        }
     }
 
     // uncomment to test yield
@@ -137,12 +153,13 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == "MAP_STORE") {
                     instGen.generateMapStoreIns(inst);
+                } else if (inst.kind == "MAP_LOAD") {
+                    instGen.generateMapLoadIns(inst);
                 } else if (inst.kind == "ARRAY_STORE") {
                     instGen.generateArrayStoreIns(inst);
                 } else if (inst.kind == "ARRAY_LOAD") {
                     instGen.generateArrayValueLoad(inst);
                 }
-                //TODO array load and map load
             } else {
                 error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -197,6 +214,13 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
             mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BTypeString) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", STRING_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BMapType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", MAP_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -230,6 +254,13 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
         } else if (bType is bir:BTypeString) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", STRING_VALUE));
+        } else if (bType is bir:BMapType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", MAP_VALUE));
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -443,12 +474,17 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
             } else if (bType is bir:BTypeBoolean) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "Z");
                 fv.visitEnd();
+            } else if (bType is bir:BTypeString) {
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", STRING_VALUE));
+                fv.visitEnd();
+            } else if (bType is bir:BMapType) {
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
+                fv.visitEnd();
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                             io:sprintf("%s", bType));
                 panic err;
             }
-
 
             k = k + 1;
         }
