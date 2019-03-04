@@ -45,6 +45,8 @@ public type MethodVisitor object {
     public extern function visitCode();
 
     public extern function visitEnd();
+
+    public extern function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels);
 };
 
 

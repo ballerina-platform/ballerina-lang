@@ -62,7 +62,9 @@ type TerminatorGenerator object {
 
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
 
-        string methodDesc = "(";
+        string methodDesc = "(Lorg/ballerina/jvm/Strand;";
+
+        self.mv.visitVarInsn(ALOAD, 0);
         foreach var arg in callIns.args {
 
             int argIndex = self.getJVMIndexOfVarRef(arg.variableDcl);
@@ -114,6 +116,11 @@ type TerminatorGenerator object {
             }
 
         }
+
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
 
         // goto thenBB
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
