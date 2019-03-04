@@ -1769,7 +1769,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                             int defaultableParamCount) {
         getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.UNTAINTED;
         getCurrentAnalysisState().parameterTaintedStatus = new ArrayList<>();
-
+        getCurrentAnalysisState().ignoredInvokableSymbol = null;
         resetTaintedStatusOfVariables(invokableNode.requiredParams);
         resetTaintedStatusOfVariableDef(invokableNode.defaultableParams);
         if (invokableNode.restParam != null) {
@@ -1840,6 +1840,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
+        getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.UNTAINTED;
+        getCurrentAnalysisState().parameterTaintedStatus = new ArrayList<>();
         getCurrentAnalysisState().ignoredInvokableSymbol = null;
         analyzeNode(invokableNode.body, symbolEnv);
         if (stopAnalysis) {
