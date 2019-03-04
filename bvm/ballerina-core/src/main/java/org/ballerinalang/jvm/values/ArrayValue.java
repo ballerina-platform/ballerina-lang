@@ -158,9 +158,9 @@ public class ArrayValue implements RefValue {
         refValues = (Object[]) newArrayInstance(Object.class);
     }
 
-    public ArrayValue(BType type, int size) {
+    public ArrayValue(BType type, long size) {
         if (size != -1) {
-            this.size = maxArraySize = size;
+            this.size = maxArraySize = (int) size;
         }
 
         if (type.getTag() == TypeTags.INT_TAG) {
@@ -176,7 +176,7 @@ public class ArrayValue implements RefValue {
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
         }
 
-        this.arrayType = new BArrayType(type, size);
+        this.arrayType = new BArrayType(type, (int) size);
         this.elementType = type;
     }
 
@@ -208,19 +208,19 @@ public class ArrayValue implements RefValue {
 
     // ----------------------------  add methods --------------------------------------------------
 
-    public void add(int index, Object value) {
+    public void add(long index, Object value) {
         handleFrozenArrayValue();
         prepareForAdd(index, refValues.length);
-        refValues[index] = value;
+        refValues[(int) index] = value;
     }
 
-    public void add(int index, long value) {
+    public void add(long index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
-        intValues[index] = value;
+        intValues[(int) index] = value;
     }
 
-    public void add(int index, int value) {
+    public void add(long index, int value) {
         if (elementType.getTag() == TypeTags.INT_TAG) {
             add(index, value);
             return;
@@ -228,25 +228,25 @@ public class ArrayValue implements RefValue {
 
         handleFrozenArrayValue();
         prepareForAdd(index, booleanValues.length);
-        booleanValues[index] = value;
+        booleanValues[(int) index] = value;
     }
 
-    public void add(int index, byte value) {
+    public void add(long index, byte value) {
         handleFrozenArrayValue();
         prepareForAdd(index, byteValues.length);
-        byteValues[index] = value;
+        byteValues[(int) index] = value;
     }
 
-    public void add(int index, double value) {
+    public void add(long index, double value) {
         handleFrozenArrayValue();
         prepareForAdd(index, floatValues.length);
-        floatValues[index] = value;
+        floatValues[(int) index] = value;
     }
 
-    public void add(int index, String value) {
+    public void add(long index, String value) {
         handleFrozenArrayValue();
         prepareForAdd(index, stringValues.length);
-        stringValues[index] = value;
+        stringValues[(int) index] = value;
     }
 
     //-------------------------------------------------------------------------------------------------------------

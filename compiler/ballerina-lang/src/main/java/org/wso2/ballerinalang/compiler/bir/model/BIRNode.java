@@ -50,6 +50,7 @@ public abstract class BIRNode {
         public Name version;
         public List<BIRImportModule> importModules;
         public List<BIRTypeDefinition> typeDefs;
+        public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
 
         public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
@@ -59,6 +60,7 @@ public abstract class BIRNode {
             this.version = version;
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
+            this.globalVars = new ArrayList<>();
             this.functions = new ArrayList<>();
         }
 
@@ -110,6 +112,31 @@ public abstract class BIRNode {
 
         public BIRVariableDcl(BType type, Name name, VarKind kind) {
             this(null, type, name, kind);
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A global variable declaration.
+     *
+     * @since 0.980.0
+     */
+    public static class BIRGlobalVariableDcl extends BIRVariableDcl {
+        /**
+         * Visibility of this variable.
+         * 0 - package_private
+         * 1 - private
+         * 2 - public
+         */
+        public Visibility visibility;
+
+        public BIRGlobalVariableDcl(DiagnosticPos pos, Visibility visibility, BType type, Name name, VarKind kind) {
+            super(pos, type, name, kind);
+            this.visibility = visibility;
         }
 
         @Override

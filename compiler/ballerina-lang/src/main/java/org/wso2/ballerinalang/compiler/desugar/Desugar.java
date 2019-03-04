@@ -364,7 +364,6 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), env.enclPkg.packageID, bLangFunction.type, env.enclPkg.symbol,
                 true);
-        functionSymbol.retType = bLangFunction.returnTypeNode.type;
         // Add parameters
         for (BLangVariable param : bLangFunction.requiredParams) {
             functionSymbol.params.add(param.symbol);
@@ -374,6 +373,8 @@ public class Desugar extends BLangNodeVisitor {
         members.add(symTable.errorType);
         members.add(symTable.nilType);
         final BUnionType returnType = new BUnionType(null, members, true);
+
+        functionSymbol.retType = returnType;
 
         functionSymbol.scope = new Scope(functionSymbol);
         functionSymbol.type = new BInvokableType(new ArrayList<>(), returnType, null);

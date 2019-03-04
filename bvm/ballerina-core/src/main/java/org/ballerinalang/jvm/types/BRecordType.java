@@ -53,6 +53,7 @@ public class BRecordType extends BStructureType {
      * @param flags of the record type
      * @param fields record fields
      * @param restFieldType type of the rest field
+     * @param sealed flag to indicate whether the record is sealed
      */
     public BRecordType(String typeName, String pkgPath, int flags, Map<String, BField> fields, BType restFieldType,
             boolean sealed) {

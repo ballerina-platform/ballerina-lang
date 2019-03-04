@@ -55,10 +55,17 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                 instGen.generateMoveIns(inst);
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
+            } else if (inst is bir:NewArray) {
+                instGen.generateArrayNewIns(inst);
             } else if (inst is bir:NewMap) {
                 instGen.generateMapNewIns(inst);
-            } else if (inst is bir:MapStore) {
-                instGen.generateMapStoreIns(inst);
+            } else if (inst is bir:FieldAccess) {
+                if (inst.kind == "MAP_STORE") {
+                    instGen.generateMapStoreIns(inst);
+                } else if (inst.kind == "ARRAY_STORE") {
+                    instGen.generateArrayStoreIns(inst);
+                }
+                //TODO array load and map load
             } else {
                 error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -105,6 +112,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return "Ljava/lang/String;";
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BArrayType) {
+        return io:sprintf("L%s;", ARRAY_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -118,12 +127,26 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")J";
     } else if (bType is bir:BTypeString) {
         return ")Ljava/lang/String;";
+    } else if (bType is bir:BArrayType) {
+        return io:sprintf(")L%s;", ARRAY_VALUE);
     } else if (bType is bir:BMapType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
     }
+}
+
+function getMainFunc(bir:Function[] funcs) returns bir:Function? {
+    bir:Function? userMainFunc = ();
+    foreach var func in funcs {
+        if (func.name.value == "main") {
+            userMainFunc = untaint func;
+            break;
+        }
+    }
+
+    return userMainFunc;
 }
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
@@ -149,7 +172,10 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     // invoke the user's main method
-    mv.visitMethodInsn(INVOKESTATIC, invokedClassName, "main", desc, false);
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
+    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
+
+    mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);
 
     if (!isVoidFunction) {
         bir:BType returnType = userMainFunc.typeValue.retType;

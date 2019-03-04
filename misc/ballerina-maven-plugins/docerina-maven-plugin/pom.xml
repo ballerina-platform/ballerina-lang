@@ -53,6 +53,12 @@
     <dependency>
       <groupId>org.ballerinalang</groupId>
       <artifactId>docerina</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

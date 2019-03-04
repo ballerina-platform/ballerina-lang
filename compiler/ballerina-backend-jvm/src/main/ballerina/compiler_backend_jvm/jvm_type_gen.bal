@@ -1,5 +1,5 @@
 # Name of the class to which the types will be added as static fields.
-string typeOwnerClass = invokedClassName;
+string typeOwnerClass = "";
 
 # # Create static fields to hold the user defined types.
 #

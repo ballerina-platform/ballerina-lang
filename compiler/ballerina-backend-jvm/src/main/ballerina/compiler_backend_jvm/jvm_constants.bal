@@ -194,7 +194,7 @@ int F_SAME = 3;
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
-const string Array_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
+const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
 const string OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
 const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";

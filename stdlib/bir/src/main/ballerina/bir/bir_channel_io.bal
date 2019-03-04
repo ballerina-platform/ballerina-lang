@@ -28,7 +28,10 @@ public type BirChannelReader object {
         return self.cp.ints[self.reader.readInt32()];
     }
 
-
+    public function readPackageIdCpRef() returns PackageId {
+        //TODO do we need to replace packageId with module id?
+        return self.cp.packages[self.reader.readInt32()];
+    }
 
 
     // following methods "proxied" since ballerina doesn't support obj inheritance yet

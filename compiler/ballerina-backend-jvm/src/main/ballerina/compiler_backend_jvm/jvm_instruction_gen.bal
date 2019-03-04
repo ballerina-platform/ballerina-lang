@@ -1,3 +1,4 @@
+import ballerina/io;
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
@@ -47,6 +48,9 @@ type InstructionGenerator object {
             self.mv.visitVarInsn(ILOAD, rhsIndex);
             self.mv.visitVarInsn(ISTORE, lhsLndex);
         } else if (bType is bir:BTypeString) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BArrayType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else if (bType is bir:BMapType) {
@@ -313,7 +317,7 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ASTORE, lhsOpIndex);
     }
 
-    function generateMapStoreIns(bir:MapStore mapStoreIns) {
+    function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit var_ref
         int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, mapIndex);
@@ -329,10 +333,71 @@ type InstructionGenerator object {
         addBoxInsn(self.mv, valueType);
 
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
-                io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
+                io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
 
         // emit a pop, since we are not using the return value from the map.put()
         self.mv.visitInsn(POP);
+    }
+
+    # Generate a new instance of an array value
+    # 
+    # + inst - type of the new array
+    function generateArrayNewIns(bir:NewArray inst) {
+        self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
+        self.mv.visitInsn(DUP);
+        
+        bir:BType arrayType = inst.typeValue;
+        if (arrayType is bir:BArrayType) {
+            loadType(self.mv, arrayType.eType);
+            self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
+            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
+        }
+        self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+    }
+    # Generate adding a new value to array
+    function generateArrayStoreIns(bir:FieldAccess inst) {
+        // TODO: visit(var_ref)
+        // TODO: visit(index_expr)
+        // TODO: visit(value_expr)
+        int varRefIndex = self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, varRefIndex);
+        int keyIndex = self.getJVMIndexOfVarRef(inst.keyOp.variableDcl);
+        self.mv.visitVarInsn(LLOAD, keyIndex);
+        // int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
+        // self.mv.visitVarInsn(LLOAD, valueIndex); //need to fix, this is only for int
+        int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
+        bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
+        self.loadFromLocalVar(valueType, valueIndex);
+
+        string valueDesc = getTypeDesc(valueType); //pass the value type
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
+    }
+
+    function generateArrayValueLoad() {
+        // TODO: visit(var_ref)
+        // TODO: visit(index_expr)
+        bir:BType bType = (); // need to infer from the instruction
+        if (bType is bir:BTypeInt) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
+        } else if (bType is bir:BTypeString) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
+        } else if (bType == "byte") {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
+        } else if (bType == "float") {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+        }
+    }
+
+    function addBoxInsn(bir:BType bType) {
+        if (bType is bir:BTypeInt) {
+           self. mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+        } else {
+            return;
+        }
     }
 
     function loadFromLocalVar(bir:BType bType, int valueIndex) {
