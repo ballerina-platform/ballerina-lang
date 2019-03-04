@@ -38,6 +38,7 @@ service echo on echoEP {
                 io:println("Number of bytes written: ", writeResult);
                 _ = caller->accepted();
             } else {
+                io:println("Write error!!!");
                 string errMsg = <string>writeResult.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
@@ -64,25 +65,30 @@ service ClientService = service {
         io:println("connect: ", caller.remotePort);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller) {
         io:println("New content received for callback");
-        var str = getString(content);
-        if (str is string) {
-            io:println(untaint str);
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                var str = getString(content);
+                if (str is string) {
+                    io:println(untaint str);
+                } else {
+                    io:println(str.reason());
+                }
+                var closeResult = caller->close();
+                if (closeResult is error) {
+                    io:println(closeResult.detail().message);
+                } else {
+                    io:println("Client connection closed successfully.");
+                }
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
         } else {
-            io:println(str.reason());
+            io:println(result);
         }
-
-        var closeResult = caller->close();
-        if (closeResult is error) {
-            io:println(closeResult.detail().message);
-        } else {
-            io:println("Client connection closed successfully.");
-        }
-    }
-
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: ", caller.remotePort);
     }
 
     resource function onError(socket:Caller caller, error er) {

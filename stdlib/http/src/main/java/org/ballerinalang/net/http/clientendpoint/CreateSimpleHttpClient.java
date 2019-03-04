@@ -35,17 +35,15 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
+import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
 /**
@@ -113,20 +111,5 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         context.setReturnValues((httpClient));
-    }
-
-    private ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
-        ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
-        if (poolManager == null) {
-            synchronized (this) {
-                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
-                    PoolConfiguration userDefinedPool = new PoolConfiguration();
-                    populatePoolingConfig(poolStruct, userDefinedPool);
-                    poolManager = new ConnectionManager(userDefinedPool);
-                    poolStruct.addNativeData(CONNECTION_MANAGER, poolManager);
-                }
-            }
-        }
-        return poolManager;
     }
 }
