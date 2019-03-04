@@ -51,14 +51,14 @@ class InlineEditLicense extends React.Component<InlineEditLicenceProps, any> {
                                 id="name"
                                 size="mini"
                                 placeholder="Name"
-                                value={editableString.urlText}
+                                value={editableString.name}
                                 onChange={onTextValueChange}
                             />
                             <Form.Input
                                 id="url"
                                 size="mini"
                                 placeholder="URL"
-                                value={editableString.urlPath}
+                                value={editableString.url}
                                 onChange={onTextValueChange}
                             />
                             <Form.Button size="mini"
