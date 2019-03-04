@@ -241,7 +241,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private BType getTypeIntersection(BType currentType, BType targetType) {
         List<BType> narrowingTypes = types.getAllTypes(targetType);
-        List<BType> intersection = narrowingTypes.stream().map(type -> {
+        LinkedHashSet<BType> intersection = narrowingTypes.stream().map(type -> {
             if (types.isAssignable(type, currentType)) {
                 return type;
             } else if (types.isAssignable(currentType, type)) {
@@ -272,15 +272,14 @@ public class TypeNarrower extends BLangNodeVisitor {
                 }
             }
             return null;
-        }).filter(type -> type != null).collect(Collectors.toList());
+        }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (intersection.isEmpty() || intersection.contains(symTable.semanticError)) {
             return symTable.semanticError;
         } else if (intersection.size() == 1) {
-            return intersection.get(0);
+            return intersection.toArray(new BType[0])[0];
         } else {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(intersection);
-            return new BUnionType(null, memberTypes, memberTypes.contains(symTable.nilType));
+            return BUnionType.create(null, intersection);
         }
     }
 
@@ -295,7 +294,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else if (union.size() == 1) {
             return union.toArray(new BType[1])[0];
         }
-        return new BUnionType(null, union, union.contains(symTable.nilType));
+        return BUnionType.create(null, union);
     }
 
     private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {

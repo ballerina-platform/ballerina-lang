@@ -1,0 +1,8 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+//    compile project(':ballerina')
+    implementation 'com.github.chewiebug:gcviewer:1.35'
+}
+
+description = 'Ballerina - Microbenchmarks'

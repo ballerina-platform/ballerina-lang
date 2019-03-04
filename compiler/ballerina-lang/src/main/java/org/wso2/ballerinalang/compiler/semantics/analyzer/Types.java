@@ -188,7 +188,7 @@ public class Types {
 
     public boolean isJSONContext(BType type) {
         if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
         }
         return type.tag == TypeTags.JSON;
     }
@@ -242,7 +242,7 @@ public class Types {
                 return isAnydata(fieldTypes, unresolvedTypes) &&
                         (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
-                return isAnydata(((BUnionType) type).memberTypes, unresolvedTypes);
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE:
                 return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
@@ -302,7 +302,7 @@ public class Types {
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
+            return unionType.getMemberTypes().stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
         if (type.tag == TypeTags.TUPLE) {
@@ -451,14 +451,14 @@ public class Types {
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.memberTypes);
+            sourceTypes.addAll(sourceUnionType.getMemberTypes());
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
             BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.memberTypes);
+            targetTypes.addAll(targetUnionType.getMemberTypes());
         } else {
             targetTypes.add(target);
         }
@@ -781,9 +781,7 @@ public class Types {
     void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(mapType);
-        BUnionType unionType = new BUnionType(null, memberTypes, true);
+        BUnionType unionType = BUnionType.create(null, mapType, symTable.nilType);
         switch (collectionType.tag) {
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) collectionType;
@@ -793,8 +791,7 @@ public class Types {
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
                 mapType.constraint = tupleTypes.size() == 1 ?
-                        tupleTypes.iterator().next() :
-                        new BUnionType(null, new LinkedHashSet<>(tupleType.tupleTypes), false);
+                        tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
@@ -811,10 +808,7 @@ public class Types {
                 }});
                 break;
             case TypeTags.XML:
-                LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
-                bTypes.add(symTable.xmlType);
-                bTypes.add(symTable.stringType);
-                mapType.constraint = new BUnionType(null, bTypes, false);
+                mapType.constraint = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
@@ -880,7 +874,7 @@ public class Types {
 
         if (isValueType(expType) &&
                 (actualType.tag == TypeTags.FINITE ||
-                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).memberTypes.stream()
+                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
                                  .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, expType))))) {
             int code;
             switch (expType.tag) {
@@ -1149,7 +1143,7 @@ public class Types {
 
     private boolean checkUnionTypeToJSONConvertibility(BUnionType type, BJSONType target) {
         // Check whether all the member types are convertible to JSON
-        return type.memberTypes.stream()
+        return type.getMemberTypes().stream()
                 .anyMatch(memberType -> castVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
 
@@ -1485,13 +1479,13 @@ public class Types {
 
             BUnionType sUnionType = (BUnionType) s;
 
-            if (sUnionType.memberTypes.size()
-                    != tUnionType.memberTypes.size()) {
+            if (sUnionType.getMemberTypes().size()
+                    != tUnionType.getMemberTypes().size()) {
                 return false;
             }
 
-            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.memberTypes);
-            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.memberTypes);
+            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes());
+            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes());
 
             boolean notSameType = sourceTypes
                     .stream()
@@ -1650,14 +1644,14 @@ public class Types {
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.memberTypes);
+            sourceTypes.addAll(sourceUnionType.getMemberTypes());
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
             BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.memberTypes);
+            targetTypes.addAll(targetUnionType.getMemberTypes());
         } else {
             targetTypes.add(target);
         }
@@ -1727,7 +1721,7 @@ public class Types {
         Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
                 .filter(expr -> isAssignable(expr.type, targetType) ||
                         (targetType.tag == TypeTags.UNION &&
-                                 ((BUnionType) targetType).memberTypes.stream()
+                                 ((BUnionType) targetType).getMemberTypes().stream()
                                          .filter(memType -> memType.tag == TypeTags.FINITE)
                                          .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
                                                                                             (BLangLiteral) expr))))
@@ -1758,7 +1752,7 @@ public class Types {
     BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType) {
         List<BType> intersection = new LinkedList<>();
 
-        unionType.memberTypes.forEach(memType -> {
+        unionType.getMemberTypes().forEach(memType -> {
             if (memType.tag == TypeTags.FINITE) {
                 BType finiteTypeWithMatches = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) memType,
                                                                                          targetType);
@@ -1792,7 +1786,7 @@ public class Types {
             return intersection.get(0);
         } else {
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(intersection);
-            return new BUnionType(null, memberTypes, memberTypes.contains(symTable.nilType));
+            return BUnionType.create(null, memberTypes);
         }
     }
 
@@ -2123,11 +2117,9 @@ public class Types {
 
         if (remainingTypes.isEmpty()) {
             return symTable.semanticError;
-        } else if (remainingTypes.size() == 1) {
-            return remainingTypes.get(0);
         }
 
-        return new BUnionType(null, new LinkedHashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
     }
 
     private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
@@ -2179,17 +2171,17 @@ public class Types {
         }
 
         BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>(unionType.getMemberTypes());
+        BUnionType errorLiftedType = BUnionType.create(null, memTypes);
 
         // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
+        errorLiftedType.remove(symTable.nilType);
         if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
+            errorLiftedType.remove(symTable.errorType);
         }
 
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        if (errorLiftedType.getMemberTypes().size() == 1) {
+            return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
         return errorLiftedType;
     }
@@ -2240,17 +2232,17 @@ public class Types {
 
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
-        if (type.memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+        if (type.getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
             return true;
         }
 
         // Value space contains nil.
-        if (type.memberTypes.stream().anyMatch(t -> t.isNullable())) {
+        if (type.getMemberTypes().stream().anyMatch(BType::isNullable)) {
             return true;
         }
 
         // All members are of same type and has the implicit initial value as a member.
-        Iterator<BType> iterator = type.memberTypes.iterator();
+        Iterator<BType> iterator = type.iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
             if (!isSameType(firstMember, iterator.next())) {

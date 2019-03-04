@@ -210,7 +210,7 @@ public class HttpDispatcher {
 
     private static BValue populateAndGetEntityBody(BMap<String, BValue> inRequest,
                                                    BMap<String, BValue> inRequestEntity, BType entityBodyType) {
-        HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
+        HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true, true);
         try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:

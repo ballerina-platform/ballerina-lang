@@ -363,7 +363,7 @@ public class Desugar extends BLangNodeVisitor {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         members.add(symTable.errorType);
         members.add(symTable.nilType);
-        final BUnionType returnType = new BUnionType(null, members, true);
+        final BUnionType returnType = BUnionType.create(null, members);
         BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
 
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
@@ -2706,6 +2706,13 @@ public class Desugar extends BLangNodeVisitor {
     }
     @Override
     public void visit(BLangErrorConstructorExpr errConstExpr) {
+        if (errConstExpr.reasonExpr.impConversionExpr != null &&
+                errConstExpr.reasonExpr.impConversionExpr.targetType.tag != TypeTags.STRING) {
+            // Override casts to constants/finite types.
+            // For reason expressions of any form, the cast has to be to string.
+            errConstExpr.reasonExpr.impConversionExpr = null;
+        }
+        errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
         errConstExpr.detailsExpr = rewriteExpr(Optional.ofNullable(errConstExpr.detailsExpr)
                 .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));
@@ -3430,7 +3437,7 @@ public class Desugar extends BLangNodeVisitor {
         // Owner of the variable symbol must be an invokable symbol
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
         Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
-                ((BUnionType) enclosingFuncReturnType).memberTypes :
+                ((BUnionType) enclosingFuncReturnType).getMemberTypes() :
                 new LinkedHashSet<BType>() {{
                     add(enclosingFuncReturnType);
                 }};
@@ -3711,7 +3718,7 @@ public class Desugar extends BLangNodeVisitor {
         BType[] memberTypes;
         if (patternType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) patternType;
-            memberTypes = unionType.memberTypes.toArray(new BType[0]);
+            memberTypes = unionType.getMemberTypes().toArray(new BType[0]);
         } else {
             memberTypes = new BType[1];
             memberTypes[0] = patternType;
@@ -3896,7 +3903,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
-            exprTypes = new ArrayList<>(unionType.memberTypes);
+            exprTypes = new ArrayList<>(unionType.getMemberTypes());
         } else {
             exprTypes = Lists.of(bLangMatchExpression.type);
         }
@@ -3924,7 +3931,7 @@ public class Desugar extends BLangNodeVisitor {
         if (unmatchedTypes.size() == 1) {
             defaultPatternType = unmatchedTypes.get(0);
         } else {
-            defaultPatternType = new BUnionType(null, new LinkedHashSet<>(unmatchedTypes), false);
+            defaultPatternType = BUnionType.create(null, new LinkedHashSet<>(unmatchedTypes));
         }
 
         String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_default";
@@ -3982,7 +3989,8 @@ public class Desugar extends BLangNodeVisitor {
             return false;
         }
 
-        return ((BUnionType) type).memberTypes.contains(symTable.nilType);
+        // TODO: 2/26/19 Should be able to use type.isNullable() here
+        return ((BUnionType) type).getMemberTypes().contains(symTable.nilType);
     }
 
     private BLangExpression rewriteSafeNavigationExpr(BLangAccessExpression accessExpr) {
@@ -4077,7 +4085,7 @@ public class Desugar extends BLangNodeVisitor {
         if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
             if (iExpr.expr.type.tag == TypeTags.UNION && iExpr.expr.type.isNullable()) {
                 BUnionType unionType = (BUnionType) iExpr.expr.type;
-                return unionType.memberTypes.size() == 2 && unionType.memberTypes.stream()
+                return unionType.getMemberTypes().size() == 2 && unionType.getMemberTypes().stream()
                         .noneMatch(type -> type.tag != TypeTags.NIL && types.isValueType(type));
             }
         } else if (iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN) {

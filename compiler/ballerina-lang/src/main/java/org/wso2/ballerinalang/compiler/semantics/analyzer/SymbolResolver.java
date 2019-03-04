@@ -474,14 +474,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
         }
         if (types.isStampingAllowed(variableSourceType, targetType)) {
-            List<BType> unionReturnTypes = new ArrayList<>();
-            unionReturnTypes.add(targetType);
-            unionReturnTypes.add(symTable.errorType);
-            BType returnType = new BUnionType(null, new LinkedHashSet<BType>() {
-                {
-                    addAll(unionReturnTypes);
-                }
-            }, false);
+            BType returnType = BUnionType.create(null, targetType, symTable.errorType);
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
             return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
@@ -549,7 +542,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     BSymbol getNumericConversionOrCastSymbol(BLangTypeConversionExpr conversionExpr, BType sourceType,
                                              BType targetType) {
         if (targetType.tag == TypeTags.UNION &&
-                ((BUnionType) targetType).memberTypes.stream()
+                ((BUnionType) targetType).getMemberTypes().stream()
                         .filter(memType -> types.isBasicNumericType(memType)).count() > 1) {
             return symTable.notFoundSymbol;
         }
@@ -563,7 +556,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     (sourceType.tag == TypeTags.FINITE &&
                              types.finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) ||
                     (sourceType.tag == TypeTags.UNION &&
-                             ((BUnionType) sourceType).memberTypes.stream()
+                             ((BUnionType) sourceType).getMemberTypes().stream()
                                      .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
                                              types.finiteTypeContainsNumericTypeValues((BFiniteType) memType)))) {
                 // i.e., a conversion from a numeric type to another numeric type in a union.
@@ -578,7 +571,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 case TypeTags.JSON:
                     return createTypeCastSymbol(sourceType, targetType);
                 case TypeTags.UNION:
-                    if (((BUnionType) sourceType).memberTypes.stream()
+                    if (((BUnionType) sourceType).getMemberTypes().stream()
                             .anyMatch(memType -> types.isBasicNumericType(memType))) {
                         return createTypeCastSymbol(sourceType, targetType);
                     }
@@ -657,14 +650,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         // if it is not already a union type, JSON type, or any type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
-            unionType.memberTypes.add(symTable.nilType);
-            unionType.setNullable(true);
+            unionType.add(symTable.nilType);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<BType>() {{
-                add(resultType);
-                add(symTable.nilType);
-            }};
-            this.resultType = new BUnionType(null, memberTypes, true);
+            this.resultType = BUnionType.create(null, resultType, symTable.nilType);
         }
 
         typeNode.type = resultType;
@@ -858,7 +846,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
                         memBType.tag == TypeTags.UNION ?
-                                ((BUnionType) memBType).memberTypes.stream() :
+                                ((BUnionType) memBType).getMemberTypes().stream() :
                                 Stream.of(memBType))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
@@ -870,8 +858,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
 
-        BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes,
-                memberTypes.contains(symTable.nilType));
+        BUnionType unionType = BUnionType.create(unionTypeSymbol, memberTypes);
         unionTypeSymbol.type = unionType;
 
         resultType = unionType;

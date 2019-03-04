@@ -406,7 +406,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             } else if (udType instanceof BUnionType) {
                 try {
                     BUnionType bUnionType = (BUnionType) udType;
-                    for (BType type : bUnionType.memberTypes) {
+                    for (BType type : bUnionType.getMemberTypes()) {
                         if (type.tsymbol != null && isReferencedRegardlessPkgs(type.tsymbol.name.getValue(),
                                                                                type.tsymbol.owner)) {
                             addLocation(userDefinedType, type.tsymbol.owner.pkgID.name.getValue(),
