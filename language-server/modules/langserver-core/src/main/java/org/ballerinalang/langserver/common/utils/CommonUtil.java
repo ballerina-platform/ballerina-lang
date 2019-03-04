@@ -481,12 +481,20 @@ public class CommonUtil {
      */
     public static List<TextEdit> getAutoImportTextEdits(LSContext ctx, String orgName, String pkgName) {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
-            return null;
+            return new ArrayList<>();
         }
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        if (relativePath == null || pkg == null) {
+            return new ArrayList<>();
+        }
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
+        for (BLangImportPackage importPackage : imports) {
+            if (importPackage.orgName.value.equals(orgName) && importPackage.alias.value.equals(pkgName)) {
+                return new ArrayList<>();
+            }
+        }
         Position start = new Position(0, 0);
         if (!imports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(imports);
@@ -628,7 +636,7 @@ public class CommonUtil {
                 }
                 break;
             case UNION:
-                List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).memberTypes);
+                List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
                 typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
             case STREAM:
@@ -1294,7 +1302,7 @@ public class CommonUtil {
                 return template.replace("{%1}", mapDef);
             } else if (bType instanceof BUnionType) {
                 BUnionType bUnionType = (BUnionType) bType;
-                Set<BType> memberTypes = bUnionType.memberTypes;
+                Set<BType> memberTypes = bUnionType.getMemberTypes();
                 if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
                     Optional<BType> type = memberTypes.stream()
                             .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
@@ -1427,7 +1435,7 @@ public class CommonUtil {
             } else if (bType instanceof BUnionType) {
                 // Check for union type assignment eg. int | string
                 List<String> list = new ArrayList<>();
-                Set<BType> memberTypes = ((BUnionType) bType).memberTypes;
+                Set<BType> memberTypes = ((BUnionType) bType).getMemberTypes();
                 if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
                     Optional<BType> type = memberTypes.stream()
                             .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
@@ -1594,7 +1602,7 @@ public class CommonUtil {
                     .map(Object::toString)
                     .collect(Collectors.joining("|"));
         } else if (bType instanceof BUnionType) {
-            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).memberTypes);
+            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
             return " // Values allowed: " + memberTypes.stream()
                     .map(BType::toString)
                     .collect(Collectors.joining("|"));

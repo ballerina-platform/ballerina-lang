@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -40,7 +41,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -54,7 +57,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -152,6 +154,11 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         return indexExpr;
     }
 
+    public void visit(BLangTypeConversionExpr typeConversionExpr) {
+        result = desugar.addConversionExprIfRequired((BLangExpression) rewrite(typeConversionExpr.expr),
+                        typeConversionExpr.type);
+    }
+
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         indexAccessExpr.indexExpr =
@@ -199,15 +206,13 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
         if (invocationExpr.expr != null) {
             invocationExpr.expr = (BLangExpression) rewrite(invocationExpr.expr);
-            invocationExpr.expr = desugar.addConversionExprIfRequired(invocationExpr.expr, invocationExpr.type);
-            invocationExpr.requiredArgs = invocationExpr.requiredArgs.stream()
-                    .map(this::rewrite).map(rewrite -> (BLangExpression) rewrite).collect(Collectors.toList());
-            result = invocationExpr;
-            return;
+            if (invocationExpr.expr.type.getKind() != TypeKind.OBJECT) {
+                invocationExpr.expr = desugar.addConversionExprIfRequired(invocationExpr.expr, invocationExpr.type);
+            }
         }
 
         BInvokableSymbol symbol = streamingCodeDesugar.getInvokableSymbol(invocationExpr, StreamingCodeDesugar
-                .AGGREGATOR_OBJECT_NAME);
+                .AGGREGATOR_OBJECT_NAME, true);
         if (symbol != null) {
             if (streamingCodeDesugar.isReturnTypeMatching(invocationExpr.pos, StreamingCodeDesugar
                     .AGGREGATOR_OBJECT_NAME, symbol)) {
@@ -342,6 +347,11 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     @Override
     public void visit(BLangLiteral literalExpr) {
         result = literalExpr;
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr typedescExpr) {
+        result = typedescExpr;
     }
 
     @Override

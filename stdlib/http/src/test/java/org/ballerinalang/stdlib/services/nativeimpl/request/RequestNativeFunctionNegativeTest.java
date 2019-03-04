@@ -95,7 +95,9 @@ public class RequestNativeFunctionNegativeTest {
         inRequest.put(REQUEST_ENTITY_FIELD, entity);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertNull(returnVals[0]);
+        Assert.assertNotNull(returnVals[0]);
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
+                            "{message:\"Error occurred while extracting json data from entity: Empty content\"}");
     }
 
     @Test(description = "Test method with string payload")
@@ -148,7 +150,7 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertNotNull(returnVals[0]);
     }
 
-    @Test(description = "Test getTextPayload method without a paylaod")
+    @Test(description = "Test getTextPayload method without a payload")
     public void testGetTextPayloadNegative() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
@@ -159,7 +161,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
         Assert.assertTrue(returnVals[0].stringValue()
-                .contains("Error occurred while retrieving text data from " + "entity : String payload is null"));
+                        .contains("Error occurred while extracting text data from entity : Empty content"));
     }
 
     @Test
@@ -173,7 +175,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                "{message:\"Error occurred while retrieving xml data from entity : Empty xml payload\"}");
+                "{message:\"Error occurred while extracting xml data from entity : Empty content\"}");
     }
 
     @Test

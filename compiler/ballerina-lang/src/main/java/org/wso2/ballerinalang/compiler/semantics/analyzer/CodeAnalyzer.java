@@ -864,7 +864,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return true;
             case TypeTags.UNION:
                 BUnionType unionMatchType = (BUnionType) matchType;
-                return unionMatchType.memberTypes
+                return unionMatchType.getMemberTypes()
                         .stream()
                         .anyMatch(memberMatchType -> isValidStaticMatchPattern(memberMatchType, literal));
             case TypeTags.TUPLE:
@@ -1316,7 +1316,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         returnTypeAndSendType.add(workerSendNode.expr.type);
         if (returnTypeAndSendType.size() > 1) {
-            return new BUnionType(null, returnTypeAndSendType, false);
+            return BUnionType.create(null, returnTypeAndSendType);
         } else {
             return workerSendNode.expr.type;
         }
@@ -1386,7 +1386,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         returnTypeAndSendType.add(symTable.nilType);
         if (returnTypeAndSendType.size() > 1) {
-            return new BUnionType(null, returnTypeAndSendType, true);
+            return BUnionType.create(null, returnTypeAndSendType);
         } else {
             return symTable.nilType;
         }
@@ -1870,7 +1870,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (bLangMatchExpression.expr.type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) bLangMatchExpression.expr.type;
-            exprTypes = new ArrayList<>(unionType.memberTypes);
+            exprTypes = new ArrayList<>(unionType.getMemberTypes());
         } else {
             exprTypes = Lists.of(bLangMatchExpression.expr.type);
         }
@@ -1936,7 +1936,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
-            enclInvokableHasErrorReturn = unionType.memberTypes.stream()
+            enclInvokableHasErrorReturn = unionType.getMemberTypes().stream()
                     .anyMatch(memberType -> types.isAssignable(memberType, symTable.errorType));
         } else if (types.isAssignable(exprType, symTable.errorType)) {
             enclInvokableHasErrorReturn = true;
@@ -2147,8 +2147,32 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
             return;
         }
+
         if (!Symbols.isPublic(funcNode.symbol)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
+        }
+
+        funcNode.requiredParams.forEach(param -> {
+            if (!types.isAnydata(param.type)) {
+                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
+            }
+        });
+
+        funcNode.defaultableParams.forEach(param -> {
+            if (!types.isAnydata(param.var.type)) {
+                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.var.type);
+            }
+        });
+
+        if (funcNode.restParam != null && !types.isAnydata(funcNode.restParam.type)) {
+            this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
+                            funcNode.restParam.type);
+        }
+
+        if (!types.isAssignable(funcNode.returnTypeNode.type,
+                                BUnionType.create(null, symTable.nilType, symTable.errorType))) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
+                            funcNode.returnTypeNode.type);
         }
     }
 

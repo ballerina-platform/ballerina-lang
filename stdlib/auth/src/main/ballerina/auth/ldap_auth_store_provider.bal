@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/runtime;
 
 # Represents configurations that required for LDAP auth store.
@@ -70,18 +71,8 @@ public type LdapAuthProviderConfig record {
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
 public type SecureClientSocket record {
-    TrustStore? trustStore = ();
+    crypto:TrustStore? trustStore = ();
     string trustedCertFile = "";
-    !...;
-};
-
-# A record for providing trust store related configurations.
-#
-# + path - Path to the trust store file
-# + password - Trust store password
-public type TrustStore record {
-    string path = "";
-    string password = "";
     !...;
 };
 
@@ -112,10 +103,10 @@ public type LdapAuthStoreProvider object {
     public function authenticate(string username, string password) returns boolean {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
-            runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-            userPrincipal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
+            runtime:Principal principal = runtime:getInvocationContext().principal;
+            principal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
             // By default set userId as username.
-            userPrincipal.username = username;
+            principal.username = username;
         }
         return isAuthenticated;
     }

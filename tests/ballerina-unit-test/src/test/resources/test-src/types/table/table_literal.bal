@@ -97,7 +97,7 @@ function checkTableCount(string tablePrefix) returns (int) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return count;
 }
 
@@ -562,7 +562,7 @@ function testRemoveWithInvalidRecordType() returns string {
     string returnStr = "";
     var ret = dt.remove(isBelow35Invalid);
     if (ret is int) {
-        returnStr = <string>ret;
+        returnStr = string.convert(ret);
     } else {
         returnStr = <string>ret.detail().message;
     }
@@ -583,7 +583,7 @@ function testRemoveWithInvalidParamType() returns string {
     string returnStr = "";
     var ret = dt.remove(isBelow35InvalidParam);
     if (ret is int) {
-        returnStr = <string>ret;
+        returnStr = string.convert(ret);
     } else {
         returnStr = <string>ret.detail().message;
     }

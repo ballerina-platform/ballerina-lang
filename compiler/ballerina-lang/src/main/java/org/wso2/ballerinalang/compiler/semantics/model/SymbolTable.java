@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -501,16 +500,20 @@ public class SymbolTable {
         defineConversionOperator(intType, decimalType, true, InstructionCodes.I2D);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
-        defineConversionOperator(intType, byteType, false, InstructionCodes.I2BI);
-        defineConversionOperator(byteType, intType, true, InstructionCodes.BI2I);
+        defineConversionOperator(intType, byteType, true, InstructionCodes.I2BI);
         defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
         defineConversionOperator(floatType, decimalType, true, InstructionCodes.F2D);
         defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
         defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);
+        defineConversionOperator(floatType, byteType, true, InstructionCodes.F2BI);
         defineConversionOperator(decimalType, intType, true, InstructionCodes.D2I);
         defineConversionOperator(decimalType, floatType, true, InstructionCodes.D2F);
         defineConversionOperator(decimalType, booleanType, true, InstructionCodes.D2B);
         defineConversionOperator(decimalType, stringType, true, InstructionCodes.D2S);
+        defineConversionOperator(decimalType, byteType, true, InstructionCodes.D2BI);
+        defineConversionOperator(byteType, intType, true, InstructionCodes.BI2I);
+        defineConversionOperator(byteType, floatType, true, InstructionCodes.BI2F);
+        defineConversionOperator(byteType, decimalType, true, InstructionCodes.BI2D);
         defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
         defineConversionOperator(stringType, decimalType, false, InstructionCodes.S2D);
         defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
@@ -616,15 +619,10 @@ public class SymbolTable {
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
-                unionType.memberTypes.add(this.errorType);
+                unionType.add(this.errorType);
                 retType = targetType;
             } else {
-                BUnionType unionType = new BUnionType(null,
-                                                      new LinkedHashSet<BType>() {{
-                                                          add(targetType);
-                                                          add(errorType);
-                                                      }}, false);
-                retType = unionType;
+                retType = BUnionType.create(null, targetType, errorType);
             }
         }
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
@@ -647,15 +645,10 @@ public class SymbolTable {
         } else {
             if (targetType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) targetType;
-                unionType.memberTypes.add(this.errorType);
+                unionType.add(this.errorType);
                 retType = targetType;
             } else {
-                BUnionType unionType = new BUnionType(null,
-                        new LinkedHashSet<BType>() {{
-                            add(targetType);
-                            add(errorType);
-                        }}, false);
-                retType = unionType;
+                retType = BUnionType.create(null, targetType, errorType);
             }
         }
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);

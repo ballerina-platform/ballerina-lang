@@ -179,16 +179,16 @@ public abstract class AbstractItemResolver {
         // Add the packages completion items.
         completionItems.addAll(getPackagesCompletionItems(context));
         // Add the check keyword
-        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(snippetCapability);
+        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context, snippetCapability);
         completionItems.add(checkKeyword);
         // Add the wait keyword
-        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(snippetCapability);
+        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(context, snippetCapability);
         completionItems.add(waitKeyword);
         // Add But keyword item
-        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(snippetCapability);
+        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context, snippetCapability);
         completionItems.add(butKeyword);
         // Add the trap expression keyword
-        CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(snippetCapability);
+        CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(context, snippetCapability);
         completionItems.add(trapExpression);
 
         return completionItems;

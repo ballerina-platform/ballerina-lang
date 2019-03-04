@@ -1331,7 +1331,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 list.add(new Operand(1)); // Todo - Cleanup counts
                 list.add(iExpr.regIndex);
 
-                BType resultType = ((BUnionType) iExpr.type).memberTypes.iterator().next();
+                BType resultType = ((BUnionType) iExpr.type).iterator().next();
                 list.add(getTypeCPIndex(resultType));
 
 
@@ -1409,7 +1409,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             case InstructionCodes.JSON2ARRAY:
             case InstructionCodes.O2JSON:
             case InstructionCodes.CHECKCAST:
-            case InstructionCodes.TYPE_ASSERTION:
+            case InstructionCodes.TYPE_CAST:
                 Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
                 emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
                 break;

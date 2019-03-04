@@ -35,16 +35,16 @@ string weekday = time:getWeekday(time); // Day of the week. E.g., “TUESDAY”.
 
 ```ballerina
 // Create a record of type ‘Time’ with time zone.
-time:TimeZone zoneIdValue = {id:"America/Panama"};
-time:Time time1 = {time: 1498488382000, zone: zoneIdValue};
+time:TimeZone zoneIdValue = { id: "America/Panama" };
+time:Time time1 = { time: 1498488382000, zone: zoneIdValue };
 
 // Create a record of type ‘Time’ with the time zone offset.
-time:TimeZone zoneOffsetValue = {id:"-05:00"};
-time:Time time2 = {time: 1498488382000, zone: zoneOffsetValue};
+time:TimeZone zoneOffsetValue = { id: "-05:00" };
+time:Time time2 = { time: 1498488382000, zone: zoneOffsetValue };
 
 // Create a record of type ‘Time’ without the time zone.
-time:TimeZone noZoneValue = {id:""};
-time:Time time3 = {time: 1498488382000, zone: noZoneValue};
+time:TimeZone noZoneValue = { id: "" };
+time:Time time3 = { time: 1498488382000, zone: noZoneValue };
 
 // Create a record of type ‘Time’ with time and date. E.g., 2018-03-28T23:42:45.554-05:00
 time:Time dateTime = time:createTime(2018, 3, 28, 23, 42, 45, 554, "America/Panama");
@@ -54,8 +54,8 @@ time:Time dateTime = time:createTime(2018, 3, 28, 23, 42, 45, 554, "America/Pana
 ### Formatting a time/date to a string
 
 ```ballerina
-time:TimeZone zoneValue = {id:"America/Panama"};
-time:Time time = {time: 1498488382444, zone: zoneValue};
+time:TimeZone zoneValue = { id: "America/Panama" };
+time:Time time = { time: 1498488382444, zone: zoneValue };
 
 //Format a time to a string of a given pattern.
 string time1 = time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ"); //E.g., “2017-06-26T09:46:22.444-0500”.

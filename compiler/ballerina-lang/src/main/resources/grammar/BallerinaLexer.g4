@@ -2,6 +2,7 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
+    boolean inStringTemplate = false;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
@@ -144,7 +145,13 @@ COLON               : ':' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
-RIGHT_BRACE         : '}' ;
+RIGHT_BRACE         : '}'
+{
+if (inStringTemplate)
+{
+    popMode();
+}
+};
 LEFT_PARENTHESIS    : '(' ;
 RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
@@ -451,7 +458,7 @@ XMLLiteralStart
     ;
 
 StringTemplateLiteralStart
-    :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
+    :   TYPE_STRING WS* BACKTICK   { inStringTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
 DocumentationLineStart
@@ -646,6 +653,11 @@ XMLLiteralEnd
 fragment
 ExpressionStart
     :   '{{'
+    ;
+
+fragment
+INTERPOLATION_START
+    :   '${'
     ;
 
 XMLTemplateText
@@ -963,36 +975,32 @@ DeprecatedValidCharSequence
 mode STRING_TEMPLATE;
 
 StringTemplateLiteralEnd
-    :   '`' { inTemplate = false; }          -> popMode
+    :   '`' { inStringTemplate = false; }          -> popMode
     ;
 
 StringTemplateExpressionStart
-    :   StringTemplateText? ExpressionStart            -> pushMode(DEFAULT_MODE)
+    :   StringTemplateText? INTERPOLATION_START            -> pushMode(DEFAULT_MODE)
     ;
 
-// We cannot use "StringTemplateBracesSequence? (StringTemplateStringChar StringTemplateBracesSequence?)*" because it
-// can match an empty string.
 StringTemplateText
-    :   StringTemplateValidCharSequence? (StringTemplateStringChar StringTemplateValidCharSequence?)+
-    |   StringTemplateValidCharSequence (StringTemplateStringChar StringTemplateValidCharSequence?)*
+    :   StringTemplateValidCharSequence+ DOLLAR*
+    |   DOLLAR+
     ;
 
 fragment
-StringTemplateStringChar
-    :   ~[`{\\]
-    |   '\\' [`{]
+DOLLAR
+    :   '$'
+    ;
+
+fragment
+StringTemplateValidCharSequence
+    :   ~[`$\\]
+    |   DOLLAR+ ~[`${\\]
     |   WS
     |   StringLiteralEscapedSequence
     ;
 
 fragment
 StringLiteralEscapedSequence
-    :   '\\\\'
-    |   '\\{{'
-    ;
-
-fragment
-StringTemplateValidCharSequence
-    :   '{'
-    |   '\\' ~'\\'
+    :   DOLLAR* '\\' [\\'"btnfr`{]
     ;
