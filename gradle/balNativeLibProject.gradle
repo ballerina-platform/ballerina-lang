@@ -58,7 +58,5 @@ build {
 }
 
 test {
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "ballerina.home", "$buildDir"
 }
