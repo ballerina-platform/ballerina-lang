@@ -1781,7 +1781,7 @@ public class Desugar extends BLangNodeVisitor {
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type, recordLiteral.isConst);
+            expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else {
             expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -1986,22 +1986,22 @@ public class Desugar extends BLangNodeVisitor {
                 BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
                 BLangMapLiteral mapLiteral = (BLangMapLiteral) constantSymbol.literalValue;
                 // Check whether the map literal is a constant.
-                if (mapLiteral.isConst) {
-                    // Retrieve the field access expression's value.
-                    BLangExpression value = constantValueResolver.getValue(fieldAccessExpr.pos, fieldAccessExpr.field,
-                            mapLiteral);
-                    // If the value is `null`, that means the value could not be retrieved. In that case we just
-                    // create an empty literal as the result since anyway compilation will not continue because of
-                    // the error.
-                    if (value == null) {
-                        // Todo - Improve position in package builder.
-                        // Create a new literal as the result.
-                        result = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                    } else {
-                        result = value;
-                    }
-                    return;
+
+                // Retrieve the field access expression's value.
+                BLangExpression value = constantValueResolver.getValue(fieldAccessExpr.pos, fieldAccessExpr.field,
+                        mapLiteral);
+                // If the value is `null`, that means the value could not be retrieved. In that case we just
+                // create an empty literal as the result since anyway compilation will not continue because of
+                // the error.
+                if (value == null) {
+                    // Todo - Improve position in package builder.
+                    // Create a new literal as the result.
+                    result = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                } else {
+                    result = value;
                 }
+                return;
+
             }
             targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
                     stringLit);
@@ -4408,7 +4408,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 return new BLangJSONLiteral(new ArrayList<>(), fieldType);
             case TypeTags.MAP:
-                return new BLangMapLiteral(new ArrayList<>(), type, false);
+                return new BLangMapLiteral(new ArrayList<>(), type);
             case TypeTags.RECORD:
                 return new BLangRecordLiteral(type);
             default:

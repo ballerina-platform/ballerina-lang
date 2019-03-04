@@ -869,7 +869,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (constant.typeNode != null) {
                 constant.symbol.type = symTable.noType;
             }
-            ((BLangRecordLiteral) constant.value).isConst = true;
             constantSymbol.literalValue = constant.value;
         }
 

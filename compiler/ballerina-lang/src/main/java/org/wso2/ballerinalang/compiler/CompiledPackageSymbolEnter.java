@@ -885,7 +885,7 @@ public class CompiledPackageSymbolEnter {
             keyValues.push(recordKeyValue);
         }
         // Create a new map literal.
-        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type, true);
+        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
