@@ -1981,8 +1981,10 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
-            if (fieldAccessExpr.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                BLangMapLiteral mapLiteral = (BLangMapLiteral) fieldAccessExpr.getExpression();
+            BLangExpression expression = fieldAccessExpr.getExpression();
+            if (expression.getKind() == NodeKind.CONSTANT_REF) {
+                BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
+                BLangMapLiteral mapLiteral = (BLangMapLiteral) constantSymbol.literalValue;
                 // Check whether the map literal is a constant.
                 if (mapLiteral.isConst) {
                     // Retrieve the field access expression's value.
