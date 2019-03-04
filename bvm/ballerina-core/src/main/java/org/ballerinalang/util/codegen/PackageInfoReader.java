@@ -428,7 +428,7 @@ public class PackageInfoReader {
                         ConstantValue constantValue = new ConstantValue();
                         constantValue.valueCPEntryIndex = valueCPIndex;
 
-                        constantValue.constantValueMap = cpEntry.getValue();
+                        constantValue.constantValueMap = cpEntry.getConstantValueMap();
 
                         KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
 
@@ -436,7 +436,7 @@ public class PackageInfoReader {
 
                         MapCPEntry valueMapCPEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
 
-                        bValueMap.put(keyCPEntry.getValue(), valueMapCPEntry.bMap);
+                        bValueMap.put(keyCPEntry.getValue(), valueMapCPEntry.getBMap());
 
                     } else {
                         int valueCPIndex = dataInStream.readInt();
@@ -446,7 +446,7 @@ public class PackageInfoReader {
                         ConstantValue constantValue = new ConstantValue();
                         constantValue.valueCPEntryIndex = valueCPIndex;
 
-                        constantValue.constantValueMap = cpEntry.getValue();
+                        constantValue.constantValueMap = cpEntry.getConstantValueMap();
 
                         KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
 
@@ -456,7 +456,7 @@ public class PackageInfoReader {
                     }
                 }
 
-                return new MapCPEntry(valueCPEntryIndex, valueMap, bValueMap);
+                return new MapCPEntry( valueMap, bValueMap);
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }

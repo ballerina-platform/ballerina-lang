@@ -146,7 +146,7 @@ public class PackageInfoWriter {
                     MapCPEntry mapCPEntry = (MapCPEntry) cpEntry;
 
                     // value cp entry index
-                    dataOutStream.writeInt( mapCPEntry.getValueCPEntryIndex());
+                    dataOutStream.writeInt( mapCPEntry.getCPEntryIndex());
 
                     // Size
                     dataOutStream.writeInt(mapCPEntry.getValue().size());

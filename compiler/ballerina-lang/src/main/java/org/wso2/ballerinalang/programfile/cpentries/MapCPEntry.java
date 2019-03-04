@@ -31,12 +31,11 @@ import java.util.Map;
 public class MapCPEntry implements ConstantPoolEntry {
 
     private BConstantSymbol symbol;
-    // Todo - Rename to cpEntryIndex
-    private int valueCPEntryIndex = -1;
     private Map<KeyInfo, ConstantValue> value;
+    private int cpEntryIndex = -1;
 
     public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
-        this.value = value;
+        this(null, value);
     }
 
     public MapCPEntry(BConstantSymbol symbol, Map<KeyInfo, ConstantValue> value) {
@@ -48,12 +47,12 @@ public class MapCPEntry implements ConstantPoolEntry {
         return value;
     }
 
-    public void setValueCPEntryIndex(int valueCPEntryIndex) {
-        this.valueCPEntryIndex = valueCPEntryIndex;
+    public void setCPEntryIndex(int valueCPEntryIndex) {
+        this.cpEntryIndex = valueCPEntryIndex;
     }
 
-    public int getValueCPEntryIndex() {
-        return valueCPEntryIndex;
+    public int getCPEntryIndex() {
+        return cpEntryIndex;
     }
 
     public EntryType getEntryType() {
@@ -102,8 +101,6 @@ public class MapCPEntry implements ConstantPoolEntry {
                 return false;
             }
         }
-
-
         return true;
     }
 

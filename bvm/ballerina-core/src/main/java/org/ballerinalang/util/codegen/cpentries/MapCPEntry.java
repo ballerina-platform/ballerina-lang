@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen.cpentries;
 
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.wso2.ballerinalang.programfile.ConstantValue;
@@ -33,35 +32,23 @@ import java.util.Map;
  */
 public class MapCPEntry implements ConstantPoolEntry {
 
-    private int valueCPEntryIndex = -1;
-    private Map<KeyInfo, ConstantValue> value;
+    private Map<KeyInfo, ConstantValue> constantValueMap;
+    private BMap<String, BRefType> bMap;
 
-    // Todo - remove type
-    private BType type;
+    public MapCPEntry(Map<KeyInfo, ConstantValue> constantValueMap, BMap<String, BRefType> bMap) {
+        this.constantValueMap = constantValueMap;
+        this.bMap = bMap;
 
-    // Todo - freeze value
-    public BMap<String, BRefType> bMap = new BMap<>();
-
-    public MapCPEntry(int valueCPEntryIndex, Map<KeyInfo, ConstantValue> value, BType type) {
-        this.valueCPEntryIndex = valueCPEntryIndex;
-        this.value = value;
-        this.type = type;
-    }
-
-    public MapCPEntry(int valueCPEntryIndex, Map<KeyInfo, ConstantValue> value, BMap<String, BRefType> bValueMap) {
-        this.valueCPEntryIndex = valueCPEntryIndex;
-        this.value = value;
-        this.bMap = bValueMap;
-
+        // Freeze the bvalue map.
         this.bMap.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
     }
 
-    public Map<KeyInfo, ConstantValue> getValue() {
-        return value;
+    public Map<KeyInfo, ConstantValue> getConstantValueMap() {
+        return constantValueMap;
     }
 
-    public int getValueCPEntryIndex() {
-        return valueCPEntryIndex;
+    public BMap<String, BRefType> getBMap() {
+        return bMap;
     }
 
     public EntryType getEntryType() {
@@ -77,46 +64,40 @@ public class MapCPEntry implements ConstantPoolEntry {
 
         MapCPEntry mapCPEntry = (MapCPEntry) o;
 
-//        if (mapCPEntry.symbol != symbol) {
-//            return false;
-//        }
-
-        if (value.size() != mapCPEntry.value.size()) {
+        if (constantValueMap.size() != mapCPEntry.constantValueMap.size()) {
             return false;
         }
 
-        for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.value.entrySet()) {
+        for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.constantValueMap.entrySet()) {
             KeyInfo key = entry.getKey();
-            if (!this.value.containsKey(key)) {
+            if (!this.constantValueMap.containsKey(key)) {
                 return false;
             }
 
             ConstantValue value1 = entry.getValue();
-            ConstantValue value2 = this.value.get(key);
+            ConstantValue value2 = this.constantValueMap.get(key);
             if (!value1.equals(value2)) {
                 return false;
             }
         }
 
-        for (Map.Entry<KeyInfo, ConstantValue> entry : this.value.entrySet()) {
+        for (Map.Entry<KeyInfo, ConstantValue> entry : this.constantValueMap.entrySet()) {
             KeyInfo key = entry.getKey();
-            if (!mapCPEntry.value.containsKey(key)) {
+            if (!mapCPEntry.constantValueMap.containsKey(key)) {
                 return false;
             }
 
             ConstantValue value1 = entry.getValue();
-            ConstantValue value2 = mapCPEntry.value.get(key);
+            ConstantValue value2 = mapCPEntry.constantValueMap.get(key);
             if (!value1.equals(value2)) {
                 return false;
             }
         }
-
-
         return true;
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return constantValueMap.hashCode();
     }
 }

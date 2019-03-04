@@ -402,7 +402,7 @@ public class CompiledPackageSymbolEnter {
                 }
 
                 MapCPEntry mapCPEntry = new MapCPEntry(valueMap);
-                mapCPEntry.setValueCPEntryIndex(constValueCPEntryIndex);
+                mapCPEntry.setCPEntryIndex(constValueCPEntryIndex);
 
                 return mapCPEntry;
 
@@ -767,7 +767,7 @@ public class CompiledPackageSymbolEnter {
             constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
             constantSymbol.literalValueTypeTag = valueType.tag;
 
-            constantSymbol.valueCPIndex = constantPoolEntry.getValueCPEntryIndex();
+            constantSymbol.cpEntryIndex = constantPoolEntry.getCPEntryIndex();
 
         }
 

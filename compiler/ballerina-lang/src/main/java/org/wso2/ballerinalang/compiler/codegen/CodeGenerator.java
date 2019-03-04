@@ -982,7 +982,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
         emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex),
-                getOperand(((BConstantSymbol) constRef.symbol).valueCPIndex), constRef.regIndex);
+                getOperand(((BConstantSymbol) constRef.symbol).cpEntryIndex), constRef.regIndex);
     }
 
     @Override
@@ -2208,8 +2208,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
 
             MapCPEntry cpEntry = new MapCPEntry(constantSymbol, constantValue.constantValueMap);
-            constantValue.valueCPEntryIndex = constantSymbol.valueCPIndex = currentPkgInfo.addCPEntry(cpEntry);
-            cpEntry.setValueCPEntryIndex(constantSymbol.valueCPIndex);
+            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
+            cpEntry.setCPEntryIndex(constantSymbol.cpEntryIndex);
 
             constantInfo.constantValue = constantValue;
 
@@ -2298,7 +2298,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
                 MapCPEntry cpEntry = new MapCPEntry(constantValue.constantValueMap);
                 constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
-                cpEntry.setValueCPEntryIndex( constantValue.valueCPEntryIndex);
+                cpEntry.setCPEntryIndex( constantValue.valueCPEntryIndex);
 
             } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
 
@@ -2324,7 +2324,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
                 MapCPEntry cpEntry = new MapCPEntry(symbol, constantValue.constantValueMap);
                 constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
-                cpEntry.setValueCPEntryIndex(constantValue.valueCPEntryIndex);
+                cpEntry.setCPEntryIndex(constantValue.valueCPEntryIndex);
             } else {
                 throw new RuntimeException("unexpected node kind");
             }

@@ -1757,7 +1757,7 @@ public class BVM {
 
                 PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
 
-                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).bMap;
+                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).getBMap();
                 break;
             default:
                 throw new UnsupportedOperationException();
