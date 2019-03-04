@@ -96,3 +96,40 @@ function invalidConstPatterns(any a) returns string {
     }
     return "Default";
 }
+
+function testUnreachableUnionStaticPatterns() returns string {
+    any a = 10;
+    match a {
+        15 => return "1";
+        10 => return "2";
+        10|11 => return "3"; // unreachable
+    }
+
+    match a {
+        10|11 => return "1";
+        15 => return "2";
+        11 => return "3"; // unreachable
+    }
+
+    match a {
+        10|11 => return "1";
+        15 => return "2";
+        12|11 => return "3"; // unreachable
+    }
+
+    match a {
+        10|11|"Ballerina" => return "1";
+        15 => return "2";
+        12 => return "3";
+        "Ballerina" => return "4"; // unreachable
+    }
+
+    match a {
+        10|11|"Ballerina" => return "1";
+        15 => return "2";
+        "Ballerina"|"Lang" => return "4"; // unreachable
+        12|11 => return "3"; // unreachable
+    }
+
+    return "4";
+}

@@ -638,6 +638,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @return true if both patterns are similar.
      */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
+        if (precedingPattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If preceding pattern is a binary expression, check both sides of binary expression with current pattern.
+            BLangBinaryExpr precedingBinaryExpr = (BLangBinaryExpr) precedingPattern;
+            BLangExpression precedingLhsExpr = precedingBinaryExpr.lhsExpr;
+            BLangExpression precedingRhsExpr = precedingBinaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingLhsExpr, pattern) ||
+                    checkLiteralSimilarity(precedingRhsExpr, pattern);
+        }
+
+        if (pattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If current pattern is a binary expression, check both sides of binary expression with preceding pattern.
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) pattern;
+            BLangExpression lhsExpr = binaryExpr.lhsExpr;
+            BLangExpression rhsExpr = binaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingPattern, lhsExpr) ||
+                    checkLiteralSimilarity(precedingPattern, rhsExpr);
+        }
+
         switch (precedingPattern.type.tag) {
             case TypeTags.MAP:
                 if (pattern.type.tag == TypeTags.MAP) {
