@@ -34,7 +34,7 @@ type Employee record {
 
 @kubernetes:Deployment {
     image: "ballerinascenarios/employee_database_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.3-SNAPSHOT",
+    baseImage: "ballerina/ballerina:0.990.3",
     name: "ballerina-employee-database-service",
     copyFiles: [{ target: "/ballerina/runtime/bre/lib",
                 source: "mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar" }],
@@ -78,7 +78,7 @@ service hello on httpListener {
                 log:printError("Error converting table to json", err = employees);
                 panic employees;
             }
-        } else if (dt is error) {
+        } else {
             panic dt;
         }
     }

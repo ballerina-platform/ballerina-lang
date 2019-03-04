@@ -16,6 +16,9 @@
 
 set -o xtrace
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+. ${parent_path}/utils.sh
+
 WORK_DIR=`pwd`
 TEST_SCRIPT=test.sh
 
@@ -80,12 +83,10 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # YOUR TEST EXECUTION LOGIC GOES HERE
 # A sample execution for maven-based testng/junit tests is shown below.
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
+declare -A deployment_props
+read_property_file "$INPUT_DIR/deployment.properties" deployment_props
 
-IFS='=' read -r -a array <<< "$(head -n 1 $INPUT_DIR/deployment.properties)"
-EXTERNAL_IP=${array[1]};
-unset IFS
-
-#cat $INPUT_DIR/deployment.properties
+EXTERNAL_IP=${deployment_props["ExternalIP"]}
 
 curl http://$EXTERNAL_IP/hello/sayHello -v
 
@@ -94,7 +95,7 @@ curl http://$EXTERNAL_IP/hello/select -v
 if [ -z ${JMETER_HOME} ]
 then
   echo 'JMETER_HOME env variable not found. Setting up jmeter manually.'
-  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz
+  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz --quiet
   tar -xzf apache-jmeter-4.0.tgz
   export JMETER_HOME=$(pwd)/apache-jmeter-4.0
   JMETER_HOME=$(pwd)/apache-jmeter-4.0
