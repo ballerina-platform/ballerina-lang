@@ -18,12 +18,21 @@
 # provides includes functions to send request/error messages.
 public type Client client object {
 
+    private ClientEndpointConfig config = {};
+    private string url;
+
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used for endpoint initialization.
     #
     # + url - The server url.
     # + config - - The ClientEndpointConfig of the endpoint.
-    public extern function init(string url, ClientEndpointConfig config);
+    public function __init(string url, ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
+        self.init(self.url, self.config, globalGrpcClientConnPool);
+    }
+
+    extern function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig);
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
@@ -72,7 +81,7 @@ public type Client client object {
 # + chunking - The chunking behaviour of the request
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + proxy - Proxy server related options
-# + connectionThrottling - Configurations for connection throttling
+# + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {
@@ -82,7 +91,7 @@ public type ClientEndpointConfig record {
     Chunking chunking = CHUNKING_NEVER;
     string forwarded = "disable";
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = {};
+    PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
     !...;
@@ -99,20 +108,6 @@ public type ProxyConfig record {
     int port = 0;
     string userName = "";
     string password = "";
-    !...;
-};
-
-# Provides configurations for throttling connections of the endpoint.
-#
-# + maxActiveConnections - Maximum number of active connections allowed for the endpoint. The default value, -1,
-#                          indicates that the number of connections are not restricted.
-# + waitTime - Maximum waiting time for a request to grab an idle connection from the client
-# + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
-public type ConnectionThrottling record {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
-    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
-    int maxActiveStreamsPerConnection = 20000;
     !...;
 };
 

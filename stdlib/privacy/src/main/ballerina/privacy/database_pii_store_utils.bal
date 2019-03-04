@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/sql;
+
 # Represents personally identifiable information (PII) stored in a database
 #
 # + pii - personally identifiable information
@@ -76,11 +78,11 @@ function validateFieldName (string tableName, string idColumn, string piiColumn)
 # + id - pseudonymized identifier getting inserted
 # + queryResult - results of the insert query
 # + return - pseudonymized identifier if insert was successful, error if insert failed
-function processInsertResult (string id, int|error queryResult) returns string|error {
+function processInsertResult (string id, sql:UpdateResult|error queryResult) returns string|error {
     if (queryResult is error) {
         return queryResult;
     } else {
-        if (queryResult > 0) {
+        if (queryResult.updatedRowCount > 0) {
             return id;
         } else {
             error err = error("Unable to insert PII with identifier " + id);
@@ -114,11 +116,11 @@ function processSelectResult (string id, table<PiiData>|error queryResult) retur
 # + id - pseudonymized identifier getting deleted
 # + queryResult - results of the delete query
 # + return - nil if deletion was successful, error if deletion failed
-function processDeleteResult (string id, int|error queryResult) returns error? {
+function processDeleteResult (string id, sql:UpdateResult|error queryResult) returns error? {
     if (queryResult is error) {
         return queryResult;
     } else {
-        if (queryResult > 0) {
+        if (queryResult.updatedRowCount > 0) {
             return ();
         } else {
             error err = error("Identifier " + id + " is not found in PII store");
