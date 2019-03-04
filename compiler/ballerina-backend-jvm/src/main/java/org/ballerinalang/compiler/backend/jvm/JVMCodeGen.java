@@ -40,8 +40,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,13 +53,18 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -67,6 +74,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
@@ -151,7 +160,46 @@ public class JVMCodeGen {
             }
         }
 
+        writeBallerinaRuntimeDependency(target);
+
         target.close();
+    }
+
+    private static void writeBallerinaRuntimeDependency(JarOutputStream target) throws IOException {
+        ZipFile zipFile = new ZipFile(getBallerinaRuntimeDependency());
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry jarEntry = entries.nextElement();
+
+            if (jarEntry == null) {
+                break;
+            }
+
+            if (jarEntry.getName().startsWith("META-INF") || !jarEntry.getName().endsWith(".class")) {
+                continue;
+            }
+
+            target.putNextEntry(jarEntry);
+
+            try (InputStream stream = zipFile.getInputStream(jarEntry)) {
+                int nRead;
+                byte[] data = new byte[1024];
+                while ((nRead = stream.read(data, 0, data.length)) != -1) {
+                    target.write(data, 0, nRead);
+                }
+                target.closeEntry();
+            }
+        }
+    }
+
+    private static File getBallerinaRuntimeDependency() {
+        String ballerinaHome = System.getProperty(BALLERINA_HOME);
+        Path ballerinaLib = Paths.get(ballerinaHome, "bre", BALLERINA_HOME_LIB);
+
+        return Arrays.stream(Objects.requireNonNull(ballerinaLib.toFile().listFiles()))
+                .filter(file -> file.getName().contains("ballerina-core"))
+                .findFirst()
+                .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
     }
 
     private static BLangPackage compileProgram(CompilerContext context, String progPath) {
