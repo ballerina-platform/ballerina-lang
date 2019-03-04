@@ -62,10 +62,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == "MAP_STORE") {
                     instGen.generateMapStoreIns(inst);
+                } else if (inst.kind == "MAP_LOAD") {
+                    instGen.generateMapLoadIns(inst);
                 } else if (inst.kind == "ARRAY_STORE") {
                     instGen.generateArrayStoreIns(inst);
                 }
-                //TODO array load and map load
             } else {
                 error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;

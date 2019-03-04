@@ -318,7 +318,7 @@ type InstructionGenerator object {
     }
 
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
-        // visit var_ref
+        // visit map_ref
         int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, mapIndex);
 
@@ -329,7 +329,7 @@ type InstructionGenerator object {
         // visit value_expr
         int valueIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
         bir:BType valueType = mapStoreIns.rhsOp.variableDcl.typeValue;
-        self.loadFromLocalVar(valueType, valueIndex);
+        self.generateLocalVarLoad(valueType, valueIndex);
         self.addBoxInsn(valueType);
 
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
@@ -337,6 +337,26 @@ type InstructionGenerator object {
 
         // emit a pop, since we are not using the return value from the map.put()
         self.mv.visitInsn(POP);
+    }
+
+    function generateMapLoadIns(bir:FieldAccess mapStoreIns) {
+        // visit map_ref
+        int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, mapIndex);
+
+        // visit key_expr
+        int keyIndex = self.getJVMIndexOfVarRef(mapStoreIns.keyOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, keyIndex);
+        self.addUnboxInsn(mapStoreIns.keyOp.variableDcl.typeValue);
+
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
+                io:sprintf("(L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE), false);
+
+        // store in the target reg
+        bir:BType targetType = mapStoreIns.lhsOp.variableDcl.typeValue;
+        self.addUnboxInsn(targetType);
+        int targetIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
+        self.generateLocalVarStore(targetType, targetIndex);
     }
 
     # Generate a new instance of an array value
@@ -367,7 +387,7 @@ type InstructionGenerator object {
         // self.mv.visitVarInsn(LLOAD, valueIndex); //need to fix, this is only for int
         int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
-        self.loadFromLocalVar(valueType, valueIndex);
+        self.generateLocalVarLoad(valueType, valueIndex);
 
         string valueDesc = getMethodArgDesc(valueType); //pass the value type
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
@@ -400,11 +420,42 @@ type InstructionGenerator object {
         }
     }
 
-    function loadFromLocalVar(bir:BType bType, int valueIndex) {
+    function addUnboxInsn(bir:BType bType) {
+        if (bType is bir:BTypeInt) {
+            self.mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
+        } else if (bType is bir:BTypeString) {
+            self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        } else if (bType is bir:BMapType) {
+            self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+        } else {
+            return;
+        }
+    }
+
+    function generateLocalVarLoad(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, valueIndex);
         } else {
             self.mv.visitVarInsn(ALOAD, valueIndex);
+        }
+    }
+
+    function generateLocalVarStore(bir:BType bType, int valueIndex) {
+        if (bType is bir:BTypeInt) {
+            self.mv.visitVarInsn(LSTORE, valueIndex);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ISTORE, valueIndex);
+        } else if (bType is bir:BTypeString) {
+            self.mv.visitVarInsn(ASTORE, valueIndex);
+        } else if (bType is bir:BArrayType) {
+            self.mv.visitVarInsn(ASTORE, valueIndex);
+        } else if (bType is bir:BMapType) {
+            self.mv.visitVarInsn(ASTORE, valueIndex);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                                        io:sprintf("%s", bType));
+            panic err;
         }
     }
 };
