@@ -369,7 +369,6 @@ type InstructionGenerator object {
     }
 
     function generateArrayValueLoad(bir:FieldAccess inst) {
-        //there is a issue, key and map are interchanegd from BIR
         int varRefIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, varRefIndex);
         int keyIndex = self.getJVMIndexOfVarRef(inst.keyOp.variableDcl);
