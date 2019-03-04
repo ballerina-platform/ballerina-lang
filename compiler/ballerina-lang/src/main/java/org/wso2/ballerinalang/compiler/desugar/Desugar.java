@@ -635,32 +635,30 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void handleClosures(BLangFunction funcNode) {
-        if (!funcNode.resolvedClosures.isEmpty()) {
-            // Handle closures in functions
-            Map<BVarSymbol, Integer> calculatedClosureVars = new LinkedHashMap<>();
-            Map<BVarSymbol, Integer> sortedClosureVars = new LinkedHashMap<>();
-            ArrayList<Integer> resolvedLevels = funcNode.resolvedClosures.values().stream()
-                    .distinct()
-                    .sorted()
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            // Rewrite the resolved levels
-            funcNode.resolvedClosures.forEach((bVarSymbol, integer) -> {
-                int newResolvedLevel = resolvedLevels.indexOf(integer);
-                calculatedClosureVars.put(bVarSymbol, newResolvedLevel + 1);
-            });
-
-            calculatedClosureVars.entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByValue())
-                    .forEachOrdered(x -> sortedClosureVars.put(x.getKey(), x.getValue()));
-
-            funcNode.resolvedClosures = sortedClosureVars;
-            // Recalculate the encl env count
-            funcNode.enclEnvCount = Math.toIntExact(sortedClosureVars.values().stream().distinct().count()) + 1;
-        } else {
+        if (funcNode.resolvedClosures.isEmpty()) {
             funcNode.enclEnvCount = 1;
+            return;
         }
+        // Handle closures in functions
+        Map<BVarSymbol, Integer> calculatedClosureVars = new LinkedHashMap<>();
+        Map<BVarSymbol, Integer> sortedClosureVars = new LinkedHashMap<>();
+        ArrayList<Integer> resolvedLevels = funcNode.resolvedClosures.values().stream().distinct().sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Rewrite the resolved levels
+        funcNode.resolvedClosures.forEach((bVarSymbol, integer) -> {
+            int newResolvedLevel = resolvedLevels.indexOf(integer);
+            calculatedClosureVars.put(bVarSymbol, newResolvedLevel + 1);
+        });
+
+        calculatedClosureVars.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .forEachOrdered(x -> sortedClosureVars.put(x.getKey(), x.getValue()));
+
+        funcNode.resolvedClosures = sortedClosureVars;
+        // Recalculate the encl env count
+        funcNode.enclEnvCount = Math.toIntExact(sortedClosureVars.values().stream().distinct().count()) + 1;
     }
 
     private void addToFunctionMap(BLangFunction funcNode, SymbolEnv fucEnv, int position, BVarSymbol paramSymbol,
@@ -1040,8 +1038,6 @@ public class Desugar extends BLangNodeVisitor {
         // }
 
         BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
-        // +1 for the block statement. +1 for the lambda function created.
-        function.enclEnvCount = env.envCount + 2;
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
@@ -1074,8 +1070,6 @@ public class Desugar extends BLangNodeVisitor {
         // }
 
         BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
-        // +1 for the block statement. +1 for the lambda function created.
-        function.enclEnvCount = env.envCount + 2;
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
         BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
