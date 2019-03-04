@@ -174,22 +174,3 @@ public type ObjectGenerator object {
         return targetLabels;
     }
 };
-
-function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    } else {
-        return;
-    }
-}
-
-function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-    } if (bType is bir:BTypeString) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    } else {
-        return;
-    }
-}
