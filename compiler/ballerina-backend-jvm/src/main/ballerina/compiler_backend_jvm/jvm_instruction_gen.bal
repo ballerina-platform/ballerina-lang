@@ -347,7 +347,6 @@ type InstructionGenerator object {
         // visit key_expr
         int keyIndex = self.getJVMIndexOfVarRef(mapStoreIns.keyOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, keyIndex);
-        self.addUnboxInsn(mapStoreIns.keyOp.variableDcl.typeValue);
 
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
                 io:sprintf("(L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE), false);
