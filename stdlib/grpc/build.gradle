@@ -17,10 +17,10 @@ dependencies {
     testCompile project(':ballerina-launcher')
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-runtime')
-    testCompile project('::ballerina-builtin')
-    testCompile project('::ballerina-system')
-    testCompile project('::ballerina-config-api')
-    testCompile project('::ballerina-internal')
+    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-system')
+    testCompile project(':ballerina-config-api')
+    testCompile project(':ballerina-internal')
 
 }
 
