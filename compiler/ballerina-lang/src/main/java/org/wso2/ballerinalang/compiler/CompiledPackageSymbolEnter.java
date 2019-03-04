@@ -58,7 +58,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
@@ -99,6 +101,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -752,17 +755,16 @@ public class CompiledPackageSymbolEnter {
             constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
                     valueType, valueType, enclScope.owner);
 
-           int valueCPEntry = dataInStream.readInt();
+            int valueCPEntry = dataInStream.readInt();
 
-            MapCPEntry constantPoolEntry = (MapCPEntry)this.env.constantPool[valueCPEntry];
+            MapCPEntry constantPoolEntry = (MapCPEntry) this.env.constantPool[valueCPEntry];
 
-            constantSymbol.literalValue = constantPoolEntry.getValue();
+//            constantSymbol.literalValue = getLiteralValue(valueType, constantPoolEntry.getValue());
+            constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
             constantSymbol.literalValueTypeTag = valueType.tag;
 
             constantSymbol.valueCPIndex = constantPoolEntry.getValueCPEntryIndex();
 
-            //            constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
-//            constantSymbol.literalValueTypeTag = valueType.tag;
         }
 
         // Define constant.
@@ -772,6 +774,21 @@ public class CompiledPackageSymbolEnter {
         // Set documentations.
         setDocumentation(constantSymbol, attrDataMap);
     }
+
+//    private BLangRecordLiteral.BLangMapLiteral getLiteralValue(BType type, Map<KeyInfo, ConstantValue> valueMap) {
+//
+//        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
+//
+//        valueMap.forEach((key, value) -> {
+//            BLangRecordLiteral.BLangRecordKeyValue keyValue =  new BLangRecordLiteral.BLangRecordKeyValue();
+//            BLangLiteral keyLiteral = new BLangLiteral();
+//
+//            keyValue.key =  new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+//
+//        });
+//
+//        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type,true );
+//    }
 
     private Object readSimpleLiteralValue(DataInputStream dataInStream, int typeTag) throws IOException {
         // Get the value.
@@ -806,66 +823,66 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-//    private BLangLiteral readSimpleLiteral(DataInputStream dataInStream) throws IOException {
-//        // Todo - Remove?
-//        int finiteTypeSigCPIndex = dataInStream.readInt();
-//
-//        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
-//        BType valueType = getBTypeFromDescriptor(valueTypeSig);
-//
-//        int typeTag = valueType.tag;
-//
-//        // Read the value.
-//        Object value = readSimpleLiteralValue(dataInStream, typeTag);
-//
-//        // Create a new literal.
-//        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-//        literal.value = value;
-//        literal.type = symTable.getTypeFromTag(typeTag);
-//
-//        return literal;
-//    }
+    private BLangLiteral readSimpleLiteral(DataInputStream dataInStream) throws IOException {
+        // Todo - Remove?
+        int finiteTypeSigCPIndex = dataInStream.readInt();
 
-//    private BLangRecordLiteral.BLangMapLiteral readConstantValueMap(DataInputStream dataInStream, BType type)
-//            throws IOException {
-//
-//        LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
-//
-//        // Read the size.
-//        int size = dataInStream.readInt();
-//        for (int i = 0; i < size; i++) {
-//            // Read the key.
-//            String key = getUTF8CPEntryValue(dataInStream);
-//            // Read the simple literal flag.
-//            boolean isSimpleLiteral = dataInStream.readBoolean();
-//
-//            // Get the value.
-//            BLangExpression value;
-//            if (isSimpleLiteral) {
-//                // Read the simple literal.
-//                value = readSimpleLiteral(dataInStream);
-//            } else {
-//                // Get the type of the record literal.
-//                String valueTypeSig = getUTF8CPEntryValue(dataInStream);
-//                BType valueType = getBTypeFromDescriptor(valueTypeSig);
-//                // Read the map literal.
-//                value = readConstantValueMap(dataInStream, valueType);
-//            }
-//            // Create a new literal for the key.
-//            BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-//            keyLiteral.value = key;
-//            keyLiteral.type = symTable.stringType;
-//
-//            // Create a new key-value.
-//            BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = new BLangRecordLiteral.BLangRecordKeyValue();
-//            recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
-//            recordKeyValue.valueExpr = value;
-//
-//            keyValues.push(recordKeyValue);
-//        }
-//        // Create a new map literal.
-//        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type, true);
-//    }
+        String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+        BType valueType = getBTypeFromDescriptor(valueTypeSig);
+
+        int typeTag = valueType.tag;
+
+        // Read the value.
+        Object value = readSimpleLiteralValue(dataInStream, typeTag);
+
+        // Create a new literal.
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.type = symTable.getTypeFromTag(typeTag);
+
+        return literal;
+    }
+
+    private BLangRecordLiteral.BLangMapLiteral readConstantValueMap(DataInputStream dataInStream, BType type)
+            throws IOException {
+
+        LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
+
+        // Read the size.
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+            // Read the key.
+            String key = getUTF8CPEntryValue(dataInStream);
+            // Read the simple literal flag.
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+
+            // Get the value.
+            BLangExpression value;
+            if (isSimpleLiteral) {
+                // Read the simple literal.
+                value = readSimpleLiteral(dataInStream);
+            } else {
+                // Get the type of the record literal.
+                String valueTypeSig = getUTF8CPEntryValue(dataInStream);
+                BType valueType = getBTypeFromDescriptor(valueTypeSig);
+                // Read the map literal.
+                value = readConstantValueMap(dataInStream, valueType);
+            }
+            // Create a new literal for the key.
+            BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            keyLiteral.value = key;
+            keyLiteral.type = symTable.stringType;
+
+            // Create a new key-value.
+            BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = new BLangRecordLiteral.BLangRecordKeyValue();
+            recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+            recordKeyValue.valueExpr = value;
+
+            keyValues.push(recordKeyValue);
+        }
+        // Create a new map literal.
+        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type, true);
+    }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
         String varName = getUTF8CPEntryValue(dataInStream);

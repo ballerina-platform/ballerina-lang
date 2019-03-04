@@ -793,7 +793,7 @@ public class PackageInfoReader {
            int j = dataInStream.readInt();
 
             // Read and ignore map constant value.
-//            readMapLiteral(packageInfo);
+            readMapLiteral(packageInfo);
         }
 
         // Read and ignore attributes.
@@ -831,25 +831,26 @@ public class PackageInfoReader {
         }
     }
 
-//    private void readMapLiteral(PackageInfo packageInfo) throws IOException {
-//        // Read size.
-//        int size = dataInStream.readInt();
-//        for (int i = 0; i < size; i++) {
-//            // Read and ignore constant name CP index.
-//            dataInStream.readInt();
-//            // Read simple literal flag.
-//            boolean isSimpleLiteral = dataInStream.readBoolean();
-//            if (isSimpleLiteral) {
-//                // Read simple literal info.
-//                readSimpleLiteral(packageInfo);
-//            } else {
-//                // Read record literal type signature CP index.
-//                dataInStream.readInt();
-//                // Read map literal info.
-//                readMapLiteral(packageInfo);
-//            }
-//        }
-//    }
+    private void readMapLiteral(PackageInfo packageInfo) throws IOException {
+        // Read size.
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+            // Read and ignore constant name CP index.
+            dataInStream.readInt();
+            // Read simple literal flag.
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            if (isSimpleLiteral) {
+                // Read simple literal info.
+                readSimpleLiteral(packageInfo);
+                // Todo - Add const ref
+            } else {
+                // Read record literal type signature CP index.
+                dataInStream.readInt();
+                // Read map literal info.
+                readMapLiteral(packageInfo);
+            }
+        }
+    }
 
     private PackageVarInfo getGlobalVarInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
         // Read variable name;
