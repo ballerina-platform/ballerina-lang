@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -54,7 +56,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -417,7 +421,7 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewMap(astMapLiteralExpr.pos, astMapLiteralExpr.type, toVarRef));
+        emit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, astMapLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
 
         // Handle Map init stuff
@@ -434,6 +438,41 @@ public class BIRGen extends BLangNodeVisitor {
                     InstructionKind.MAP_STORE, toVarRef, keyRegIndex, rhsOp));
         }
 
+        this.env.targetOperand = toVarRef;
+    }
+
+    public void visit(BLangStructLiteral astStructLiteralExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.type,
+                this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        emit(new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, astStructLiteralExpr.type, toVarRef));
+        this.env.targetOperand = toVarRef;
+
+
+        BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) astStructLiteralExpr.type.tsymbol;
+
+        // Invoke the struct default values init function here.
+        if (structSymbol.defaultsValuesInitFunc != null) {
+            // TODO do we need this anymore?
+        }
+
+        // Invoke the struct initializer here.
+        if (astStructLiteralExpr.initializer != null) {
+            //TODO
+        }
+
+        // Generate code the struct literal.
+        for (BLangRecordKeyValue keyValue : astStructLiteralExpr.keyValuePairs) {
+            BLangRecordKey key = keyValue.key;
+            key.expr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            keyValue.valueExpr.accept(this);
+            BIROperand valueRegIndex = this.env.targetOperand;
+
+            emit(new FieldAccess(astStructLiteralExpr.pos, InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
+        }
         this.env.targetOperand = toVarRef;
     }
 
@@ -504,7 +543,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand keyRegIndex = this.env.targetOperand;
 
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos,
-                    InstructionKind.MAP_LOAD, tempVarRef, varRefRegIndex, keyRegIndex));
+                    InstructionKind.MAP_LOAD, tempVarRef, keyRegIndex, varRefRegIndex));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
@@ -539,7 +578,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand keyRegIndex = this.env.targetOperand;
 
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos,
-                    InstructionKind.ARRAY_LOAD, tempVarRef, varRefRegIndex, keyRegIndex));
+                    InstructionKind.ARRAY_LOAD, tempVarRef, keyRegIndex, varRefRegIndex));
             this.env.targetOperand = tempVarRef;
         }
 

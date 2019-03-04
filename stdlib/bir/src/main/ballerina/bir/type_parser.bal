@@ -100,7 +100,8 @@ public type TypeParser object {
     }
 
     function parseRecordType() returns BRecordType {
-        return { sealed:self.reader.readBoolean(), restFieldType: self.parseType(), fields: self.parseRecordFields() };
+        return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(), 
+                    restFieldType: self.parseType(), fields: self.parseRecordFields() };
     }
 
     function parseRecordFields() returns BRecordField[] {
@@ -119,7 +120,7 @@ public type TypeParser object {
     }
 
     function parseObjectType() returns BObjectType {
-        return { fields: self.parseObjectFields() };
+        return { name:{value:self.reader.readStringCpRef()}, fields: self.parseObjectFields() };
     }
 
     function parseObjectFields() returns BObjectField[] {

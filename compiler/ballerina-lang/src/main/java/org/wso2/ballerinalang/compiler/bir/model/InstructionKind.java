@@ -32,7 +32,7 @@ public enum InstructionKind {
     // Non-terminating instructions
     MOVE((byte) 5),
     CONST_LOAD((byte) 6),
-    NEW_MAP((byte) 7),
+    NEW_STRUCTURE((byte) 7),
     MAP_STORE((byte) 8),
     MAP_LOAD((byte) 9),
     NEW_ARRAY((byte) 10),
