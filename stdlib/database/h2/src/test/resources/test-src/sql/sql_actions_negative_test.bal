@@ -43,11 +43,11 @@ function testSelectData() returns string {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
     returnData = io:sprintf("%s", j);
-    testDB.stop();
+    _ = testDB.stop();
     return returnData;
 }
 
-function testGeneratedKeyOnInsert() returns string {
+function testGeneratedKeyOnInsert() returns int|string {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",
@@ -56,18 +56,41 @@ function testGeneratedKeyOnInsert() returns string {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    string ret = "";
-    string[] generatedID = [];
-    int insertCount;
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (name,lastName,
-                             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
-    if (x is (int, string[])) {
-        (_, generatedID) = x;
-        ret = generatedID[0];
+    int|string ret = "";
+
+    var x = testDB->update("insert into Customers (name,lastName,
+                             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
+
+    io:println(x);
+    if (x is sql:UpdateResult) {
+        ret = x.generatedKeys.length();
     } else {
         ret = string.convert(x.detail().message);
     }
-    testDB.stop();
+
+    _ = testDB.stop();
+    return ret;
+}
+
+function testUpdateReslt() returns int|string {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    int|string ret = "";
+
+    var x = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                         values ('James', 'Clerk', 3, 5000.75, 'USA')");
+    _ = testDB.stop();
+    if (x is sql:UpdateResult) {
+        x.updatedRowCount = 0;
+    } else {
+        ret = string.convert(x.detail().message);
+    }
     return ret;
 }
 
@@ -110,7 +133,7 @@ function testBatchUpdate() returns string {
     } else {
         returnVal = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return returnVal;
 }
 
@@ -140,7 +163,7 @@ function testInvalidArrayofQueryParameters() returns string {
     } else {
         returnData = string.convert(x.detail().message);
     }
-    testDB.stop();
+    _ = testDB.stop();
     return returnData;
 }
 
@@ -151,10 +174,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
+            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
         }
     } else {
-        retVal = {"Error" : string.convert(tableOrError.detail().message)};
+        retVal = { "Error": string.convert(tableOrError.detail().message) };
     }
     return retVal;
 }

@@ -427,6 +427,10 @@ public class CompiledPackageSymbolEnter {
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
                 this.env.repoHierarchy);
+
+        if (importPackageSymbol == null) {
+            throw new BLangCompilerException("missing symbol in " + this.env.pkgSymbol + " for import " + importPkgID);
+        }
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -1397,8 +1401,7 @@ public class CompiledPackageSymbolEnter {
                 case 'O':
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    return new BUnionType(unionTypeSymbol, new LinkedHashSet<>(memberTypes),
-                            memberTypes.contains(symTable.nilType));
+                    return BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(memberTypes));
                 case 'P':
                     BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);

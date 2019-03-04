@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/time;
 import ballerina/task;
 
@@ -496,10 +495,6 @@ public type TimeBatchWindow object {
         }
         return events;
     }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
 };
 
 public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
@@ -862,10 +857,6 @@ public type ExternalTimeBatchWindow object {
             }
         }
         return events;
-    }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
     }
 
     public function cloneAppend(StreamEvent currStreamEvent) {
@@ -1432,10 +1423,6 @@ public type DelayWindow object {
         }
     }
 
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
@@ -1850,7 +1837,8 @@ public type HoppingWindow object {
                 self.currentEventQueue.resetToFront();
                 while (self.currentEventQueue.hasNext()) {
                     StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
-                    if (streamEvent.timestamp >= currentTime - self.timeInMilliSeconds) {
+                    if (streamEvent.timestamp >= self.nextEmitTime - self.hoppingTime - self
+                        .timeInMilliSeconds && streamEvent.timestamp < self.nextEmitTime - self.hoppingTime) {
                         outputStreamEvents.addLast(streamEvent);
                     } else {
                         self.currentEventQueue.removeCurrent();
@@ -1898,10 +1886,6 @@ public type HoppingWindow object {
         }
         return events;
     }
-
-    public function handleError(error e) {
-        io:println("Error occured", e.reason());
-    }
 };
 
 public function hopping(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
@@ -1917,18 +1901,24 @@ public type TimeOrderWindow object {
     public LinkedList expiredEventQueue;
     public function (StreamEvent?[])? nextProcessPointer;
     public string timestamp;
+    public int lastTimestamp;
     public boolean dropOlderEvents;
     public MergeSort mergeSort;
+    public Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.timeInMillis = 0;
+        self.lastTimestamp = 0;
         self.timestamp = "";
         self.dropOlderEvents = false;
         self.expiredEventQueue = new;
         self.mergeSort = new([], []);
         self.initParameters(windowParameters);
+        self.scheduler = new(function (StreamEvent?[] events) {
+                self.process(events);
+            });
     }
 
     public function initParameters(any[] parameters) {
@@ -1972,8 +1962,7 @@ public type TimeOrderWindow object {
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
-            foreach var e in streamEvents {
-                StreamEvent event = <StreamEvent> e;
+            foreach var event in streamEvents {
                 streamEventChunk.addLast(event);
             }
 
@@ -1986,14 +1975,11 @@ public type TimeOrderWindow object {
 
                 while (self.expiredEventQueue.hasNext()) {
                     StreamEvent expiredEvent = getStreamEvent(self.expiredEventQueue.next());
-                    int timeDiff = (self.getTimestamp(expiredEvent.data[self.timestamp]) - currentTime) +
-                        self.timeInMillis;
+                    int timeDiff = (expiredEvent.timestamp - currentTime) + self.timeInMillis;
                     if (timeDiff <= 0) {
                         self.expiredEventQueue.removeCurrent();
-                        expiredEvent.timestamp = currentTime;
                         streamEventChunk.insertBeforeCurrent(expiredEvent);
                     } else {
-                        self.expiredEventQueue.resetToFront();
                         break;
                     }
                 }
@@ -2005,26 +1991,31 @@ public type TimeOrderWindow object {
                     } else {
                         StreamEvent clonedEvent = streamEvent.copy();
                         clonedEvent.eventType = EXPIRED;
+                        clonedEvent.timestamp = self.getTimestamp(clonedEvent.data[self.timestamp]);
                         self.expiredEventQueue.addLast(clonedEvent);
+                        StreamEvent?[] events = [];
+                        foreach var e in self.expiredEventQueue.asArray() {
+                            if (e is StreamEvent) {
+                                events[events.length()] = e;
+                            }
+                        }
+                        self.mergeSort.topDownMergeSort(events);
+                        self.expiredEventQueue.clear();
+                        foreach var event in events {
+                            self.expiredEventQueue.addLast(event);
+                        }
                     }
 
-                    StreamEvent?[] events = [];
-                    self.expiredEventQueue.resetToFront();
-
-                    while (self.expiredEventQueue.hasNext()) {
-                        StreamEvent streamEven = <StreamEvent>self.expiredEventQueue.next();
-                        events[events.length()] = streamEven;
+                    if (self.lastTimestamp < self.getTimestamp(streamEvent.data[self.timestamp])) {
+                        self.scheduler.notifyAt(self.getTimestamp(streamEvent.data[self.timestamp]) + self
+                                .timeInMillis);
+                        self.lastTimestamp = self.getTimestamp(streamEvent.data[self.timestamp]);
                     }
-
-                    self.mergeSort.topDownMergeSort(events);
-                    self.expiredEventQueue.clear();
-                    foreach var e in events {
-                        StreamEvent event = <StreamEvent> e;
-                        self.expiredEventQueue.addLast(event);
-                    }
+                } else {
+                    streamEventChunk.removeCurrent();
                 }
-                self.expiredEventQueue.resetToFront();
             }
+            self.expiredEventQueue.resetToFront();
         }
 
         any nextProcessFuncPointer = self.nextProcessPointer;

@@ -194,7 +194,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
+public extern function parseHeader(string headerValue) returns (string, map<any>)|error;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
