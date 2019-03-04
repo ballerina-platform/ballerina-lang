@@ -22,6 +22,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
 
+    // generate classes to represent values of different ballerina object types
+    ObjectGenerator objGen = new();
+    objGen.generateValueClasses(module.typeDefs, pkgEntries);
+
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT_VALUE, null);
 
@@ -55,6 +59,10 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
+
+    // generate classes to represent values of different ballerina object types
+    ObjectGenerator objGen = new();
+    objGen.generateValueClasses(module.typeDefs, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT_VALUE, null);

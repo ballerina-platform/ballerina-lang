@@ -12,6 +12,7 @@ public type ObjectGenerator object {
     }
 
     // TODO: add args to the signature
+    // TODO: invoke user's init function
     # Create an value instance of a given object type  
     public function createInstance(jvm:MethodVisitor mv, string typeName) {
         mv.visitTypeInsn(NEW, typeName);

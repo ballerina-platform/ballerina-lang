@@ -5,7 +5,7 @@ string typeOwnerClass = "";
 #
 # + cw - class writer
 # + typeDefs - array of type definitions
-function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] typeDefs) {
+public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] typeDefs) {
     string fieldName;
     // create the type
     foreach var typeDef in typeDefs {
@@ -26,7 +26,7 @@ function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] typeDef
 #
 # + mv - method visitor
 # + typeDefs - array of type definitions
-function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typeDefs) {
+public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typeDefs) {
     string fieldName;
 
     // Create the type
