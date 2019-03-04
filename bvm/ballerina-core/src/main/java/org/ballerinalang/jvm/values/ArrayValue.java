@@ -182,28 +182,28 @@ public class ArrayValue implements RefValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
-    public Object getRefValue(int index) {
-        return refValues[index];
+    public Object getRefValue(long index) {
+        return refValues[(int) index];
     }
 
-    public long getInt(int index) {
-        return intValues[index];
+    public long getInt(long index) {
+        return intValues[(int) index];
     }
 
-    public int getBoolean(int index) {
-        return booleanValues[index];
+    public int getBoolean(long index) {
+        return booleanValues[(int) index];
     }
 
-    public byte getByte(int index) {
-        return byteValues[index];
+    public byte getByte(long index) {
+        return byteValues[(int) index];
     }
 
-    public double getFloat(int index) {
-        return floatValues[index];
+    public double getFloat(long index) {
+        return floatValues[(int) index];
     }
 
-    public String getString(int index) {
-        return stringValues[index];
+    public String getString(long index) {
+        return stringValues[(int) index];
     }
 
     // ----------------------------  add methods --------------------------------------------------

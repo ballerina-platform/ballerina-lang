@@ -539,7 +539,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand keyRegIndex = this.env.targetOperand;
 
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos,
-                    InstructionKind.ARRAY_LOAD, tempVarRef, varRefRegIndex, keyRegIndex));
+                    InstructionKind.ARRAY_LOAD, tempVarRef, keyRegIndex, varRefRegIndex));
             this.env.targetOperand = tempVarRef;
         }
 
