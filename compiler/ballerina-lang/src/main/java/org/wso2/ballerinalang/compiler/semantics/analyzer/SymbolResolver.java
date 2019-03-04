@@ -552,13 +552,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         } else {
             // Target type is always a union here.
-            if (types.isBasicNumericType(sourceType) ||
-                    (sourceType.tag == TypeTags.FINITE &&
-                             types.finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) ||
-                    (sourceType.tag == TypeTags.UNION &&
-                             ((BUnionType) sourceType).getMemberTypes().stream()
-                                     .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
-                                             types.finiteTypeContainsNumericTypeValues((BFiniteType) memType)))) {
+            if (types.isBasicNumericType(sourceType)) {
                 // i.e., a conversion from a numeric type to another numeric type in a union.
                 // int|string u1 = <int|string> 1.0;
                 types.setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
@@ -572,9 +566,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return createTypeCastSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).getMemberTypes().stream()
-                            .anyMatch(memType -> types.isBasicNumericType(memType))) {
+                            .anyMatch(memType -> types.isBasicNumericType(memType) ||
+                                    (memType.tag == TypeTags.FINITE &&
+                                            types.finiteTypeContainsNumericTypeValues((BFiniteType) memType)))) {
                         return createTypeCastSymbol(sourceType, targetType);
                     }
+                    break;
+                case TypeTags.FINITE:
+                    if (types.finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) {
+                        return createTypeCastSymbol(sourceType, targetType);
+                    }
+                    break;
             }
         }
         return symTable.notFoundSymbol;

@@ -1741,7 +1741,7 @@ public class Types {
     }
 
     /**
-     * Method to retrieve a type representing all the values in the value space of a finite type that are assignable to
+     * Method to retrieve a type representing all the member types of a union type that are assignable to
      * the target type.
      *
      * @param unionType  the union type
@@ -1766,7 +1766,7 @@ public class Types {
             }
         });
 
-        if (intersection.isEmpty() || intersection.contains(symTable.semanticError)) {
+        if (intersection.isEmpty()) {
             return symTable.semanticError;
         }
 
@@ -1785,8 +1785,7 @@ public class Types {
         if (intersection.size() == 1) {
             return intersection.get(0);
         } else {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(intersection);
-            return BUnionType.create(null, memberTypes);
+            return BUnionType.create(null, new LinkedHashSet<>(intersection));
         }
     }
 

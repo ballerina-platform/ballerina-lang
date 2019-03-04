@@ -1911,13 +1911,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
         if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
-                !unionOrFiniteTypeIndirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
+                !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
                        typeTestExpr.typeNode.type);
         }
     }
 
-    private boolean unionOrFiniteTypeIndirectIntersectionExists(BLangExpression expression, BType testType) {
+    private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
         BType expressionType = expression.type;
         switch (expressionType.tag) {
             case TypeTags.UNION:
