@@ -11,6 +11,7 @@ task npmBuild(type: Exec) {
     inputs.files(src.matching(patternSet))
 
     outputs.dir("$buildDir/packages/distribution/build")
+    outputs.cacheIf { true }
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine 'cmd', '/c', 'npm', 'run', 'build'

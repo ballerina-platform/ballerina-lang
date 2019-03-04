@@ -15,8 +15,10 @@
  */
 package org.ballerinalang.langserver.util;
 
+import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -27,63 +29,27 @@ import java.util.concurrent.TimeUnit;
  */
 public class Debouncer {
     private final ScheduledExecutorService sched = Executors.newScheduledThreadPool(1);
-    private final ConcurrentHashMap<Runnable, TimerTask> delayedMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Path, Future<?>> delayedMap = new ConcurrentHashMap<>();
     private final int interval;
 
     public Debouncer(int interval) {
         this.interval = interval;
     }
 
-    public void call(Runnable runnable) {
-        TimerTask task = new TimerTask(runnable);
-
-        TimerTask prev;
-        do {
-            prev = delayedMap.putIfAbsent(runnable, task);
-            if (prev == null) {
-                sched.schedule(task, interval, TimeUnit.MILLISECONDS);
+    public void call(Path path, Runnable runnable) {
+        final Future<?> prev = delayedMap.put(path, sched.schedule(() -> {
+            try {
+                runnable.run();
+            } finally {
+                delayedMap.remove(path);
             }
+        }, interval, TimeUnit.MILLISECONDS));
+        if (prev != null) {
+            prev.cancel(true);
         }
-        while (prev != null && !prev.extend()); // Exit only if new task was added to map, or existing
-        // task was extended successfully
     }
 
     public void terminate() {
         sched.shutdownNow();
-    }
-
-    // The task that wakes up when the wait time elapses
-    private class TimerTask implements Runnable {
-        private final Runnable runnable;
-        private long dueTime;
-        private final Object lock = new Object();
-
-        public TimerTask(Runnable runnable) {
-            this.runnable = runnable;
-            extend();
-        }
-
-        public boolean extend() {
-            synchronized (lock) {
-                if (dueTime < 0) { // Task has been shutdown
-                    return false;
-                }
-                dueTime = System.currentTimeMillis() + interval;
-                return true;
-            }
-        }
-
-        public void run() {
-            synchronized (lock) {
-                long remaining = dueTime - System.currentTimeMillis();
-                if (remaining > 0) { // Re-schedule task
-                    sched.schedule(this, remaining, TimeUnit.MILLISECONDS);
-                } else { // Mark as terminated and run
-                    dueTime = -1;
-                    runnable.run();
-                    delayedMap.remove(runnable);
-                }
-            }
-        }
     }
 }
