@@ -4,7 +4,7 @@ import ballerina/runtime;
 import ballerinax/kubernetes;
 
 @kubernetes:Ingress {
-    hostname: "scenariotests.ballerina.io",
+    hostname: "scenarios.ballerina.io",
     name: "circuit_breaker_frontend_service",
     path: "/"
 }
@@ -16,13 +16,13 @@ import ballerinax/kubernetes;
 }
 
 @kubernetes:Deployment {
-    image: "scenariotests.ballerina.io/circuit_breaker_frontend_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.2",
+    image: "scenarios.ballerina.io/circuit_breaker_service:v1.0",
+    baseImage: "ballerina/ballerina:0.990.3",
     name: "circuit_breaker_frontend_service"
 }
 listener http:Listener httpListener = new(9090);
 
-http:Client backendClientEP = new("http://ballerina-circuit-breaker-backend-service:8080", config = {
+http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis: 100000,

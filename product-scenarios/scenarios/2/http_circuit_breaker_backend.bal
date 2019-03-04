@@ -4,20 +4,20 @@ import ballerina/runtime;
 import ballerinax/kubernetes;
 
 @kubernetes:Ingress {
-    hostname: "scenariotests.ballerina.io",
-    name: "ballerina-circuit-breaker-backend-service",
+    hostname: "scenarios.ballerina.io",
+    name: "circuit-breaker-backend-service",
     path: "/"
 }
 
 @kubernetes:Service {
     serviceType:"NodePort",
-    name: "ballerina-circuit-breaker-backend-service"
+    name: "circuit-breaker-backend-service"
 }
 
 @kubernetes:Deployment {
-    image: "scenariotests.ballerina.io/circuit_breaker_backend_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.2",
-    name: "ballerina-circuit-breaker-backend-service"
+    image: "scenarios.ballerina.io/circuit_breaker_backend_service:v1.0",
+    baseImage: "ballerina/ballerina:0.990.3",
+    name: "circuit-breaker-backend-service"
 }
 listener http:Listener mockServiceListener = new(8080);
 
