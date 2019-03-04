@@ -18,22 +18,97 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         isVoidFunc = true;
         k = 0;
     }
+    bir:VariableDcl stranVar = { typeValue: "string", // should be record
+                                 name: { value: "srand" },
+                                 kind: "ARG" };
+    _ = indexMap.getIndex(stranVar);
 
     bir:VariableDcl[] localVars = func.localVars;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = localVars[k];
-        _ = indexMap.getIndex(localVar);
+        var index = indexMap.getIndex(localVar);
+        if(localVar.kind != "ARG"){
+            bir:BType bType = localVar.typeValue;
+            if (bType is bir:BTypeInt) {
+                mv.visitInsn(LCONST_0);
+                mv.visitVarInsn(LSTORE, index);
+            } else if (bType is bir:BTypeBoolean) {
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                            io:sprintf("%s", bType));
+                panic err;
+            }
+        }
         k += 1;
     }
+    bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
+                                 name: { value: "state" },
+                                 kind: "TEMP" };
+    var stateVarIndex = indexMap.getIndex(stateVar);
+    mv.visitInsn(ICONST_0);
+    mv.visitVarInsn(ISTORE, stateVarIndex);
+
+    LabelGenerator labelGen = new();
+
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    jvm:Label resumeLable = labelGen.getLabel(funcName + "resume");
+    mv.visitJumpInsn(IFGT, resumeLable);
+
+    jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
+    mv.visitLabel(varinitLable);
 
     if (!isVoidFunc) {
         returnVarRefIndex = indexMap.getIndex(localVars[0]);
+        mv.visitInsn(LCONST_0);
+        mv.visitVarInsn(LSTORE, returnVarRefIndex);
     }
+
+    // uncomment to test yield
+    // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
+    // mv.visitInsn(ICONST_1);
+    // mv.visitInsn(IADD);
+    // mv.visitFieldInsn(PUTSTATIC, className, "i", "I");
 
     // process basic blocks
     int j = 0;
     bir:BasicBlock[] basicBlocks = func.basicBlocks;
-    LabelGenerator labelGen = new();
+
+    jvm:Label[] lables = [];
+    int[] states = [];
+
+    int i = 0;
+    while (i < basicBlocks.length()) {
+        bir:BasicBlock bb = basicBlocks[i];
+        if(i == 0){
+            lables[i] = labelGen.getLabel(funcName + bb.id.value);
+        } else {
+            lables[i] = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+        }
+        states[i] = i;
+        i = i + 1;
+    }
+
+    TerminatorGenerator termGen = new(mv, indexMap, labelGen);
+
+    // uncomment to test yield
+    // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
+    // mv.visitIntInsn(BIPUSH, 100);
+    // jvm:Label l0 = labelGen.getLabel(funcName + "l0");
+    // mv.visitJumpInsn(IF_ICMPNE, l0);
+    // mv.visitVarInsn(ALOAD, 0);
+    // mv.visitInsn(ICONST_1);
+    // mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "yield", "Z");
+    // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
+    // mv.visitLabel(l0);
+
+    mv.visitVarInsn(ILOAD, stateVarIndex);
+    jvm:Label yieldLable = labelGen.getLabel(funcName + "yield");
+    mv.visitLookupSwitchInsn(yieldLable, states, lables);
+
+
 
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = basicBlocks[j];
@@ -70,9 +145,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             m += 1;
         }
 
+        jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+        mv.visitLabel(bbEndLable);
+
+        mv.visitIntInsn(BIPUSH, j);
+        mv.visitVarInsn(ISTORE, stateVarIndex);
+
         // process terminator
         bir:Terminator terminator = bb.terminator;
-        TerminatorGenerator termGen = new(mv, indexMap, labelGen);
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
@@ -85,12 +165,106 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         j += 1;
     }
 
-    mv.visitMaxs(100, 400);
+    var frameName = funcName + "Frame";
+    mv.visitLabel(resumeLable);
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitInsn(DUP);
+    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitInsn(ICONST_1);
+    mv.visitInsn(ISUB);
+    mv.visitInsn(DUP_X1);
+    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitInsn(AALOAD);
+    mv.visitTypeInsn(CHECKCAST, frameName);
+
+    k = 0;
+    while (k < localVars.length()) {
+        bir:VariableDcl localVar = localVars[k];
+        var index = indexMap.getIndex(localVar);
+        bir:BType bType = localVar.typeValue;
+        mv.visitInsn(DUP);
+        if (bType is bir:BTypeInt) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "J");
+            mv.visitVarInsn(LSTORE, index);
+        } else if (bType is bir:BTypeBoolean) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
+            mv.visitVarInsn(ISTORE, index);
+        } else if (bType is bir:BTypeString) {
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                                        io:sprintf("%s", bType));
+            panic err;
+        }
+        k = k + 1;
+    }
+    mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
+    mv.visitVarInsn(ISTORE, stateVarIndex);
+    mv.visitJumpInsn(GOTO, varinitLable);
+
+
+    mv.visitLabel(yieldLable);
+    mv.visitTypeInsn(NEW, frameName);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
+
+
+    k = 0;
+    while (k < localVars.length()) {
+        bir:VariableDcl localVar = localVars[k];
+        var index = indexMap.getIndex(localVar);
+        mv.visitInsn(DUP);
+
+        bir:BType bType = localVar.typeValue;
+
+        if (bType is bir:BTypeInt) {
+            mv.visitVarInsn(LLOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "J");
+        } else if (bType is bir:BTypeBoolean) {
+            mv.visitVarInsn(ILOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
+        } else if (bType is bir:BTypeString) {
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                                        io:sprintf("%s", bType));
+            panic err;
+        }
+
+        k = k + 1;
+    }
+
+    mv.visitInsn(DUP);
+    mv.visitVarInsn(ILOAD, stateVarIndex);
+    mv.visitFieldInsn(PUTFIELD, frameName, "state", "I");
+
+
+    bir:VariableDcl frameVar = { typeValue: "string", // should be record or something
+                                 name: { value: "frame" },
+                                 kind: "TEMP" };
+    var frameVarIndex = indexMap.getIndex(frameVar);
+    mv.visitVarInsn(ASTORE, frameVarIndex);
+
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitInsn(DUP);
+    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitInsn(DUP_X1);
+    mv.visitInsn(ICONST_1);
+    mv.visitInsn(IADD);
+    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitVarInsn(ALOAD, frameVarIndex);
+    mv.visitInsn(AASTORE);
+
+
+    termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
+    mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
 function getMethodDesc(bir:Function func) returns string {
-    string desc = "(";
+    string desc = "(Lorg/ballerina/jvm/Strand;";
     int i = 0;
     while (i < func.argsCount) {
         desc = desc + getMethodArgDesc(func.typeValue.paramTypes[i]);
@@ -160,6 +334,14 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     string desc = getMethodDesc(userMainFunc);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
+
+    mv.visitTypeInsn(NEW, "org/ballerina/jvm/Strand");
+    mv.visitInsn(DUP);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, "org/ballerina/jvm/Strand", "<init>", "()V", false);
+    mv.visitIntInsn(BIPUSH, 100);
+    mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
 
     // load and cast param values
     int paramIndex = 0;
@@ -236,3 +418,40 @@ type BalToJVMIndexMap object {
         return io:sprintf("%s", varDcl);
     }
 };
+
+function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
+    foreach var func in pkg.functions {
+        var currentFunc = untaint func;
+        var frameName = currentFunc.name.value + "Frame";
+        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
+        int k = 0;
+        bir:VariableDcl[] localVars = func.localVars;
+        while (k < localVars.length()) {
+            bir:VariableDcl localVar = localVars[k];
+            bir:BType bType = localVar.typeValue;
+
+            var fieldName = localVar.name.value.replace("%","_");
+            if (bType is bir:BTypeInt) {
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "J");
+                fv.visitEnd();
+            } else if (bType is bir:BTypeBoolean) {
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "Z");
+                fv.visitEnd();
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                            io:sprintf("%s", bType));
+                panic err;
+            }
+
+
+            k = k + 1;
+        }
+
+        jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, "state", "I");
+        fv.visitEnd();
+
+        cw.visitEnd();
+        pkgEntries[frameName + ".class"] = cw.toByteArray();
+    }
+}
