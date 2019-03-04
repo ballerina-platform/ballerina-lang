@@ -34,8 +34,10 @@ public enum InstructionKind {
     CONST_LOAD((byte) 6),
     NEW_MAP((byte) 7),
     MAP_STORE((byte) 8),
-    NEW_ARRAY((byte) 9),
-    ARRAY_STORE((byte) 10),
+    MAP_LOAD((byte) 9),
+    NEW_ARRAY((byte) 10),
+    ARRAY_STORE((byte) 11),
+    ARRAY_LOAD((byte) 12),
 
     // Binary expression related instructions.
     ADD((byte) 20),

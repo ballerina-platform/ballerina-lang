@@ -72,7 +72,8 @@ public type OR "OR";
 
 public type TerminatorKind "GOTO"|"CALL"|"BRANCH"|"RETURN";
 
-public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|"NEW_ARRAY"|"ARRAY_STORE"|BinaryOpInstructionKind;
+//TODO below types are there in ins_codes.bal as constants
+public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|"NEW_ARRAY"|"ARRAY_STORE"|"MAP_LOAD"|"ARRAY_LOAD"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -256,14 +257,6 @@ public type NewMap record {
     !...;
 };
 
-public type MapStore record {
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef keyOp;
-    VarRef rhsOp;
-    !...;
-};
-
 public type NewArray record {
     InstructionKind kind;
     VarRef lhsOp;
@@ -272,7 +265,7 @@ public type NewArray record {
     !...;
 };
 
-public type ArrayStore record {
+public type FieldAccess record {
     InstructionKind kind;
     VarRef lhsOp;
     VarRef keyOp;

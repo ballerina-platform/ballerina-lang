@@ -317,7 +317,7 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ASTORE, lhsOpIndex);
     }
 
-    function generateMapStoreIns(bir:MapStore mapStoreIns) {
+    function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit var_ref
         int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, mapIndex);
@@ -355,7 +355,7 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
     # Generate adding a new value to array
-    function generateArrayStoreIns(bir:ArrayStore inst) {
+    function generateArrayStoreIns(bir:FieldAccess inst) {
         // TODO: visit(var_ref)
         // TODO: visit(index_expr)
         // TODO: visit(value_expr)

@@ -35,7 +35,28 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            ArrayStore mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return mapStore;
+        } else if (kindTag == INS_MAP_STORE) {
+            kind = "MAP_STORE";
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return mapStore;
+        } else if (kindTag == INS_MAP_LOAD) {
+            kind = "MAP_LOAD";
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return mapStore;
+        } else if (kindTag == INS_ARRAY_LOAD) {
+            kind = "ARRAY_LOAD";
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_NEW_ARRAY) {
             var bType = self.typeParser.parseType();
@@ -44,13 +65,6 @@ public type FuncBodyParser object {
             var sizeOp = self.parseVarRef();
             NewArray newMap = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
             return newMap;
-        } else if (kindTag == INS_MAP_STORE) {
-            kind = "MAP_STORE";
-            var lhsOp = self.parseVarRef();
-            var keyOp = self.parseVarRef();
-            var rhsOp = self.parseVarRef();
-            MapStore mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
-            return mapStore;
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.typeParser.parseType();
             kind = "NEW_MAP";

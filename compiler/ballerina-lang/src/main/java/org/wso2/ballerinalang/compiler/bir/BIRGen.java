@@ -430,7 +430,8 @@ public class BIRGen extends BLangNodeVisitor {
             valueExpr.accept(this);
             BIROperand rhsOp = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.MapStore(astMapLiteralExpr.pos, toVarRef, keyRegIndex, rhsOp));
+            emit(new BIRNonTerminator.FieldAccess(astMapLiteralExpr.pos,
+                    InstructionKind.MAP_STORE, toVarRef, keyRegIndex, rhsOp));
         }
 
         this.env.targetOperand = toVarRef;
@@ -469,7 +470,8 @@ public class BIRGen extends BLangNodeVisitor {
             indexLiteral.accept(this);
             BIROperand arrayIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.ArrayStore(astArrayLiteralExpr.pos, toVarRef, arrayIndex, exprIndex));
+            emit(new BIRNonTerminator.FieldAccess(astArrayLiteralExpr.pos,
+                    InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
         }
         this.env.targetOperand = toVarRef;
     }
@@ -487,10 +489,23 @@ public class BIRGen extends BLangNodeVisitor {
             astMapAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.MapStore(astMapAccessExpr.pos,
-                    varRefRegIndex, keyRegIndex, rhsOp));
+            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos,
+                    InstructionKind.MAP_STORE, varRefRegIndex, keyRegIndex, rhsOp));
         } else {
-            // TODO fill
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type,
+                    this.env.nextLocalVarId(names), VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+            astMapAccessExpr.expr.accept(this);
+            BIROperand varRefRegIndex = this.env.targetOperand;
+
+            astMapAccessExpr.indexExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos,
+                    InstructionKind.MAP_LOAD, tempVarRef, varRefRegIndex, keyRegIndex));
+            this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
     }
@@ -509,10 +524,23 @@ public class BIRGen extends BLangNodeVisitor {
             astArrayAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.ArrayStore(astArrayAccessExpr.pos,
-                    varRefRegIndex, keyRegIndex, rhsOp));
+            emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos,
+                    InstructionKind.ARRAY_STORE, varRefRegIndex, keyRegIndex, rhsOp));
         } else {
-            // TODO fill
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayAccessExpr.type,
+                    this.env.nextLocalVarId(names), VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+            astArrayAccessExpr.expr.accept(this);
+            BIROperand varRefRegIndex = this.env.targetOperand;
+
+            astArrayAccessExpr.indexExpr.accept(this);
+            BIROperand keyRegIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos,
+                    InstructionKind.ARRAY_LOAD, tempVarRef, varRefRegIndex, keyRegIndex));
+            this.env.targetOperand = tempVarRef;
         }
 
         this.varAssignment = variableStore;
