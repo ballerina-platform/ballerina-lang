@@ -27,6 +27,7 @@ export interface InlineEditParagraphProps {
     onTextValueChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void;
     onExitEditing: () => void;
     placeholderText?: string;
+    isMarkdown?: boolean;
 }
 
 class InlineEditLicense extends React.Component<InlineEditParagraphProps, any> {

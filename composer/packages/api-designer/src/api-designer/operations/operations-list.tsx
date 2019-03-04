@@ -102,7 +102,8 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                     key: "operation.summary",
                                                     path
                                                 }}
-                                                editableObject={pathItem[openApiOperation].summary}
+                                                editableObject={pathItem[openApiOperation].summary ?
+                                                    pathItem[openApiOperation].summary : ""}
                                                 placeholderText="Add a summary"
                                                 onValueChange={appContext.onInlineValueChange}
                                             />
@@ -121,7 +122,8 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                     key: "operation.description",
                                                     path
                                                 }}
-                                                editableObject={pathItem[openApiOperation].description}
+                                                editableObject={pathItem[openApiOperation].description ?
+                                                    pathItem[openApiOperation].description : ""}
                                                 placeholderText="Add a description"
                                                 onValueChange={appContext.onInlineValueChange}
                                             />

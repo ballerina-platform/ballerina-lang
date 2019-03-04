@@ -27,6 +27,7 @@ export interface InlineEditURLProps {
     onEnableEditing: (e: React.MouseEvent<HTMLElement>) => void;
     onTextValueChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void;
     onExitEditing: () => void;
+    onCancelEditing: () => void;
     placeholderText?: string;
 }
 
@@ -38,7 +39,7 @@ class InlineEditURL extends React.Component<InlineEditURLProps, any> {
     public render() {
 
         const { onEnableEditing, placeholderText, isEditing,
-                editableString, onTextValueChange, onExitEditing } = this.props;
+                editableString, onTextValueChange, onExitEditing, onCancelEditing } = this.props;
 
         if (isEditing) {
             return (
@@ -49,12 +50,14 @@ class InlineEditURL extends React.Component<InlineEditURLProps, any> {
                                 id="name"
                                 size="mini"
                                 placeholder="Name"
+                                value={editableString.urlText}
                                 onChange={onTextValueChange}
                             />
                             <Form.Input
                                 id="url"
                                 size="mini"
                                 placeholder="URL"
+                                value={editableString.urlPath}
                                 onChange={onTextValueChange}
                             />
                             <Form.Button size="mini"
@@ -62,7 +65,7 @@ class InlineEditURL extends React.Component<InlineEditURLProps, any> {
                                 <i className="fw fw-check"></i>
                                 </Form.Button>
                             <Form.Button size="mini"
-                                onClick={onExitEditing} >
+                                onClick={onCancelEditing} >
                                 <i className="fw fw-close"></i>
                                 </Form.Button>
                         </Form.Group>
