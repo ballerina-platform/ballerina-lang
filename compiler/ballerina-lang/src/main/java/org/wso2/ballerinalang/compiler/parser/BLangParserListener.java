@@ -1585,8 +1585,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
-                .expression() != null);
+        String workerName = ctx.workerIdentifier().DEFAULT() != null ?
+                ctx.workerIdentifier().DEFAULT().getText() : ctx.workerIdentifier().Identifier().getText();
+
+        this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), workerName, ctx.expression() != null);
     }
 
     @Override
@@ -1604,8 +1606,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                                          ctx.expression().size() > 1);
+        String workerName = ctx.workerIdentifier().DEFAULT() != null ?
+                ctx.workerIdentifier().DEFAULT().getText() : ctx.workerIdentifier().Identifier().getText();
+
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), workerName, ctx.expression().size() > 1);
     }
 
     @Override
@@ -1614,7 +1618,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        String workerName = ctx.workerIdentifier().DEFAULT() != null ?
+                ctx.workerIdentifier().DEFAULT().getText() : ctx.workerIdentifier().Identifier().getText();
+
+        this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), workerName);
     }
 
     @Override
