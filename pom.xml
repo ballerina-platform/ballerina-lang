@@ -2128,11 +2128,6 @@
                     <version>${maven.buildnumber.plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>clirr-maven-plugin</artifactId>
-                    <version>${clirr.maven.plugin.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>${maven.spotbugsplugin.version}</version>
@@ -2352,7 +2347,6 @@
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
-        <clirr.maven.plugin.version>2.8</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.1.6</awaitility.version>
 
