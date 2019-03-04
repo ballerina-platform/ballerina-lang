@@ -29,6 +29,7 @@ import org.ballerinalang.stdlib.utils.SQLDBUtils;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.DBType;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.stdlib.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -83,8 +84,8 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BInteger) returns[1]).intValue() > 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -98,8 +99,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn");
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -355,13 +355,20 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
-        Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    ".*Invalid update of record field: modification not allowed on frozen value.*")
+    public void testUpdateReslt() {
+        BRunUtil.invoke(resultNegative, "testUpdateReslt");
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed parameter array update")
@@ -372,7 +379,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory multiple times")
-    public void testSelectLoadToMemory() throws Exception {
+    public void testSelectLoadToMemory() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, "
@@ -382,7 +389,7 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory after closing")
-    public void testLoadToMemorySelectAfterTableClose() throws Exception {
+    public void testLoadToMemorySelectAfterTableClose() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("
