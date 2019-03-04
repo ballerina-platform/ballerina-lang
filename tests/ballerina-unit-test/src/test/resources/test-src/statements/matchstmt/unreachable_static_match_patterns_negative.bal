@@ -131,5 +131,13 @@ function testUnreachableUnionStaticPatterns() returns string {
         12|11 => return "3"; // unreachable
     }
 
+    match a {
+        "Ballerina"|true|("Ballerina", true) => return "1";
+        { x: "Ballerina", y: true }|("Bal", "Lang") => return "2";
+        { x: "Ballerina", y: false } => return "3";
+        false|("Ballerina", true) => return "4"; // unreachable
+        12|{ x: "Ballerina", y: true } => return "3"; // unreachable
+    }
+
     return "4";
 }

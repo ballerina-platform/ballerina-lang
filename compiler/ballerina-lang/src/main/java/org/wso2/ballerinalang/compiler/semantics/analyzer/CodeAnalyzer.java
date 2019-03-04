@@ -735,7 +735,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     }
                     // pattern is a literal.
                     BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) : (BLangLiteral) pattern;
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                            (BLangLiteral) pattern;
                     return (precedingLiteral.value.equals(literal.value));
                 }
                 return false;
