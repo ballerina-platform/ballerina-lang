@@ -321,6 +321,9 @@ public class CompiledPackageSymbolEnter {
             case CP_ENTRY_MAP:
                 LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
 
+                // value cp entry index
+                int constValueCPEntryIndex = dataInStream.readInt();
+
                 // Size
                 int size = dataInStream.readInt();
 
@@ -330,7 +333,9 @@ public class CompiledPackageSymbolEnter {
                     int keyCPIndex = dataInStream.readInt();
                     UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
 
+                    // Todo - use enum
                     boolean isSimpleLiteral = dataInStream.readBoolean();
+                    boolean isConstRef = dataInStream.readBoolean();
 
                     if (isSimpleLiteral) {
 
@@ -359,10 +364,10 @@ public class CompiledPackageSymbolEnter {
                         } else {
 
 
-                            int valueCPIndex = dataInStream.readInt();
+                            int valueCPEntryIndex = dataInStream.readInt();
 
                             ConstantValue constantValue = new ConstantValue();
-                            constantValue.valueCPEntryIndex = valueCPIndex;
+                            constantValue.valueCPEntryIndex = valueCPEntryIndex;
                             constantValue.literalValueTypeTag = typeTag;
 
                             constantValue.isSimpleLiteral = true;
@@ -374,6 +379,9 @@ public class CompiledPackageSymbolEnter {
                             valueMap.put(keyInfo, constantValue);
 
                         }
+                    }else if(isConstRef){
+                        int recordLiteralSigCPIndex = dataInStream.readInt();
+                        int valueCPEntryIndex = dataInStream.readInt();
                     } else {
                         int valueCPIndex = dataInStream.readInt();
 
@@ -390,7 +398,10 @@ public class CompiledPackageSymbolEnter {
                     }
                 }
 
-                return new MapCPEntry(valueMap);
+                MapCPEntry mapCPEntry = new MapCPEntry(valueMap);
+                mapCPEntry.setValueCPEntryIndex(constValueCPEntryIndex);
+
+                return mapCPEntry;
 
             default:
                 throw new BLangCompilerException("invalid constant pool entry " + cpEntryType.getValue());
@@ -746,6 +757,9 @@ public class CompiledPackageSymbolEnter {
             MapCPEntry constantPoolEntry = (MapCPEntry)this.env.constantPool[valueCPEntry];
 
             constantSymbol.literalValue = constantPoolEntry.getValue();
+            constantSymbol.literalValueTypeTag = valueType.tag;
+
+            constantSymbol.valueCPIndex = constantPoolEntry.getValueCPEntryIndex();
 
             //            constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
 //            constantSymbol.literalValueTypeTag = valueType.tag;

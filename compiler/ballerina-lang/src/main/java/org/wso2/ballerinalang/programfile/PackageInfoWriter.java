@@ -145,6 +145,9 @@ public class PackageInfoWriter {
                 case CP_ENTRY_MAP:
                     MapCPEntry mapCPEntry = (MapCPEntry) cpEntry;
 
+                    // value cp entry index
+                    dataOutStream.writeInt( mapCPEntry.getValueCPEntryIndex());
+
                     // Size
                     dataOutStream.writeInt(mapCPEntry.getValue().size());
 
@@ -160,6 +163,7 @@ public class PackageInfoWriter {
                         dataOutStream.writeBoolean(value.isConstRef);
 
                         if (value.isSimpleLiteral) {
+
                             // Value type tag
                             dataOutStream.writeInt(value.literalValueTypeTag);
 

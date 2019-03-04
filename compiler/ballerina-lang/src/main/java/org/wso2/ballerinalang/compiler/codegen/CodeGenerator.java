@@ -982,28 +982,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         BSymbol ownerSymbol = constRef.symbol.owner;
         pkgSymbol = (BPackageSymbol) ownerSymbol;
 
-//        RegIndex constIndex = ((BConstantSymbol) constRef.varSymbol).varIndex;
-
         constRef.regIndex = calcAndGetExprRegIndex(constRef);
-//                constIndex;
 
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
-        // Todo - Add new instruction code
-
         emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex),
                 getOperand(((BConstantSymbol) constRef.symbol).valueCPIndex), constRef.regIndex);
-
-        //        Operand gvIndex = ((BVarSymbol) packageVarRef.varSymbol).varIndex;
-        //
-        //        if (varAssignment) {
-        //            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
-        //            emit(opcode, getOperand(pkgRefCPIndex), packageVarRef.regIndex, gvIndex);
-        //        } else {
-        //            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
-        //            packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
-        //            emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
-        //        }
     }
 
     @Override
@@ -2228,9 +2212,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
             }
 
-            constantValue.valueCPEntryIndex = constantSymbol.valueCPIndex =
-                    currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
-
+            MapCPEntry cpEntry = new MapCPEntry(constantValue.constantValueMap);
+            constantValue.valueCPEntryIndex = constantSymbol.valueCPIndex = currentPkgInfo.addCPEntry(cpEntry);
+            cpEntry.setValueCPEntryIndex(constantSymbol.valueCPIndex);
 
             constantInfo.constantValue = constantValue;
 
@@ -2317,8 +2301,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
 
-                constantValue.valueCPEntryIndex =
-                        currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
+                MapCPEntry cpEntry = new MapCPEntry(constantValue.constantValueMap);
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
+                cpEntry.setValueCPEntryIndex( constantValue.valueCPEntryIndex);
 
             } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
 
@@ -2341,9 +2326,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
 
-                constantValue.valueCPEntryIndex =
-                        currentPkgInfo.addCPEntry(new MapCPEntry(constantValue.constantValueMap));
-
+                MapCPEntry cpEntry = new MapCPEntry(constantValue.constantValueMap);
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
+                cpEntry.setValueCPEntryIndex( constantValue.valueCPEntryIndex);
             } else {
                 throw new RuntimeException("unexpected node kind");
             }

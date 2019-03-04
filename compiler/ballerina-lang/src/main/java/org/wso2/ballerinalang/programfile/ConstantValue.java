@@ -65,7 +65,6 @@ public class ConstantValue {
         }
 
         // Todo - Iterate and check map
-
         // Todo - Iterate map or check valueCPEntryIndex instead?
 
         return true;

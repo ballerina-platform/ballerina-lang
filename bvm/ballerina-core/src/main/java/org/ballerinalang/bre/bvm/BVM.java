@@ -96,6 +96,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -1753,7 +1754,10 @@ public class BVM {
                 pkgIndex = operands[0];
                 i = operands[1];
                 j = operands[2];
-                sf.refRegs[j] = ((MapCPEntry) sf.constPool[i]).bMap;
+
+                PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
+
+                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).bMap;
                 break;
             default:
                 throw new UnsupportedOperationException();

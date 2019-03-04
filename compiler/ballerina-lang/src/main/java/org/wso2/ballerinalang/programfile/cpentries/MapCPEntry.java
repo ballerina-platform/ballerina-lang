@@ -30,6 +30,7 @@ import java.util.Map;
  */
 public class MapCPEntry implements ConstantPoolEntry {
 
+    private int valueCPEntryIndex = -1;
     private Map<KeyInfo, ConstantValue> value;
 
     public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
@@ -38,6 +39,14 @@ public class MapCPEntry implements ConstantPoolEntry {
 
     public Map<KeyInfo, ConstantValue> getValue() {
         return value;
+    }
+
+    public void setValueCPEntryIndex(int valueCPEntryIndex) {
+        this.valueCPEntryIndex = valueCPEntryIndex;
+    }
+
+    public int getValueCPEntryIndex() {
+        return valueCPEntryIndex;
     }
 
     public EntryType getEntryType() {

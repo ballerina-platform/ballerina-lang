@@ -32,6 +32,7 @@ import java.util.Map;
  */
 public class MapCPEntry implements ConstantPoolEntry {
 
+    private int valueCPEntryIndex = -1;
     private Map<KeyInfo, ConstantValue> value;
 
     // Todo - remove type
@@ -40,15 +41,25 @@ public class MapCPEntry implements ConstantPoolEntry {
     // Todo - freeze value
     public BMap<String, BRefType> bMap = new BMap<>();
 
-    public MapCPEntry(Map<KeyInfo, ConstantValue> value, BType type) {
+    public MapCPEntry(int valueCPEntryIndex, Map<KeyInfo, ConstantValue> value, BType type) {
+        this.valueCPEntryIndex = valueCPEntryIndex;
         this.value = value;
         this.type = type;
+    }
 
-        bMap.put("test", null);
+    public MapCPEntry(int valueCPEntryIndex, Map<KeyInfo, ConstantValue> value, BMap<String, BRefType> bValueMap) {
+        this.valueCPEntryIndex = valueCPEntryIndex;
+        this.value = value;
+        this.bMap = bValueMap;
+        // Todo - Freeze value
     }
 
     public Map<KeyInfo, ConstantValue> getValue() {
         return value;
+    }
+
+    public int getValueCPEntryIndex() {
+        return valueCPEntryIndex;
     }
 
     public EntryType getEntryType() {

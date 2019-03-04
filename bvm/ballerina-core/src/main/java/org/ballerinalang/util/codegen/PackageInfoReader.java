@@ -43,6 +43,8 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
@@ -107,6 +109,11 @@ import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.model.types.TypeTags.BYTE_TAG;
+import static org.ballerinalang.model.types.TypeTags.DECIMAL_TAG;
+import static org.ballerinalang.model.types.TypeTags.FLOAT_TAG;
+import static org.ballerinalang.model.types.TypeTags.INT_TAG;
+import static org.ballerinalang.model.types.TypeTags.STRING_TAG;
 import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
@@ -280,8 +287,12 @@ public class PackageInfoReader {
             case CP_ENTRY_MAP:
 
                 LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+                BMap<String, BRefType> bValueMap =  new BMap<>();
 
                 BType type = null;
+
+                // value cp entry index
+                int valueCPEntryIndex = dataInStream.readInt();
 
                 // Size
                 int size = dataInStream.readInt();
@@ -298,8 +309,6 @@ public class PackageInfoReader {
                     boolean isConstRef = dataInStream.readBoolean();
 
 
-
-
                     if (isSimpleLiteral) {
 
 
@@ -308,7 +317,17 @@ public class PackageInfoReader {
 
                         // Value
                         if (typeTag == TypeTags.NULL_TAG) {
-                            // Do nothing
+                            ConstantValue constantValue = new ConstantValue();
+                            constantValue.literalValueTypeTag = typeTag;
+                            constantValue.isSimpleLiteral = true;
+
+                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                            valueMap.put(keyInfo, constantValue);
+
+                            bValueMap.put(keyCPEntry.getValue(), null);
+
+
                         } else if (typeTag == TypeTags.BOOLEAN_TAG) {
                             boolean value = dataInStream.readBoolean();
 
@@ -323,6 +342,8 @@ public class PackageInfoReader {
 
 
                             valueMap.put(keyInfo, constantValue);
+
+                            bValueMap.put(keyCPEntry.getValue(), new BBoolean(value));
 
                         } else {
 
@@ -340,6 +361,23 @@ public class PackageInfoReader {
 
 
                             valueMap.put(keyInfo, constantValue);
+
+
+                            switch (typeTag) {
+                                case INT_TAG:
+                                    break;
+                                case BYTE_TAG:
+                                    break;
+                                case FLOAT_TAG:
+                                    break;
+                                case DECIMAL_TAG:
+                                    break;
+                                case STRING_TAG:
+                                    break;
+                                default:
+                                    throw new RuntimeException("unexpected type tag");
+                            }
+
 
                         }
                     } else if (isConstRef) {
@@ -379,7 +417,7 @@ public class PackageInfoReader {
                     }
                 }
 
-                return new MapCPEntry(valueMap, type);
+                return new MapCPEntry(valueCPEntryIndex, valueMap, bValueMap);
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
@@ -740,11 +778,11 @@ public class PackageInfoReader {
             case TypeTags.BOOLEAN_TAG:
                 dataInStream.readBoolean();
                 break;
-            case TypeTags.INT_TAG:
+            case INT_TAG:
             case TypeTags.BYTE_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.STRING_TAG:
+            case FLOAT_TAG:
+            case DECIMAL_TAG:
+            case STRING_TAG:
                 dataInStream.readInt();
                 break;
             case TypeTags.NULL_TAG:
