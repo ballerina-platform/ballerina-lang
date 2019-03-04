@@ -1236,6 +1236,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#workerIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterWorkerIdentifier(BallerinaParser.WorkerIdentifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#workerIdentifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitWorkerIdentifier(BallerinaParser.WorkerIdentifierContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#flushWorker}.
 	 * @param ctx the parse tree
 	 */
