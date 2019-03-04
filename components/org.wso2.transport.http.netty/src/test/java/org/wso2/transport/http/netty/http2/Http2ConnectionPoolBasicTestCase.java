@@ -47,12 +47,11 @@ import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.Http2SendChannelIDInitializer;
 
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 
 
 /**
@@ -61,7 +60,6 @@ import static org.testng.AssertJUnit.assertEquals;
 public class Http2ConnectionPoolBasicTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(Http2ConnectionPoolBasicTestCase.class);
 
-    private ExecutorService executor = Executors.newFixedThreadPool(2);
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
     private HttpServer http2Server;
@@ -71,9 +69,9 @@ public class Http2ConnectionPoolBasicTestCase {
         http2Server = TestUtil
             .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2SendChannelIDInitializer(), 1, 2);
 
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory(1, 2, 3);
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory(1, 2, 2);
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        listenerConfiguration.setPort(SERVER_CONNECTOR_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
         serverConnector = httpWsConnectorFactory
@@ -93,31 +91,41 @@ public class Http2ConnectionPoolBasicTestCase {
     }
 
     @Test
-    public void testConnectionReuseForProxy() {
-        //Since we have only two threads, upstream will have two different pools.
-        HttpClientConnector client1 = getTestClient(); //Thread 1 pool
+    public void testH2CUpgradeWithPool() {
+        //Since we have only two eventloops, upstream will have two different pools.
+        HttpClientConnector client1 = getTestClient(); //Upstream uses eventloop1 pool
         String response1 = getResponse(client1);
-        HttpClientConnector client2 = getTestClient(); //Thread 2 pool
+        HttpClientConnector client2 = getTestClient(); //Upstream uses eventloop2 pool
         String response2 = getResponse(client2);
-        HttpClientConnector client3 = getTestClient(); //Thread 1 pool
+        HttpClientConnector client3 = getTestClient(); //Upstream uses eventloop1 pool
         String response3 = getResponse(client3);
-        HttpClientConnector client4 = getTestClient(); //Thread 2 pool
+        HttpClientConnector client4 = getTestClient(); //Upstream uses eventloop2 pool
         String response4 = getResponse(client4);
 
         assertNotEquals(response1, response2,
-                        "Client uses two different pools, hence response 1 and 2 should not be equal ");
+                        "Client uses two different pools, hence response 1 and 2 should not be equal");
         assertNotEquals(response3, response4,
-                        "Client uses two different pools, hence response 3 and 4 should not be equal ");
-        assertEquals(response1, response3, "Client uses the same pool, hence response should be equal ");
-        assertEquals(response2, response4, "Client uses the same pool, hence response should be equal ");
+                        "Client uses two different pools, hence response 3 and 4 should not be equal");
+        assertEquals(response1, response3, "Client uses the same pool, hence response 1 and 3 should be equal");
+        assertEquals(response2, response4, "Client uses the same pool, hence response 2 and 4 should be equal");
+    }
+
+    @Test
+    public void testPriorKnowledgeWithPool() {
+
+    }
+
+    @Test
+    public void testH2ClientWithPool() {
+
     }
 
     private String getResponse(HttpClientConnector client1) {
-        HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null);
+        HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null,
+                                                                               SERVER_CONNECTOR_PORT);
         HttpCarbonMessage response = new MessageSender(client1).sendMessage(httpCarbonMessage);
         assertNotNull(response);
-        return TestUtil.getStringFromInputStream(
-            new HttpMessageDataStreamer(response).getInputStream());
+        return TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
     }
 
     @AfterClass
@@ -131,41 +139,18 @@ public class Http2ConnectionPoolBasicTestCase {
         }
     }
 
+    /**
+     * Get the test client. Each test client has their own connection manager and does not use source pools.
+     *
+     * @return
+     */
     private HttpClientConnector getTestClient() {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                            Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
-
+//        senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
         return httpWsConnectorFactory.createHttpClientConnector(
             HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
-
-    /*private class ClientWorker implements Callable<String> {
-
-        private String response;
-
-        @Override
-        public String call() throws Exception {
-            try {
-              *//*  URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil
-              .SERVER_CONNECTOR_PORT));
-                HttpURLConnection urlConn = TestUtil
-                    .request(baseURI, "/", HttpMethod.POST.name(), true);
-                urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
-                response = TestUtil.getContent(urlConn);*//*
-
-                String upgradeString = "GET / HTTP/1.1\r\n" +
-                    "Host: localhost\r\n" +
-                    "Connection: Upgrade, HTTP2-Settings\r\n" +
-                    "Upgrade: h2c\r\n" +
-                    "HTTP2-Settings: AAMAAABkAAQAAP__\r\n\r\n";
-
-            } catch (IOException e) {
-                LOG.error("Couldn't get the response", e);
-            }
-
-            return response;
-        }
-    }*/
 }
