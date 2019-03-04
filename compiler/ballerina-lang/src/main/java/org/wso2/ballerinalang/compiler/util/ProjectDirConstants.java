@@ -49,6 +49,7 @@ public class ProjectDirConstants {
 
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String BALLERINA_HOME_LIB = "lib";
+    public static final String BALLERINA_HOME_BRE = "bre";
 
     public static final String BALLERINA_VERSION = "ballerina.version";
     public static final String PROPERTIES_FILE = "/META-INF/launcher.properties";
