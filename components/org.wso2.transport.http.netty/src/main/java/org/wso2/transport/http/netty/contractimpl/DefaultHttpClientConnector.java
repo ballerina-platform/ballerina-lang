@@ -186,11 +186,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
                     activeHttp2ClientChannel.getChannel().eventLoop().execute(
-                            () -> {
-                                LOG.warn("Send message {} - {} - {}", httpOutboundRequest.getHeader("id"),
-                                         Thread.currentThread().getName(),
-                                         activeHttp2ClientChannel.getChannel().id());
-                                activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);});
+                        () -> activeHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     return httpResponseFuture;
@@ -260,13 +256,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                                                                                     freshHttp2ClientChannel));
 
                     freshHttp2ClientChannel.getChannel().eventLoop().execute(
-                        () -> {
-                            LOG.warn("First message sent {}, {} - {} - {}",
-                                     freshHttp2ClientChannel.getChannel().eventLoop(),
-                                     httpOutboundRequest.getHeader("id"),
-                                     Thread.currentThread().getName(),
-                                     freshHttp2ClientChannel.getChannel().id());
-                            freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);});
+                        () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
 

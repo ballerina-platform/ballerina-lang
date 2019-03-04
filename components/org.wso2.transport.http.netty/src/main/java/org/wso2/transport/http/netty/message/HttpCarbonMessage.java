@@ -30,8 +30,6 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -51,7 +49,6 @@ import java.util.Map;
  * HTTP based representation for HttpCarbonMessage.
  */
 public class HttpCarbonMessage {
-    private static final Logger LOG = LoggerFactory.getLogger(HttpCarbonMessage.class);
 
     protected HttpMessage httpMessage;
     private EntityCollector blockingEntityCollector;
@@ -109,7 +106,6 @@ public class HttpCarbonMessage {
             contentObservable.notifyGetListener(httpContent);
             blockingEntityCollector.addHttpContent(httpContent);
             if (messageFuture.isMessageListenerSet()) {
-                LOG.warn("Notify conent {} - {}", httpMessage.headers().get("id"), Thread.currentThread().getName());
                 messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
             }
             // We remove the feature as the message has reached it life time. If there is a need

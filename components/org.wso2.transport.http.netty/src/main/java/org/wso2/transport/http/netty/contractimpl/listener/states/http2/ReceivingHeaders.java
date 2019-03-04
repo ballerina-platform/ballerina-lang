@@ -83,7 +83,6 @@ public class ReceivingHeaders implements ListenerState {
             http2SourceHandler.getStreamIdRequestMap().put(streamId, sourceReqCMsg); // storing to add HttpContent later
             notifyRequestListener(http2SourceHandler, sourceReqCMsg, streamId);
             http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
-            LOG.warn("Source message {} - {} ", sourceReqCMsg.getHeaders().get("id"), Thread.currentThread().getName());
         }
     }
 

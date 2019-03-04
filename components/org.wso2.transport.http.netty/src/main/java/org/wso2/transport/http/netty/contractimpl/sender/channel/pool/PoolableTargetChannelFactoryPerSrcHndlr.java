@@ -48,9 +48,7 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     @Override
     public Object makeObject() throws Exception {
         //When borrowObject() creates a new channel, it should be created with the given eventloop class and group since
-        //with http/2, eventloop of the channel cannot be changed later. This does not affect http/1.1. Once a channel
-        //is borrowed, it should not be returned to the generic object pool if it is http/2 because once an http/2
-        // channel is created it will be managed by http/2 pool.
+        //with http/2, eventloop of the channel cannot be changed later. This does not affect http/1.1.
         channelFactory.setEventLoopClass(eventLoopClass);
         channelFactory.setEventLoopGroup(clientEventGroup);
         TargetChannel targetChannel = (TargetChannel) this.genericObjectPool.borrowObject();
