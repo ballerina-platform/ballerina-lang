@@ -129,7 +129,7 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <q:ID>1131313</q:ID>
     </p:person>`;
 
-function xmlElemIter() returns string {
+function xmlSequenceIter() returns string {
     string result = "";
 
     foreach xml|string elem in compositeXml {
@@ -139,7 +139,7 @@ function xmlElemIter() returns string {
     return result;
 }
 
-function singleElemIter() returns string {
+function xmlCharItemIter() returns string {
     string result = "";
 
     foreach xml|string elem in bitOfText {

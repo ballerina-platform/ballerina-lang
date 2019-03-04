@@ -130,17 +130,17 @@ public class XMLIterationTest {
         Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[1][0]);
     }
 
-    @Test(description = "Test iterating over xml elements when some elements are characters")
-    public void testXMLCharacterSequenceIteration() {
-        BValue[] results = BRunUtil.invoke(result, "xmlElemIter");
+    @Test(description = "Test iterating over xml elements where some elements are characters")
+    public void testXMLCompoundCharacterSequenceIteration() {
+        BValue[] results = BRunUtil.invoke(result, "xmlSequenceIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results[0].stringValue();
         Assert.assertEquals(str, "<book>the book</book>\nb\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
     }
 
-    @Test(description = "Test iterating over single string xml element")
-    public void testSingleXMLCharacterSequenceIteration() {
-        BValue[] results = BRunUtil.invoke(result, "singleElemIter");
+    @Test(description = "Test iterating over xml sequence where all elements are character items")
+    public void testXMLCharacterSequenceIteration() {
+        BValue[] results = BRunUtil.invoke(result, "xmlCharItemIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results[0].stringValue();
         Assert.assertEquals(str, "b\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");

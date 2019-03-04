@@ -23,9 +23,9 @@ package org.ballerinalang.model.values;
  * @since 0.995.0
  */
 public class BXMLCodePointIterator implements BIterator {
+
     private String charSequence;
     private int offset;
-
 
     public BXMLCodePointIterator(String charSequence) {
         this.charSequence = charSequence;

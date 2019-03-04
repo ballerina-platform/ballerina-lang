@@ -508,7 +508,6 @@ public final class BXMLSequence extends BXML<BValueArray> {
                 return codePointIterator.getNext();
             }
             return curVal;
-
         }
 
         @Override
