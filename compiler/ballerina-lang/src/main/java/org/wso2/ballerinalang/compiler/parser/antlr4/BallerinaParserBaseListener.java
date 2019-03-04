@@ -1372,6 +1372,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWorkerIdentifier(BallerinaParser.WorkerIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWorkerIdentifier(BallerinaParser.WorkerIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFlushWorker(BallerinaParser.FlushWorkerContext ctx) { }
 	/**
 	 * {@inheritDoc}
