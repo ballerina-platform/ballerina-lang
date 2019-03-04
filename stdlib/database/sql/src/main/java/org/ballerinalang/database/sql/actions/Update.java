@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * {@code Update} is the Update action implementation of the SQL Connector.
+ * {@code Update} is the Update remote function implementation of the SQL Connector.
  *
  * @since 0.8.0
  */
@@ -38,11 +38,12 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         functionName = "nativeUpdate",
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
                           structType = "Param")
         },
         returnType = {
-                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.RECORD, structType = "Result", structPackage = "ballerina/sql"),
                 @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
@@ -52,11 +53,12 @@ public class Update extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             String query = context.getStringArgument(0);
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(1);
+            BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
+            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
             SQLDatasource datasource = retrieveDatasource(context);
 
             checkAndObserveSQLAction(context, datasource, query);
-            executeUpdate(context, datasource, query, parameters);
+            executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         } catch (Throwable e) {
             context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);

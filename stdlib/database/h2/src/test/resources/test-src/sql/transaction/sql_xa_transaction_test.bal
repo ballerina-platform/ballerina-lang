@@ -228,8 +228,7 @@ function testXATransactonRetry() returns (int, int) {
 
     _ = trap testXATransactonRetryHelper(testDB1, testDB2);
     //check whether update action is performed
-    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
-        ResultCount);
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4", ResultCount);
     int count1 = getTableCountValColumn(dt1);
 
     var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);

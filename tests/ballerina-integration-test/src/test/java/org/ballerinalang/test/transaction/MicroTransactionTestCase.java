@@ -34,13 +34,11 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Testing micro transaction header behaviour.
@@ -55,7 +53,7 @@ public class MicroTransactionTestCase extends BaseTest {
     private final int participant2ServicePort = 8890;
 
     @BeforeClass(groups = "transactions-test", alwaysRun = true)
-    public void start() throws BallerinaTestException, IOException {
+    public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort, participant2ServicePort};
         sqlServer = new SQLDBUtils.FileBasedTestDatabase(DBType.H2, "transaction" + File.separator + "data.sql",
                 SQLDBUtils.DB_DIRECTORY, DB_NAME);
@@ -293,10 +291,6 @@ public class MicroTransactionTestCase extends BaseTest {
         State participant2State = new State(participant2StateRes.getData());
         assertFalse(participant2State.committedFunctionCalled);
         assertFalse(participant2State.localParticipantCommittedFunctionCalled);
-    }
-
-    private static void copyFile(File source, File dest) throws IOException {
-        Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
     private static class State {
