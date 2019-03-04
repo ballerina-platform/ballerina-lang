@@ -24,8 +24,8 @@ const string EMPTY_STRING = "";
 
 const string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
 const string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
-final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
-final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
+final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, defaultVal = 9797);
+final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, defaultVal = "0.0.0.0");
 
 const string EXPIRY_TAG = "timeWindow";
 const string PERCENTILE_TAG = "quantile";
