@@ -29,6 +29,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Test cases for ballerina/http.response native functions.
  */
@@ -39,8 +42,10 @@ public class ConnectionNativeFunctionTest {
 
     @BeforeClass
     public void setup() {
-        String filePath = "test-src/services/nativeimpl/connection/connection-native-function.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, filePath);
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "nativeimpl", "connection");
+        serviceResult = BServiceUtil
+                .setupProgramFile(this, sourceRoot.resolve("connection-native-function.bal").toString());
     }
 
     @Test(description = "Test whether the headers and status codes are set correctly.")

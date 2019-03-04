@@ -34,18 +34,23 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Test class for @Produces @Consumes annotation tests.
  */
 public class ProducesConsumesAnnotationTest {
 
     private static final String TEST_EP = "testEP";
-    CompileResult compileResult;
+    private CompileResult compileResult;
 
     @BeforeClass()
     public void setup() {
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching");
         compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/produces-consumes-test.bal");
+                .setupProgramFile(this, sourceRoot.resolve("produces-consumes-test.bal").toString());
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")

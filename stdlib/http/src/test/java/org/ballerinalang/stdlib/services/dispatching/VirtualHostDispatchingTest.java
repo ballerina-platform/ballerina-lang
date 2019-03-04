@@ -35,7 +35,8 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Service dispatching test cases for virtual hosting.
@@ -44,10 +45,12 @@ public class VirtualHostDispatchingTest {
 
     private CompileResult result;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+    private Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching");
 
     @BeforeClass
     public void setup() {
-        result = BServiceUtil.setupProgramFile(this, "test-src/services/dispatching/virtual-host-test.bal");
+        result = BServiceUtil.setupProgramFile(this, sourceRoot.resolve("virtual-host-test.bal").toString());
     }
 
     @Test()
@@ -98,8 +101,8 @@ public class VirtualHostDispatchingTest {
             expectedExceptionsMessageRegExp =
                     ".*two services have the same basePath : '/page' under host name : 'abc.com'.*")
     public void testTwoServicesWithSameHostandBasePath() {
-        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
-                "test-src/services/dispatching/virtual-host-negative-test.bal").getPath()).getAbsolutePath());
+        CompileResult compileResult = BCompileUtil.compile(
+                sourceRoot.resolve("virtual-host-negative-test.bal").toString());
         BServiceUtil.runService(compileResult);
     }
 }

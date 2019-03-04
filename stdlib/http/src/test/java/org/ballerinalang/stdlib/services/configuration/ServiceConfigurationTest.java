@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -56,9 +57,9 @@ public class ServiceConfigurationTest {
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "service-config.conf").toString(), null);
 
-        String serviceFile = Paths.get(resourceRoot, "test-src", "services", "configuration",
-                "service_configuration.bal").toString();
-        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "configuration");
+        CompileResult configuredService = BServiceUtil
+                .setupProgramFile(this, sourceRoot.resolve("service_configuration.bal").toString());
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
         HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);

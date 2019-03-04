@@ -35,25 +35,28 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Service versioning dispatching related test cases.
  */
 public class VersioningDispatchingTest {
 
-    private CompileResult result1, result2, result3;
     private static final String MOCK_ENDPOINT_NAME = "passthruEP";
     private static final String PKG_NAME = "abc.xyz";
-    private static final String PATH = "test-src/services/dispatching/versioning/";
-
     private static final String VERSION1 = "1.5.2";
     private static final String VERSION2 = "0.0.0";
     private static final String VERSION3 = "xxx";
+    private CompileResult result1, result2, result3;
 
     @BeforeClass
     public void setup() {
-        result1 = BServiceUtil.setupProgramFile(this, PATH + "successcase1", PKG_NAME);
-        result2 = BServiceUtil.setupProgramFile(this, PATH + "successcase2", PKG_NAME);
-        result3 = BServiceUtil.setupProgramFile(this, PATH + "successcase3", PKG_NAME);
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching", "versioning");
+        result1 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase1").toString(), PKG_NAME);
+        result2 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase2").toString(), PKG_NAME);
+        result3 = BServiceUtil.setupProgramFile(sourceRoot.resolve("successcase3").toString(), PKG_NAME);
     }
 
     @Test(description = "Test dispatching with version template, no version allow and match major configs",
