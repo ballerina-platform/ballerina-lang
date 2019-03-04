@@ -452,11 +452,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) astStructLiteralExpr.type.tsymbol;
 
-        // Invoke the struct default values init function here.
-        if (structSymbol.defaultsValuesInitFunc != null) {
-            // TODO do we need this anymore?
-        }
-
         // Invoke the struct initializer here.
         if (astStructLiteralExpr.initializer != null) {
             //TODO
@@ -471,7 +466,8 @@ public class BIRGen extends BLangNodeVisitor {
             keyValue.valueExpr.accept(this);
             BIROperand valueRegIndex = this.env.targetOperand;
 
-            emit(new FieldAccess(astStructLiteralExpr.pos, InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
+            emit(new FieldAccess(astStructLiteralExpr.pos,
+                    InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
         }
         this.env.targetOperand = toVarRef;
     }
