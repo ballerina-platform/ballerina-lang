@@ -362,22 +362,55 @@ public class PackageInfoReader {
 
                             valueMap.put(keyInfo, constantValue);
 
+                            BMapType bMapType;
 
+                            ConstantPoolEntry cpEntry;
                             switch (typeTag) {
                                 case INT_TAG:
+                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
+                                    BInteger bInteger = new BInteger(((IntegerCPEntry) cpEntry).getValue());
+
+                                    bMapType = new BMapType(bInteger.getType());
+                                    bValueMap = new BMap<>(bMapType);
+                                    bValueMap.put(keyCPEntry.getValue(), bInteger);
+
                                     break;
                                 case BYTE_TAG:
+                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
+                                    BByte bByte = new BByte(((ByteCPEntry) cpEntry).getValue());
+
+                                    bMapType = new BMapType(bByte.getType());
+                                    bValueMap = new BMap<>(bMapType);
+                                    bValueMap.put(keyCPEntry.getValue(), bByte);
                                     break;
                                 case FLOAT_TAG:
+                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
+                                    BFloat bFloat = new BFloat(((FloatCPEntry) cpEntry).getValue());
+
+                                    bMapType = new BMapType(bFloat.getType());
+                                    bValueMap = new BMap<>(bMapType);
+                                    bValueMap.put(keyCPEntry.getValue(), bFloat);
                                     break;
                                 case DECIMAL_TAG:
+                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
+                                    BDecimal bDecimal = new BDecimal(new BigDecimal(((UTF8CPEntry) cpEntry).getValue(),
+                                            MathContext.DECIMAL128));
+
+                                    bMapType = new BMapType(bDecimal.getType());
+                                    bValueMap = new BMap<>(bMapType);
+                                    bValueMap.put(keyCPEntry.getValue(), bDecimal);
                                     break;
                                 case STRING_TAG:
+                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
+                                    BString bString = new BString(((UTF8CPEntry) cpEntry).getValue());
+
+                                    bMapType = new BMapType(bString.getType());
+                                    bValueMap = new BMap<>(bMapType);
+                                    bValueMap.put(keyCPEntry.getValue(), bString);
                                     break;
                                 default:
                                     throw new RuntimeException("unexpected type tag");
                             }
-
 
                         }
                     } else if (isConstRef) {
@@ -418,6 +451,8 @@ public class PackageInfoReader {
                         KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
 
                         valueMap.put(keyInfo, constantValue);
+
+                        // Todo - add to bValueMap
                     }
                 }
 
