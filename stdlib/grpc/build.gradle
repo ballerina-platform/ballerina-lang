@@ -2,8 +2,7 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
@@ -13,10 +12,16 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.270'
     implementation project(':ballerina-http')
-    implementation project(':ballerina-builtin')
-    
+    implementation project(':lib-creator')
+
     testCompile project(':ballerina-launcher')
     testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-runtime')
+    testCompile project('::ballerina-builtin')
+    testCompile project('::ballerina-system')
+    testCompile project('::ballerina-config-api')
+    testCompile project('::ballerina-internal')
+
 }
 
 description = 'Ballerina - gRPC Implementation'
