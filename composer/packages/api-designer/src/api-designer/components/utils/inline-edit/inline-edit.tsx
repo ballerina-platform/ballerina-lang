@@ -81,6 +81,16 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
         this.onKeyDownEvent = this.onKeyDownEvent.bind(this);
         this.onTextValueChange = this.onTextValueChange.bind(this);
         this.onCancelEditing = this.onCancelEditing.bind(this);
+        this.onFocusOut = this.onFocusOut.bind(this);
+    }
+
+    public componentWillReceiveProps(nextProps: OpenApiInlineEditProps) {
+        this.setState({
+            editText: typeof this.props.editableObject !== "string" ?
+                { ...this.props.editableObject } : this.props.editableObject,
+            initialValue: typeof this.props.editableObject !== "string" ?
+                { ...this.props.editableObject } : this.props.editableObject
+        });
     }
 
     /**
@@ -122,7 +132,7 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
 
         if (this.isContactObj(editText)) {
             return (
-                <ComponentFocusDetector onClickedOut={this.onCancelEditing}>
+                <ComponentFocusDetector onClickedOut={this.onFocusOut}>
                     <InlineEditContact editableString={editText} isEditing={isEditing}
                         onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
                         onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
@@ -133,7 +143,7 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
 
         if (this.isLicenseObj(editText)) {
             return (
-                <ComponentFocusDetector onClickedOut={this.onCancelEditing}>
+                <ComponentFocusDetector onClickedOut={this.onFocusOut}>
                     <InlineEditLicense editableString={editText} isEditing={isEditing}
                         onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
                         onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
@@ -144,7 +154,7 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
 
         if (this.isURLObj(editText)) {
             return (
-                <ComponentFocusDetector onClickedOut={this.onCancelEditing}>
+                <ComponentFocusDetector onClickedOut={this.onFocusOut}>
                     <InlineEditURL editableString={editText} isEditing={isEditing}
                         onEnableEditing={this.onEnableEditing} placeholderText={placeholderText}
                         onTextValueChange={this.onTextValueChange} onExitEditing={this.onExitEditing}
@@ -162,6 +172,12 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
         e.stopPropagation();
         this.setState({
             isEditing: true,
+        });
+    }
+
+    private onFocusOut() {
+        this.setState({
+            isEditing: false
         });
     }
 

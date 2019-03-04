@@ -106,7 +106,6 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                                                                 key: "resource.name",
                                                             }}
                                                             editableObject={openApiResource}
-                                                            placeholderText="Add a summary"
                                                             onValueChange={appContext.onInlineValueChange}
                                                         />
                                                     );
