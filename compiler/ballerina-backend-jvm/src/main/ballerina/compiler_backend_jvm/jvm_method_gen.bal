@@ -64,6 +64,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                     instGen.generateMapStoreIns(inst);
                 } else if (inst.kind == "ARRAY_STORE") {
                     instGen.generateArrayStoreIns(inst);
+                } else if (inst.kind == "ARRAY_LOAD") {
+                    instGen.generateArrayValueLoad(inst);
                 }
                 //TODO array load and map load
             } else {

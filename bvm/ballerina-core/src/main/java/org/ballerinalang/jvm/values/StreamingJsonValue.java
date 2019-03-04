@@ -63,7 +63,7 @@ public class StreamingJsonValue extends ArrayValue {
     }
 
     @Override
-    public Object getRefValue(int index) {
+    public Object getRefValue(long index) {
         // If the the index is larger than the size, and datasource has more content,
         // then read data from data-source until the index, or until the end of the data-source.
         while (index >= size && datasource.hasNext()) {
