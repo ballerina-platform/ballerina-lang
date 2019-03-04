@@ -401,6 +401,10 @@ public class PackageInfoReader {
 
                         valueMap.put(keyInfo, constantValue);
 
+                        MapCPEntry valueMapCPEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
+
+                        bValueMap.put(keyCPEntry.getValue(), valueMapCPEntry.bMap);
+
                     } else {
                         int valueCPIndex = dataInStream.readInt();
 
