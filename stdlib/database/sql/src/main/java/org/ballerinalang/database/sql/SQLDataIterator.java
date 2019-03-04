@@ -58,7 +58,6 @@ import java.util.Calendar;
 import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
-import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_DATABASE_NAME;
 import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_OID_COLUMN_TYPE_NAME;
 
 /**
@@ -205,7 +204,7 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.INTEGER:
                         case Types.BIGINT:
-                            if (sourceDatabase.equalsIgnoreCase(POSTGRES_DATABASE_NAME)) {
+                            if (sourceDatabase.equalsIgnoreCase(Constants.DatabaseNames.POSTGRESQL)) {
                                 boolean isOID = rs.getMetaData().getColumnTypeName(index)
                                         .equalsIgnoreCase(POSTGRES_OID_COLUMN_TYPE_NAME);
                                 if (isOID) {
