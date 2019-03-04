@@ -75,7 +75,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         if (returnType is bir:BTypeInt) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, returnVarRefIndex);
-        } if (returnType is bir:BTypeString) {
+        } else if (returnType is bir:BTypeString) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, returnVarRefIndex);
         } else if (returnType is bir:BMapType) {
