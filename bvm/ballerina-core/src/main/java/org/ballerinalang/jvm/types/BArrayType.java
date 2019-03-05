@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -35,7 +35,7 @@ public class BArrayType extends BType {
     private BType elementType;
     private int dimensions = 1;
     private int size = -1;
-    private BArrayState state = BArrayState.UNSEALED;
+    private ArrayState state = ArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
         super(null, null, ArrayValue.class);
@@ -52,7 +52,7 @@ public class BArrayType extends BType {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
         if (size != -1) {
-            state = BArrayState.CLOSED_SEALED;
+            state = ArrayState.CLOSED_SEALED;
             this.size = size;
         }
     }
@@ -113,7 +113,7 @@ public class BArrayType extends BType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            if (other.state == BArrayState.CLOSED_SEALED && this.size != other.size) {
+            if (other.state == ArrayState.CLOSED_SEALED && this.size != other.size) {
                 return false;
             }
             return this.elementType.equals(other.elementType);
@@ -141,7 +141,7 @@ public class BArrayType extends BType {
         return size;
     }
 
-    public BArrayState getState() {
+    public ArrayState getState() {
         return state;
     }
 }

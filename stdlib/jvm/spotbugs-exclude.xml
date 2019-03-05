@@ -16,4 +16,8 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS" />
+        <Class name="org.ballerinalang.nativeimpl.jvm.methodvisitor.VisitLookupSwitchInsn" />
+    </Match>
 </FindBugsFilter>
