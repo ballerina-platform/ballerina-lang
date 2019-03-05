@@ -56,6 +56,9 @@ type InstructionGenerator object {
         } else if (bType is bir:BMapType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BRecordType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", moveIns.rhsOp.typeValue));

@@ -367,7 +367,7 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 # + recordType - record type tp load
 function loadRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType) {
     // TODO: load the record type from the field
-    string recordTypeName = "typeDef.name.value";
+    string recordTypeName = recordType.name.value;
     string fieldName = getTypeFieldName(recordTypeName);
     mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 }

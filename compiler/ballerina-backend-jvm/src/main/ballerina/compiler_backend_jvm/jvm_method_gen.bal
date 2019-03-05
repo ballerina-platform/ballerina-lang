@@ -44,6 +44,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             } else if (bType is bir:BArrayType) {
                 mv.visitInsn(ACONST_NULL);
                 mv.visitVarInsn(ASTORE, index);
+            } else if (bType is bir:BRecordType) {
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, index);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                             io:sprintf("%s", bType));
@@ -82,6 +85,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, returnVarRefIndex);
         } else if (returnType is bir:BMapType) {
+            mv.visitInsn(ACONST_NULL);
+            mv.visitVarInsn(ASTORE, returnVarRefIndex);
+        } else if (returnType is bir:BRecordType) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, returnVarRefIndex);
         } else if (returnType is bir:BArrayType) {
@@ -237,6 +243,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", ARRAY_VALUE));
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BRecordType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", MAP_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -281,6 +291,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", ARRAY_VALUE));
+        } else if (bType is bir:BRecordType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", MAP_VALUE));
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -343,6 +357,8 @@ function getMethodArgDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BArrayType) {
         return io:sprintf("L%s;", ARRAY_VALUE);
+    } else if (bType is bir:BRecordType) {
+        return io:sprintf("L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -361,6 +377,8 @@ function generateReturnType(bir:BType? bType) returns string {
     } else if (bType is bir:BArrayType) {
         return io:sprintf(")L%s;", ARRAY_VALUE);
     } else if (bType is bir:BMapType) {
+        return io:sprintf(")L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BRecordType) {
         return io:sprintf(")L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -498,7 +516,6 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         while (k < localVars.length()) {
             bir:VariableDcl localVar = localVars[k];
             bir:BType bType = localVar.typeValue;
-
             var fieldName = localVar.name.value.replace("%","_");
             if (bType is bir:BTypeInt) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "J");
@@ -510,6 +527,9 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", STRING_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BMapType) {
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
+                fv.visitEnd();
+            } else if (bType is bir:BRecordType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BArrayType) {
