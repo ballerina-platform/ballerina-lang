@@ -741,11 +741,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             for (int i = 0; i < precedingRecVar.variableList.size(); i++) {
                 BLangRecordVariableKeyValue precedingKeyValue = precedingRecVar.variableList.get(i);
-                if (recVarAsMap.containsKey(precedingKeyValue.key.value)) {
-                    if (!checkStructuredPatternSimilarity(
-                            precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
-                        return false;
-                    }
+                if (!recVarAsMap.containsKey(precedingKeyValue.key.value)) {
+                    continue;
+                }
+                if (!checkStructuredPatternSimilarity(
+                        precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
+                    return false;
                 }
             }
 

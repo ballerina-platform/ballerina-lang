@@ -35,7 +35,7 @@ function testArrayWithErrors() returns (string, string, string) {
     foreach error<string, map<string|boolean>> error(reason2, { message, fatal }) in errorArray {
         result2 += reason2 + ":";
         any temp2 = message;
-        if (message is string|boolean|()) {
+        if (temp2 is string|boolean|()) {
             result2 += io:sprintf("%s:", message);
             result2 += io:sprintf("%s:", fatal);
         }
@@ -72,7 +72,7 @@ function testMapWithErrors() returns (string, string, string) {
     foreach (string, error<string, map<string|boolean>>) (key, error(reason2, { message, fatal })) in errMap {
         result2 += reason2 + ":";
         any temp2 = message;
-        if (message is string|boolean|()) {
+        if (temp2 is string|boolean|()) {
             result2 += io:sprintf("%s:", message);
             result2 += io:sprintf("%s:", fatal);
         }

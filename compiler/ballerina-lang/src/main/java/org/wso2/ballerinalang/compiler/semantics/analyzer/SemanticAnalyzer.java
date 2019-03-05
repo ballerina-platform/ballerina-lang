@@ -997,7 +997,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (errorVariable.type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = ((BUnionType) errorVariable.type);
-                List<BErrorType> possibleTypes = unionType.memberTypes.stream()
+                List<BErrorType> possibleTypes = unionType.getMemberTypes().stream()
                         .filter(type -> TypeTags.ERROR == type.tag)
                         .map(BErrorType.class::cast)
                         .collect(Collectors.toList());
@@ -1011,7 +1011,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         detailType.add(possibleErrType.detailType);
                     }
                     errorType = new BErrorType(null, symTable.stringType,
-                            detailType.size() > 1 ? new BUnionType(null, detailType, false) :
+                            detailType.size() > 1 ? BUnionType.create(null, detailType) :
                                     detailType.iterator().next());
                 } else {
                     errorType = possibleTypes.get(0);
@@ -1313,16 +1313,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 case TypeTags.UNION:
                     BUnionType unionType = (BUnionType) rhsMapType.constraint;
                     LinkedHashSet<BType> unionMemberTypes = new LinkedHashSet<BType>() {{
-                        addAll(unionType.memberTypes);
+                        addAll(unionType.getMemberTypes());
                         add(symTable.nilType);
                     }};
-                    expectedType = new BUnionType(null, unionMemberTypes, true);
+                    expectedType = BUnionType.create(null, unionMemberTypes);
                     break;
                 default:
-                    expectedType = new BUnionType(null, new LinkedHashSet<BType>() {{
+                    expectedType = BUnionType.create(null, new LinkedHashSet<BType>() {{
                         add(rhsMapType.constraint);
                         add(symTable.nilType);
-                    }}, true);
+                    }});
                     break;
             }
             lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,

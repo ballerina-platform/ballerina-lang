@@ -36,8 +36,6 @@ public class ForeachErrorBindingPatternsTests {
 
     private CompileResult program, negative;
 
-    private int[] iValues = {1, -3, 5, -30, 4, 11, 25, 10};
-
     @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach_errors.bal");
