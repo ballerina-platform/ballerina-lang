@@ -707,7 +707,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangErrorVariableDef varDefNode) {
         BLangErrorVariable errorVariable = varDefNode.errorVariable;
 
-        //create error destruct block stmt
+        // Create error destruct block stmt.
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
 
         //create a simple var for the error 'error x = ($error$)'
