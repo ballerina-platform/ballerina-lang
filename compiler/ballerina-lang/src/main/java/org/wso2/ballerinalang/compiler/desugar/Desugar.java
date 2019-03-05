@@ -751,7 +751,7 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { //else recursively create the var def statements
+            if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { // Else recursively create the var def statements.
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
                         new BArrayType(symTable.anyType), tupleVarSymbol, indexExpr);
