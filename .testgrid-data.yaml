@@ -11,7 +11,7 @@ infrastructureConfig:
   provisioners:
   - name: ballerina-deployment
     remoteRepository: "git@github.com:ballerina-platform/aws-ballerina.git"
-    remoteBranch: "replace-eksctl-with-awscli"
+    remoteBranch: "use-existing-cluster"
     description: creates infrastructure for ballerina scenario tests
     scripts:
       - name: ballerina-deployment
