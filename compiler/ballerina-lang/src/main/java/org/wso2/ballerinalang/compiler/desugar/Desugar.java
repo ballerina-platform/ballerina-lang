@@ -718,7 +718,7 @@ public class Desugar extends BLangNodeVisitor {
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
         variableDef.var = error;
 
-        //create the variable definition statements using the root block stmt created
+        // Create the variable definition statements using the root block stmt created.
         createVarDefStmts(errorVariable, blockStmt, error.symbol, null);
 
         //finally rewrite the populated block statement
