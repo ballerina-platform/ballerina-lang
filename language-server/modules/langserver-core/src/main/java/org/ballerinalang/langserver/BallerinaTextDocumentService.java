@@ -452,12 +452,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            List<CodeLens> lenses = new ArrayList<>();
+            List<CodeLens> lenses;
             if (!LSCodeLensesProviderFactory.getInstance().isEnabled()) {
                 // Disabled ballerina codeLens feature
                 clientCapabilities.setCodeLens(null);
                 // Skip code lenses if codeLens disabled
-                return lenses;
+                return new ArrayList<>();
             }
 
             String fileUri = params.getTextDocument().getUri();
@@ -466,53 +466,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
                 // Compile source document
-                LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
-                codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, true,
-                                                                       LSCustomErrorStrategy.class, false);
-                Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
-                        .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
-                        .findFirst();
-
-                CompilerContext compilerContext = codeLensContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-                final List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-                if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-                    CollectDiagnosticListener listener =
-                            (CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class);
-                    diagnostics.addAll(listener.getDiagnostics());
-                    listener.clearAll();
-                }
-
-                codeLensContext.put(CodeLensesProviderKeys.BLANG_PACKAGE_KEY, bLangPackage);
-                codeLensContext.put(CodeLensesProviderKeys.FILE_URI_KEY, fileUri);
-                codeLensContext.put(CodeLensesProviderKeys.DIAGNOSTIC_KEY, diagnostics);
-
-                documentCUnit.ifPresent(cUnit -> {
-                    codeLensContext.put(CodeLensesProviderKeys.COMPILATION_UNIT_KEY, cUnit);
-
-                    List<LSCodeLensesProvider> providers = LSCodeLensesProviderFactory.getInstance().getProviders();
-                    for (LSCodeLensesProvider provider : providers) {
-                        try {
-                            lenses.addAll(provider.getLenses(codeLensContext));
-                        } catch (LSCodeLensesProviderException e) {
-                            LOGGER.error("Error while retrieving lenses from: " + provider.getName());
-                        }
-                    }
-                });
-                // Update number of lines
-                int lines = documentManager.getFileContent(compilationPath).split(LINE_SEPARATOR_SPLIT).length;
-                codeLensHolder.updateNumOfLines(fileUri, lines);
-                codeLensHolder.updateCodeLenses(compilationPath, lenses);
-                // Send code lenses
+                lenses = CodeLensUtil.compileAndGetCodeLenses(fileUri, lsCompiler, documentManager);
+                documentManager.updateCodeLenses(compilationPath, lenses);
                 return lenses;
             } catch (LSCompilerException e) {
-                return recoverCachedCodeLenses(fileUri, compilationPath);
+                // Source compilation failed, serve from cache
+                return documentManager.getCodeLenses(compilationPath);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     LOGGER.error("Error while retrieving code lenses " + ((msg != null) ? ": " + msg : ""), e);
                 }
-                return lenses;
+                return new ArrayList<>();
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -715,6 +680,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Range changesRange = changeEvent.getRange();
                     documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
                 }
+                // Update code lenses
+                List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
+                CodeLensUtil.updateCachedCodeLenses(lenses, changes);
                 // Schedule diagnostics
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 this.diagPushDebouncer.call(compilationPath, () -> {

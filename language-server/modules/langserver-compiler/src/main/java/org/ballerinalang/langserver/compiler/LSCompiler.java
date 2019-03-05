@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -81,9 +81,9 @@ public class LSCompiler {
         java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
         ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         Optional<Lock> exModeLock = documentManager.enableExplicitMode(filePath);
-        Optional<Lock> fileLock = Optional.empty();
+        Optional<Lock> fileLock = documentManager.lockFile(filePath);
         try {
-            fileLock = documentManager.updateFile(filePath, content);
+            documentManager.updateFile(filePath, content);
             BallerinaFile bFile = INSTANCE.compileFile(filePath, phase);
             documentManager.closeFile(filePath);
             return bFile;
@@ -123,6 +123,7 @@ public class LSCompiler {
         CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                         true, documentManager, phase);
 
+        BallerinaFile bfile;
         BLangPackage bLangPackage = null;
         boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, filePath.toUri().toString()));
         try {
@@ -133,19 +134,12 @@ public class LSCompiler {
         } catch (RuntimeException e) {
             // Ignore.
         }
-        BallerinaFile bfile = new BallerinaFile();
-        bfile.setBallerinaProject(isProjectDir);
-        bfile.setBLangPackage(bLangPackage);
-        // When needed for secondary tree traversal after compiling a text source,
-        // compiler context can be used when needed. As an example, ast generation to a secondary BLangPackage content
-        // visit to find the visible symbols where we need the compiler context to find the symbols
-        bfile.setCompilerContext(context);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
                     .getDiagnostics();
-            bfile.setDiagnostics(diagnostics);
+            bfile = new BallerinaFile(bLangPackage, diagnostics, isProjectDir, context);
         } else {
-            bfile.setDiagnostics(new ArrayList<>());
+            bfile = new BallerinaFile(bLangPackage, new ArrayList<>(), isProjectDir, context);
         }
         return bfile;
     }
@@ -163,9 +157,9 @@ public class LSCompiler {
     public BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase,
                                               WorkspaceDocumentManager documentManager)
             throws LSCompilerException {
-        Optional<Lock> lock = Optional.empty();
+        Optional<Lock> lock = documentManager.lockFile(filePath);
         try {
-            lock = documentManager.updateFile(filePath, content);
+            documentManager.updateFile(filePath, content);
             return this.compileFile(filePath, phase);
         } catch (WorkspaceDocumentException e) {
             throw new LSCompilerException(
@@ -189,7 +183,7 @@ public class LSCompiler {
      */
     public BLangPackage getBLangPackage(LSContext context,
                                         WorkspaceDocumentManager docManager, boolean preserveWS,
-                                        Class errStrategy,
+                                        Class<? extends ANTLRErrorStrategy> errStrategy,
                                         boolean compileFullProject) throws LSCompilerException {
         List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, preserveWS, errStrategy,
                                                             compileFullProject);
@@ -209,9 +203,8 @@ public class LSCompiler {
      * @param compileFullProject updateAndCompileFile full project from the source root
      * @return {@link List}      A list of packages when compile full project
      */
-    public List<BLangPackage> getBLangPackages(LSContext context,
-                                               WorkspaceDocumentManager docManager, boolean preserveWS,
-                                               Class errStrategy,
+    public List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
+                                               boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy,
                                                boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
@@ -227,22 +220,25 @@ public class LSCompiler {
         List<BLangPackage> packages = new ArrayList<>();
         if (sourceDoc.hasProjectRepo() && compileFullProject && !sourceRoot.isEmpty()) {
             File projectDir = new File(sourceRoot);
-            Arrays.stream(projectDir.listFiles()).forEach(
-                    file -> {
-                        if (isBallerinaPackage(file) || isBallerinaFile(file)) {
-                            Path filePath = sourceDoc.getPath();
-                            String relativeFilePath = getCurrentModulePath(filePath).relativize(filePath).toString();
-                            PackageID packageID = new PackageID(relativeFilePath);
-                            CompilerContext compilerContext = prepareCompilerContext(packageID, pkgRepo, sourceDoc,
-                                                                                     preserveWS, docManager);
-                            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext,
-                                                                           errStrategy);
-                            BLangPackage bLangPackage = compiler.compile(file.getName());
-                            packages.add(bLangPackage);
-                            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-                        }
+            File[] files = projectDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (isBallerinaPackage(file) || isBallerinaFile(file)) {
+                        Path filePath = sourceDoc.getPath();
+                        String relativeFilePath = getCurrentModulePath(filePath).relativize(filePath).toString();
+                        PackageID packageID = new PackageID(relativeFilePath);
+                        CompilerContext compilerContext = prepareCompilerContext(packageID, pkgRepo, sourceDoc,
+                                                                                 preserveWS, docManager);
+                        BallerinaFile ballerinaFile = compileModule(file.getName(), context, compilerContext,
+                                                                    relativeFilePath, errStrategy, sourceRoot, uri);
+                        Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+                        bLangPackage.ifPresent(p -> {
+                            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.get().packageID);
+                            packages.add(p);
+                        });
                     }
-            );
+                }
+            }
         } else {
             PackageID pkgID;
             String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, sourceDoc.getPath().toString());
@@ -258,12 +254,37 @@ public class LSCompiler {
                 pkgID = generatePackageFromManifest(pkgName, sourceRoot);
             }
             CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, preserveWS, docManager);
-            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-            BLangPackage bLangPackage = compiler.compile(pkgName);
-            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-            packages.add(bLangPackage);
+
+            BallerinaFile ballerinaFile = compileModule(pkgName, context, compilerContext, relativeFilePath,
+                                                        errStrategy, sourceRoot, uri);
+            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+            bLangPackage.ifPresent(p -> {
+                LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.get().packageID);
+                packages.add(p);
+            });
         }
         return packages;
+    }
+
+    private BallerinaFile compileModule(String moduleName, LSContext context,
+                                        CompilerContext compilerContext, String relativeFilePath,
+                                        Class<? extends ANTLRErrorStrategy> errStrategy, String sourceRoot,
+                                        String uri) {
+        DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        if (diagnosticListener instanceof CollectDiagnosticListener) {
+            diagnostics = ((CollectDiagnosticListener) diagnosticListener).getDiagnostics();
+        }
+        Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext,
+                                                       errStrategy);
+        // Check for compilerCache, If exists; return cached BallerinaFile.
+        boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, uri));
+        try {
+            BLangPackage bLangPackage = compiler.compile(moduleName);
+            return new BallerinaFile(bLangPackage, diagnostics, isProjectDir, compilerContext);
+        } catch (RuntimeException e) {
+            return new BallerinaFile(null, diagnostics, isProjectDir, compilerContext);
+        }
     }
 
     private boolean isBallerinaPackage(File dir) {
