@@ -78,6 +78,19 @@ function testComplexStringConstMap() returns map<map<string>> {
 
 // -----------------------------------------------------------
 
+const map<map<()>> nm2 = { "key2": nm1 };
+const map<()> nm1 = { "key1": () };
+
+function testSimpleNilConstMap() returns map<()> {
+    return nm1;
+}
+
+function testComplexNilConstMap() returns map<map<()>> {
+    return nm2;
+}
+
+// -----------------------------------------------------------
+
 const map<map<map<string>>> m3 = { "k3": m2 };
 
 const map<map<string>> m2 = { "k2": m1 };

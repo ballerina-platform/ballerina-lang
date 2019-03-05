@@ -62,6 +62,16 @@ function testComplexStringConstMap() returns map<map<string>> {
 
 // -----------------------------------------------------------
 
+function testSimpleNilConstMap() returns map<()> {
+    return foo:nm1;
+}
+
+function testComplexNilConstMap() returns map<map<()>> {
+    return foo:nm2;
+}
+
+// -----------------------------------------------------------
+
 function testComplexConstMap() returns map<map<map<string>>> {
     return foo:m3;
 }

@@ -132,6 +132,20 @@ public class MapConstantTest {
     }
 
     @Test
+    public void testSimpleNilConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":()}");
+    }
+
+    @Test
+    public void testComplexNilConstMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilConstMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key2\":{\"key1\":()}}");
+    }
+
+    @Test
     public void testComplexConstMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexConstMap");
         Assert.assertNotNull(returns[0]);

@@ -17,6 +17,9 @@ public const map<decimal> dm1 = { "key1": 100 };
 public const map<map<string>> sm2 = { "key2": sm1 };
 public const map<string> sm1 = { "key1": "value1" };
 
+public const map<map<()>> nm2 = { "key2": nm1 };
+public const map<()> nm1 = { "key1": () };
+
 public const map<map<map<string>>> m3 = { "k3": m2 };
 
 const map<map<string>> m2 = { "k2": m1 };
