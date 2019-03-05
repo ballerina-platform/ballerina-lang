@@ -66,7 +66,7 @@ public class CPEntry {
     }
 
     /**
-     * An float constant-pool entry.
+     * A float constant-pool entry.
      *
      * @since 0.980.0
      */

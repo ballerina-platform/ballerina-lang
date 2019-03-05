@@ -208,7 +208,8 @@ type OperandEmitter object {
 type TypeEmitter object {
     
     function emitType(BType typeVal, string tabs = "") {
-        if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean || typeVal is BTypeFloat) {
+        if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString 
+                || typeVal is BTypeBoolean || typeVal is BTypeFloat) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);
