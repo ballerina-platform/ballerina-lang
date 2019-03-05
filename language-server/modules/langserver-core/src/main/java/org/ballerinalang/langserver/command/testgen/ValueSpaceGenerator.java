@@ -153,7 +153,7 @@ public class ValueSpaceGenerator {
         } else if (bType instanceof BUnionType) {
             // Check for union assignment int|string
             BUnionType bUnionType = (BUnionType) bType;
-            Set<BType> memberTypes = bUnionType.memberTypes;
+            Set<BType> memberTypes = bUnionType.getMemberTypes();
             if (!memberTypes.isEmpty()) {
                 return getValueSpaceByType(importsAcceptor, currentPkgId, memberTypes.stream().findFirst().get(),
                                            template);

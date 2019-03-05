@@ -17,7 +17,7 @@
 import ballerina/test;
 import utils;
 
-const STAMP_ERROR_REASON = "{ballerina}StampError";
+const CONVERSION_ERROR_REASON = "{ballerina}ConversionError";
 
 // The shape of a mapping value is an unordered collection of field shapes one for each field.
 // The field shape for a field f has a name, which is the same as the name of f, and a shape,
@@ -32,7 +32,7 @@ function testRecordFieldShape() {
     r1.bazFieldTwo = 1.0;
     conversionResult = BazRecordEleven.convert(r1);
     if (conversionResult is error) {
-        test:assertEquals(conversionResult.reason(), STAMP_ERROR_REASON,
+        test:assertEquals(conversionResult.reason(), CONVERSION_ERROR_REASON,
             msg = "invalid reason on conversion failure due to shape mismatch");
     } else {
         test:assertFail(msg = "expected conversion to fail");
@@ -43,7 +43,7 @@ function testRecordFieldShape() {
     DefaultOpenRecord r2 = { bazFieldThree: "test string 3", bazFieldOne: 1.0 };
     conversionResult = BazRecordEleven.convert(r2);
     if (conversionResult is error) {
-        test:assertEquals(conversionResult.reason(), STAMP_ERROR_REASON,
+        test:assertEquals(conversionResult.reason(), CONVERSION_ERROR_REASON,
             msg = "invalid reason on conversion failure due to shape mismatch");
     } else {
         test:assertFail(msg = "expected conversion to fail");

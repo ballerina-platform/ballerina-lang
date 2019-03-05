@@ -767,7 +767,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                     memberTupleTypes.add(varNode.type);
                                 }
                             }
-                            memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                            memberTupleTypes.add(BUnionType.create(null, memberTypes));
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
                         break;
@@ -881,7 +881,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                 })
                                 .collect(Collectors.toCollection(LinkedHashSet::new));
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
-                                new BUnionType(null, memberTypes, false) :
+                                BUnionType.create(null, memberTypes) :
                                 memberTypes.iterator().next();
                     }
                     recordVarType.tsymbol = recordSymbol;
@@ -965,10 +965,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             recordVarType.restFieldType.tag == TypeTags.ANY) {
                         restType = recordVarType.restFieldType;
                     } else {
-                        LinkedHashSet<BType> typesForRestField = new LinkedHashSet<>();
-                        typesForRestField.add(recordVarType.restFieldType);
-                        typesForRestField.add(symTable.nilType);
-                        restType = new BUnionType(null, typesForRestField, true);
+                        restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
                     }
                     value.type = restType;
                     value.accept(this);
@@ -1103,8 +1100,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             BType fieldType = memberTypes.size() > 1 ?
-                    new BUnionType(null, memberTypes, memberTypes.contains(symTable.nilType)) :
-                    memberTypes.iterator().next();
+                    BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
             fields.add(new BField(names.fromString(fieldName),
                     new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                             fieldType, recordSymbol)));
@@ -1117,10 +1113,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
             fieldType = fieldTypes;
         } else {
-            LinkedHashSet<BType> typesForField = new LinkedHashSet<>();
-            typesForField.add(fieldTypes);
-            typesForField.add(symTable.nilType);
-            fieldType = new BUnionType(null, typesForField, true);
+            fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
         }
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
@@ -1588,7 +1581,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) exprType;
-            exprTypes = new ArrayList<>(unionType.memberTypes);
+            exprTypes = new ArrayList<>(unionType.getMemberTypes());
         } else {
             exprTypes = Lists.of(exprType);
         }

@@ -9,6 +9,7 @@ dependencies {
 
     // transitive
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
 
     implementation project(':ballerina-h2')
     implementation project(':ballerina-mysql')
