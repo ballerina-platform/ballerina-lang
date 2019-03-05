@@ -147,6 +147,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BRecordType bRecordType) {
         buff.writeByte(bRecordType.tag);
+        buff.writeInt(addStringCPEntry(bRecordType.tsymbol.name.value));
         buff.writeBoolean(bRecordType.sealed);
         bRecordType.restFieldType.accept(this);
         buff.writeInt(bRecordType.fields.size());
@@ -160,6 +161,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BObjectType bObjectType) {
         buff.writeByte(bObjectType.tag);
+        buff.writeInt(addStringCPEntry(bObjectType.tsymbol.name.value));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields) {
             buff.writeInt(addStringCPEntry(field.name.value));

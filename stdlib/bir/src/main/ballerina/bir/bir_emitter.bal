@@ -1,14 +1,14 @@
 import ballerina/io;
 
 
-type BirEmitter object {
+public type BirEmitter object {
 
     private Package pkg;
     private TypeEmitter typeEmitter;
     private InstructionEmitter insEmitter;
     private TerminalEmitter termEmitter;
 
-    function __init (Package pkg){
+    public function __init (Package pkg){
         self.pkg = pkg;
         self.typeEmitter = new;
         self.insEmitter = new;
@@ -16,7 +16,7 @@ type BirEmitter object {
     }
 
 
-    function emitPackage() {
+    public function emitPackage() {
         println("################################# Begin bir program #################################");
         println();
         println("org - ", self.pkg.org.value);
@@ -111,10 +111,18 @@ type InstructionEmitter object {
         if (ins is FieldAccess) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
-            print("[");
-            self.opEmitter.emitOp(ins.keyOp);
-            print("] = ", ins.kind, " ");
-            self.opEmitter.emitOp(ins.rhsOp);
+            if (ins.kind == INS_KIND_MAP_STORE || ins.kind == INS_KIND_ARRAY_STORE) {
+                print("[");
+                self.opEmitter.emitOp(ins.keyOp);
+                print("] = ", ins.kind, " ");
+                self.opEmitter.emitOp(ins.rhsOp);
+            } else {
+                print(" = ", ins.kind, " ");
+                self.opEmitter.emitOp(ins.rhsOp);
+                print("[");
+                self.opEmitter.emitOp(ins.keyOp);
+                print("]");
+            }
             println(";");
         } else if (ins is BinaryOp) {
             print(tabs);
@@ -226,7 +234,7 @@ type TypeEmitter object {
     }
 
     function emitRecordType(BRecordType bRecordType, string tabs) {
-        println("record { \\\\ sealed - ", bRecordType.sealed);
+        println("record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
         foreach var f in bRecordType.fields {
             self.emitType(f.typeValue, tabs = tabs + "\t");
             println(" ", f.name.value);
@@ -237,7 +245,7 @@ type TypeEmitter object {
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        println("object {");
+        println("object {\\\\ name - ", bObjectType.name.value);
         foreach var f in bObjectType.fields {
             print(tabs + "\t", f.visibility, " ");
             self.emitType(f.typeValue);

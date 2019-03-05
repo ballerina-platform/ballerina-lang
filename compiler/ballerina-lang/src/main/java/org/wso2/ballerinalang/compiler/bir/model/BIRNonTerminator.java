@@ -162,12 +162,12 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      *
      * @since 0.980.0
      */
-    public static class NewMap extends BIRNonTerminator {
+    public static class NewStructure extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BType type;
 
-        public NewMap(DiagnosticPos pos, BType type, BIROperand lhsOp) {
-            super(pos, InstructionKind.NEW_MAP);
+        public NewStructure(DiagnosticPos pos, BType type, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
             this.type = type;
             this.lhsOp = lhsOp;
         }

@@ -28,31 +28,31 @@ public type FuncBodyParser object {
 
     public function parseInstruction() returns Instruction {
         var kindTag = self.reader.readInt8();
-        InstructionKind kind = "CONST_LOAD";
+        InstructionKind kind = INS_KIND_CONST_LOAD;
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
         if (kindTag == INS_ARRAY_STORE) {
-            kind = "ARRAY_STORE";
+            kind = INS_KIND_ARRAY_STORE;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
             FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_MAP_STORE) {
-            kind = "MAP_STORE";
+            kind = INS_KIND_MAP_STORE;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
             FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_MAP_LOAD) {
-            kind = "MAP_LOAD";
+            kind = INS_KIND_MAP_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
             FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_ARRAY_LOAD) {
-            kind = "ARRAY_LOAD";
+            kind = INS_KIND_ARRAY_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
@@ -60,21 +60,21 @@ public type FuncBodyParser object {
             return mapStore;
         } else if (kindTag == INS_NEW_ARRAY) {
             var bType = self.typeParser.parseType();
-            kind = "NEW_ARRAY";
+            kind = INS_KIND_NEW_ARRAY;
             var lhsOp = self.parseVarRef();
             var sizeOp = self.parseVarRef();
             NewArray newMap = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
             return newMap;
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.typeParser.parseType();
-            kind = "NEW_MAP";
+            kind = INS_KIND_NEW_MAP;
             var lhsOp = self.parseVarRef();
             NewMap newMap = {kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
         } else if (kindTag == INS_CONST_LOAD){
             //TODO: remove redundent
             var bType = self.typeParser.parseType();
-            kind = "CONST_LOAD";
+            kind = INS_KIND_CONST_LOAD;
             var lhsOp = self.parseVarRef();
 
             int | string value = 0;
@@ -86,7 +86,7 @@ public type FuncBodyParser object {
             ConstantLoad constLoad = {kind:kind, lhsOp:lhsOp, typeValue:bType, value:value};
             return constLoad;
         } else if (kindTag == INS_MOVE){
-            kind = "MOVE";
+            kind = INS_KIND_MOVE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
             Move move = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
