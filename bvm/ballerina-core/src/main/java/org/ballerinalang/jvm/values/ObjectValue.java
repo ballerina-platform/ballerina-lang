@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 /**
- * Interface to be implemented by all the ballerina object
+ * Interface to be implemented by all the ballerina objects.
  * 
  * @since 0.995.0
  */
