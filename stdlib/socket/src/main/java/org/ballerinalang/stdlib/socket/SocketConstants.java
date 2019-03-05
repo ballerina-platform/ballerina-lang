@@ -32,9 +32,11 @@ public class SocketConstants {
     public static final String RESOURCE_ON_READ_READY = "onReadReady";
     public static final String RESOURCE_ON_ERROR = "onError";
     public static final String CLIENT = "Client";
+    public static final String UDP_CLIENT = "UdpClient";
     public static final String CONFIG_FIELD_INTERFACE = "interface";
     public static final String CONFIG_FIELD_HOST = "host";
     public static final String CONFIG_FIELD_PORT = "port";
+    public static final String CONFIG_FIELD_LOCAL_ADDRESS = "localAddress";
     public static final String LISTENER_CONFIG = "config";
     public static final String CLIENT_CONFIG = "config";
 

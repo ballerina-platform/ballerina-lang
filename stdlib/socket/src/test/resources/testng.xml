@@ -26,6 +26,7 @@
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.stdlib.socket.ClientSocketTest"/>
+            <class name="org.ballerinalang.stdlib.socket.ClientUdpSocketTest"/>
             <class name="org.ballerinalang.stdlib.socket.ServerSocketTest"/>
         </classes>
     </test>
