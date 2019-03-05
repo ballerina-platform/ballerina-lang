@@ -27,9 +27,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-runtime</artifactId>
+    <artifactId>ballerina-runtime-api</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Runtime</name>
+    <name>Ballerina - Runtime API</name>
     <url>http://ballerina.io</url>
 
     <dependencies>

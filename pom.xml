@@ -677,19 +677,19 @@
             <!-- ballerina-runtime -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1734,7 +1734,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1820,7 +1820,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1904,7 +1904,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
