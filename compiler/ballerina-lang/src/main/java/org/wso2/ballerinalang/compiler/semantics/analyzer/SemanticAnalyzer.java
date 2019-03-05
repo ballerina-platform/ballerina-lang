@@ -1951,15 +1951,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BLangLiteral value = (BLangLiteral) constant.value;
-
+        BType resultType;
         if (constant.typeNode != null) {
             // Check the type of the value.
-            typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
+            resultType = typeChecker.checkExpr(value, env, constant.symbol.literalValueType);
             constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
         } else {
             // We don't have any expected type in this case since the type node is not available. So we get the type
             // from the value.
-            typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
+            resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
             constant.symbol.literalValueTypeTag = value.type.tag;
         }
 
@@ -1971,8 +1971,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // codegen when retrieving the default value.
         BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
         for (BLangExpression literal : typeNode.valueSpace) {
-            // If the expected type of the constant is decimal, check type for the literals in the value space.
-            if (literal.type.tag == TypeTags.FLOAT && constant.symbol.literalValueType.tag == TypeTags.DECIMAL) {
+            if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
+                // Check type for the literals in the value space to update to the correct types. Otherwise, we won't
+                // be able to differentiate between decimal, float and int, byte as the type of the literals in the
+                // above cases would be float and int respectively.
                 typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
             }
         }
