@@ -77,11 +77,15 @@ public type FuncBodyParser object {
             kind = INS_KIND_CONST_LOAD;
             var lhsOp = self.parseVarRef();
 
-            int | string value = 0;
+            int | string | boolean | float value = 0;
             if (bType is BTypeInt) {
                 value = self.reader.readIntCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
+            } else if (bType is BTypeBoolean) {
+                value = self.reader.readBoolean();
+            } else if (bType is BTypeFloat) {
+                value = self.reader.readFloatCpRef();
             }
             ConstantLoad constLoad = {kind:kind, lhsOp:lhsOp, typeValue:bType, value:value};
             return constLoad;

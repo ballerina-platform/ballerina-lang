@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.BooleanCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -143,10 +143,14 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeInt(cp.addCPEntry(new BooleanCPEntry((Boolean) birConstantLoad.value)));
+                // Not adding to constant pool as it increases the size (bit vs integer)
+                buf.writeBoolean((Boolean) birConstantLoad.value);
                 break;
             case TypeTags.STRING:
                 buf.writeInt(cp.addCPEntry(new StringCPEntry((String) birConstantLoad.value)));
+                break;
+            case TypeTags.FLOAT:
+                buf.writeInt(cp.addCPEntry(new FloatCPEntry((double) birConstantLoad.value)));
                 break;
             case TypeTags.NIL:
                 break;
