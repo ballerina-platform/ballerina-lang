@@ -709,10 +709,10 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangErrorVariableDef varDefNode) {
         BLangErrorVariable errorVariable = varDefNode.errorVariable;
 
-        //create error destruct block stmt
+        // Create error destruct block stmt.
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
 
-        //create a simple var for the error 'error x = ($error$)'
+        // Create a simple var for the error 'error x = ($error$)'.
         final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, "", symTable.errorType, null,
                 new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID, symTable.errorType,
                         this.env.scope.owner));
@@ -720,10 +720,10 @@ public class Desugar extends BLangNodeVisitor {
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
         variableDef.var = error;
 
-        //create the variable definition statements using the root block stmt created
+        // Create the variable definition statements using the root block stmt created.
         createVarDefStmts(errorVariable, blockStmt, error.symbol, null);
 
-        //finally rewrite the populated block statement
+        // Finally rewrite the populated block statement.
         result = rewrite(blockStmt, env);
     }
 
@@ -753,7 +753,7 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { //else recursively create the var def statements
+            if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { // Else recursively create the var def statements.
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
                         new BArrayType(symTable.anyType), tupleVarSymbol, indexExpr);
@@ -1291,7 +1291,7 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (expression.getKind() == NodeKind.ERROR_VARIABLE_REF) {
-                //else recursively create the var def statements for record var ref
+                // Else recursively create the var def statements for record var ref.
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expression;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(errorVarRef.pos, symTable.intType,
                         (long) index);

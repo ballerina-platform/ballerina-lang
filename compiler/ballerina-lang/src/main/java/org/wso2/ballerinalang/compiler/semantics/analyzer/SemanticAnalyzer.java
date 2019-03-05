@@ -550,7 +550,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         symbolEnter.defineNode(varNode, env);
         if (varNode.expr == null) {
-            // we have no rhs to do type checking
+            // We have no rhs to do type checking.
             return;
         }
         typeChecker.checkExpr(varNode.expr, env, varNode.type);
