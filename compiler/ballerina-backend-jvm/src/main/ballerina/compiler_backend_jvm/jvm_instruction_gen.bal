@@ -43,12 +43,13 @@ type InstructionGenerator object {
 
     function generateMoveIns(bir:Move moveIns) {
         int rhsIndex = self.getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl);
-        //io:println("RHS Index is :::::::::::", rhsIndex);
+        io:println("RHS Index is :::::::::::", rhsIndex);
         int lhsLndex = self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl);
-        //io:println("LHS Index is :::::::::::", lhsLndex);
+        io:println("LHS Index is :::::::::::", lhsLndex);
 
         bir:BType bType = moveIns.rhsOp.typeValue;
-
+        io:println(bType);
+        io:println(moveIns);
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, rhsIndex);
             self.mv.visitVarInsn(LSTORE, lhsLndex);
@@ -69,6 +70,9 @@ type InstructionGenerator object {
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BErrorType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
@@ -434,6 +438,20 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE), false);
             self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         }
+    }
+    
+    function generateNewErrorIns(bir:NewError newErrorIns) {
+        // visit var_ref
+        self.mv.visitTypeInsn(NEW, ERROR_VALUE);
+        self.mv.visitInsn(DUP);
+        int reasonIndex = self.getJVMIndexOfVarRef(newErrorIns.reasonOp.variableDcl);
+        int detailsIndex = self.getJVMIndexOfVarRef(newErrorIns.detailsOp.variableDcl);
+        int lhsIndex = self.getJVMIndexOfVarRef(newErrorIns.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, reasonIndex);
+        self.mv.visitVarInsn(ALOAD, detailsIndex);
+        self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
+                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, REF_VALUE), false);
+        self.mv.visitVarInsn(ASTORE, lhsIndex);
     }
 
     function generateLocalVarLoad(bir:BType bType, int valueIndex) {
