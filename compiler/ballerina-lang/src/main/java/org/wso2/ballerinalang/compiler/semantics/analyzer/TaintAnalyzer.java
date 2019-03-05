@@ -215,9 +215,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
 
-    private Set<TaintRecord.TaintError> dlogSet = new LinkedHashSet<>();
-    private List<BlockedNode> blockedNodeList = new ArrayList<>();
-    private List<BlockedNode> blockedEntryPointNodeList = new ArrayList<>();
+    private Set<TaintRecord.TaintError> dlogSet;
+    private List<BlockedNode> blockedNodeList;
+    private List<BlockedNode> blockedEntryPointNodeList;
+    private List<BInvokableSymbol> ignoredInvokableSymbol;
 
     private static final String ANNOTATION_TAINTED = "tainted";
     private static final String ANNOTATION_UNTAINTED = "untainted";
@@ -246,14 +247,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         private List<TaintedStatus> parameterTaintedStatus;
 
         private BlockedNode blockedNode;
-        private BInvokableSymbol ignoredInvokableSymbol = null;
 
         private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     }
 
-    private BLangFunction currTopLevelFunction = null;
-    private boolean topLevelFunctionAllParamsUntaintedAnalysis = false;
-    private Stack<AnalysisState> analysisStateStack = new Stack<>();
+    private BLangFunction currTopLevelFunction;
+    private boolean topLevelFunctionAllParamsUntaintedAnalysis;
+    private Stack<AnalysisState> analysisStateStack;
 
     private AnalysisState getCurrentAnalysisState() {
         return analysisStateStack.peek();
@@ -277,7 +277,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public BLangPackage analyze(BLangPackage pkgNode) {
         blockedNodeList = new ArrayList<>();
         blockedEntryPointNodeList = new ArrayList<>();
+        ignoredInvokableSymbol = new ArrayList<>();
         dlogSet = new LinkedHashSet<>();
+        analysisStateStack = new Stack<>();
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -958,27 +960,34 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         } else if (invocationExpr.symbol != null) {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
-                    // If a looping invocation is being analyzed, skip analysis of invokable that does not have taint
-                    // table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
-                    getCurrentAnalysisState().ignoredInvokableSymbol = invokableSymbol;
-                }
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
-                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && getCurrentAnalysisState().ignoredInvokableSymbol == invokableSymbol)) {
+                boolean blocked = true;
+                if (ignoredInvokableSymbol.contains(invokableSymbol)) {
+                    // If the current symbol was found to be a looping invocation earlier, and was ignored in a previous
+                    // block resolution attempt, ignore it at the current cycle too. This will allow correctly analyzing
+                    // functions with multiple looping invocations. In this condition, we do not change `analyzerPhase`
+                    // to `LOOP_ANALYSIS_COMPLETE`, allowing the next looping invocation also to be marked also as
+                    // `IGNORED`.
+                    getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
+                    blocked = false;
+                } else if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
+                    // If a looping invocation is being analyzed, skip analysis of next invokable that does not have
+                    // a taint table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
                     getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
-                } else {
+                    ignoredInvokableSymbol.add(invokableSymbol);
+                    blocked = false;
+                } else if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
+                        && invocationExpr.builtinMethodInvocation
+                        && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
                     // When "call" is use to invoke function pointers, taint-table of the actual function to be invoked
                     // is not known. Therefore, if the analyzer is blocked on such function pointer invocation, skip
                     // taint analysis and consider the outcome of the invocation as untainted.
                     // TODO: Resolving function pointers and perform analysis.
-                    if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE && invocationExpr.builtinMethodInvocation
-                            && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
-                        getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
-                        analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
-                        return;
-                    }
+                    getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
+                    ignoredInvokableSymbol.add(invokableSymbol);
+                    blocked = false;
+                }
+                if (blocked) {
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
                     // processing.
                     addToBlockedList(invocationExpr);
@@ -1769,7 +1778,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                                             int defaultableParamCount) {
         getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.UNTAINTED;
         getCurrentAnalysisState().parameterTaintedStatus = new ArrayList<>();
-        getCurrentAnalysisState().ignoredInvokableSymbol = null;
         resetTaintedStatusOfVariables(invokableNode.requiredParams);
         resetTaintedStatusOfVariableDef(invokableNode.defaultableParams);
         if (invokableNode.restParam != null) {
@@ -1842,7 +1850,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.UNTAINTED;
         getCurrentAnalysisState().parameterTaintedStatus = new ArrayList<>();
-        getCurrentAnalysisState().ignoredInvokableSymbol = null;
         analyzeNode(invokableNode.body, symbolEnv);
         if (stopAnalysis) {
             stopAnalysis = false;
