@@ -330,10 +330,10 @@ type InstructionGenerator object {
         int valueIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
         bir:BType valueType = mapStoreIns.rhsOp.variableDcl.typeValue;
         self.generateLocalVarLoad(valueType, valueIndex);
-        self.addBoxInsn(valueType);
+        addBoxInsn(self.mv, valueType);
 
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
-                io:sprintf("(L%s;L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE, OBJECT_VALUE), false);
+                io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
 
         // emit a pop, since we are not using the return value from the map.put()
         self.mv.visitInsn(POP);
@@ -343,17 +343,18 @@ type InstructionGenerator object {
         // visit map_ref
         int mapIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, mapIndex);
+        addUnboxInsn(self.mv, mapStoreIns.rhsOp.variableDcl.typeValue);
 
         // visit key_expr
         int keyIndex = self.getJVMIndexOfVarRef(mapStoreIns.keyOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, keyIndex);
 
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "get",
-                io:sprintf("(L%s;)L%s;", OBJECT_VALUE, OBJECT_VALUE), false);
+                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
 
         // store in the target reg
         bir:BType targetType = mapStoreIns.lhsOp.variableDcl.typeValue;
-        self.addUnboxInsn(targetType);
+        addUnboxInsn(self.mv, targetType);
         int targetIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
         self.generateLocalVarStore(targetType, targetIndex);
     }
@@ -373,6 +374,7 @@ type InstructionGenerator object {
         }
         self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
+
     # Generate adding a new value to an array
     # 
     # + inst - array store instruction
@@ -385,7 +387,7 @@ type InstructionGenerator object {
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
         self.generateLocalVarLoad(valueType, valueIndex);
 
-        string valueDesc = getMethodArgDesc(valueType);
+        string valueDesc = getTypeDesc(valueType);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
@@ -419,30 +421,6 @@ type InstructionGenerator object {
         }
     }
 
-    function addBoxInsn(bir:BType bType) {
-        if (bType is bir:BTypeInt) {
-           self. mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-        } else {
-            return;
-        }
-    }
-
-    function addUnboxInsn(bir:BType bType) {
-        if (bType is bir:BTypeInt) {
-            self.mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "booleanValue", "()Z", false);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-        } else if (bType is bir:BMapType) {
-            self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-        } else {
-            return;
-        }
-    }
-
     function generateLocalVarLoad(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, valueIndex);
@@ -471,3 +449,24 @@ type InstructionGenerator object {
         }
     }
 };
+
+function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
+    if (bType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+    } else {
+        return;
+    }
+}
+
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
+    if (bType is bir:BTypeInt) {
+        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
+    } else if (bType is bir:BTypeString) {
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+    } else if (bType is bir:BMapType) {
+        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else {
+        return;
+    }
+}
