@@ -356,6 +356,13 @@ public class LengthOperationTest {
         BRunUtil.invoke(result, "accessLengthOfNullXML", args);
     }
 
+    @Test(description = "Test length of string.")
+    public void testLengthOfString() {
+        BValue[] returns = BRunUtil.invoke(result, "stringLengthAccessTestCase");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+    }
+
     // Negative test cases that fails at compilation
     @Test(description = "Test invoking length operation on an object")
     public void testNegativeTests() {

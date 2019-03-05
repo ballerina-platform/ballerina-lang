@@ -22,8 +22,8 @@ function testSensitiveArg(@sensitive int intArg) {
     int c = intArg;
 }
 
-public function convertTaintedValue() {
+public function convertTaintedValue() returns error? {
     float x = returnTaintedValue();
-    int y = int.convert(x);
+    int y = check int.convert(x);
     testSensitiveArg(y);
 }
