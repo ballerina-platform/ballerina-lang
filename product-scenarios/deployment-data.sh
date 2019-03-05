@@ -90,9 +90,9 @@ export DATABASE_NAME=test
 export DATABASE_USERNAME=${CONFIG[DBUsername]}
 export DATABASE_PASSWORD=${CONFIG[DBPassword]}
 
-ClusterName=${CONFIG[ClusterName]};
-ClusterRegion=${CONFIG[ClusterRegion]};
-ConfigFileName=${CONFIG[ConfigFileName]};
+aws eks update-kubeconfig --name ${cluster_name}
+
+kubectl config set-context $(kubectl config current-context) --namespace=$(generate_random_namespace)
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
@@ -101,8 +101,6 @@ install_ballerina "0.990.3"
 download_and_extract_mysql_connector
 
 ballerina build product-scenarios/scenarios/1/data-service.bal
-
-export KUBECONFIG=${INPUT_DIR}/${ConfigFileName}
 
 kubectl config view
 

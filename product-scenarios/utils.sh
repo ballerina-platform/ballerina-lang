@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cluster_name="ballerina-testgrid-cluster-v2"
+
 # $1 - Property file
 # $2 - associative array
 # How to call
@@ -42,4 +44,10 @@ function download_and_extract_mysql_connector() {
     wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
     tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ./
+}
+
+function generate_random_namespace() {
+    local prefix=$1
+    local new_uuid=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
+    echo "kubernetes-namespace"-${new_uuid}
 }
