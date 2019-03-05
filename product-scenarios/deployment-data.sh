@@ -92,7 +92,11 @@ export DATABASE_PASSWORD=${CONFIG[DBPassword]}
 
 aws eks update-kubeconfig --name ${cluster_name}
 
-kubectl config set-context $(kubectl config current-context) --namespace=$(generate_random_namespace)
+custom_namespace=$(generate_random_namespace)
+
+kubectl create namespace ${custom_namespace}
+
+kubectl config set-context $(kubectl config current-context) --namespace=${custom_namespace}
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
