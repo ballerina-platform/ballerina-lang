@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -387,6 +388,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Create the basic block for the statements that comes after the while statement.
         BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
 
+        
         // Add the branch instruction to the while expression basic block.
         whileExprBB.terminator = new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
 
@@ -639,6 +641,22 @@ public class BIRGen extends BLangNodeVisitor {
         emit(binaryIns);
     }
 
+    public void visit(BLangErrorConstructorExpr errorExpr) {
+        // Create a temporary variable to store the error.
+        BIRVariableDcl tempVarError = new BIRVariableDcl(errorExpr.type,
+                                                         this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarError);
+        BIROperand lhsOp = new BIROperand(tempVarError);
+        this.env.targetOperand = lhsOp;
+        errorExpr.reasonExpr.accept(this);
+        BIROperand reasonOp = this.env.targetOperand;
+        errorExpr.detailsExpr.accept(this);
+        BIROperand detailsOp = this.env.targetOperand;
+        BIRNonTerminator.BLangErrorConstructor bLangErrorConstructor = new BIRNonTerminator.BLangErrorConstructor
+                (errorExpr.pos, InstructionKind.NEW_ERROR, lhsOp, reasonOp, detailsOp);
+        emit(bLangErrorConstructor);
+        this.env.targetOperand = lhsOp;
+    }
 
     // private methods
 

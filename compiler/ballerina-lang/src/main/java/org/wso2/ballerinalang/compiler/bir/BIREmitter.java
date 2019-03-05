@@ -190,7 +190,16 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birBranch.falseBB.id).append("];\n");
     }
 
-
+    public void visit(BIRNonTerminator.BLangErrorConstructor errorConstructor) {
+        sb.append("\t\t");
+        errorConstructor.lhsOp.accept(this);
+        sb.append(" = ").append(errorConstructor.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        errorConstructor.reasonOp.accept(this);
+        sb.append(" ");
+        errorConstructor.detailOp.accept(this);
+        sb.append(";\n");
+    }
+    
     // Operands
     public void visit(BIROperand birOp) {
         sb.append(birOp.variableDcl.name);

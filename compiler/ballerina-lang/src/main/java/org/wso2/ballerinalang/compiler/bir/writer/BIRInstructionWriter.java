@@ -186,6 +186,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birOperand.variableDcl.name.value);
     }
 
+    public void visit(BIRNonTerminator.BLangErrorConstructor errorConstructor) {
+        buf.writeByte(errorConstructor.kind.getValue());
+        errorConstructor.lhsOp.accept(this);
+        errorConstructor.reasonOp.accept(this);
+        errorConstructor.detailOp.accept(this);
+    }
+
 
     // private methods
 

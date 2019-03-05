@@ -1,4 +1,5 @@
 import ballerina/internal;
+import ballerina/io;
 
 public type FuncBodyParser object {
     BirChannelReader reader;
@@ -95,6 +96,13 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             Move move = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return move;
+        } else if (kindTag == INS_NEW_ERROR) {
+            kind = "NEW_ERROR";
+            var lhsOp = self.parseVarRef();
+            var reasonOp = self.parseVarRef();
+            var detailsOp = self.parseVarRef();
+            NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            return newError;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }
