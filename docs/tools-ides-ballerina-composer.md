@@ -5,7 +5,7 @@ Ballerina provides several tools to help you create, document, and test your cod
 These tools include the following.
 
 - [IDE plug-ins](#ide-plug-ins)
-- [Swagger to Ballerina code generator](#swagger-to-ballerina-code-generator)
+- [OpenApi to Ballerina code generator](#openapi-to-ballerina-code-generator)
 - [API documentation generator](#api-documentation-generator)
 - [Test framework](#test-framework)
 
@@ -16,9 +16,9 @@ You can use plug-ins to write Ballerina code in your favorite IDE. There are sev
 * [Visual Studio Code (VS Code)](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina)
 * [IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina)
 
-## Swagger to Ballerina code generator
+## OpenApi to Ballerina code generator
 
-You can use existing Swagger files to generate connectors and services in Ballerina code. For details, see the [Swagger to Ballerina Code Generator](https://github.com/ballerinalang/tool-swagger-ballerina/tree/master/modules/swagger-ballerina-generator).
+You can use existing OpenApi files to generate connectors and services in Ballerina code. For details, see the [OpenApi to Ballerina Code Generator](https://github.com/ballerinalang/tool-swagger-ballerina/tree/master/modules/swagger-ballerina-generator).
 
 ## API documentation generator
 
