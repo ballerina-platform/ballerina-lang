@@ -48,6 +48,6 @@ function download_and_extract_mysql_connector() {
 
 function generate_random_namespace() {
     local prefix=$1
-    local new_uuid=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
+    local new_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
     echo "kubernetes-namespace"-${new_uuid}
 }
