@@ -194,6 +194,7 @@ const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
 const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";
 const string OBJECT_VALUE = "java/lang/Object";
+const string BOOLEAN_VALUE = "java/lang/Boolean";
 
 const string MAP = "java/util/Map";
 const string LINKED_HASH_MAP = "java/util/LinkedHashMap";

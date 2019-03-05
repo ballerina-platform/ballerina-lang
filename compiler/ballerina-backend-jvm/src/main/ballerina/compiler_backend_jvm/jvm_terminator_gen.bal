@@ -25,6 +25,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeString) {
                 self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 self.mv.visitInsn(ARETURN);
+            } else if (bType is bir:BTypeBoolean) {
+                self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+                self.mv.visitInsn(IRETURN);
             } else if (bType is bir:BArrayType) {
                 self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 self.mv.visitInsn(ARETURN);
@@ -74,9 +77,15 @@ type TerminatorGenerator object {
             if (bType is bir:BTypeInt) {
                 self.mv.visitVarInsn(LLOAD, argIndex);
                 methodDesc = methodDesc + "J";
+            } else if (bType is bir:BTypeBoolean) {
+                self.mv.visitVarInsn(ILOAD, argIndex);
+                methodDesc = methodDesc + "Z";
             } else if (bType is bir:BTypeString) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + "Ljava/lang/String;";
+            } else if (bType is bir:BArrayType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+                methodDesc = methodDesc + io:sprintf("L%s;", ARRAY_VALUE);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                                     io:sprintf("%s", arg.typeValue));
@@ -109,6 +118,8 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ISTORE, lhsLndex);
+            } else if (bType is bir:BArrayType) {
+                self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                             io:sprintf("%s", callIns.lhsOp.typeValue));

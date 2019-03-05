@@ -75,6 +75,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         if (returnType is bir:BTypeInt) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, returnVarRefIndex);
+        } else if (returnType is bir:BTypeBoolean) {
+            mv.visitInsn(ICONST_0);
+            mv.visitVarInsn(ISTORE, returnVarRefIndex);
         } else if (returnType is bir:BTypeString) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, returnVarRefIndex);
@@ -334,6 +337,8 @@ function getMethodArgDesc(bir:BType bType) returns string {
         return "J";
     } else if (bType is bir:BTypeString) {
         return "Ljava/lang/String;";
+    } else if (bType is bir:BTypeBoolean) {
+        return "Z";
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BArrayType) {
@@ -351,6 +356,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")J";
     } else if (bType is bir:BTypeString) {
         return ")Ljava/lang/String;";
+    } else if (bType is bir:BTypeBoolean) {
+        return ")Z";
     } else if (bType is bir:BArrayType) {
         return io:sprintf(")L%s;", ARRAY_VALUE);
     } else if (bType is bir:BMapType) {
@@ -413,6 +420,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         bir:BType returnType = userMainFunc.typeValue.retType;
         if (returnType is bir:BTypeInt) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+        } else if (returnType is bir:BTypeBoolean) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
         }
@@ -434,6 +443,8 @@ function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv
 
     if (targetType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
+    } if (targetType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
     } else if (targetType is bir:BTypeString) {
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else if (targetType is bir:BArrayType) {

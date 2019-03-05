@@ -72,8 +72,17 @@ public type OR "OR";
 
 public type TerminatorKind "GOTO"|"CALL"|"BRANCH"|"RETURN";
 
-//TODO below types are there in ins_codes.bal as constants
-public type InstructionKind "MOVE"|"CONST_LOAD"|"NEW_MAP"|"MAP_STORE"|"NEW_ARRAY"|"ARRAY_STORE"|"MAP_LOAD"|"ARRAY_LOAD"|BinaryOpInstructionKind;
+public const INS_KIND_MOVE = "MOVE";
+public const INS_KIND_CONST_LOAD = "CONST_LOAD";
+public const INS_KIND_NEW_MAP = "NEW_MAP";
+public const INS_KIND_MAP_STORE = "MAP_STORE";
+public const INS_KIND_NEW_ARRAY = "NEW_ARRAY";
+public const INS_KIND_ARRAY_STORE = "ARRAY_STORE";
+public const INS_KIND_MAP_LOAD = "MAP_LOAD";
+public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
+
+public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
+                                |INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -139,12 +148,14 @@ public type BErrorType record {
 };
 
 public type BRecordType record {
+    Name name = {};
     boolean sealed;
     BType restFieldType;
     BRecordField[] fields;
 };
 
 public type BObjectType record {
+    Name name = {};
     BObjectField[] fields;    
 };
 
