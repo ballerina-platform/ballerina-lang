@@ -38,6 +38,8 @@ task copyGeneratedBalo(type: org.gradle.api.tasks.Copy) {
 description = 'Ballerina - gRPC Implementation'
 
 test {
+    exclude '**/*'
+    
     dependsOn copyGeneratedBalo
     useTestNG() {
         suites 'src/test/resources/testng.xml'

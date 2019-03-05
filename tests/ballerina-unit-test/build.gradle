@@ -67,9 +67,11 @@ dependencies {
     implementation project(':ballerina-streams')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-privacy')
-    testCompile 'org.awaitility:awaitility:3.0.0'
-    testCompile 'com.zaxxer:HikariCP:3.1.0'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    implementation project(':ballerina-logging')
+    implementation project(':ballerina-utils')
+    testCompile 'org.awaitility:awaitility:3.1.6'
+    testCompile 'com.zaxxer:HikariCP:3.3.1'
+    testCompile 'org.slf4j:slf4j-jdk14:1.7.26'
     testCompile 'org.hsqldb:hsqldb:2.4.0'
     testCompile 'org.mockito:mockito-all:1.9.0'
     testCompile 'org.testcontainers:testcontainers:1.7.2'
@@ -77,22 +79,108 @@ dependencies {
     testCompile 'org.testcontainers:mysql:1.7.2'
     testCompile 'mysql:mysql-connector-java:5.1.46'
     testCompile 'org.postgresql:postgresql:42.2.1'
-    testCompile 'io.netty:netty-transport:4.1.19.Final'
-    testCompile 'io.netty:netty-codec:4.1.19.Final'
+    testCompile 'io.netty:netty-transport:4.1.21.Final'
+    testCompile 'io.netty:netty-codec:4.1.21.Final'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.270'
-    testCompile 'org.apache.ws.commons.axiom:axiom-dom:1.2.20'
-    testCompile project(':ballerina-logging')
+    testCompile 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Unit Test Module'
 
+sourceSets {
+    test {
+        output.resourcesDir = "build/classes/java/test"
+    }
+}
+
+task copyDependantBalos(type: Copy) {
+    from project(':ballerina-builtin').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-runtime').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-io').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-transactions').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-http').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-h2').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-sql').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-mysql').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-config-api').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-log-api').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-file').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-auth').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-mime').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-cache').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-socket').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-time').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-task').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-crypto').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-encoding').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-math').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-reflect').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-websub').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-jms').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-internal').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-grpc').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-streams').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-observability').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-privacy').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-config').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-system').file('build/generated-balo')
+    into file("$buildDir/lib")
+    from project(':ballerina-utils').file('build/generated-balo')
+    into file("$buildDir/lib")
+}
+
 test {
-    // TODO: Fix tests and remove test skip block
-    exclude '**/*'
+    maxHeapSize = "1g"
+    minHeapSize = "256m"
+
+    dependsOn copyDependantBalos
+
+    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
 }
