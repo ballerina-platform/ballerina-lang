@@ -129,6 +129,8 @@ public type BTypeNil "()";
 
 public type BTypeInt "int";
 
+public type BTypeFloat "float";
+
 public type BTypeBoolean "boolean";
 
 public type BTypeString "string";
@@ -257,7 +259,7 @@ public type ConstantLoad record {
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    int | string value;
+    int | string | boolean | float | () value;
     !...;
 };
 
