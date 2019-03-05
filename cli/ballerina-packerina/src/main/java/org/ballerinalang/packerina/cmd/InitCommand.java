@@ -37,6 +37,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -56,8 +57,8 @@ public class InitCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static final PrintStream errStream = System.err;
     private final Path homePath = RepoUtils.createAndGetHomeReposPath();
-    private boolean alreadyInitializedProject  = false;
-    private boolean manifestExistInProject  = false;
+    private boolean alreadyInitializedProject = false;
+    private boolean manifestExistInProject = false;
     private PrintStream out = System.out;
 
     @CommandLine.Option(names = {"--interactive", "-i"})
@@ -68,7 +69,24 @@ public class InitCommand implements BLauncherCmd {
 
     private static boolean isDirEmpty(final Path directory) throws IOException {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            return !dirStream.iterator().hasNext();
+            //Check whether the OS is Mac OS and the folder contains .DS_Store file
+            Iterator pathIterator = dirStream.iterator();
+            if (pathIterator.hasNext()) {
+
+                Path path = (Path) pathIterator.next();
+                Path filePath = path.getFileName();
+                if (filePath != null && filePath.toString().equals(ProjectDirConstants.MAC_OS_DS_STORE_FILE)) {
+
+                    return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("mac") &&
+                            !pathIterator.hasNext();
+                } else {
+
+                    return false;
+                }
+
+            } else {
+                return true;
+            }
         }
     }
 
@@ -92,7 +110,7 @@ public class InitCommand implements BLauncherCmd {
                         .findFirst();
                 if (childDotBallerina.isPresent()) {
                     errStream.println("A ballerina project is already initialized in " +
-                            childDotBallerina.get().toFile().getParent());
+                                              childDotBallerina.get().toFile().getParent());
                     return;
                 }
                 // Recursively traverse up till the root
@@ -161,7 +179,8 @@ public class InitCommand implements BLauncherCmd {
                         do {
                             out.print("Module for the service: (no module) ");
                             packageName = scanner.nextLine().trim();
-                        } while (!validatePkgName(projectPath, packageName));
+                        }
+                        while (!validatePkgName(projectPath, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
@@ -176,7 +195,8 @@ public class InitCommand implements BLauncherCmd {
                         do {
                             out.print("Module for the main: (no module) ");
                             packageName = scanner.nextLine().trim();
-                        } while (!validatePkgName(projectPath, packageName));
+                        }
+                        while (!validatePkgName(projectPath, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
@@ -193,7 +213,8 @@ public class InitCommand implements BLauncherCmd {
                     } else {
                         out.println("Invalid input");
                     }
-                } while (!validInput);
+                }
+                while (!validInput);
 
                 out.print("\n");
             } else {
@@ -236,7 +257,8 @@ public class InitCommand implements BLauncherCmd {
             do {
                 out.print("Organization name: (" + defaultOrg + ") ");
                 orgName = scanner.nextLine().trim();
-            } while (!validateOrgName(orgName));
+            }
+            while (!validateOrgName(orgName));
             // Set org-name
             manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
             String version;
@@ -244,7 +266,8 @@ public class InitCommand implements BLauncherCmd {
                 out.print("Version: (" + DEFAULT_VERSION + ") ");
                 version = scanner.nextLine().trim();
                 version = version.isEmpty() ? DEFAULT_VERSION : version;
-            } while (!validateVersion(out, version));
+            }
+            while (!validateVersion(out, version));
 
             manifest.setVersion(version);
         }
@@ -326,7 +349,7 @@ public class InitCommand implements BLauncherCmd {
     private boolean validateOrgName(String orgName) {
         if (RepoUtils.isReservedOrgName(orgName)) {
             out.println("--Invalid organization name: \'" + orgName + "\'. 'ballerina' and 'ballerinax' are reserved " +
-                    "organization names that are used by Ballerina");
+                                "organization names that are used by Ballerina");
             return false;
         }
         boolean matches = RepoUtils.validateOrg(orgName);
@@ -341,7 +364,7 @@ public class InitCommand implements BLauncherCmd {
      * Validates the module name.
      *
      * @param projectPath
-     * @param pkgName The module name.
+     * @param pkgName     The module name.
      * @return True if valid module name, else false.
      */
     private boolean validatePkgName(Path projectPath, String pkgName) {
@@ -354,7 +377,7 @@ public class InitCommand implements BLauncherCmd {
         boolean matches = RepoUtils.validatePkg(pkgName);
         if (!matches) {
             out.println("--Invalid module name: \'" + pkgName + "\'. Module name can only contain " +
-                    "alphanumerics, underscores and periods and the maximum length is 256 characters");
+                                "alphanumerics, underscores and periods and the maximum length is 256 characters");
         }
         return matches;
     }
