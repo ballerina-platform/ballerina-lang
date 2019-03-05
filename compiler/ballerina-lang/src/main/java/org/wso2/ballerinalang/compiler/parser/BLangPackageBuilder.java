@@ -1745,6 +1745,7 @@ public class BLangPackageBuilder {
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.value).value);
             literal.type = ((BLangLiteral) constantNode.value).type;
+            literal.isConstant = true;
 
             // Create a new finite type node.
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
