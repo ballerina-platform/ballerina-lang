@@ -795,6 +795,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-utils -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-utils</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-websub -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1662,6 +1683,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
+                <module>stdlib/utils</module>
                 <module>stdlib/runtime</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
@@ -1773,6 +1795,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1832,6 +1855,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
+                <module>stdlib/utils</module>
                 <module>stdlib/runtime</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>

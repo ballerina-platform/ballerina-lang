@@ -71,6 +71,16 @@ public interface BValue {
     }
 
     /**
+     * Method to returns an integer representing the number of items that a value contains, where the meaning of item
+     * depends on the basic type of value.
+     *
+     * @return  Length of the given value
+     */
+    default long size() {
+        return -1;
+    }
+
+    /**
      * Default serialize implementation for {@link BValue}.
      *
      * @param outputStream Represent the output stream that the data will be written to.
