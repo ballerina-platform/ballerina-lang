@@ -974,15 +974,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstRef constRef) {
         BPackageSymbol pkgSymbol;
-        BSymbol ownerSymbol = constRef.symbol.owner;
-        pkgSymbol = (BPackageSymbol) ownerSymbol;
-
-        constRef.regIndex = calcAndGetExprRegIndex(constRef);
+        BConstantSymbol constantSymbol = (BConstantSymbol) constRef.symbol;
+        pkgSymbol = (BPackageSymbol) constantSymbol.owner;
 
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
 
-        emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex),
-                getOperand(((BConstantSymbol) constRef.symbol).cpEntryIndex), constRef.regIndex);
+        // Calculate registry index for the reference.
+        constRef.regIndex = calcAndGetExprRegIndex(constRef);
+
+        // Emit MCONST instruction.
+        emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex), getOperand(constantSymbol.cpEntryIndex),
+                constRef.regIndex);
     }
 
     @Override
@@ -2166,7 +2168,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create a new constant info object.
         ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
-        // Set the flags.
         constantInfo.flags = constantSymbol.flags;
 
         // Add the constant info to the package info.
@@ -2187,19 +2188,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
             constantValue.literalValueTypeTag = value.type.tag;
 
-            // Todo - use a flag
             constantInfo.isSimpleLiteral = true;
             constantInfo.constantValue = constantValue;
         } else {
-            // Set the value type (record type). This is needed when recreating the record literal.
-            constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
-
             // Get key-value info.
             ConstantValue constantValue = new ConstantValue();
-
             constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.literalValue);
-
-
 
             // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
             for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
@@ -2207,14 +2201,18 @@ public class CodeGenerator extends BLangNodeVisitor {
                 keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
             }
 
-            MapCPEntry cpEntry = new MapCPEntry(constantSymbol, constantValue.constantValueMap);
-            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
-            cpEntry.setCPEntryIndex(constantSymbol.cpEntryIndex);
+            // Create a new MapCPEntry.
+            MapCPEntry mapCPEntry = new MapCPEntry(constantSymbol, constantValue.constantValueMap);
 
+            // Add the MapCPEntry to the constant pool and get the index.
+            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            // Set the CP entry index to the MapCPEntry. This is needed when the MCONST instruction is emitted.
+            mapCPEntry.setCPEntryIndex(constantSymbol.cpEntryIndex);
+
+            // Set the value type (record type). This is needed when recreating the record literal.
+            constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
+            // Set the constant value to the constant info.
             constantInfo.constantValue = constantValue;
-
-//            constantValue.constantValueMap =
-//                    ((MapCPEntry) currentPkgInfo.getCPEntry(constantValue.valueCPEntryIndex)).getValue();
         }
 
         // Add documentation attributes.
@@ -2223,9 +2221,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private ConstantValue createSimpleLiteralInfo(BLangLiteral literalValue) {
         ConstantValue constantValue = new ConstantValue();
-
-        // Todo - Use type signature instead of type tag?
-        // Get the value.
         switch (literalValue.type.tag) {
             case TypeTags.BOOLEAN:
                 constantValue.booleanValue = (Boolean) literalValue.value;
@@ -2264,7 +2259,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Todo - verify whether key is a literal
             // Get the key. Key will always be a literal.
             String key = ((BLangLiteral) keyValue.key.expr).value.toString();
-
             BLangExpression valueExpr = keyValue.valueExpr;
             if (valueExpr.getKind() == NodeKind.LITERAL || valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral literal = (BLangLiteral) valueExpr;
@@ -2295,17 +2289,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                     KeyInfo keyInfo = entry.getKey();
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
-
-                MapCPEntry cpEntry = new MapCPEntry(constantValue.constantValueMap);
-                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
-                cpEntry.setCPEntryIndex( constantValue.valueCPEntryIndex);
-
+                // Create a new MapCPEntry.
+                MapCPEntry mapCPEntry = new MapCPEntry(constantValue.constantValueMap);
+                // Add the MapCPEntry to the CP and get the index.
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+                // Set the CP entry index to the MapCPEntry. This is needed when the MCONST instruction is emitted.
+                mapCPEntry.setCPEntryIndex(constantValue.valueCPEntryIndex);
             } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
-
-                // Create a new constant value.
-
                 BConstantSymbol symbol = (BConstantSymbol) ((BLangConstRef) valueExpr).symbol;
-
+                // Get the literal value.
                 Object literalValue = symbol.literalValue;
 
                 ConstantValue constantValue = new ConstantValue();
@@ -2313,18 +2305,21 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
                 constantValue.isConstRef = true;
 
-
                 // Add the `key` and `constantValue` pair to the map.
                 constantValueMap.put(new KeyInfo(key), constantValue);
 
+                // Iterate through the `constantValueMap` and set the `cpIndex` of the keys.
                 for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
                     KeyInfo keyInfo = entry.getKey();
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
 
-                MapCPEntry cpEntry = new MapCPEntry(symbol, constantValue.constantValueMap);
-                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(cpEntry);
-                cpEntry.setCPEntryIndex(constantValue.valueCPEntryIndex);
+                // Create a new MapCPEntry.
+                MapCPEntry mapCPEntry = new MapCPEntry(symbol, constantValue.constantValueMap);
+                // Add the MapCPEntry to the CP and get the index.
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+                // Set the CP entry index to the MapCPEntry. This is needed when the MCONST instruction is emitted.
+                mapCPEntry.setCPEntryIndex(constantValue.valueCPEntryIndex);
             } else {
                 throw new RuntimeException("unexpected node kind");
             }
