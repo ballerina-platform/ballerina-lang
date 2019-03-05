@@ -806,3 +806,27 @@ function testTypeNarrowingForValueTypeAsFiniteType_2() returns boolean {
         return f == f3;
     }
 }
+
+const FIVE = 5.0;
+type FooBarTen "foo"|"bar"|10;
+type FloatFive FIVE;
+
+function testFiniteTypeAsBroaderTypeInStructurePositive() returns boolean {
+    FooBarTen f = "bar";
+    (FooBarTen, FloatFive, boolean) g = (f, FIVE, true);
+    any a = g;
+    if (a is (string|int|xml, float, boolean)) {
+        return a === g;
+    }
+    return false;
+}
+
+function testFiniteTypeAsBroaderTypeInStructureNegative() returns boolean {
+    FooBarTen f = "bar";
+    (string|float|int, FloatFive, boolean) g = (f, FIVE, true);
+    any a = g;
+    if (a is (string|int|xml, float, boolean)) {
+        return true;
+    }
+    return false;
+}
