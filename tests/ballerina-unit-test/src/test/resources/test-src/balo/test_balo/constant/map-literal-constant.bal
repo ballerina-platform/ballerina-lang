@@ -7,7 +7,7 @@ function testSimpleBooleanConstMap() returns map<boolean> {
 }
 
 function testComplexBooleanConstMap() returns map<map<boolean>> {
-    return foo:bm2;
+    return foo:bm3;
 }
 
 // -----------------------------------------------------------
@@ -17,7 +17,7 @@ function testSimpleIntConstMap() returns map<int> {
 }
 
 function testComplexIntConstMap() returns map<map<int>> {
-    return foo:im2;
+    return foo:im3;
 }
 
 // -----------------------------------------------------------
@@ -27,7 +27,7 @@ function testSimpleByteConstMap() returns map<byte> {
 }
 
 function testComplexByteConstMap() returns map<map<byte>> {
-    return foo:bytem2;
+    return foo:bytem3;
 }
 
 // -----------------------------------------------------------
@@ -37,7 +37,7 @@ function testSimpleFloatConstMap() returns map<float> {
 }
 
 function testComplexFloatConstMap() returns map<map<float>> {
-    return foo:fm2;
+    return foo:fm3;
 }
 
 // -----------------------------------------------------------
@@ -47,7 +47,7 @@ function testSimpleDecimalConstMap() returns map<decimal> {
 }
 
 function testComplexDecimalConstMap() returns map<map<decimal>> {
-    return foo:dm2;
+    return foo:dm3;
 }
 
 // -----------------------------------------------------------
@@ -57,7 +57,7 @@ function testSimpleStringConstMap() returns map<string> {
 }
 
 function testComplexStringConstMap() returns map<map<string>> {
-    return foo:sm2;
+    return foo:sm3;
 }
 
 // -----------------------------------------------------------
@@ -67,7 +67,7 @@ function testSimpleNilConstMap() returns map<()> {
 }
 
 function testComplexNilConstMap() returns map<map<()>> {
-    return foo:nm2;
+    return foo:nm3;
 }
 
 // -----------------------------------------------------------
@@ -94,23 +94,23 @@ function testConstInAnnotations() returns reflect:annotationData[] {
 // -----------------------------------------------------------
 
 function getNestedConstantMapValue() returns string {
-    return foo:m4.m4k.m5k;
+    return foo:m5.m5k.m6k;
 }
 
 // Negative tests.
 function updateNestedConstantMapValue() {
-    foo:m4.m4k.m5k = "m5nv";
+    foo:m5.m5k.m6k = "m6nv";
 }
 
 function updateNestedConstantMapValue2() {
-    foo:m4.m4k.newKey = "newValue";
+    foo:m5.m5k.newKey = "newValue";
 }
 
 // -----------------------------------------------------------
 
 // Negative tests.
 function updateConstantMapValueInArray() {
-    foo:a1[0].m5k = "m5nv";
+    foo:a1[0].m6k = "m6nv";
 }
 
 function updateConstantMapValueInArray2() {
@@ -118,7 +118,7 @@ function updateConstantMapValueInArray2() {
 }
 
 function getConstantMapValueInArray() returns string {
-    return foo:a1[0].m5k;
+    return foo:a1[0].m6k;
 }
 
 // -----------------------------------------------------------
@@ -126,7 +126,7 @@ function getConstantMapValueInArray() returns string {
 // Negative tests.
 function updateReturnedConstantMap() {
     map<string> m = getMap();
-    m.m5k = "m5kn";
+    m.m6k = "m6kn";
 }
 
 function updateReturnedConstantMap2() {
@@ -135,96 +135,96 @@ function updateReturnedConstantMap2() {
 }
 
 function getMap() returns map<string> {
-    return foo:m5;
+    return foo:m6;
 }
 
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReference() returns map<boolean> {
-    return foo:bm4;
+    return foo:bm5;
 }
 
 // -----------------------------------------------------------
 
 function testIntConstKeyReference() returns map<int> {
-    return foo:im4;
+    return foo:im5;
 }
 
 // -----------------------------------------------------------
 
 function testByteConstKeyReference() returns map<byte> {
-    return foo:bytem4;
+    return foo:bytem5;
 }
 
 // -----------------------------------------------------------
 
 function testFloatConstKeyReference() returns map<float> {
-    return foo:fm4;
+    return foo:fm5;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReference() returns map<decimal> {
-    return foo:dm4;
+    return foo:dm5;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReference() returns map<string> {
-    return foo:sm4;
+    return foo:sm5;
 }
 
 // -----------------------------------------------------------
 
 function testNullConstKeyReference() returns map<()> {
-    return foo:nm4;
+    return foo:nm5;
 }
 
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
-    boolean b = foo:bm3.bm3k;
+    boolean b = foo:bm4.bm4k;
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testIntConstKeyReferenceInLocalVar() returns int {
-    int i = foo:im3.im3k;
+    int i = foo:im4.im4k;
     return i;
 }
 
 // -----------------------------------------------------------
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
-    byte b = foo:bytem3.bytem3k;
+    byte b = foo:bytem4.bytem4k;
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testFloatConstKeyReferenceInLocalVar() returns float {
-    float f = foo:fm3.fm3k;
+    float f = foo:fm4.fm4k;
     return f;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = foo:dm3.dm3k;
+    decimal d = foo:dm4.dm4k;
     return d;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = foo:sm3.sm3k;
+    string s = foo:sm4.sm4k;
     return s;
 }
 
 // -----------------------------------------------------------
 
 function testNullConstKeyReferenceInLocalVar() returns () {
-    () n = foo:nm3.nm3k;
+    () n = foo:nm4.nm4k;
     return n;
 }

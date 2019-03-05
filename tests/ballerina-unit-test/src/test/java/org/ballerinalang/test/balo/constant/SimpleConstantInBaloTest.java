@@ -37,14 +37,14 @@ import java.math.MathContext;
 /**
  * Test cases for reading constants.
  */
-public class SimpleConstantBaloTest {
+public class SimpleConstantInBaloTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/simple-literal-constant.bal");
+        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/map-literal-constant-equality.bal");
     }
 
     @Test

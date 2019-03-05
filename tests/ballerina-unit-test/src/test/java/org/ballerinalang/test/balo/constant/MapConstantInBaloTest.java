@@ -38,7 +38,7 @@ import java.math.MathContext;
 /**
  * Test cases for reading constants.
  */
-public class MapConstantBaloTest {
+public class MapConstantInBaloTest {
 
     private CompileResult compileResult;
 
