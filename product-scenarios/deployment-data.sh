@@ -110,7 +110,7 @@ kubectl config view
 
 kubectl config current-context
 
-kubectl create -f kubernetes/
+kubectl apply -f kubernetes/
 
 TIMEOUT=300
 INTERVAL=20
