@@ -25,11 +25,14 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-math')
     implementation project(':ballerina-crypto')
+    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-system')
     implementation project(':ballerina-logging')
+    implementation 'org.apache.commons:commons-io:1.3.2'
+
     testCompile project(':ballerina-launcher')
     testCompile 'org.testng:testng:6.13.1'
 }
