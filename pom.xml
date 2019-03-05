@@ -2390,7 +2390,7 @@
         <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.86</andes.client.version>
+        <andes.client.version>4.0.0</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.55</file.transport.version>
