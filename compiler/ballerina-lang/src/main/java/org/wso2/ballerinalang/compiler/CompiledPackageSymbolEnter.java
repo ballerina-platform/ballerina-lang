@@ -331,15 +331,15 @@ public class CompiledPackageSymbolEnter {
                                                        ConstantPoolEntry[] constantPool) throws IOException {
         LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
 
-        // value cp entry index
+        // Read the constant value CP entry index.
         int constantValueCPEntryIndex = dataInStream.readInt();
 
-        // Size
+        // Read the size of the constant value map.
         int size = dataInStream.readInt();
 
         for (int i = 0; i < size; i++) {
 
-            // Key
+            // Read the CP index of the key.
             int keyCPIndex = dataInStream.readInt();
             UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
 
@@ -349,7 +349,7 @@ public class CompiledPackageSymbolEnter {
 
             if (isSimpleLiteral) {
 
-                // Value type tag
+                // Read value type tag.
                 int typeTag = dataInStream.readInt();
 
                 KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
@@ -358,24 +358,20 @@ public class CompiledPackageSymbolEnter {
                 constantValue.literalValueTypeTag = typeTag;
                 constantValue.isSimpleLiteral = true;
 
-                // Value
+                // Read the value accordingly.
                 if (typeTag == TypeTags.NIL) {
-                    // Do nothing
+                    // Do nothing.
                 } else if (typeTag == TypeTags.BOOLEAN) {
-
                     constantValue.booleanValue = dataInStream.readBoolean();
-
                     valueMap.put(keyInfo, constantValue);
                 } else {
                     constantValue.valueCPEntryIndex = dataInStream.readInt();
-
                     valueMap.put(keyInfo, constantValue);
                 }
             } else if (isConstRef) {
                 // Todo - Remove?
                 int recordLiteralSigCPIndex = dataInStream.readInt();
-                int valueCPEntryIndex = dataInStream.readInt();
-            } else {
+
                 int valueCPIndex = dataInStream.readInt();
 
                 MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
@@ -387,6 +383,8 @@ public class CompiledPackageSymbolEnter {
                 constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
 
                 valueMap.put(keyInfo, constantValue);
+            } else {
+                throw new RuntimeException("unexpected type");
             }
         }
 
@@ -744,16 +742,14 @@ public class CompiledPackageSymbolEnter {
             constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
                     valueType, valueType, enclScope.owner);
 
-            int valueCPEntry = dataInStream.readInt();
+            int constantValueCPEntry = dataInStream.readInt();
 
-            MapCPEntry constantPoolEntry = (MapCPEntry) this.env.constantPool[valueCPEntry];
+            MapCPEntry constantPoolEntry = (MapCPEntry) this.env.constantPool[constantValueCPEntry];
 
-            //            constantSymbol.literalValue = getLiteralValue(valueType, constantPoolEntry.getValue());
             constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
             constantSymbol.literalValueTypeTag = valueType.tag;
 
             constantSymbol.cpEntryIndex = constantPoolEntry.getCPEntryIndex();
-
         }
 
         // Define constant.

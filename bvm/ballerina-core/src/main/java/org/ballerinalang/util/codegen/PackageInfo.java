@@ -90,10 +90,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     }
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
-//        if (constantPoolEntries.contains(cpEntry)) {
-//            return constantPoolEntries.indexOf(cpEntry);
-//        }
-
         constantPoolEntries.add(cpEntry);
         return constantPoolEntries.size() - 1;
     }
