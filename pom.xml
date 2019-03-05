@@ -2309,7 +2309,7 @@
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
         <airline.version>0.7</airline.version>
         <guice.version>4.1.0</guice.version>
-        <io.swagger.version>1.5.18</io.swagger.version>
+        <io.swagger.version>1.5.22</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.18</swagger.models.version>
