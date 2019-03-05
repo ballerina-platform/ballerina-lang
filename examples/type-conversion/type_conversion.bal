@@ -62,12 +62,12 @@ function convertSimpleBasicTypes() {
     }
 
     // A `float` to `int` conversion can result in some of the information getting lost.
-    // However, this conversion is always safe since there is a corresponding `int` representation
-    // for all `float` values except for `NaN` or `infinite` float values, in which case the
-    // the conversion attempt will result in a panic.
-    int intVal = int.convert(f);
-    io:println("int value: ", intVal);
-
+    // However, this conversion is unsafe due to `NaN` or `infinite` float values where the conversion attempt will 
+    // result in a error.
+    int|error intVal = int.convert(f);
+    if (intVal is int) {
+        io:println("int value: ", intVal);
+    }
     // A `string` to `boolean` conversion is always safe. The `string` value `true` (ignoring case)
     // evaluates to the `boolean` value `true`, while any other `string` is converted to the
     // `boolean` value `false`.

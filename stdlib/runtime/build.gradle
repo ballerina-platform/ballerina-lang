@@ -11,13 +11,13 @@ dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
 }
 
-task copyGeneratedBalo(type: org.gradle.api.tasks.Copy) {
-    from "$buildDir/generated-balo/repo/ballerina"
-    into "$buildDir/lib/repo/ballerina"
-}
-
 test {
-    dependsOn copyGeneratedBalo
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
