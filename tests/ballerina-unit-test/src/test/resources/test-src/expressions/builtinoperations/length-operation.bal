@@ -251,3 +251,9 @@ function accessLengthOfNullXML() returns (int) {
     int length = x.length();
     return length;
 }
+
+function stringLengthAccessTestCase() returns (int) {
+    string name = "Waruna";
+    int length = name.length();
+    return length;
+}

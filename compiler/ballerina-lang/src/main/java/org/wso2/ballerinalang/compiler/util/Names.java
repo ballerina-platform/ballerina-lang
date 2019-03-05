@@ -33,6 +33,7 @@ public class Names {
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BUILTIN_PACKAGE = new Name("builtin");
+    public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
     public static final Name TRANSACTION_ORG = new Name("ballerina");

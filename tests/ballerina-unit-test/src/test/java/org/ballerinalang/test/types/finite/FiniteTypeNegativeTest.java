@@ -47,12 +47,18 @@ public class FiniteTypeNegativeTest {
     @Test()
     public void testInvalidLiteralAssignment() {
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 11, "Error count mismatch");
 
-        validateError(result, 0, "incompatible types: expected '5|5|5', found 'float'", 32, 16);
-        validateError(result, 1, "incompatible types: expected '5|100', found 'string'", 37, 16);
-        validateError(result, 2, "incompatible types: expected '100.5|S', found 'float'", 42, 23);
-        validateError(result, 3, "incompatible types: expected 'string', found 'foo|1'", 50, 17);
-        validateError(result, 4, "incompatible types: expected 'int', found 'string|int'", 53, 14);
+        validateError(result, 0, "incompatible types: expected '5|100', found 'string'", 33, 16);
+        validateError(result, 1, "incompatible types: expected '5', found 'int'", 40, 18);
+        validateError(result, 2, "incompatible types: expected '5', found 'byte'", 47, 17);
+        validateError(result, 3, "incompatible types: expected '5', found 'float'", 52, 17);
+        validateError(result, 4, "incompatible types: expected '5.0', found 'int'", 59, 19);
+        validateError(result, 5, "incompatible types: expected '5.0', found 'decimal'", 64, 19);
+        validateError(result, 6, "incompatible types: expected '5', found 'int'", 71, 21);
+        validateError(result, 7, "incompatible types: expected '5', found 'float'", 76, 21);
+        validateError(result, 8, "incompatible types: expected '5', found 'int'", 81, 17);
+        validateError(result, 9, "incompatible types: expected 'string', found 'foo|1'", 89, 17);
+        validateError(result, 10, "incompatible types: expected 'int', found 'string|int'", 92, 14);
     }
 }

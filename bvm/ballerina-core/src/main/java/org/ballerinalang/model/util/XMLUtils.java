@@ -424,11 +424,11 @@ public class XMLUtils {
     }
 
     private static boolean isXmlSequenceEqual(BXMLSequence xmlSequenceOne, BXMLSequence xmlSequenceTwo) {
-        if (xmlSequenceOne.length() != xmlSequenceTwo.length()) {
+        if (xmlSequenceOne.size() != xmlSequenceTwo.size()) {
             return false;
         }
 
-        for (int i = 0; i < xmlSequenceOne.length(); i++) {
+        for (int i = 0; i < xmlSequenceOne.size(); i++) {
             if (!isEqual((BXML<?>) xmlSequenceOne.value().getRefValue(i), (BXML<?>) xmlSequenceTwo.value().
                     getRefValue(i))) {
                 return false;

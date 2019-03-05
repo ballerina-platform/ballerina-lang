@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -102,6 +103,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
@@ -288,7 +290,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getCastOperator(sourceType, targetType);
     }
 
-    BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
+    public BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
         return types.getTypeCastOperator(conversionExpr, sourceType, targetType);
     }
 
@@ -375,7 +377,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(),
-                ((BErrorType) type).detailType, InstructionCodes.DETAIL);
+                ((BErrorType) type).detailType, InstructionCodes.NOP);
     }
 
     public BSymbol createSymbolForConvertOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
@@ -471,13 +473,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (types.isAssignable(variableSourceType, targetType)) {
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
-            return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.STAMP);
+            return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.NOP);
         }
         if (types.isStampingAllowed(variableSourceType, targetType)) {
             BType returnType = BUnionType.create(null, targetType, symTable.errorType);
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
-            return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
+            return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.NOP);
         }
         return symTable.invalidUsageSymbol;
     }
@@ -527,10 +529,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
     }
 
-    BOperatorSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType, int opcode) {
+    BInvokableSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(method.getName()), null, opType, null, opcode);
+        return new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC, names.fromString
+                (method.getName()), UTILS, opType, null);
     }
 
     BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {
