@@ -42,8 +42,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "visitLookupSwitchInsn",
-        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
-                structPackage = JVM_PKG_PATH),
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR, structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "defaultLabel", type = OBJECT, structType = LABEL),
                 @Argument(name = "keys", type = ARRAY, elementType = INT),

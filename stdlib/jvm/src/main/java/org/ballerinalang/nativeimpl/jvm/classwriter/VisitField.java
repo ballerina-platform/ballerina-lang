@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.jvm.methodvisitor;
+package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -44,8 +44,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "visitField",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
-                structPackage = JVM_PKG_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER, structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "access", type = INT),
                 @Argument(name = "name", type = STRING),

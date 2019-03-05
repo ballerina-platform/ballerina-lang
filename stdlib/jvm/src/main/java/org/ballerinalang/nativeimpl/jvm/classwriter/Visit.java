@@ -44,8 +44,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "visit",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
-                structPackage = JVM_PKG_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER, structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "versionNumber", type = INT),
                 @Argument(name = "access", type = INT),
