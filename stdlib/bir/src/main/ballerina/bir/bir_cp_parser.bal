@@ -2,6 +2,7 @@ public type ConstPool record {
     PackageId[] packages = [];
     string[] strings = [];
     int[] ints = [];
+    float[] floats = [];
 };
 
 public type ConstPoolParser object {
@@ -28,6 +29,8 @@ public type ConstPoolParser object {
 
         if (cpType == 1){
             self.parseInt();
+        } else if (cpType == 2){
+            self.parseFloat();
         } else if (cpType == 4){
             self.parseString();
         } else if (cpType == 5){
@@ -40,6 +43,10 @@ public type ConstPoolParser object {
 
     function parseInt() {
         self.cp.ints[self.i] = self.reader.readInt64();
+    }
+
+    function parseFloat() {
+        self.cp.floats[self.i] = self.reader.readFloat64();
     }
 
     function parseString() {

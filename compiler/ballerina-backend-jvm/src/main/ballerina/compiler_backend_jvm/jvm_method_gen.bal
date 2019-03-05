@@ -337,7 +337,7 @@ function getMethodDesc(bir:Function func) returns string {
     string desc = "(Lorg/ballerina/jvm/Strand;";
     int i = 0;
     while (i < func.argsCount) {
-        desc = desc + getMethodArgDesc(func.typeValue.paramTypes[i]);
+        desc = desc + getTypeDesc(func.typeValue.paramTypes[i]);
         i += 1;
     }
     string returnType = generateReturnType(func.typeValue.retType);
@@ -346,7 +346,7 @@ function getMethodDesc(bir:Function func) returns string {
     return desc;
 }
 
-function getMethodArgDesc(bir:BType bType) returns string {
+function getTypeDesc(bir:BType bType) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeString) {
