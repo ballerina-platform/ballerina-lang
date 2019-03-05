@@ -12,11 +12,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-jvm-runtime</artifactId>
+    <artifactId>ballerina-runtime</artifactId>
     <version>0.990.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Ballerina - JVM - Runtime</name>
+    <name>Ballerina - Runtime</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
