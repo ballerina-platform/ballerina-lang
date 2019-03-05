@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -154,10 +155,10 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
-    public void visit(BIRNonTerminator.NewMap birNewMap) {
-        buf.writeByte(birNewMap.kind.getValue());
-        birNewMap.type.accept(typeWriter);
-        birNewMap.lhsOp.accept(this);
+    public void visit(NewStructure birNewStructure) {
+        buf.writeByte(birNewStructure.kind.getValue());
+        birNewStructure.type.accept(typeWriter);
+        birNewStructure.lhsOp.accept(this);
     }
 
     public void visit(NewArray birNewArray) {
