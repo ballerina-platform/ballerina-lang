@@ -2254,7 +2254,7 @@
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
-        <commons.lang3.version>3.5</commons.lang3.version>
+        <commons.lang3.version>3.8.1</commons.lang3.version>
         <jackson.version>2.9.8</jackson.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
