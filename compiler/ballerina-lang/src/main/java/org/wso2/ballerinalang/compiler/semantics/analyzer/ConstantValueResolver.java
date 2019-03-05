@@ -82,7 +82,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 // Since we are looking for a literal which can be used as at compile time, it should be a literal.
                 if (keyValuePair.valueExpr.getKind() == NodeKind.LITERAL ||
                         keyValuePair.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL ||
-                        keyValuePair.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                        keyValuePair.valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR ||
+                        keyValuePair.valueExpr.getKind() == NodeKind.CONSTANT_REF) {
                     result = keyValuePair.valueExpr;
                     return;
                 }

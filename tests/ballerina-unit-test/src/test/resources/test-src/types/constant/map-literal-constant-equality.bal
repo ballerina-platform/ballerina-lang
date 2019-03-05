@@ -42,6 +42,24 @@ function testComplexBooleanMapReferenceEqualityUsingDifferentReference() returns
 
 // -----------------------------------------------------------
 
+function testSimpleBooleanMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return bm3.key3 === bm3.key3;
+}
+
+function testSimpleBooleanMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return bm3.key3 == bm3_new.key3;
+}
+
+function testSimpleBooleanMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return bm1 === bm3.key3;
+}
+
+function testSimpleBooleanMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return bm3.key3 === bm3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 const map<map<int>> im3 = { "key3": im1, "key4": im2 };
 const map<int> im1 = { "key1": 1 };
 const map<int> im2 = { "key2": 2 };
@@ -82,6 +100,24 @@ function testComplexIntMapReferenceEqualityUsingSameReference() returns boolean 
 
 function testComplexIntMapReferenceEqualityUsingDifferentReference() returns boolean {
     return im3 === im3_new;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleIntMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return im3.key3 === im3.key3;
+}
+
+function testSimpleIntMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return im3.key3 == im3_new.key3;
+}
+
+function testSimpleIntMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return im1 === im3.key3;
+}
+
+function testSimpleIntMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return im3.key3 === im3_new.key3;
 }
 
 // -----------------------------------------------------------
@@ -130,6 +166,24 @@ function testComplexByteMapReferenceEqualityUsingDifferentReference() returns bo
 
 // -----------------------------------------------------------
 
+function testSimpleByteMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return bytem3.key3 === bytem3.key3;
+}
+
+function testSimpleByteMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return bytem3.key3 == bytem3_new.key3;
+}
+
+function testSimpleByteMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return bytem1 === bytem3.key3;
+}
+
+function testSimpleByteMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return bytem3.key3 === bytem3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 const map<map<float>> fm3 = { "key3": fm1, "key4": fm2 };
 const map<float> fm1 = { "key1": 2.0 };
 const map<float> fm2 = { "key2": 4.0 };
@@ -170,6 +224,24 @@ function testComplexFloatMapReferenceEqualityUsingSameReference() returns boolea
 
 function testComplexFloatMapReferenceEqualityUsingDifferentReference() returns boolean {
     return fm3 === fm3_new;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleFloatMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return fm3.key3 === fm3.key3;
+}
+
+function testSimpleFloatMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return fm3.key3 == fm3_new.key3;
+}
+
+function testSimpleFloatMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return fm1 === fm3.key3;
+}
+
+function testSimpleFloatMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return fm3.key3 === fm3_new.key3;
 }
 
 // -----------------------------------------------------------
@@ -218,6 +290,24 @@ function testComplexDecimalMapReferenceEqualityUsingDifferentReference() returns
 
 // -----------------------------------------------------------
 
+function testSimpleDecimalMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return dm3.key3 === dm3.key3;
+}
+
+function testSimpleDecimalMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return dm3.key3 == dm3_new.key3;
+}
+
+function testSimpleDecimalMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return dm1 === dm3.key3;
+}
+
+function testSimpleDecimalMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return dm3.key3 === dm3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 const map<map<string>> sm3 = { "key3": sm1, "key4": sm2 };
 const map<string> sm1 = { "key1": "value1" };
 const map<string> sm2 = { "key2": "value2" };
@@ -262,6 +352,24 @@ function testComplexStringMapReferenceEqualityUsingDifferentReference() returns 
 
 // -----------------------------------------------------------
 
+function testSimpleStringMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return sm3.key3 === sm3.key3;
+}
+
+function testSimpleStringMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return sm3.key3 == sm3_new.key3;
+}
+
+function testSimpleStringMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return sm1 === sm3.key3;
+}
+
+function testSimpleStringMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return sm3.key3 === sm3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 const map<map<()>> nm3 = { "key3": nm1, "key4": nm2 };
 const map<()> nm1 = { "key1": () };
 const map<()> nm2 = { "key2": () };
@@ -302,4 +410,22 @@ function testComplexNilMapReferenceEqualityUsingSameReference() returns boolean 
 
 function testComplexNilMapReferenceEqualityUsingDifferentReference() returns boolean {
     return nm3 === nm3_new;
+}
+
+// -----------------------------------------------------------
+
+function testSimpleNilMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return nm3.key3 === nm3.key3;
+}
+
+function testSimpleNilMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return nm3.key3 == nm3_new.key3;
+}
+
+function testSimpleNilMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return nm1 === nm3.key3;
+}
+
+function testSimpleNilMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return nm3.key3 === nm3_new.key3;
 }
