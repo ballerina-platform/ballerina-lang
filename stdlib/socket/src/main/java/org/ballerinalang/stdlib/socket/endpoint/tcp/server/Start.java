@@ -45,6 +45,7 @@ import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
+import java.util.concurrent.RejectedExecutionException;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
@@ -110,8 +111,12 @@ public class Start implements NativeCallableUnit {
             callback.notifySuccess();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(SocketUtils
-                    .createSocketError(context, "Unable to start the socket service: " + e.getMessage()));
+            context.setReturnValues(
+                    SocketUtils.createSocketError(context, "Unable to start the socket service: " + e.getMessage()));
+            callback.notifySuccess();
+        } catch (RejectedExecutionException e) {
+            log.error(e.getMessage(), e);
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the socket listener."));
             callback.notifySuccess();
         }
     }

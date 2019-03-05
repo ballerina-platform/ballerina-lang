@@ -3,13 +3,15 @@ import ballerina/http;
 // Create a JWT authentication provider with the relevant configuration
 // parameters. 
 http:AuthProvider jwtAuthProvider = {
-    scheme:"jwt",
-    issuer:"ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    config: {
+        issuer:"ballerina",
+        audience: ["ballerina.io"],
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 // The endpoint used here is `http:Listener`. The JWT authentication
@@ -56,7 +58,7 @@ service echo on ep {
     // The authentication and authorization settings can be overridden at
     // resource level.
     // The hello resource would inherit the `authentication:{enabled:true}` flag
-    // from the service level, and define 'hello' as the scope for the resource.
+    // from the service level, and define `hello` as the scope for the resource.
     resource function hello(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }

@@ -2,13 +2,12 @@ import ballerina/jms;
 import ballerina/log;
 
 // This creates a simple queue receiver.
-listener jms:SimpleQueueReceiver consumerEndpoint = new({
+listener jms:QueueReceiver consumerEndpoint = new({
         initialContextFactory: "bmbInitialContextFactory",
         providerUrl: "amqp://admin:admin@carbon/carbon"
             + "?brokerlist='tcp://localhost:5672'",
-        acknowledgementMode: "AUTO_ACKNOWLEDGE",
-        queueName: "MyQueue"
-    });
+        acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    }, queueName = "MyQueue");
 
 // This binds the created consumer to the listener service.
 service jmsListener on consumerEndpoint {

@@ -794,6 +794,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitStringFunctionInvocationReference(@NotNull BallerinaStringFunctionInvocationReference o) {
+    visitVariableReference(o);
+  }
+
   public void visitStringTemplateContent(@NotNull BallerinaStringTemplateContent o) {
     visitCompositeElement(o);
   }

@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 
-function testUnarySecuredBlockingWithCerts(string path) returns (string) {
+function testUnarySecuredBlockingWithCerts() returns (string) {
     grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ("https://localhost:9317", config = {
         secureSocket:{
-            keyFile: path + "/private.key",
-            certFile: path + "/public.crt",
-            trustedCertFile: path + "/public.crt"
+            keyFile: config:getAsString("client.certificate.key"),
+            certFile: config:getAsString("client.public.cert"),
+            trustedCertFile: config:getAsString("client.public.cert")
         }
     });
 
@@ -39,16 +40,11 @@ function testUnarySecuredBlockingWithCerts(string path) returns (string) {
 }
 
 public type grpcMutualSslServiceBlockingClient client object {
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -69,16 +65,11 @@ public type grpcMutualSslServiceBlockingClient client object {
 
 public type grpcMutualSslServiceClient client object {
 
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;

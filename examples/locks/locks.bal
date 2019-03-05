@@ -10,14 +10,14 @@ public function main() {
 }
 
 type Counter object {
-    //shared field among same object instances
+    //Shared field among same object instances.
     int count = 0;
 
     public function update() {
         foreach var i in 1 ... 1000 {
             lock {
                 // Lock the field variable and increment the count.
-                // The `count' field of same object instance is locked.
+                // The `count` field of same object instance is locked.
                 self.count = self.count + 1;
             }
         }

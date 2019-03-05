@@ -1,15 +1,16 @@
 // This is the server implementation for the unary blocking/unblocking scenario.
 import ballerina/grpc;
-import ballerina/io;
+import ballerina/log;
 
 service HelloWorld on new grpc:Listener(9090) {
 
     resource function hello (grpc:Caller caller, string name,
                              grpc:Headers headers) {
-        io:println("name: " + name);
+        log:printInfo("Server received hello from " + name);
         string message = "Hello " + name;
         // Reads custom headers in request message.
-        io:println(headers.get("client_header_key"));
+        string reqHeader = headers.get("client_header_key") ?: "none";
+        log:printInfo("Server received header value: " + reqHeader);
 
         // Writes custom headers to response message.
         grpc:Headers resHeader = new;
@@ -18,7 +19,7 @@ service HelloWorld on new grpc:Listener(9090) {
         // Sends response message with headers.
         error? err = caller->send(message, headers = resHeader);
         if (err is error) {
-            io:println("Error from Connector: " + err.reason() + " - "
+            log:printError("Error from Connector: " + err.reason() + " - "
                                              + <string>err.detail().message);
         }
 

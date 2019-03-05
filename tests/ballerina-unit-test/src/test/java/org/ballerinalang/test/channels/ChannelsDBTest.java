@@ -187,6 +187,7 @@ public class ChannelsDBTest {
     @AfterClass
     public void reset() {
         reg.resetRegistry();
+        DatabaseUtils.close();
     }
 }
 

@@ -27,7 +27,7 @@ type OpenPerson record {
 type ClosedEmployee record {
     string name = "";
     int id = 0;
-    !...
+    !...;
 };
 
 type Abc object {

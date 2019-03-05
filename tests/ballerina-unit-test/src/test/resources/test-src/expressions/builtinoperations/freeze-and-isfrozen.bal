@@ -409,14 +409,14 @@ function testInvalidComplexMapFreeze() returns (string, boolean) {
 }
 
 function testInvalidComplexArrayFreeze() returns (string, boolean) {
-    (string|typedesc|float)[] a1 = [];
+    (string|typedesc|float)?[] a1 = [];
     typedesc p = int;
 
     a1[0] = 2.0;
     a1[1] = "hello world";
     a1[2] = p;
 
-    (string|typedesc|float)[]|error res = a1.freeze();
+    (string|typedesc|float)?[]|error res = a1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a1.isFrozen());
 }
@@ -476,12 +476,12 @@ function testValidComplexMapFreeze() returns (string, boolean) {
 }
 
 function testValidComplexArrayFreeze() returns (string, boolean) {
-    (string|PersonObj|float)[] a1 = [];
+    (string|PersonObj|float)?[] a1 = [];
 
     a1[0] = 2.0;
     a1[1] = "hello world";
 
-    (string|PersonObj|float)[]|error res = a1.freeze();
+    (string|PersonObj|float)?[]|error res = a1.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a1.isFrozen());
 }
@@ -577,14 +577,14 @@ function insertElement(json[] jArr, int index, json val) returns boolean {
 type Employee record {
     int id;
     string name;
-    !...
+    !...;
 };
 
 type DeptEmployee record {
     int id;
     string name;
     Dept dept;
-    !...
+    !...;
 };
 
 type Dept record {
@@ -606,5 +606,5 @@ type PersonObj object {
 
 type FreezeAllowedDepartment record {
     PersonObj|string head;
-    (PersonObj|int)...
+    (PersonObj|int)...;
 };

@@ -18,12 +18,21 @@
 # provides includes functions to send request/error messages.
 public type Client client object {
 
+    private ClientEndpointConfig config = {};
+    private string url;
+
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used for endpoint initialization.
     #
     # + url - The server url.
     # + config - - The ClientEndpointConfig of the endpoint.
-    public extern function init(string url, ClientEndpointConfig config);
+    public function __init(string url, ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
+        self.init(self.url, self.config, globalGrpcClientConnPool);
+    }
+
+    extern function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig);
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
@@ -66,29 +75,57 @@ public type Client client object {
 
 # Represents client endpoint configuration.
 #
-# + secureSocket - The SSL configurations for the client endpoint.
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection.
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + httpVersion - The HTTP version understood by the client
+# + chunking - The chunking behaviour of the request
+# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
+# + proxy - Proxy server related options
+# + poolConfig - Connection pool configuration
+# + secureSocket - SSL/TLS related options
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {
-    SecureSocket? secureSocket = ();
     int timeoutMillis = 60000;
-    !...
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    string httpVersion = "2.0";
+    Chunking chunking = CHUNKING_NEVER;
+    string forwarded = "disable";
+    ProxyConfig? proxy = ();
+    PoolConfiguration? poolConfig = ();
+    SecureSocket? secureSocket = ();
+    Compression compression = COMPRESSION_AUTO;
+    !...;
 };
 
-# SecureSocket struct represents SSL/TLS options to be used for gRPC client invocation.
+# Proxy server configurations to be used with the HTTP client endpoint.
 #
-# + trustStore - TrustStore related options.
-# + keyStore - KeyStore related options.
-# + certFile - A file containing the certificate of the client.
-# + keyFile - A file containing the private key of the client.
-# + keyPassword - Password of the private key if it is encrypted.
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts.
-# + protocol - SSL/TLS protocol related options.
-# + certValidation - Certificate validation against CRL or OCSP related options.
-# + ciphers - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-#             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-# + verifyHostname - Enable/disable host name verification.
-# + shareSession - Enable/disable new ssl session creation.
-# + ocspStapling - Enable/disable ocsp stapling.
+# + host - Host name of the proxy server
+# + port - Proxy server port
+# + userName - Proxy server username
+# + password - proxy server password
+public type ProxyConfig record {
+    string host = "";
+    int port = 0;
+    string userName = "";
+    string password = "";
+    !...;
+};
+
+# Provides configurations for facilitating secure communication with a remote HTTP endpoint.
+#
+# + trustStore - Configurations associated with TrustStore
+# + keyStore - Configurations associated with KeyStore
+# + certFile - A file containing the certificate of the client
+# + keyFile - A file containing the private key of the client
+# + keyPassword - Password of the private key if it is encrypted
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
+# + protocol - SSL/TLS protocol related options
+# + certValidation - Certificate validation against CRL or OCSP related options
+# + ciphers - List of ciphers to be used
+#             eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+# + verifyHostname - Enable/disable host name verification
+# + shareSession - Enable/disable new SSL session creation
+# + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
@@ -102,5 +139,5 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...
+    !...;
 };

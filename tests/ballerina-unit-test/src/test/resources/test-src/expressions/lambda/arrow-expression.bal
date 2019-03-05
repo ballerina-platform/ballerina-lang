@@ -65,7 +65,7 @@ function testClosureWithCasting() returns float {
 type Person record {
    string name;
     int age;
-    !...
+    !...;
 };
 
 function testRecordTypeWithArrowExpr() returns Person {
@@ -184,7 +184,7 @@ function testArrowExprWithNoArguments() returns string {
 }
 
 function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
-    function () returns string lambda = () => string`Some Text {{packageVar}}`;
+    function () returns string lambda = () => string`Some Text ${packageVar}`;
     return lambda.call();
 }
 

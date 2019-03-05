@@ -2,6 +2,9 @@ import ballerina/http;
 
 service serviceName1 on new http:Listener(9090){
     resource function newResource(http:Caller caller, http:Request request) {
+    json? payload;
+          (http:Response | error | ()) clientResponse;
+        (json | error) jsonMsg = req.getJsonPayload();
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;
@@ -47,4 +50,26 @@ service serviceName4 on new http:Listener(9090) {
             _ = caller->respond(res);
         }
     }
+
+    resource function send(http:Caller caller, http:Request request) {
+                var result = caller->respond({
+                    "send": "Success!!"
+                });
+            }
+
+    resource function send2(http:Caller caller,
+    http:Request request) {
+            http:Client locationEP = new("http://www.mocky.io");
+            var jsonMsg = req.getJsonPayload();
+
+            if (jsonMsg is json) {
+                string nameString = jsonMsg["name"].toString();
+                http:Response | error clientResponse;
+
+                if (nameString == "sanFrancisco") {
+                    clientResponse =
+                    locationEP->post("/v2/594e018c1100002811d6d39a", ());
+                }
+            }
+        }
 }

@@ -17,14 +17,12 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.EmptyProto;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -38,7 +36,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +48,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -66,27 +62,32 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  * @since 1.0.0
  */
 public class MessageUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
+    private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
-    public static BMap<String, BValue> getHeaderStruct(Resource resource) {
+    public static BMap<String, BValue> getHeaderStruct(ProgramFile programFile) {
+        return BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+    }
+
+    static boolean headersRequired(Resource resource) {
         if (resource == null || resource.getParamDetails() == null) {
             throw new RuntimeException("Invalid resource input arguments");
         }
-        BMap<String, BValue> headerStruct = null;
+        boolean headersRequired = false;
         for (ParamDetail detail : resource.getParamDetails()) {
             BType paramType = detail.getVarType();
             if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackagePath()) &&
                     "Headers".equals(paramType.getName())) {
-                headerStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource),
-                        paramType.getPackagePath(), paramType.getName());
+                headersRequired = true;
                 break;
             }
         }
-        return headerStruct;
+        return headersRequired;
     }
 
     public static long copy(InputStream from, OutputStream to) throws IOException {
@@ -154,25 +155,6 @@ public class MessageUtils {
         return new BError(errorType, reason, refData);
     }
     
-    public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getPackageInfo().getProgramFile();
-    }
-    
-    /**
-     * Handles failures in GRPC callable unit callback.
-     *
-     * @param streamObserver observer used the send the error back
-     * @param error          error message struct
-     */
-    static void handleFailure(StreamObserver streamObserver, BError error) {
-        String errorMsg = error.stringValue();
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        if (streamObserver != null) {
-            streamObserver.onError(new Message(new StatusRuntimeException(Status.fromCodeValue(Status
-                    .Code.INTERNAL.value()).withDescription(errorMsg))));
-        }
-    }
-    
     /**
      * Returns wire type corresponding to the field descriptor type.
      * <p>
@@ -224,10 +206,8 @@ public class MessageUtils {
             return MethodDescriptor.MethodType.UNARY;
         } else if (methodDescriptorProto.getServerStreaming()) {
             return MethodDescriptor.MethodType.SERVER_STREAMING;
-        } else if (methodDescriptorProto.getClientStreaming()) {
-            return MethodDescriptor.MethodType.CLIENT_STREAMING;
         } else {
-            return MethodDescriptor.MethodType.UNKNOWN;
+            return MethodDescriptor.MethodType.CLIENT_STREAMING;
         }
     }
     
@@ -241,14 +221,7 @@ public class MessageUtils {
         if (messageDescriptor == null) {
             return false;
         }
-        List<Descriptors.Descriptor> descriptors = EmptyProto.getDescriptor()
-                .getMessageTypes();
-        for (Descriptors.Descriptor descriptor : descriptors) {
-            if (descriptor.getFullName().equals(messageDescriptor.getFullName())) {
-                return true;
-            }
-        }
-        return false;
+        return GOOGLE_PROTOBUF_EMPTY.equals(messageDescriptor.getFullName());
     }
 
     /** Closes an InputStream, ignoring IOExceptions. */
@@ -269,7 +242,7 @@ public class MessageUtils {
      * @param contentType gRPC content type
      * @return is valid content type
      */
-    public static boolean isGrpcContentType(String contentType) {
+    static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {
             return false;
         }
@@ -306,7 +279,7 @@ public class MessageUtils {
         return httpCarbonMessage;
     }
 
-    public static Status httpStatusToGrpcStatus(int httpStatusCode) {
+    static Status httpStatusToGrpcStatus(int httpStatusCode) {
         return httpStatusToGrpcCode(httpStatusCode).toStatus()
                 .withDescription("HTTP status code " + httpStatusCode);
     }

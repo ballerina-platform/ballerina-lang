@@ -21,6 +21,8 @@
 import { LanguageClient } from "vscode-languageclient";
 import { Uri } from "vscode";
 
+export const BALLERINA_LANG_ID = "ballerina";
+
 export interface BallerinaAST {
     kind: string;
     topLevelNodes: any[];

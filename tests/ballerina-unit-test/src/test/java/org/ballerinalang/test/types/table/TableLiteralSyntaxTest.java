@@ -20,12 +20,17 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
 
 /**
  * Class to test table literal syntax.
@@ -119,22 +124,85 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
+    @Test
+    public void testTableStringPrimaryKey() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableStringPrimaryKey");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test
+    public void testTableWithDifferentDataTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableWithDifferentDataTypes");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 10);
+        Assert.assertEquals(((BDecimal) returns[2]).decimalValue(), new BigDecimal("1000.45"));
+        Assert.assertEquals(returns[3].stringValue(), "<role>Manager</role>");
+        Assert.assertEquals(returns[4].stringValue(), "{\"city\":\"London\", \"country\":\"UK\"}");
+    }
+
+    @Test
+    public void testArrayData() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayData");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        //Int Array
+        BValueArray retIntArrValue = (BValueArray) returns[1];
+        Assert.assertEquals(retIntArrValue.getInt(0), 1);
+        Assert.assertEquals(retIntArrValue.getInt(1), 2);
+        Assert.assertEquals(retIntArrValue.getInt(2), 3);
+        //String Array
+        BValueArray retStrArrValue = (BValueArray) returns[2];
+        Assert.assertEquals(retStrArrValue.getString(0), "test1");
+        Assert.assertEquals(retStrArrValue.getString(1), "test2");
+        //Float Array
+        BValueArray retFloatArrValue = (BValueArray) returns[3];
+        Assert.assertEquals(retFloatArrValue.getFloat(0), 1.1);
+        Assert.assertEquals(retFloatArrValue.getFloat(1), 2.2);
+        //Boolean Array
+        BValueArray retBoolArrValue = (BValueArray) returns[4];
+        Assert.assertEquals(retBoolArrValue.getBoolean(0), 1);
+        Assert.assertEquals(retBoolArrValue.getBoolean(1), 0);
+        //Byte Array
+        String b64 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
+        byte[] byteArrExpected = ByteArrayUtils.decodeBase64(b64);
+        BValueArray byteArrReturned = (BValueArray) returns[5];
+        ByteArrayUtils.assertJBytesWithBBytes(byteArrExpected, byteArrReturned);
+        //Decimal Array
+        BValueArray retDecimalArrValue = (BValueArray) returns[6];
+        Assert.assertEquals(retDecimalArrValue.getRefValue(0).value(), new BigDecimal("11.11"));
+        Assert.assertEquals(retDecimalArrValue.getRefValue(1).value(), new BigDecimal("22.22"));
+    }
+
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 18);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 40, 11);
-        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 46, 24);
+        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 47, 42);
         BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 48, 10);
         BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in record 'Person'", 49, 9);
         BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in record 'Person'", 50, 9);
         BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 64, 10);
         BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 64, 13);
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 76, 5);
-        //BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 88, 16);
         BAssertUtil.validateError(resultNegative, 8, "unknown type 'Student'", 88, 11);
         BAssertUtil.validateError(resultNegative, 9,
-              "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
-              101, 25);
+            "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+                101, 25);
+        BAssertUtil.validateError(resultNegative, 10,
+                "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' column", 123, 11);
+        BAssertUtil.validateError(resultNegative, 11,
+                "column 'name' of type 'json' is not allowed as key, use an 'int' or 'string' column", 129, 11);
+        BAssertUtil.validateError(resultNegative, 12,
+                "field 'salary' of type 'float|int' is not allowed as a table column", 162, 28);
+        BAssertUtil.validateError(resultNegative, 13,
+                "field 'bar' of type 'Bar' is not allowed as a table column", 171, 31);
+        BAssertUtil.validateError(resultNegative, 14,
+                "field 'foo' of type 'Foo' is not allowed as a table column", 180, 31);
+        BAssertUtil.validateError(resultNegative, 15,
+                "field 'bar' of type 'error' is not allowed as a table column", 188, 31);
+        BAssertUtil.validateError(resultNegative, 16,
+                "field 'xArr' of type 'xml[]' is not allowed as a table column", 204, 29);
+        BAssertUtil.validateError(resultNegative, 17,
+                "field 'eArr' of type 'error?[]' is not allowed as a table column", 204, 29);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")

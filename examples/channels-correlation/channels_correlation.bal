@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-// Defines a channel with json constrained type.
+// Defines a `channel` with `json` constraint type.
 channel<json> jsonChannel = new;
 
 service channelService on new http:Listener(9090) {

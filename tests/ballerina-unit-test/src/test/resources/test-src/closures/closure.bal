@@ -324,7 +324,7 @@ type Person object {
 
 };
 
-function Person.externalAttachedFP() returns (function (float) returns (string)) {
+public function Person.externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
      var foo = function (float w) returns (string) {
         string d = w + "T" + b + self.year + self.name + self.age;
@@ -523,7 +523,7 @@ function testByteAndBoolean() returns (function (int, byte) returns
     return function (int a, byte b) returns (function (byte, int, boolean) returns byte[][]) {
         boolean boo2 = false;
         return function (byte c, int f, boolean booF) returns (byte[][]) {
-            var value = <byte> f;
+            var value = trap <byte> f;
             if (value is byte) {
                 byte i = value;
                 byte[][] bArr = [];

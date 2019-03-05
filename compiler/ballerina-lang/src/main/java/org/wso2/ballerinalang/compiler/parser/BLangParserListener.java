@@ -302,17 +302,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean privateFunc = ctx.PRIVATE() != null;
 
         if (ctx.Identifier() != null) {
             this.pkgBuilder
-                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+                    .endObjectOuterFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, privateFunc, remoteFunc,
+                            nativeFunc,
                             bodyExists, ctx.Identifier().getText());
             return;
         }
 
         boolean isReceiverAttached = ctx.typeName() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc,
+        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
                 bodyExists, isReceiverAttached, false);
     }
 
@@ -770,9 +772,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos pos = getCurrentPos(ctx);
         checkTypeValidity(typeName, pos);
 
-        if (ctx.nameReference() != null) {
-            this.pkgBuilder.addConstraintType(pos, getWS(ctx), typeName);
-        } else if (ctx.typeName() != null) {
+        if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(pos, getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
@@ -901,6 +901,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addRecordBindingWS(getWS(ctx));
+    }
+
+    @Override
     public void enterEntryRefBindingPattern(BallerinaParser.EntryRefBindingPatternContext ctx) {
         if (isInErrorState) {
             return;
@@ -987,7 +996,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-            this.pkgBuilder.addErrorVariableDefStatment(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
+            this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
@@ -1393,6 +1402,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     ctx.bindingPattern().Identifier().getText(), isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addForeachStatementWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar);
+        }  else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.addForeachStatementWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar);
         } else {
             this.pkgBuilder.addForeachStatementWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
@@ -2346,8 +2358,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
-        } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
+        } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "null");
+        } else if (ctx.emptyTupleLiteral() != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "()");
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
         } else if ((node = ctx.SymbolicStringLiteral()) != null) {
@@ -2779,42 +2793,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetClauseNode();
-    }
-
-    @Override
-    public void exitSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetClauseNode(getWS(ctx), ctx.getChildCount() / 2);
     }
 
     @Override
@@ -3346,11 +3324,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
                     DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
-        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
-            String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
-            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 2,
-                    DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
     }

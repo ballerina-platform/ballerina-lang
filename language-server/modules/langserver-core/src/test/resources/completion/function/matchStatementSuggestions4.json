@@ -9,7 +9,9 @@
       "label":"extractBasicAuthHeaderValue(req)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Extracts the basic authentication header value from the request.\n",
+      "documentation":{
+        "left":"Extracts the basic authentication header value from the request.\n"
+      },
       "sortText":"120",
       "insertText":"extractBasicAuthHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -18,7 +20,9 @@
       "label":"createHttpCachingClient(url,config,cacheConfig)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Creates an HTTP client capable of caching HTTP responses.\n",
+      "documentation":{
+        "left":"Creates an HTTP client capable of caching HTTP responses.\n"
+      },
       "sortText":"120",
       "insertText":"createHttpCachingClient(url,config,cacheConfig) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -27,7 +31,9 @@
       "label":"parseHeader(headerValue)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Parses the given header value to extract its value and parameter map.\n",
+      "documentation":{
+        "left":"Parses the given header value to extract its value and parameter map.\n"
+      },
       "sortText":"120",
       "insertText":"parseHeader(headerValue) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -36,7 +42,9 @@
       "label":"invokeEndpoint(path,outRequest,requestAction,httpClient)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP actions provider.",
+      "documentation":{
+        "left":"The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider."
+      },
       "sortText":"120",
       "insertText":"invokeEndpoint(path,outRequest,requestAction,httpClient) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -45,7 +53,9 @@
       "label":"createHttpSecureClient(url,config)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Creates an HTTP client capable of securing HTTP requests with authentication.\n",
+      "documentation":{
+        "left":"Creates an HTTP client capable of securing HTTP requests with authentication.\n"
+      },
       "sortText":"120",
       "insertText":"createHttpSecureClient(url,config) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -54,7 +64,9 @@
       "label":"encode(url,charset)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Encodes the given URL.\n",
+      "documentation":{
+        "left":"Encodes the given URL.\n"
+      },
       "sortText":"120",
       "insertText":"encode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"
@@ -63,7 +75,9 @@
       "label":"decode(url,charset)",
       "kind":"Function",
       "detail":"Snippet",
-      "documentation":"Decodes the given URL.\n",
+      "documentation":{
+        "left":"Decodes the given URL.\n"
+      },
       "sortText":"120",
       "insertText":"decode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
       "insertTextFormat":"Snippet"

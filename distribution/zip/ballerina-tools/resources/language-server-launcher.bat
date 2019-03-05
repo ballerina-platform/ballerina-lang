@@ -55,7 +55,7 @@ if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
 goto updateClasspath
 
 :noJavaHome
-echo "You must set the JAVA_HOME variable before running Ballerina."
+echo "You must set the JAVA_HOME variable before running Ballerina." 1>&2
 goto end
 
 rem ----- update classpath -----------------------------------------------------
@@ -86,12 +86,12 @@ goto commandDebug
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%DEBUG_PORT%"=="" goto noDebugPort
-if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option.
+if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option. 1>&2
 set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%,quiet=y
 goto runServer
 
 :noDebugPort
-echo Please specify the debug port.
+echo Please specify the debug port. 1>&2
 goto end
 
 rem find the version of the jdk
@@ -106,7 +106,7 @@ if %JVER% EQU 18 goto jdk8
 goto unknownJdk
 
 :unknownJdk
-echo Ballerina is supported only on JDK 1.8
+echo Ballerina is supported only on JDK 1.8 1>&2
 goto end
 
 :jdk8

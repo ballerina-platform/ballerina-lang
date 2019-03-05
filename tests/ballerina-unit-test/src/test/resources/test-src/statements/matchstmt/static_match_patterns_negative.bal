@@ -82,7 +82,7 @@ function simpleTypes() returns string {
 
 type Rec1 record {
     int | float a;
-    !...
+    !...;
 };
 
 type Rec2 record {
@@ -99,7 +99,7 @@ type Rec4 record {
 
 type Rec5 record {
     int | float | boolean a;
-    !...
+    !...;
 };
 
 
@@ -212,7 +212,7 @@ function tupleTypes() returns string {
 type Foo record {
     int x;
     boolean y?;
-    string...
+    string...;
 };
 
 function recordRestParamAndOptionalFields() returns string {

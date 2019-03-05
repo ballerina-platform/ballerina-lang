@@ -19,7 +19,7 @@ type Student record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Employee record {
@@ -221,4 +221,12 @@ function stampBasicMapArrayToAnydataMapArray() returns map<anydata>[] {
     map<anydata>[] anydataMap = map<anydata>[].stamp(intMap);
 
     return anydataMap;
+}
+
+function stampRecordArrayToJsonArray() returns json[]|error {
+    Employee e1 = { name: "Waruna", status: "single", batch: "LK2018", age:10 };
+    Employee e2 = { name: "Heshitha", status: "single", batch: "LK2019", age:15 };
+    Employee[] employeeArray = [e1, e2];
+    json[] jsonArray = check json[].stamp(employeeArray);
+    return jsonArray;
 }

@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function testFloatArrayLength(float[] arg) returns (int, int){
     float[] defined;
     defined = [10.1, 11.1];
@@ -38,4 +40,9 @@ function testJSONArrayLength() returns (int, int){
     defined = [v1, v2];
     defined[2] = { "test" : "3"};
     return (arg.length() , defined.length());
+}
+
+function testArrayWithNilElement() returns string {
+    string?[] ar = ["abc", "d", (), "s"];
+    return io:sprintf("%s", ar);
 }

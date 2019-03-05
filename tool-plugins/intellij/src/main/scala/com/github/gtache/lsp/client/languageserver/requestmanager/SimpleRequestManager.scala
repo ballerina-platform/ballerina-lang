@@ -37,6 +37,8 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
 
   override def publishDiagnostics(publishDiagnosticsParams: PublishDiagnosticsParams): Unit = client.publishDiagnostics(publishDiagnosticsParams)
 
+  override def semanticHighlighting(params: SemanticHighlightingParams): Unit = client.semanticHighlighting(params)
+
   //General
   override def initialize(params: InitializeParams): CompletableFuture[InitializeResult] = {
     if (checkStatus) try {
@@ -171,13 +173,6 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
         null
     } else null
 
-  private def checkStatus: Boolean = wrapper.getStatus == ServerStatus.STARTED
-
-  private def crashed(e: Exception): Unit = {
-    LOG.warn(e)
-    wrapper.crashed(e)
-  }
-
   override def signatureHelp(params: TextDocumentPositionParams): CompletableFuture[SignatureHelp] =
     if (checkStatus) try {
       if (serverCapabilities.getSignatureHelpProvider != null) textDocumentService.signatureHelp(params) else null
@@ -202,7 +197,7 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
         null
     } else null
 
-  override def documentSymbol(params: DocumentSymbolParams): CompletableFuture[java.util.List[_ <: SymbolInformation]] =
+  override def documentSymbol(params: DocumentSymbolParams): CompletableFuture[java.util.List[jsonrpc.messages.Either[SymbolInformation, DocumentSymbol]]] =
     if (checkStatus) try {
       if (serverCapabilities.getDocumentSymbolProvider) textDocumentService.documentSymbol(params) else null
     } catch {
@@ -242,13 +237,17 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
         null
     } else null
 
-  override def codeAction(params: CodeActionParams): CompletableFuture[java.util.List[_ <: Command]] =
+  override def codeAction(params: CodeActionParams): CompletableFuture[java.util.List[jsonrpc.messages.Either[Command, CodeAction]]] =
     if (checkStatus) try {
-      if (serverCapabilities.getCodeActionProvider) textDocumentService.codeAction(params) else null
+      if (checkProvider(serverCapabilities.getCodeActionProvider.asInstanceOf[jsonrpc.messages.Either[Boolean, StaticRegistrationOptions]])) textDocumentService.codeAction(params) else null
     } catch {
       case e: Exception => crashed(e)
         null
     } else null
+
+  private def checkProvider(provider: jsonrpc.messages.Either[Boolean, StaticRegistrationOptions]): Boolean = {
+    provider != null && ((provider.isLeft && provider.getLeft) || (provider.isRight && provider.getRight != null))
+  }
 
   override def codeLens(params: CodeLensParams): CompletableFuture[java.util.List[_ <: CodeLens]] =
     if (checkStatus) try {
@@ -274,9 +273,17 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
         null
     } else null
 
+  private def checkStatus: Boolean = wrapper.getStatus == ServerStatus.STARTED
+
+  private def crashed(e: Exception): Unit = {
+    LOG.warn(e)
+    wrapper.crashed(e)
+  }
+
   override def documentLinkResolve(unresolved: DocumentLink): CompletableFuture[DocumentLink] =
     if (checkStatus) try {
-      if (serverCapabilities.getDocumentLinkProvider != null && serverCapabilities.getDocumentLinkProvider.getResolveProvider) textDocumentService.documentLinkResolve(unresolved) else null
+      if (serverCapabilities.getDocumentLinkProvider != null && serverCapabilities.getDocumentLinkProvider.getResolveProvider)
+        textDocumentService.documentLinkResolve(unresolved) else null
     } catch {
       case e: Exception => crashed(e)
         null
@@ -284,7 +291,7 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
 
   override def rename(params: RenameParams): CompletableFuture[WorkspaceEdit] =
     if (checkStatus) try {
-      if (serverCapabilities.getRenameProvider) textDocumentService.rename(params) else null
+      if (checkProvider(serverCapabilities.getRenameProvider.asInstanceOf[jsonrpc.messages.Either[Boolean, StaticRegistrationOptions]])) textDocumentService.rename(params) else null
     } catch {
       case e: Exception => crashed(e)
         null
@@ -297,4 +304,6 @@ class SimpleRequestManager(wrapper: LanguageServerWrapper, server: LanguageServe
   override def documentColor(params: DocumentColorParams): CompletableFuture[util.List[ColorInformation]] = throw new NotImplementedError()
 
   override def colorPresentation(params: ColorPresentationParams): CompletableFuture[util.List[ColorPresentation]] = throw new NotImplementedError()
+
+  override def foldingRange(params: FoldingRangeRequestParams): CompletableFuture[util.List[FoldingRange]] = throw new NotImplementedError()
 }

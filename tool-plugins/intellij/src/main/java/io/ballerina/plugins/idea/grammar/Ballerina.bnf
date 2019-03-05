@@ -105,7 +105,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation|UnderscoreVariable)Reference") = VariableReference
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation|StringFunctionInvocation)Reference") = VariableReference
 
     extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Wait|WorkerSendAsync|WorkerReceive|FlushWorker|TableQuery|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|ServiceConstructor|BinaryRefEqual|Trap)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
@@ -188,7 +188,7 @@ Definition ::= ( TypeDefinition
                | ConstantDefinition )
 {recoverWhile=TopLevelDefinitionRecover}
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
 ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
 ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
@@ -202,7 +202,7 @@ WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
 Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+FunctionDefinition ::= (public|private)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
     pin=4 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
 private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
@@ -236,7 +236,7 @@ ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | 
 
 FieldDefinition ::= AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
 
-RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | SealedLiteral
+RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS SEMICOLON | SealedLiteral SEMICOLON
 
 SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
 
@@ -253,10 +253,12 @@ private constWithoutType ::= PUBLIC? CONST identifier ASSIGN Expression SEMICOLO
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
 GlobalVariableDefinition ::= finalVariableDefinition
+                            | globalVarDefinition
                             | nonFinalVariableDefinition
                             | channelDefinition
 
 private finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON {pin=2}
+private globalVarDefinition ::= public? var identifier ASSIGN Expression SEMICOLON {pin=2}
 private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
 private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
 channelType ::= channel (LT TypeName GT) {pin=1}
@@ -341,7 +343,7 @@ BuiltInReferenceTypeName ::= MapTypeName
 MapTypeName ::= map (LT TypeName GT) {pin=1}
 FutureTypeName ::= future (LT TypeName GT) {pin=1}
 XmlTypeName ::= xml (LT (LEFT_BRACE XmlNamespaceName RIGHT_BRACE)? XmlLocalName GT)? {pin=1}
-JsonTypeName ::= json (LT NameReference GT)? {pin=1}
+JsonTypeName ::= json
 TableTypeName ::= table (LT TypeName GT) {pin=1}
 ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName GT) {pin=1}
@@ -390,7 +392,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -557,6 +559,7 @@ WaitKeyValue ::= identifier COLON Expression | identifier
 // Note - Order of 'simpleVariableReference' and 'functionInvocationReference' because otherwise all function
 // invocations will match simpleVariableReference first.
 VariableReference ::= MapArrayVariableReference
+                      | StringFunctionInvocationReference
                       | InvocationReference
                       | FieldVariableReference
                       | XmlAttribVariableReference
@@ -573,6 +576,7 @@ XmlAttribVariableReference ::= VariableReference XmlAttrib
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
 TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
+StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
@@ -697,7 +701,7 @@ StringTemplateLiteralExpression ::= StringTemplateLiteral
 VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
-UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | lengthof | untaint) Expression {pin=1}
+UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | untaint) Expression {pin=1}
 BracedOrTupleExpression ::= TupleLiteral
 BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
 BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
@@ -784,7 +788,7 @@ SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | NULL_LITERAL
 
 // §3.10.1 Integer Literals
-IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
+IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL
 
 FloatingPointLiteral ::= DECIMAL_FLOATING_POINT_NUMBER | HEXADECIMAL_FLOATING_POINT_LITERAL
 

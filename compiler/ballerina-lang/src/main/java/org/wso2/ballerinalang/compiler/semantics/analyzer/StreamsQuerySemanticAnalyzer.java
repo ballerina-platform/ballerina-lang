@@ -81,7 +81,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -124,6 +126,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private boolean isSiddhiRuntimeEnabled;
+    private List<BField> outputStreamFieldList;
 
     private StreamsQuerySemanticAnalyzer(CompilerContext context) {
         context.put(SYMBOL_ANALYZER_KEY, this);
@@ -197,7 +200,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        defineSelectorAttributes(this.env, streamingQueryStatement);
+        //Keep output stream fields to be later declared in the env
+        retainOutputStreamFields(streamingQueryStatement.getStreamingAction());
 
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
@@ -345,6 +349,11 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         if (!isSiddhiRuntimeEnabled) {
+
+            if (invocationExpr.expr != null) {
+                invocationExpr.expr.accept(this);
+            }
+
             BSymbol aggregatorTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env,
                     Names.STREAMS_MODULE, names.fromString(AGGREGATOR_OBJECT_NAME), SymTag.OBJECT);
             BSymbol windowTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, Names.STREAMS_MODULE,
@@ -356,6 +365,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (!checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol, Names.STREAMS_MODULE)) {
+                invocationExpr.argExprs.forEach(argExpr -> argExpr.accept(this));
                 typeChecker.checkExpr(invocationExpr, env);
             }
         }
@@ -466,9 +476,25 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         if (!isSiddhiRuntimeEnabled) {
+            bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
             typeChecker.checkExpr(bracedOrTupleExpr, env);
         }
 
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr typeConversionExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeConversionExpr.expr.accept(this);
+            typeChecker.checkExpr(typeConversionExpr, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTypedescExpr typedescExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(typedescExpr, env);
+        }
     }
 
     @Override
@@ -478,16 +504,19 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             ((BLangGroupBy) groupByNode).accept(this);
         }
 
-        HavingNode havingNode = selectClause.getHaving();
-        if (havingNode != null) {
-            ((BLangHaving) havingNode).accept(this);
-        }
-
         List<? extends SelectExpressionNode> selectExpressionsList = selectClause.getSelectExpressions();
         if (selectExpressionsList != null) {
             for (SelectExpressionNode selectExpressionNode : selectExpressionsList) {
                 ((BLangSelectExpression) selectExpressionNode).accept(this);
             }
+        }
+
+        //Having requires output stream fields to be available in the env.
+        defineOutputStreamFields(this.env);
+
+        HavingNode havingNode = selectClause.getHaving();
+        if (havingNode != null) {
+            ((BLangHaving) havingNode).accept(this);
         }
     }
 
@@ -633,6 +662,13 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 BType variableType = resolveSelectFieldType(expressionNode);
                 selectClauseAttributeMap.put(variableName, variableType);
             }
+        } else {
+            List<BField> inputStructFieldList = ((BRecordType) ((BStreamType) ((BLangSimpleVarRef) (
+                    ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput())
+                    .getStreamReference()).type).constraint).fields;
+            for (BField field : inputStructFieldList) {
+                selectClauseAttributeMap.put(field.name.value, field.type);
+            }
         }
 
         BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
@@ -726,7 +762,11 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                     for (int i = 0; i < selectExpressions.size(); i++) {
                         SelectExpressionNode expressionNode = selectExpressions.get(i);
                         BField structField = null;
-                        if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                        if ((isSiddhiRuntimeEnabled && expressionNode.getExpression().getKind() ==
+                                                       NodeKind.FIELD_BASED_ACCESS_EXPR) ||
+                            (expressionNode.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                            ((BLangFieldBasedAccess) expressionNode.getExpression()).expr.type.tag ==
+                                    TypeTags.STREAM)) {
                             String attributeName =
                                     ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
                             String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
@@ -850,35 +890,45 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
-        if (node.getStreamingAction() == null) {
+    private void retainOutputStreamFields(StreamActionNode streamAction) {
+        if (streamAction == null) {
             return;
         }
-        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
+        BType streamActionArgumentType = ((BLangLambdaFunction) streamAction
                 .getInvokableBody()).function.requiredParams.get(0).type;
         if (streamActionArgumentType.tag != TypeTags.ARRAY) {
             return;
         }
         BType structType = (((BArrayType) streamActionArgumentType).eType);
         if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
-            for (BField field : outputStreamFieldList) {
+            this.outputStreamFieldList = ((BStructureType) structType).fields;
+        }
+    }
+
+    private void defineOutputStreamFields(SymbolEnv stmtEnv) {
+        if (this.outputStreamFieldList != null) {
+            for (BField field : this.outputStreamFieldList) {
                 stmtEnv.scope.define(field.name, field.symbol);
             }
         }
     }
-
 
     private boolean checkInvocationExpr(BLangInvocation invocationExpr, BSymbol aggregatorTypeSymbol,
                                         BSymbol windowTypeSymbol, Name name) {
         BSymbol symbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, name,
                 names.fromIdNode(invocationExpr.name), SymTag.INVOKABLE);
         if (symbol != symTable.notFoundSymbol) {
+            invocationExpr.symbol = symbol;
             BSymbol typeSymbol = symbol.type.getReturnType().tsymbol;
             if (typeSymbol == aggregatorTypeSymbol || typeSymbol == windowTypeSymbol) {
+                invocationExpr.typeChecked = true;
                 invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+                invocationExpr.requiredArgs = invocationExpr.argExprs;
                 return true;
             }
+
+            invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+            invocationExpr.requiredArgs = invocationExpr.argExprs;
             typeChecker.checkExpr(invocationExpr, env);
             return true;
         }

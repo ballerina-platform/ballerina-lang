@@ -17,7 +17,6 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -112,7 +111,7 @@ public class MessageDeframer implements Closeable {
             if (!isClosedOrScheduledToClose()) {
                 unprocessed.addBuffer(data.content());
                 needToCloseData = false;
-                ThreadPoolFactory.getInstance().getWorkerExecutor().execute(this::deliver);
+                deliver();
             }
         } finally {
             if (needToCloseData && data.refCnt() != 0) {
@@ -168,9 +167,7 @@ public class MessageDeframer implements Closeable {
     }
 
     private boolean isStalled() {
-        synchronized (this) {
-            return unprocessed == null || unprocessed.readableBytes() == 0;
-        }
+        return unprocessed == null || unprocessed.readableBytes() == 0;
     }
 
     /**
@@ -180,32 +177,27 @@ public class MessageDeframer implements Closeable {
         if (inDelivery) {
             return;
         }
-        synchronized (this) {
-            if (isClosed()) {
-                return;
-            }
-            inDelivery = true;
-            try {
-                // Process the uncompressed bytes.
-                while (readRequiredBytes()) {
-                    switch (state) {
-                        case HEADER:
-                            processHeader();
-                            break;
-                        case BODY:
-                            // Read the body and deliver the message.
-                            processBody();
-                            break;
-                        default:
-                            throw new IllegalStateException("Invalid state: " + state);
-                    }
+        inDelivery = true;
+        try {
+            // Process the uncompressed bytes.
+            while (readRequiredBytes()) {
+                switch (state) {
+                    case HEADER:
+                        processHeader();
+                        break;
+                    case BODY:
+                        // Read the body and deliver the message.
+                        processBody();
+                        break;
+                    default:
+                        throw new IllegalStateException("Invalid state: " + state);
                 }
-                if (closeWhenComplete && isStalled()) {
-                    close();
-                }
-            } finally {
-                inDelivery = false;
             }
+            if (closeWhenComplete && isStalled()) {
+                close();
+            }
+        } finally {
+            inDelivery = false;
         }
     }
 

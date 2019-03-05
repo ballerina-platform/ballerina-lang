@@ -50,7 +50,7 @@ public function main() {
     boolean isNotRefEqual = e4 !== e5;
     io:println("e4 !== e5 is ", isNotRefEqual);
 
-    // `===` for non-reference types is the same as `==`
+    // `===` for non-reference types is the same as `==`.
     float f1 = 1.1;
     float f2 = 1.1;
     isRefEqual = f1 === f2;

@@ -138,3 +138,6 @@
 
 @light-diagram-menu-item-hover-background-color: #d7d7d7;
 @light-diagram-menu-item-hover-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-top-menu-background-color: #fff;
+@dark-diagram-top-menu-background-color: #000;

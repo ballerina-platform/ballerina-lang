@@ -59,4 +59,10 @@ public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeEl
     return findChildByType(ELLIPSIS);
   }
 
+  @Override
+  @NotNull
+  public PsiElement getSemicolon() {
+    return notNullChild(findChildByType(SEMICOLON));
+  }
+
 }

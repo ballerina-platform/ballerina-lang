@@ -75,6 +75,60 @@ object FileUtils {
   }
 
   /**
+    * Returns the URI string corresponding to a VirtualFileSystem file
+    *
+    * @param file The file
+    * @return the URI
+    */
+  def VFSToURI(file: VirtualFile): String = {
+    try {
+      val uri = sanitizeURI(new URL(file.getUrl.replace(" ", SPACE_ENCODED)).toURI.toString)
+      uri
+    } catch {
+      case e: Exception =>
+        LOG.warn(e)
+        null
+    }
+  }
+
+  /**
+    * Fixes common problems in uri, mainly related to Windows
+    *
+    * @param uri The uri to sanitize
+    * @return The sanitized uri
+    */
+  def sanitizeURI(uri: String): String = {
+    if (uri != null) {
+      val reconstructed: StringBuilder = StringBuilder.newBuilder
+      var uriCp = new String(uri).replace(" ", SPACE_ENCODED) //Don't trust servers
+      if (!uri.startsWith(URI_FILE_BEGIN)) {
+        LOG.warn("Malformed uri : " + uri)
+        uri //Probably not an uri
+      } else {
+        uriCp = uriCp.drop(URI_FILE_BEGIN.length).dropWhile(c => c == URI_PATH_SEP)
+        reconstructed.append(URI_VALID_FILE_BEGIN)
+        if (os == OS.UNIX) {
+          reconstructed.append(uriCp).toString()
+        } else {
+          reconstructed.append(uriCp.takeWhile(c => c != URI_PATH_SEP))
+          val driveLetter = reconstructed.charAt(URI_VALID_FILE_BEGIN.length)
+          if (driveLetter.isLower) {
+            reconstructed.setCharAt(URI_VALID_FILE_BEGIN.length, driveLetter.toUpper)
+          }
+          if (reconstructed.endsWith(COLON_ENCODED)) {
+            reconstructed.delete(reconstructed.length - 3, reconstructed.length)
+          }
+          if (!reconstructed.endsWith(":")) {
+            reconstructed.append(":")
+          }
+          reconstructed.append(uriCp.dropWhile(c => c != URI_PATH_SEP)).toString()
+        }
+
+      }
+    } else null
+  }
+
+  /**
     * Transforms an URI string into a VFS file
     *
     * @param uri The uri
@@ -109,60 +163,12 @@ object FileUtils {
     sanitizeURI(new File(path.replace(" ", SPACE_ENCODED)).toURI.toString)
   }
 
+  def projectToUri(project: Project): String = {
+    pathToUri(new File(project.getBasePath).getAbsolutePath)
+  }
+
   def documentToUri(document: Document): String = {
     sanitizeURI(VFSToURI(FileDocumentManager.getInstance().getFile(document)))
-  }
-
-  /**
-    * Returns the URI string corresponding to a VirtualFileSystem file
-    *
-    * @param file The file
-    * @return the URI
-    */
-  def VFSToURI(file: VirtualFile): String = {
-    try {
-      val uri = sanitizeURI(new URL(file.getUrl.replace(" ", SPACE_ENCODED)).toURI.toString)
-      uri
-    } catch {
-      case e: Exception =>
-        LOG.warn(e)
-        null
-    }
-  }
-
-  /**
-    * Fixes common problems in uri, mainly related to Windows
-    *
-    * @param uri The uri to sanitize
-    * @return The sanitized uri
-    */
-  def sanitizeURI(uri: String): String = {
-    val reconstructed: StringBuilder = StringBuilder.newBuilder
-    var uriCp = new String(uri).replace(" ", SPACE_ENCODED) //Don't trust servers
-    if (!uri.startsWith(URI_FILE_BEGIN)) {
-      LOG.warn("Malformed uri : " + uri)
-      uri //Probably not an uri
-    } else {
-      uriCp = uriCp.drop(URI_FILE_BEGIN.length).dropWhile(c => c == URI_PATH_SEP)
-      reconstructed.append(URI_VALID_FILE_BEGIN)
-      if (os == OS.UNIX) {
-        reconstructed.append(uriCp).toString()
-      } else {
-        reconstructed.append(uriCp.takeWhile(c => c != URI_PATH_SEP))
-        val driveLetter = reconstructed.charAt(URI_VALID_FILE_BEGIN.length)
-        if (driveLetter.isLower) {
-          reconstructed.setCharAt(URI_VALID_FILE_BEGIN.length, driveLetter.toUpper)
-        }
-        if (reconstructed.endsWith(COLON_ENCODED)) {
-          reconstructed.dropRight(3)
-        }
-        if (!reconstructed.endsWith(":")) {
-          reconstructed.append(":")
-        }
-        reconstructed.append(uriCp.dropWhile(c => c != URI_PATH_SEP)).toString()
-      }
-
-    }
   }
 
   /**

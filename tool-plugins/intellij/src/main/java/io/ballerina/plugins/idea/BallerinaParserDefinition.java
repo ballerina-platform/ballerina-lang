@@ -98,7 +98,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LAST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LENGTHOF;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LIMIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LINE_COMMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
@@ -183,7 +182,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = TokenSet
             .create(ABORT, ABORTED, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, BOOLEAN, BREAK, BYTE, CATCH, CHANNEL,
                     CHECK, CLIENT, COMMITTED, CONST, CONTINUE, DEPRECATED, DECIMAL, ELSE, ERROR, EXTERN, FAIL, FINAL,
-                    FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF,
+                    FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON,
                     LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD,
                     REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, START, STREAM, STRING, TABLE,
                     TRANSACTION, TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WAIT, WHILE, WITH, WORKER, VAR, VERSION,

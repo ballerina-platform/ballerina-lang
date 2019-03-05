@@ -437,9 +437,11 @@ public final class BXMLSequence extends BXML<BValueArray> {
     }
 
     /**
-     * {@inheritDoc}
+     * Get the length of this XML sequence.
+     *
+     * @return length of this XML sequence.
      */
-    public int length() {
+    public long size() {
         return this.sequence.size;
     }
 

@@ -228,16 +228,6 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitEscapeSeqChar(TomlParser.EscapeSeqCharContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#mlBasicString}.
-	 * @param ctx the parse tree
-	 */
-	void enterMlBasicString(TomlParser.MlBasicStringContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TomlParser#mlBasicString}.
-	 * @param ctx the parse tree
-	 */
-	void exitMlBasicString(TomlParser.MlBasicStringContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link TomlParser#mlBasicStringDelim}.
 	 * @param ctx the parse tree
 	 */
@@ -258,15 +248,15 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitMlBasicBody(TomlParser.MlBasicBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#mlBasicChar}.
+	 * Enter a parse tree produced by {@link TomlParser#mlBasicString}.
 	 * @param ctx the parse tree
 	 */
-	void enterMlBasicChar(TomlParser.MlBasicCharContext ctx);
+	void enterMlBasicString(TomlParser.MlBasicStringContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TomlParser#mlBasicChar}.
+	 * Exit a parse tree produced by {@link TomlParser#mlBasicString}.
 	 * @param ctx the parse tree
 	 */
-	void exitMlBasicChar(TomlParser.MlBasicCharContext ctx);
+	void exitMlBasicString(TomlParser.MlBasicStringContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TomlParser#literalString}.
 	 * @param ctx the parse tree

@@ -2568,26 +2568,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStreamingAction(BallerinaParser.StreamingActionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#setClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterSetClause(BallerinaParser.SetClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#setClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitSetClause(BallerinaParser.SetClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#setAssignmentClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#setAssignmentClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#streamingInput}.
 	 * @param ctx the parse tree
 	 */

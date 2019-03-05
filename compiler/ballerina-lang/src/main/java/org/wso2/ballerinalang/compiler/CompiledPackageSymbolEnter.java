@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -48,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -334,6 +334,10 @@ public class CompiledPackageSymbolEnter {
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
                 this.env.repoHierarchy);
+
+        if (importPackageSymbol == null) {
+            throw new BLangCompilerException("missing symbol in " + this.env.pkgSymbol + " for import " + importPkgID);
+        }
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -542,52 +546,45 @@ public class CompiledPackageSymbolEnter {
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) this.env.constantPool[typeDescCPIndex];
         String typeDesc = typeDescCPEntry.getValue();
 
-        BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        BLangLiteral litExpr = createLiteralBasedOnDescriptor(typeDesc);
 
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
                 litExpr.value = dataInStream.readBoolean();
-                litExpr.typeTag = TypeTags.BOOLEAN;
                 break;
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = integerCPEntry.getValue();
-                litExpr.typeTag = TypeTags.INT;
                 break;
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = byteCPEntry.getValue();
-                litExpr.typeTag = TypeTags.BYTE;
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = Double.toString(floatCPEntry.getValue());
-                litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = decimalEntry.getValue();
-                litExpr.typeTag = TypeTags.DECIMAL;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = stringCPEntry.getValue();
-                litExpr.typeTag = TypeTags.STRING;
                 break;
             case TypeDescriptor.SIG_NULL:
-                litExpr.typeTag = TypeTags.NIL;
                 break;
             default:
                 throw new BLangCompilerException("unknown default value type " + typeDesc);
         }
 
-        litExpr.type = symTable.getTypeFromTag(litExpr.typeTag);
+        litExpr.type = getBTypeFromDescriptor(typeDesc);
 
         finiteType.valueSpace.add(litExpr);
     }
@@ -657,58 +654,55 @@ public class CompiledPackageSymbolEnter {
         BLangLiteral constantValue = getConstantValue(attrDataMap);
         constantSymbol.literalValue = constantValue.value;
         constantSymbol.literalValueType = constantValue.type;
-        constantSymbol.literalValueTypeTag = constantValue.typeTag;
+        constantSymbol.literalValueTypeTag = constantValue.type.tag;
     }
 
     private BLangLiteral getConstantValue(Map<Kind, byte[]> attrDataMap) throws IOException {
         // Constants must have a value attribute.
         byte[] documentationBytes = attrDataMap.get(Kind.DEFAULT_VALUE_ATTRIBUTE);
         DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
-        // Create a new literal.
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         // Read the value from the stream. We need to set `value`, `valueTag` and `type` of the literal.
         String typeDesc = getUTF8CPEntryValue(documentDataStream);
+        // Create a new literal.
+        BLangLiteral literal = createLiteralBasedOnDescriptor(typeDesc);
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
                 literal.value = documentDataStream.readBoolean();
-                literal.typeTag = TypeTags.BOOLEAN;
                 break;
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = documentDataStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = integerCPEntry.getValue();
-                literal.typeTag = TypeTags.INT;
                 break;
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = documentDataStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = byteCPEntry.getValue();
-                literal.typeTag = TypeTags.BYTE;
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = documentDataStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = floatCPEntry.getValue();
-                literal.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = decimalEntry.getValue();
-                literal.typeTag = TypeTags.DECIMAL;
                 break;
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = documentDataStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = stringCPEntry.getValue();
-                literal.typeTag = TypeTags.STRING;
+                break;
+            case TypeDescriptor.SIG_NULL:
+                literal.value = null;
                 break;
             default:
                 // Todo - Allow json and xml.
                 throw new RuntimeException("unknown constant value type " + typeDesc);
         }
-        literal.type = symTable.getTypeFromTag(literal.typeTag);
+        literal.type = getBTypeFromDescriptor(typeDesc);
         return literal;
     }
 
@@ -717,6 +711,9 @@ public class CompiledPackageSymbolEnter {
         String typeSig = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
+
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
@@ -946,6 +943,8 @@ public class CompiledPackageSymbolEnter {
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         int attchmntIndexesLength = dataInStream.readShort();
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1085,6 +1084,13 @@ public class CompiledPackageSymbolEnter {
         return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreater(), typeSig);
     }
 
+    private BLangLiteral createLiteralBasedOnDescriptor(String typeSig) {
+        BType type = getBTypeFromDescriptor(typeSig);
+        NodeKind nodeKind = type.tag <= TypeTags.DECIMAL ? NodeKind.NUMERIC_LITERAL : NodeKind.LITERAL;
+        return nodeKind == NodeKind.LITERAL ? (BLangLiteral) TreeBuilder.createLiteralExpression() :
+                (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
+    }
+
     /**
      * This class holds compiled package specific information during the symbol enter phase of the compiled package.
      *
@@ -1176,11 +1182,6 @@ public class CompiledPackageSymbolEnter {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return symTable.jsonType;
-                    }
-                    return new BJSONType(TypeTags.JSON, constraint, symTable.jsonType.tsymbol);
                 case 'D':
                     if (constraint == null) {
                         return symTable.tableType;
@@ -1218,8 +1219,7 @@ public class CompiledPackageSymbolEnter {
                 case 'O':
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    return new BUnionType(unionTypeSymbol, new LinkedHashSet<>(memberTypes),
-                            memberTypes.contains(symTable.nilType));
+                    return BUnionType.create(unionTypeSymbol, new LinkedHashSet<>(memberTypes));
                 case 'P':
                     BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);

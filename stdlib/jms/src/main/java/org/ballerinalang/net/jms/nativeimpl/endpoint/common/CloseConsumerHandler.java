@@ -22,7 +22,7 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -38,9 +38,9 @@ public class CloseConsumerHandler {
 
     public static void handle(Context context) {
         BMap<String, BValue> connectorBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        if (connectorBObject.getNativeData(Constants.JMS_CONSUMER_OBJECT) != null) {
+        if (connectorBObject.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT) != null) {
             MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
-                                                                        Constants.JMS_CONSUMER_OBJECT,
+                                                                        JmsConstants.JMS_CONSUMER_OBJECT,
                                                                         MessageConsumer.class,
                                                                         context);
             try {

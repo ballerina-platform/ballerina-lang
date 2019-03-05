@@ -89,7 +89,7 @@ function cleanupTransactions() returns error? {
                         log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
                                 ". Result: " + result);
                         removeInitiatedTransaction(twopcTxn.transactionId);
-                    } else if (result is error) {
+                    } else {
                         log:printError("Auto-commit of participated transaction: " +
                         twopcTxn.transactionId + " failed", err = result);
                     }
@@ -124,14 +124,15 @@ function protoName(UProtocol p) returns string {
     if (p is LocalProtocol) {
         return p.name;
     } else {
-        return p.name;
+        return <string> p.name;
     }
 }
 
-function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
+function protocolCompatible(string coordinationType, UProtocol?[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
-    foreach var participantProtocol in participantProtocols {
+    foreach var p in participantProtocols {
+        UProtocol participantProtocol = p;
         foreach var validProtocol in validProtocols {
             if (protoName(participantProtocol) == validProtocol) {
                 participantProtocolIsValid = true;
@@ -160,7 +161,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
         } else {
             return;
         }
-    } else if (resPayload is error) {
+    } else {
         panic resPayload;
     }
 }
@@ -225,7 +226,7 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
     if (initiatedTxn is ()) {
         error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
         return err;
-    } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+    } else {
         if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
             error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
             return err;
@@ -249,11 +250,6 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
             log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
             return txnCtx;
         }
-    } else {
-        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
-        // this `else` block should be removed and the above `else if` block should be replaced with an else.
-        error e = error("Unreachable code");
-        panic e;
     }
 }
 
@@ -340,7 +336,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
         //map data = { cause: err };
         error err = error(msg);
         return err;
-    } else if (result is RegistrationResponse) {
+    } else {
         RemoteProtocol[] coordinatorProtocols = result.coordinatorProtocols;
         TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);
         twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
@@ -351,11 +347,6 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
         };
         log:printInfo("Registered with coordinator for transaction: " + transactionId);
         return txnCtx;
-    } else {
-        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
-        // this `else` block should be removed and the above `else if` block should be replaced with an else.
-        error e = error("Unreachable code");
-        panic e;
     }
 }
 
