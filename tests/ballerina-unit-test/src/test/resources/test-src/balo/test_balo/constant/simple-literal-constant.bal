@@ -1,34 +1,199 @@
 import testorg/foo version v1;
 
-type Ballerina "Ballerina";
+// -----------------------------------------------------------
 
-function testAccessConstantWithoutType() returns Ballerina {
-    return foo:constName;
+function testNilWithoutType() returns () {
+    return foo:NilWithoutType;
 }
 
-function testAccessConstantWithoutTypeAsString() returns string {
-    return foo:constName;
+function testNilWithType() returns () {
+    return foo:NilWithType;
 }
 
-type Colombo "Colombo";
+// -----------------------------------------------------------
 
-function testAccessConstantWithType() returns Colombo {
-    return foo:constAddress;
+function testConstWithTypeInReturn() returns string {
+    return foo:nameWithType;
 }
 
-type AB "A"|"B";
+// -----------------------------------------------------------
 
-function testAccessFiniteType() returns foo:AB {
-    return foo:A;
+function testConstWithoutTypeInReturn() returns string {
+    return foo:nameWithType;
 }
 
- function testReturnFiniteType() returns AB {
-     return foo:A; // Valid because this is same as `return "A";`
- }
+// -----------------------------------------------------------
 
-function testAccessTypeWithContInDef() returns foo:CD {
-    foo:CD c = "C";
-    return c;
+function testConstWithTypeAsParam() returns string {
+    return testParam(foo:nameWithType);
+}
+
+function testConstWithoutTypeAsParam() returns string {
+    return testParam(foo:nameWithoutType);
+}
+
+function testParam(string s) returns string {
+    return s;
+}
+
+// -----------------------------------------------------------
+
+type Data record {
+    string firstName;
+};
+
+function testConstInRecord() returns string {
+    Data d = { firstName: "Ballerina" };
+    return d.firstName;
+}
+
+// -----------------------------------------------------------
+
+function testConstWithTypeAssignmentToGlobalVariable() returns string {
+    return foo:sgvWithType;
+}
+
+function testConstWithTypeAssignmentToLocalVariable() returns string {
+    string slv = foo:nameWithType;
+    return slv;
+}
+
+// -----------------------------------------------------------
+
+
+function testConstWithoutTypeAssignmentToGlobalVariable() returns string {
+    return foo:sgvWithoutType;
+}
+
+function testConstWithoutTypeAssignmentToLocalVariable() returns string {
+    string slv = foo:nameWithoutType;
+    return slv;
+}
+
+// -----------------------------------------------------------
+
+function testConstWithTypeConcat() returns string {
+    return foo:nameWithType + " rocks";
+}
+
+// -----------------------------------------------------------
+
+function testConstWithoutTypeConcat() returns string {
+    return foo:nameWithoutType + " rocks";
+}
+
+// -----------------------------------------------------------
+
+function testTypeConstants() returns foo:ACTION {
+    return foo:GET;
+}
+
+function testConstWithTypeAssignmentToType() returns foo:ACTION {
+    foo:ACTION action = foo:constActionWithType;
+    return action;
+}
+
+
+function testConstWithoutTypeAssignmentToType() returns foo:ACTION {
+    foo:ACTION action = foo:constActionWithoutType;
+    return action;
+}
+
+function testConstAndTypeComparison() returns boolean {
+    return "GET" == foo:GET;
+}
+
+function testTypeConstAsParam() returns boolean {
+    return typeConstAsParam(foo:GET);
+}
+
+function typeConstAsParam(foo:ACTION a) returns boolean {
+    return "GET" == a;
+}
+
+// -----------------------------------------------------------
+
+function testEqualityWithConstWithType() returns boolean {
+    return foo:nameWithType == "Ballerina";
+}
+
+// -----------------------------------------------------------
+
+function testConstWithTypeInCondition() returns boolean {
+    if (foo:conditionWithType) {
+        return true;
+    }
+    return false;
+}
+
+// -----------------------------------------------------------
+
+function testConstWithoutTypeInCondition() returns boolean {
+    if (foo:conditionWithoutType) {
+        return true;
+    }
+    return false;
+}
+
+// -----------------------------------------------------------
+
+function testBooleanWithType() returns boolean {
+    return foo:booleanWithType;
+}
+
+function testBooleanWithoutType() returns boolean {
+    return foo:booleanWithoutType;
+}
+
+// -----------------------------------------------------------
+
+function testIntWithType() returns int {
+    return foo:intWithType;
+}
+
+function testIntWithoutType() returns int {
+    return foo:intWithoutType;
+}
+
+// -----------------------------------------------------------
+
+function testByteWithType() returns byte {
+    return foo:byteWithType;
+}
+
+// -----------------------------------------------------------
+
+function testFloatWithType() returns float {
+    return foo:floatWithType;
+}
+
+function testFloatWithoutType() returns float {
+    return foo:floatWithoutType;
+}
+
+// -----------------------------------------------------------
+
+function testDecimalWithType() returns decimal {
+    return foo:decimalWithType;
+}
+
+// -----------------------------------------------------------
+
+function testStringWithType() returns string {
+    return foo:stringWithType;
+}
+
+function testStringWithoutType() returns string {
+    return foo:stringWithoutType;
+}
+
+// -----------------------------------------------------------
+
+function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatType) {
+    foo:FiniteFloatType f1 = 2.0;
+    foo:FiniteFloatType f2 = 4.0;
+
+    return (f1, f2);
 }
 
 // -----------------------------------------------------------
@@ -113,142 +278,55 @@ function testStringConstInTuple() returns string {
 
 // -----------------------------------------------------------
 
-foo:CD test = "C";
-
-function testTypeFromAnotherPackage() returns foo:CD {
-    return test;
+function testProperSubset() returns foo:G {
+    foo:G g = foo:h;
+    return g;
 }
 
 // -----------------------------------------------------------
 
-// Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
-//type M record { string f; }|Z;
-//
-//M m1 = { f: "foo" };
-//
-//M m2 = "V";
-//
-//M m3 = "W";
-//
-//M m4 = "X";
-
-type Y X;
-
-type Z "V"|W|X;
-
-Y y = "X";
-
-Z z1 = "V";
-
-Z z2 = "W";
-
-Z z3 = "X";
-
-
-const string W = "W";
-
-const string X = "X";
-
-// -----------------------------------------------------------
-
-type BooleanTypeWithType foo:booleanWithType;
-
-function testBooleanTypeWithType() returns BooleanTypeWithType {
-    BooleanTypeWithType t = false;
-    return t;
-}
-
-const booleanWithoutType = true;
-
-type BooleanTypeWithoutType booleanWithoutType;
-
-function testBooleanTypeWithoutType() returns BooleanTypeWithoutType {
-    BooleanTypeWithoutType t = true;
-    return t;
+function testBuiltinFunctionInvocation() returns boolean {
+    return foo:SHA1.equalsIgnoreCase("SHA1");
 }
 
 // -----------------------------------------------------------
 
-type IntTypeWithType foo:intWithType;
-
-function testIntTypeWithType() returns IntTypeWithType {
-    IntTypeWithType t = 40;
-    return t;
-}
-
-
-type IntTypeWithoutType foo:intWithoutType;
-
-function testIntTypeWithoutType() returns IntTypeWithoutType {
-    IntTypeWithoutType t = 20;
-    return t;
+function testBuiltinFunctionInvocationOnArrayElement() returns boolean {
+    string[] arr = [foo:SHA1];
+    return arr[0].equalsIgnoreCase("SHA1");
 }
 
 // -----------------------------------------------------------
 
-type ByteTypeWithType foo:byteWithType;
-
-function testByteTypeWithType() returns ByteTypeWithType {
-    ByteTypeWithType t = 240;
-    return t;
+function testBuiltinFunctionInvocationOnField() returns boolean {
+    foo:TestRecord tr = { field: foo:SHA1 };
+    return tr.field.equalsIgnoreCase("SHA1");
 }
 
 // -----------------------------------------------------------
 
-type FloatTypeWithType foo:floatWithType;
-
-function testFloatTypeWithType() returns FloatTypeWithType {
-    FloatTypeWithType t = 4.0;
-    return t;
-}
-
-type FloatTypeWithoutType foo:floatWithoutType;
-
-function testFloatTypeWithoutType() returns FloatTypeWithoutType {
-    FloatTypeWithoutType t = 2.0;
-    return t;
+function testLabeling() returns string {
+    return foo:labeledString;
 }
 
 // -----------------------------------------------------------
 
-type DecimalTypeWithType foo:decimalWithType;
-
-function testDecimalTypeWithType() returns DecimalTypeWithType {
-    DecimalTypeWithType t = 4.0;
-    return t;
+function testBooleanConcat() returns string {
+    return foo:aBoolean + " rocks";
 }
 
-// -----------------------------------------------------------
-
-type StringTypeWithType foo:stringWithType;
-
-function testStringTypeWithType() returns StringTypeWithType {
-    StringTypeWithType t = "Ballerina is awesome";
-    return t;
+function testIntConcat() returns string {
+    return foo:aInt + " rocks";
 }
 
-type StringTypeWithoutType foo:stringWithoutType;
-
-function testStringTypeWithoutType() returns StringTypeWithoutType {
-    StringTypeWithoutType t = "Ballerina rocks";
-    return t;
+function testByteConcat() returns string {
+    return foo:aByte + " rocks";
 }
 
-// -----------------------------------------------------------
-
-function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatType) {
-    foo:FiniteFloatType f1 = 2.0;
-    foo:FiniteFloatType f2 = 4.0;
-
-    return (f1, f2);
+function testFloatConcat() returns string {
+    return foo:aFloat + " rocks";
 }
 
-// -----------------------------------------------------------
-
-function testNilWithoutType() returns () {
-    return foo:NilWithoutType;
-}
-
-function testNilWithType() returns () {
-    return foo:NilWithType;
+function testDecimalConcat() returns string {
+    return foo:aDecimal + " rocks";
 }

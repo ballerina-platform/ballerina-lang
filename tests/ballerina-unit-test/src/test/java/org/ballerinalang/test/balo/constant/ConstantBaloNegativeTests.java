@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Negative test cases for reading constants.
  */
-public class ConstantNegativeTests {
+public class ConstantBaloNegativeTests {
 
     private CompileResult compileResult;
 
