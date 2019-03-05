@@ -215,10 +215,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
 
-    private Set<TaintRecord.TaintError> dlogSet;
     private List<BlockedNode> blockedNodeList;
     private List<BlockedNode> blockedEntryPointNodeList;
     private List<BInvokableSymbol> ignoredInvokableSymbol;
+
+    private Stack<AnalysisState> analysisStateStack;
+    private Set<TaintRecord.TaintError> dlogSet;
+    private BLangFunction currTopLevelFunction;
+    private boolean topLevelFunctionAllParamsUntaintedAnalysis;
 
     private static final String ANNOTATION_TAINTED = "tainted";
     private static final String ANNOTATION_UNTAINTED = "untainted";
@@ -236,29 +240,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private AnalyzerPhase analyzerPhase;
 
-    private class AnalysisState {
-        private TaintedStatus taintedStatus;
-        private TaintedStatus returnTaintedStatus;
-
-        // Used to analyze the tainted status of parameters when returning.
-        private List<BLangSimpleVariable> requiredParams;
-        private List<BLangSimpleVariable> defaultableParams;
-        private BLangSimpleVariable restParam;
-        private List<TaintedStatus> parameterTaintedStatus;
-
-        private BlockedNode blockedNode;
-
-        private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
-    }
-
-    private BLangFunction currTopLevelFunction;
-    private boolean topLevelFunctionAllParamsUntaintedAnalysis;
-    private Stack<AnalysisState> analysisStateStack;
-
-    private AnalysisState getCurrentAnalysisState() {
-        return analysisStateStack.peek();
-    }
-
     public static TaintAnalyzer getInstance(CompilerContext context) {
         TaintAnalyzer taintAnalyzer = context.get(TAINT_ANALYZER_KEY);
         if (taintAnalyzer == null) {
@@ -275,17 +256,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        blockedNodeList = new ArrayList<>();
-        blockedEntryPointNodeList = new ArrayList<>();
-        ignoredInvokableSymbol = new ArrayList<>();
-        dlogSet = new LinkedHashSet<>();
-        analysisStateStack = new Stack<>();
         pkgNode.accept(this);
         return pkgNode;
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
+        blockedNodeList = new ArrayList<>();
+        blockedEntryPointNodeList = new ArrayList<>();
+        ignoredInvokableSymbol = new ArrayList<>();
+        analysisStateStack = new Stack<>();
+        dlogSet = new LinkedHashSet<>();
+        currTopLevelFunction = null;
+        topLevelFunctionAllParamsUntaintedAnalysis = false;
         analyzerPhase = AnalyzerPhase.INITIAL_ANALYSIS;
         if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
             return;
@@ -846,7 +829,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             analyzeExprList(exprList);
             return;
         }
-        workerReceiveNode.sendExpr.accept(this);
+        workerReceiveNode.sendExpression.accept(this);
     }
 
     // Expressions
@@ -2327,6 +2310,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return param;
     }
 
+    private AnalysisState getCurrentAnalysisState() {
+        return analysisStateStack.peek();
+    }
+
     private class BlockingNode {
 
         PackageID packageID;
@@ -2394,5 +2381,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             result = 31 * result + invokableNode.symbol.name.hashCode();
             return result;
         }
+    }
+
+    // Used to store the analysis state of each function being visited.
+    //
+    // Lambda functions and worker lambda functions should be analyzed as part of the enclosing function. This is
+    // because such functions will have direct access to variables defined in the enclosing function. Therefore, the
+    // tainted state of such function depends on the taint conditions of the enclosing function. Hence, there are
+    // situations where `TaintAnalyzer` will visit a `BLangFunction` within another `BLangFunction`. To support such
+    // scenarios analyzer state is maintained in a stack.
+    private class AnalysisState {
+        private TaintedStatus taintedStatus;
+        private TaintedStatus returnTaintedStatus;
+
+        // Used to analyze the tainted status of parameters when returning.
+        private List<BLangSimpleVariable> requiredParams;
+        private List<BLangSimpleVariable> defaultableParams;
+        private BLangSimpleVariable restParam;
+        private List<TaintedStatus> parameterTaintedStatus;
+
+        private BlockedNode blockedNode;
+
+        private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     }
 }

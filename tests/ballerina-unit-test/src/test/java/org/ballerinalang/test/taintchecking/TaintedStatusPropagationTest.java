@@ -221,7 +221,7 @@ public class TaintedStatusPropagationTest {
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 28, 20);
     }
 
     @Test
