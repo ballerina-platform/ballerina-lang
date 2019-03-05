@@ -1371,7 +1371,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1428,11 +1427,6 @@ public class PackageInfoReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
-                case InstructionCodes.REASON:
-                case InstructionCodes.DETAIL:
-                case InstructionCodes.FREEZE:
-                case InstructionCodes.IS_FROZEN:
-                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1524,9 +1518,6 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTH:
-                case InstructionCodes.STAMP:
-                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.TYPE_CAST:

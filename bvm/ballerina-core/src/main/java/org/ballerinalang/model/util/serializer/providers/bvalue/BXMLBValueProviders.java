@@ -87,8 +87,8 @@ public class BXMLBValueProviders {
 
         @Override
         public BPacket toBValue(BXMLSequence bxmlSequence, BValueSerializer serializer) {
-            BRefType[] serializedItems = new BRefType[bxmlSequence.length()];
-            for (int i = 0; i < bxmlSequence.length(); i++) {
+            BRefType[] serializedItems = new BRefType[(int) bxmlSequence.size()];
+            for (int i = 0; i < bxmlSequence.size(); i++) {
                 BRefType value = (BRefType) serializer.toBValue(bxmlSequence.value().getRefValue(i), null);
                 serializedItems[i] = value;
             }

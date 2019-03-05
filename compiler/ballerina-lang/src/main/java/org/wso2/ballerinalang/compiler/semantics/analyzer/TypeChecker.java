@@ -133,7 +133,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -3124,7 +3123,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             retType = BUnionType.create(null, type, symTable.errorType);
         }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType);
     }
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
@@ -3132,8 +3131,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
-                InstructionCodes.IS_FROZEN);
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
     }
 
     private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
