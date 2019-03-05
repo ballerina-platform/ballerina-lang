@@ -23,27 +23,22 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,6 +84,7 @@ public class JWTAuthenticatorTest {
     private String resourceRoot;
     private String jwtToken;
     private String trustStorePath;
+    private String keyStorePath;
     private static final String BALLERINA_CONF = "ballerina.conf";
     private static final String KEY_STORE = "ballerinaKeystore.p12";
     private static final String TRUST_SORE = "ballerinaTruststore.p12";
@@ -97,6 +93,8 @@ public class JWTAuthenticatorTest {
     public void setup() throws Exception {
         trustStorePath = getClass().getClassLoader().getResource(
                 "datafiles/keystore/ballerinaTruststore.p12").getPath();
+        keyStorePath = getClass().getClassLoader().getResource(
+                "datafiles/keystore/ballerinaKeystore.p12").getPath();
         resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
                 .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
@@ -113,18 +111,57 @@ public class JWTAuthenticatorTest {
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), ballerinaConfPath.toString(), null);
-
-        jwtToken = generateJWT();
     }
 
-    @Test(description = "Test case for creating JWT authenticator with a cache")
+    @Test(description = "Test JWT issuer", priority = 1)
+    private void testGenerateJwt() {
+        BMap<String, BValue> jwtHeader = new BMap<>();
+        jwtHeader.put("alg", new BString("RS256"));
+        jwtHeader.put("typ", new BString("JWT"));
+
+        long time = 32475251189000L;
+        BMap<String, BValue> jwtBody = new BMap<>();
+        jwtBody.put("sub", new BString("John"));
+        jwtBody.put("iss", new BString("wso2"));
+        jwtBody.put("aud", new BValueArray(new String[] {"ballerina"}));
+        jwtBody.put("scope", new BString("John test Doe"));
+        jwtBody.put("roles", new BValueArray(new String[] {"admin", "admin2"}));
+        jwtBody.put("exp", new BInteger(time));
+
+        BValue[] inputBValues = {jwtHeader, jwtBody, new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "generateJwt", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[0].stringValue().startsWith("eyJhbGciOiJSUzI1NiIsICJ0eXAiOiJKV1QifQ==.eyJzdWIiO" +
+                "iJKb2huIiwgImlzcyI6IndzbzIiLCAiZXhwIjozMjQ3NTI1MTE4OTAwMCwgImF1ZCI6ImJhbGxlcmluYSJ9."));
+
+        jwtToken = returns[0].stringValue();
+    }
+
+    @Test(description = "Test JWT verification", priority = 2)
+    private void testVerifyJwt() {
+        BMap<String, BValue> trustStore = new BMap<>();
+        trustStore.put("path", new BString(trustStorePath));
+        trustStore.put("password", new BString("ballerina"));
+        BMap<String, BValue> jwtConfig = new BMap<>();
+        jwtConfig.put("issuer", new BString("wso2"));
+        jwtConfig.put("audience", new BString("ballerina"));
+        jwtConfig.put("trustStore", trustStore);
+        jwtConfig.put("clockSkew", new BInteger(0));
+        jwtConfig.put("certificateAlias", new BString("ballerina"));
+        BValue[] inputBValues = {new BString(jwtToken), jwtConfig};
+        BValue[] returns = BRunUtil.invoke(compileResult, "verifyJwt", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BMap);
+    }
+
+    @Test(description = "Test case for creating JWT authenticator with a cache", priority = 2)
     public void testCreateJwtAuthenticatorWithCache() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache");
+        BValue[] inputBValues = {new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache", inputBValues);
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0] instanceof BMap);
     }
 
-    @Test(description = "Test case for JWT authenticator for authentication success")
+    @Test(description = "Test case for JWT authenticator for authentication success", priority = 2)
     public void testAuthenticationSuccess() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSuccess", inputBValues);
@@ -136,49 +173,6 @@ public class JWTAuthenticatorTest {
     public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaKeyStoreCopyPath);
         Files.deleteIfExists(ballerinaTrustStoreCopyPath);
-    }
-
-    private String generateJWT() throws Exception {
-        String header = buildHeader();
-        String jwtHeader = new String(Base64.getUrlEncoder().encode(header.getBytes()));
-        String body = buildBody();
-        String jwtBody = new String(Base64.getUrlEncoder().encode(body.getBytes()));
-        String assertion = jwtHeader + "." + jwtBody;
-        String algorithm = "RS256";
-        PrivateKey privateKey = getPrivateKey();
-        JWSSigner signer = new RSASigner(privateKey);
-        String signature = signer.sign(assertion, algorithm);
-        return assertion + "." + signature;
-    }
-
-    private PrivateKey getPrivateKey() throws Exception {
-        KeyStore keyStore;
-        InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
-                "datafiles/keystore/ballerinaKeystore.p12").getPath()));
-        keyStore = KeyStore.getInstance("pkcs12");
-        keyStore.load(file, "ballerina".toCharArray());
-        KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina", new KeyStore
-                .PasswordProtection("ballerina".toCharArray()));
-        return pkEntry.getPrivateKey();
-    }
-
-    private String buildHeader() {
-        return "{\n" +
-                "  \"alg\": \"RS256\",\n" +
-                "  \"typ\": \"JWT\"\n" +
-                "}";
-    }
-
-    private String buildBody() {
-        long time = System.currentTimeMillis() + 10000000;
-        return "{\n" +
-                "  \"sub\": \"John\",\n" +
-                "  \"iss\": \"wso2\",\n" +
-                "  \"aud\": \"ballerina\",\n" +
-                "  \"scope\": \"John test Doe\",\n" +
-                "  \"roles\": [\"admin\",\"admin2\"],\n" +
-                "  \"exp\": " + time + "\n" +
-                "}";
     }
 
     private Map<String, String> getRuntimeProperties() {

@@ -1,0 +1,27 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-io')
+	implementation project(':ballerina-encoding')
+	implementation project(':lib-creator')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-file')
+	implementation project(':ballerina-log-api')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+	baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+	implementation project(':ballerina-runtime')
+	implementation project(':ballerina-launcher')
+	testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+
+    implementation 'commons-io:commons-io:2.6'
+
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Internal'

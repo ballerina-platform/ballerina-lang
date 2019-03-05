@@ -26,8 +26,8 @@ const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
 http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 http:ServiceEndpointConfiguration hubListenerConfig = {
@@ -51,8 +51,10 @@ listener http:Listener publisherServiceEP = new http:Listener(8080);
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
     auth: {
         scheme: http:BASIC_AUTH,
-        username: "peter",
-        password: "pqr"
+        config: {
+            username: "peter",
+            password: "pqr"
+        }
     }
 });
 
@@ -117,7 +119,7 @@ service publisherTwo on publisherServiceEP {
             panic payload;
         }
 
-        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websub");
+        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websubTwo");
         var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err = err);
@@ -153,7 +155,7 @@ service publisherThree on publisherServiceEP {
         if (payload is error) {
             panic payload;
         }
-        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websub");
+        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websubFour");
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, untaint <json> payload);
         if (err is error) {
             log:printError("Error publishing update remotely", err = err);

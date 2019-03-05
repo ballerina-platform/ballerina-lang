@@ -1,0 +1,22 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-builtin')
+    testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-launcher')
+
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+}
+
+description = 'Ballerina - Runtime'
+
+test {
+    // TODO: Fix tests and remove test skip block
+    exclude '**/*'
+    
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}

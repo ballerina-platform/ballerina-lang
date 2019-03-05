@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.CallStreamObserver;
-import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -38,6 +37,8 @@ import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
+import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
 import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -180,12 +181,12 @@ public abstract class ServerCallHandler {
         if (headerStruct != null && signatureParams.length == 3) {
             signatureParams[2] = headerStruct;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
+        CallableUnitCallback callback = new StreamingCallableUnitCallBack(null);
         Executor.submit(resource.getResource(), callback, null, null, signatureParams);
     }
 
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver) {
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
+        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse());
         Executor.submit(resource.getResource(), callback, null, null, computeMessageParams(resource, request,
                 responseObserver));
     }

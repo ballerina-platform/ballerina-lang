@@ -18,7 +18,6 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.slf4j.Logger;
@@ -31,6 +30,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
@@ -52,8 +53,8 @@ public class BServerInstance implements BServer {
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
-    private ConcurrentHashSet<LogLeecher> tmpInfoLeechers = new ConcurrentHashSet<>();
-    private ConcurrentHashSet<LogLeecher> tmpErrorLeechers = new ConcurrentHashSet<>();
+    private Set<LogLeecher> tmpInfoLeechers = ConcurrentHashMap.newKeySet();
+    private Set<LogLeecher> tmpErrorLeechers = ConcurrentHashMap.newKeySet();
     private int[] requiredPorts;
 
     public BServerInstance(BalServer balServer) throws BallerinaTestException {

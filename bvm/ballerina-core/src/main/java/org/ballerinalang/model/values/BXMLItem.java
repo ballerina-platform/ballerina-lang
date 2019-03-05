@@ -705,7 +705,7 @@ public final class BXMLItem extends BXML<OMNode> {
     /**
      * {@inheritDoc}
      */
-    public int length() {
+    public long size() {
         return this.omNode == null ? 0 : 1;
     }
 

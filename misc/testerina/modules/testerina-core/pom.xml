@@ -120,6 +120,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+        </dependency>
         <!-- End Balo jar dependencies -->
 
         <dependency>
@@ -320,6 +324,12 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
         <!-- End Balo dependencies-->
     </dependencies>
 
@@ -451,6 +461,14 @@
                         <phase>generate-sources</phase>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

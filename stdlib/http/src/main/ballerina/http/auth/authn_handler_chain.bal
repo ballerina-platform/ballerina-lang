@@ -15,8 +15,8 @@
 // under the License.
 
 
-import ballerina/log;
 import ballerina/auth;
+import ballerina/log;
 
 # Representation of Authentication handler chain
 #

@@ -97,6 +97,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             UNSUBSCRIPTION_INTENT_VERIFICATION_LOG);
     private LogLeecher logAbsenceTestLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
+    private LogLeecher internalHubNotificationLogLeecherTwoAfterOneUnsubscription =
+            new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG_TWO);
 
 
     @BeforeClass
@@ -172,8 +174,10 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*")
     public void testUnsubscription() throws BallerinaTestException {
-        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + "skip_subscriber_check", HUB_MODE_INTERNAL,
+                      CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
+        internalHubNotificationLogLeecherTwoAfterOneUnsubscription.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")

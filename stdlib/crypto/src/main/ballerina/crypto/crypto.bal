@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/time;
+
 # The key algorithms supported by crypto module.
 public type KeyAlgorithm RSA;
 
@@ -82,8 +84,32 @@ public type PrivateKey record {
 # Public key used in cryptographic operations.
 #
 # + algorithm - Key algorithm
+# + certificate - Public key certificate
 public type PublicKey record {
     KeyAlgorithm algorithm;
+    Certificate? certificate;
+    !...;
+};
+
+# X509 public key certificate information.
+#
+# + version0 - Version number
+# + serial - Serial number
+# + issuer - Issuer name
+# + subject - Subject name
+# + notBefore - Not before validity period of certificate
+# + notAfter - Not after validity period of certificate
+# + signature - Raw signature bits
+# + signingAlgorithm - Signature algorithm
+public type Certificate record {
+    int version0;
+    int serial;
+    string issuer;
+    string subject;
+    time:Time notBefore;
+    time:Time notAfter;
+    byte[] signature;
+    string signingAlgorithm;
     !...;
 };
 
@@ -200,6 +226,50 @@ public extern function signRsaSha384(byte[] input, PrivateKey privateKey) return
 # + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
 public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|error;
+
+# Verify RSA-MD5 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey) returns boolean|error;
+
+# Verify RSA-SHA1 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
+# Verify RSA-SHA256 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
+# Verify RSA-SHA384 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
+
+# Verify RSA-SHA512 based signature.
+#
+# + data - The content to be verified
+# + signature - Signature value
+# + publicKey - Public key used for verification
+# + return - Validity of the signature or error if public key is invalid
+public extern function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error;
 
 # Read a private key from the provided PKCS#12 archive file.
 #

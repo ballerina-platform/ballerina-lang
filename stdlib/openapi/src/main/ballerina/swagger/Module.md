@@ -39,7 +39,7 @@ For the export to work properly, the input Ballerina service should be defined u
 Generates a Ballerina client stub to communicate with a Ballerina service.
 
 All endpoint(s) that are used for client stub generation should be marked with the `@swagger:ClientEndpoint` annotation. If not, there might be errors during client stub generation. Endpoints that are not marked with this annotation are not picked for client stub generation.
-The `@swagger:ClientConfig {generate: true}` annotation is used to enable or disable client stub generation per service.
+The `@swagger:ClientConfig { generate: true }` annotation is used to enable or disable client stub generation per service.
 
 ## Samples
 ### Mock Service From OpenAPI
@@ -53,16 +53,13 @@ The `@swagger:ClientConfig {generate: true}` annotation is used to enable or dis
 
 ### Client stub From Service
 ```ballerina
-import ballerina/io;
 import ballerina/http;
-import ballerina/swagger;
 import ballerina/log;
+import ballerina/swagger;
 
 // Define this endpoint as a selected endpoint for client generation.
 @swagger:ClientEndpoint
-endpoint http:Listener helloEp {
-    port: 9090
-};
+listener http:Listener helloEp = new(9090);
 
 // Enable client code generation for this service.
 @swagger:ClientConfig {
@@ -71,16 +68,18 @@ endpoint http:Listener helloEp {
 @http:ServiceConfig {
     basePath: "/sample"
 }
-service Hello bind helloEp {
-
+service Hello on helloEp {    
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/hello"
     }
-    hello(endpoint caller, http:Request req) {
+    resource function hello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello");
-        caller->respond(res) but { error e => log:printError("Error when responding", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error when responding", err = result);
+        }
     }
 }
 ```
