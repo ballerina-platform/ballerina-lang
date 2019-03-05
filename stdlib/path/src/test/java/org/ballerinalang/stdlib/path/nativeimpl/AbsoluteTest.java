@@ -29,6 +29,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -51,13 +52,31 @@ public class AbsoluteTest {
         }
     }
 
+    @Test(description = "Test path separator value")
+    public void testPathSeparator() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetPathSeparator", args);
+        BString pathSeparator = (BString) returns[0];
+        log.info("Ballerina Path: separator value. Return value: " + pathSeparator.stringValue());
+        assertEquals(pathSeparator.stringValue(), File.separator);
+    }
+
+    @Test(description = "Test path list separator value")
+    public void testPathListSeparator() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetPathListSeparator", args);
+        BString listSeparator = (BString) returns[0];
+        log.info("Ballerina Path: list separator value. Return value: " + listSeparator.stringValue());
+        assertEquals(listSeparator.stringValue(), File.pathSeparator);
+    }
+
     @Test(description = "Test absolute path function")
     public void testGetAbsolutePath() {
         String inputPath = "test.txt";
         BValue[] args = {new BString(inputPath)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
         BString absPath = (BString) returns[0];
-        log.info("Ballerina Path absolute function. Return value: " + absPath.stringValue());
+        log.info("Ballerina Path: absolute function. Return value: " + absPath.stringValue());
         assertEquals(absPath.stringValue(), Paths.get(inputPath).toAbsolutePath().toString());
     }
 
@@ -67,7 +86,7 @@ public class AbsoluteTest {
         BValue[] args = {new BString(inputPath)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
         BString absPath = (BString) returns[0];
-        log.info("Ballerina Path absolute function. Return value: " + absPath.stringValue());
+        log.info("Ballerina Path: absolute function. Return value: " + absPath.stringValue());
         assertEquals(absPath.stringValue(), Paths.get(inputPath).toAbsolutePath().toString());
     }
 
@@ -83,28 +102,19 @@ public class AbsoluteTest {
             assertEquals(error.reason, "{ballerina/path}INVALID_PATH");
         } else {
             BString absPath = (BString) returns[0];
-            log.info("Ballerina Path absolute function. Return value: " + absPath.stringValue());
+            log.info("Ballerina Path: absolute function. Return value: " + absPath.stringValue());
             assertEquals(absPath.stringValue(), Paths.get(illegal).toAbsolutePath().toString());
         }
     }
 
-    @Test(description = "Test isAbsolute path function for posix paths")
-    public void testPosixAbsolutePath() {
-        validateAbsolutePath("/A/B/C");
-        validateAbsolutePath("/foo/..");
-        validateAbsolutePath(".");
-        validateAbsolutePath("foo/");
+    @Test(description = "Test isAbsolute path function for posix paths", dataProvider = "posix_paths")
+    public void testPosixAbsolutePath(String path) {
+        validateAbsolutePath(path);
     }
 
-    @Test(description = "Test isAbsolute path function for windows paths")
-    public void testWindowsAbsolutePath() {
-        validateAbsolutePath("//server");
-        validateAbsolutePath("\\\\server");
-        validateAbsolutePath("C:/foo/..");
-        validateAbsolutePath("C:\\foo\\..");
-        validateAbsolutePath("bar\\baz");
-        validateAbsolutePath("bar/baz");
-        validateAbsolutePath(".");
+    @Test(description = "Test isAbsolute path function for windows paths", dataProvider = "windows_paths")
+    public void testWindowsAbsolutePath(String path) {
+        validateAbsolutePath(path);
     }
 
     private void validateAbsolutePath(String input) {
@@ -115,21 +125,41 @@ public class AbsoluteTest {
         assertEquals(isAbs.booleanValue(), Paths.get(input).isAbsolute());
     }
 
-    @Test(description = "Test path separator value")
-    public void testPathSeparator() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetPathSeparator", args);
-        BString pathSeparator = (BString) returns[0];
-        log.info("Ballerina Path separator value. Return value: " + pathSeparator.stringValue());
-        assertEquals(pathSeparator.stringValue(), File.separator);
+
+    @Test(description = "Test filename path function for posix paths", dataProvider = "posix_paths")
+    public void testGetPosixFileName(String path) {
+        validateFilename(path);
     }
 
-    @Test(description = "Test path list separator value")
-    public void testPathListSeparator() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetPathListSeparator", args);
-        BString listSeparator = (BString) returns[0];
-        log.info("Ballerina Path list separator value. Return value: " + listSeparator.stringValue());
-        assertEquals(listSeparator.stringValue(), File.pathSeparator);
+    private void validateFilename(String input) {
+        BValue[] args = {new BString(input)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetFilename", args);
+        BString filename = (BString) returns[0];
+        log.info("Ballerina Path: filename function. Return value: " + filename.stringValue());
+        assertEquals(filename.stringValue(), Paths.get(input).getFileName().toString());
+    }
+
+    @DataProvider(name = "posix_paths")
+    public Object[] getPosixPaths() {
+        return new Object[] {
+                "/A/B/C",
+                "/foo/..",
+                ".",
+                "foo/",
+                "foo/bar/"
+        };
+    }
+
+    @DataProvider(name = "windows_paths")
+    public Object[] getWindowsPaths() {
+        return new Object[] {
+                "//server",
+                "\\\\server",
+                "C:/foo/..",
+                "C:\\foo\\..",
+                "bar\\baz",
+                "bar/baz",
+                "."
+        };
     }
 }

@@ -31,3 +31,12 @@ function testGetPathListSeparator() returns string {
 function testIsAbsolutePath(string path) returns boolean {
     return path:isAbsolute(path);
 }
+
+function testGetFilename(string path) returns string {
+    var filename = path:filename(path);
+    if (filename is string) {
+        return filename;
+    } else {
+        return "";
+    }
+}
