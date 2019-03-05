@@ -75,7 +75,7 @@ public type Client client object {
         self.sqlClient = createClient(c, sql:globalPoolConfigContainer.getGlobalPoolConfig());
     }
 
-    # The call operation implementation for H2 Client to invoke stored procedures/functions.
+    # The call remote function implementation for H2 Client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
@@ -90,7 +90,7 @@ public type Client client object {
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
-    # The select operation implementation for H2 Client to select data from tables.
+    # The select remote function implementation for H2 Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -106,19 +106,22 @@ public type Client client object {
     }
 
 
-    # The update operation implementation for H2 Client to update data and schema of the database.
+    # The update remote function implementation for H2 Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
+    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, sql:Param... parameters) returns int|error {
+    # + return - `sql:UpdateResult` with the updated row count and key column values,
+    #             else  `error` will be returned if there is any error
+    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), sql:Param... parameters)
+                               returns sql:UpdateResult|error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.sqlClient->update(sqlQuery, ...parameters);
+        return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
     }
 
-    # The batchUpdate operation implementation for H2 Client to batch data insert.
+    # The batchUpdate remote function implementation for H2 Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -127,8 +130,8 @@ public type Client client object {
     #            an`error` will be returned if there is any error.
     #            A number greater than or equal to zero - indicates that the command was processed successfully
     #                                                     and is an update count giving the number of rows
-    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
-    #                            is unknown
+    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
+    #                            affected is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, sql:Param?[]... parameters) returns int[]|error {
@@ -136,23 +139,6 @@ public type Client client object {
             return self.handleStoppedClientInvocation();
         }
         return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
-    }
-
-    # The updateWithGeneratedKeys operation implementation for H2 Client which returns the auto
-    # generated keys during the update remote function.
-    #
-    # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
-    #            aray of auto generated key values during the query execution, in order.
-    #            Else `error` will be returned if there is any error.
-    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-                                                   sql:Param... parameters) returns (int, string[])|error {
-        if (!self.clientActive) {
-            return self.handleStoppedClientInvocation();
-        }
-        return self.sqlClient->updateWithGeneratedKeys(sqlQuery,keyColumns, ...parameters);
     }
 
     # Stops the JDBC client.

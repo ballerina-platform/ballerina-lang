@@ -9,7 +9,10 @@ dependencies {
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-config')
 
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.testng:testng:6.13.1'
     implementation 'io.opentracing:opentracing-api:0.31.0'
+    implementation project(':metrics-extensions:ballerina-metrics-extension')
 }
 
 description = 'Ballerina - Observability'

@@ -30,6 +30,8 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-system')
     implementation project(':ballerina-logging')
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Streams'

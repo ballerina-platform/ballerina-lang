@@ -7,6 +7,8 @@ dependencies {
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-launcher')
     testCompile 'org.awaitility:awaitility:3.0.0'
+    testCompile 'commons-io:commons-io:2.6'
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Tools Integration Test'
