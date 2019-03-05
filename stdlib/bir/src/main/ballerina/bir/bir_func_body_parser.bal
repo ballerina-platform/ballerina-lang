@@ -97,7 +97,7 @@ public type FuncBodyParser object {
             Move move = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return move;
         } else if (kindTag == INS_NEW_ERROR) {
-            kind = "NEW_ERROR";
+            kind = INS_KIND_NEW_ERROR;
             var lhsOp = self.parseVarRef();
             var reasonOp = self.parseVarRef();
             var detailsOp = self.parseVarRef();

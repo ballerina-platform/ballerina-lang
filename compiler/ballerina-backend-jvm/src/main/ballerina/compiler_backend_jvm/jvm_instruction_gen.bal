@@ -43,13 +43,11 @@ type InstructionGenerator object {
 
     function generateMoveIns(bir:Move moveIns) {
         int rhsIndex = self.getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl);
-        io:println("RHS Index is :::::::::::", rhsIndex);
+        // io:println("RHS Index is :::::::::::", rhsIndex);
         int lhsLndex = self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl);
-        io:println("LHS Index is :::::::::::", lhsLndex);
+        // io:println("LHS Index is :::::::::::", lhsLndex);
 
         bir:BType bType = moveIns.rhsOp.typeValue;
-        io:println(bType);
-        io:println(moveIns);
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, rhsIndex);
             self.mv.visitVarInsn(LSTORE, lhsLndex);

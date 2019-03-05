@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -53,5 +54,18 @@ public class ErrorValue implements RefValue {
     public Object copy(Map<Object, Object> refs) {
         // Error values are immutable and frozen, copy give same value.
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return reason + " " + details.toString();
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public RefValue getDetails() {
+        return (RefValue) details.copy(new HashMap<>());
     }
 }
