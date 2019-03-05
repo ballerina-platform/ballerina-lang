@@ -16,16 +16,12 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.codelenses.CodeLensHolder;
-import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProvider;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
+import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
@@ -58,7 +54,6 @@ import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -87,6 +82,7 @@ import org.eclipse.lsp4j.ResourceOperation;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -116,7 +112,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR_SPLIT;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
@@ -134,7 +129,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final DiagnosticsHelper diagnosticsHelper;
     private final LSIndexImpl lsIndex;
     private TextDocumentClientCapabilities clientCapabilities;
-    private final CodeLensHolder codeLensHolder;
 
     private final Debouncer diagPushDebouncer;
 
@@ -145,7 +139,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.lsIndex = globalContext.get(LSGlobalContextKeys.LS_INDEX_KEY);
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
         this.lsCompiler = new LSCompiler(documentManager);
-        this.codeLensHolder = new CodeLensHolder(documentManager);
     }
 
     /**
@@ -162,7 +155,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-            CursorTracker.getInstance().update(fileUri, position.getPosition());
             LSServiceOperationContext context = new LSServiceOperationContext();
             Path completionPath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath);
@@ -695,10 +687,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
         Path openedPath = new LSDocument(params.getTextDocument().getUri()).getPath();
         if (openedPath != null) {
             String content = params.getTextDocument().getText();
-            Optional<Lock> lock = Optional.empty();
+            Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath);
+            Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath);
-                lock = documentManager.openFile(compilationPath, content);
+                documentManager.openFile(compilationPath, content);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, openedPath, compilationPath);
             } catch (WorkspaceDocumentException e) {
@@ -714,11 +706,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         Path changedPath = new LSDocument(fileUri).getPath();
         if (changedPath != null) {
-            String content = params.getContentChanges().get(0).getText();
-            Optional<Lock> lock = Optional.empty();
+            Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
+            Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
-                lock = documentManager.updateFile(compilationPath, content);
+                // Update content
+                List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
+                for (TextDocumentContentChangeEvent changeEvent : changes) {
+                    Range changesRange = changeEvent.getRange();
+                    documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
+                }
+                // Schedule diagnostics
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 this.diagPushDebouncer.call(compilationPath, () -> {
                     diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, changedPath, compilationPath);
@@ -749,39 +746,5 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-    }
-
-    private synchronized List<? extends CodeLens> recoverCachedCodeLenses(String fileUri, Path compilationPath) {
-        List<CodeLens> codeLenses = new ArrayList<>();
-        try {
-            // Update number of lines
-            int lines = documentManager.getFileContent(compilationPath).split(LINE_SEPARATOR_SPLIT).length;
-            codeLensHolder.updateNumOfLines(fileUri, lines);
-
-            Optional<Integer> optLastTextModsGap = codeLensHolder.getCodeLensLastTextModsGap(fileUri);
-            if (optLastTextModsGap.isPresent()) {
-                int cLine = CursorTracker.getInstance().get(fileUri).getLine();
-                int textModificationGap = optLastTextModsGap.get();
-                for (CodeLens lens : documentManager.getCodeLenses(compilationPath)) {
-                    int sLine = lens.getRange().getStart().getLine();
-                    if (sLine == cLine) {
-                        lens.getRange().getStart().setLine(sLine + textModificationGap);
-                        lens.getRange().getEnd().setLine(sLine + textModificationGap);
-                        continue;
-                    } else if (textModificationGap > 0 && sLine > cLine) {
-                        lens.getRange().getStart().setLine(sLine + textModificationGap);
-                        lens.getRange().getEnd().setLine(sLine + textModificationGap);
-                    } else if (textModificationGap < 0 && sLine < cLine) {
-                        lens.getRange().getStart().setLine(sLine - textModificationGap);
-                        lens.getRange().getEnd().setLine(sLine - textModificationGap);
-                    }
-                    lens.setCommand(new Command(lens.getCommand().getTitle(), null));
-                    codeLenses.add(lens);
-                }
-            }
-        } catch (Exception ex) {
-            // Ignore
-        }
-        return codeLenses;
     }
 }
