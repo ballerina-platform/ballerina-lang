@@ -360,7 +360,7 @@ type InstructionGenerator object {
 
     # Generate a new instance of an array value
     # 
-    # + inst - type of the new array
+    # + inst - the new array instruction
     function generateArrayNewIns(bir:NewArray inst) {
         self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
@@ -373,7 +373,9 @@ type InstructionGenerator object {
         }
         self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
-    # Generate adding a new value to array
+    # Generate adding a new value to an array
+    # 
+    # + inst - array store instruction
     function generateArrayStoreIns(bir:FieldAccess inst) {
         int varRefIndex = self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, varRefIndex);
@@ -387,6 +389,9 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
+    # Generating loading a new value from an array to the top of the stack
+    # 
+    # + inst - field access instruction
     function generateArrayValueLoad(bir:FieldAccess inst) {
         int varRefIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, varRefIndex);
@@ -426,6 +431,9 @@ type InstructionGenerator object {
         if (bType is bir:BTypeInt) {
             self.mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
             self.mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "booleanValue", "()Z", false);
         } else if (bType is bir:BTypeString) {
             self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
         } else if (bType is bir:BMapType) {
@@ -438,6 +446,8 @@ type InstructionGenerator object {
     function generateLocalVarLoad(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, valueIndex);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ILOAD, valueIndex);
         } else {
             self.mv.visitVarInsn(ALOAD, valueIndex);
         }
