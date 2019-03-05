@@ -333,7 +333,7 @@ function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, 
     string attributeName = "citizen";
     string elementValue = "true";
     string attributeValue = "true";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -353,7 +353,7 @@ function testSetChildrenEmptyNamespace() returns (xml, boolean, boolean, xml, st
     string attributeName = "citizen";
     string elementValue = "true";
     string attributeValue = "true";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -373,7 +373,7 @@ function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boole
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "true";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -395,7 +395,7 @@ function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, 
     string attributeValue = "true";
 
     xmlns "http://sample.com/test/code" as pre;
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -416,7 +416,7 @@ function testSetChildrenWithSameNamespace() returns (xml, boolean, boolean, stri
     string attributeName = "{http://sample.com/test}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -436,7 +436,7 @@ function testSetChildrenWithDifferentNamespace() returns (xml, boolean, boolean,
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -456,7 +456,7 @@ function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, 
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -477,7 +477,7 @@ function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, bool
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -498,7 +498,7 @@ function testSetChildrenWithElementDiffNamespace() returns (xml, boolean, boolea
     string attributeName = "{http://sample.com/test}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<{{elemantName}} {{attributeName}}="{{attributeValue}}">{{elementValue}}</{{elemantName}}>`;
+    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);

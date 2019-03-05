@@ -18,9 +18,10 @@ function testXMLCommentLiteral() returns (xml, xml, xml, xml, xml, xml) {
     xml x1 = xml `<!--aaa-->`;
     xml x2 = xml `<!--${v1}-->`;
     xml x3 = xml `<!--aaa${v1}bbb${v2}ccc-->`;
-    xml x4 = xml `<!--<aaa${v1}bbb${v2}ccc--d->e->-f<<{>>>-->`;
+    xml x4 = xml `<!--<aaa${v1}bbb${v2}cccd->e->-f<<{>>>-->`;
     xml x5 = xml `<!---a-aa${v1}b\${bb${v2}c\}cc{d{}e}{f{-->`;
     xml x6 = xml `<!---->`;
+    xml x7 = xml `<!-- $ -->`;
     return (x1, x2, x3, x4, x5, x6);
 }
 
@@ -63,7 +64,7 @@ function testExpressionAsAttributeValue() returns (xml, xml, xml, xml, xml) {
     xml x1 = xml `<foo bar="${v0}"/>`;
     xml x2 = xml `<foo bar="aaa${v1}bb'b${v2}ccc?"/>`;
     xml x3 = xml `<foo bar="}aaa${v1}bbb${v2}ccc{d{}e}{f{"/>`;
-    xml x4 = xml `<foo bar1='aaa{${v1}}}b\${b"b${v2}c\}cc{d{}e}{f{' bar2='aaa{${v1}}}b\${b"b${v2}c\}cc{d{}e}{f{'/>`;
+    xml x4 = xml `<foo bar1='aaa{${v1}}b\${b"b${v2}c\}cc{d{}e}{f{' bar2='aaa{${v1}}b\${b"b${v2}c\}cc{d{}e}{f{'/>`;
     xml x5 = xml `<foo bar=""/>`;
     return (x1, x2, x3, x4, x5);
 }
@@ -136,4 +137,21 @@ function testIvalidAttributeName() returns (xml) {
     xml x1 = xml `<foo ${v1}="attribute value">hello</foo>`;
 
     return x1;
+}
+
+function testBracketSequenceInXMLLiteral() returns (xml) {
+    xml x1 = xml `{}{{ {{{ { } }} }}} - extra }`;
+    xml x2 = xml `<elem>{}{{</elem>`;
+    return x1 + x2;
+}
+
+function testInterpolatingVariousTypes() returns (xml) {
+    int i = 42;
+    float f = 3.14;
+    decimal d = 31.4444;
+    string s = "this-is-a-string";
+    xml elem = xml `<abc/>`;
+
+    xml ip = xml `<elem>${i}|${f}|${d}|${s}|${elem}</elem>`;
+    return ip;
 }

@@ -10,8 +10,7 @@ function testComments () {
     string endName = "bar"; // defining end  name inline
 
     xml x = //initi xml
-        xml `<{{startName}}>hello</{{startName}}>`;
-
+        xml `<${startName}>hello</${startName}>`;
 
     io:println(x);
     fooFunc("hello","world");

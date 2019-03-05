@@ -655,8 +655,9 @@ XMLTemplateText
     ;
 
 XMLText
-    :   XMLBracesSequence? (XMLTextChar XMLBracesSequence?)+
+    :   XMLBracesSequence* (XMLTextChar XMLBracesSequence*)+
     |   XMLBracesSequence (XMLTextChar XMLBracesSequence?)*
+    |   XMLBracesSequence+
     ;
 
 fragment
@@ -677,10 +678,10 @@ XMLEscapedSequence
 
 fragment
 XMLBracesSequence
-    :   '{}'+
-    |   '}{'
-    |   '{{'
-    |   '}}'
+    :   '{}'+ '{'* '}'*
+    |   '}{'+ '{'* '}'*
+    |   '{{'+ '{'* '}'*
+    |   '}}'+ '{'* '}'*
     |   ('{}')* '{'
     |   '}' ('{}')*
     ;
@@ -744,11 +745,11 @@ NameStartChar
 mode DOUBLE_QUOTED_XML_STRING;
 
 DOUBLE_QUOTE_END    
-    :   DOUBLE_QUOTE  -> popMode
+    :   DOUBLE_QUOTE                                        -> popMode
     ;
 
 XMLDoubleQuotedTemplateString
-    :   XMLDoubleQuotedString? INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
+    :   XMLDoubleQuotedString? INTERPOLATION_START          -> pushMode(DEFAULT_MODE)
     ;
 
 XMLDoubleQuotedString
@@ -832,20 +833,20 @@ mode XML_COMMENT;
 
 
 XML_COMMENT_END
-    :   '-->'    -> popMode
+    :   '-->'                                               -> popMode
     ;
 
 XMLCommentTemplateText
-    :   XMLCommentTextFragment INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
-    ;
-
-XMLCommentText
-    :   XMLCommentAllowedSequence? (XMLCommentCharNonInterpolation+ XMLCommentAllowedSequence?)
+    :   XMLCommentTextFragment INTERPOLATION_START          -> pushMode(DEFAULT_MODE)
     ;
 
 fragment
 XMLCommentTextFragment
     :   XMLCommentAllowedSequence? (XMLCommentChar XMLCommentAllowedSequence?)*
+    ;
+
+XMLCommentText
+    :   XMLCommentAllowedSequence? (XMLCommentChar+ XMLCommentAllowedSequence?)
     ;
 
 fragment
@@ -854,12 +855,8 @@ XMLCommentChar
     |   XMLBracesSequence
     |   XMLEscapedSequence
     |   '\\' [`]
-    ;
-
-fragment
-XMLCommentCharNonInterpolation
-    :   XMLEscapedSequence
-    |   ~[>${-]
+    |   '$' ~'{'
+    |   ~'$' '{'
     ;
 
 fragment
@@ -873,9 +870,12 @@ XMLCommentAllowedSequence
 fragment
 XMLCommentSpecialSequence
     :   '>'+
-    |   '-' '-' {_input.LA(1) != '>'}?
-    |   '>'* '-' {_input.LA(1) != '-' && _input.LA(2) != '>'}?
-    |   '-' ~'-'
+    |   '>'? '-' LookAheadTokenIsNotHypen
+    ;
+
+fragment
+LookAheadTokenIsNotHypen
+    : {_input.LA(1) != '-'}?
     ;
 
 mode TRIPLE_BACKTICK_INLINE_CODE;

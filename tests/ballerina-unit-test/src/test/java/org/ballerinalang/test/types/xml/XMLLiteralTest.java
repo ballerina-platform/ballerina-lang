@@ -76,7 +76,7 @@ public class XMLLiteralTest {
 
         // text with invalid multi type expressions
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'xml'", 33,
-                53);
+                51);
 
         // assigning attributes-map to a map
         BAssertUtil.validateError(negativeResult, index++,
@@ -150,7 +150,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "<!--aaa11bbb22ccc-->");
 
         Assert.assertTrue(returns[3] instanceof BXML);
-        Assert.assertEquals(returns[3].stringValue(), "<!--<aaa11bbb22ccc--d->e->-f<<{>>>-->");
+        Assert.assertEquals(returns[3].stringValue(), "<!--<aaa11bbb22cccd->e->-f<<{>>>-->");
 
         Assert.assertTrue(returns[4] instanceof BXML);
         Assert.assertEquals(returns[4].stringValue(), "<!---a-aa11b${bb22c}cc{d{}e}{f{-->");
@@ -211,8 +211,8 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "<foo bar=\"}aaazzzbbb33&gt;22ccc{d{}e}{f{\"></foo>");
 
         Assert.assertTrue(returns[3] instanceof BXML);
-        Assert.assertEquals(returns[3].stringValue(), "<foo bar1=\"aaa{zzz}b{{b&quot;b33&gt;22c}}cc{d{}e}{f{\" "
-                + "bar2=\"aaa{zzz}b{{b&quot;b33&gt;22c}}cc{d{}e}{f{\"></foo>");
+        Assert.assertEquals(returns[3].stringValue(), "<foo bar1=\"aaa{zzz}b${b&quot;b33&gt;22c}cc{d{}e}{f{\" "
+                + "bar2=\"aaa{zzz}b${b&quot;b33&gt;22c}cc{d{}e}{f{\"></foo>");
 
         Assert.assertTrue(returns[4] instanceof BXML);
         Assert.assertEquals(returns[4].stringValue(), "<foo bar=\"\"></foo>");
@@ -444,5 +444,21 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+    }
+
+    @Test(description = "Test sequence of brackets in content of XML")
+    public void testBracketSequenceInXMLLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{}{{ {{{ { } }} }}} - extra }<elem>{}{{</elem>");
+    }
+
+    @Test(description = "Test interpolating xml using different types")
+    public void testXMLLiteralInterpolation() {
+        BValue[] returns = BRunUtil.invoke(result, "testInterpolatingVariousTypes");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
     }
 }
