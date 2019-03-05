@@ -21,11 +21,11 @@ under the License.
 
 <suite name="ballerina-test-suite">
 
-    <test name="ballerina-swagger-test-suite" preserve-order="true"
+    <test name="ballerina-openapi-test-suite" preserve-order="true"
         parallel="false">
         <packages>
             <package
-                name="org.ballerinalang.ballerina.swagger.convertor.service.*" />
+                name="org.ballerinalang.ballerina.openapi.convertor.service.*" />
         </packages>
     </test>
 </suite>

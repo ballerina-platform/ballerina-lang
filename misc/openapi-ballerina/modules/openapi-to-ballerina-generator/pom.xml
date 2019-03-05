@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-to-swagger</artifactId>
+            <artifactId>ballerina-to-openapi-generator</artifactId>
         </dependency>
     </dependencies>
 
@@ -88,7 +88,7 @@
                                     <include>io.swagger.parser.v3:swagger-parser-v3</include>
                                     <include>javax.validation:validation-api</include>
                                     <include>com.google.code.gson:gson</include>
-                                    <include>org.ballerinalang:ballerina-to-swagger</include>
+                                    <include>org.ballerinalang:ballerina-to-openapi</include>
                                 </includes>
                             </artifactSet>
                             <filters>
