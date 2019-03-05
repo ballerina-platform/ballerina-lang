@@ -155,14 +155,14 @@ public class ArrayTest {
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2,
                                   format(errMsgFormat, "FTUnion", "FTUnion?"), 89, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 3,
-                                  format(errMsgFormat, "FTSingle", "FTSingle?"), 92, 1);
+                                  format(errMsgFormat, "FTSingle", "FTSingle?"), 94, 5);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 4,
-                                  format(errMsgFormat, "error<>", "error<>?"), 100, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "UN", "UN?"), 115, 1);
+                                  format(errMsgFormat, "error<>", "error<>?"), 103, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "UN", "UN?"), 118, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6,
-                                  format(errMsgFormat, "error<>", "error<>?"), 141, 1);
+                                  format(errMsgFormat, "error<>", "error<>?"), 144, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
-                                  format(errMsgFormat, "FTUnion", "FTUnion?"), 149, 9);
+                                  format(errMsgFormat, "FTUnion", "FTUnion?"), 152, 9);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")

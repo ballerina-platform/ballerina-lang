@@ -1,7 +1,4 @@
 
-Person pp;
-Employee ee;
-
 public function testObjectWithInterface () returns (int, string) {
     Person p;
     Employee e;

@@ -441,9 +441,9 @@ public class ObjectTest {
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object 'Person'", 8, 13);
-        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 8, 13);
-        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 8, 35);
+        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object 'Person'", 5, 13);
+        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 5, 13);
+        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 5, 35);
     }
 
     @Test(description = "Negative test to test returning different type without type name")
