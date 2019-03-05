@@ -206,7 +206,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -218,7 +218,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonA'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
