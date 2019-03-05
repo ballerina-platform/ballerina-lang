@@ -188,10 +188,6 @@ const int COMPUTE_MAXS = 1;
 const int COMPUTE_FRAMES = 2;
 final int V1_8 = 0 << 16 | 52;
 
-// stack map frame types
-int F_APPEND = 1;
-int F_SAME = 3;
-
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";

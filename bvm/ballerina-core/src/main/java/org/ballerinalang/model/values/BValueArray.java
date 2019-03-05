@@ -456,10 +456,6 @@ public class BValueArray extends BNewArray implements Serializable {
         return stringValues;
     }
 
-    public long[] getIntArray() {
-        return intValues;
-    }
-
     @Override
     public String toString() {
         return stringValue();

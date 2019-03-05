@@ -374,6 +374,7 @@ type InstructionGenerator object {
         }
         self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
     }
+
     # Generate adding a new value to array
     function generateArrayStoreIns(bir:FieldAccess inst) {
         int varRefIndex = self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl);
@@ -384,7 +385,7 @@ type InstructionGenerator object {
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
         self.generateLocalVarLoad(valueType, valueIndex);
 
-        string valueDesc = getTypeDesc(valueType); //pass the value type
+        string valueDesc = getTypeDesc(valueType);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 

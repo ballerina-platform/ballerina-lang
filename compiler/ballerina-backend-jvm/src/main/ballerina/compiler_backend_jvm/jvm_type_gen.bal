@@ -11,7 +11,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] 
     foreach var typeDef in typeDefs {
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
-        if (bType is bir:BRecordType) {
+        if (bType is bir:BRecordType || bType is bir:BObjectType) {
             jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
@@ -49,13 +49,14 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typ
     foreach var typeDef in typeDefs {
         fieldName = getTypeFieldName(typeDef.name.value);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
-        mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
+            mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
             mv.visitInsn(DUP);
             addRecordFields(mv, bType.fields);
             addRecordRestField(mv, bType.restFieldType);
         } else if (bType is bir:BObjectType) {
+            mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
         }
@@ -226,8 +227,8 @@ function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField[] fields) {
         mv.visitInsn(POP);
     }
 
-    // Set the fields of the record
-    mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE, "setFields", io:sprintf("(L%s;)V", MAP), false);
+    // Set the fields of the object
+    mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setFields", io:sprintf("(L%s;)V", MAP), false);
 }
 
 # Create a field information for objects.
@@ -286,7 +287,10 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
         loadUnionType(mv, bType);
         return;
     } else if (bType is bir:BRecordType) {
-        loadRecordType(mv, bType);
+        loadUserDefinedType(mv, bType.name);
+        return;
+    } else if (bType is bir:BObjectType) {
+        loadUserDefinedType(mv, bType.name);
         return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -361,14 +365,12 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
     return;
 }
 
-# Load a record type instance to the top os the stack.
+# Load a user defined type instance to the top of the stack.
 #
 # + mv - method visitor
 # + recordType - record type tp load
-function loadRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType) {
-    // TODO: load the record type from the field
-    string recordTypeName = "typeDef.name.value";
-    string fieldName = getTypeFieldName(recordTypeName);
+function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
+    string fieldName = getTypeFieldName(typeName.value);
     mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
