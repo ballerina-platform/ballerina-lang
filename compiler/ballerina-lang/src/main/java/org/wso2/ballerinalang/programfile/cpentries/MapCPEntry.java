@@ -30,21 +30,21 @@ import java.util.Map;
  */
 public class MapCPEntry implements ConstantPoolEntry {
 
-    private BConstantSymbol symbol;
-    private Map<KeyInfo, ConstantValue> value;
+    private BConstantSymbol constantSymbol;
+    private Map<KeyInfo, ConstantValue> constantValueMap;
     private int cpEntryIndex = -1;
 
     public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
         this(null, value);
     }
 
-    public MapCPEntry(BConstantSymbol symbol, Map<KeyInfo, ConstantValue> value) {
-        this.value = value;
-        this.symbol = symbol;
+    public MapCPEntry(BConstantSymbol constantSymbol, Map<KeyInfo, ConstantValue> constantValueMap) {
+        this.constantValueMap = constantValueMap;
+        this.constantSymbol = constantSymbol;
     }
 
-    public Map<KeyInfo, ConstantValue> getValue() {
-        return value;
+    public Map<KeyInfo, ConstantValue> getConstantValueMap() {
+        return constantValueMap;
     }
 
     public void setCPEntryIndex(int valueCPEntryIndex) {
@@ -68,35 +68,35 @@ public class MapCPEntry implements ConstantPoolEntry {
 
         MapCPEntry mapCPEntry = (MapCPEntry) o;
 
-        if (mapCPEntry.symbol != symbol) {
+        if (mapCPEntry.constantSymbol != constantSymbol) {
             return false;
         }
 
-        if (value.size() != mapCPEntry.value.size()) {
+        if (constantValueMap.size() != mapCPEntry.constantValueMap.size()) {
             return false;
         }
 
-        for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.value.entrySet()) {
+        for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.constantValueMap.entrySet()) {
             KeyInfo key = entry.getKey();
-            if (!this.value.containsKey(key)) {
+            if (!this.constantValueMap.containsKey(key)) {
                 return false;
             }
 
             ConstantValue value1 = entry.getValue();
-            ConstantValue value2 = this.value.get(key);
+            ConstantValue value2 = this.constantValueMap.get(key);
             if (!value1.equals(value2)) {
                 return false;
             }
         }
 
-        for (Map.Entry<KeyInfo, ConstantValue> entry : this.value.entrySet()) {
+        for (Map.Entry<KeyInfo, ConstantValue> entry : this.constantValueMap.entrySet()) {
             KeyInfo key = entry.getKey();
-            if (!mapCPEntry.value.containsKey(key)) {
+            if (!mapCPEntry.constantValueMap.containsKey(key)) {
                 return false;
             }
 
             ConstantValue value1 = entry.getValue();
-            ConstantValue value2 = mapCPEntry.value.get(key);
+            ConstantValue value2 = mapCPEntry.constantValueMap.get(key);
             if (!value1.equals(value2)) {
                 return false;
             }
@@ -106,6 +106,6 @@ public class MapCPEntry implements ConstantPoolEntry {
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return constantValueMap.hashCode();
     }
 }

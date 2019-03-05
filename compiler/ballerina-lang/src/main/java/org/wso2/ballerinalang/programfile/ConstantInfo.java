@@ -30,14 +30,19 @@ import java.util.Map;
  */
 public class ConstantInfo implements AttributeInfoPool {
 
+    // Contains the details of the constant name.
     public KeyInfo key;
 
+    // Contains the flags of the constant.
     public int flags = -1;
 
+    // Contains the value type signature CP index of the constant.
     public int valueTypeSigCPIndex = -1;
 
+    // Flag to indicate that the constant info contains a simple literal.
     public boolean isSimpleLiteral;
 
+    // Contains the details of the constants.
     public ConstantValue constantValue;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();

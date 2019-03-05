@@ -320,95 +320,80 @@ public class CompiledPackageSymbolEnter {
                 int uniqueNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool[uniqueNameCPIndex];
                 return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
-
             case CP_ENTRY_MAP:
-                LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
-
-                // value cp entry index
-                int constValueCPEntryIndex = dataInStream.readInt();
-
-                // Size
-                int size = dataInStream.readInt();
-
-                for (int i = 0; i < size; i++) {
-
-                    // Key
-                    int keyCPIndex = dataInStream.readInt();
-                    UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
-
-                    // Todo - use enum
-                    boolean isSimpleLiteral = dataInStream.readBoolean();
-                    boolean isConstRef = dataInStream.readBoolean();
-
-                    if (isSimpleLiteral) {
-
-
-                        // Value type tag
-                        int typeTag = dataInStream.readInt();
-
-                        // Value
-                        if (typeTag == TypeTags.NIL) {
-                            // Do nothing
-                        } else if (typeTag == TypeTags.BOOLEAN) {
-                            boolean value = dataInStream.readBoolean();
-
-                            ConstantValue constantValue = new ConstantValue();
-                            constantValue.booleanValue = value;
-                            constantValue.literalValueTypeTag = typeTag;
-
-                            constantValue.isSimpleLiteral = true;
-
-
-                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-
-                            valueMap.put(keyInfo, constantValue);
-
-                        } else {
-
-
-                            int valueCPEntryIndex = dataInStream.readInt();
-
-                            ConstantValue constantValue = new ConstantValue();
-                            constantValue.valueCPEntryIndex = valueCPEntryIndex;
-                            constantValue.literalValueTypeTag = typeTag;
-
-                            constantValue.isSimpleLiteral = true;
-
-
-                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-
-                            valueMap.put(keyInfo, constantValue);
-
-                        }
-                    }else if(isConstRef){
-                        int recordLiteralSigCPIndex = dataInStream.readInt();
-                        int valueCPEntryIndex = dataInStream.readInt();
-                    } else {
-                        int valueCPIndex = dataInStream.readInt();
-
-                        MapCPEntry cpEntry = (MapCPEntry) constantPool[valueCPIndex];
-
-                        ConstantValue constantValue = new ConstantValue();
-                        constantValue.valueCPEntryIndex = valueCPIndex;
-
-                        constantValue.constantValueMap = cpEntry.getValue();
-
-                        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-                        valueMap.put(keyInfo, constantValue);
-                    }
-                }
-
-                MapCPEntry mapCPEntry = new MapCPEntry(valueMap);
-                mapCPEntry.setCPEntryIndex(constValueCPEntryIndex);
-
-                return mapCPEntry;
-
+                return readMapConstantPoolEntry(dataInStream, constantPool);
             default:
                 throw new BLangCompilerException("invalid constant pool entry " + cpEntryType.getValue());
         }
+    }
+
+    private ConstantPoolEntry readMapConstantPoolEntry(DataInputStream dataInStream,
+                                                       ConstantPoolEntry[] constantPool) throws IOException {
+        LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+
+        // value cp entry index
+        int constantValueCPEntryIndex = dataInStream.readInt();
+
+        // Size
+        int size = dataInStream.readInt();
+
+        for (int i = 0; i < size; i++) {
+
+            // Key
+            int keyCPIndex = dataInStream.readInt();
+            UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
+
+            // Todo - use enum
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            boolean isConstRef = dataInStream.readBoolean();
+
+            if (isSimpleLiteral) {
+
+                // Value type tag
+                int typeTag = dataInStream.readInt();
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.literalValueTypeTag = typeTag;
+                constantValue.isSimpleLiteral = true;
+
+                // Value
+                if (typeTag == TypeTags.NIL) {
+                    // Do nothing
+                } else if (typeTag == TypeTags.BOOLEAN) {
+
+                    constantValue.booleanValue = dataInStream.readBoolean();
+
+                    valueMap.put(keyInfo, constantValue);
+                } else {
+                    constantValue.valueCPEntryIndex = dataInStream.readInt();
+
+                    valueMap.put(keyInfo, constantValue);
+                }
+            } else if (isConstRef) {
+                // Todo - Remove?
+                int recordLiteralSigCPIndex = dataInStream.readInt();
+                int valueCPEntryIndex = dataInStream.readInt();
+            } else {
+                int valueCPIndex = dataInStream.readInt();
+
+                MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex = valueCPIndex;
+                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+
+                valueMap.put(keyInfo, constantValue);
+            }
+        }
+
+        MapCPEntry mapCPEntry = new MapCPEntry(valueMap);
+        mapCPEntry.setCPEntryIndex(constantValueCPEntryIndex);
+
+        return mapCPEntry;
     }
 
     private void defineSymbols(DataInputStream dataInStream,
@@ -763,7 +748,7 @@ public class CompiledPackageSymbolEnter {
 
             MapCPEntry constantPoolEntry = (MapCPEntry) this.env.constantPool[valueCPEntry];
 
-//            constantSymbol.literalValue = getLiteralValue(valueType, constantPoolEntry.getValue());
+            //            constantSymbol.literalValue = getLiteralValue(valueType, constantPoolEntry.getValue());
             constantSymbol.literalValue = readConstantValueMap(dataInStream, valueType);
             constantSymbol.literalValueTypeTag = valueType.tag;
 
@@ -778,21 +763,6 @@ public class CompiledPackageSymbolEnter {
         // Set documentations.
         setDocumentation(constantSymbol, attrDataMap);
     }
-
-//    private BLangRecordLiteral.BLangMapLiteral getLiteralValue(BType type, Map<KeyInfo, ConstantValue> valueMap) {
-//
-//        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
-//
-//        valueMap.forEach((key, value) -> {
-//            BLangRecordLiteral.BLangRecordKeyValue keyValue =  new BLangRecordLiteral.BLangRecordKeyValue();
-//            BLangLiteral keyLiteral = new BLangLiteral();
-//
-//            keyValue.key =  new BLangRecordLiteral.BLangRecordKey(keyLiteral);
-//
-//        });
-//
-//        return new BLangRecordLiteral.BLangMapLiteral(keyValues, type,true );
-//    }
 
     private Object readSimpleLiteralValue(DataInputStream dataInStream, int typeTag) throws IOException {
         // Get the value.

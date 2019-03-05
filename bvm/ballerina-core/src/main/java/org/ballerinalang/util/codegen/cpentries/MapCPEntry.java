@@ -39,7 +39,7 @@ public class MapCPEntry implements ConstantPoolEntry {
         this.constantValueMap = constantValueMap;
         this.bMap = bMap;
 
-        // Freeze the bvalue map.
+        // Freeze the BMap.
         this.bMap.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
     }
 

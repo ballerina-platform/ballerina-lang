@@ -285,181 +285,136 @@ public class PackageInfoReader {
 
                 return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
             case CP_ENTRY_MAP:
-
-                LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
-                BMap<String, BRefType> bValueMap =  new BMap<>();
-
-                BType type = null;
-
-                // value cp entry index
-                int valueCPEntryIndex = dataInStream.readInt();
-
-                // Size
-                int size = dataInStream.readInt();
-
-                for (int i = 0; i < size; i++) {
-
-                    type = null;
-
-                    // Key
-                    int keyCPIndex = dataInStream.readInt();
-                    UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
-
-                    boolean isSimpleLiteral = dataInStream.readBoolean();
-                    boolean isConstRef = dataInStream.readBoolean();
-
-
-                    if (isSimpleLiteral) {
-
-
-                        // Value type tag
-                        int typeTag = dataInStream.readInt();
-
-                        // Value
-                        if (typeTag == TypeTags.NULL_TAG) {
-                            ConstantValue constantValue = new ConstantValue();
-                            constantValue.literalValueTypeTag = typeTag;
-                            constantValue.isSimpleLiteral = true;
-
-                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-                            valueMap.put(keyInfo, constantValue);
-
-                            bValueMap.put(keyCPEntry.getValue(), null);
-
-
-                        } else if (typeTag == TypeTags.BOOLEAN_TAG) {
-                            boolean value = dataInStream.readBoolean();
-
-                            ConstantValue constantValue = new ConstantValue();
-                            constantValue.booleanValue = value;
-                            constantValue.literalValueTypeTag = typeTag;
-
-                            constantValue.isSimpleLiteral = true;
-
-
-                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-
-                            valueMap.put(keyInfo, constantValue);
-
-                            bValueMap.put(keyCPEntry.getValue(), new BBoolean(value));
-
-                        } else {
-
-
-                            int valueCPIndex = dataInStream.readInt();
-
-                            ConstantValue constantValue = new ConstantValue();
-                            constantValue.valueCPEntryIndex = valueCPIndex;
-                            constantValue.literalValueTypeTag = typeTag;
-
-                            constantValue.isSimpleLiteral = true;
-
-
-                            KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-
-                            valueMap.put(keyInfo, constantValue);
-
-                            BMapType bMapType;
-
-                            ConstantPoolEntry cpEntry;
-                            switch (typeTag) {
-                                case INT_TAG:
-                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
-                                    BInteger bInteger = new BInteger(((IntegerCPEntry) cpEntry).getValue());
-
-                                    bMapType = new BMapType(bInteger.getType());
-                                    bValueMap = new BMap<>(bMapType);
-                                    bValueMap.put(keyCPEntry.getValue(), bInteger);
-
-                                    break;
-                                case BYTE_TAG:
-                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
-                                    BByte bByte = new BByte(((ByteCPEntry) cpEntry).getValue());
-
-                                    bMapType = new BMapType(bByte.getType());
-                                    bValueMap = new BMap<>(bMapType);
-                                    bValueMap.put(keyCPEntry.getValue(), bByte);
-                                    break;
-                                case FLOAT_TAG:
-                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
-                                    BFloat bFloat = new BFloat(((FloatCPEntry) cpEntry).getValue());
-
-                                    bMapType = new BMapType(bFloat.getType());
-                                    bValueMap = new BMap<>(bMapType);
-                                    bValueMap.put(keyCPEntry.getValue(), bFloat);
-                                    break;
-                                case DECIMAL_TAG:
-                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
-                                    BDecimal bDecimal = new BDecimal(new BigDecimal(((UTF8CPEntry) cpEntry).getValue(),
-                                            MathContext.DECIMAL128));
-
-                                    bMapType = new BMapType(bDecimal.getType());
-                                    bValueMap = new BMap<>(bMapType);
-                                    bValueMap.put(keyCPEntry.getValue(), bDecimal);
-                                    break;
-                                case STRING_TAG:
-                                    cpEntry = constantPool.getCPEntry(valueCPIndex);
-                                    BString bString = new BString(((UTF8CPEntry) cpEntry).getValue());
-
-                                    bMapType = new BMapType(bString.getType());
-                                    bValueMap = new BMap<>(bMapType);
-                                    bValueMap.put(keyCPEntry.getValue(), bString);
-                                    break;
-                                default:
-                                    throw new RuntimeException("unexpected type tag");
-                            }
-
-                        }
-                    } else if (isConstRef) {
-
-                        int recordLiteralSigCPIndex = dataInStream.readInt();
-                        UTF8CPEntry typeDesc =
-                                (UTF8CPEntry) constantPool.getCPEntry(recordLiteralSigCPIndex);
-
-                        type = getBTypeFromDescriptor((PackageInfo) constantPool, typeDesc.getValue());
-
-                        int valueCPIndex = dataInStream.readInt();
-
-                        MapCPEntry cpEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
-
-                        ConstantValue constantValue = new ConstantValue();
-                        constantValue.valueCPEntryIndex = valueCPIndex;
-
-                        constantValue.constantValueMap = cpEntry.getConstantValueMap();
-
-                        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-                        valueMap.put(keyInfo, constantValue);
-
-                        MapCPEntry valueMapCPEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
-
-                        bValueMap.put(keyCPEntry.getValue(), valueMapCPEntry.getBMap());
-
-                    } else {
-                        int valueCPIndex = dataInStream.readInt();
-
-                        MapCPEntry cpEntry = (MapCPEntry) constantPool.getCPEntry(valueCPIndex);
-
-                        ConstantValue constantValue = new ConstantValue();
-                        constantValue.valueCPEntryIndex = valueCPIndex;
-
-                        constantValue.constantValueMap = cpEntry.getConstantValueMap();
-
-                        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-                        valueMap.put(keyInfo, constantValue);
-
-                        // Todo - add to bValueMap
-                    }
-                }
-
-                return new MapCPEntry( valueMap, bValueMap);
+                return getMapConstantPoolEntry(constantPool);
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
+    }
+
+    private ConstantPoolEntry getMapConstantPoolEntry(ConstantPool constantPool) throws IOException {
+        LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+        BMap<String, BRefType> bValueMap = new BMap<>();
+
+        BType type = null;
+
+        // Read the constant value CP entry index.
+        int cpEntryIndex = dataInStream.readInt();
+
+        // Read the size of the
+        int size = dataInStream.readInt();
+
+        for (int i = 0; i < size; i++) {
+
+            type = null;
+
+            // Read the key.
+            int keyCPIndex = dataInStream.readInt();
+            UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
+
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            boolean isConstRef = dataInStream.readBoolean();
+
+            if (isSimpleLiteral) {
+                bValueMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
+            } else if (isConstRef) {
+
+                // Todo - Remove type?
+                int recordLiteralSigCPIndex = dataInStream.readInt();
+                UTF8CPEntry typeDesc = (UTF8CPEntry) constantPool.getCPEntry(recordLiteralSigCPIndex);
+                type = getBTypeFromDescriptor((PackageInfo) constantPool, typeDesc.getValue());
+
+                int constantValueCPEntryIndex = dataInStream.readInt();
+                MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
+
+                bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
+                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+
+                valueMap.put(keyInfo, constantValue);
+            } else {
+                throw new RuntimeException("unexpected type");
+            }
+        }
+        return new MapCPEntry( valueMap, bValueMap);
+    }
+
+    private BMap<String, BRefType> readSimpleLiteral(ConstantPool constantPool,
+                                                     LinkedHashMap<KeyInfo, ConstantValue> valueMap,
+                                                     UTF8CPEntry keyCPEntry) throws IOException {
+        BMap<String, BRefType> bValueMap = new BMap<>();
+
+        // Read value type tag.
+        int typeTag = dataInStream.readInt();
+
+        // Create a new constant value.
+        ConstantValue constantValue = new ConstantValue();
+        constantValue.literalValueTypeTag = typeTag;
+        constantValue.isSimpleLiteral = true;
+
+        // Create a new key info.
+        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+        valueMap.put(keyInfo, constantValue);
+
+        // Populate the BMap accordingly.
+        if (typeTag == TypeTags.NULL_TAG) {
+            bValueMap.put(keyCPEntry.getValue(), null);
+        } else if (typeTag == TypeTags.BOOLEAN_TAG) {
+            boolean value = dataInStream.readBoolean();
+            constantValue.booleanValue = value;
+            bValueMap.put(keyCPEntry.getValue(), new BBoolean(value));
+        } else {
+            int valueCPIndex = dataInStream.readInt();
+            constantValue.valueCPEntryIndex = valueCPIndex;
+
+            BMapType bMapType;
+            ConstantPoolEntry  cpEntry = constantPool.getCPEntry(valueCPIndex);
+
+            switch (typeTag) {
+                case INT_TAG:
+                    BInteger bInteger = new BInteger(((IntegerCPEntry) cpEntry).getValue());
+
+                    bMapType = new BMapType(bInteger.getType());
+                    bValueMap = new BMap<>(bMapType);
+                    bValueMap.put(keyCPEntry.getValue(), bInteger);
+                    break;
+                case BYTE_TAG:
+                    BByte bByte = new BByte(((ByteCPEntry) cpEntry).getValue());
+
+                    bMapType = new BMapType(bByte.getType());
+                    bValueMap = new BMap<>(bMapType);
+                    bValueMap.put(keyCPEntry.getValue(), bByte);
+                    break;
+                case FLOAT_TAG:
+                    BFloat bFloat = new BFloat(((FloatCPEntry) cpEntry).getValue());
+
+                    bMapType = new BMapType(bFloat.getType());
+                    bValueMap = new BMap<>(bMapType);
+                    bValueMap.put(keyCPEntry.getValue(), bFloat);
+                    break;
+                case DECIMAL_TAG:
+                    BDecimal bDecimal = new BDecimal(new BigDecimal(((UTF8CPEntry) cpEntry).getValue(),
+                            MathContext.DECIMAL128));
+
+                    bMapType = new BMapType(bDecimal.getType());
+                    bValueMap = new BMap<>(bMapType);
+                    bValueMap.put(keyCPEntry.getValue(), bDecimal);
+                    break;
+                case STRING_TAG:
+                    BString bString = new BString(((UTF8CPEntry) cpEntry).getValue());
+
+                    bMapType = new BMapType(bString.getType());
+                    bValueMap = new BMap<>(bMapType);
+                    bValueMap.put(keyCPEntry.getValue(), bString);
+                    break;
+                default:
+                    throw new RuntimeException("unexpected type tag");
+            }
+        }
+        return bValueMap;
     }
 
     public void readEntryPoint() throws IOException {

@@ -70,8 +70,7 @@ public class PackageInfoWriter {
     public static void writeCP(DataOutputStream dataOutStream,
                                ConstantPoolEntry[] constPool) throws IOException {
         dataOutStream.writeInt(constPool.length);
-        for (int i = 0; i < constPool.length; i++) {
-            ConstantPoolEntry cpEntry = constPool[i];
+        for (ConstantPoolEntry cpEntry : constPool) {
             // Emitting the kind of the constant pool entry.
             dataOutStream.writeByte(cpEntry.getEntryType().getValue());
             int nameCPIndex;
@@ -143,48 +142,48 @@ public class PackageInfoWriter {
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
                 case CP_ENTRY_MAP:
-                    MapCPEntry mapCPEntry = (MapCPEntry) cpEntry;
-
-                    // value cp entry index
-                    dataOutStream.writeInt( mapCPEntry.getCPEntryIndex());
-
-                    // Size
-                    dataOutStream.writeInt(mapCPEntry.getValue().size());
-
-                    for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.getValue().entrySet()) {
-                        KeyInfo key = entry.getKey();
-                        ConstantValue value = entry.getValue();
-
-                        // Key
-                        dataOutStream.writeInt(key.cpIndex);
-
-                        // Todo - use enum
-                        dataOutStream.writeBoolean(value.isSimpleLiteral);
-                        dataOutStream.writeBoolean(value.isConstRef);
-
-                        if (value.isSimpleLiteral) {
-
-                            // Value type tag
-                            dataOutStream.writeInt(value.literalValueTypeTag);
-
-                            // Value
-                            if (value.literalValueTypeTag == TypeTags.NIL) {
-                                // Do nothing
-                            } else if (value.literalValueTypeTag == TypeTags.BOOLEAN) {
-                                dataOutStream.writeBoolean(value.booleanValue);
-                            } else {
-                                dataOutStream.writeInt(value.valueCPEntryIndex);
-                            }
-
-                        } else if (value.isConstRef) {
-                            // Todo - remove recordLiteralSigCPIndex
-                            dataOutStream.writeInt(value.recordLiteralSigCPIndex);
-                            dataOutStream.writeInt(value.valueCPEntryIndex);
-                        } else {
-                            throw new RuntimeException("unexpected type");
-                        }
-                    }
+                    writeMapCPEntry(dataOutStream, (MapCPEntry) cpEntry);
                     break;
+            }
+        }
+    }
+
+    private static void writeMapCPEntry(DataOutputStream dataOutStream, MapCPEntry mapCPEntry) throws IOException {
+        // Write constant CP entry index.
+        dataOutStream.writeInt(mapCPEntry.getCPEntryIndex());
+
+        // Write size of the constant value map.
+        dataOutStream.writeInt(mapCPEntry.getConstantValueMap().size());
+
+        for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.getConstantValueMap().entrySet()) {
+            KeyInfo key = entry.getKey();
+            ConstantValue value = entry.getValue();
+
+            // Write the key CP index.
+            dataOutStream.writeInt(key.cpIndex);
+
+            // Todo - Use an enum?
+            dataOutStream.writeBoolean(value.isSimpleLiteral);
+            dataOutStream.writeBoolean(value.isConstRef);
+
+            if (value.isSimpleLiteral) {
+                // Write value type tag.
+                dataOutStream.writeInt(value.literalValueTypeTag);
+
+                // Write value.
+                if (value.literalValueTypeTag == TypeTags.NIL) {
+                    // Do nothing.
+                } else if (value.literalValueTypeTag == TypeTags.BOOLEAN) {
+                    dataOutStream.writeBoolean(value.booleanValue);
+                } else {
+                    dataOutStream.writeInt(value.valueCPEntryIndex);
+                }
+            } else if (value.isConstRef) {
+                // Todo - remove recordLiteralSigCPIndex
+                dataOutStream.writeInt(value.recordLiteralSigCPIndex);
+                dataOutStream.writeInt(value.valueCPEntryIndex);
+            } else {
+                throw new RuntimeException("unexpected type");
             }
         }
     }
@@ -280,16 +279,16 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(constantInfo.flags);
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
             if (constantInfo.isSimpleLiteral) {
-                // If the constant is a simple literal, write the literal info.
+                // Write literal info.
                 writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
             } else {
                 // If the constant is a map literal, write the type signature CP index first.
                 dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
 
-                // Value cp entry
+                // Write value CP entry index.
                 dataOutStream.writeInt(constantInfo.constantValue.valueCPEntryIndex);
 
-                // Write the map literal info.
+                // Write map literal info.
                 writeMapLiteral(dataOutStream, constantInfo.constantValue.constantValueMap);
             }
             // Write attribute info.
@@ -335,7 +334,6 @@ public class PackageInfoWriter {
             if (constantValue.isSimpleLiteral) {
                 // If the value is a simple literal, write the simple literal info.
                 writeSimpleLiteral(dataOutStream, constantValue);
-                // Todo - add reference
             } else {
                 // If the value is a map literal, wrote the map literal type signature CP index first.
                 dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
