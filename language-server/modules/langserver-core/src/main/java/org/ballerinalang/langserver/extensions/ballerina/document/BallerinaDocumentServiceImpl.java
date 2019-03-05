@@ -20,7 +20,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
+import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
@@ -43,9 +43,9 @@ import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.swagger.CodeGenerator;
-import org.ballerinalang.swagger.model.GenSrcFile;
-import org.ballerinalang.swagger.utils.GeneratorConstants;
+import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.model.GenSrcFile;
+import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -110,7 +110,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
-            String swaggerDefinition = SwaggerConverterUtils
+            String swaggerDefinition = OpenApiConverterUtils
                     .generateOAS3Definitions(fileContent, request.getBallerinaService());
             reply.setBallerinaOASJson(convertToJson(swaggerDefinition));
         } catch (Exception e) {

@@ -172,7 +172,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-swagger</artifactId>
+            <artifactId>ballerina-openapi</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -239,7 +239,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-to-ballerina-generator</artifactId>
+            <artifactId>openapi-to-ballerina-generator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -415,7 +415,7 @@
                                 ballerina-runtime,
                                 ballerina-sql,
                                 ballerina-streams,
-                                ballerina-swagger,
+                                ballerina-openapi,
                                 ballerina-system,
                                 ballerina-task,
                                 ballerina-time,
@@ -575,7 +575,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-swagger-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
