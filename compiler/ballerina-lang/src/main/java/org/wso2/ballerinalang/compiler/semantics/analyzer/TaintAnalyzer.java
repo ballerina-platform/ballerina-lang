@@ -1698,6 +1698,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
             boolean isBlocked;
             if (invNode.flagSet.contains(Flag.LAMBDA)) {
+                // If function analysis is blocked and current a lambda function is being analyzed, mark the enclosing
+                // top level function as blocked.
                 isBlocked = processBlockedNode(currTopLevelFunction);
             } else {
                 isBlocked = processBlockedNode(invNode);
@@ -1790,7 +1792,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     && (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
-                    this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
+                this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
             } else {
                 taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(getCurrentAnalysisState().taintErrorSet)));
             }
