@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -64,7 +66,8 @@ public class Visit extends BlockingNativeCallableUnit {
         int access = (int) context.getIntArgument(1);
         String name = context.getStringArgument(0);
         String superName = context.getStringArgument(1);
-        cw.visit(versionNumber, access, name, null, superName, null);
+        String[] interfaces = getInterfaces(context.getNullableRefArgument(2));
+        cw.visit(versionNumber, access, name, null, superName, interfaces);
         generateDefaultConstructor(cw);
     }
 
@@ -77,5 +80,18 @@ public class Visit extends BlockingNativeCallableUnit {
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
+    }
+
+    private String[] getInterfaces(BValue value) {
+        if (!(value instanceof BValueArray)) {
+            return null;
+        }
+
+        BValueArray valueArray = (BValueArray) value;
+        String[] stringArray = new String[(int) valueArray.size()];
+        for (int i = 0; i < valueArray.size(); i++) {
+            stringArray[i] = valueArray.getString(i);
+        }
+        return stringArray;
     }
 }

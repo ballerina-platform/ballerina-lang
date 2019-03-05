@@ -191,9 +191,10 @@ final int V1_8 = 0 << 16 | 52;
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
+const string OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
 const string STRING_VALUE = "java/lang/String";
+const string OBJECT = "java/lang/Object";
 const string LONG_VALUE = "java/lang/Long";
-const string OBJECT_VALUE = "java/lang/Object";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 
 const string MAP = "java/util/Map";
