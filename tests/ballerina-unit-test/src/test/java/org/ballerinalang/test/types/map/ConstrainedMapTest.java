@@ -432,7 +432,7 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonComplexTwo'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'PersonComplexTwo'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")
