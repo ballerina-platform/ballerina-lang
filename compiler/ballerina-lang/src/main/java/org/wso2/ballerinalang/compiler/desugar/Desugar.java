@@ -721,7 +721,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create the variable definition statements using the root block stmt created.
         createVarDefStmts(errorVariable, blockStmt, error.symbol, null);
 
-        //finally rewrite the populated block statement
+        // Finally rewrite the populated block statement.
         result = rewrite(blockStmt, env);
     }
 
