@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -33,7 +34,6 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -135,7 +135,7 @@ public class ArrayValue implements RefValue {
             if (type.getTag() == TypeTags.ARRAY_TAG) {
                 BArrayType arrayType = (BArrayType) type;
                 this.elementType = arrayType.getElementType();
-                if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
+                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
                     this.size = maxArraySize = arrayType.getSize();
                 }
                 refValues = (Object[]) newArrayInstance(Object.class);
@@ -174,6 +174,9 @@ public class ArrayValue implements RefValue {
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+        } else {
+            refValues = (Object[]) newArrayInstance(Object.class);
+            Arrays.fill(refValues, type.getEmptyValue());
         }
 
         this.arrayType = new BArrayType(type, (int) size);
@@ -182,28 +185,28 @@ public class ArrayValue implements RefValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
-    public Object getRefValue(int index) {
-        return refValues[index];
+    public Object getRefValue(long index) {
+        return refValues[(int) index];
     }
 
-    public long getInt(int index) {
-        return intValues[index];
+    public long getInt(long index) {
+        return intValues[(int) index];
     }
 
-    public int getBoolean(int index) {
-        return booleanValues[index];
+    public int getBoolean(long index) {
+        return booleanValues[(int) index];
     }
 
-    public byte getByte(int index) {
-        return byteValues[index];
+    public byte getByte(long index) {
+        return byteValues[(int) index];
     }
 
-    public double getFloat(int index) {
-        return floatValues[index];
+    public double getFloat(long index) {
+        return floatValues[(int) index];
     }
 
-    public String getString(int index) {
-        return stringValues[index];
+    public String getString(long index) {
+        return stringValues[(int) index];
     }
 
     // ----------------------------  add methods --------------------------------------------------

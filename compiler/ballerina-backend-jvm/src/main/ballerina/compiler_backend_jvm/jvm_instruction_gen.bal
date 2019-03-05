@@ -376,15 +376,10 @@ type InstructionGenerator object {
     }
     # Generate adding a new value to array
     function generateArrayStoreIns(bir:FieldAccess inst) {
-        // TODO: visit(var_ref)
-        // TODO: visit(index_expr)
-        // TODO: visit(value_expr)
         int varRefIndex = self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl);
         self.mv.visitVarInsn(ALOAD, varRefIndex);
         int keyIndex = self.getJVMIndexOfVarRef(inst.keyOp.variableDcl);
         self.mv.visitVarInsn(LLOAD, keyIndex);
-        // int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
-        // self.mv.visitVarInsn(LLOAD, valueIndex); //need to fix, this is only for int
         int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
         self.generateLocalVarLoad(valueType, valueIndex);
@@ -393,22 +388,30 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
-    function generateArrayValueLoad() {
-        // TODO: visit(var_ref)
-        // TODO: visit(index_expr)
-        bir:BType bType = (); // need to infer from the instruction
+    function generateArrayValueLoad(bir:FieldAccess inst) {
+        int varRefIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, varRefIndex);
+        int keyIndex = self.getJVMIndexOfVarRef(inst.keyOp.variableDcl);
+        self.mv.visitVarInsn(LLOAD, keyIndex);
+        bir:BType bType = inst.lhsOp.variableDcl.typeValue;
         if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
+            self.mv.visitVarInsn(LSTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else if (bType is bir:BTypeString) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+            self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
+            self.mv.visitVarInsn(ISTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else if (bType == "byte") {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
+            self.mv.visitVarInsn(ISTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else if (bType == "float") {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
+            self.mv.visitVarInsn(DSTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE), false);
+            self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         }
     }
 
