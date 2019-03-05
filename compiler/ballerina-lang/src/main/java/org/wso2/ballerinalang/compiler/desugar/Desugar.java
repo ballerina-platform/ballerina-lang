@@ -1289,7 +1289,7 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (expression.getKind() == NodeKind.ERROR_VARIABLE_REF) {
-                //else recursively create the var def statements for record var ref
+                // Else recursively create the var def statements for record var ref.
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expression;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(errorVarRef.pos, symTable.intType,
                         (long) index);
