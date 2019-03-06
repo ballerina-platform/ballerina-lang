@@ -62,7 +62,7 @@ public function main() {
 
 // Service which will be attached to the timer.
 service service1 = service {
-    // On trigger resource which will trigger when timer runs off.
+    // onTrigger resource which will trigger when the timer runs off.
     // Note the usage of Person object passing inside the function, which we
     // attached with the timer.
     resource function onTrigger(Person person) {
