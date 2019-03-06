@@ -42,10 +42,6 @@
         </dependency>
     </dependencies>
 
-    <build>
-
-    </build>
-
     <properties>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
