@@ -51,3 +51,21 @@ function generate_random_namespace() {
     local new_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
     echo "kubernetes-namespace"-${new_uuid}
 }
+
+function wait_for_pod_readiness() {
+    TIMEOUT=300
+    INTERVAL=20
+    bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
+
+    # Temporary sleep to check whether app eventually becomes ready..
+    # Ideally there should have been a kubernetes readiness probe
+    # which would make sure the "Ready" status would actually mean
+    # the pod is ready to accept requests (app is ready) so the above
+    # readiness script would suffice
+    sleep 10s
+}
+
+function setup_env() {
+    input_dir=$1
+    bash 'product-scenarios/wait_for_pod_ready.sh' $1
+}
