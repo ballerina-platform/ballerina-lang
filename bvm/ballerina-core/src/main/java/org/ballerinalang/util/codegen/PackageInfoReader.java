@@ -753,11 +753,11 @@ public class PackageInfoReader {
         if (isSimpleLiteral) {
             readSimpleLiteral(packageInfo);
         } else {
-            // Read and ignore value cp index.
-            int i = dataInStream.readInt();
+            // Read and ignore value CP index.
+            dataInStream.readInt();
 
-            // Value cp entry
-           int j = dataInStream.readInt();
+            // Read and ignore value CP entry index.
+            dataInStream.readInt();
 
             // Read and ignore map constant value.
             readMapLiteral(packageInfo);
@@ -806,13 +806,24 @@ public class PackageInfoReader {
             dataInStream.readInt();
             // Read simple literal flag.
             boolean isSimpleLiteral = dataInStream.readBoolean();
+            boolean isConstRef = dataInStream.readBoolean();
             if (isSimpleLiteral) {
                 // Read simple literal info.
                 readSimpleLiteral(packageInfo);
                 // Todo - Add const ref
+//            } else if (isConstRef) {
+//                // Read record literal type signature CP index.
+//                dataInStream.readInt();
+//
+//                // Todo
+//                dataInStream.readInt();
             } else {
                 // Read record literal type signature CP index.
                 dataInStream.readInt();
+
+                // Read value CP entry index.
+                dataInStream.readInt();
+
                 // Read map literal info.
                 readMapLiteral(packageInfo);
             }

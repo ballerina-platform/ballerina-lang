@@ -332,12 +332,24 @@ public class PackageInfoWriter {
             ConstantValue constantValue = entry.getValue();
 
             dataOutStream.writeBoolean(constantValue.isSimpleLiteral);
+            dataOutStream.writeBoolean(constantValue.isConstRef);
             if (constantValue.isSimpleLiteral) {
                 // If the value is a simple literal, write the simple literal info.
                 writeSimpleLiteral(dataOutStream, constantValue);
+//            } else if (constantValue.isConstRef) {
+//                // If the value is a map literal, wrote the map literal type signature CP index first.
+//                dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
+//
+//                // Write value CP entry index. This is later used to reconstruct the record literal.
+//                dataOutStream.writeInt(constantValue.valueCPEntryIndex);
             } else {
                 // If the value is a map literal, wrote the map literal type signature CP index first.
                 dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
+
+                // Write value CP entry index. This is later used to reconstruct the record literal.
+                dataOutStream.writeInt(constantValue.valueCPEntryIndex);
+
+                // Todo - remove?
                 // Write the map literal info.
                 writeMapLiteral(dataOutStream, constantValue.constantValueMap);
             }

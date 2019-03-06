@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.programfile.cpentries;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.KeyInfo;
 
@@ -33,6 +34,8 @@ public class MapCPEntry implements ConstantPoolEntry {
     private BConstantSymbol constantSymbol;
     private Map<KeyInfo, ConstantValue> constantValueMap;
     private int cpEntryIndex = -1;
+
+   public BLangRecordLiteral.BLangMapLiteral literalValue;
 
     public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
         this(null, value);
@@ -57,6 +60,14 @@ public class MapCPEntry implements ConstantPoolEntry {
 
     public EntryType getEntryType() {
         return EntryType.CP_ENTRY_MAP;
+    }
+
+    public void setConstantSymbol(BConstantSymbol constantSymbol) {
+        this.constantSymbol = constantSymbol;
+    }
+
+    public BConstantSymbol getConstantSymbol() {
+        return constantSymbol;
     }
 
     @Override
