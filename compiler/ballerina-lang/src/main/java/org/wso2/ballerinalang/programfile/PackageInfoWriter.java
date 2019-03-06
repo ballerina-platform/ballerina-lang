@@ -183,7 +183,8 @@ public class PackageInfoWriter {
                 dataOutStream.writeInt(value.recordLiteralSigCPIndex);
                 dataOutStream.writeInt(value.valueCPEntryIndex);
             } else {
-                throw new RuntimeException("unexpected type");
+                // This situation occurs for any nested record literal.
+                dataOutStream.writeInt(value.valueCPEntryIndex);
             }
         }
     }

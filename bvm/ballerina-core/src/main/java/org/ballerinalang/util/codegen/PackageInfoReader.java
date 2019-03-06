@@ -336,7 +336,19 @@ public class PackageInfoReader {
 
                 valueMap.put(keyInfo, constantValue);
             } else {
-                throw new RuntimeException("unexpected type");
+                // This situation occurs for any nested record literal.
+                int constantValueCPEntryIndex = dataInStream.readInt();
+                MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
+
+                bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
+                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+
+                valueMap.put(keyInfo, constantValue);
             }
         }
         return new MapCPEntry( valueMap, bValueMap);
