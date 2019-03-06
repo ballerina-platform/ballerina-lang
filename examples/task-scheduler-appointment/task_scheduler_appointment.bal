@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerina/task;
 import ballerina/runtime;
+import ballerina/task;
 
 int reminderCount = 0;
 
@@ -20,12 +20,20 @@ public function main () {
     task:Scheduler appointment = new({ appointmentDetails: appointmentData });
 
     // Attach the service to the Scheduler.
-    _ = appointment.attach(appointmentService);
+    var attachResult = appointment.attach(appointmentService);
+    if (attachResult is error) {
+        io:println("Error attaching the service.");
+        return;
+    }
 
     // Start the scheduler.
-    _ = appointment.start();
+    var startResult = appointment.start();
+    if (startResult is error) {
+        io:println("Starting the task is failed.");
+        return;
+    }
 
-    // Wait for sometime
+    // Wait for 10000 milliseconds
     runtime:sleep(10000);
 
     // Cancel the appointment.
@@ -37,12 +45,13 @@ public function main () {
     io:println("Appointment cancelled.");
 }
 
-
 // Creating a service on the task Listener.
 service appointmentService = service {
     // This resource triggers when the appointment is due.
     resource function onTrigger() {
-        reminderCount = reminderCount + 1;
-        io:println("Schedule is due - Reminder: " + reminderCount);
+        if (reminderCount < 5) {
+            reminderCount = reminderCount + 1;
+            io:println("Schedule is due - Reminder: " + reminderCount);
+        }
     }
 };

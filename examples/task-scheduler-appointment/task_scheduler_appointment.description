@@ -4,5 +4,5 @@
 // `noOfRecurrences` field can be used to provide the maximum number of times
 // the appointment should run before shutdown.
 // A service can be attached to the Scheduler using `attach()` function.
-// THen the Scheduler can be started using `start()` method. When the scheduler
+// Then the Scheduler can be started using `start()` method. When the scheduler
 // needs to be cancelled, `stop()` method can be called.

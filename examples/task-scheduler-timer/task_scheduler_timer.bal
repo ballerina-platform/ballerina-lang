@@ -25,20 +25,37 @@ public function main() {
     // person object into the timer service.
     // Defaultable `serviceParameter` will pass the object into the resources
     // if it is set.
-    _ = timer.attach(service1, serviceParameter = person);
-    _ = timer.attach(service2, serviceParameter = person);
+    var attachResult = timer.attach(service1, attachment = person);
+    if (attachResult is error) {
+        io:println("Error attaching the service1.");
+        return;
+    }
+
+    attachResult = timer.attach(service2, attachment = person);
+    if (attachResult is error) {
+        io:println("Error attaching the service2.");
+        return;
+    }
 
     // Start the timer.
-    _ = timer.start();
+    var startResult = timer.start();
+    if (startResult is error) {
+        io:println("Starting the task is failed.");
+        return;
+    }
 
     // While loop will stop function from exiting until the service ends.
     while (person.age < person.maxAge) {
-        // Wait for sometime before stop the service.
+        // Wait until person age reaches max age.
     }
 
     // Cancel the timer. This will stop the timer and all the services
     // attached to it.
-    _ = timer.stop();
+    var stopResult = timer.stop();
+    if (stopResult is error) {
+        io:println("Stopping the task is failed.");
+        return;
+    }
 
     io:println("End.");
 }
@@ -56,8 +73,8 @@ service service1 = service {
 
 service service2 = service {
     resource function onTrigger(Person person) {
-        if (person.age > 5) {
-            io:println(person.name + " is started schooling at age " + person.age);
+        if (person.age == 5) {
+            io:println(person.name + " started schooling at age " + person.age);
         }
     }
 };
