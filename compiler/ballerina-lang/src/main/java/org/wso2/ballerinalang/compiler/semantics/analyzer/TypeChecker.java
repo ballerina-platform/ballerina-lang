@@ -168,6 +168,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv env;
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
+    private ConstantValueChecker constantValueChecker;
 
     /**
      * Expected types or inherited types.
@@ -197,6 +198,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
+        this.constantValueChecker = ConstantValueChecker.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -909,6 +911,31 @@ public class TypeChecker extends BLangNodeVisitor {
         // Accessing all fields using * is only supported for XML.
         if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
+        }
+
+        if (varRefType.tag == TypeTags.MAP) {
+            BLangExpression expression = fieldAccessExpr.getExpression();
+            if (expression.getKind() == NodeKind.CONSTANT_REF) {
+                BConstantSymbol constantSymbol =
+                        (BConstantSymbol) ((BLangSimpleVarRef.BLangConstRef) expression).symbol;
+                BLangRecordLiteral.BLangMapLiteral mapLiteral =
+                        (BLangRecordLiteral.BLangMapLiteral) constantSymbol.literalValue;
+                // Retrieve the field access expression's value.
+                constantValueChecker.checkValue(fieldAccessExpr.pos, fieldAccessExpr.expr, fieldAccessExpr.field,
+                        mapLiteral);
+            }
+
+            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+                if (symbol.tag == SymTag.CONSTANT) {
+                    BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
+                    BLangRecordLiteral mapLiteral =
+                            (BLangRecordLiteral) constantSymbol.literalValue;
+                    // Retrieve the field access expression's value.
+                    constantValueChecker.checkValue(fieldAccessExpr.pos, fieldAccessExpr.expr, fieldAccessExpr.field,
+                            mapLiteral);
+                }
+            }
         }
 
         // error lifting on lhs is not supported

@@ -22,8 +22,10 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -39,9 +41,9 @@ public class ConstantValueChecker extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
 
     private DiagnosticPos pos;
+    private BLangExpression reference;
     private BLangIdentifier keyIdentifier;
 
-    private BLangLiteral result;
 
     private ConstantValueChecker(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -57,38 +59,37 @@ public class ConstantValueChecker extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangLiteral getValue(DiagnosticPos pos, BLangIdentifier keyIdentifier,
-                                 BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        this.result = null;
-
+    void checkValue(DiagnosticPos pos, BLangExpression reference, BLangIdentifier keyIdentifier,
+                    BLangRecordLiteral mapLiteral) {
         this.pos = pos;
+        this.reference = reference;
         this.keyIdentifier = keyIdentifier;
 
         mapLiteral.accept(this);
-
-        return this.result;
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+    public void visit(BLangRecordLiteral mapLiteral) {
         // Iterate through all key-value pairs in the record literal.
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
+        for (BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
+            // Todo - Add negative tests for non literal keys
             //  Get the key.
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
             // If the key is equal to the value of the keyIdentifier, that means the key which we are looking for is
             // in the record literal.
-            if (key.equals(keyIdentifier.value)) {
-                // Since we are looking for a literal which can be used as at compile time, it should be a literal.
-                if (keyValuePair.valueExpr.getKind() == NodeKind.LITERAL ||
-                        keyValuePair.valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    result = ((BLangLiteral) keyValuePair.valueExpr);
-                    return;
-                }
-                // Todo - Log error.
-                throw new RuntimeException("unsupported node kind");
+            if (!key.equals(keyIdentifier.value)) {
+                continue;
             }
+            // Since we are looking for a literal which can be used as at compile time, it should be a literal.
+            NodeKind nodeKind = keyValuePair.valueExpr.getKind();
+            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
+                    nodeKind == NodeKind.RECORD_LITERAL_EXPR || nodeKind == NodeKind.CONSTANT_REF) {
+                return;
+            }
+            // Todo - Log error?
+            throw new RuntimeException("unsupported node kind");
         }
-        // If this line is reached, that means we haven't found the key. In that case, log a compilation error.
-        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, mapLiteral.name.value);
+        // If this line is reached, that means the key haven't been found. In that case, log a compilation error.
+        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, reference);
     }
 }

@@ -26,11 +26,12 @@ import org.testng.annotations.Test;
 /**
  * Constant negative tests.
  */
-public class ConstantNegativeTest {
+public class SimpleConstantNegativeTest {
 
     @Test
     public void testNegative() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
+                "simple-literal-constant-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 56);
 
         int index = 0;
