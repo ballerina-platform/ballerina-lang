@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/math;
 import ballerina/task;
 
-// Define a custom record type tyo use in timer.
+// Define a custom record type to use in timer.
 public type Person record {
     string name;
     int age;
