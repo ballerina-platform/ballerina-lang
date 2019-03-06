@@ -131,6 +131,11 @@ public class AbsoluteTest {
         validateFilename(path);
     }
 
+    @Test(description = "Test filename path function for windows paths", dataProvider = "windows_paths")
+    public void testGetWindowsFileName(String path) {
+        validateFilename(path);
+    }
+
     private void validateFilename(String input) {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetFilename", args);
@@ -146,7 +151,9 @@ public class AbsoluteTest {
                 "/foo/..",
                 ".",
                 "foo/",
-                "foo/bar/"
+                "foo/bar/",
+                "/AAA/////BBB/",
+                ""
         };
     }
 
@@ -157,6 +164,7 @@ public class AbsoluteTest {
                 "\\\\server",
                 "C:/foo/..",
                 "C:\\foo\\..",
+                "D;\\bar\\baz",
                 "bar\\baz",
                 "bar/baz",
                 "."

@@ -82,25 +82,165 @@ public function isAbsolute(string path) returns boolean {
 #
 # + path - String value of file path.
 # + return - Returns the name of the file
-public function filename(string path) returns string? {
+public function filename(string path) returns string?|error {
     int[] offsetIndexes = getOffsetIndexes(path);
     int count = offsetIndexes.length();
     if (count == 0) {
         return ();
     }
     if (count == 1 && path.length() > 0 && !isAbsolute(path)) {
-        return path;
+        return normalizeAndCheck(path);
     }
     int lastOffset = offsetIndexes[count - 1];
-    //TODO reuse normalize function once it implemented.
-    if (path.hasSuffix(PATH_SEPARATOR)) {
-        return path.substring(lastOffset, path.length() - 1);
-    }
-    return path.substring(lastOffset, path.length());
+    log:printInfo("filename path: " + path);
+    return normalizeAndCheck(path.substring(lastOffset, path.length()));
 }
 
-function isSlash(string c) returns boolean {
-    return (c == "") || (c == "/");
+function normalizeAndCheck(string input) returns string|error {
+    if (input.length() <= 0) {
+        return input;
+    }
+    if (IS_WINDOWS) {
+        int length = input.length();
+        int offset = 0;
+        string root = "";
+        if (length > 1) {
+            string c0 = input.substring(0, 1);
+            string c1 = input.substring(1, 2);
+            int next = 2;
+            if (isSlash(c0) && isSlash(c1)) {
+                var unc = isUNC(input);
+                if (unc is error) {
+                    log:printError("Error while checking whether path has valid UNC format", err = unc);
+                    return unc;
+                } else {
+                    if (!unc) {
+                        error err = error("Invaild UNC path");
+                        return err;
+                    }
+                }
+                offset = nextNonSlashIndex(input, next, length);
+                next = nextSlashIndex(input, offset, length);
+                string host = input.substring(offset, next);  //host
+                offset = nextNonSlashIndex(input, next, length);
+                next = nextSlashIndex(input, offset, length);
+                //TODO suffix dot. added before of formatting issue in idea.
+                root = "\\\\." + host + "\\." + input.substring(offset, next) + "\\.";
+                offset = next;
+            } else {
+                if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
+                    if (input.length() > 2 && isSlash(input.substring(2, 3))) {
+                        string c2 = input.substring(2, 3);
+                        if (c2 == "\\.") {
+                            root = input.substring(0, 3);
+                        } else {
+                            root = input.substring(0, 2) + "\\.";
+                        }
+                        offset = 3;
+                    } else {
+                        root = input.substring(0, 2);
+                        offset = 2;
+                    }
+                }
+            }
+        }
+        return root + normalizeWindowsPath(input, offset);
+    } else {
+        int n = input.length();
+        string prevC = "";
+        int i = 0;
+        while (i < n) {
+            string c = input.substring(i, i+1);
+            if ((c == "/") && (prevC == "/")) {
+                return normalizePosixPath(input, i - 1);
+            }
+            prevC = c;
+            i = i + 1;
+        }
+        if (prevC == "/") {
+            return normalizePosixPath(input, n - 1);
+        }
+        return input;
+    }
+}
+
+function normalizeWindowsPath(string path, int off) returns string {
+    string normalizedPath = "";
+    int length = path.length();
+    int offset = nextNonSlashIndex(path, off, length);
+    int startIndex = offset;
+    string lastC = "";
+    while (offset < length) {
+        string c = path.substring(offset, offset+1);
+        if (isSlash(c)) {
+            normalizedPath = normalizedPath + path.substring(startIndex, offset);
+            offset = nextNonSlashIndex(path, offset, length);
+            if (offset != length) {
+                normalizedPath = normalizedPath + "\\.";
+            }
+            startIndex = offset;
+        } else {
+            lastC = c;
+            offset = offset + 1;
+        }
+    }
+    if (startIndex != offset) {
+        normalizedPath = normalizedPath + path.substring(startIndex, offset);
+    }
+    return normalizedPath;
+}
+
+function normalizePosixPath(string input, int off) returns string {
+    int n = input.length();
+    byte[] bytes = input.toByteArray("UTF-8");
+    while((n > 0) && (bytes[n-1] == 47)) {
+        n = n-1;
+    }
+    if (n == 0) {
+        return "/";
+    }
+    string normalizedPath = "";
+    if (off > 0) {
+        normalizedPath = normalizedPath + input.substring(0, off);
+    }
+    string prevC = "";
+    int i = off;
+    while(i < n) {
+        string c = input.substring(i, i + 1);
+        if (c == "/" && prevC == "/") {
+            continue;
+        }
+        normalizedPath = normalizedPath + c;
+        prevC = c;
+        i = i + 1;
+    }
+    return normalizedPath;
+}
+
+function isSlash(string|byte c) returns boolean {
+    if (c is string) {
+        return (c == "") || (c == "/");
+    } else {
+        return (c == 92 || c == 47);
+    }
+}
+
+function nextNonSlashIndex(string path, int offset, int end) returns int {
+    byte[] pathValues = path.toByteArray("UTF-8");
+    int off = offset;
+    while(off < end && isSlash(pathValues[off])) {
+        off = off + 1;
+    }
+    return off;
+}
+
+function nextSlashIndex(string path, int offset, int end) returns int {
+    byte[] pathValues = path.toByteArray("UTF-8");
+    int off = offset;
+    while(off < end && !isSlash(pathValues[off])) {
+        off = off + 1;
+    }
+    return off;
 }
 
 function isLetter(string c) returns boolean {
