@@ -132,4 +132,4 @@ kubectl get svc ballerina-data-service -o=json
 EXTERNAL_IP=$(kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
 echo "ExternalIP=$EXTERNAL_IP" >> ${OUTPUT_DIR}/deployment.properties
-echo "ServicesToBeDeleted=ballerina-data-service" >> ${OUTPUT_DIR}/infrastructure-cleanup.properties
+echo "NamespacesToCleanup=${custom_namespace}" >> ${OUTPUT_DIR}/infrastructure-cleanup.properties
