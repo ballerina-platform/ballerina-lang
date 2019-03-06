@@ -62,31 +62,31 @@ import javax.ws.rs.core.MediaType;
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 
 /**
- * This class will do resource mapping from ballerina to swagger.
+ * This class will do resource mapping from ballerina to openApi.
  */
 public class OpenApiResourceMapper {
     private final String httpAlias;
-    private final String swaggerAlias;
-    private final Swagger swaggerDefinition;
+    private final String openApiAlias;
+    private final Swagger openApiDefinition;
 
     /**
-     * Initializes a resource parser for swagger.
+     * Initializes a resource parser for openApi.
      *
-     * @param swagger      The swagger definition.
+     * @param openApi      The OpenAPI definition.
      * @param httpAlias    The alias for ballerina/http module.
-     * @param swaggerAlias The alias for ballerina.swagger module.
+     * @param openApiAlias The alias for ballerina.swagger module.
      */
-    OpenApiResourceMapper(Swagger swagger, String httpAlias, String swaggerAlias) {
+    OpenApiResourceMapper(Swagger openApi, String httpAlias, String openApiAlias) {
         this.httpAlias = httpAlias;
-        this.swaggerAlias = swaggerAlias;
-        this.swaggerDefinition = swagger;
+        this.openApiAlias = openApiAlias;
+        this.openApiDefinition = openApi;
     }
 
     /**
-     * This method will convert ballerina resource to swagger path objects.
+     * This method will convert ballerina resource to openApi path objects.
      *
      * @param resources Resource array to be convert.
-     * @return map of string and swagger path objects.
+     * @return map of string and openApi path objects.
      */
     protected Map<String, Path> convertResourceToPath(List<BLangFunction> resources) {
         Map<String, Path> pathMap = new HashMap<>();
@@ -184,7 +184,7 @@ public class OpenApiResourceMapper {
                     .example(MediaType.APPLICATION_JSON, "Ok");
             op.getOperation().response(200, response);
 
-            // Replacing all '_' with ' ' to keep the consistency with what we are doing in swagger -> bal
+            // Replacing all '_' with ' ' to keep the consistency with what we are doing in openApi -> bal
             // @see BallerinaOperation#buildContext
             String resName = resource.getName().getValue().replaceAll("_", " ");
             op.getOperation().setOperationId(getOperationId(idIncrement, resName));
@@ -210,13 +210,13 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Parses the 'Responses' annotation attachment and build swagger operation.
+     * Parses the 'Responses' annotation attachment and build openApi operation.
      *
      * @param resource The ballerina resource definition.
-     * @param op       The swagger operation.
+     * @param op       The openApi operation.
      */
     private void parseResponsesAnnotationAttachment(BLangFunction resource, Operation op) {
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("Responses", swaggerAlias,
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("Responses", openApiAlias,
                 resource.getAnnotationAttachments());
 
         if (annotation != null) {
@@ -254,10 +254,10 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Creates headers definitions for swagger response.
+     * Creates headers definitions for openApi response.
      *
      * @param annotationExpression The annotation attribute value which has the headers.
-     * @param response             The swagger response.
+     * @param response             The openApi response.
      */
     private void createHeadersModel(BLangExpression annotationExpression, Response response) {
         if (null != annotationExpression) {
@@ -274,7 +274,7 @@ public class OpenApiResourceMapper {
                             .getStringLiteralValue(headersAttributes.get(ConverterConstants.ATTR_NAME));
                     String type = ConverterUtils
                             .getStringLiteralValue(headersAttributes.get(ConverterConstants.ATTR_HEADER_TYPE));
-                    Property property = getSwaggerProperty(type);
+                    Property property = getOpenApiProperty(type);
 
                     if (headersAttributes.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
                         property.setDescription(ConverterUtils
@@ -288,10 +288,10 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Creates parameters in the swagger operation using the parameters in the ballerina resource definition.
+     * Creates parameters in the openApi operation using the parameters in the ballerina resource definition.
      *
      * @param resource         The ballerina resource definition.
-     * @param operationAdaptor The swagger operation.
+     * @param operationAdaptor The openApi operation.
      */
     private void addResourceParameters(BLangFunction resource, OperationAdaptor operationAdaptor) {
         //Set Path
@@ -322,7 +322,7 @@ public class OpenApiResourceMapper {
             Map<String, Model> definitions = new HashMap<>();
             if (!definitions.containsKey(ConverterConstants.ATTR_REQUEST)) {
                 definitions.put(ConverterConstants.ATTR_REQUEST, messageModel);
-                this.swaggerDefinition.setDefinitions(definitions);
+                this.openApiDefinition.setDefinitions(definitions);
             }
 
             // Creating "Request rq" parameter
@@ -340,10 +340,10 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Create {@code Parameters} model for swagger operation.
+     * Create {@code Parameters} model for openApi operation.
      *
      * @param annotationExpression The annotation attribute value for resource parameters
-     * @param operation            The swagger operation.
+     * @param operation            The openApi operation.
      */
     private void createParametersModel(BLangExpression annotationExpression, Operation operation) {
         if (annotationExpression != null) {
@@ -389,20 +389,20 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Parses the 'ResourceInfo' annotation and builds swagger operation.
+     * Parses the 'ResourceInfo' annotation and builds openApi operation.
      *
      * @param resource  The resource definition.
-     * @param operation The swagger operation.
+     * @param operation The openApi operation.
      */
     private void parseResourceInfo(BLangFunction resource, Operation operation, String httpMethod) {
         AnnotationAttachmentNode multiResourceInfoAnnotation = ConverterUtils
-                .getAnnotationFromList(ConverterConstants.ANNON_MULTI_RES_INFO, swaggerAlias,
+                .getAnnotationFromList(ConverterConstants.ANNON_MULTI_RES_INFO, openApiAlias,
                         resource.getAnnotationAttachments());
         if (multiResourceInfoAnnotation != null) {
             parseMultiResourceInfoAnnotationAttachment(multiResourceInfoAnnotation, operation, httpMethod);
         } else {
             AnnotationAttachmentNode annotation = ConverterUtils
-                    .getAnnotationFromList(ConverterConstants.ANNON_RES_INFO, swaggerAlias,
+                    .getAnnotationFromList(ConverterConstants.ANNON_RES_INFO, openApiAlias,
                             resource.getAnnotationAttachments());
 
             if (annotation != null) {
@@ -456,10 +456,10 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Creates external docs swagger definitions.
+     * Creates external docs openApi definitions.
      *
      * @param annotationExpression The annotation attribute value for external docs.
-     * @param operation            The swagger operation.
+     * @param operation            The openApi operation.
      */
     private void createExternalDocsModel(BLangExpression annotationExpression, Operation operation) {
         if (null != annotationExpression) {
@@ -483,10 +483,10 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Creates tag model for swagger operation.
+     * Creates tag model for openApi operation.
      *
      * @param annotationExpression The annotation expression value which has tags.
-     * @param operation            The swagger operation.
+     * @param operation            The openApi operation.
      */
     private void createTagModel(BLangExpression annotationExpression, Operation operation) {
         if (null != annotationExpression) {
@@ -507,7 +507,7 @@ public class OpenApiResourceMapper {
      * Parse 'ResourceConfig' annotation attachment and build a resource operation.
      *
      * @param resource  The ballerina resource definition.
-     * @param operation The swagger operation.
+     * @param operation The openApi operation.
      */
     private void parseResourceConfigAnnotationAttachment(BLangFunction resource, OperationAdaptor operation) {
         AnnotationAttachmentNode annotation = ConverterUtils
@@ -635,11 +635,11 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Builds a Swagger {@link Parameter} for provided parameter location.
+     * Builds an OpenApi {@link Parameter} for provided parameter location.
      *
      * @param in              location of the parameter in the request definition
      * @param paramAttributes parameter attributes for the operation
-     * @return Swagger {@link Parameter} for parameter location {@code in}
+     * @return OpenApi {@link Parameter} for parameter location {@code in}
      */
     private Parameter buildParameter(String in, Map<String, BLangExpression> paramAttributes) {
         Parameter param;
@@ -694,12 +694,12 @@ public class OpenApiResourceMapper {
     }
 
     /**
-     * Retrieves a matching Swagger {@link Property} for a provided ballerina type.
+     * Retrieves a matching OpenApi {@link Property} for a provided ballerina type.
      *
      * @param type ballerina type name as a String
-     * @return Swagger {@link Property} for type defined by {@code type}
+     * @return OpenApi {@link Property} for type defined by {@code type}
      */
-    private Property getSwaggerProperty(String type) {
+    private Property getOpenApiProperty(String type) {
         Property property;
 
         switch (type) {
