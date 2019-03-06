@@ -67,7 +67,8 @@ type InstructionGenerator object {
         } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
                         bType is bir:BTypeAny ||
-                        bType is bir:BTypeNil) {
+                        bType is bir:BTypeNil ||
+                        bType is bir:BUnionType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
