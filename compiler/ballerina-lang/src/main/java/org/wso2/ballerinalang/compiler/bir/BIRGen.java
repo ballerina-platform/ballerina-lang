@@ -652,9 +652,9 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand reasonOp = this.env.targetOperand;
         errorExpr.detailsExpr.accept(this);
         BIROperand detailsOp = this.env.targetOperand;
-        BIRNonTerminator.BLangErrorConstructor bLangErrorConstructor = new BIRNonTerminator.BLangErrorConstructor
-                (errorExpr.pos, InstructionKind.NEW_ERROR, lhsOp, reasonOp, detailsOp);
-        emit(bLangErrorConstructor);
+        BIRNonTerminator.NewError newError = new BIRNonTerminator.NewError(errorExpr.pos, InstructionKind.NEW_ERROR,
+                                                                           lhsOp, reasonOp, detailsOp);
+        emit(newError);
         this.env.targetOperand = lhsOp;
     }
 

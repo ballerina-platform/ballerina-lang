@@ -109,7 +109,7 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BIRNonTerminator.BLangErrorConstructor errorConstructor) {
+    public void visit(BIRNonTerminator.NewError birNewError) {
         throw new AssertionError();
     }
 

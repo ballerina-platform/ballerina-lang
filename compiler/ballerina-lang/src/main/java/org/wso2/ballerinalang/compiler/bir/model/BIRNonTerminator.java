@@ -238,7 +238,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      *
      * @since 0.995.0
      */
-    public static class BLangErrorConstructor extends BIRNonTerminator {
+    public static class NewError extends BIRNonTerminator {
 
         public BIROperand lhsOp;
 
@@ -246,8 +246,8 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
         public BIROperand detailOp;
 
-        public BLangErrorConstructor(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp,
-                                     BIROperand reasonOp, BIROperand detailOp) {
+        public NewError(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp,
+                        BIROperand reasonOp, BIROperand detailOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.reasonOp = reasonOp;
