@@ -33,13 +33,10 @@ type TerminatorGenerator object {
         } else if (bType is bir:BTypeByte) {
             self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
             self.mv.visitInsn(IRETURN);
-        } else if (bType is bir:BArrayType) {
-            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-            self.mv.visitInsn(ARETURN);
-        } else if (bType is bir:BMapType) {
-            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-            self.mv.visitInsn(ARETURN);
-        } else if (bType is bir:BTypeAny || bType is bir:BTypeNil) {
+        } else if (bType is bir:BMapType ||
+                bType is bir:BArrayType ||
+                bType is bir:BTypeAny ||
+                bType is bir:BObjectType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -100,6 +97,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BMapType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", MAP_VALUE);
+            } else if (bType is bir:BObjectType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+                methodDesc = methodDesc + io:sprintf("L%s;", OBJECT_VALUE);
             } else if (bType is bir:BTypeAny || bType is bir:BTypeNil) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", OBJECT);
@@ -138,7 +138,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
                         bType is bir:BTypeAny ||
-                        bType is bir:BTypeNil) {
+                        bType is bir:BTypeNil ||
+                        bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
