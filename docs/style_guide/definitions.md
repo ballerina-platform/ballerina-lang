@@ -1,7 +1,5 @@
 # Top Level definitions
 
-This section will focus on styling the top level definitions available in the Ballerina.
-
 * No indentation applied for the top level constructs.
 
   ```ballerina
@@ -101,12 +99,11 @@ parameter, return type and resource body formatting.
   
 ## Type Definition
 
-* Should have single spaces around pipe operator `|`.
+* There should be only single spaces around pipe operator `|`.
 
   ```ballerina
   type method "POST" | "GET" | "PUT";
   ```
-* No indentation for type definition. 
 
 ### Object Definition
 

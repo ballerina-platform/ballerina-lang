@@ -30,15 +30,39 @@ will support only this format. Also following this guide will form a standard st
   ```
 * Maximum line length is 120 characters. 
 
+### Blank lines
+
+* Separate definitions and statements by zero or one blank lines (one or two new lines).
+
+  ```ballerina
+  import ballerina/http;
+  import ballerina/io;
+  
+  const string CITY = "Colombo";
+  const int CITY_NO = 1;
+  
+  function getName() returns string {
+      string firstName = "john";
+      string lastName = "doe";
+      
+      return firstName + lastName;
+  }
+  
+  function getAge() returns int {}
+  
+  function setAge(int age) {}
+  ```
+
 ### [Operators, Keywords and Boundaries](operators_keywords_and_boundaries.md)
 ### [Top Level Definitions](definitions.md)
 ### [Statements](statements.md)
 ### [Expressions](expressions.md)
 
-### Annotations (@)
+### Annotations
 * No spaces around `@`.
-* Indented to align with the start position of the parent (statement, definition).
+* Annotation should indent to align with the start position of the owner (statement, definition).
   e.g:
+  
   ```ballerina
   // Service annotations indented to align with start position of the service.
   @http:ServiceConfig {
@@ -57,16 +81,48 @@ will support only this format. Also following this guide will form a standard st
       }
   }
   ```
-* Key value pairs in annotation body should indent relative to the annotation.
+* Annotation Attributes(Key value pairs), each should block-indent on their own line.
+  
   ```ballerina
   @http:ServiceConfig {
-      basePath: "greet"
+      basePath: "greet",
+      methods: ["GET"]
   }
-  ```  
+  ```
+* If annotation is empty, it should be placed on a single line and 
+  between both braces there shouldn't be any spaces.
+  
+  ```ballerina
+  @http:ServiceConfig {}
+  ```
 
-### Comments (//)
-
-* `//` should followed by a single space.
+### Comments
+* Ballerina uses `//` to write both single line and multiline comments.
+  
+  ```ballerina
+  // This is a single line comment.
+  ```
+  and 
+  
+  ```ballerina
+  // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  //
+  // WSO2 Inc. licenses this file to you under the Apache License,
+  // Version 2.0 (the "License"); you may not use this file except
+  // in compliance with the License.
+  // You may obtain a copy of the License at
+  //
+  // http://www.apache.org/licenses/LICENSE-2.0
+  //
+  // Unless required by applicable law or agreed to in writing,
+  // software distributed under the License is distributed on an
+  // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  // KIND, either express or implied.  See the License for the
+  // specific language governing permissions and limitations
+  // under the License.
+  ```
+  
+* There should be a single space between `//` and the content.
 * If comment is on its own line then it should indent considering the 
   context(top level or in a block) its in.
   e.g: 
@@ -100,12 +156,21 @@ will support only this format. Also following this guide will form a standard st
   ```
 
 
-### Documentation(#)
-
-* Always should be on top of the parent definition.
-* Always should be indented as to the parent definition.
+### Documentation
+* Always should be indented to align with the start position of the owner.
 * `#` should followed by a space.
-* `+`, `-` , `return`, param identifier and description should start with a space.
+* There should be an empty line after Description.
+  ```ballerina
+    # Get Value.
+    #
+    # + value - value input parameter 
+    # + return - return a integer value
+    function getValue(int value) returns int {
+        return value;
+    }
+  ```
+* There should be only a single space after `+`, `-` and `return`.
+* param identifier and description
 
   ```ballerina
   # Get Value.
@@ -135,3 +200,4 @@ will support only this format. Also following this guide will form a standard st
       }
   }
   ```
+  Find more details about how to document Ballerina code [here](https://ballerina.io/learn/how-to-document-ballerina-code/).

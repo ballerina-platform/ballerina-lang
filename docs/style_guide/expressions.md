@@ -38,8 +38,6 @@
           age: 20
       };
       ```
-
-
 ## Tuple
 
 * Arrange tuple on a single line.
@@ -125,4 +123,45 @@
 
   ```ballerina
   string name = <string>json.name;
+  ```
+## Table literal
+* Elements in table literal each should block-indent on its own line.
+* Table column definition should be place on a single line.
+  
+  ```ballerina
+      table<Employee> employee = table {
+          {key id, name, address}
+      };
+  ```
+* If table column definition cannot be put on a single line, due to exceeding max line length,
+  table column definition should split in to a new line just after a comma and indent related 
+  to start position of the table column definition.
+  
+  ```ballerina
+  table<Employee> employee = table {
+      {key id,
+          name, address},
+      [{"1", "test", "No:123 hty RD"}]
+  };
+  ```
+  
+* Table data array should be placed on a single line. 
+  
+  ```ballerina
+  table<Employee> employee = table {
+      {id, name, address},
+      [{"1", "test", "No:123 hty RD"}]
+  }
+  ```
+* If table data array cannot be put on a single line, due to exceeding max line length,
+  each table data should be block-indented on it own line.
+  
+  ```ballerina
+  table<Employee> employee = table {
+      {id, name, address},
+      [
+          {"1", "john", "No:123"},
+          {"2", "jane", "No:342"}
+      ]
+  }
   ```
