@@ -172,7 +172,7 @@ public class JVMCodeGen {
         Path ballerinaRuntimeLib = Paths.get(ballerinaHome, BALLERINA_HOME_BRE, BALLERINA_HOME_LIB);
 
         File ballerinaRuntimeJar =  Arrays.stream(Objects.requireNonNull(ballerinaRuntimeLib.toFile().listFiles()))
-                .filter(file -> file.getName().contains(BALLERINA_RUNTIME_JAR_NAME))
+                .filter(file -> file.getName().contains(BALLERINA_RUNTIME_JAR_NAME) && !file.getName().contains("api"))
                 .findFirst()
                 .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
 
