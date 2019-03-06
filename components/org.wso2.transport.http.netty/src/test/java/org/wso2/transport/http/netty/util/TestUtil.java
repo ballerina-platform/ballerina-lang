@@ -135,6 +135,10 @@ public class TestUtil {
 
     public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer) {
         HttpsServer httpServer = new HttpsServer(port, channelInitializer);
+        return getHttpsServer(httpServer);
+    }
+
+    private static HttpsServer getHttpsServer(HttpsServer httpServer) {
         CountDownLatch latch = new CountDownLatch(1);
         ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
@@ -144,6 +148,12 @@ public class TestUtil {
             LOG.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
+    }
+
+    public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer, int bossGroupSize,
+                                               int workerGroupSize, String httpVersion) {
+        HttpsServer httpServer = new HttpsServer(port, channelInitializer, bossGroupSize, workerGroupSize, httpVersion);
+        return getHttpsServer(httpServer);
     }
 
     public static String getContent(HttpURLConnection urlConn) throws IOException {

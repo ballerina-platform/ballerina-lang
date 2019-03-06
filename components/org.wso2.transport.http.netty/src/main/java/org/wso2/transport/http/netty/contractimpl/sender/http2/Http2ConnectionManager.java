@@ -52,7 +52,7 @@ public class Http2ConnectionManager {
         // Configure a listener to remove connection from pool when it is closed
         http2ClientChannel.getChannel().closeFuture().
             addListener(future -> {
-                            EventLoopPool.PerRouteConnectionPool pool = eventLoopPool.fetchConnectionPool(key);
+                            EventLoopPool.PerRouteConnectionPool pool = eventLoopPool.fetchPerRoutePool(key);
                             if (pool != null) {
                                 pool.removeChannel(http2ClientChannel);
                                 http2ClientChannel.getDataEventListeners().
@@ -63,12 +63,14 @@ public class Http2ConnectionManager {
     }
 
     private EventLoopPool.PerRouteConnectionPool getOrCreatePerRoutePool(EventLoopPool eventLoopPool, String key) {
-        final EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = eventLoopPool.fetchConnectionPool(key);
+        final EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = eventLoopPool.fetchPerRoutePool(key);
         if (perRouteConnectionPool != null) {
             return perRouteConnectionPool;
         }
-        return eventLoopPool.getConnectionPools().computeIfAbsent(key, p -> new EventLoopPool.PerRouteConnectionPool(
-            poolConfiguration.getHttp2MaxActiveStreamsPerConnection()));
+        return eventLoopPool.getPerRouteConnectionPools().computeIfAbsent(key,
+                                                                  p -> new EventLoopPool.PerRouteConnectionPool(
+                                                                      poolConfiguration
+                                                                          .getHttp2MaxActiveStreamsPerConnection()));
     }
 
     private EventLoopPool getOrCreateEventLoopPool(EventLoop eventLoop) {
@@ -76,7 +78,7 @@ public class Http2ConnectionManager {
         if (pool != null) {
             return pool;
         }
-        return eventLoopPools.computeIfAbsent(eventLoop, e -> new EventLoopPool(eventLoop));
+        return eventLoopPools.computeIfAbsent(eventLoop, e -> new EventLoopPool());
     }
 
     private String generateKey(HttpRoute httpRoute) {
@@ -128,6 +130,6 @@ public class Http2ConnectionManager {
     private EventLoopPool.PerRouteConnectionPool fetchPerRoutePool(HttpRoute httpRoute,
                                                                    EventLoop eventLoop) {
         String key = generateKey(httpRoute);
-        return eventLoopPools.get(eventLoop).fetchConnectionPool(key);
+        return eventLoopPools.get(eventLoop).fetchPerRoutePool(key);
     }
 }

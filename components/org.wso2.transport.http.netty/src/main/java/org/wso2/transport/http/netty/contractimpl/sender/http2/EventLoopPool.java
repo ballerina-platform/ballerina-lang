@@ -19,7 +19,6 @@
 package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import io.netty.channel.Channel;
-import io.netty.channel.EventLoop;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,24 +30,24 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class EventLoopPool {
 
-    private Map<String, PerRouteConnectionPool> connectionPools = new HashMap<>();
-    private EventLoop eventLoop;
+    private Map<String, PerRouteConnectionPool> perRouteConnectionPools = new HashMap<>();
+//    private EventLoop eventLoop;
 
-    public EventLoopPool(EventLoop eventLoop) {
-        this.eventLoop = eventLoop;
+    EventLoopPool() {
+//        this.eventLoop = eventLoop;
     }
 
-    public PerRouteConnectionPool fetchConnectionPool(String key) {
-        return connectionPools.get(key);
+    PerRouteConnectionPool fetchPerRoutePool(String key) {
+        return perRouteConnectionPools.get(key);
     }
 
-    public Map<String, PerRouteConnectionPool> getConnectionPools() {
-        return connectionPools;
+    Map<String, PerRouteConnectionPool> getPerRouteConnectionPools() {
+        return perRouteConnectionPools;
     }
 
-    public EventLoop getEventLoop() {
+    /*public EventLoop getEventLoop() {
         return eventLoop;
-    }
+    }*/
 
     /**
      * Entity which holds the pool of connections for a given http route.

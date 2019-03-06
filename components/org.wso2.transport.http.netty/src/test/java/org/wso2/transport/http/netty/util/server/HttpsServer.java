@@ -25,14 +25,23 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
+import org.wso2.transport.http.netty.util.server.initializers.Http2ServerInitializer;
 import org.wso2.transport.http.netty.util.server.initializers.HttpServerInitializer;
 
 import java.io.FileInputStream;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
@@ -52,7 +61,10 @@ public class HttpsServer implements TestServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private SSLContext sslContext;
+    private SslContext nettySSLCtx;
     private ChannelInitializer channelInitializer;
+    private String httpVersion = "1.1";
+    private static final String HTTP2_VERSION = "2.0";
 
     char ksPass[] = "wso2carbon".toCharArray();
     char ctPass[] = "wso2carbon".toCharArray();
@@ -60,6 +72,15 @@ public class HttpsServer implements TestServer {
     public HttpsServer(int port, ChannelInitializer channelInitializer) {
         this.port = port;
         this.channelInitializer = channelInitializer;
+    }
+
+    public HttpsServer(int port, ChannelInitializer channelInitializer, int bossGroupSize, int workerGroupSize,
+                       String httpVersion) {
+        this.port = port;
+        this.channelInitializer = channelInitializer;
+        this.bossGroupSize = bossGroupSize;
+        this.workerGroupSize = workerGroupSize;
+        this.httpVersion = httpVersion;
     }
 
     /**
@@ -79,10 +100,22 @@ public class HttpsServer implements TestServer {
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, ctPass);
 
-            sslContext = SSLContext.getInstance(TLS_PROTOCOL);
-            sslContext.init(kmf.getKeyManagers(), null, null);
-            ((HttpServerInitializer) channelInitializer).setSslContext(sslContext);
-
+            if (HTTP2_VERSION.equals(httpVersion)) {
+                List<String> ciphers = new ArrayList<>();
+                ciphers.add("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+                nettySSLCtx = SslContextBuilder.forServer(kmf).applicationProtocolConfig(
+                    new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                                                  ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                                                  ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                                                  ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
+                    .sslProvider(SslProvider.OPENSSL)
+                    .ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE).build();
+                ((Http2ServerInitializer) channelInitializer).setSslContext(nettySSLCtx);
+            } else {
+                sslContext = SSLContext.getInstance(TLS_PROTOCOL);
+                sslContext.init(kmf.getKeyManagers(), null, null);
+                ((HttpServerInitializer) channelInitializer).setSslContext(sslContext);
+            }
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();

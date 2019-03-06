@@ -107,5 +107,3 @@ public class Http2EchoServerInitializer extends Http2ServerInitializer {
         }
     }
 }
-
-

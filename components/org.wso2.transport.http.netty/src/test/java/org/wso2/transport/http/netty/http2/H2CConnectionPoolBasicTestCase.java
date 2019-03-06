@@ -55,10 +55,10 @@ import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 
 
 /**
- * Test case for HTTP/2 client connection pool.
+ * Test cases for H2C client connection pool.
  */
-public class Http2ConnectionPoolBasicTestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(Http2ConnectionPoolBasicTestCase.class);
+public class H2CConnectionPoolBasicTestCase {
+    private static final Logger LOG = LoggerFactory.getLogger(H2CConnectionPoolBasicTestCase.class);
 
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
@@ -92,14 +92,23 @@ public class Http2ConnectionPoolBasicTestCase {
 
     @Test
     public void testH2CUpgradeWithPool() {
+        testHttp2ConnectionPool(false);
+    }
+
+    @Test
+    public void testPriorKnowledgeWithPool() {
+        testHttp2ConnectionPool(true);
+    }
+
+    private void testHttp2ConnectionPool(boolean withPriorKnowledge) {
         //Since we have only two eventloops, upstream will have two different pools.
-        HttpClientConnector client1 = getTestClient(); //Upstream uses eventloop1 pool
+        HttpClientConnector client1 = getTestClient(withPriorKnowledge); //Upstream uses eventloop1 pool
         String response1 = getResponse(client1);
-        HttpClientConnector client2 = getTestClient(); //Upstream uses eventloop2 pool
+        HttpClientConnector client2 = getTestClient(withPriorKnowledge); //Upstream uses eventloop2 pool
         String response2 = getResponse(client2);
-        HttpClientConnector client3 = getTestClient(); //Upstream uses eventloop1 pool
+        HttpClientConnector client3 = getTestClient(withPriorKnowledge); //Upstream uses eventloop1 pool
         String response3 = getResponse(client3);
-        HttpClientConnector client4 = getTestClient(); //Upstream uses eventloop2 pool
+        HttpClientConnector client4 = getTestClient(withPriorKnowledge); //Upstream uses eventloop2 pool
         String response4 = getResponse(client4);
 
         assertNotEquals(response1, response2,
@@ -108,16 +117,6 @@ public class Http2ConnectionPoolBasicTestCase {
                         "Client uses two different pools, hence response 3 and 4 should not be equal");
         assertEquals(response1, response3, "Client uses the same pool, hence response 1 and 3 should be equal");
         assertEquals(response2, response4, "Client uses the same pool, hence response 2 and 4 should be equal");
-    }
-
-    @Test
-    public void testPriorKnowledgeWithPool() {
-
-    }
-
-    @Test
-    public void testH2ClientWithPool() {
-
     }
 
     private String getResponse(HttpClientConnector client1) {
@@ -142,14 +141,17 @@ public class Http2ConnectionPoolBasicTestCase {
     /**
      * Get the test client. Each test client has their own connection manager and does not use source pools.
      *
-     * @return
+     * @param withPriorKnowledge a boolean indicating whether the prior knowledge support is expected
+     * @return HttpClientConnector
      */
-    private HttpClientConnector getTestClient() {
+    private HttpClientConnector getTestClient(boolean withPriorKnowledge) {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                            Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
-//        senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
+        if (withPriorKnowledge) {
+            senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
+        }
         return httpWsConnectorFactory.createHttpClientConnector(
             HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }

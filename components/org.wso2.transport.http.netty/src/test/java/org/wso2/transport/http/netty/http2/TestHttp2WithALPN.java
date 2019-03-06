@@ -29,20 +29,15 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contract.config.Parameter;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0;
-import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
+import static org.wso2.transport.http.netty.util.server.http2.Http2Util.getH2ListenerConfigs;
+import static org.wso2.transport.http.netty.util.server.http2.Http2Util.getSenderConfigs;
 
 /**
  * A test case consisting of a http2 client and server communicating over TLS.
@@ -60,7 +55,7 @@ public class TestHttp2WithALPN {
 
         HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
         serverConnector = factory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), getListenerConfigs());
+                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), getH2ListenerConfigs());
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
@@ -88,34 +83,6 @@ public class TestHttp2WithALPN {
         TestUtil.testHttpsPost(http1ClientConnector, TestUtil.SERVER_PORT1);
     }
 
-    private ListenerConfiguration getListenerConfigs() {
-        Parameter paramServerCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        List<Parameter> serverParams = new ArrayList<>(1);
-        serverParams.add(paramServerCiphers);
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setParameters(serverParams);
-        listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
-        listenerConfiguration.setScheme(HTTPS_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
-        listenerConfiguration.setVerifyClient(OPTIONAL);
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        return listenerConfiguration;
-    }
-
-    private SenderConfiguration getSenderConfigs(String httpVersion) {
-        Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        List<Parameter> clientParams = new ArrayList<>(1);
-        clientParams.add(paramClientCiphers);
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setParameters(clientParams);
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setHttpVersion(httpVersion);
-        senderConfiguration.setScheme(HTTPS_SCHEME);
-        return senderConfiguration;
-    }
-
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         http2ClientConnector.close();
@@ -128,4 +95,3 @@ public class TestHttp2WithALPN {
         }
     }
 }
-
