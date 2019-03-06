@@ -338,6 +338,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
         mv.visitVarInsn(ISTORE, index);
     } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
+                bType is bir:BErrorType ||
                 bType is bir:BTypeNil ||
                 bType is bir:BTypeAny ||
                 bType is bir:BObjectType ||
