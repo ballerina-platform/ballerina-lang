@@ -85,9 +85,9 @@ service timerService = service {
 - `start()` - Starts the task scheduler, and run the services attached to it.
 - `stop()` - Stops the task. This will shutdown all the processes scheduled on the scheduler.
 - `pause()` - Pauses the scheduler. This will temporarily halt the task execution.
-- `resume()` - Used to resume the task scheduler, when paused.
-- `attach()` - Will attach a service to the scheduler. An optional parameter, `attachment` can be passed to the function, so that it will propagate into the resource.
-- `detach()` - Detach any attached services from the task.
+- `resume()` - Resumes a task, which has been paused.
+- `attach()` - Attaches a service to the scheduler. An optional parameter, `attachment` can be passed to the function, so that it will propagate into the resource.
+- `detach()` - Detaches any attached services from the task.
 
 ## Samples
 
