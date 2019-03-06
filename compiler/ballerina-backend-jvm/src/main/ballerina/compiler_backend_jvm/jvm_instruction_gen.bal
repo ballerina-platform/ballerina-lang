@@ -14,19 +14,23 @@ type InstructionGenerator object {
         if (bType is bir:BTypeInt) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
-
-            //store
             int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);
-            //io:println("Const Store Index is :::::::::::", index);
             self.mv.visitVarInsn(LSTORE, index);
+        } else if (bType is bir:BTypeFloat) {
+            any val = loadIns.value;
+            self.mv.visitLdcInsn(val);
+            int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);
+            self.mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
-
-            //store
             int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);
-            //io:println("Const Store Index is :::::::::::", index);
             self.mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeBoolean) {
+            any val = loadIns.value;
+            self.mv.visitLdcInsn(val);
+            int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);
+            self.mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BTypeNil) {
             self.mv.visitInsn(ACONST_NULL);
             int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);

@@ -15,39 +15,37 @@ type TerminatorGenerator object {
     }
 
     function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func) {
-        if (func.typeValue.retType is bir:BTypeNil) {
+        bir:BType bType = func.typeValue.retType;
+        if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);
+        } else if (bType is bir:BTypeInt) {
+            self.mv.visitVarInsn(LLOAD, returnVarRefIndex);
+            self.mv.visitInsn(LRETURN);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DLOAD, returnVarRefIndex);
+            self.mv.visitInsn(DRETURN);
+        } else if (bType is bir:BTypeString) {
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+            self.mv.visitInsn(IRETURN);
+        } else if (bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+            self.mv.visitInsn(IRETURN);
+        } else if (bType is bir:BArrayType) {
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
+        } else if (bType is bir:BMapType) {
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
+        } else if (bType is bir:BTypeAny || bType is bir:BTypeNil) {
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
         } else {
-            bir:BType bType = func.typeValue.retType;
-            if (bType is bir:BTypeInt) {
-                self.mv.visitVarInsn(LLOAD, returnVarRefIndex);
-                self.mv.visitInsn(LRETURN);
-            } else if (bType is bir:BTypeFloat) {
-                self.mv.visitVarInsn(DLOAD, returnVarRefIndex);
-                self.mv.visitInsn(DRETURN);
-            } else if (bType is bir:BTypeString) {
-                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                self.mv.visitInsn(ARETURN);
-            } else if (bType is bir:BTypeBoolean) {
-                self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-                self.mv.visitInsn(IRETURN);
-            } else if (bType is bir:BTypeByte) {
-                self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-                self.mv.visitInsn(IRETURN);
-            } else if (bType is bir:BArrayType) {
-                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                self.mv.visitInsn(ARETURN);
-            } else if (bType is bir:BMapType) {
-                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                self.mv.visitInsn(ARETURN);
-            } else if (bType is bir:BTypeAny || bType is bir:BTypeNil) {
-                self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                self.mv.visitInsn(ARETURN);
-            } else {
-                error err = error( "JVM generation is not supported for type " +
-                                io:sprintf("%s", func.typeValue.retType));
-                panic err;
-            }
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", func.typeValue.retType));
+            panic err;
         }
     }
 

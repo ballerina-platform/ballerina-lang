@@ -496,7 +496,6 @@ function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv
     }
 }
 
-
 type BalToJVMIndexMap object {
     private int localVarIndex = 0;
     private map<int> jvmLocalVarIndexMap = {};
@@ -507,7 +506,7 @@ type BalToJVMIndexMap object {
 
         bir:BType bType = varDcl.typeValue;
 
-        if (bType is bir:BTypeInt) {
+        if (bType is bir:BTypeInt || bType is bir:BTypeFloat) {
             self.localVarIndex = self.localVarIndex + 2;
         } else {
             self.localVarIndex = self.localVarIndex + 1;
@@ -545,13 +544,13 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "J");
                 fv.visitEnd();
             } else if (bType is bir:BTypeFloat) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "Z");
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "D");
                 fv.visitEnd();
             } else if (bType is bir:BTypeString) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", STRING_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BTypeBoolean) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "D");
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "Z");
                 fv.visitEnd();
             } else if (bType is bir:BTypeByte) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "B");
