@@ -89,7 +89,7 @@ public class CPEntry {
             }
 
             FloatCPEntry that = (FloatCPEntry) o;
-            return value == that.value;
+            return Double.compare(that.value, value) == 0;
         }
 
         @Override
