@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 
 package org.ballerinalang.stdlib.task.objects;
 
@@ -25,6 +25,8 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +45,7 @@ public abstract class AbstractTask implements Task {
     protected Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
     Scheduler scheduler;
+    private static final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
@@ -54,7 +57,10 @@ public abstract class AbstractTask implements Task {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("Initializing the task/scheduler failed." + e.getMessage());
+            }
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
         }
     }
 
@@ -71,7 +77,10 @@ public abstract class AbstractTask implements Task {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
+            }
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
         }
     }
 
@@ -131,8 +140,6 @@ public abstract class AbstractTask implements Task {
         }
     }
 
-
-
     /**
      * Stops the scheduled Appointment.
      *
@@ -144,7 +151,7 @@ public abstract class AbstractTask implements Task {
             try {
                 scheduler.deleteJob(quartzJobs.get(taskId));
             } catch (SchedulerException e) {
-                throw new SchedulingException("Cannot cancel the task. ", e);
+                throw new SchedulingException("Cannot cancel the task. ");
             }
         } else {
             throwTaskNotFoundException();
@@ -162,7 +169,10 @@ public abstract class AbstractTask implements Task {
             try {
                 scheduler.pauseJob(quartzJobs.get(taskId));
             } catch (SchedulerException e) {
-                throw new SchedulingException("Cannot pause the task. " + e.getMessage());
+                if (log.isDebugEnabled()) {
+                    log.debug("Cannot pause the task. " + e.getMessage());
+                }
+                throw new SchedulingException("Cannot pause the task.");
             }
         } else {
             throwTaskNotFoundException();
@@ -180,7 +190,10 @@ public abstract class AbstractTask implements Task {
             try {
                 scheduler.resumeJob(quartzJobs.get(taskId));
             } catch (SchedulerException e) {
-                throw new SchedulingException("Cannot resume the task. " + e.getMessage());
+                if (log.isDebugEnabled()) {
+                    log.debug("Cannot resume the task. " + e.getMessage());
+                }
+                throw new SchedulingException("Cannot resume the task.");
             }
         } else {
             throwTaskNotFoundException();

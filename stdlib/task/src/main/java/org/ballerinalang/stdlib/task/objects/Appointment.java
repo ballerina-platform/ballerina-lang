@@ -28,6 +28,8 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerUtils;
 import org.quartz.impl.calendar.BaseCalendar;
 import org.quartz.spi.OperableTrigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -44,6 +46,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Appointment extends AbstractTask {
 
     private String cronExpression;
+    private static final Logger log = LoggerFactory.getLogger(Appointment.class);
 
     /**
      * Creates an Appointment object with provided cron expression.
@@ -121,7 +124,10 @@ public class Appointment extends AbstractTask {
         try {
             scheduleAppointment(jobDataMap);
         } catch (SchedulerException e) {
-            throw new SchedulingException("Failed to schedule Task: " + e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to schedule Task. " + e.getMessage());
+            }
+            throw new SchedulingException("Failed to schedule Task.");
         }
     }
 
