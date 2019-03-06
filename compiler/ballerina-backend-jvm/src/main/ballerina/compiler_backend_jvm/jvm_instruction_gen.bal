@@ -43,9 +43,9 @@ type InstructionGenerator object {
 
     function generateMoveIns(bir:Move moveIns) {
         int rhsIndex = self.getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl);
-        // io:println("RHS Index is :::::::::::", rhsIndex);
+        //io:println("RHS Index is :::::::::::", rhsIndex);
         int lhsLndex = self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl);
-        // io:println("LHS Index is :::::::::::", lhsLndex);
+        //io:println("LHS Index is :::::::::::", lhsLndex);
 
         bir:BType bType = moveIns.rhsOp.typeValue;
         if (bType is bir:BTypeInt) {
@@ -439,9 +439,10 @@ type InstructionGenerator object {
     }
     
     function generateNewErrorIns(bir:NewError newErrorIns) {
-        // visit var_ref
+        // create new error value
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
+        // visit reason and detail
         int reasonIndex = self.getJVMIndexOfVarRef(newErrorIns.reasonOp.variableDcl);
         int detailsIndex = self.getJVMIndexOfVarRef(newErrorIns.detailsOp.variableDcl);
         int lhsIndex = self.getJVMIndexOfVarRef(newErrorIns.lhsOp.variableDcl);

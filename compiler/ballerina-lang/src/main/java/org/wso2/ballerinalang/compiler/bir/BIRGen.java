@@ -388,7 +388,6 @@ public class BIRGen extends BLangNodeVisitor {
         // Create the basic block for the statements that comes after the while statement.
         BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
 
-        
         // Add the branch instruction to the while expression basic block.
         whileExprBB.terminator = new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
 
@@ -647,6 +646,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                          this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarError);
         BIROperand lhsOp = new BIROperand(tempVarError);
+        // visit reason and detail expressions
         this.env.targetOperand = lhsOp;
         errorExpr.reasonExpr.accept(this);
         BIROperand reasonOp = this.env.targetOperand;
