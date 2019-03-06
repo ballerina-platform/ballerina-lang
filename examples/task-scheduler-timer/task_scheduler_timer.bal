@@ -7,6 +7,7 @@ public type Person record {
     string name;
     int age;
     int maxAge;
+    !...;
 };
 
 public function main() {
