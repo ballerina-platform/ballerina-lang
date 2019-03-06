@@ -279,7 +279,7 @@
         "cross-env": "^5.2.0",
         "glob": "^7.1.3",
         "lodash": "^4.17.11",
-        "mousetrap": "^1.6.2",
+        "mousetrap": "^1.6.3",
         "ms-wmic": "^1.0.4",
         "openport": "0.0.6",
         "ps-node": "^0.1.6",
@@ -292,7 +292,7 @@
     "devDependencies": {
         "@types/chai": "^4.1.6",
         "@types/glob": "^7.1.1",
-        "@types/lodash": "^4.14.121",
+        "@types/lodash": "^4.14.122",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.42",
         "@types/ws": "^6.0.0",
