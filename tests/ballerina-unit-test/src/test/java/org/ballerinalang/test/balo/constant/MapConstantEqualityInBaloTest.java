@@ -40,7 +40,6 @@ public class MapConstantEqualityInBaloTest {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/map-literal-constant-equality.bal");
     }
-
     // boolean type.
 
     @Test
@@ -72,6 +71,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexBooleanMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanMapValueEqualityUsingSameReference");
@@ -101,6 +102,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexBooleanMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
@@ -129,6 +132,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleBooleanMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleBooleanMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleBooleanMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleBooleanMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleBooleanMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleBooleanMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleBooleanMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexBooleanMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexBooleanMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexBooleanMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleBooleanMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleBooleanMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleBooleanMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -163,6 +229,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexIntMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntMapValueEqualityUsingSameReference");
@@ -191,6 +259,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexIntMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntMapValueEqualityUsingMapAccessSameReference");
@@ -218,6 +288,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleIntMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleIntMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleIntMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleIntMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleIntMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleIntMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleIntMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleIntMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexIntMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexIntMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexIntMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleIntMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleIntMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleIntMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleIntMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -252,6 +385,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexByteMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteMapValueEqualityUsingSameReference");
@@ -280,6 +415,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexByteMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteMapValueEqualityUsingMapAccessSameReference");
@@ -307,6 +444,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleByteMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleByteMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleByteMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleByteMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleByteMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleByteMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleByteMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexByteMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexByteMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexByteMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleByteMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleByteMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleByteMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -341,6 +541,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexFloatMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexFloatMapValueEqualityUsingSameReference");
@@ -370,6 +572,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexFloatMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
@@ -398,6 +602,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleFloatMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleFloatMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleFloatMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleFloatMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleFloatMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleFloatMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleFloatMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexFloatMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexFloatMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexFloatMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexFloatMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleFloatMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleFloatMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleFloatMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -433,6 +700,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexDecimalMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalMapValueEqualityUsingSameReference");
@@ -462,6 +731,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexDecimalMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
@@ -490,6 +761,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleDecimalMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleDecimalMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleDecimalMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleDecimalMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleDecimalMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleDecimalMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleDecimalMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexDecimalMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexDecimalMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexDecimalMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleDecimalMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleDecimalMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleDecimalMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -525,6 +859,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexStringMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringMapValueEqualityUsingSameReference");
@@ -554,6 +890,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexStringMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
@@ -582,6 +920,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleStringMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleStringMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleStringMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleStringMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleStringMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleStringMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleStringMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleStringMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexStringMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexStringMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleStringMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleStringMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleStringMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleStringMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
@@ -616,6 +1017,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexNilMapValueEqualityUsingSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilMapValueEqualityUsingSameReference");
@@ -645,6 +1048,8 @@ public class MapConstantEqualityInBaloTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    // -----------------------------------------------------------
+
     @Test
     public void testComplexNilMapValueEqualityUsingMapAccessSameReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilMapValueEqualityUsingMapAccessSameReference");
@@ -672,6 +1077,69 @@ public class MapConstantEqualityInBaloTest {
     public void testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testSimpleNilMapValueEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilMapValueEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleNilMapValueEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleNilMapValueEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleNilMapReferenceEqualityUsingSameReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleNilMapReferenceEqualityUsingSameReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleNilMapReferenceEqualityUsingDifferentReferenceInMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testSimpleNilMapReferenceEqualityUsingDifferentReferenceInMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    // -----------------------------------------------------------
+
+    @Test
+    public void testComplexNilMapValueEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilMapValueEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testComplexNilMapReferenceEquality() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testComplexNilMapReferenceEquality");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleNilMapValueEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilMapValueEqualityInDifferentMap");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleNilMapReferenceEqualityInDifferentMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleNilMapReferenceEqualityInDifferentMap");
         Assert.assertNotNull(returns[0]);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }

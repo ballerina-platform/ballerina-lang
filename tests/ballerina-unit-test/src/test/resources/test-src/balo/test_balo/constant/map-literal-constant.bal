@@ -144,37 +144,25 @@ function testBooleanConstKeyReference() returns map<boolean> {
     return foo:bm5;
 }
 
-// -----------------------------------------------------------
-
 function testIntConstKeyReference() returns map<int> {
     return foo:im5;
 }
-
-// -----------------------------------------------------------
 
 function testByteConstKeyReference() returns map<byte> {
     return foo:bytem5;
 }
 
-// -----------------------------------------------------------
-
 function testFloatConstKeyReference() returns map<float> {
     return foo:fm5;
 }
-
-// -----------------------------------------------------------
 
 function testDecimalConstKeyReference() returns map<decimal> {
     return foo:dm5;
 }
 
-// -----------------------------------------------------------
-
 function testStringConstKeyReference() returns map<string> {
     return foo:sm5;
 }
-
-// -----------------------------------------------------------
 
 function testNullConstKeyReference() returns map<()> {
     return foo:nm5;
@@ -187,42 +175,30 @@ function testBooleanConstKeyReferenceInLocalVar() returns boolean {
     return b;
 }
 
-// -----------------------------------------------------------
-
 function testIntConstKeyReferenceInLocalVar() returns int {
     int i = foo:im4.im4k;
     return i;
 }
-
-// -----------------------------------------------------------
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
     byte b = foo:bytem4.bytem4k;
     return b;
 }
 
-// -----------------------------------------------------------
-
 function testFloatConstKeyReferenceInLocalVar() returns float {
     float f = foo:fm4.fm4k;
     return f;
 }
-
-// -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
     decimal d = foo:dm4.dm4k;
     return d;
 }
 
-// -----------------------------------------------------------
-
 function testStringConstKeyReferenceInLocalVar() returns string {
     string s = foo:sm4.sm4k;
     return s;
 }
-
-// -----------------------------------------------------------
 
 function testNullConstKeyReferenceInLocalVar() returns () {
     () n = foo:nm4.nm4k;
