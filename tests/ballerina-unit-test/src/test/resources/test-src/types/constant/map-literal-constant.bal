@@ -1,92 +1,99 @@
 import ballerina/reflect;
 
-const map<map<boolean>> bm2 = { "key2": bm1 };
+const map<map<boolean>> bm3 = { "key3": bm1, "key4": bm2 };
 const map<boolean> bm1 = { "key1": true };
+const map<boolean> bm2 = { "key2": false };
 
 function testSimpleBooleanConstMap() returns map<boolean> {
     return bm1;
 }
 
 function testComplexBooleanConstMap() returns map<map<boolean>> {
-    return bm2;
+    return bm3;
 }
 
 // -----------------------------------------------------------
 
-const map<map<int>> im2 = { "key2": im1 };
+const map<map<int>> im3 = { "key3": im1, "key4": im2 };
 const map<int> im1 = { "key1": 1 };
+const map<int> im2 = { "key2": 2 };
 
 function testSimpleIntConstMap() returns map<int> {
     return im1;
 }
 
 function testComplexIntConstMap() returns map<map<int>> {
-    return im2;
+    return im3;
 }
 
 // -----------------------------------------------------------
 
-const map<map<byte>> bytem2 = { "key2": bytem1 };
+const map<map<byte>> bytem3 = { "key3": bytem1, "key4": bytem2 };
 const map<byte> bytem1 = { "key1": 10 };
+const map<byte> bytem2 = { "key2": 20 };
 
 function testSimpleByteConstMap() returns map<byte> {
     return bytem1;
 }
 
 function testComplexByteConstMap() returns map<map<byte>> {
-    return bytem2;
+    return bytem3;
 }
 
 // -----------------------------------------------------------
 
-const map<map<float>> fm2 = { "key2": fm1 };
+const map<map<float>> fm3 = { "key3": fm1, "key4": fm2 };
 const map<float> fm1 = { "key1": 2.0 };
+const map<float> fm2 = { "key2": 4.0 };
 
 function testSimpleFloatConstMap() returns map<float> {
     return fm1;
 }
 
 function testComplexFloatConstMap() returns map<map<float>> {
-    return fm2;
+    return fm3;
 }
 
 // -----------------------------------------------------------
 
-const map<map<decimal>> dm2 = { "key2": dm1 };
+const map<map<decimal>> dm3 = { "key3": dm1, "key4": dm2 };
 const map<decimal> dm1 = { "key1": 100 };
+const map<decimal> dm2 = { "key2": 200 };
 
 function testSimpleDecimalConstMap() returns map<decimal> {
     return dm1;
 }
 
 function testComplexDecimalConstMap() returns map<map<decimal>> {
-    return dm2;
+    return dm3;
 }
 
 // -----------------------------------------------------------
 
-const map<map<string>> sm2 = { "key2": sm1 };
+const map<map<string>> sm3 = { "key3": sm1, "key4": sm2 };
 const map<string> sm1 = { "key1": "value1" };
+const map<string> sm2 = { "key2": "value2" };
 
 function testSimpleStringConstMap() returns map<string> {
     return sm1;
 }
 
 function testComplexStringConstMap() returns map<map<string>> {
-    return sm2;
+    return sm3;
 }
 
 // -----------------------------------------------------------
 
-const map<map<()>> nm2 = { "key2": nm1 };
+const map<map<()>> nm3 = { "key3": nm1, "key4": nm2 };
 const map<()> nm1 = { "key1": () };
+const map<()> nm2 = { "key2": () };
 
 function testSimpleNilConstMap() returns map<()> {
     return nm1;
 }
 
 function testComplexNilConstMap() returns map<map<()>> {
-    return nm2;
+    return nm3;
 }
 
 // -----------------------------------------------------------
@@ -134,29 +141,29 @@ function testConstInAnnotations() returns reflect:annotationData[] {
 
 // -----------------------------------------------------------
 
-map<map<string>> m4 = { "m4k": m5 };
-const map<string> m5 = { "m5k": "m5v" };
+map<map<string>> m5 = { "m5k": m6 };
+const map<string> m6 = { "m6k": "m6v" };
 
 // Negative tests.
 function getNestedConstantMapValue() returns string {
-    return m4.m4k.m5k;
+    return m5.m5k.m6k;
 }
 
 function updateNestedConstantMapValue() {
-    m4.m4k.m5k = "m5nv";
+    m5.m5k.m6k = "m6nv";
 }
 
 function updateNestedConstantMapValue2() {
-    m4.m4k.newKey = "newValue";
+    m5.m5k.newKey = "newValue";
 }
 
 // -----------------------------------------------------------
 
-map<string>[] a1 = [m5];
+map<string>[] a1 = [m6];
 
 // Negative tests.
 function updateConstantMapValueInArray() {
-    a1[0].m5k = "m5nv";
+    a1[0].m6k = "m6nv";
 }
 
 function updateConstantMapValueInArray2() {
@@ -164,7 +171,7 @@ function updateConstantMapValueInArray2() {
 }
 
 function getConstantMapValueInArray() returns string {
-    return a1[0].m5k;
+    return a1[0].m6k;
 }
 
 // -----------------------------------------------------------
@@ -172,7 +179,7 @@ function getConstantMapValueInArray() returns string {
 // Negative tests.
 function updateReturnedConstantMap() {
     map<string> m = getMap();
-    m.m5k = "m5kn";
+    m.m6k = "m6kn";
 }
 
 function updateReturnedConstantMap2() {
@@ -181,117 +188,117 @@ function updateReturnedConstantMap2() {
 }
 
 function getMap() returns map<string> {
-    return m5;
+    return m6;
 }
 
 // -----------------------------------------------------------
 
-const map<boolean> bm3 = { "bm3k": true };
-const map<boolean> bm4 = { "bm4kn": bm3.bm3k };
+const map<boolean> bm4 = { "bm4k": true };
+const map<boolean> bm5 = { "bm5kn": bm4.bm4k };
 
 function testBooleanConstKeyReference() returns map<boolean> {
-    return bm4;
+    return bm5;
 }
 
 // -----------------------------------------------------------
 
-const map<int> im3 = { "im3k": 123 };
-const map<int> im4 = { "im4kn": im3.im3k };
+const map<int> im4 = { "im4k": 123 };
+const map<int> im5 = { "im5kn": im4.im4k };
 
 function testIntConstKeyReference() returns map<int> {
-    return im4;
+    return im5;
 }
 
 // -----------------------------------------------------------
 
-const map<byte> bytem3 = { "bytem3k": 64 };
-const map<byte> bytem4 = { "bytem4kn": bytem3.bytem3k };
+const map<byte> bytem4 = { "bytem4k": 64 };
+const map<byte> bytem5 = { "bytem5kn": bytem4.bytem4k };
 
 function testByteConstKeyReference() returns map<byte> {
-    return bytem4;
+    return bytem5;
 }
 
 // -----------------------------------------------------------
 
-const map<float> fm3 = { "fm3k": 12.5 };
-const map<float> fm4 = { "fm4kn": fm3.fm3k };
+const map<float> fm4 = { "fm4k": 12.5 };
+const map<float> fm5 = { "fm5kn": fm4.fm4k };
 
 function testFloatConstKeyReference() returns map<float> {
-    return fm4;
+    return fm5;
 }
 
 // -----------------------------------------------------------
 
-const map<decimal> dm3 = { "dm3k": 5.56 };
-const map<decimal> dm4 = { "dm4kn": dm3.dm3k };
+const map<decimal> dm4 = { "dm4k": 5.56 };
+const map<decimal> dm5 = { "dm5kn": dm4.dm4k };
 
 function testDecimalConstKeyReference() returns map<decimal> {
-    return dm4;
+    return dm5;
 }
 
 // -----------------------------------------------------------
 
-const map<string> sm3 = { "sm3k": "sm3v" };
-const map<string> sm4 = { "sm4kn": sm3.sm3k };
+const map<string> sm4 = { "sm4k": "sm4v" };
+const map<string> sm5 = { "sm5kn": sm4.sm4k };
 
 function testStringConstKeyReference() returns map<string> {
-    return sm4;
+    return sm5;
 }
 
 // -----------------------------------------------------------
 
-const map<()> nm3 = { "nm3k": () };
-const map<()> nm4 = { "nm4kn": nm3.nm3k };
+const map<()> nm4 = { "nm4k": () };
+const map<()> nm5 = { "nm5kn": nm4.nm4k };
 
 function testNullConstKeyReference() returns map<()> {
-    return nm4;
+    return nm5;
 }
 
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
-    boolean b = bm3.bm3k;
+    boolean b = bm4.bm4k;
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testIntConstKeyReferenceInLocalVar() returns int {
-    int i = im3.im3k;
+    int i = im4.im4k;
     return i;
 }
 
 // -----------------------------------------------------------
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
-    byte b = bytem3.bytem3k;
+    byte b = bytem4.bytem4k;
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testFloatConstKeyReferenceInLocalVar() returns float {
-    float f = fm3.fm3k;
+    float f = fm4.fm4k;
     return f;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = dm3.dm3k;
+    decimal d = dm4.dm4k;
     return d;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = sm3.sm3k;
+    string s = sm4.sm4k;
     return s;
 }
 
 // -----------------------------------------------------------
 
 function testNullConstKeyReferenceInLocalVar() returns () {
-    () n = nm3.nm3k;
+    () n = nm4.nm4k;
     return n;
 }

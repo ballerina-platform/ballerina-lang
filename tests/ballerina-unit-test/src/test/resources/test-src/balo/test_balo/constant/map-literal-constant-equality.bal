@@ -38,6 +38,24 @@ function testComplexBooleanMapReferenceEqualityUsingDifferentReference() returns
 
 // -----------------------------------------------------------
 
+function testComplexBooleanMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:bm3.key3 == foo:bm3.key3;
+}
+
+function testComplexBooleanMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:bm3.key3 == foo:bm3_new.key3;
+}
+
+function testComplexBooleanMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:bm1 === foo:bm3.key3;
+}
+
+function testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:bm3.key3 === foo:bm3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 function testSimpleIntMapValueEqualityUsingSameReference() returns boolean {
     return foo:bm1 == foo:bm1;
 }
@@ -70,6 +88,24 @@ function testComplexIntMapReferenceEqualityUsingSameReference() returns boolean 
 
 function testComplexIntMapReferenceEqualityUsingDifferentReference() returns boolean {
     return foo:bm3 === foo:bm3_new;
+}
+
+// -----------------------------------------------------------
+
+function testComplexIntMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:im3.key3 == foo:im3.key3;
+}
+
+function testComplexIntMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:im3.key3 == foo:im3_new.key3;
+}
+
+function testComplexIntMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:im1 === foo:im3.key3;
+}
+
+function testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:im3.key3 === foo:im3_new.key3;
 }
 
 // -----------------------------------------------------------
@@ -110,6 +146,24 @@ function testComplexByteMapReferenceEqualityUsingDifferentReference() returns bo
 
 // -----------------------------------------------------------
 
+function testComplexByteMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:bytem3.key3 == foo:bytem3.key3;
+}
+
+function testComplexByteMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:bytem3.key3 == foo:bytem3_new.key3;
+}
+
+function testComplexByteMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:bytem1 === foo:bytem3.key3;
+}
+
+function testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:bytem3.key3 === foo:bytem3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 function testSimpleFloatMapValueEqualityUsingSameReference() returns boolean {
     return foo:fm1 == foo:fm1;
 }
@@ -142,6 +196,24 @@ function testComplexFloatMapReferenceEqualityUsingSameReference() returns boolea
 
 function testComplexFloatMapReferenceEqualityUsingDifferentReference() returns boolean {
     return foo:fm3 === foo:fm3_new;
+}
+
+// -----------------------------------------------------------
+
+function testComplexFloatMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:fm3.key3 == foo:fm3.key3;
+}
+
+function testComplexFloatMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:fm3.key3 == foo:fm3_new.key3;
+}
+
+function testComplexFloatMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:fm1 === foo:fm3.key3;
+}
+
+function testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:fm3.key3 === foo:fm3_new.key3;
 }
 
 // -----------------------------------------------------------
@@ -182,6 +254,24 @@ function testComplexDecimalMapReferenceEqualityUsingDifferentReference() returns
 
 // -----------------------------------------------------------
 
+function testComplexDecimalMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:dm3.key3 == foo:dm3.key3;
+}
+
+function testComplexDecimalMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:dm3.key3 == foo:dm3_new.key3;
+}
+
+function testComplexDecimalMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:dm1 === foo:dm3.key3;
+}
+
+function testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:dm3.key3 === foo:dm3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 function testSimpleStringMapValueEqualityUsingSameReference() returns boolean {
     return foo:sm1 == foo:sm1;
 }
@@ -218,6 +308,24 @@ function testComplexStringMapReferenceEqualityUsingDifferentReference() returns 
 
 // -----------------------------------------------------------
 
+function testComplexStringMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:sm3.key3 == foo:sm3.key3;
+}
+
+function testComplexStringMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:sm3.key3 == foo:sm3_new.key3;
+}
+
+function testComplexStringMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:sm1 === foo:sm3.key3;
+}
+
+function testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:sm3.key3 === foo:sm3_new.key3;
+}
+
+// -----------------------------------------------------------
+
 function testSimpleNilMapValueEqualityUsingSameReference() returns boolean {
     return foo:nm1 == foo:nm1;
 }
@@ -250,4 +358,22 @@ function testComplexNilMapReferenceEqualityUsingSameReference() returns boolean 
 
 function testComplexNilMapReferenceEqualityUsingDifferentReference() returns boolean {
     return foo:nm3 === foo:nm3_new;
+}
+
+// -----------------------------------------------------------
+
+function testComplexNilMapValueEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:nm3.key3 == foo:nm3.key3;
+}
+
+function testComplexNilMapValueEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:nm3.key3 == foo:nm3_new.key3;
+}
+
+function testComplexNilMapReferenceEqualityUsingMapAccessSameReference() returns boolean {
+    return foo:nm1 === foo:nm3.key3;
+}
+
+function testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference() returns boolean {
+    return foo:nm3.key3 === foo:nm3_new.key3;
 }

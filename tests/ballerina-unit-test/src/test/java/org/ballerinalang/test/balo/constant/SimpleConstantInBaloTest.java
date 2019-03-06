@@ -44,7 +44,7 @@ public class SimpleConstantInBaloTest {
     @BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/map-literal-constant-equality.bal");
+        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/simple-literal-constant.bal");
     }
 
     @Test
