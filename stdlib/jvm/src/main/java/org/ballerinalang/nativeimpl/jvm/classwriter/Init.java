@@ -37,8 +37,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
-                structPackage = JVM_PKG_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER, structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "flags", type = TypeKind.INT)
         }

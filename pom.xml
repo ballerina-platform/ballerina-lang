@@ -677,19 +677,19 @@
             <!-- ballerina-runtime -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -873,6 +873,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-runtime</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1734,7 +1739,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1771,6 +1776,7 @@
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
@@ -1820,7 +1826,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1858,6 +1864,7 @@
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
@@ -1904,7 +1911,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1942,6 +1949,7 @@
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>

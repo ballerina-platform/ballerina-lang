@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
