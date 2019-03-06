@@ -388,7 +388,17 @@ public class CompiledPackageSymbolEnter {
 
                 valueMap.put(keyInfo, constantValue);
             } else {
-                throw new RuntimeException("unexpected type");
+                int valueCPIndex = dataInStream.readInt();
+
+                MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
+
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex = valueCPIndex;
+                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+
+                valueMap.put(keyInfo, constantValue);
             }
         }
 
@@ -891,20 +901,22 @@ public class CompiledPackageSymbolEnter {
                     this.env.unresolvedConstReferences.put(constRef, mapCPEntry);
 
                 } else {
-                    if (mapCPEntry.literalValue == null) {
+//                    if (mapCPEntry.literalValue == null) {
                         // Read the map literal.
                         value = mapCPEntry.literalValue = recordLiteral;
-                    } else {
-
-                        BLangConstRef constRef = new BLangConstRef(mapCPEntry.getConstantSymbol());
-                        constRef.desugared = true;
-                        constRef.type = valueType;
-
-                        //                    constantSymbol.literalValue = constRef;
-
-                        // Todo - create const ref
-                        value = constRef;
-                    }
+//                    } else {
+//
+//                        BLangConstRef constRef = new BLangConstRef(mapCPEntry.getConstantSymbol());
+//                        constRef.desugared = true;
+//                        constRef.type = valueType;
+//
+//                        //                    constantSymbol.literalValue = constRef;
+//
+//                        // Todo - create const ref
+//                        value = constRef;
+//
+//                        this.env.unresolvedConstReferences.put(constRef, mapCPEntry);
+//                    }
                 }
             }
             // Create a new literal for the key.
