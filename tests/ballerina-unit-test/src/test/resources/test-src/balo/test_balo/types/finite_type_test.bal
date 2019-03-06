@@ -255,14 +255,14 @@ function testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean() returns boolean 
     return assignmentSuccessful && a == c;
 }
 
-//function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
-//    foo:ByteValue a = 12;
-//    byte b = a;
-//    boolean assignmentSuccessful = a == b;
-//
-//    byte|Person c = a;
-//    return assignmentSuccessful && a == c;
-//}
+function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
+    foo:ByteValue a = 12;
+    byte b = a;
+    boolean assignmentSuccessful = a == b;
+
+    byte|foo:Person c = a;
+    return assignmentSuccessful && a == c;
+}
 
 function testFiniteTypeAssignmentToBroaderType() returns boolean {
     foo:CombinedState a = "off";

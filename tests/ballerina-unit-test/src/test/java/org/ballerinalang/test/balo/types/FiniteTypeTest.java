@@ -300,7 +300,7 @@ public class FiniteTypeTest {
                 {"testIntOnlyFiniteTypeAssignmentToTypeWithInt"},
                 {"testFloatOnlyFiniteTypeAssignmentToTypeWithFloat"},
                 {"testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean"},
-//                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
+                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
                 {"testFiniteTypeAssignmentToBroaderType"},
                 {"testFiniteTypeWithConstAssignmentToBroaderType"},
                 {"testFiniteTypeWithConstAndTypeAssignmentToBroaderType"},

@@ -356,20 +356,20 @@ function testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean() returns boolean 
     return assignmentSuccessful && a == c;
 }
 
-//const byte byte1 = 34;
-//const byte byte2 = 12;
-//const byte byte3 = 111;
-//
-//type ByteValue byte1|byte2|byte3;
-//
-//function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
-//    ByteValue a = 12;
-//    byte b = a;
-//    boolean assignmentSuccessful = a == b;
-//
-//    byte|Person c = a;
-//    return assignmentSuccessful && a == c;
-//}
+const byte byte1 = 34;
+const byte byte2 = 12;
+const byte byte3 = 111;
+
+type ByteValue byte1|byte2|byte3;
+
+function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
+    ByteValue a = 12;
+    byte b = a;
+    boolean assignmentSuccessful = a == b;
+
+    byte|Person c = a;
+    return assignmentSuccessful && a == c;
+}
 
 function testFiniteTypeAssignmentToBroaderType() returns boolean {
     CombinedState a = "off";

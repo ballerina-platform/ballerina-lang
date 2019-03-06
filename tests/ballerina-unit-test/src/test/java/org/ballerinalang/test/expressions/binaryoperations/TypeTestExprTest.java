@@ -477,7 +477,7 @@ public class TypeTestExprTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
     }
 
     @Test
