@@ -639,7 +639,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 if (children.get(index + 1).getText().equals("]")) {
                     sizes.add(UNSEALED_ARRAY_INDICATOR);
                     index += 2;
-                } else if (children.get(index + 1) instanceof TerminalNode) {
+                } else if (children.get(index + 1).getText().equals("*")) {
                     sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
                     index += 1;
                 } else {
