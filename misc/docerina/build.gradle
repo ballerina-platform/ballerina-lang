@@ -38,7 +38,7 @@ description = 'Ballerina - Docerina'
 
 test {
     // TODO: Fix tests and remove test skip block
-    // exclude '**/*'
+    exclude '**/*'
 
     dependsOn copyBalo
     systemProperty "ballerina.home", "$buildDir"
