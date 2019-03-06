@@ -94,13 +94,13 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
      * {@inheritDoc}
      */
     @Override
-    public void updateCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
+    public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
             tempDocument.setCodeLenses(codeLens);
         } else if (super.isFileOpen(filePath)) {
             // If file open, call parent class
-            super.updateCodeLenses(filePath, codeLens);
+            super.setCodeLenses(filePath, codeLens);
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }

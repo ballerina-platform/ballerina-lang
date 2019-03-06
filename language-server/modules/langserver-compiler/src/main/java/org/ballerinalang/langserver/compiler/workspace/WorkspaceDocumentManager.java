@@ -103,7 +103,7 @@ public interface WorkspaceDocumentManager {
      * <pre>
      * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
      * try {
-     *     documentManager.updateCodeLenses(filePath, lenses);
+     *     documentManager.setCodeLenses(filePath, lenses);
      * } finally {
      *     lock.ifPresent(Lock:unlock);
      * }
@@ -113,7 +113,7 @@ public interface WorkspaceDocumentManager {
      * @param codeLens New code lenses of the file
      * @throws WorkspaceDocumentException when file cannot be updated.
      */
-    void updateCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
+    void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
 
     /**
      * Returns the code lenses of the file.

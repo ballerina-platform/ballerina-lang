@@ -110,7 +110,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      * {@inheritDoc}
      */
     @Override
-    public void updateCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
+    public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             documentList.get(filePath).getDocument().ifPresent(document -> document.setCodeLenses(codeLens));
         } else {

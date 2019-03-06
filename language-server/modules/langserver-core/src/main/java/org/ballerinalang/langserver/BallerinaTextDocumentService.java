@@ -467,7 +467,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 // Compile source document
                 lenses = CodeLensUtil.compileAndGetCodeLenses(fileUri, lsCompiler, documentManager);
-                documentManager.updateCodeLenses(compilationPath, lenses);
+                documentManager.setCodeLenses(compilationPath, lenses);
                 return lenses;
             } catch (LSCompilerException e) {
                 // Source compilation failed, serve from cache
