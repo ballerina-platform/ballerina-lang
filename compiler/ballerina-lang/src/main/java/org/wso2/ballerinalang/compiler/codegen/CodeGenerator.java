@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -1283,46 +1282,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
         switch (iExpr.builtInMethod) {
-            case REASON:
-                emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-                break;
-            case DETAIL:
-                emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
-                break;
-            case LENGTH:
-                Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
-                break;
-            case FREEZE:
-                emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
-                break;
-            case IS_FROZEN:
-                emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
-                break;
-            case CLONE:
-                emit(InstructionCodes.CLONE, iExpr.expr.regIndex, regIndex);
-                break;
-            case STAMP:
-                genNode(iExpr.requiredArgs.get(0), this.env);
-                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
-                break;
-            case CONVERT:
-                int opcode = ((BOperatorSymbol) iExpr.symbol).opcode;
-                BLangExpression expr = iExpr.requiredArgs.get(0);
-                BType castExprType = iExpr.type;
-                RegIndex convExprRegIndex = calcAndGetExprRegIndex(iExpr.regIndex, castExprType.tag);
-                iExpr.regIndex = convExprRegIndex;
-                genNode(expr, this.env);
-                if (opcode == InstructionCodes.CONVERT) {
-                    typeCPIndex = getTypeCPIndex(((BInvokableType) iExpr.symbol.type).paramTypes.get(1));
-                    emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
-                } else {
-                    emit(opcode, expr.regIndex, convExprRegIndex);
-                }
-                break;
-            case ITERATE:
-                emit(InstructionCodes.ITR_NEW, iExpr.expr.regIndex, regIndex);
-                break;
             case NEXT:
                 List<Operand> list = new LinkedList<>();
                 list.add(iExpr.expr.regIndex);
@@ -1331,7 +1290,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 list.add(new Operand(1)); // Todo - Cleanup counts
                 list.add(iExpr.regIndex);
 
-                BType resultType = ((BUnionType) iExpr.type).memberTypes.iterator().next();
+                BType resultType = ((BUnionType) iExpr.type).iterator().next();
                 list.add(getTypeCPIndex(resultType));
 
 

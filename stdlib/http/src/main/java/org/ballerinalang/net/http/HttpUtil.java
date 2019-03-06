@@ -75,6 +75,7 @@ import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -102,9 +103,7 @@ import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALR
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
@@ -116,6 +115,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.COLON;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
@@ -274,7 +274,7 @@ public class HttpUtil {
                 byteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
             }
             if (entityBodyRequired && !byteChannelAlreadySet) {
-                populateEntityBody(context, httpMessageStruct, entity, isRequest);
+                populateEntityBody(context, httpMessageStruct, entity, isRequest, false);
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
@@ -289,35 +289,30 @@ public class HttpUtil {
      * @param context           Represent ballerina context
      * @param httpMessageStruct Represent ballerina request/response
      * @param entity            Represent an entity
-     * @param isRequest         boolean representing whether the message is a request or a response
+     * @param request           boolean representing whether the message is a request or a response
+     * @param streaming         boolean representing whether the entity requires byte channel or message as native data
      */
     public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
-                                          BMap<String, BValue> entity, boolean isRequest) {
+                                          BMap<String, BValue> entity, boolean request, boolean streaming) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(request));
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
-            MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
+            MultipartDecoder.parseBody(context, entity, contentType,
+                                       new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
-            long contentLength = NO_CONTENT_LENGTH_FOUND;
-            String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-            try {
-                contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
-                if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    //Read one byte to make sure the incoming stream has data
-                    contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
-                }
-            } catch (NumberFormatException e) {
-                throw new BallerinaException("Invalid content length");
-            }
+            long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
-                entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-                        new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+                if (streaming) {
+                    entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                            new EntityBodyChannel(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream())));
+                } else {
+                    entity.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                }
             }
         }
-        httpMessageStruct.put(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
+        httpMessageStruct.put(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
     }
 
@@ -1229,89 +1224,6 @@ public class HttpUtil {
         return responseStruct;
     }
 
-    /**
-     * Populates Sender configuration instance with client endpoint configuration.
-     *
-     * @param senderConfiguration  sender configuration instance.
-     * @param clientEndpointConfig client endpoint configuration.
-     */
-    @Deprecated
-    public static void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
-            clientEndpointConfig) {
-        ProxyServerConfiguration proxyServerConfiguration;
-        Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-
-        if (secureSocket != null) {
-            HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
-        } else {
-            HttpUtil.setDefaultTrustStore(senderConfiguration);
-        }
-        Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
-        if (proxy != null) {
-            String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
-            int proxyPort = (int) proxy.getIntField(HttpConstants.PROXY_PORT);
-            String proxyUserName = proxy.getStringField(HttpConstants.PROXY_USERNAME);
-            String proxyPassword = proxy.getStringField(HttpConstants.PROXY_PASSWORD);
-            try {
-                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-            } catch (UnknownHostException e) {
-                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
-            }
-            if (!proxyUserName.isEmpty()) {
-                proxyServerConfiguration.setProxyUsername(proxyUserName);
-            }
-            if (!proxyPassword.isEmpty()) {
-                proxyServerConfiguration.setProxyPassword(proxyPassword);
-            }
-            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
-        }
-
-        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
-        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-
-        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
-        }
-        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
-
-        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
-                .getStringValue();
-        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
-
-        String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
-        if (httpVersion != null) {
-            senderConfiguration.setHttpVersion(httpVersion);
-        }
-        String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
-        senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
-
-        Struct connectionThrottling = clientEndpointConfig.getStructField(HttpConstants.
-                CONNECTION_THROTTLING_STRUCT_REFERENCE);
-        if (connectionThrottling != null) {
-            long maxActiveConnections = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                        + maxActiveConnections);
-            }
-            senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
-
-            long waitTime = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
-            senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
-
-            long maxActiveStreamsPerConnection = connectionThrottling.
-                    getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
-            if (!isInteger(maxActiveStreamsPerConnection)) {
-                throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
-                        + maxActiveStreamsPerConnection);
-            }
-            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
-                    maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
-        }
-    }
-
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
@@ -1364,6 +1276,21 @@ public class HttpUtil {
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
+    public static ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
+        ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
+        if (poolManager == null) {
+            synchronized (poolStruct) {
+                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
+                    PoolConfiguration userDefinedPool = new PoolConfiguration();
+                    populatePoolingConfig(poolStruct, userDefinedPool);
+                    poolManager = new ConnectionManager(userDefinedPool);
+                    poolStruct.addNativeData(CONNECTION_MANAGER, poolManager);
+                }
+            }
+        }
+        return poolManager;
+    }
+
     public static void populatePoolingConfig(BMap<String, BValue> poolRecord, PoolConfiguration poolConfiguration) {
         long maxActiveConnections = ((BInteger) poolRecord
                 .get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS)).intValue();
@@ -1383,10 +1310,6 @@ public class HttpUtil {
         poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
                 maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
                                                                 CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
-    }
-
-    private static boolean isInteger(long val) {
-        return (int) val == val;
     }
 
     private static int validateConfig(long value, String configName) {

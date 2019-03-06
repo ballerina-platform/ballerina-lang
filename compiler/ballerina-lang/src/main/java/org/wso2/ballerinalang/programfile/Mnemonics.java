@@ -95,15 +95,9 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.IS_LIKE] = "is_like";
 
-        mnemonics[InstructionCodes.STAMP] = "stamp";
-
-        mnemonics[InstructionCodes.FREEZE] = "freeze";
-        mnemonics[InstructionCodes.IS_FROZEN] = "is_frozen";
 
         mnemonics[InstructionCodes.ERROR] = "error";
         mnemonics[InstructionCodes.PANIC] = "panic";
-        mnemonics[InstructionCodes.REASON] = "reason";
-        mnemonics[InstructionCodes.DETAIL] = "detail";
 
         mnemonics[InstructionCodes.MAPSTORE] = "map_store";
         mnemonics[InstructionCodes.JSONSTORE] = "json_store";
@@ -270,10 +264,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
-
-        mnemonics[InstructionCodes.CLONE] = "clone";
+        
         mnemonics[InstructionCodes.FLUSH] = "flush";
-        mnemonics[InstructionCodes.LENGTH] = "length_of";
         mnemonics[InstructionCodes.WAITALL] = "wait_all";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "new_struct";
@@ -281,9 +273,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWTABLE] = "new_table";
         mnemonics[InstructionCodes.NEWSTREAM] = "new_stream";
 
-        mnemonics[InstructionCodes.CONVERT] = "convert";
-
-        mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 

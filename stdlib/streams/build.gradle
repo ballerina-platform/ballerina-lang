@@ -2,6 +2,7 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
@@ -21,6 +22,8 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-math')
     implementation project(':ballerina-crypto')
+    testCompile project(':ballerina-launcher')
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Streams'
