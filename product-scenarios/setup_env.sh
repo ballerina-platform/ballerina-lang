@@ -6,7 +6,7 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 input_dir=$1
 output_dir=$2
 
-declare -A -g infra_config
+declare -A infra_config
 
 read_property_file "${input_dir}/infrastructure.properties" infra_config
 
