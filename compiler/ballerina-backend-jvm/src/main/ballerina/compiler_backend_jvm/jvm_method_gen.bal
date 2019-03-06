@@ -443,7 +443,7 @@ function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv
 
     if (targetType is bir:BTypeInt) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
-    } if (targetType is bir:BTypeBoolean) {
+    } else if (targetType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
     } else if (targetType is bir:BTypeString) {
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);

@@ -154,7 +154,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -433,7 +433,7 @@
                                 ballerina-mysql,
                                 ballerina-observability,
                                 ballerina-reflect,
-                                ballerina-runtime,
+                                ballerina-runtime-api,
                                 ballerina-sql,
                                 ballerina-streams,
                                 ballerina-swagger,
@@ -582,7 +582,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-runtime-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-runtime-api-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

@@ -38,8 +38,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "toByteArray",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER,
-                structPackage = JVM_PKG_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLASS_WRITER, structPackage = JVM_PKG_PATH),
         returnType = {
                 @ReturnType(type = ARRAY, elementType = BYTE)
         }
