@@ -59,9 +59,6 @@ dependencies {
 }
 
 test {
-    minHeapSize = "256m"
-    maxHeapSize = "1024m"
-
     doFirst {
         copy {
             from "$buildDir/generated-balo/repo/ballerina"
