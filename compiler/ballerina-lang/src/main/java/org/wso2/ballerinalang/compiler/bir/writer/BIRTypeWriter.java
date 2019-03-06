@@ -132,7 +132,11 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        throwUnimplementedError(bTupleType);
+        buff.writeByte(bTupleType.tag);
+        buff.writeInt(bTupleType.tupleTypes.size());
+        for (BType memberType : bTupleType.tupleTypes) {
+            memberType.accept(this);
+        }
     }
 
     @Override

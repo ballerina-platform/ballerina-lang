@@ -221,6 +221,8 @@ type TypeEmitter object {
             self.emitArrayType(typeVal, tabs);
         } else if (typeVal is BUnionType) {
             self.emitUnionType(typeVal, tabs);
+        } else if (typeVal is BTupleType) {
+            self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
@@ -282,6 +284,19 @@ type TypeEmitter object {
             self.emitType(t, tabs = tabs);
             i = i + 1;
         }
+    }
+
+    function emitTupleType(BTupleType bUnionType, string tabs) {
+        int i = 0;
+        print(tabs, "(");
+        foreach var t in bUnionType.tupleTypes {
+            if (i != 0) {
+                print(", ");
+            }
+            self.emitType(t);
+            i = i + 1;
+        }
+        print(")");
     }
 
     function emitMapType(BMapType bMapType, string tabs) {

@@ -138,15 +138,18 @@ public type BTypeString "string";
 public type BArrayType record {
     ArrayState state;
     BType eType;
+    !...;
 };
 
 public type BMapType record {
     BType constraint;
+    !...;
 };
 
 public type BErrorType record {
     BType reasonType;
     BType detailType;
+    !...;
 };
 
 public type BRecordType record {
@@ -154,11 +157,13 @@ public type BRecordType record {
     boolean sealed;
     BType restFieldType;
     BRecordField[] fields;
+    !...;
 };
 
 public type BObjectType record {
     Name name = {};
-    BObjectField[] fields;    
+    BObjectField[] fields; 
+    !...;   
 };
 
 public type BRecordField record {
@@ -176,10 +181,16 @@ public type BObjectField record {
 
 public type BUnionType record {
    BType[]  members;
+   !...;
+};
+
+public type BTupleType record {
+   BType[]  tupleTypes;
+   !...;
 };
 
 
-public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
+public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | "byte" | "float" | BTypeString | BUnionType | BTupleType |
                   BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
 
 

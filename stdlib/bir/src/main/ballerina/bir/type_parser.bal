@@ -66,6 +66,8 @@ public type TypeParser object {
             return "boolean";
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
+        } else if (typeTag == self.TYPE_TAG_TUPLE){
+            return self.parseTupleType();
         } else if (typeTag == self.TYPE_TAG_ARRAY){
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
@@ -93,6 +95,10 @@ public type TypeParser object {
 
     function parseUnionType() returns BUnionType {
         return { members:self.parseTypes() };
+    }
+
+    function parseTupleType() returns BTupleType {
+        return { tupleTypes:self.parseTypes() };
     }
 
     function parseInvokableType() returns BInvokableType {
