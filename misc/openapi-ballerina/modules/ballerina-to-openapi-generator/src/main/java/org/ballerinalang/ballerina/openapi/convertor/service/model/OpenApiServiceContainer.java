@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * A model container class which is the request and response.
  */
-public class SwaggerServiceContainer {
+public class OpenApiServiceContainer {
     /**
      * Stores the ballerina source code.
      */
@@ -32,8 +32,8 @@ public class SwaggerServiceContainer {
     /**
      * Stores the list of openapi definitions to each service in the ballerina source code.
      */
-    @JsonProperty("swaggerDefinition")
-    private String swaggerDefinition = StringUtils.EMPTY;
+    @JsonProperty("openApiDefinition")
+    private String openApiDefinition = StringUtils.EMPTY;
     
     public String getBallerinaDefinition() {
         return ballerinaDefinition;
@@ -43,12 +43,12 @@ public class SwaggerServiceContainer {
         this.ballerinaDefinition = ballerinaDefinition;
     }
     
-    public String getSwaggerDefinition() {
-        return swaggerDefinition;
+    public String getOpenApiDefinition() {
+        return openApiDefinition;
     }
     
-    public void setSwaggerDefinition(String swaggerDefinition) {
-        this.swaggerDefinition = swaggerDefinition;
+    public void setOpenApiDefinition(String openApiDefinition) {
+        this.openApiDefinition = openApiDefinition;
     }
     
     @Override
@@ -56,30 +56,30 @@ public class SwaggerServiceContainer {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SwaggerServiceContainer)) {
+        if (!(o instanceof OpenApiServiceContainer)) {
             return false;
         }
         
-        SwaggerServiceContainer that = (SwaggerServiceContainer) o;
+        OpenApiServiceContainer that = (OpenApiServiceContainer) o;
         
         if (!getBallerinaDefinition().equals(that.getBallerinaDefinition())) {
             return false;
         }
-        return getSwaggerDefinition().equals(that.getSwaggerDefinition());
+        return getOpenApiDefinition().equals(that.getOpenApiDefinition());
     
     }
     
     @Override
     public int hashCode() {
         int result = getBallerinaDefinition().hashCode();
-        result = 31 * result + getSwaggerDefinition().hashCode();
+        result = 31 * result + getOpenApiDefinition().hashCode();
         return result;
     }
     
     @Override
     public String toString() {
-        return "SwaggerServiceContainer{" + "ballerinaDefinition='" + ballerinaDefinition + '\'' + ", " +
-               "swaggerDefinition='" + swaggerDefinition + '\'' + '}';
+        return "OpenApiServiceContainer{" + "ballerinaDefinition='" + ballerinaDefinition + '\'' + ", " +
+               "openApiDefinition='" + openApiDefinition + '\'' + '}';
     }
 }
 

@@ -63,7 +63,7 @@ public class OpenApiConverterUtils {
      */
     public static String generateOpenApiDefinitions(String ballerinaSource, String serviceName) throws IOException {
         try {
-            //Create empty swagger object.
+            //Create empty openapi object.
             BallerinaFile ballerinaFile = LSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
             BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage()
                     .map(bLangPackage -> bLangPackage.getCompilationUnits().get(0))
@@ -73,13 +73,13 @@ public class OpenApiConverterUtils {
                 return "Error";
             }
             String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
-            String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
-            OpenApiServiceMapper openApiServiceMapper = new OpenApiServiceMapper(httpAlias, swaggerAlias);
+            String openApiAlias = getAlias(topCompilationUnit, Constants.OPENAPI_PACKAGE_NAME);
+            OpenApiServiceMapper openApiServiceMapper = new OpenApiServiceMapper(httpAlias, openApiAlias);
             List<BLangSimpleVariable> endpoints = new ArrayList<>();
 
             Swagger openapi = getOpenApiDefinition(new Swagger(), openApiServiceMapper, serviceName, topCompilationUnit,
                     endpoints);
-            return openApiServiceMapper.generateSwaggerString(openapi);
+            return openApiServiceMapper.generateOpenApiString(openapi);
         } catch (LSCompilerException e) {
             return "Error";
         }
@@ -107,14 +107,14 @@ public class OpenApiConverterUtils {
                 return "Error";
             }
             String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
-            String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
-            OpenApiServiceMapper openApiServiceMapper = new OpenApiServiceMapper(httpAlias, swaggerAlias);
+            String openApiAlias = getAlias(topCompilationUnit, Constants.OPENAPI_PACKAGE_NAME);
+            OpenApiServiceMapper openApiServiceMapper = new OpenApiServiceMapper(httpAlias, openApiAlias);
             List<BLangSimpleVariable> endpoints = new ArrayList<>();
             Swagger openapi = getOpenApiDefinition(new Swagger(), openApiServiceMapper, serviceName, topCompilationUnit,
                     endpoints);
-            String swaggerSource = openApiServiceMapper.generateSwaggerString(openapi);
+            String openApiSource = openApiServiceMapper.generateOpenApiString(openapi);
             SwaggerConverter converter = new SwaggerConverter();
-            SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(swaggerSource);
+            SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(openApiSource);
 
             if (result.getMessages().size() > 0) {
                 throw new OpenApiConverterException("Please check if input source is valid and complete");
@@ -138,17 +138,17 @@ public class OpenApiConverterUtils {
             if (topLevelNode instanceof BLangService) {
                 BLangService serviceDefinition = (BLangService) topLevelNode;
                 openapi = new OpenApiEndpointMapper()
-                        .convertBoundEndpointsToSwagger(endpoints, serviceDefinition, openapi);
+                        .convertBoundEndpointsToOpenApi(endpoints, serviceDefinition, openapi);
 
-                // Generate swagger string for the mentioned service name.
+                // Generate openApi string for the mentioned service name.
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {
-                        openapi = openApiServiceMapper.convertServiceToSwagger(serviceDefinition, openapi);
+                        openapi = openApiServiceMapper.convertServiceToOpenApi(serviceDefinition, openapi);
                         break;
                     }
                 } else {
-                    // If no service name mentioned, then generate swagger definition for the first service.
-                    openapi = openApiServiceMapper.convertServiceToSwagger(serviceDefinition, openapi);
+                    // If no service name mentioned, then generate openApi definition for the first service.
+                    openapi = openApiServiceMapper.convertServiceToOpenApi(serviceDefinition, openapi);
                     break;
                 }
             }
@@ -170,10 +170,10 @@ public class OpenApiConverterUtils {
     public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName)
             throws IOException, OpenApiConverterException {
         String balSource = readFromFile(servicePath);
-        String swaggerName = getSwaggerFileName(servicePath, serviceName);
+        String openApiName = getOpenApiFileName(servicePath, serviceName);
 
-        String swaggerSource = generateOAS3Definitions(balSource, serviceName);
-        writeFile(outPath.resolve(swaggerName), swaggerSource);
+        String openApiSource = generateOAS3Definitions(balSource, serviceName);
+        writeFile(outPath.resolve(openApiName), openApiSource);
     }
 
     /**
@@ -189,10 +189,10 @@ public class OpenApiConverterUtils {
     public static void generateOpenApiDefinitions(Path servicePath, Path outPath, String serviceName)
             throws IOException {
         String balSource = readFromFile(servicePath);
-        String swaggerName = getSwaggerFileName(servicePath, serviceName);
+        String openApiName = getOpenApiFileName(servicePath, serviceName);
 
-        String swaggerSource = generateOpenApiDefinitions(balSource, serviceName);
-        writeFile(outPath.resolve(swaggerName), swaggerSource);
+        String openApiSource = generateOpenApiDefinitions(balSource, serviceName);
+        writeFile(outPath.resolve(openApiName), openApiSource);
     }
 
     private static String readFromFile(Path servicePath) throws IOException {
@@ -219,19 +219,19 @@ public class OpenApiConverterUtils {
         }
     }
 
-    private static String getSwaggerFileName(Path servicePath, String serviceName) {
+    private static String getOpenApiFileName(Path servicePath, String serviceName) {
         Path file = servicePath.getFileName();
-        String swaggerFile;
+        String openApiFile;
 
         if (StringUtils.isNotBlank(serviceName)) {
-            swaggerFile = serviceName + ConverterConstants.OPENAPI_SUFFIX;
+            openApiFile = serviceName + ConverterConstants.OPENAPI_SUFFIX;
         } else {
-            swaggerFile = file != null ?
+            openApiFile = file != null ?
                     FilenameUtils.removeExtension(file.toString()) + ConverterConstants.OPENAPI_SUFFIX :
                     null;
         }
 
-        return swaggerFile + ConverterConstants.YAML_EXTENSION;
+        return openApiFile + ConverterConstants.YAML_EXTENSION;
     }
 
     /**

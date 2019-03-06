@@ -53,19 +53,19 @@ import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLitera
 public class OpenApiServiceMapper {
     private static final Logger logger = LoggerFactory.getLogger(OpenApiServiceMapper.class);
     private String httpAlias;
-    private String swaggerAlias;
+    private String openApiAlias;
     private ObjectMapper objectMapper;
 
     /**
      * Initializes a service parser for OpenApi.
      *
      * @param httpAlias    The alias for ballerina/http module.
-     * @param swaggerAlias The alias for ballerina.openapi module.
+     * @param openApiAlias The alias for ballerina.openapi module.
      */
-    public OpenApiServiceMapper(String httpAlias, String swaggerAlias) {
-        // Default object mapper is JSON mapper available in swagger utils.
+    public OpenApiServiceMapper(String httpAlias, String openApiAlias) {
+        // Default object mapper is JSON mapper available in openApi utils.
         this.httpAlias = httpAlias;
-        this.swaggerAlias = swaggerAlias;
+        this.openApiAlias = openApiAlias;
         this.objectMapper = Json.mapper();
     }
 
@@ -75,52 +75,52 @@ public class OpenApiServiceMapper {
      * @param openapi OpenApi definition
      * @return String representation of current service object.
      */
-    public String generateSwaggerString(Swagger openapi) {
+    public String generateOpenApiString(Swagger openapi) {
         try {
             return objectMapper.writeValueAsString(openapi);
         } catch (JsonProcessingException e) {
-            logger.error("Error while generating swagger string from definition" + e);
+            logger.error("Error while generating openApi string from definition" + e);
             return "Error";
         }
     }
 
     /**
-     * This method will convert ballerina @Service to swaggers @Swagger object.
+     * This method will convert ballerina @Service to OpenApi @OpenApi object.
      *
-     * @param service ballerina @Service object to be map to swagger definition
+     * @param service ballerina @Service object to be map to openapi definition
      * @return OpenApi object which represent current service.
      */
-    public Swagger convertServiceToSwagger(BLangService service) {
+    public Swagger convertServiceToOpenApi(BLangService service) {
         Swagger openapi = new Swagger();
-        return convertServiceToSwagger(service, openapi);
+        return convertServiceToOpenApi(service, openapi);
     }
 
     /**
-     * This method will convert ballerina @Service to swaggers @Swagger object.
+     * This method will convert ballerina @Service to openApi @OpenApi object.
      *
-     * @param service ballerina @Service object to be map to swagger definition
+     * @param service ballerina @Service object to be map to openApi definition
      * @param openapi OpenApi model to populate
-     * @return Swagger object which represent current service.
+     * @return OpenApi object which represent current service.
      */
-    public Swagger convertServiceToSwagger(BLangService service, Swagger openapi) {
+    public Swagger convertServiceToOpenApi(BLangService service, Swagger openapi) {
         // Setting default values.
         openapi.setBasePath('/' + service.getName().getValue());
         this.parseServiceInfoAnnotationAttachment(service, openapi);
         this.parseConfigAnnotationAttachment(service, openapi);
 
-        OpenApiResourceMapper resourceMapper = new OpenApiResourceMapper(openapi, this.httpAlias, this.swaggerAlias);
+        OpenApiResourceMapper resourceMapper = new OpenApiResourceMapper(openapi, this.httpAlias, this.openApiAlias);
         openapi.setPaths(resourceMapper.convertResourceToPath(service.getResources()));
         return openapi;
     }
 
     /**
-     * Parses the 'ServiceInfo' annotation and build the swagger definition for it.
+     * Parses the 'ServiceInfo' annotation and build the openApi definition for it.
      *
      * @param service The ballerina service which has the 'ServiceInfo' annotation attachment.
      * @param openapi The openapi definition to be built up.
      */
     private void parseServiceInfoAnnotationAttachment(ServiceNode service, Swagger openapi) {
-        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ServiceInfo", swaggerAlias,
+        AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("ServiceInfo", openApiAlias,
                 service.getAnnotationAttachments());
         
         Info info = new Info().version("1.0.0").title(service.getName().getValue());
@@ -181,12 +181,12 @@ public class OpenApiServiceMapper {
     }
 
     /**
-     * Creates tag swagger definition.
+     * Creates tag openApi definition.
      *
      * @param annotationExpression The ballerina annotation attribute value for tag.
-     * @param swagger              The swagger definition which the tags needs to be build on.
+     * @param openApi              The openApi definition which the tags needs to be build on.
      */
-    private void createTagModel(BLangExpression annotationExpression, Swagger swagger) {
+    private void createTagModel(BLangExpression annotationExpression, Swagger openApi) {
         if (null != annotationExpression) {
             List<Tag> tags = new LinkedList<>();
             BLangArrayLiteral tagArray = (BLangArrayLiteral) annotationExpression;
@@ -207,17 +207,17 @@ public class OpenApiServiceMapper {
                 tags.add(tag);
             }
 
-            swagger.setTags(Lists.reverse(tags));
+            openApi.setTags(Lists.reverse(tags));
         }
     }
 
     /**
-     * Creates external docs swagger definition.
+     * Creates external docs openApi definition.
      *
      * @param annotationExpression The ballerina annotation attribute value for external docs.
-     * @param swagger              The swagger definition which the external docs needs to be build on.
+     * @param openApi              The openApi definition which the external docs needs to be build on.
      */
-    private void createExternalDocModel(BLangExpression annotationExpression, Swagger swagger) {
+    private void createExternalDocModel(BLangExpression annotationExpression, Swagger openApi) {
         if (null != annotationExpression) {
             BLangRecordLiteral docAnnotation = (BLangRecordLiteral) annotationExpression;
             Map<String, BLangExpression> externalDocAttributes =
@@ -233,12 +233,12 @@ public class OpenApiServiceMapper {
                         .getStringLiteralValue(externalDocAttributes.get(ConverterConstants.ATTR_URL)));
             }
     
-            swagger.setExternalDocs(externalDocs);
+            openApi.setExternalDocs(externalDocs);
         }
     }
 
     /**
-     * Creates the contact swagger definition.
+     * Creates the contact openApi definition.
      *
      * @param annotationExpression The ballerina annotation attribute value for contact.
      * @param info                 The info definition which the contact needs to be build on.
@@ -267,7 +267,7 @@ public class OpenApiServiceMapper {
     }
 
     /**
-     * Creates the license swagger definition.
+     * Creates the license openApi definition.
      *
      * @param annotationExpression The ballerina annotation attribute value for license.
      * @param info                 The info definition which the license needs to be build on.
@@ -293,13 +293,13 @@ public class OpenApiServiceMapper {
     }
 
     /**
-     * Parses the ballerina/http@config annotation and builds swagger definition. Also create the consumes and
+     * Parses the ballerina/http@config annotation and builds openApi definition. Also create the consumes and
      * produces annotations.
      *
      * @param service The ballerina service which has the annotation.
-     * @param swagger The swagger to build up.
+     * @param openApi The openApi to build up.
      */
-    private void parseConfigAnnotationAttachment(ServiceNode service, Swagger swagger) {
+    private void parseConfigAnnotationAttachment(ServiceNode service, Swagger openApi) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG, httpAlias,
                         service.getAnnotationAttachments());
@@ -311,7 +311,7 @@ public class OpenApiServiceMapper {
 
             Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
             if (attributes.containsKey(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)) {
-                swagger.setBasePath(
+                openApi.setBasePath(
                         ConverterUtils.getStringLiteralValue(attributes.get(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH)));
             }
         }

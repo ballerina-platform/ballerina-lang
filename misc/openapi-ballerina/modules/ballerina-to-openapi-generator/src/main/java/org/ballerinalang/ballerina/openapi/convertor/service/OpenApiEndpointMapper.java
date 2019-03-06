@@ -33,7 +33,7 @@ public class OpenApiEndpointMapper {
      * @param swagger   swagger definition to attach extracted information
      * @return swagger definition with Server information
      */
-    public Swagger convertBoundEndpointsToSwagger(List<BLangSimpleVariable> endpoints, ServiceNode service,
+    public Swagger convertBoundEndpointsToOpenApi(List<BLangSimpleVariable> endpoints, ServiceNode service,
                                                   Swagger swagger) {
         if (endpoints == null || service == null || service.getAttachedExprs().isEmpty()
                 || service.getAttachedExprs().get(0).getKind() != NodeKind.SIMPLE_VARIABLE_REF) {

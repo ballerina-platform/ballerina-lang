@@ -123,7 +123,7 @@ public class BallerinaRequestBody implements BallerinaOpenApiObject<BallerinaReq
     }
 
     private String getReferenceType(String refPath) {
-        // null check on refPath is not required since swagger parser always make sure this is not null
+        // null check on refPath is not required since openapi parser always make sure this is not null
         return refPath.substring(refPath.lastIndexOf(GeneratorConstants.OAS_PATH_SEPARATOR) + 1);
     }
 

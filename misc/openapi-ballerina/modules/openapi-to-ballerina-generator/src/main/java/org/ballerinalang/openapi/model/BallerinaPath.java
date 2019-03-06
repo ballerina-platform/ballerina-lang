@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Wraps the {@link PathItem} from swagger models to provide an iterable object model
+ * Wraps the {@link PathItem} from openapi models to provide an iterable object model
  * for operations.
  *
  * @since 0.967.0

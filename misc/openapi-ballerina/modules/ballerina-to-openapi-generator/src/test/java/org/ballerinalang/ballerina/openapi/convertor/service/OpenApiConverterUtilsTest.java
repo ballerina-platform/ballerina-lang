@@ -204,9 +204,9 @@ public class OpenApiConverterUtilsTest {
     public void testBallerinaToOpenApiConversion() {
         String serviceName = "";
         try {
-            String swaggerDefinition = OpenApiConverterUtils.generateOpenApiDefinitions(
+            String openApiDefinition = OpenApiConverterUtils.generateOpenApiDefinitions(
                     serviceWithMultipleHTTPMethodsInResourceLevel, serviceName);
-            Assert.assertNotNull(swaggerDefinition);
+            Assert.assertNotNull(openApiDefinition);
         } catch (IOException e) {
             Assert.fail("Error while converting ballerina service to openApi definition");
         }
@@ -218,9 +218,9 @@ public class OpenApiConverterUtilsTest {
     public void testOASGenerationWithMultipleHTTPMethodsInResourceLevel() {
         String serviceName = "";
         try {
-            String swaggerDefinition = OpenApiConverterUtils.generateOAS3Definitions(
+            String openApiDefinition = OpenApiConverterUtils.generateOAS3Definitions(
                     serviceWithMultipleHTTPMethodsInResourceLevel, serviceName);
-            Assert.assertNotNull(swaggerDefinition);
+            Assert.assertNotNull(openApiDefinition);
         } catch (OpenApiConverterException e) {
             Assert.fail("Error while converting ballerina service to openApi definition");
         }

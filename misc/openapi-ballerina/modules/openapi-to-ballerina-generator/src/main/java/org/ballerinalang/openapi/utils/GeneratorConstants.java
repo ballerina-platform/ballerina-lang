@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Constants for swagger code generator.
+ * Constants for openapi code generator.
  */
 public class GeneratorConstants {
 

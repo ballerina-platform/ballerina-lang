@@ -58,10 +58,10 @@ public class CodeGenerator {
             case CLIENT:
                 return getConvertedString(context, GeneratorConstants.DEFAULT_CLIENT_DIR,
                         GeneratorConstants.CLIENT_TEMPLATE_NAME);
-            case OPENAPI:
+            case OPENAPI3:
                 return getConvertedString(context, GeneratorConstants.DEFAULT_OPEN_API_DIR,
                         GeneratorConstants.OPEN_API_TEMPLATE_NAME);
-            case SWAGGER:
+            case OPENAPI:
                 return getConvertedString(context, GeneratorConstants.DEFAULT_OPENAPI_DIR,
                         GeneratorConstants.OPENAPI_TEMPLATE_NAME);
             default:

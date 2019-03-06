@@ -25,7 +25,7 @@ import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import java.util.Map;
 
 /**
- * Wraps the {@link Parameter} from swagger models for easier templating.
+ * Wraps the {@link Parameter} from openapi models for easier templating.
  *
  * @since 0.967.0
  */

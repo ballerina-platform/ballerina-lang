@@ -26,7 +26,7 @@ public class GeneratorConstants {
      *
      */
     public enum GenType {
-        CLIENT("client"), OPENAPI("oas3.0"), SWAGGER("swagger");
+        CLIENT("client"), OPENAPI3("oas3.0"), OPENAPI("swagger");
         private String name;
         GenType(String name) {
             this.name = name;
@@ -47,7 +47,7 @@ public class GeneratorConstants {
     public static final String DEFAULT_TEMPLATE_DIR = "/templates";
     public static final String DEFAULT_CLIENT_DIR = DEFAULT_TEMPLATE_DIR + "/client";
     public static final String DEFAULT_OPEN_API_DIR = DEFAULT_TEMPLATE_DIR + "/oas3";
-    public static final String DEFAULT_OPENAPI_DIR = DEFAULT_TEMPLATE_DIR + "/swagger2";
+    public static final String DEFAULT_OPENAPI_DIR = DEFAULT_TEMPLATE_DIR + "/oas";
 
     public static final String RES_CONFIG_ANNOTATION = "ResourceConfig";
     public static final String HTTP_PKG_ALIAS = "http";
