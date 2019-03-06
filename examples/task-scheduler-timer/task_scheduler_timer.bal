@@ -67,7 +67,7 @@ service service1 = service {
     // attached with the timer.
     resource function onTrigger(Person person) {
         person.age = person.age + 1;
-        io:println("Hi " + person.name + " you are " + person.age + " years old now.");
+        io:println("Hi " , person.name , " you are " , person.age , " years old now.");
     }
 };
 
