@@ -93,7 +93,7 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
     /**
      * Populate path models into iterable structure.
      * This method will also add an operationId to each operation,
-     * if operationId not provided in swagger definition
+     * if operationId not provided in openApi definition
      *
      * @param openAPI {@code OpenAPI} definition object with schema definition
      * @throws BallerinaOpenApiException when context building fails

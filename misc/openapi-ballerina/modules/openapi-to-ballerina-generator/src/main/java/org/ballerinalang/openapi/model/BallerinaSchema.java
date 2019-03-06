@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class wraps the {@link Schema} from swagger models inorder to overcome complications
+ * This class wraps the {@link Schema} from openapi models inorder to overcome complications
  * while populating handlebar templates.
  */
 public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, Schema> {
@@ -93,7 +93,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
         Set<Map.Entry<String, Schema>> entries = schema.getProperties().entrySet();
         Set<Map.Entry<String, Schema>> newEntries = new LinkedHashSet<>();
 
-        // change conflicting swagger data types to ballerina data types
+        // change conflicting openapi data types to ballerina data types
         for (Map.Entry<String, Schema> entry : entries) {
             Schema prop = entry.getValue();
             String name;
@@ -128,7 +128,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
     }
 
     private String getReferenceType(String refPath) {
-        // null check on refPath is not required since swagger parser always make sure this is not null
+        // null check on refPath is not required since openapi parser always make sure this is not null
         return refPath.substring(refPath.lastIndexOf(GeneratorConstants.OAS_PATH_SEPARATOR) + 1);
     }
 

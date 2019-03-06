@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Wraps the {@link Operation} from swagger models to provide iterable child models.
+ * Wraps the {@link Operation} from openapi models to provide iterable child models.
  *
  * @since 0.967.0
  */
@@ -69,7 +69,7 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
         }
 
         // OperationId with spaces will cause trouble in ballerina code.
-        // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+        // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> openapi
         this.operationId = CodegenUtils.normalizeForBIdentifier(operation.getOperationId());
         this.tags = operation.getTags();
         this.summary = operation.getSummary();
@@ -122,7 +122,7 @@ public class BallerinaOperation implements BallerinaOpenApiObject<BallerinaOpera
 
         if (operationId != null) {
             // OperationId with spaces will cause trouble in ballerina code.
-            // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+            // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> openapi
             this.operationId = CodegenUtils.normalizeForBIdentifier(operationId.toString());
         }
         if (tags != null && tags instanceof ArrayList) {

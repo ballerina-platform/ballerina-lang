@@ -119,7 +119,7 @@ public class CodegenUtils {
     /**
      * Generate operation ID using pattern "resource[number]".
      *
-     * @param openAPI open api definition for the swagger
+     * @param openAPI open api definition for the openapi
      * @return {@link String}operation ID which match to the "resource[number]"
      */
     public static String generateOperationId(OpenAPI openAPI) {
