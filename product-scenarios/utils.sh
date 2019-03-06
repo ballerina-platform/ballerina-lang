@@ -1,5 +1,7 @@
 #!/bin/bash
 
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+
 cluster_name="ballerina-testgrid-cluster-v2"
 
 # $1 - Property file
@@ -34,7 +36,7 @@ function write_to_properties_file() {
 
 function install_ballerina() {
     local ballerina_version=$1
-    wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-linux-installer-x64-${ballerina_version}.deb
+    wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-linux-installer-x64-${ballerina_version}.deb --quiet
     sudo dpkg -i ballerina-linux-installer-x64-${ballerina_version}.deb
 
     ballerina version
@@ -67,5 +69,6 @@ function wait_for_pod_readiness() {
 
 function setup_env() {
     input_dir=$1
-    bash 'product-scenarios/wait_for_pod_ready.sh' $1
+    output_dir=$2
+    bash ${parent_path}/setup_env.sh ${input_dir} ${output_dir}
 }

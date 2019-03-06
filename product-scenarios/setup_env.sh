@@ -8,7 +8,7 @@ output_dir=$2
 
 declare -A -g infra_config
 
-read_property_file "input_dir/infrastructure.properties" infra_config
+read_property_file "${input_dir}/infrastructure.properties" infra_config
 
 aws eks update-kubeconfig --name ${cluster_name}
 
