@@ -90,7 +90,7 @@ public class JVMCodeGen {
     private static final String MANIFEST_ENTRIES = "manifestEntries";
     private static final String JAR_EXT = ".jar";
     private static final String functionName = "generateExecutableJar";
-    private static final String BALLERINA_CORE_JAR_NAME = "ballerina-core";
+    private static final String BALLERINA_RUNTIME_JAR_NAME = "ballerina-runtime";
 
     public static void generateExecutableJar(Path sourceRootPath,
                                              String packagePath,
@@ -172,7 +172,7 @@ public class JVMCodeGen {
         Path ballerinaRuntimeLib = Paths.get(ballerinaHome, BALLERINA_HOME_BRE, BALLERINA_HOME_LIB);
 
         File ballerinaRuntimeJar =  Arrays.stream(Objects.requireNonNull(ballerinaRuntimeLib.toFile().listFiles()))
-                .filter(file -> file.getName().contains(BALLERINA_CORE_JAR_NAME))
+                .filter(file -> file.getName().contains(BALLERINA_RUNTIME_JAR_NAME))
                 .findFirst()
                 .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
 
