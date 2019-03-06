@@ -14,8 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- */
+*/
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.bre.Context;
