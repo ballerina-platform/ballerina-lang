@@ -3003,8 +3003,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (recordType.restFieldType.tag != TypeTags.NONE) {
                     fieldTypes.add(recordType.restFieldType);
                 }
-                BUnionType unionType = new BUnionType(null, fieldTypes, true);
-                unionType.memberTypes.add(symTable.nilType);
+                BUnionType unionType = BUnionType.create(null, fieldTypes);
+                unionType.getMemberTypes().add(symTable.nilType);
                 actualType = unionType;
                 break;
             case TypeTags.FINITE:
@@ -3036,7 +3036,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 possibleTypes.add(symTable.nilType);
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
-                        new BUnionType(null, possibleTypes, true);
+                        BUnionType.create(null, possibleTypes);
                 break;
             default:
                 dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, indexExpr.type);
