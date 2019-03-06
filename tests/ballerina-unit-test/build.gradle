@@ -161,8 +161,8 @@ task copyDependantBalos(type: Copy) {
 }
 
 test {
-    maxHeapSize = "1g"
     minHeapSize = "256m"
+    maxHeapSize = "1g"
 
     dependsOn copyDependantBalos
 
@@ -171,11 +171,20 @@ test {
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
     useTestNG() {
+        useDefaultListeners = true
         suites 'src/test/resources/testng.xml'
     }
 
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
+    }
+
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    testLogging {
+        events "passed", "skipped", "failed"
     }
 }
 
