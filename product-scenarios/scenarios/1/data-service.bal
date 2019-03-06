@@ -45,7 +45,8 @@ type Employee record {
         "DATABASE_PASSWORD": "$env{DATABASE_PASSWORD}" },
     username:"ballerinascenarios",
     password:"ballerina75389",
-    push:true
+    push:true,
+    imagePullPolicy:"Always"
 }
 listener http:Listener httpListener = new(9090);
 
