@@ -730,7 +730,7 @@ DIGIT
 fragment
 NameChar    
     :   NameStartChar
-    |   '-' | '_' | '.' | DIGIT
+    |   '-' |'.' | DIGIT
     |   '\u00B7'
     |   '\u0300'..'\u036F'
     |   '\u203F'..'\u2040'
@@ -738,7 +738,7 @@ NameChar
 
 fragment
 NameStartChar
-    :   [a-zA-Z]
+    :   [a-zA-Z_]
     |   '\u2070'..'\u218F'
     |   '\u2C00'..'\u2FEF'
     |   '\u3001'..'\uD7FF'
