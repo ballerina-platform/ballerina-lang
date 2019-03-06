@@ -83,7 +83,7 @@ service timerService = service {
 `Scheduler` can also be used to create appointments. `Scheduler` has following APIs.
 
 - `start()` - Starts the task scheduler, and run the services attached to it.
-- `stop()` - Stops the task. This will shutdown all the process scheduled on the scheduler.
+- `stop()` - Stops the task. This will shutdown all the processes scheduled on the scheduler.
 - `pause()` - Pause the scheduler. This will temporary halts the task execution.
 - `resume()` - Used to resume the task scheduler, when paused.
 - `attach()` - Will attach a service to the scheduler. An optional parameter, `attachment` can be passed to the function, so that it will propagate into the resource.
