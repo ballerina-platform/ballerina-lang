@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
+import org.ballerinalang.langserver.command.executors.MessageExecutor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
@@ -26,6 +29,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.slf4j.Logger;
@@ -35,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,9 +135,16 @@ public class CodeLensUtil {
                     if (textGap != 0 && sLine > cLine) {
                         codeLens.getRange().getStart().setLine(sLine + textGap);
                         codeLens.getRange().getEnd().setLine(sLine + textGap);
-                        codeLens.setCommand(new Command(codeLens.getCommand().getTitle(), null));
                     }
                 }
+
+                // Override the command of the code lens
+                CommandArgument typeArg = new CommandArgument(CommandConstants.ARG_KEY_MESSAGE_TYPE,
+                                                              String.valueOf(MessageType.Error.getValue()));
+                CommandArgument msgArg = new CommandArgument(CommandConstants.ARG_KEY_MESSAGE,
+                                                             "Please fix compilation errors first!");
+                codeLens.setCommand(new Command(codeLens.getCommand().getTitle(), MessageExecutor.COMMAND,
+                                                new ArrayList<>(Arrays.asList(typeArg, msgArg))));
             }
         }
     }
