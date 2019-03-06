@@ -232,7 +232,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * An error constructor expression
+     * An error constructor expression.
      * <p>
      * error(reason as string, detail as map)
      *
