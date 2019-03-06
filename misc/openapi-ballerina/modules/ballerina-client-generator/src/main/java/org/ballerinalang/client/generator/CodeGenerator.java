@@ -40,12 +40,11 @@ public class CodeGenerator {
 
     /**
      * Generates code(client, server etc) for ballerina source provided  in <code>definitionPath</code>.
-     * <p>Method can be used for generating OAS 3.0.0, OpenApi or Ballerina Client</p>
+     * <p>Method can be used for generating OAS 3.0.0 or Ballerina Client</p>
      *
      * @param type    Output type. Following types are supported
      *                <ul>
      *                <li>client</li>
-     *                <li>openapi</li>
      *                <li>openapi</li>
      *                </ul>
      * @param context Context details for generating the client
