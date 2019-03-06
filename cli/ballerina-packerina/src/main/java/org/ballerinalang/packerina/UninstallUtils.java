@@ -91,6 +91,9 @@ public class UninstallUtils {
             // Delete the package zip
             Files.deleteIfExists(path.resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT));
 
+            // Delete the metadata file 'nightly.build' created when a module is pulled using a nightly pack
+            Files.deleteIfExists(path.resolve(ProjectDirConstants.NIGHTLY_BUILD));
+
             // Delete the empty directories
             deleteEmptyParentDirs(path, repoPath);
 
