@@ -368,7 +368,7 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 # Load a user defined type instance to the top of the stack.
 #
 # + mv - method visitor
-# + recordType - record type tp load
+# + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
     string fieldName = getTypeFieldName(typeName.value);
     mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));

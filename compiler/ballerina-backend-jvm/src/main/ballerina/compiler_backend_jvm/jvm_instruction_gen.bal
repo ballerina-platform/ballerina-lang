@@ -27,6 +27,10 @@ type InstructionGenerator object {
             int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);
             //io:println("Const Store Index is :::::::::::", index);
             self.mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeNil) {
+            self.mv.visitInsn(ACONST_NULL);
+            int index = self.getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl);
+            self.mv.visitVarInsn(ASTORE, index);
         } else {
             error err = error( "JVM generation is not supported for type : " + io:sprintf("%s", bType));
             panic err;
@@ -44,16 +48,22 @@ type InstructionGenerator object {
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, rhsIndex);
             self.mv.visitVarInsn(LSTORE, lhsLndex);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ILOAD, rhsIndex);
-            self.mv.visitVarInsn(ISTORE, lhsLndex);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DLOAD, rhsIndex);
+            self.mv.visitVarInsn(DSTORE, lhsLndex);
         } else if (bType is bir:BTypeString) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
-        } else if (bType is bir:BArrayType) {
-            self.mv.visitVarInsn(ALOAD, rhsIndex);
-            self.mv.visitVarInsn(ASTORE, lhsLndex);
-        } else if (bType is bir:BMapType) {
+        } else if (bType is bir:BTypeBoolean) {
+            self.mv.visitVarInsn(ILOAD, rhsIndex);
+            self.mv.visitVarInsn(ISTORE, lhsLndex);
+        } else if (bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(ILOAD, rhsIndex);
+            self.mv.visitVarInsn(ISTORE, lhsLndex);
+        } else if (bType is bir:BArrayType ||
+                        bType is bir:BMapType ||
+                        bType is bir:BTypeAny ||
+                        bType is bir:BTypeNil) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
