@@ -26,7 +26,7 @@ function testFunc() {
     // call the main function
     main();
     test:assertEquals(outputs[0], 12);
-    test:assertEquals(outputs[1], "'string' cannot be converted to 'int'");
+    test:assertEquals(outputs[1], "incompatible convert operation: 'string' value 'invalid' cannot be converted as 'int'");
     test:assertEquals(outputs[2], 120);
-    test:assertEquals(outputs[3], "'string' cannot be converted to 'int'");
+    test:assertEquals(outputs[3], "incompatible convert operation: 'string' value 'Invalid' cannot be converted as 'int'");
 }
