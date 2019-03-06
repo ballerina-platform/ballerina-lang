@@ -20,12 +20,16 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -69,7 +73,41 @@ public class ConstantValueChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral mapLiteral) {
+    public void visit(BLangRecordLiteral recordLiteral) {
+        // Iterate through all key-value pairs in the record literal.
+        for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+
+            // Todo - Add negative tests for non literal keys
+            //  Get the key.
+            Object key = ((BLangLiteral) keyValuePair.key.expr).value;
+            // If the key is equal to the value of the keyIdentifier, that means the key which we are looking for is
+            // in the record literal.
+            if (!key.equals(keyIdentifier.value)) {
+                continue;
+            }
+            // Since we are looking for a literal which can be used as at compile time, it should be a literal.
+            NodeKind nodeKind = keyValuePair.valueExpr.getKind();
+            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
+                    nodeKind == NodeKind.RECORD_LITERAL_EXPR || nodeKind == NodeKind.CONSTANT_REF) {
+                return;
+            }
+
+            if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol symbol = ((BLangSimpleVarRef) keyValuePair.valueExpr).symbol;
+                if (symbol.tag == SymTag.CONSTANT) {
+                    return;
+                }
+            }
+
+            // Todo - Log error?
+            throw new RuntimeException("unsupported node kind");
+        }
+        // If this line is reached, that means the key haven't been found. In that case, log a compilation error.
+        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, reference);
+    }
+
+    @Override
+    public void visit(BLangMapLiteral mapLiteral) {
         // Iterate through all key-value pairs in the record literal.
         for (BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
             // Todo - Add negative tests for non literal keys
