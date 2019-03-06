@@ -60,4 +60,5 @@ public type AppointmentData record {
     string months?;
     string daysOfWeek?;
     string year?;
+    !...;
 };
