@@ -381,6 +381,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BArrayType) {
         return io:sprintf("L%s;", ARRAY_VALUE);
+    } else if (bType is bir:BErrorType) {
+        return io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BTypeAny || bType is bir:BUnionType) {
         return io:sprintf("L%s;", OBJECT);
     } else {

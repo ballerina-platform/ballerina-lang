@@ -26,8 +26,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
  */
 public class BErrorType extends BType {
 
-    public BType reasonType;
-    public BType detailType;
+    private BType reasonType;
+    private BType detailType;
 
     public BErrorType(String typeName, String pkgPath, BType reasonType, BType detailType) {
         super(typeName, pkgPath, ErrorValue.class);

@@ -31,8 +31,8 @@ import java.util.Map;
 public class ErrorValue implements RefValue {
 
     private BType type;
-    public String reason;
-    public RefValue details;
+    private String reason;
+    private RefValue details;
 
     public ErrorValue(String reason, RefValue details) {
         this.type = BTypes.typeError;
