@@ -46,10 +46,6 @@ while getopts "$optspec" optchar; do
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     OUTPUT_DIR=$val
                     ;;
-                BallerinaVersion)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    BALLERINA_VERSION=$val
-                    ;;
             esac;;
         h)
             usage
@@ -73,7 +69,6 @@ done
 echo "working Directory : ${WORK_DIR}"
 echo "input directory : ${INPUT_DIR}"
 echo "output directory : ${OUTPUT_DIR}"
-echo "Ballerina version : ${BALLERINA_VERSION}"
 
 export DATA_BUCKET_LOCATION=${INPUT_DIR}
 
@@ -82,7 +77,7 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # A sample execution for maven-based testng/junit tests is shown below.
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
 
-source ${parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR} ${BALLERINA_VERSION}
+source ${parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 export DATABASE_HOST=${infra_config[DatabaseHost]}
 export DATABASE_PORT=${infra_config[DatabasePort]}
