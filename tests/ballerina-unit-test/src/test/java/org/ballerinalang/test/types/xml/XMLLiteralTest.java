@@ -234,6 +234,19 @@ public class XMLLiteralTest {
     }
 
     @Test
+    public void testXMLStartTag() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLStartTag");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<fname>John</fname>");
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(), "<Country>US</Country>");
+
+        Assert.assertTrue(returns[2] instanceof BXML);
+        Assert.assertEquals(returns[2].stringValue(), "<_foo id=\"hello3\" >hello</_foo>");
+    }
+
+    @Test
     public void testElementLiteralWithNamespaces() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
