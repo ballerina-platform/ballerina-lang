@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 
 package org.ballerinalang.stdlib.task.utils;
@@ -29,16 +28,14 @@ public class TaskConstants {
     public static final String PATH_SEPARATOR = "/";
     public static final String ORGANIZATION_NAME = "ballerina";
     public static final String PACKAGE_NAME = "task";
-    public static final String STRUCT_NAME_LISTENER = "Listener";
-    public static final String STRUCT_NAME_SCHEDULER = "Scheduler";
+    public static final String OBJECT_NAME_LISTENER = "Listener";
     public static final String PACKAGE_STRUCK_NAME = ORGANIZATION_NAME + PATH_SEPARATOR + PACKAGE_NAME;
 
-    // Struct names used
-    public static final String STRUCT_TIMER_CONFIGURATION = "TimerConfiguration";
-    public static final String STRUCT_APPOINTMENT_CONFIGURATION = "AppointmentConfiguration";
-    public static final String STRUCT_APPOINTMENT_DATA = "AppointmentData";
+    // Record types used
+    public static final String RECORD_TIMER_CONFIGURATION = "TimerConfiguration";
+    public static final String RECORD_APPOINTMENT_DATA = "AppointmentData";
 
-    // Member names used in struct
+    // Member names used in records
     public static final String MEMBER_LISTENER_CONFIGURATION = "listenerConfiguration";
     public static final String MEMBER_APPOINTMENT_DETAILS = "appointmentDetails";
 
@@ -64,17 +61,16 @@ public class TaskConstants {
     public static final String FIELD_DAYS_OF_WEEK = "daysOfWeek";
     public static final String FIELD_YEAR = "year";
 
-    // Fields related to TaskError struct.
+    // Fields related to TaskError record
     public static final String TASK_ERROR_CODE = "{ballerina/task}TaskError";
     public static final String TASK_ERROR_RECORD = "TaskError";
     public static final String TASK_ERROR_MESSAGE = "message";
 
     // Indexes for different fields in the context.
-    public static final int REF_ARG_INDEX_TASK_STRUCT = 0;
+    public static final int REF_ARG_INDEX_TASK_RECORD = 0;
     public static final int REF_ARG_INDEX_TASK_SERVICE = 2;
 
     // Fields used in Appointment job map
-    public static final String TASK_CONTEXT = "ballerina.context";
     public static final String TASK_OBJECT = "ballerina.task";
 
     // ID of the Task object in native data

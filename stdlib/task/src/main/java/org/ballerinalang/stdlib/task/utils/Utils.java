@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.utils;
 
@@ -43,8 +42,8 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MONTHS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SECONDS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_CODE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_MESSAGE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_RECORD;
@@ -52,6 +51,8 @@ import static org.quartz.CronExpression.isValidExpression;
 
 /**
  * Utility functions used in ballerina task module.
+ *
+ * @since 0.995.0
  */
 public class Utils {
 
@@ -69,7 +70,7 @@ public class Utils {
             throws SchedulingException {
 
         String cronExpression;
-        if (record instanceof BMap && STRUCT_APPOINTMENT_DATA.equals(record.getType().getName())) {
+        if (record instanceof BMap && RECORD_APPOINTMENT_DATA.equals(record.getType().getName())) {
             cronExpression = buildCronExpression((BMap) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.stringValue() + "\" is invalid.");
@@ -108,6 +109,7 @@ public class Utils {
     /*
      * TODO: Runtime validation is done as compiler plugin does not work right now.
      *       When compiler plugins can be run for the resources without parameters, this will be redundant.
+     *       Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
      */
     public static void validateService(Service service) throws BLangRuntimeException {
         Resource[] resources = service.getResources();
@@ -130,6 +132,5 @@ public class Utils {
             throw new BLangRuntimeException("Invalid resource function signature: \'"
                     + RESOURCE_ON_TRIGGER + "\' should not return a value.");
         }
-        // TODO: Validate input parameters
     }
 }

@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 
 package org.ballerinalang.stdlib.task.service;
@@ -42,16 +41,18 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NO_OF_RUNS
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_APPOINTMENT_DETAILS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_TIMER_CONFIGURATION;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_TIMER_CONFIGURATION;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
 import static org.ballerinalang.stdlib.task.utils.Utils.getCronExpressionFromAppointmentRecord;
 
 /**
  * Native function to attach a service to the listener.
+ *
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = ORGANIZATION_NAME,
@@ -59,7 +60,7 @@ import static org.ballerinalang.stdlib.task.utils.Utils.getCronExpressionFromApp
         functionName = "init",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = STRUCT_NAME_LISTENER,
+                structType = OBJECT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )
@@ -68,12 +69,12 @@ public class Init extends BlockingNativeCallableUnit {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_RECORD);
         BMap<String, BValue> configurations = (BMap<String, BValue>) taskStruct.get(MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
         Task task;
 
-        if (STRUCT_TIMER_CONFIGURATION.equals(configurationTypeName)) {
+        if (RECORD_TIMER_CONFIGURATION.equals(configurationTypeName)) {
             task = processTimer(context, configurations);
         } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
             task = processAppointment(context, configurations);

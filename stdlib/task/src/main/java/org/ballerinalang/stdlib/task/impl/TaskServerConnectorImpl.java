@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.impl;
 
@@ -26,6 +25,8 @@ import org.ballerinalang.stdlib.task.objects.Task;
 
 /**
  * ballerina/task server connector implementation.
+ *
+ * @since 0.995.0
  */
 public class TaskServerConnectorImpl implements TaskServerConnector {
 
@@ -55,7 +56,7 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        this.task.runServices(context);
+        this.task.run(context);
     }
 
     /**

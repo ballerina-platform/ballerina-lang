@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 
 package org.ballerinalang.stdlib.task.service;
@@ -25,15 +24,13 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
 /*
- * TODO:
- * We check resources at runtime for now. Hence need to use compile and setup.
- * If compiler plugin works, replace BCompileUtil.compileAndSetup() with BCompileUtil.compile().
+ * TODO: We check resources at runtime for now. Hence need to use compile and setup.
+ *      If compiler plugin works, replace BCompileUtil.compileAndSetup() with BCompileUtil.compile().
+ *      Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
  */
 
 /**
  * Tests for Ballerina Task Service validation.
- *
- * This will be removed once the compiler plugin workes.
  */
 @Test
 public class ListenerServiceValidationTest {

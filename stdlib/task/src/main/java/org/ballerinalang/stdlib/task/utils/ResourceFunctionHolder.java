@@ -15,13 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.Objects;
@@ -30,6 +28,8 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
 
 /**
  * Class to extract the resource functions from a service.
+ *
+ * @since 0.995.0
  */
 public class ResourceFunctionHolder {
 
@@ -41,7 +41,7 @@ public class ResourceFunctionHolder {
      * @param service Ballerina service object from which the resource functions should be extracted.
      */
     ResourceFunctionHolder(Service service) {
-        String onTriggerResourceFullName = getResourceFullName(service.getBValue().getType(), RESOURCE_ON_TRIGGER);
+        String onTriggerResourceFullName = service.getBValue().getType().getName() + "." + RESOURCE_ON_TRIGGER;
         onTriggerFunction = null;
         if (Objects.nonNull(service.getServiceInfo().getResourceInfo(onTriggerResourceFullName))) {
             onTriggerFunction = service.getServiceInfo().getResourceInfo(onTriggerResourceFullName);
@@ -55,16 +55,5 @@ public class ResourceFunctionHolder {
      */
     FunctionInfo getOnTriggerFunction() {
         return this.onTriggerFunction;
-    }
-
-    /**
-     * Buildup the full name of a resource function.
-     *
-     * @param serviceType  Ballerina service type.
-     * @param resourceName Particular resource name to build up the full name.
-     * @return Full name of the resource function.
-     */
-    private String getResourceFullName(BType serviceType, String resourceName) {
-        return serviceType.getName() + "." + resourceName;
     }
 }

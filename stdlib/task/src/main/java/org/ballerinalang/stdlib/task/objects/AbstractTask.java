@@ -15,12 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 import org.quartz.JobDataMap;
@@ -32,11 +30,12 @@ import org.quartz.impl.StdSchedulerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 
 /**
  * Abstract class which represents a ballerina task.
+ *
+ * @since 0.995.0
  */
 public abstract class AbstractTask implements Task {
 
@@ -119,12 +118,10 @@ public abstract class AbstractTask implements Task {
     /**
      * Create a job data map using the context and the service.
      *
-     * @param context Ballerina context of the Task.
      * @return JobDataMap consists of context and the <code>ServiceWithParameter</code> object.
      */
-    JobDataMap getJobDataMapFromService(Context context) {
+    JobDataMap getJobDataMapFromTask() {
         JobDataMap jobData = new JobDataMap();
-        jobData.put(TASK_CONTEXT, context);
         jobData.put(TASK_OBJECT, this);
         return jobData;
     }

@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.objects;
 
@@ -26,6 +25,8 @@ import java.util.HashMap;
 
 /**
  * Ballerina task interface.
+ *
+ * @since 0.995.0
  */
 public interface Task {
 
@@ -42,7 +43,7 @@ public interface Task {
      * @param context Ballerina context which runs the services.
      * @throws SchedulingException When there is a failure to stop the task after maximum number of runs specified.
      */
-    void runServices(Context context) throws SchedulingException;
+    void run(Context context) throws SchedulingException;
 
     /**
      * Stop the task.

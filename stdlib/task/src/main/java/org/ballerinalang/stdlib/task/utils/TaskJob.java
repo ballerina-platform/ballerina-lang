@@ -15,18 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_CONTEXT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 
 /**
@@ -43,10 +40,9 @@ public class TaskJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        Context context = (Context) jobDataMap.get(TASK_CONTEXT);
         Task task = (Task) jobDataMap.get(TASK_OBJECT);
         for (ServiceWithParameters serviceWithParameters : task.getServicesMap().values()) {
-            TaskExecutor.execute(context, serviceWithParameters);
+            TaskExecutor.execute(serviceWithParameters);
         }
     }
 }

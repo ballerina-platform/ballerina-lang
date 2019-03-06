@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.service;
 
@@ -34,17 +33,19 @@ import org.ballerinalang.stdlib.task.objects.Task;
 import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_SERVICE;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
 
 /**
  * Native function to attach a service to the listener.
+ *
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = ORGANIZATION_NAME,
@@ -52,7 +53,7 @@ import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
         functionName = "register",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = STRUCT_NAME_LISTENER,
+                structType = OBJECT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )
@@ -62,7 +63,7 @@ public class Register extends BlockingNativeCallableUnit {
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_RECORD);
         BValue attachments = ((BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_SERVICE))
                 .get(PARAMETER_ATTACHMENT);
         ServiceWithParameters serviceWithParameters;

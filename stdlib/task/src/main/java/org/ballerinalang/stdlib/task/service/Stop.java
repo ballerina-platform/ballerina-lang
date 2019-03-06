@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.service;
 
@@ -32,14 +31,16 @@ import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.Task;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 
 /**
  * Native function to start the service attached to the listener.
+ *
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = ORGANIZATION_NAME,
@@ -47,7 +48,7 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
         functionName = "stop",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = STRUCT_NAME_LISTENER,
+                structType = OBJECT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )

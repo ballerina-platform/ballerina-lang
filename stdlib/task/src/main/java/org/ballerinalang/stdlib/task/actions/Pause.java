@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.actions;
 
@@ -31,14 +30,16 @@ import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.utils.Utils;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_STRUCT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
 
 /**
  * Native function to pause the task.
+ *
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = ORGANIZATION_NAME,
@@ -46,7 +47,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LIST
         functionName = "pause",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = STRUCT_NAME_LISTENER,
+                structType = OBJECT_NAME_LISTENER,
                 structPackage = PACKAGE_STRUCK_NAME),
         isPublic = true
 )
@@ -55,7 +56,7 @@ public class Pause extends BlockingNativeCallableUnit {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_STRUCT);
+        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_RECORD);
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
 
         try {

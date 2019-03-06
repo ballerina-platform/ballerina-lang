@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.objects;
 
@@ -40,6 +39,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Represents an appointment.
+ *
+ * @since 0.995.0
  */
 public class Appointment extends AbstractTask {
 
@@ -116,8 +117,8 @@ public class Appointment extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void runServices(Context context) throws SchedulingException {
-        JobDataMap jobDataMap = getJobDataMapFromService(context);
+    public void run(Context context) throws SchedulingException {
+        JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleAppointment(jobDataMap);
         } catch (SchedulerException e) {

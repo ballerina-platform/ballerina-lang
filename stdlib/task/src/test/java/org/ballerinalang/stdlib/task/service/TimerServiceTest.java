@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.service;
 
@@ -51,10 +50,6 @@ public class TimerServiceTest {
         });
     }
 
-    /* TODO:
-     * There should be way to know exactly a service is stopped or not.
-     * This method is not the optimal way to check the service has stopped.
-     */
     @Test(description = "Tests running an timer as a service")
     public void testListenerTimerLimitedNoOfRuns() {
         CompileResult compileResult = BCompileUtil.compile(

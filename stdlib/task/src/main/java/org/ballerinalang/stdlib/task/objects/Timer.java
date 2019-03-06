@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.objects;
 
@@ -36,6 +35,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Represents a Timer object used to create and run Timers.
+ *
+ * @since 0.995.0
  */
 public class Timer extends AbstractTask {
 
@@ -99,8 +100,8 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void runServices(Context context) throws SchedulingException {
-        JobDataMap jobDataMap = getJobDataMapFromService(context);
+    public void run(Context context) throws SchedulingException {
+        JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {

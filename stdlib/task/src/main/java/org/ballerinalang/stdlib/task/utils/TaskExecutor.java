@@ -15,11 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
@@ -35,7 +33,7 @@ import java.util.Objects;
  */
 public class TaskExecutor {
 
-    public static void execute(Context context, ServiceWithParameters serviceWithParameters) {
+    public static void execute(ServiceWithParameters serviceWithParameters) {
         // Get resource functions from service
         ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
         FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();

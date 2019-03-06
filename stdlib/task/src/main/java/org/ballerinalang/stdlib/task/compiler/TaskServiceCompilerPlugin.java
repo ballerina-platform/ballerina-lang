@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- *
  */
 
 package org.ballerinalang.stdlib.task.compiler;
@@ -30,24 +29,26 @@ import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.STRUCT_NAME_LISTENER;
 
 /*
  * TODO:
- * Compiler plugin will not hit as we do not have any parameters passed into the resource function.
- * Until this is fixed, cannot validate the resources at compile time.
+ *      Compiler plugin will not hit as we do not have any parameters passed into the resource function.
+ *      Until this is fixed, cannot validate the resources at compile time.
+ *      Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
  */
 /**
  * Compiler plugin for validating Ballerina Task Service.
  *
+ * @since 0.995.0
  */
 @SupportedResourceParamTypes(
         expectedListenerType = @SupportedResourceParamTypes.Type(
-                packageName = PACKAGE_NAME, name = STRUCT_NAME_LISTENER
+                packageName = PACKAGE_NAME, name = OBJECT_NAME_LISTENER
         ),
         paramTypes = {
-                @SupportedResourceParamTypes.Type(packageName = PACKAGE_NAME, name = STRUCT_NAME_LISTENER)
+                @SupportedResourceParamTypes.Type(packageName = PACKAGE_NAME, name = OBJECT_NAME_LISTENER)
         }
 )
 public class TaskServiceCompilerPlugin extends AbstractTransportCompilerPlugin {

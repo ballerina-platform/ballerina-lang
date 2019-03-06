@@ -34,7 +34,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 cache:Cache httpClientCache = new;
 
 listener task:Listener timer = new({
-    interval: 5000,
+    interval: 60000,
     initialDelay: 1000
 });
 
