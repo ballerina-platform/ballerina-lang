@@ -87,12 +87,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <scope>test</scope>
             <classifier>ballerina-binary-repo</classifier>

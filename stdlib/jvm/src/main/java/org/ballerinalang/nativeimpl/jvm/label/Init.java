@@ -36,8 +36,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.LABEL;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = LABEL,
-                structPackage = JVM_PKG_PATH)
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = LABEL, structPackage = JVM_PKG_PATH)
 )
 public class Init extends BlockingNativeCallableUnit {
 

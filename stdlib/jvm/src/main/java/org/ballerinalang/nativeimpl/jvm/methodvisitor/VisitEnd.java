@@ -34,8 +34,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "visitEnd",
-        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
-                structPackage = JVM_PKG_PATH)
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR, structPackage = JVM_PKG_PATH)
 )
 public class VisitEnd extends BlockingNativeCallableUnit {
 
