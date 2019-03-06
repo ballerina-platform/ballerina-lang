@@ -64,7 +64,7 @@ function wait_for_pod_readiness() {
     # which would make sure the "Ready" status would actually mean
     # the pod is ready to accept requests (app is ready) so the above
     # readiness script would suffice
-    sleep 60s
+    sleep 120s
 }
 
 function setup_env() {
