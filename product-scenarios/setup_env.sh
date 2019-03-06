@@ -20,6 +20,7 @@ parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
 input_dir=$1
 output_dir=$2
+ballerina_version=$3
 
 # Read infrastructure.properties content into an associative array
 declare -A infra_config
@@ -34,7 +35,7 @@ kubectl create namespace ${custom_namespace}
 kubectl config set-context $(kubectl config current-context) --namespace=${custom_namespace}
 
 # Install ballerina
-install_ballerina "0.990.3"
+install_ballerina ${ballerina_version}
 
 # Store namespace to be cleaned up at the end
 echo "NamespacesToCleanup=${custom_namespace}" >> ${output_dir}/infrastructure-cleanup.properties

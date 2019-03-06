@@ -41,3 +41,5 @@ deploymentConfig:
         - name: 'default'
           type: SHELL
           file: product-scenarios/deployment-data.sh
+          inputParameters:
+            BallerinaVersion: "0.990.3"
