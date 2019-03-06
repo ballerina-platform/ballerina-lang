@@ -35,7 +35,7 @@ public type Scheduler object {
         return self.taskListener.register(serviceToAttach, {});
     }
 
-    # Detach the procided service from the task.
+    # Detach the provided service from the task.
     #
     # + attachedService - service which needs to be detached from the task.
     # + return - Returns error if the process failed due to any reason, nil otherwise.
