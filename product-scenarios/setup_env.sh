@@ -33,8 +33,9 @@ kubectl create namespace ${custom_namespace}
 # Enforce the created namespace for future kubectl usages
 kubectl config set-context $(kubectl config current-context) --namespace=${custom_namespace}
 
+ballerina_version=${infra_config["BallerinaVersion"]}
 # Install ballerina
-install_ballerina "0.990.3"
+install_ballerina ${ballerina_version}
 
 # Store namespace to be cleaned up at the end
 echo "NamespacesToCleanup=${custom_namespace}" >> ${output_dir}/infrastructure-cleanup.properties
