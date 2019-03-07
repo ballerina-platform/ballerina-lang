@@ -48,7 +48,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import static org.wso2.ballerinalang.compiler.util.Constants.*;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.NO_BINDING_PATTERN;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
