@@ -51,11 +51,23 @@ webfont(webfontConfig)
     });
 
     // Write the codepoints
-    const conpointsPath = path.join(buildDir, 'codepoints.json')
-    fs.writeFile(conpointsPath, JSON.stringify(codepoints), err => {result.template
+    const codepointsPath = path.join(buildDir, 'codepoints.json')
+    fs.writeFile(codepointsPath, JSON.stringify(codepoints), err => {
         if (err) {
             throw err;
         }
         console.log('codepoints.json written.');
+    });
+
+    // We write to a .js file also so it can be included with a <script> tag
+    const codepointsJsPath = path.join(buildDir, 'codepoints.js')
+    fs.writeFile(codepointsJsPath,
+        `window.BallerinaFontCodepoints = ${JSON.stringify(codepoints)};`,
+    
+        err => {
+        if (err) {
+            throw err;
+        }
+        console.log('codepoints.js written.');
     });
 });

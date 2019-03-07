@@ -47,6 +47,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
     private static final int WEBSUB_PORT = 8282;
+    public static final String SKIP_SUBSCRIBER_CHECK = "skip_subscriber_check";
     private BServerInstance webSubSubscriber;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed -" +
@@ -150,11 +151,16 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         intentVerificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
         requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_STRING);
-        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_STRING);
-        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_XML);
-        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
-        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
-        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + SKIP_SUBSCRIBER_CHECK, HUB_MODE_REMOTE,
+                      CONTENT_TYPE_STRING);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + SKIP_SUBSCRIBER_CHECK, HUB_MODE_INTERNAL,
+                      CONTENT_TYPE_XML);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + SKIP_SUBSCRIBER_CHECK, HUB_MODE_REMOTE,
+                      CONTENT_TYPE_XML);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + SKIP_SUBSCRIBER_CHECK, HUB_MODE_INTERNAL,
+                      CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + SKIP_SUBSCRIBER_CHECK, HUB_MODE_REMOTE,
+                      CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")

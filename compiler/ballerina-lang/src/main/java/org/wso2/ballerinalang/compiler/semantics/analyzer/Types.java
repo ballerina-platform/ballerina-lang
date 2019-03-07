@@ -68,6 +68,8 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -80,6 +82,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -184,7 +189,7 @@ public class Types {
 
     public boolean isJSONContext(BType type) {
         if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
         }
         return type.tag == TypeTags.JSON;
     }
@@ -234,7 +239,7 @@ public class Types {
                 return isAnydata(fieldTypes, unresolvedTypes) &&
                         (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
-                return isAnydata(((BUnionType) type).memberTypes, unresolvedTypes);
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE:
                 return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
@@ -294,7 +299,7 @@ public class Types {
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
+            return unionType.getMemberTypes().stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
         if (type.tag == TypeTags.TUPLE) {
@@ -443,14 +448,14 @@ public class Types {
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.memberTypes);
+            sourceTypes.addAll(sourceUnionType.getMemberTypes());
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
             BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.memberTypes);
+            targetTypes.addAll(targetUnionType.getMemberTypes());
         } else {
             targetTypes.add(target);
         }
@@ -775,9 +780,7 @@ public class Types {
     void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(mapType);
-        BUnionType unionType = new BUnionType(null, memberTypes, true);
+        BUnionType unionType = BUnionType.create(null, mapType, symTable.nilType);
         switch (collectionType.tag) {
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) collectionType;
@@ -787,8 +790,7 @@ public class Types {
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
                 mapType.constraint = tupleTypes.size() == 1 ?
-                        tupleTypes.iterator().next() :
-                        new BUnionType(null, new LinkedHashSet<>(tupleType.tupleTypes), false);
+                        tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
@@ -805,10 +807,7 @@ public class Types {
                 }});
                 break;
             case TypeTags.XML:
-                LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
-                bTypes.add(symTable.xmlType);
-                bTypes.add(symTable.stringType);
-                mapType.constraint = new BUnionType(null, bTypes, false);
+                mapType.constraint = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
@@ -934,7 +933,7 @@ public class Types {
         }
 
         if (sourceType.tag == TypeTags.UNION) {
-            if (((BUnionType) sourceType).memberTypes.stream()
+            if (((BUnionType) sourceType).getMemberTypes().stream()
                     .anyMatch(memType -> isAssignable(memType, targetType))) {
                 // string|int v1 = "hello world";
                 // string|boolean v2 = <string|boolean> v1;
@@ -942,8 +941,8 @@ public class Types {
             }
 
             if (targetType.tag == TypeTags.UNION) {
-                if (((BUnionType) targetType).memberTypes.stream()
-                        .anyMatch(targetMemType -> ((BUnionType) sourceType).memberTypes.stream()
+                if (((BUnionType) targetType).getMemberTypes().stream()
+                        .anyMatch(targetMemType -> ((BUnionType) sourceType).getMemberTypes().stream()
                                 .anyMatch(sourceMemType -> isAssignable(targetMemType, sourceMemType)))) {
                     // Where `BarRecord` is a subtype of `FooRecord`.
                     // BarRecord b1 = { ... };
@@ -1089,7 +1088,7 @@ public class Types {
 
     private boolean checkUnionTypeToJSONConvertibility(BUnionType type, BJSONType target) {
         // Check whether all the member types are convertible to JSON
-        return type.memberTypes.stream()
+        return type.getMemberTypes().stream()
                 .anyMatch(memberType -> castVisitor.visit(memberType, target) == symTable.notFoundSymbol);
     }
 
@@ -1425,13 +1424,13 @@ public class Types {
 
             BUnionType sUnionType = (BUnionType) s;
 
-            if (sUnionType.memberTypes.size()
-                    != tUnionType.memberTypes.size()) {
+            if (sUnionType.getMemberTypes().size()
+                    != tUnionType.getMemberTypes().size()) {
                 return false;
             }
 
-            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.memberTypes);
-            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.memberTypes);
+            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.getMemberTypes());
+            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.getMemberTypes());
 
             boolean notSameType = sourceTypes
                     .stream()
@@ -1590,14 +1589,14 @@ public class Types {
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            sourceTypes.addAll(sourceUnionType.memberTypes);
+            sourceTypes.addAll(sourceUnionType.getMemberTypes());
         } else {
             sourceTypes.add(source);
         }
 
         if (target.tag == TypeTags.UNION) {
             BUnionType targetUnionType = (BUnionType) target;
-            targetTypes.addAll(targetUnionType.memberTypes);
+            targetTypes.addAll(targetUnionType.getMemberTypes());
         } else {
             targetTypes.add(target);
         }
@@ -1618,21 +1617,88 @@ public class Types {
         }
 
         BFiniteType expType = (BFiniteType) type;
-        long matchCount = expType.valueSpace.stream().filter(memberLiteral -> {
+        return expType.valueSpace.stream().anyMatch(memberLiteral -> {
             if (((BLangLiteral) memberLiteral).value == null) {
                 return literalExpr.value == null;
             }
-            // Check whether the member literal and the literal that needs to be tested are of same kind and check
-            // the value equality between them.
-            return memberLiteral.getKind().equals(literalExpr.getKind()) &&
-                    ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
-        }).count();
+            // Check whether the literal that needs to be tested is assignable to any of the member literal in the
+            // value space.
+            return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
+        });
+    }
 
-        // If more than one match means the value space contains ambiguous values.
-        if (matchCount > 1) {
-            dlog.error(literalExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, type);
+    /**
+     * Method to check the literal assignability based on the types of the literals. For numeric literals the
+     * assignability depends on the equivalency of the literals. If the candidate literal could either be a simple
+     * literal or a constant. In case of a constant, it is assignable to the base literal if and only if both
+     * literals have same type and equivalent values.
+     *
+     * @param baseLiteral      Literal based on which we check the assignability.
+     * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
+     * @return true if assignable; false otherwise.
+     */
+    private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+        // Different literal kinds.
+        if (baseLiteral.getKind() != candidateLiteral.getKind()) {
+            return false;
         }
-        return matchCount == 1;
+        Object baseValue = baseLiteral.value;
+        Object candidateValue = candidateLiteral.value;
+        int candidateTypeTag = candidateLiteral.type.tag;
+
+        // Numeric literal assignability is based on assignable type and numeric equivalency of values.
+        // If the base numeric literal is,
+        // (1) byte: we can assign byte or a int simple literal (Not an int constant) with the same value.
+        // (2) int: we can assign int literal or int constants with the same value.
+        // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
+        // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
+        // with the same value.
+        switch (baseLiteral.type.tag) {
+            case TypeTags.BYTE:
+                if (candidateTypeTag == TypeTags.BYTE) {
+                    return (byte) baseValue == (byte) candidateValue;
+                } else if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
+                        isByteLiteralValue((Long) candidateValue)) {
+                    return (byte) baseValue == ((Long) candidateValue).byteValue();
+                }
+                break;
+            case TypeTags.INT:
+                if (candidateTypeTag == TypeTags.INT) {
+                    return (long) baseValue == (long) candidateValue;
+                }
+                break;
+            case TypeTags.FLOAT:
+                double baseDoubleVal = Double.parseDouble(String.valueOf(baseValue));
+                double candidateDoubleVal;
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
+                    candidateDoubleVal = ((Long) candidateValue).doubleValue();
+                    return baseDoubleVal == candidateDoubleVal;
+                } else if (candidateTypeTag == TypeTags.FLOAT) {
+                    candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
+                    return baseDoubleVal == candidateDoubleVal;
+                }
+                break;
+            case TypeTags.DECIMAL:
+                BigDecimal baseDecimalVal = new BigDecimal(String.valueOf(baseValue), MathContext.DECIMAL128);
+                BigDecimal candidateDecimalVal;
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
+                    candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
+                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
+                        candidateTypeTag == TypeTags.DECIMAL) {
+                    candidateDecimalVal = new BigDecimal(String.valueOf(candidateValue), MathContext.DECIMAL128);
+                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                }
+                break;
+            default:
+                // Non-numeric literal kind.
+                return baseValue.equals(candidateValue);
+        }
+        return false;
+    }
+
+    boolean isByteLiteralValue(Long longObject) {
+        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
@@ -1945,11 +2011,9 @@ public class Types {
 
         if (remainingTypes.isEmpty()) {
             return symTable.semanticError;
-        } else if (remainingTypes.size() == 1) {
-            return remainingTypes.get(0);
         }
 
-        return new BUnionType(null, new LinkedHashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
     }
 
     public BType getSafeType(BType type, boolean liftError) {
@@ -1970,17 +2034,17 @@ public class Types {
         }
 
         BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>(unionType.getMemberTypes());
+        BUnionType errorLiftedType = BUnionType.create(null, memTypes);
 
         // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
+        errorLiftedType.remove(symTable.nilType);
         if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
+            errorLiftedType.remove(symTable.errorType);
         }
 
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        if (errorLiftedType.getMemberTypes().size() == 1) {
+            return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
         return errorLiftedType;
     }
@@ -2031,17 +2095,17 @@ public class Types {
 
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
-        if (type.memberTypes.stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+        if (type.getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
             return true;
         }
 
         // Value space contains nil.
-        if (type.memberTypes.stream().anyMatch(t -> t.isNullable())) {
+        if (type.getMemberTypes().stream().anyMatch(BType::isNullable)) {
             return true;
         }
 
         // All members are of same type and has the implicit initial value as a member.
-        Iterator<BType> iterator = type.memberTypes.iterator();
+        Iterator<BType> iterator = type.iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
             if (!isSameType(firstMember, iterator.next())) {
