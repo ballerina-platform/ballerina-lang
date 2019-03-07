@@ -1008,10 +1008,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
         }
-
-        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
-            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
-        }
     }
 
     private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
