@@ -36,8 +36,8 @@ import java.util.HashMap;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0;
-import static org.wso2.transport.http.netty.util.server.http2.Http2Util.getH2ListenerConfigs;
-import static org.wso2.transport.http.netty.util.server.http2.Http2Util.getSenderConfigs;
+import static org.wso2.transport.http.netty.util.Http2Util.getH2ListenerConfigs;
+import static org.wso2.transport.http.netty.util.Http2Util.getSenderConfigs;
 
 /**
  * A test case consisting of a http2 client and server communicating over TLS.
@@ -55,16 +55,16 @@ public class TestHttp2WithALPN {
 
         HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
         serverConnector = factory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), getH2ListenerConfigs());
+            .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), getH2ListenerConfigs());
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
         http2ClientConnector = connectorFactory
-                .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_2_0)));
+            .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_2_0)));
         http1ClientConnector = connectorFactory
-                .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_1_1)));
+            .createHttpClientConnector(new HashMap<>(), getSenderConfigs(String.valueOf(HTTP_1_1)));
     }
 
     /**

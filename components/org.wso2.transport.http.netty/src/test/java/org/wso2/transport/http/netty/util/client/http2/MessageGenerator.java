@@ -49,17 +49,10 @@ public class MessageGenerator {
         return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT);
     }
 
-    public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload, int port) {
+    public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload, int port, String scheme) {
         HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
             new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-            "http://" + TestUtil.TEST_HOST + ":" + port));
-        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, port);
-    }
-
-    public static HttpCarbonMessage generateHttpsRequest(HttpMethod httpMethod, String payload, int port) {
-        HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
-            new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-            "https://" + TestUtil.TEST_HOST + ":" + port));
+            scheme + TestUtil.TEST_HOST + ":" + port));
         return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, port);
     }
 

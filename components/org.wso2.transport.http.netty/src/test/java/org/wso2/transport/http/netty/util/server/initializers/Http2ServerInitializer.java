@@ -64,6 +64,8 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
 
     /**
      * Configure the pipeline for a cleartext upgrade from HTTP to HTTP/2.0
+     *
+     * @param ch represents the socket channel
      */
     private void configureClearText(SocketChannel ch) {
         final ChannelPipeline p = ch.pipeline();
@@ -75,6 +77,8 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
 
     /**
      * Configure the pipeline for TLS NPN negotiation to HTTP/2.
+     *
+     * @param ch represents the socket channel
      */
     private void configureSsl(SocketChannel ch) {
         ch.pipeline().addLast(sslContext.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
@@ -97,6 +101,9 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
 
         /**
          * Configure pipeline after SSL handshake.
+         *
+         * @param ctx      the channel handler context
+         * @param protocol the negotiated protocol
          */
         @Override
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {

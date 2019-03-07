@@ -27,15 +27,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Per pool for eventloops.
+ *
+ * @since 6.0.271
  */
-public class EventLoopPool {
+class EventLoopPool {
 
     private Map<String, PerRouteConnectionPool> perRouteConnectionPools = new HashMap<>();
-//    private EventLoop eventLoop;
-
-    EventLoopPool() {
-//        this.eventLoop = eventLoop;
-    }
 
     PerRouteConnectionPool fetchPerRoutePool(String key) {
         return perRouteConnectionPools.get(key);
@@ -44,10 +41,6 @@ public class EventLoopPool {
     Map<String, PerRouteConnectionPool> getPerRouteConnectionPools() {
         return perRouteConnectionPools;
     }
-
-    /*public EventLoop getEventLoop() {
-        return eventLoop;
-    }*/
 
     /**
      * Entity which holds the pool of connections for a given http route.

@@ -45,19 +45,20 @@ import org.wso2.transport.http.netty.util.server.initializers.Http2SendChannelID
 
 import java.util.HashMap;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0;
+import static org.wso2.transport.http.netty.util.Http2Util.assertResult;
+import static org.wso2.transport.http.netty.util.Http2Util.getH2ListenerConfigs;
+import static org.wso2.transport.http.netty.util.Http2Util.getSenderConfigs;
 import static org.wso2.transport.http.netty.util.TestUtil.SERVER_PORT1;
-import static org.wso2.transport.http.netty.util.server.http2.Http2Util.getH2ListenerConfigs;
-import static org.wso2.transport.http.netty.util.server.http2.Http2Util.getSenderConfigs;
 
 /**
  * Test case for H2 client connection pool.
+ *
+ * @since 6.0.271
  */
-public class H2ConnectionPoolBasicTestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(H2ConnectionPoolBasicTestCase.class);
+public class H2ConnectionPoolWithALPN {
+    private static final Logger LOG = LoggerFactory.getLogger(H2ConnectionPoolWithALPN.class);
 
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
@@ -94,12 +95,7 @@ public class H2ConnectionPoolBasicTestCase {
         HttpClientConnector client4 = getTestClient(); //Upstream uses eventloop2 pool
         String response4 = getResponse(client4);
 
-        assertNotEquals(response1, response2,
-                        "Client uses two different pools, hence response 1 and 2 should not be equal");
-        assertNotEquals(response3, response4,
-                        "Client uses two different pools, hence response 3 and 4 should not be equal");
-        assertEquals(response1, response3, "Client uses the same pool, hence response 1 and 3 should be equal");
-        assertEquals(response2, response4, "Client uses the same pool, hence response 2 and 4 should be equal");
+        assertResult(response1, response2, response3, response4);
     }
 
     @AfterClass
@@ -126,8 +122,8 @@ public class H2ConnectionPoolBasicTestCase {
     }
 
     private String getResponse(HttpClientConnector client1) {
-        HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateHttpsRequest(HttpMethod.GET, null,
-                                                                                    SERVER_PORT1);
+        HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null,
+                                                                               SERVER_PORT1, "https://");
         HttpCarbonMessage response = new MessageSender(client1).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         return TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());

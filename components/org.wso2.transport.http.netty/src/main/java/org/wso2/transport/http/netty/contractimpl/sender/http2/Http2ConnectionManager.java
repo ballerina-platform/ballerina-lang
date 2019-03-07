@@ -40,6 +40,13 @@ public class Http2ConnectionManager {
         this.poolConfiguration = poolConfiguration;
     }
 
+    /**
+     * Add a given {@link Http2ClientChannel} to the relevant pool.
+     *
+     * @param eventLoop          netty event loop
+     * @param httpRoute          http route
+     * @param http2ClientChannel newly created http/2 client channel
+     */
     public void addHttp2ClientChannel(EventLoop eventLoop, HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         if (!eventLoops.contains(eventLoop)) {
             eventLoops.add(eventLoop);
@@ -62,6 +69,27 @@ public class Http2ConnectionManager {
             );
     }
 
+    /**
+     * Get or create the pool that is bound to the given eventloop.
+     *
+     * @param eventLoop netty event loop
+     * @return EventLoopPool
+     */
+    private EventLoopPool getOrCreateEventLoopPool(EventLoop eventLoop) {
+        final EventLoopPool pool = eventLoopPools.get(eventLoop);
+        if (pool != null) {
+            return pool;
+        }
+        return eventLoopPools.computeIfAbsent(eventLoop, e -> new EventLoopPool());
+    }
+
+    /**
+     * Get or creat the per route pool.
+     *
+     * @param eventLoopPool the pool that is bound to the eventloop
+     * @param key           the route key
+     * @return PerRouteConnectionPool
+     */
     private EventLoopPool.PerRouteConnectionPool getOrCreatePerRoutePool(EventLoopPool eventLoopPool, String key) {
         final EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = eventLoopPool.fetchPerRoutePool(key);
         if (perRouteConnectionPool != null) {
@@ -73,18 +101,13 @@ public class Http2ConnectionManager {
                                                                           .getHttp2MaxActiveStreamsPerConnection()));
     }
 
-    private EventLoopPool getOrCreateEventLoopPool(EventLoop eventLoop) {
-        final EventLoopPool pool = eventLoopPools.get(eventLoop);
-        if (pool != null) {
-            return pool;
-        }
-        return eventLoopPools.computeIfAbsent(eventLoop, e -> new EventLoopPool());
-    }
-
-    private String generateKey(HttpRoute httpRoute) {
-        return httpRoute.getScheme() + ":" + httpRoute.getHost() + ":" + httpRoute.getPort();
-    }
-
+    /**
+     * Borrow an HTTP/2 client channel.
+     *
+     * @param http2SrcHandler Relevant http/2 source handler where the source connection belongs to
+     * @param httpRoute       the http route
+     * @return Http2ClientChannel
+     */
     public Http2ClientChannel borrowChannel(Http2SourceHandler http2SrcHandler, HttpRoute httpRoute) {
         EventLoopPool eventLoopPool;
         String key = generateKey(httpRoute);
@@ -109,6 +132,12 @@ public class Http2ConnectionManager {
         return http2ClientChannel;
     }
 
+    /**
+     * Return the http/2 client channel to per route pool.
+     *
+     * @param httpRoute          the http route
+     * @param http2ClientChannel represents the http/2 client channel
+     */
     void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = fetchPerRoutePool(httpRoute,
                                                                                         http2ClientChannel.getChannel()
@@ -118,6 +147,12 @@ public class Http2ConnectionManager {
         }
     }
 
+    /**
+     * Remove http/2 client channel from per route pool.
+     *
+     * @param httpRoute          the http route
+     * @param http2ClientChannel represents the http/2 client channel to be removed
+     */
     void removeClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         EventLoopPool.PerRouteConnectionPool perRouteConnectionPool = fetchPerRoutePool(httpRoute,
                                                                                         http2ClientChannel.getChannel()
@@ -131,5 +166,9 @@ public class Http2ConnectionManager {
                                                                    EventLoop eventLoop) {
         String key = generateKey(httpRoute);
         return eventLoopPools.get(eventLoop).fetchPerRoutePool(key);
+    }
+
+    private String generateKey(HttpRoute httpRoute) {
+        return httpRoute.getScheme() + ":" + httpRoute.getHost() + ":" + httpRoute.getPort();
     }
 }
