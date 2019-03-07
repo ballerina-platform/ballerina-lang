@@ -1295,11 +1295,8 @@ public class PackageInfoReader {
                 case InstructionCodes.FLE:
                 case InstructionCodes.DLE:
                 case InstructionCodes.IAND:
-                case InstructionCodes.BIAND:
                 case InstructionCodes.IOR:
-                case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
-                case InstructionCodes.BIXOR:
                 case InstructionCodes.BILSHIFT:
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:

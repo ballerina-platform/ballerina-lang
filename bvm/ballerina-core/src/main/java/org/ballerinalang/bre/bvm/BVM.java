@@ -361,11 +361,8 @@ public class BVM {
                 case InstructionCodes.REF_NEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.IAND:
-                case InstructionCodes.BIAND:
                 case InstructionCodes.IOR:
-                case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
-                case InstructionCodes.BIXOR:
                 case InstructionCodes.BILSHIFT:
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
@@ -2023,24 +2020,6 @@ public class BVM {
                     break; //TODO is this correct?
                 }
                 sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
-                break;
-            case InstructionCodes.BIAND:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] & sf.longRegs[j];
-                break;
-            case InstructionCodes.BIOR:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] | sf.longRegs[j];
-                break;
-            case InstructionCodes.BIXOR:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] ^ sf.longRegs[j];
                 break;
             case InstructionCodes.IAND:
                 i = operands[0];

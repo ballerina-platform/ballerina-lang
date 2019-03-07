@@ -81,10 +81,8 @@ public interface InstructionCodes {
     int RASTORE = BASTORE + 1;
     int JSONASTORE = RASTORE + 1;
 
-    int BIAND = JSONASTORE + 1;
-    int IAND = BIAND + 1;
-    int BIOR = IAND + 1;
-    int IOR = BIOR + 1;
+    int IAND = JSONASTORE + 1;
+    int IOR = IAND + 1;
 
     int IGSTORE = IOR + 1;
     int FGSTORE = IGSTORE + 1;
@@ -280,8 +278,7 @@ public interface InstructionCodes {
     int I2BI = INT_RANGE + 1;
     int F2BI = I2BI + 1;
     int D2BI = F2BI + 1;
-    int BIXOR = D2BI + 1;
-    int IXOR = BIXOR + 1;
+    int IXOR = D2BI + 1;
     int BACONST = IXOR + 1;
     int IURSHIFT = BACONST + 1;
 
