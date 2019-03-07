@@ -68,6 +68,7 @@ public class InitCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     private static boolean isDirEmpty(final Path directory) throws IOException {
+
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
             //Check whether the OS is Mac OS and the folder contains .DS_Store file
             Iterator pathIterator = dirStream.iterator();
@@ -110,7 +111,7 @@ public class InitCommand implements BLauncherCmd {
                         .findFirst();
                 if (childDotBallerina.isPresent()) {
                     errStream.println("A ballerina project is already initialized in " +
-                                              childDotBallerina.get().toFile().getParent());
+                            childDotBallerina.get().toFile().getParent());
                     return;
                 }
                 // Recursively traverse up till the root
@@ -247,6 +248,7 @@ public class InitCommand implements BLauncherCmd {
      * @return manifest object
      */
     private Manifest createManifest(Scanner scanner, String createToml) {
+
         Manifest manifest = new Manifest();
         if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")
                 || createToml.isEmpty()) {
@@ -279,6 +281,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public String getName() {
+
         return INIT_COMMAND;
     }
 
@@ -287,6 +290,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void printLongDesc(StringBuilder out) {
+
         out.append("Initializes a Ballerina Project. \n");
         out.append("\n");
         out.append("Use --interactive or -i to create a ballerina project in interactive mode.\n");
@@ -297,6 +301,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void printUsage(StringBuilder out) {
+
         out.append("  ballerina init [-i] \n");
     }
 
@@ -305,6 +310,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
+
     }
 
     /**
@@ -322,6 +328,7 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid version, else false.
      */
     private boolean validateVersion(PrintStream out, String versionAsString) {
+
         String semverRegex = "((?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*))";
         boolean matches = Pattern.matches(semverRegex, versionAsString);
         if (!matches) {
@@ -331,6 +338,7 @@ public class InitCommand implements BLauncherCmd {
     }
 
     private String guessOrgName() {
+
         String guessOrgName = System.getProperty("user.name");
         if (guessOrgName == null) {
             guessOrgName = "my_org";
@@ -347,15 +355,16 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid org-name, else false.
      */
     private boolean validateOrgName(String orgName) {
+
         if (RepoUtils.isReservedOrgName(orgName)) {
             out.println("--Invalid organization name: \'" + orgName + "\'. 'ballerina' and 'ballerinax' are reserved " +
-                                "organization names that are used by Ballerina");
+                    "organization names that are used by Ballerina");
             return false;
         }
         boolean matches = RepoUtils.validateOrg(orgName);
         if (!matches) {
             out.println("--Invalid organization name: \'" + orgName + "\'. Organization name can only contain " +
-                                "lowercase alphanumerics and underscores and the maximum length is 256 characters");
+                    "lowercase alphanumerics and underscores and the maximum length is 256 characters");
         }
         return matches;
     }
@@ -368,6 +377,7 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid module name, else false.
      */
     private boolean validatePkgName(Path projectPath, String pkgName) {
+
         if (validateExistingModules(projectPath, pkgName)) {
             return false;
         }
@@ -377,7 +387,7 @@ public class InitCommand implements BLauncherCmd {
         boolean matches = RepoUtils.validatePkg(pkgName);
         if (!matches) {
             out.println("--Invalid module name: \'" + pkgName + "\'. Module name can only contain " +
-                                "alphanumerics, underscores and periods and the maximum length is 256 characters");
+                    "alphanumerics, underscores and periods and the maximum length is 256 characters");
         }
         return matches;
     }
@@ -389,6 +399,7 @@ public class InitCommand implements BLauncherCmd {
      * @return project root
      */
     private Path findProjectRoot(Path projectDir) {
+
         Path path = projectDir.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
         if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
             return projectDir;
@@ -408,6 +419,7 @@ public class InitCommand implements BLauncherCmd {
      * @return if the module name already exists
      */
     private boolean validateExistingModules(Path projectPath, String moduleNames) {
+
         if (alreadyInitializedProject) {
             List<Path> modules = new ArrayList<>();
             try {
