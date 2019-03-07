@@ -20,6 +20,14 @@
       Person p = {name: "john", age: 20}; 
       
       ``` 
+    - There should be no spaces between key and colon.
+    - There should be a single space between the colon and the value.
+            
+      ```ballerina
+      Person person = {
+          name: "john", // in this field Key is the "name" and value is "john".
+      };
+      ```
     - But if at least one field is splitted in to a new line then all the fields should splitted in to a new lines.
       
       If record literal is as below
@@ -38,6 +46,11 @@
           age: 20
       };
       ```
+    - 
+## Map Literal
+
+* Map literals uses the same formatting guidelines as [record literals](#record-literals). 
+
 ## Tuple
 
 * Arrange tuple on a single line.
@@ -72,6 +85,12 @@
   ```ballerina
   setAgeForEmployee(employeeName, employeeID);
   ```
+* When invoking a function from another module there are no spaces around `:`.
+  
+  ```ballerina
+  io:println("john");
+  ```
+  
 * If unable to keep the function invocation on a single line, due to exceeding max line length,
   each argument should be splitted in to its own block-indented line.
   
@@ -124,7 +143,7 @@
   ```ballerina
   string name = <string>json.name;
   ```
-## Table literal
+## Table Literal
 * Elements in table literal each should block-indent on its own line.
 * Table column definition should be place on a single line.
   

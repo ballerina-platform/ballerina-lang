@@ -30,9 +30,9 @@ will support only this format. Also following this guide will form a standard st
   ```
 * Maximum line length is 120 characters. 
 
-### Blank lines
+### Blank Lines
 
-* Separate definitions and statements by zero or one blank lines (one or two new lines).
+* Separate both statements and top level definitions by zero or one blank lines (one or two new lines).
 
   ```ballerina
   import ballerina/http;
@@ -49,14 +49,120 @@ will support only this format. Also following this guide will form a standard st
   }
   
   function getAge() returns int {}
-  
   function setAge(int age) {}
   ```
+### Blocks
+* Before opening curly brace there should be a space. 
 
-### [Operators, Keywords and Boundaries](operators_keywords_and_boundaries.md)
+  ```ballerina
+
+  function func1() {
+      if (true) {}
+  }
+
+   ```
+* If a block is empty, no space between opening `{` and closing `}` brace.
+  ```ballerina
+  function func1() {}
+  ``` 
+* All statements inside a block should block-indent.
+### Parentheses
+* If empty no spaces between opening and closing parentheses `()`.
+* No space before closing parentheses and after opening parentheses.
+  
+  ```ballerina
+  function setValue(string value) {} 
+  ```
+  
+### Line Breaks
+* Line should break after `;`.
+* Only one statement on a line. 
+* Avoid line breaking in types and conversions.
+  e.g., prefer
+
+  ```ballerina
+
+  map<
+      int
+      |
+      string
+  > 
+
+  // or
+
+  <
+      string
+  >
+  ```
+
+  to
+
+  ```ballerina
+  map<int | string> 
+
+  // or
+
+  <string>
+  ```
+
+* When splitting lines which contains operator/s split should happen 
+  right before an operator.
+  
+  example:
+  
+  ```ballerina
+  // Binary operations.
+  string s = "added " + People.name
+      + " in to database.";
+  
+  // Function invocation.
+  string s = person
+      .getName();
+  
+  // Binary operations in if condition
+  if (isNameAvailable 
+      && (i == 1)) {
+  
+  }
+
+  ```
+
+* Splitted lines should be indented relative to the start position of the statement or definition.
+  
+  ```ballerina
+  if (isNameAvailable 
+      && (i == 1)) {
+    
+  }
+  ```
+
 ### [Top Level Definitions](definitions.md)
+  - [Imports](definitions.md#imports)
+  - [Function](definitions.md#function)
+  - [Service](definitions.md#service)
+    - [Resource Function](definitions.md#resource-function)
+  - [Object Definition](definitions.md#object-definition)
+  - [Record Definition](definitions.md#record-definition)
+  - [Referencing Record or Abstract Object](definitions.md#referencing-record-or-abstract-object)
 ### [Statements](statements.md)
+  - [Variable Definition](statements.md#variable-definition)
+  - [Compound Assignment](statements.md#compound-assignment)
+  - [Flow Control](statements.md#flow-control)
+    - [If Statement](statements.md#if-statement)
+    - [Match Statement](statements.md#match-statement)
+      - [Match Patterns](statements.md#match-patterns)
+    - [Transaction Statement](statements.md#transaction-statement)
 ### [Expressions](expressions.md)
+  - [Record Literals](expressions.md#record-literals)
+  - [Map Literal](expressions.md#map-literal)
+  - [Tuple](expressions.md#tuple)
+  - [Function Invocation](expressions.md#function-invocation)
+  - [Array Literals](expressions.md#array-literals)
+  - [Type Conversion](expressions.md#type-conversion)
+  - [Table literal](expressions.md#table-literal)
+### [Operators, Keywords and Types](operators_keywords_and_types.md)
+  - [Keywords and Types](operators_keywords_and_types.md#keywords-and-types)
+  - [Operators](operators_keywords_and_types.md#Operators)
 
 ### Annotations
 * No spaces around `@`.

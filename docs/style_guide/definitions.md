@@ -81,7 +81,7 @@
   service hello on ep1, ep2 {}
   ```
 
-### Resource
+### Resource Function
 
 * Resource is intended accordingly related to parent service.
 * As rest of the syntaxes for resource is similar to function please refer to [function](#Function) formatting guidelines for
@@ -105,7 +105,7 @@ parameter, return type and resource body formatting.
   type method "POST" | "GET" | "PUT";
   ```
 
-### Object Definition
+## Object Definition
 
 * Field definitions should indented relative to the parent object.
 * Function definitions should indent relative to parent object.
@@ -139,7 +139,7 @@ parameter, return type and resource body formatting.
   };
   ```
 * For type reference formatting refer to [type reference](#Referencing) section.
-### Record Definition
+## Record Definition
 * Field definitions should indent relative to the parent record.
 * Rest field should indent relative to the parent record.
 
@@ -159,7 +159,7 @@ parameter, return type and resource body formatting.
   ```
 * For type reference formatting refer to [referencing](#Referencing) section.
 
-### Referencing
+## Referencing Record or Abstract Object 
 * No spaces between `*` and abstract object name or record name.
   
   ```ballerina
