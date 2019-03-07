@@ -104,9 +104,11 @@ public class BLangVMStructs {
                 break;
             case TypeTags.BYTE_TAG:
                 if (value instanceof Byte) {
-                    return new BByte(((Byte) value));
+                    return new BByte(((Byte) value).longValue());
                 } else if (value instanceof Integer) {
-                    return new BByte(((Integer) value).byteValue());
+                    return new BByte(((Integer) value).longValue());
+                } else if (value instanceof Long) {
+                    return new BByte((Long) value);
                 } else if (value instanceof BByte) {
                     return (BByte) value;
                 }
