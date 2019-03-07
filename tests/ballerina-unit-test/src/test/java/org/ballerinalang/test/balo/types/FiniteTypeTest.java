@@ -258,7 +258,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertSame(returns[0].getClass(), BByte.class);
-        Assert.assertEquals((((BByte) returns[0]).byteValue()), (byte) 222);
+        Assert.assertEquals((((BByte) returns[0]).byteValue()), 222);
     }
 
     @Test()

@@ -91,7 +91,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "equalByteValues")
     public void testByteRefEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) i)};
+        BValue[] args = {new BByte(i), new BByte(i)};
         BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -101,7 +101,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "unequalByteValues")
     public void testByteRefEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) j)};
+        BValue[] args = {new BByte(i), new BByte(j)};
         BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

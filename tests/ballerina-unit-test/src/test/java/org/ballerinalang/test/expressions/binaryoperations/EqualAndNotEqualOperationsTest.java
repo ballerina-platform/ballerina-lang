@@ -93,7 +93,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with two equal bytes", dataProvider = "equalByteValues")
     public void testByteEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) i)};
+        BValue[] args = {new BByte(i), new BByte(i)};
         BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityPositive", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -102,7 +102,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with two unequal bytes", dataProvider = "unequalByteValues")
     public void testByteEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) j)};
+        BValue[] args = {new BByte(i), new BByte(j)};
         BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityNegative", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

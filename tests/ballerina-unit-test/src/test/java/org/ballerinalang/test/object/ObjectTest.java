@@ -72,6 +72,13 @@ public class ObjectTest {
         Assert.assertEquals(returns[3].stringValue(), "february");
     }
 
+    @Test(description = "decimal")
+    public void testDecimal() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/decimal.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "test");
+        int x = 5;
+    }
+
     @Test(description = "Test Basic object as struct with just new")
     public void testBasicStructAsObjectWithJustNew() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-simple-struct.bal");

@@ -82,7 +82,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "byteValues")
     public void testByteFreeze(int i) {
-        BValue[] returns = BRunUtil.invoke(result, "testByteFreeze", new BValue[]{new BByte((byte) i)});
+        BValue[] returns = BRunUtil.invoke(result, "testByteFreeze", new BValue[]{new BByte(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be the same");

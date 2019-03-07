@@ -95,9 +95,9 @@ public class CloneOperationTest {
     public void testCloneByte() {
         BValue[] results = BRunUtil.invoke(result, "cloneByte");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BByte) results[0]).byteValue(), (byte) 234);
-        Assert.assertEquals(((BByte) results[1]).byteValue(), (byte) 100);
-        Assert.assertEquals(((BByte) results[2]).byteValue(), (byte) 133);
+        Assert.assertEquals(((BByte) results[0]).byteValue(), 234);
+        Assert.assertEquals(((BByte) results[1]).byteValue(), 100);
+        Assert.assertEquals(((BByte) results[2]).byteValue(), 133);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
