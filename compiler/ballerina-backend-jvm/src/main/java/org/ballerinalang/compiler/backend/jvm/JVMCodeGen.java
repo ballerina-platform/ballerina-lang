@@ -81,6 +81,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
 
 /**
  * Ballerina compiler JVM backend.
+ *
+ * @since 0.955.0
  */
 public class JVMCodeGen {
 
@@ -94,7 +96,7 @@ public class JVMCodeGen {
 
     public static void generateExecutableJar(Path sourceRootPath,
                                              String packagePath,
-                                             String targetPath,
+                                             String targetFileName,
                                              boolean buildCompiledPkg,
                                              boolean offline,
                                              boolean lockEnabled,
@@ -131,7 +133,7 @@ public class JVMCodeGen {
             FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
             BValue[] result = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
             LinkedHashMap<String, BValue> classes = ((BMap<String, BValue>) result[0]).getMap();
-            generateJar(sourceRootPath, targetPath, classes);
+            generateJar(sourceRootPath, targetFileName, classes);
         } catch (IOException e) {
             throw new BLangCompilerException("jvm jar file generation failed: " + e.getMessage(), e);
         }
@@ -139,6 +141,9 @@ public class JVMCodeGen {
 
     private static void generateJar(Path outputPath, String targetFileName, LinkedHashMap<String, BValue> entries)
             throws IOException {
+
+        Path jarFilePath = Paths.get(outputPath.toString(), cleanupFileExtension(targetFileName) + JAR_EXT);
+
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
@@ -148,8 +153,7 @@ public class JVMCodeGen {
             manifestEntries.forEach((k, v) -> manifest.getMainAttributes().
                     put(new Attributes.Name(k), v.stringValue()));
         }
-        JarOutputStream target = new JarOutputStream(new FileOutputStream(outputPath.toString() + "/" +
-                cleanupFileExtension(targetFileName) + JAR_EXT), manifest);
+        JarOutputStream target = new JarOutputStream(new FileOutputStream(jarFilePath.toString()), manifest);
 
         if (entries.containsKey(JAR_ENTRIES)) {
             LinkedHashMap<String, BValue> jarEntries = ((BMap<String, BValue>) entries.get(JAR_ENTRIES)).getMap();
@@ -243,13 +247,23 @@ public class JVMCodeGen {
 
     private static byte[] readExecResource(URI resURI) {
         byte[] resBytes;
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-        try (FileSystem ignored = FileSystems.newFileSystem(resURI, env)) {
-            resBytes = Files.readAllBytes(Paths.get(resURI));
-        } catch (IOException e) {
-            throw new BLangCompilerException("failed to load embedded executable resource: ", e);
+
+        if (resURI.getScheme().equals("jar")) {
+            Map<String, String> env = new HashMap<>();
+            env.put("create", "true");
+            try (FileSystem ignored = FileSystems.newFileSystem(resURI, env)) {
+                resBytes = Files.readAllBytes(Paths.get(resURI));
+            } catch (IOException e) {
+                throw new BLangCompilerException("failed to load embedded executable resource: ", e);
+            }
+        } else {
+            try {
+                resBytes = Files.readAllBytes(Paths.get(resURI));
+            } catch (IOException e) {
+                throw new BLangCompilerException("failed to load embedded executable resource: ", e);
+            }
         }
+
         return resBytes;
     }
 
