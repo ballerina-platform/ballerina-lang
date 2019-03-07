@@ -9,8 +9,8 @@ const map<map<boolean>> bm3_new = { "key3": bm1_new, "key4": bm2_new };
 const map<boolean> bm1_new = { "key1": true };
 const map<boolean> bm2_new = { "key2": false };
 
-const map<map<boolean>> bm7 = { "key1": { "key3": true }, "key2": { "key4": false } };
-const map<map<boolean>> bm8 = { "key1": { "key3": true }, "key2": { "key4": false } };
+const map<map<boolean>> bm7 = { "key3": { "key1": true }, "key2": { "key4": false } };
+const map<map<boolean>> bm8 = { "key3": { "key1": true }, "key2": { "key4": false } };
 
 function testSimpleBooleanMapValueEqualityUsingSameReference() returns boolean {
     return bm1 == bm1; // true
@@ -67,19 +67,19 @@ function testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference(
 // -----------------------------------------------------------
 
 function testSimpleBooleanMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return bm7.key1 == bm7.key1; // true
+    return bm7.key3 == bm7.key3; // true
 }
 
 function testSimpleBooleanMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return bm7.key1 == bm1; // false
+    return bm7.key3 == bm1; // true
 }
 
 function testSimpleBooleanMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return bm7.key1 === bm7.key1; // true
+    return bm7.key3 === bm7.key3; // true
 }
 
 function testSimpleBooleanMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return bm7.key1 === bm1; // false
+    return bm7.key3 === bm1; // false
 }
 
 // -----------------------------------------------------------
@@ -93,11 +93,11 @@ function testComplexBooleanMapReferenceEquality() returns boolean {
 }
 
 function testSimpleBooleanMapValueEqualityInDifferentMap() returns boolean {
-    return bm7.key1 == bm8.key1; // true
+    return bm7.key3 == bm8.key3; // true
 }
 
 function testSimpleBooleanMapReferenceEqualityInDifferentMap() returns boolean {
-    return bm7.key1 === bm8.key1; // false
+    return bm7.key3 === bm8.key3; // false
 }
 
 // int -------------------------------------------------------
@@ -110,8 +110,8 @@ const map<map<int>> im3_new = { "key3": im1_new, "key4": im2_new };
 const map<int> im1_new = { "key1": 1 };
 const map<int> im2_new = { "key2": 2 };
 
-const map<map<int>> im7 = { "key1": { "key3": 1 }, "key2": { "key4": 2 } };
-const map<map<int>> im8 = { "key1": { "key3": 1 }, "key2": { "key4": 2 } };
+const map<map<int>> im7 = { "key3": { "key1": 1 }, "key4": { "key2": 2 } };
+const map<map<int>> im8 = { "key3": { "key1": 1 }, "key4": { "key2": 2 } };
 
 function testSimpleIntMapValueEqualityUsingSameReference() returns boolean {
     return im1 == im1; // true
@@ -168,19 +168,19 @@ function testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference() re
 // -----------------------------------------------------------
 
 function testSimpleIntMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return im7.key1 == im7.key1; // true
+    return im7.key3 == im7.key3; // true
 }
 
 function testSimpleIntMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return im7.key1 == im1; // false
+    return im7.key3 == im1; // true
 }
 
 function testSimpleIntMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return im7.key1 === im7.key1; // true
+    return im7.key3 === im7.key3; // true
 }
 
 function testSimpleIntMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return im7.key1 === im1; // false
+    return im7.key3 === im1; // false
 }
 
 // -----------------------------------------------------------
@@ -194,11 +194,11 @@ function testComplexIntMapReferenceEquality() returns boolean {
 }
 
 function testSimpleIntMapValueEqualityInDifferentMap() returns boolean {
-    return im7.key1 == im8.key1; // true
+    return im7.key3 == im8.key3; // true
 }
 
 function testSimpleIntMapReferenceEqualityInDifferentMap() returns boolean {
-    return im7.key1 === im8.key1; // false
+    return im7.key3 === im8.key3; // false
 }
 
 // byte ------------------------------------------------------
@@ -211,8 +211,8 @@ const map<map<byte>> bytem3_new = { "key3": bytem1_new, "key4": bytem2_new };
 const map<byte> bytem1_new = { "key1": 10 };
 const map<byte> bytem2_new = { "key2": 20 };
 
-const map<map<byte>> bytem7 = { "key1": { "key3": 10 }, "key2": { "key4": 20 } };
-const map<map<byte>> bytem8 = { "key1": { "key3": 10 }, "key2": { "key4": 20 } };
+const map<map<byte>> bytem7 = { "key3": { "key1": 10 }, "key4": { "key2": 20 } };
+const map<map<byte>> bytem8 = { "key3": { "key1": 10 }, "key4": { "key2": 20 } };
 
 function testSimpleByteMapValueEqualityUsingSameReference() returns boolean {
     return bytem1 == bytem1; // true
@@ -269,19 +269,19 @@ function testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference() r
 // -----------------------------------------------------------
 
 function testSimpleByteMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return bytem7.key1 == bytem7.key1; // true
+    return bytem7.key3 == bytem7.key3; // true
 }
 
 function testSimpleByteMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return bytem7.key1 == bytem1; // false
+    return bytem7.key3 == bytem1; // true
 }
 
 function testSimpleByteMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return bytem7.key1 === bytem7.key1; // true
+    return bytem7.key3 === bytem7.key3; // true
 }
 
 function testSimpleByteMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return bytem7.key1 === bytem1; // false
+    return bytem7.key3 === bytem1; // false
 }
 
 // -----------------------------------------------------------
@@ -295,11 +295,11 @@ function testComplexByteMapReferenceEquality() returns boolean {
 }
 
 function testSimpleByteMapValueEqualityInDifferentMap() returns boolean {
-    return bytem7.key1 == bytem8.key1; // true
+    return bytem7.key3 == bytem8.key3; // true
 }
 
 function testSimpleByteMapReferenceEqualityInDifferentMap() returns boolean {
-    return bytem7.key1 === bytem8.key1; // false
+    return bytem7.key3 === bytem8.key3; // false
 }
 
 // float -----------------------------------------------------
@@ -312,8 +312,8 @@ const map<map<float>> fm3_new = { "key3": fm1_new, "key4": fm2_new };
 const map<float> fm1_new = { "key1": 2.0 };
 const map<float> fm2_new = { "key2": 4.0 };
 
-const map<map<float>> fm7 = { "key1": { "key3": 2.0 }, "key2": { "key4": 4.0 } };
-const map<map<float>> fm8 = { "key1": { "key3": 2.0 }, "key2": { "key4": 4.0 } };
+const map<map<float>> fm7 = { "key3": { "key1": 2.0 }, "key4": { "key2": 4.0 } };
+const map<map<float>> fm8 = { "key3": { "key1": 2.0 }, "key4": { "key2": 4.0 } };
 
 function testSimpleFloatMapValueEqualityUsingSameReference() returns boolean {
     return fm1 == fm1; // true
@@ -370,19 +370,19 @@ function testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference() 
 // -----------------------------------------------------------
 
 function testSimpleFloatMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return fm7.key1 == fm7.key1; // true
+    return fm7.key3 == fm7.key3; // true
 }
 
 function testSimpleFloatMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return fm7.key1 == fm1; // false
+    return fm7.key3 == fm1; // true
 }
 
 function testSimpleFloatMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return fm7.key1 === fm7.key1; // true
+    return fm7.key3 === fm7.key3; // true
 }
 
 function testSimpleFloatMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return fm7.key1 === fm1; // false
+    return fm7.key3 === fm1; // false
 }
 
 // -----------------------------------------------------------
@@ -396,11 +396,11 @@ function testComplexFloatMapReferenceEquality() returns boolean {
 }
 
 function testSimpleFloatMapValueEqualityInDifferentMap() returns boolean {
-    return fm7.key1 == fm8.key1; // true
+    return fm7.key3 == fm8.key3; // true
 }
 
 function testSimpleFloatMapReferenceEqualityInDifferentMap() returns boolean {
-    return fm7.key1 === fm8.key1; // false
+    return fm7.key3 === fm8.key3; // false
 }
 
 // decimal ---------------------------------------------------
@@ -413,8 +413,8 @@ const map<map<decimal>> dm3_new = { "key3": dm1_new, "key4": dm2_new };
 const map<decimal> dm1_new = { "key1": 100 };
 const map<decimal> dm2_new = { "key2": 200 };
 
-const map<map<decimal>> dm7 = { "key1": { "key3": 100 }, "key2": { "key4": 200 } };
-const map<map<decimal>> dm8 = { "key1": { "key3": 100 }, "key2": { "key4": 200 } };
+const map<map<decimal>> dm7 = { "key3": { "key1": 100 }, "key4": { "key2": 200 } };
+const map<map<decimal>> dm8 = { "key3": { "key1": 100 }, "key4": { "key2": 200 } };
 
 function testSimpleDecimalMapValueEqualityUsingSameReference() returns boolean {
     return dm1 == dm1; // true
@@ -471,19 +471,19 @@ function testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference(
 // -----------------------------------------------------------
 
 function testSimpleDecimalMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return dm7.key1 == dm7.key1; // true
+    return dm7.key3 == dm7.key3; // true
 }
 
 function testSimpleDecimalMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return dm7.key1 == dm1; // false
+    return dm7.key3 == dm1; // true
 }
 
 function testSimpleDecimalMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return dm7.key1 === dm7.key1; // true
+    return dm7.key3 === dm7.key3; // true
 }
 
 function testSimpleDecimalMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return dm7.key1 === dm1; // false
+    return dm7.key3 === dm1; // false
 }
 
 // -----------------------------------------------------------
@@ -497,11 +497,11 @@ function testComplexDecimalMapReferenceEquality() returns boolean {
 }
 
 function testSimpleDecimalMapValueEqualityInDifferentMap() returns boolean {
-    return dm7.key1 == dm8.key1; // true
+    return dm7.key3 == dm8.key3; // true
 }
 
 function testSimpleDecimalMapReferenceEqualityInDifferentMap() returns boolean {
-    return dm7.key1 === dm8.key1; // false
+    return dm7.key3 === dm8.key3; // false
 }
 
 // string ----------------------------------------------------
@@ -514,8 +514,8 @@ const map<map<string>> sm3_new = { "key3": sm1_new, "key4": sm2_new };
 const map<string> sm1_new = { "key1": "value1" };
 const map<string> sm2_new = { "key2": "value2" };
 
-const map<map<string>> sm7 = { "key1": { "key3": "value1" }, "key2": { "key4": "value2" } };
-const map<map<string>> sm8 = { "key1": { "key3": "value1" }, "key2": { "key4": "value2" } };
+const map<map<string>> sm7 = { "key3": { "key1": "value1" }, "key4": { "key2": "value2" } };
+const map<map<string>> sm8 = { "key3": { "key1": "value1" }, "key4": { "key2": "value2" } };
 
 function testSimpleStringMapValueEqualityUsingSameReference() returns boolean {
     return sm1 == sm1; // true
@@ -572,19 +572,19 @@ function testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference()
 // -----------------------------------------------------------
 
 function testSimpleStringMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return sm7.key1 == sm7.key1; // true
+    return sm7.key3 == sm7.key3; // true
 }
 
 function testSimpleStringMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return sm7.key1 == sm1; // false
+    return sm7.key3 == sm1; // true
 }
 
 function testSimpleStringMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return sm7.key1 === sm7.key1; // true
+    return sm7.key3 === sm7.key3; // true
 }
 
 function testSimpleStringMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return sm7.key1 === sm1; // false
+    return sm7.key3 === sm1; // false
 }
 
 // -----------------------------------------------------------
@@ -598,11 +598,11 @@ function testComplexStringMapReferenceEquality() returns boolean {
 }
 
 function testSimpleStringMapValueEqualityInDifferentMap() returns boolean {
-    return sm7.key1 == sm8.key1; // true
+    return sm7.key3 == sm8.key3; // true
 }
 
 function testSimpleStringMapReferenceEqualityInDifferentMap() returns boolean {
-    return sm7.key1 === sm8.key1; // false
+    return sm7.key3 === sm8.key3; // false
 }
 
 // nil -------------------------------------------------------
@@ -615,8 +615,8 @@ const map<map<()>> nm3_new = { "key3": nm1_new, "key4": nm2_new };
 const map<()> nm1_new = { "key1": () };
 const map<()> nm2_new = { "key2": () };
 
-const map<map<()>> nm7 = { "key1": { "key3": () }, "key2": { "key4": () } };
-const map<map<()>> nm8 = { "key1": { "key3": () }, "key2": { "key4": () } };
+const map<map<()>> nm7 = { "key3": { "key1": () }, "key4": { "key2": () } };
+const map<map<()>> nm8 = { "key3": { "key1": () }, "key4": { "key2": () } };
 
 function testSimpleNilMapValueEqualityUsingSameReference() returns boolean {
     return nm1 == nm1; // true
@@ -673,19 +673,19 @@ function testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference() re
 // -----------------------------------------------------------
 
 function testSimpleNilMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return nm7.key1 == nm7.key1; // true
+    return nm7.key3 == nm7.key3; // true
 }
 
 function testSimpleNilMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return nm7.key1 == nm1; // false
+    return nm7.key3 == nm1; // true
 }
 
 function testSimpleNilMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return nm7.key1 === nm7.key1; // true
+    return nm7.key3 === nm7.key3; // true
 }
 
 function testSimpleNilMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return nm7.key1 === nm1; // false
+    return nm7.key3 === nm1; // false
 }
 
 // -----------------------------------------------------------
@@ -699,9 +699,9 @@ function testComplexNilMapReferenceEquality() returns boolean {
 }
 
 function testSimpleNilMapValueEqualityInDifferentMap() returns boolean {
-    return nm7.key1 == nm8.key1; // true
+    return nm7.key3 == nm8.key3; // true
 }
 
 function testSimpleNilMapReferenceEqualityInDifferentMap() returns boolean {
-    return nm7.key1 === nm8.key1; // false
+    return nm7.key3 === nm8.key3; // false
 }

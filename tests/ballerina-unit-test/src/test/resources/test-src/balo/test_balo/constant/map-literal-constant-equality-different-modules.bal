@@ -58,19 +58,19 @@ function testComplexBooleanMapReferenceEqualityUsingMapAccessDifferentReference(
 // -----------------------------------------------------------
 
 function testSimpleBooleanMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:bm7.key1 == bar:bm7.key1; // true
+    return foo:bm7.key3 == bar:bm7.key3; // true
 }
 
 function testSimpleBooleanMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:bm7.key1 == bar:bm1; // false
+    return foo:bm7.key3 == bar:bm1; // true
 }
 
 function testSimpleBooleanMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:bm7.key1 === bar:bm7.key1; // false
+    return foo:bm7.key3 === bar:bm7.key3; // false
 }
 
 function testSimpleBooleanMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:bm7.key1 === bar:bm1; // false
+    return foo:bm7.key3 === bar:bm1; // false
 }
 
 // -----------------------------------------------------------
@@ -84,11 +84,11 @@ function testComplexBooleanMapReferenceEquality() returns boolean {
 }
 
 function testSimpleBooleanMapValueEqualityInDifferentMap() returns boolean {
-    return foo:bm7.key1 == bar:bm8.key1; // true
+    return foo:bm7.key3 == bar:bm8.key3; // true
 }
 
 function testSimpleBooleanMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:bm7.key1 === bar:bm8.key1; // false
+    return foo:bm7.key3 === bar:bm8.key3; // false
 }
 
 // int -------------------------------------------------------
@@ -148,19 +148,19 @@ function testComplexIntMapReferenceEqualityUsingMapAccessDifferentReference() re
 // -----------------------------------------------------------
 
 function testSimpleIntMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:im7.key1 == bar:im7.key1; // true
+    return foo:im7.key3 == bar:im7.key3; // true
 }
 
 function testSimpleIntMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:im7.key1 == bar:im1; // false
+    return foo:im7.key3 == bar:im1; // true
 }
 
 function testSimpleIntMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:im7.key1 === bar:im7.key1; // false
+    return foo:im7.key3 === bar:im7.key3; // false
 }
 
 function testSimpleIntMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:im7.key1 === bar:im1; // false
+    return foo:im7.key3 === bar:im1; // false
 }
 
 // -----------------------------------------------------------
@@ -174,11 +174,11 @@ function testComplexIntMapReferenceEquality() returns boolean {
 }
 
 function testSimpleIntMapValueEqualityInDifferentMap() returns boolean {
-    return foo:im7.key1 == bar:im8.key1; // true
+    return foo:im7.key3 == bar:im8.key3; // true
 }
 
 function testSimpleIntMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:im7.key1 === bar:im8.key1; // false
+    return foo:im7.key3 === bar:im8.key3; // false
 }
 
 // byte ------------------------------------------------------
@@ -238,19 +238,19 @@ function testComplexByteMapReferenceEqualityUsingMapAccessDifferentReference() r
 // -----------------------------------------------------------
 
 function testSimpleByteMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:bytem7.key1 == bar:bytem7.key1; // true
+    return foo:bytem7.key3 == bar:bytem7.key3; // true
 }
 
 function testSimpleByteMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:bytem7.key1 == bar:bytem1; // false
+    return foo:bytem7.key3 == bar:bytem1; // true
 }
 
 function testSimpleByteMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:bytem7.key1 === bar:bytem7.key1; // false
+    return foo:bytem7.key3 === bar:bytem7.key3; // false
 }
 
 function testSimpleByteMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:bytem7.key1 === bar:bytem1; // false
+    return foo:bytem7.key3 === bar:bytem1; // false
 }
 
 // -----------------------------------------------------------
@@ -264,11 +264,11 @@ function testComplexByteMapReferenceEquality() returns boolean {
 }
 
 function testSimpleByteMapValueEqualityInDifferentMap() returns boolean {
-    return foo:bytem7.key1 == bar:bytem8.key1; // true
+    return foo:bytem7.key3 == bar:bytem8.key3; // true
 }
 
 function testSimpleByteMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:bytem7.key1 === bar:bytem8.key1; // false
+    return foo:bytem7.key3 === bar:bytem8.key3; // false
 }
 
 // float -----------------------------------------------------
@@ -328,19 +328,19 @@ function testComplexFloatMapReferenceEqualityUsingMapAccessDifferentReference() 
 // -----------------------------------------------------------
 
 function testSimpleFloatMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:fm7.key1 == bar:fm7.key1; // true
+    return foo:fm7.key3 == bar:fm7.key3; // true
 }
 
 function testSimpleFloatMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:fm7.key1 == bar:fm1; // false
+    return foo:fm7.key3 == bar:fm1; // true
 }
 
 function testSimpleFloatMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:fm7.key1 === bar:fm7.key1; // false
+    return foo:fm7.key3 === bar:fm7.key3; // false
 }
 
 function testSimpleFloatMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:fm7.key1 === bar:fm1; // false
+    return foo:fm7.key3 === bar:fm1; // false
 }
 
 // -----------------------------------------------------------
@@ -354,11 +354,11 @@ function testComplexFloatMapReferenceEquality() returns boolean {
 }
 
 function testSimpleFloatMapValueEqualityInDifferentMap() returns boolean {
-    return foo:fm7.key1 == bar:fm8.key1; // true
+    return foo:fm7.key3 == bar:fm8.key3; // true
 }
 
 function testSimpleFloatMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:fm7.key1 === bar:fm8.key1; // false
+    return foo:fm7.key3 === bar:fm8.key3; // false
 }
 
 // decimal ---------------------------------------------------
@@ -418,19 +418,19 @@ function testComplexDecimalMapReferenceEqualityUsingMapAccessDifferentReference(
 // -----------------------------------------------------------
 
 function testSimpleDecimalMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:dm7.key1 == bar:dm7.key1; // true
+    return foo:dm7.key3 == bar:dm7.key3; // true
 }
 
 function testSimpleDecimalMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:dm7.key1 == bar:dm1; // false
+    return foo:dm7.key3 == bar:dm1; // true
 }
 
 function testSimpleDecimalMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:dm7.key1 === bar:dm7.key1; // false
+    return foo:dm7.key3 === bar:dm7.key3; // false
 }
 
 function testSimpleDecimalMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:dm7.key1 === bar:dm1; // false
+    return foo:dm7.key3 === bar:dm1; // false
 }
 
 // -----------------------------------------------------------
@@ -444,11 +444,11 @@ function testComplexDecimalMapReferenceEquality() returns boolean {
 }
 
 function testSimpleDecimalMapValueEqualityInDifferentMap() returns boolean {
-    return foo:dm7.key1 == bar:dm8.key1; // true
+    return foo:dm7.key3 == bar:dm8.key3; // true
 }
 
 function testSimpleDecimalMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:dm7.key1 === bar:dm8.key1; // false
+    return foo:dm7.key3 === bar:dm8.key3; // false
 }
 
 // string ----------------------------------------------------
@@ -508,19 +508,19 @@ function testComplexStringMapReferenceEqualityUsingMapAccessDifferentReference()
 // -----------------------------------------------------------
 
 function testSimpleStringMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:sm7.key1 == bar:sm7.key1; // true
+    return foo:sm7.key3 == bar:sm7.key3; // true
 }
 
 function testSimpleStringMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:sm7.key1 == bar:sm1; // false
+    return foo:sm7.key3 == bar:sm1; // true
 }
 
 function testSimpleStringMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:sm7.key1 === bar:sm7.key1; // false
+    return foo:sm7.key3 === bar:sm7.key3; // false
 }
 
 function testSimpleStringMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:sm7.key1 === bar:sm1; // false
+    return foo:sm7.key3 === bar:sm1; // false
 }
 
 // -----------------------------------------------------------
@@ -534,11 +534,11 @@ function testComplexStringMapReferenceEquality() returns boolean {
 }
 
 function testSimpleStringMapValueEqualityInDifferentMap() returns boolean {
-    return foo:sm7.key1 == bar:sm8.key1; // true
+    return foo:sm7.key3 == bar:sm8.key3; // true
 }
 
 function testSimpleStringMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:sm7.key1 === bar:sm8.key1; // false
+    return foo:sm7.key3 === bar:sm8.key3; // false
 }
 
 // nil -------------------------------------------------------
@@ -598,19 +598,19 @@ function testComplexNilMapReferenceEqualityUsingMapAccessDifferentReference() re
 // -----------------------------------------------------------
 
 function testSimpleNilMapValueEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:nm7.key1 == bar:nm7.key1; // true
+    return foo:nm7.key3 == bar:nm7.key3; // true
 }
 
 function testSimpleNilMapValueEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:nm7.key1 == bar:nm1; // false
+    return foo:nm7.key3 == bar:nm1; // true
 }
 
 function testSimpleNilMapReferenceEqualityUsingSameReferenceInMap() returns boolean {
-    return foo:nm7.key1 === bar:nm7.key1; // false
+    return foo:nm7.key3 === bar:nm7.key3; // false
 }
 
 function testSimpleNilMapReferenceEqualityUsingDifferentReferenceInMap() returns boolean {
-    return foo:nm7.key1 === bar:nm1; // false
+    return foo:nm7.key3 === bar:nm1; // false
 }
 
 // -----------------------------------------------------------
@@ -624,9 +624,9 @@ function testComplexNilMapReferenceEquality() returns boolean {
 }
 
 function testSimpleNilMapValueEqualityInDifferentMap() returns boolean {
-    return foo:nm7.key1 == bar:nm8.key1; // true
+    return foo:nm7.key3 == bar:nm8.key3; // true
 }
 
 function testSimpleNilMapReferenceEqualityInDifferentMap() returns boolean {
-    return foo:nm7.key1 === bar:nm8.key1; // false
+    return foo:nm7.key3 === bar:nm8.key3; // false
 }
