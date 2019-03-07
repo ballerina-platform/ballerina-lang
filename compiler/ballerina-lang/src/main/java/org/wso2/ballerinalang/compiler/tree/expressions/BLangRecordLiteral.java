@@ -44,7 +44,6 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
 
     public List<BLangRecordKeyValue> keyValuePairs;
-    public Name name;
 
     public BLangRecordLiteral() {
         keyValuePairs = new ArrayList<>();

@@ -92,12 +92,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -913,27 +915,23 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
+        // Check constant map literal access.
         if (varRefType.tag == TypeTags.MAP) {
             BLangExpression expression = fieldAccessExpr.getExpression();
             if (expression.getKind() == NodeKind.CONSTANT_REF) {
-                BConstantSymbol constantSymbol =
-                        (BConstantSymbol) ((BLangSimpleVarRef.BLangConstRef) expression).symbol;
-                BLangRecordLiteral.BLangMapLiteral mapLiteral =
-                        (BLangRecordLiteral.BLangMapLiteral) constantSymbol.literalValue;
+                BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
+                BLangMapLiteral mapLiteral = (BLangMapLiteral) constantSymbol.literalValue;
                 // Retrieve the field access expression's value.
-                constantValueChecker.checkValue(fieldAccessExpr.pos, fieldAccessExpr.expr, fieldAccessExpr.field,
-                        mapLiteral);
+                constantValueChecker.checkValue(fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
             }
 
             if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 if (symbol.tag == SymTag.CONSTANT) {
                     BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
-                    BLangRecordLiteral mapLiteral =
-                            (BLangRecordLiteral) constantSymbol.literalValue;
+                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) constantSymbol.literalValue;
                     // Retrieve the field access expression's value.
-                    constantValueChecker.checkValue(fieldAccessExpr.pos, fieldAccessExpr.expr, fieldAccessExpr.field,
-                            mapLiteral);
+                    constantValueChecker.checkValue( fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
                 }
             }
         }

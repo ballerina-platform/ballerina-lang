@@ -252,8 +252,7 @@ public class CompilerDriver {
     private boolean checkNextPhase(CompilerPhase nextPhase) {
         return nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
-                nextPhase == CompilerPhase.DESUGAR ||
-                nextPhase == CompilerPhase.CODE_GEN;
+                nextPhase == CompilerPhase.DESUGAR;
     }
 
     private BLangPackage getBuiltInPackage() {

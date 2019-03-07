@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * @since 0.990.4
@@ -44,8 +43,7 @@ public class ConstantValueChecker extends BLangNodeVisitor {
 
     private BLangDiagnosticLog dlog;
 
-    private DiagnosticPos pos;
-    private BLangExpression reference;
+    private BLangExpression referenceExpression;
     private BLangIdentifier keyIdentifier;
 
 
@@ -63,10 +61,8 @@ public class ConstantValueChecker extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    void checkValue(DiagnosticPos pos, BLangExpression reference, BLangIdentifier keyIdentifier,
-                    BLangRecordLiteral mapLiteral) {
-        this.pos = pos;
-        this.reference = reference;
+    void checkValue(BLangExpression referenceExpression, BLangIdentifier keyIdentifier, BLangRecordLiteral mapLiteral) {
+        this.referenceExpression = referenceExpression;
         this.keyIdentifier = keyIdentifier;
 
         mapLiteral.accept(this);
@@ -76,15 +72,15 @@ public class ConstantValueChecker extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         // Iterate through all key-value pairs in the record literal.
         for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-
-            // Todo - Add negative tests for non literal keys
             //  Get the key.
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
+
             // If the key is equal to the value of the keyIdentifier, that means the key which we are looking for is
             // in the record literal.
             if (!key.equals(keyIdentifier.value)) {
                 continue;
             }
+
             // Since we are looking for a literal which can be used as at compile time, it should be a literal.
             NodeKind nodeKind = keyValuePair.valueExpr.getKind();
             if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
@@ -99,11 +95,11 @@ public class ConstantValueChecker extends BLangNodeVisitor {
                 }
             }
 
-            // Todo - Log error?
             throw new RuntimeException("unsupported node kind");
         }
+
         // If this line is reached, that means the key haven't been found. In that case, log a compilation error.
-        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, reference);
+        dlog.error(keyIdentifier.pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, referenceExpression);
     }
 
     @Override
@@ -113,21 +109,23 @@ public class ConstantValueChecker extends BLangNodeVisitor {
             // Todo - Add negative tests for non literal keys
             //  Get the key.
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
+
             // If the key is equal to the value of the keyIdentifier, that means the key which we are looking for is
             // in the record literal.
             if (!key.equals(keyIdentifier.value)) {
                 continue;
             }
+
             // Since we are looking for a literal which can be used as at compile time, it should be a literal.
             NodeKind nodeKind = keyValuePair.valueExpr.getKind();
             if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
                     nodeKind == NodeKind.RECORD_LITERAL_EXPR || nodeKind == NodeKind.CONSTANT_REF) {
                 return;
             }
-            // Todo - Log error?
+
             throw new RuntimeException("unsupported node kind");
         }
         // If this line is reached, that means the key haven't been found. In that case, log a compilation error.
-        dlog.error(pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, reference);
+        dlog.error(keyIdentifier.pos, DiagnosticCode.KEY_NOT_FOUND, keyIdentifier, referenceExpression);
     }
 }

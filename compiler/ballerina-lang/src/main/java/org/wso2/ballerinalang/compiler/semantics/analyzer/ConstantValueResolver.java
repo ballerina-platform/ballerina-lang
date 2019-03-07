@@ -34,8 +34,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
-    private BLangIdentifier keyIdentifier;
 
+    private BLangIdentifier key;
     private BLangExpression result;
 
     private ConstantValueResolver(CompilerContext context) {
@@ -50,10 +50,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangExpression getValue(BLangIdentifier keyIdentifier, BLangMapLiteral mapLiteral) {
+    public BLangExpression getValue(BLangIdentifier key, BLangMapLiteral mapLiteral) {
         this.result = null;
 
-        this.keyIdentifier = keyIdentifier;
+        this.key = key;
 
         mapLiteral.accept(this);
 
@@ -66,9 +66,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
             //  Get the key.
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
-            // If the key is equal to the value of the keyIdentifier, that means the key which we are looking for is
+            // If the key is equal to the value of the key, that means the key which we are looking for is
             // in the record literal.
-            if (!key.equals(keyIdentifier.value)) {
+            if (!key.equals(this.key.value)) {
                 continue;
             }
             // Since we are looking for a literal which can be used as at compile time, it should be a literal.
@@ -80,7 +80,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
             throw new RuntimeException("unsupported node kind");
         }
-        // If this line is reached, that means there is an issue in constant value type checker.
+        // If this line is reached, that means there is an issue in ConstantValueChecker.
         throw new RuntimeException("constant key not found");
     }
 }

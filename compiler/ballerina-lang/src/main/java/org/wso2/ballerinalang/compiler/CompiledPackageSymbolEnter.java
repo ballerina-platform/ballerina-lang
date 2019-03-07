@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -774,7 +775,7 @@ public class CompiledPackageSymbolEnter {
             MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[constantValueCPEntry];
             mapCPEntry.setConstantSymbol(constantSymbol);
 
-            BLangRecordLiteral.BLangMapLiteral mapLiteral = readConstantValueMap(dataInStream, valueType);
+            BLangMapLiteral mapLiteral = readConstantValueMap(dataInStream, valueType);
 
             if (mapCPEntry.literalValue == null) {
                 // Read the map literal.
@@ -860,8 +861,7 @@ public class CompiledPackageSymbolEnter {
         return literal;
     }
 
-    private BLangRecordLiteral.BLangMapLiteral readConstantValueMap(DataInputStream dataInStream, BType type)
-            throws IOException {
+    private BLangMapLiteral readConstantValueMap(DataInputStream dataInStream, BType type) throws IOException {
 
         LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
 
@@ -889,7 +889,7 @@ public class CompiledPackageSymbolEnter {
 
                 MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[valueCPEntryIndex];
 
-                BLangRecordLiteral.BLangMapLiteral recordLiteral = readConstantValueMap(dataInStream, valueType);
+                BLangMapLiteral recordLiteral = readConstantValueMap(dataInStream, valueType);
 
                 if (isConstRef) {
                     BLangConstRef constRef = new BLangConstRef(mapCPEntry.getConstantSymbol());
