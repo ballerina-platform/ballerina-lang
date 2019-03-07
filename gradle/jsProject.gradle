@@ -12,6 +12,6 @@ task npmInstall(type: Exec) {
     }
 }
 
-build {
+assemble {
     dependsOn npmInstall
 }

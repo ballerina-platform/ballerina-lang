@@ -179,4 +179,13 @@ public class RepoUtils {
     public static boolean isReservedOrgName(String orgName) {
         return orgName.equals(BALLERINA_ORG) || orgName.equals(BALLERINAX_ORG);
     }
+
+    /**
+     * Check if ballerina version is from a stable release or a nightly build.
+     *
+     * @return True if ballerina version is from a nightly build, else false.
+     */
+    public static boolean isANightlyBuild() {
+        return getBallerinaVersion().contains("SNAPSHOT");
+    }
 }

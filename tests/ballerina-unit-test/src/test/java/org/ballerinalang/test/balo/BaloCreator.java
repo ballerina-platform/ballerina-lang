@@ -25,8 +25,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Class containing utility methods for creating BALO.
@@ -34,8 +36,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
  * @since 0.975.0
  */
 public class BaloCreator {
-
-    private static final String TARGET = "target";
 
     /**
      * Generates BALO from the provided package and copy it to the ballerina.home directory.
@@ -46,6 +46,8 @@ public class BaloCreator {
      * @throws IOException If any error occurred while reading the source files
      */
     private static void create(Path projectPath, String packageId, String orgName) throws IOException {
+        String buildFolder = Paths.get(System.getProperty(USER_DIR))
+                .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
         projectPath = Paths.get("src", "test", "resources").resolve(projectPath);
 
@@ -55,12 +57,12 @@ public class BaloCreator {
         BFileUtil.delete(projectPath.resolve(baloPath).resolve(DOT_BALLERINA_REPO_DIR_NAME));
 
         // compile and create the balo
-        BuilderUtils.compileWithTestsAndWrite(projectPath, packageId, TARGET + "/" + BALLERINA_HOME_LIB + "/", false,
-                                              true, false, true, true);
+        BuilderUtils.compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/",
+                false, true, false, true, true);
 
         // copy the balo to the temp-ballerina-home/libs/
-        BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
-        BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(TARGET, BALLERINA_HOME_LIB));
+        BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
+        BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(buildFolder, BALLERINA_HOME_LIB));
     }
 
     /**
@@ -84,6 +86,8 @@ public class BaloCreator {
      * @param pkgName   package name.
      */
     public static void clearPackageFromRepository(String orgName, String pkgName) {
-        BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, pkgName));
+        String buildFolder = Paths.get(System.getProperty(USER_DIR))
+                .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
+        BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, pkgName));
     }
 }

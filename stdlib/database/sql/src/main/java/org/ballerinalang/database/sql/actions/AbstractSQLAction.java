@@ -18,6 +18,8 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDataIterator;
@@ -27,13 +29,13 @@ import org.ballerinalang.database.table.BCursorTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -91,16 +93,13 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 
 /**
- * {@code AbstractSQLAction} is the base class for all SQL Action.
+ * {@code AbstractSQLAction} is the base class for all SQL remote functions.
  *
  * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private Calendar utcCalendar;
-    private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
-            Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
-    private static final String MYSQL = "mysql";
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
@@ -116,7 +115,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
-            createProcessedStatement(conn, stmt, generatedParams);
+            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             rs = stmt.executeQuery();
             TableResourceManager rm = new TableResourceManager(conn, stmt, true);
             List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
@@ -136,27 +135,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    protected void executeUpdate(Context context, SQLDatasource datasource, String query, BValueArray parameters) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        boolean isInTransaction = context.isInTransaction();
-        try {
-            BValueArray generatedParams = constructParameters(context, parameters);
-            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
-            String processedQuery = createProcessedQueryString(query, generatedParams);
-            stmt = conn.prepareStatement(processedQuery);
-            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
-            int count = stmt.executeUpdate();
-            context.setReturnValues(new BInteger(count));
-        } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
-        } finally {
-            SQLDatasourceUtils.cleanupResources(stmt, conn, !isInTransaction);
-        }
-    }
-
     protected void executeUpdateWithKeys(Context context, SQLDatasource datasource, String query,
-                                         BValueArray keyColumns, BValueArray parameters) {
+            BValueArray keyColumns, BValueArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -178,24 +158,20 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else {
                 stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             }
-            createProcessedStatement(conn, stmt, generatedParams);
+            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             int count = stmt.executeUpdate();
-            BInteger updatedCount = new BInteger(count);
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
-            BValueArray generatedKeys;
+            BMap generatedKeys;
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             } else {
-                generatedKeys = new BValueArray(BTypes.typeString);
+                generatedKeys = new BMap();
             }
-            BValueArray tuple = new BValueArray(executeUpdateWithKeysTupleType);
-            tuple.add(0, updatedCount);
-            tuple.add(1, generatedKeys);
-            context.setReturnValues(tuple);
+            context.setReturnValues(createResultRecord(context, count, generatedKeys));
         } catch (SQLException e) {
-            throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
+            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             SQLDatasourceUtils.cleanupResources(rs, stmt, conn, !isInTransaction);
         }
@@ -254,10 +230,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         BValueArray bTables = new BValueArray(returnedTableType);
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
-        if (databaseProductName.contains(MYSQL) && (structTypes != null && structTypes.size() > 1)) {
+        if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
+                && (structTypes != null && structTypes.size() > 1)) {
             throw new BallerinaException(
-                    "Retrieving result sets from stored procedures returning more than one result set, is not "
-                            + "supported");
+                "Retrieving result sets from stored procedures returning more than one result set, is not supported");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new BallerinaException(
                     "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
@@ -289,7 +265,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 for (int index = 0; index < paramArrayCount; index++) {
                     BValueArray params = (BValueArray) parameters.getRefValue(index);
                     BValueArray generatedParams = constructParameters(context, params);
-                    createProcessedStatement(conn, stmt, generatedParams);
+                    createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
                     stmt.addBatch();
                 }
             } else {
@@ -301,11 +277,15 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             }
         } catch (BatchUpdateException e) {
             if (!isInTransaction) {
-                conn.rollback();
+                if (conn != null) {
+                    conn.rollback();
+                }
             }
             updatedCount = e.getUpdateCounts();
         } catch (SQLException e) {
-            conn.rollback();
+            if (conn != null) {
+                conn.rollback();
+            }
             throw new BallerinaException("execute batch update failed: " + e.getMessage(), e);
         } finally {
             SQLDatasourceUtils.cleanupResources(stmt, conn, !isInTransaction);
@@ -432,7 +412,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else if (query.charAt(i) == '\"') {
                 doubleQuoteExists = !doubleQuoteExists;
             } else if (query.charAt(i) == '?' && !(doubleQuoteExists || singleQuoteExists)) {
-                result.append(query.substring(0, i));
+                result.append(query, 0, i);
                 result.append(this.generateQuestionMarks(count));
                 end = result.length() + 1;
                 if (i + 1 < n) {
@@ -458,7 +438,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,
             boolean loadToMemory) throws SQLException {
         PreparedStatement stmt;
-        boolean mysql = datasource.getDatabaseProductName().contains("mysql");
+        boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseNames.MYSQL);
         /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
            Following properties are set to stream the results back one row at a time.*/
         if (mysql && !loadToMemory) {
@@ -478,7 +458,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private CallableStatement getPreparedCall(Connection conn, SQLDatasource datasource, String query,
             BValueArray parameters) throws SQLException {
         CallableStatement stmt;
-        boolean mysql = datasource.getDatabaseProductName().contains("mysql");
+        boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseNames.MYSQL);
         if (mysql) {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
@@ -492,54 +472,52 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return stmt;
     }
 
-    private BValueArray getGeneratedKeys(ResultSet rs) throws SQLException {
-        BValueArray generatedKeys = new BValueArray(BTypes.typeString);
+    private BMap getGeneratedKeys(ResultSet rs) throws SQLException {
+        BMap<String, BValue> generatedKeys = new BMap<>(BTypes.typeAnydata);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
-        String value;
+        BValue value;
+        String columnName;
         BigDecimal bigDecimal;
         for (int i = 1; i <= columnCount; i++) {
             columnType = metaData.getColumnType(i);
+            columnName = metaData.getColumnLabel(i);
             switch (columnType) {
             case Types.INTEGER:
             case Types.TINYINT:
             case Types.SMALLINT:
-                value = Integer.toString(rs.getInt(i));
+                value = new BInteger(rs.getInt(i));
                 break;
             case Types.DOUBLE:
-                value = Double.toString(rs.getDouble(i));
+                value = new BFloat(rs.getDouble(i));
                 break;
             case Types.FLOAT:
-                value = Float.toString(rs.getFloat(i));
+                value = new BFloat(rs.getFloat(i));
                 break;
             case Types.BOOLEAN:
             case Types.BIT:
-                value = Boolean.toString(rs.getBoolean(i));
+                value = new BBoolean(rs.getBoolean(i));
                 break;
             case Types.DECIMAL:
             case Types.NUMERIC:
                 bigDecimal = rs.getBigDecimal(i);
                 if (bigDecimal != null) {
-                    value = bigDecimal.toPlainString();
+                    value = new BDecimal(bigDecimal);
                 } else {
                     value = null;
                 }
                 break;
             case Types.BIGINT:
-                value = Long.toString(rs.getLong(i));
+                value = new BInteger(rs.getLong(i));
                 break;
             default:
-                value = rs.getString(i);
+                value = new BString(rs.getString(i));
                 break;
             }
-            generatedKeys.add(i - 1, value);
+            generatedKeys.put(columnName, value);
         }
         return generatedKeys;
-    }
-
-    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BValueArray param) {
-        createProcessedStatement(conn, stmt, param, null);
     }
 
     private void createProcessedStatement(Connection conn, PreparedStatement stmt, BValueArray params,
@@ -929,7 +907,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // Current result is a ResultSet
                 result = stmt.getResultSet();
                 resultSets.add(result);
-                if (databaseProductName.contains(MYSQL)) {
+                if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)) {
                     // TODO: "mysql" equality condition is part of the temporary fix to support returning the result
                     // set in the case of stored procedures returning only one result set in MySQL. Refer
                     // ballerina-platform/ballerina-lang#8643
@@ -994,5 +972,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             }
         }
         return direction;
+    }
+
+    private static BMap<String, BValue> createResultRecord(Context context, int count, BMap keyValues) {
+        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
+        StructureTypeInfo resultRecordInfo = sqlPackageInfo.getStructInfo(Constants.SQL_UPDATE_RESULT);
+        BMap<String, BValue> resultRecord = BLangVMStructs.createBStruct(resultRecordInfo, count, keyValues);
+        resultRecord.attemptFreeze(new BVM.FreezeStatus(BVM.FreezeStatus.State.FROZEN));
+        return resultRecord;
     }
 }
