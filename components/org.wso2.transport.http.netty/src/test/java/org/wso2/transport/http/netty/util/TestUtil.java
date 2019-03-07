@@ -88,6 +88,8 @@ public class TestUtil {
     public static final int WEBSOCKET_REMOTE_SERVER_PORT = 9010;
     public static final int WEBSOCKET_TEST_IDLE_TIMEOUT = 30;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
+    public static final long SSL_HANDSHAKE_TIMEOUT = 20;
+    public static final int SSL_SESSION_TIMEOUT = 30;
     public static final String TEST_HOST = "localhost";
     public static final String BOGUS_HOST = "bogus_hostname";
     public static final String TEST_SERVER = "test-server";

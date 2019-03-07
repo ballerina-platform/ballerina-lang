@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
@@ -67,6 +68,7 @@ import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_ACCESS_LOG_HANDLER;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER;
 import static org.wso2.transport.http.netty.contract.Constants.TRACE_LOG_DOWNSTREAM;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.setSslHandshakeTimeOut;
 
 /**
  * A class that responsible for build server side channels.
@@ -116,10 +118,12 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
                     ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
                     engine.setOcspResponse(response.getEncoded());
+                    setSslHandshakeTimeOut(sslConfig, sslHandler);
                     ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
                 } else {
-                    serverPipeline.addLast(keystoreHttp2SslContext.newHandler(ch.alloc()),
-                                           new Http2PipelineConfiguratorForServer(this));
+                    SslHandler sslHandler = keystoreHttp2SslContext.newHandler(ch.alloc());
+                    setSslHandshakeTimeOut(sslConfig, sslHandler);
+                    serverPipeline.addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
                 }
             } else {
                 configureH2cPipeline(serverPipeline);
@@ -148,26 +152,30 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
             throws CertificateVerificationException, KeyStoreException, IOException, CertificateException {
         SSLEngine sslEngine;
+        SslHandler sslHandler;
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();
 
             ReferenceCountedOpenSslContext context = sslHandlerFactory
                     .getServerReferenceCountedOpenSslContext(ocspStaplingEnabled);
-            SslHandler sslHandler = context.newHandler(ch.alloc());
+            sslHandler = context.newHandler(ch.alloc());
             sslEngine = sslHandler.engine();
 
             ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslEngine;
             engine.setOcspResponse(response.getEncoded());
+            setSslHandshakeTimeOut(sslConfig, sslHandler);
             ch.pipeline().addLast(sslHandler);
         } else {
             if (sslConfig.getServerKeyFile() != null) {
-                SslHandler sslHandler = certAndKeySslContext.newHandler(ch.alloc());
+                sslHandler = certAndKeySslContext.newHandler(ch.alloc());
                 sslEngine = sslHandler.engine();
                 sslHandlerFactory.addCommonConfigs(sslEngine);
             } else {
                 sslEngine = sslHandlerFactory.buildServerSSLEngine(keystoreSslContext);
             }
-            serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+            sslHandler = new SslHandler(sslEngine);
+            setSslHandshakeTimeOut(sslConfig, sslHandler);
+            serverPipeline.addLast(Constants.SSL_HANDLER, sslHandler);
             if (validateCertEnabled) {
                 serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                         new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
