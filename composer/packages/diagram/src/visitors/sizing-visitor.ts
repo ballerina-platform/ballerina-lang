@@ -1,7 +1,7 @@
 import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
-    Foreach, Function, Identifier, If, Invocation, Lambda, Literal,
+    Foreach, Function as BalFunction, Identifier, If, Invocation, Lambda, Literal,
     Match, MatchStaticPatternClause, ObjectType, Panic, RecordVariable,
     Return, Service, TupleVariable, TypeDefinition, UnionTypeNode, UserDefinedType, ValueType,
     Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
@@ -28,6 +28,7 @@ function sizeStatement(node: ASTNode) {
     viewState.bBox.h = config.statement.height;
     viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
+    viewState.bBox.labelWidth = label.labelWidth;
     // Check if statement is action invocation.
     const action = ASTUtil.isActionInvocation(node);
     if (action) {
@@ -52,14 +53,22 @@ function sizeStatement(node: ASTNode) {
         viewState.bBox.w = 60;
     }
 
-    if (viewState.expanded) {
-        if (viewState.expandedSubTree) {
-            const expandedSubTree = viewState.expandedSubTree as Function;
+    if (viewState.expandContext) {
+        // add space for the expander
+        viewState.bBox.w += 10;
+        if (viewState.expandContext.expandedSubTree) {
+            const expandedSubTree = viewState.expandContext.expandedSubTree as BalFunction;
 
-            ASTUtil.traversNode(expandedSubTree, visitor);
+            ASTUtil.traversNode(expandedSubTree, visitor); // TODO: create a 'new Visitor()'
             if (expandedSubTree.body) {
-                const subTreeViewState = expandedSubTree.body.viewState;
-                viewState.bBox.h +=  (subTreeViewState.bBox.h + config.statement.expanded.header);
+                const subTreeViewState = expandedSubTree.body.viewState as BlockViewState;
+                const sizes = config.statement.expanded;
+                viewState.bBox.h = (subTreeViewState.bBox.h + sizes.header + sizes.footer);
+                viewState.bBox.leftMargin = subTreeViewState.bBox.leftMargin;
+                if (subTreeViewState.bBox.w > viewState.bBox.w) {
+                    viewState.bBox.w = subTreeViewState.bBox.w;
+                }
+                viewState.bBox.w += sizes.offset + sizes.margin;
             }
         }
     }
@@ -188,7 +197,7 @@ let returnStatements: Return[] = [];
 export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
-    beginVisitFunction(node: Function) {
+    beginVisitFunction(node: BalFunction) {
         const viewState: FunctionViewState = node.viewState;
         if (node.VisibleEndpoints && !node.lambda) {
             endpointHolder = node.VisibleEndpoints;
@@ -264,7 +273,7 @@ export const visitor: Visitor = {
     },
 
     // tslint:disable-next-line:ban-types
-    endVisitFunction(node: Function) {
+    endVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
@@ -492,7 +501,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         let height = config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
-        node.resources.forEach((element: Function) => {
+        node.resources.forEach((element: BalFunction) => {
             viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
                 ? viewState.bBox.w : element.viewState.bBox.w;
             height += element.viewState.bBox.h;
@@ -507,7 +516,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         let height = config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
-        (node.typeNode as ObjectType).functions.forEach((element: Function) => {
+        (node.typeNode as ObjectType).functions.forEach((element: BalFunction) => {
             viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
                 ? viewState.bBox.w : element.viewState.bBox.w;
             height += element.viewState.bBox.h;

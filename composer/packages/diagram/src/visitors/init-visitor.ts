@@ -1,9 +1,10 @@
 import {
-    Assignment, ASTNode, ASTUtil, Block,
+    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block,
     ExpressionStatement, Function, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
+import { ExpandContext } from "../view-model/expand-context";
 import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
 import { WorkerSendViewState } from "../view-model/worker-send";
@@ -60,6 +61,10 @@ export const visitor: Visitor = {
 
     endVisitExpressionStatement(node: ExpressionStatement) {
         initStatement(node);
+        const viewState = node.viewState as StmntViewState;
+        if (ASTKindChecker.isInvocation(node.expression) && !viewState.expandContext) {
+            viewState.expandContext = new ExpandContext(node.expression);
+        }
     },
 
     endVisitVariableDef(node: VariableDef) {

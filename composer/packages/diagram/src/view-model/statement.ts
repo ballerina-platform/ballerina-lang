@@ -1,13 +1,11 @@
-import { ASTNode } from "@ballerina/ast-model";
+import { ExpandContext } from "./expand-context";
 import { ViewState } from "./view-state";
 
 export class StmntViewState extends ViewState {
     public isAction: boolean = false;
     public isReturn: boolean = false;
     public endpoint: ViewState = new ViewState();
-    public expanded: boolean = false;
-    public expandedSubTree: ASTNode | undefined = undefined;
-    public expandedSubTreeDocUri: string = "";
+    public expandContext: ExpandContext | undefined;
 
     constructor() {
         super();

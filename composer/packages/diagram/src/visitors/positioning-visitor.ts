@@ -1,12 +1,12 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
+    Function as BalFunction, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
     TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { BlockViewState } from "../view-model/block";
-import { CompilationUnitViewState, FunctionViewState, ViewState, StmntViewState } from "../view-model/index";
+import { CompilationUnitViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model/index";
 import { WorkerViewState } from "../view-model/worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -64,7 +64,7 @@ export const visitor: Visitor = {
     },
 
     // tslint:disable-next-line:ban-types
-    beginVisitFunction(node: Function) {
+    beginVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
@@ -151,14 +151,14 @@ export const visitor: Visitor = {
             elViewStatement.bBox.x = viewState.bBox.x;
             elViewStatement.bBox.y = viewState.bBox.y + elViewStatement.bBox.paddingTop + height;
             height += elViewStatement.bBox.h + elViewStatement.bBox.paddingTop;
-            if (elViewStatement.expanded) {
-                if (elViewStatement.expandedSubTree) {
-                    const expandedSubTree = elViewStatement.expandedSubTree as Function;
+            if (elViewStatement.expandContext) {
+                if (elViewStatement.expandContext.expandedSubTree) {
+                    const expandedSubTree = elViewStatement.expandContext.expandedSubTree as BalFunction;
                     if (expandedSubTree.body) {
                         const bodyViewState = expandedSubTree.body.viewState as BlockViewState;
                         bodyViewState.bBox.x = elViewStatement.bBox.x + config.statement.expanded.offset;
                         bodyViewState.bBox.y = elViewStatement.bBox.y + config.statement.expanded.header;
-                        ASTUtil.traversNode(expandedSubTree.body, visitor);
+                        ASTUtil.traversNode(expandedSubTree.body, visitor); // TODO create a 'new Visitor'
                     }
                 }
             }
@@ -201,7 +201,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         let y = viewState.bBox.y + config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
-        node.resources.forEach((element: Function) => {
+        node.resources.forEach((element: BalFunction) => {
             element.viewState.bBox.x = viewState.bBox.x;
             element.viewState.bBox.y = y;
             y += element.viewState.bBox.h;
@@ -214,7 +214,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         let y = viewState.bBox.y + config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
-        (node.typeNode as ObjectType).functions.forEach((element: Function) => {
+        (node.typeNode as ObjectType).functions.forEach((element: BalFunction) => {
             element.viewState.bBox.x = viewState.bBox.x;
             element.viewState.bBox.y = y;
             y += element.viewState.bBox.h;

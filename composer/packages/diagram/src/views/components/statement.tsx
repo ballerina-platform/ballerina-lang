@@ -1,5 +1,5 @@
 import {
-    Assignment, ASTKindChecker, ASTUtil, Break,
+    Assignment, ASTUtil, Break,
     CompoundAssignment, ExpressionStatement, Function as BallerinaFunction, Panic, VariableDef
 } from "@ballerina/ast-model";
 import * as React from "react";
@@ -24,38 +24,59 @@ export const Statement: React.StatelessComponent<{
         let fullText = (model) ? ASTUtil.genSource(model) : label;
         fullText = fullText.replace(/\/\/.*$/gm, "");
 
-        let shouldDrawExpander = false;
-        let expandedPosition;
-
-        if (ASTKindChecker.isExpressionStatement(model) && ASTKindChecker.isInvocation(model.expression)) {
-            shouldDrawExpander = true;
-        }
-
-        const expanderProps = {
-            position: model.position,
-            viewState,
-            x: viewState.bBox.x + config.statement.padding.left,
-            y: viewState.bBox.y + (viewState.bBox.h / 2) + 3,
-        };
-
         const statementProps = {
             className: "statement",
             fullText,
             target: model,
             text: label,
-            x: expanderProps.x + 20,
+            x: viewState.bBox.x + config.statement.padding.left,
             y: viewState.bBox.y + (viewState.bBox.h / 2),
         };
 
-        const expandedProps = {
-            bBox: {
-                h: viewState.bBox.h,
-                w: viewState.bBox.w,
-                x: viewState.bBox.x + config.statement.expanded.offset,
-                y: viewState.bBox.y,
-            }
-        };
+        let expander;
+        let expandedFunction;
 
+        if (viewState.expandContext && !viewState.expandContext.expandedSubTree) {
+            const expanderProps = {
+                expandContext: viewState.expandContext,
+                position: viewState.expandContext.expandableNode.position!,
+                x: viewState.bBox.x + viewState.bBox.labelWidth + 10,
+                y: viewState.bBox.y + (viewState.bBox.h / 2) + 2,
+            };
+
+            expander = <FunctionExpander {...expanderProps}/>;
+        }
+
+        if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
+            if (!viewState.isAction && !viewState.hiddenBlock) {
+                const expandedBBox = {
+                    h: viewState.bBox.h,
+                    statement: {
+                        h: viewState.bBox.h,
+                        text: label,
+                        textWidth: viewState.bBox.labelWidth,
+                        x: viewState.bBox.x + config.statement.padding.left,
+                        y: viewState.bBox.y,
+                    },
+                    w: viewState.bBox.w + viewState.bBox.leftMargin,
+                    x: viewState.bBox.x + config.statement.expanded.offset,
+                    y: viewState.bBox.y,
+                };
+
+                const onClose = () => {
+                    if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
+                        viewState.expandContext.expandedSubTree = undefined;
+                    }
+                };
+
+                expandedFunction = <ExpandedFunction
+                    model={viewState.expandContext.expandedSubTree as BallerinaFunction}
+                    docUri={viewState.expandContext.expandedSubTreeDocUri}
+                    bBox={expandedBBox}
+                    onClose={onClose}
+                />;
+            }
+        }
         return (
             <g>
                 {viewState.hiddenBlock &&
@@ -75,17 +96,11 @@ export const Statement: React.StatelessComponent<{
                                 action={viewState.bBox.label}
                                 astModel={model}
                             />}
-                        {!viewState.isAction && !viewState.hiddenBlock && !viewState.expanded &&
+                        {!viewState.isAction && !viewState.hiddenBlock && !expandedFunction &&
                             <SourceLinkedLabel {...statementProps} />
                         }
-                        {!viewState.isAction && !viewState.hiddenBlock && !viewState.expanded &&
-                            <FunctionExpander {...expanderProps} />
-                        }
-                        {!viewState.isAction && !viewState.hiddenBlock &&
-                            viewState.expanded && viewState.expandedSubTree &&
-                            <ExpandedFunction model={viewState.expandedSubTree as BallerinaFunction}
-                                docUri={viewState.expandedSubTreeDocUri} bBox={expandedProps.bBox} />
-                        }
+                        { expander }
+                        { expandedFunction }
                     </g>
                 }
             </g>
