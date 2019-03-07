@@ -138,7 +138,7 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeStack = new Stack<>();
-        this.names = Names.getInstance(context); // TODO: 2/24/19 Validate
+        this.names = Names.getInstance(context);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -1783,15 +1783,23 @@ public class Types {
      * @param finiteType the finite type
      * @param targetType the target type
      * @return           a new finite type if at least one value in the value space of the specified finiteType is
-     *                      assignable to targetType, else semanticError
+     *                      assignable to targetType (the same if all are assignable), else semanticError
      */
     BType getTypeForFiniteTypeValuesAssignableToType(BFiniteType finiteType, BType targetType) {
+        // finiteType - type Foo "foo";
+        // targetType - type FooBar "foo"|"bar";
         if (isAssignable(finiteType, targetType)) {
             return finiteType;
         }
 
+        // Identify all the values from the value space of the finite type that are assignable to the target type.
+        // e.g., finiteType - type Foo "foo"|1 ;
         Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
-                .filter(expr -> isAssignable(expr.type, targetType) ||
+                .filter(
+                        // case I: targetType - string ("foo" is assignable to string)
+                        expr -> isAssignable(expr.type, targetType) ||
+                        // type FooVal "foo";
+                        // case II:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
                         (targetType.tag == TypeTags.UNION &&
                                  ((BUnionType) targetType).getMemberTypes().stream()
                                          .filter(memType -> memType.tag == TypeTags.FINITE)
@@ -1803,6 +1811,7 @@ public class Types {
             return symTable.semanticError;
         }
 
+        // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
                                                                 names.fromString("$anonType$" + finiteTypeCount++),
                                                                 finiteType.tsymbol.pkgID, null,
@@ -1824,14 +1833,19 @@ public class Types {
     BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType) {
         List<BType> intersection = new LinkedList<>();
 
+        // type FooOne "foo"|1;
+        // type FooBar "foo"|"bar";
+        // unionType - boolean|FooOne, targetType - boolean|FooBar
         unionType.getMemberTypes().forEach(memType -> {
             if (memType.tag == TypeTags.FINITE) {
+                // since "foo" of FooOne is assignable to FooBar, a new finite type of only "foo" would be returned
                 BType finiteTypeWithMatches = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) memType,
                                                                                          targetType);
                 if (finiteTypeWithMatches != symTable.semanticError) {
                     intersection.add(finiteTypeWithMatches);
                 }
             } else {
+                // boolean is assignable to boolean, thus boolean is added as a member type
                 if (isAssignable(memType, targetType)) {
                     intersection.add(memType);
                 }

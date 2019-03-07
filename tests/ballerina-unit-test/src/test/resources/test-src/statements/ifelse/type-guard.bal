@@ -810,6 +810,7 @@ function testTypeNarrowingForValueTypeAsFiniteType_2() returns boolean {
 const FIVE = 5.0;
 type FooBarTen "foo"|"bar"|10;
 type FloatFive FIVE;
+type IntTen 10;
 
 function testFiniteTypeAsBroaderTypeInStructurePositive() returns boolean {
     FooBarTen f = "bar";
@@ -827,6 +828,16 @@ function testFiniteTypeAsBroaderTypeInStructureNegative() returns boolean {
     any a = g;
     if (a is (string|int|xml, float, boolean)) {
         return true;
+    }
+    return false;
+}
+
+function testFiniteTypeReassignmentToBroaderType() returns boolean {
+    int i = 10;
+    if (i is FooBarTen) {
+        IntTen j = i; // assignment should not fail
+        int k = i;
+        return i == k;
     }
     return false;
 }

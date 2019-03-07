@@ -442,6 +442,12 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testFiniteTypeReassignmentToBroaderType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeReassignmentToBroaderType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
     public Object[][] finiteTypeAsBroaderTypesFunctions() {
         return new Object[][]{

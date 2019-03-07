@@ -2107,14 +2107,15 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        if (varRefExpr.lhsVar || !types.isValueType(genVarRefExpr.type)) {
+        if (varRefExpr.lhsVar ||
+                (!types.isValueType(genVarRefExpr.type) && !types.isValueType(genVarRefExpr.symbol.type))) {
             result = genVarRefExpr;
             return;
         }
 
-        // If the the variable is not used in lhs, and if the current type
+        // If the the variable is not used in lhs, and if the current type or original type
         // is a value type, then add a conversion if required. This is done
-        // to unbox a narrowed type.
+        // to unbox or box a narrowed type.
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
