@@ -1806,7 +1806,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
@@ -1892,7 +1892,7 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
             </modules>
         </profile>
@@ -1982,7 +1982,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-examples-test</module>
