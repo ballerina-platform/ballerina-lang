@@ -19,8 +19,6 @@ infrastructureConfig:
         type: SHELL
         phase: CREATE
         file: data-integration/provision-infrastructure-default.sh
-        inputParameters:
-          BallerinaVersion: "0.990.3"
       - name: destroy
         file: data-integration/destroy-cluster.sh
         type: SHELL
@@ -43,3 +41,5 @@ deploymentConfig:
         - name: 'default'
           type: SHELL
           file: product-scenarios/deployment-data.sh
+          inputParameters:
+            BallerinaVersion: "0.990.3"
