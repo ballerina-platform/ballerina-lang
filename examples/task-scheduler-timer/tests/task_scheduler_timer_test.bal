@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/task;
 import ballerina/test;
 
 any[] outputs = [];
