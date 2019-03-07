@@ -17,11 +17,13 @@ language: java
 sudo: required
 
 git:
-    quiet: true
+  quiet: true
 
-env:
-  - BUILD_TYPE=MAVEN
-  - BUILD_TYPE=GRADLE
+matrix:
+  include:
+    - env: BUILD_TYPE=MAVEN
+    - env: BUILD_TYPE=GRADLE
+  fast_finish: true
 
 services:
   - docker

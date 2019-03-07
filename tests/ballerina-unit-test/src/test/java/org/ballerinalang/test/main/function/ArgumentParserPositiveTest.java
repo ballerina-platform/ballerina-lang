@@ -91,8 +91,8 @@ public class ArgumentParserPositiveTest {
                                             Paths.get("test_main_with_xml_param.bal"), false, true);
         resetTempOut();
         BLangProgramRunner.runMainFunc(programFile, new String[]{"<book status=\"available\" count=\"5\"></book>"});
-        Assert.assertEquals(tempOutStream.toString(), "<book status=\"available\" count=\"5\"></book>", "string arg " +
-                "parsed as invalid XML");
+        Assert.assertTrue(tempOutStream.toString().contains("<book status=\"available\" count=\"5\"></book>"),
+                "string arg parsed as invalid XML");
     }
 
     @Test(dataProvider = "arrayValues")
@@ -154,11 +154,10 @@ public class ArgumentParserPositiveTest {
                                        new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
                                                "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
                                                "{ \"name\": \"Em\" }", "just", "the", "rest"});
-        Assert.assertEquals(tempOutStream.toString(),
+        Assert.assertTrue(tempOutStream.toString().contains(
                             "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, " +
-                                    "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, " +
-                                    "string rest args: just the rest ",
-                            "string args parsed as invalid args");
+                                    "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, "),
+                                    "string rest args: just the rest string args parsed as invalid args");
     }
 
     @Test
@@ -188,10 +187,9 @@ public class ArgumentParserPositiveTest {
                                                "{\"boolean\":false, \"test\":true}",
                                                "{\"test\":5, \"json\":{ \"name\": \"Maryam\" }}",
                                                "{\"test\": { \"name\": \"Maryam\" }, \"record\": {\"name\":\"Em\"}}"});
-        Assert.assertEquals(tempOutStream.toString(),
+        Assert.assertTrue(tempOutStream.toString().contains(
                             "integer: 120, string: Ballerina, float: 12.0, boolean: true, json: 5, " +
-                                    "Test Employee Name Field: Maryam",
-                            "string args parsed as invalid map args");
+                                    "Test Employee Name Field: Maryam"), "string args parsed as invalid map args");
     }
 
     @Test(dataProvider = "optionalParamArgAndResult")

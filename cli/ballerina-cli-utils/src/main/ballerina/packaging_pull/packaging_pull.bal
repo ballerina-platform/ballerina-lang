@@ -70,6 +70,7 @@ public function main(string... args) returns error? {
     string terminalWidth = args[8];
     string versionRange = args[9];
     isBuild = untaint boolean.convert(args[10]);
+    boolean nightlyBuild = untaint boolean.convert(args[11]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -82,7 +83,7 @@ public function main(string... args) returns error? {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-                return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth);
+                return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth, nightlyBuild);
             } else {
                 return createError("failed to resolve host : " + host + " with port " + port);
             }
@@ -93,7 +94,7 @@ public function main(string... args) returns error? {
         return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
-        return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth);
+        return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth, nightlyBuild);
     }
 }
 
@@ -106,9 +107,10 @@ public function main(string... args) returns error? {
 # + versionRange - Balo version range
 # + fileSeparator - System file separator
 # + terminalWidth - Width of the terminal
+# + nightlyBuild - Release is a nightly build
 # + return - Error if occurred, else nil
 function pullPackage(http:Client httpEndpoint, string url, string pkgPath, string dirPath, string versionRange,
-                     string fileSeparator, string terminalWidth) returns error? {
+                     string fileSeparator, string terminalWidth, boolean nightlyBuild) returns error? {
     http:Client centralEndpoint = httpEndpoint;
 
     string fullPkgPath = pkgPath;
@@ -186,12 +188,21 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
             var destChannelClose = wch.close();
             if (destChannelClose is error) {
-                return createError("error occured while closing the channel: " + destChannelClose.reason());
+                return createError("error occurred while closing the channel: " + destChannelClose.reason());
             } else {
                 var srcChannelClose = sourceChannel.close();
                 if (srcChannelClose is error) {
-                    return createError("error occured while closing the channel: " + srcChannelClose.reason());
+                    return createError("error occurred while closing the channel: " + srcChannelClose.reason());
                 } else {
+                    if (nightlyBuild) {
+                        // If its a nightly build tag the file as a module from nightly
+                        internal:Path sourcePath = new(destDirPath);
+                        internal:Path metaFilePath = sourcePath.resolve("nightly.build");
+                        var createFileResult = metaFilePath.createFile();
+                        if (createFileResult is error) {
+                            return createError("Error occurred while creating nightly.build file.");
+                        }
+                    }
                     return ();
                 }
             }
