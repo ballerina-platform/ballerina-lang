@@ -70,7 +70,7 @@ public class InitCommand implements BLauncherCmd {
     private static boolean isDirEmpty(final Path directory) throws IOException {
 
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            //Check whether the OS is Mac OS and the folder contains .DS_Store file
+            //Check whether the OS is MacOS and the folder contains .DS_Store file
             Iterator pathIterator = dirStream.iterator();
             if (pathIterator.hasNext()) {
 
@@ -81,7 +81,6 @@ public class InitCommand implements BLauncherCmd {
                     return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("mac") &&
                             !pathIterator.hasNext();
                 } else {
-
                     return false;
                 }
 
@@ -180,8 +179,7 @@ public class InitCommand implements BLauncherCmd {
                         do {
                             out.print("Module for the service: (no module) ");
                             packageName = scanner.nextLine().trim();
-                        }
-                        while (!validatePkgName(projectPath, packageName));
+                        } while (!validatePkgName(projectPath, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
@@ -196,8 +194,7 @@ public class InitCommand implements BLauncherCmd {
                         do {
                             out.print("Module for the main: (no module) ");
                             packageName = scanner.nextLine().trim();
-                        }
-                        while (!validatePkgName(projectPath, packageName));
+                        } while (!validatePkgName(projectPath, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
@@ -214,8 +211,7 @@ public class InitCommand implements BLauncherCmd {
                     } else {
                         out.println("Invalid input");
                     }
-                }
-                while (!validInput);
+                } while (!validInput);
 
                 out.print("\n");
             } else {
@@ -310,7 +306,6 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-
     }
 
     /**
@@ -318,7 +313,6 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void setSelfCmdParser(CommandLine selfCmdParser) {
-
     }
 
     /**
@@ -328,7 +322,6 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid version, else false.
      */
     private boolean validateVersion(PrintStream out, String versionAsString) {
-
         String semverRegex = "((?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*))";
         boolean matches = Pattern.matches(semverRegex, versionAsString);
         if (!matches) {
@@ -338,7 +331,6 @@ public class InitCommand implements BLauncherCmd {
     }
 
     private String guessOrgName() {
-
         String guessOrgName = System.getProperty("user.name");
         if (guessOrgName == null) {
             guessOrgName = "my_org";
@@ -355,7 +347,6 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid org-name, else false.
      */
     private boolean validateOrgName(String orgName) {
-
         if (RepoUtils.isReservedOrgName(orgName)) {
             out.println("--Invalid organization name: \'" + orgName + "\'. 'ballerina' and 'ballerinax' are reserved " +
                     "organization names that are used by Ballerina");
@@ -377,7 +368,6 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid module name, else false.
      */
     private boolean validatePkgName(Path projectPath, String pkgName) {
-
         if (validateExistingModules(projectPath, pkgName)) {
             return false;
         }
@@ -399,7 +389,6 @@ public class InitCommand implements BLauncherCmd {
      * @return project root
      */
     private Path findProjectRoot(Path projectDir) {
-
         Path path = projectDir.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
         if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
             return projectDir;
@@ -419,7 +408,6 @@ public class InitCommand implements BLauncherCmd {
      * @return if the module name already exists
      */
     private boolean validateExistingModules(Path projectPath, String moduleNames) {
-
         if (alreadyInitializedProject) {
             List<Path> modules = new ArrayList<>();
             try {
