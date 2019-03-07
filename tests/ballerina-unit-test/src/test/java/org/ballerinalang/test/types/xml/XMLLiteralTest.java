@@ -244,6 +244,9 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(), "<_foo id=\"hello 5\">hello</_foo>");
+
+        Assert.assertTrue(returns[3] instanceof BXML);
+        Assert.assertEquals(returns[3].stringValue(), "<_-foo id=\"hello 5\">hello</_-foo>");
     }
 
     @Test

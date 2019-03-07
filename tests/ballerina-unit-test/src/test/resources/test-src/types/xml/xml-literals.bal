@@ -138,9 +138,10 @@ function testIvalidAttributeName() returns (xml) {
     return x1;
 }
 
-function testXMLStartTag() returns (xml, xml, xml) {
+function testXMLStartTag() returns (xml, xml, xml, xml) {
     xml x1 = xml `<fname>John</fname>`;
     xml x2 = xml `<Country>US</Country>`;
     xml x3 = xml `<_foo id="hello {{ 3 + 6 / 3}}" >hello</_foo>`;
-    return (x1, x2, x3);
+    xml x4 = xml `<_-foo id="hello {{ 3 + 6 / 3}}" >hello</_-foo>`;
+    return (x1, x2, x3, x4);
 }
