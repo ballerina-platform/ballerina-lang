@@ -215,6 +215,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Server upgrade event received");
         } else if (evt instanceof SslCloseCompletionEvent) {
             LOG.debug("SSL close completion event received");
+            setConnectedState(false);
         } else if (evt instanceof ChannelInputShutdownReadComplete) {
             // When you try to read from a channel which has already been closed by the peer,
             // 'java.io.IOException: Connection reset by peer' is thrown and it is a harmless exception.
