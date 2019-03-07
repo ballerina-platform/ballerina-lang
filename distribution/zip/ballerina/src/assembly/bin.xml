@@ -128,6 +128,7 @@
                 <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
+                <include>org.ballerinalang:ballerina-nats:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
@@ -186,6 +187,8 @@
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
                 <include>com.jcraft:jzlib</include>
+                <include>io.nats:java-nats-streaming</include>
+                <include>io.nats:jnats</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>

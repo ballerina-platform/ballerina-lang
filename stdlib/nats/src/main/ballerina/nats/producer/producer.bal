@@ -21,12 +21,12 @@ public type Producer client object {
 
     # Creates a new producer. A connection will be created if a refernece to a connection is not provided.
     #
-    # + config - An already established connection or configuration to create a new connection.
-    public function __init(ConnectionConfig|Connection config) {
-        if (config is Connection) {
-            self.connection = config;
-        } else if (config is ConnectionConfig) {
-            self.connection = new Connection(config);
+    # + c - An already established connection or configuration to create a new connection.
+    public function __init(ConnectionConfig|Connection c) {
+        if (c is Connection) {
+            self.connection = c;
+        } else if (c is ConnectionConfig) {
+            self.connection = new Connection(c);
         }
     }
 

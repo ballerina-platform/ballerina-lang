@@ -21,6 +21,8 @@ package org.ballerinalang.nats.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
@@ -32,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents the utils which would be used for NATS.
+ * Represents the utils which would be used for NATS_URL_PREFIX.
  */
 public class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
@@ -64,5 +66,24 @@ public class Utils {
                 Constants.IO_ERROR);
         ioErrorRecord.put(MESSAGE, new BString(errMsg));
         return BLangVMErrors.createError(context, true, BTypes.typeError, errCode, ioErrorRecord);
+    }
+
+    /**
+     * Extract NATS_URL_PREFIX Resource from the Ballerina Service.
+     *
+     * @param service Service instance.
+     * @return extracted resource.
+     */
+    public static Resource extractNATSResource(Service service) {
+        Resource[] resources = service.getResources();
+        if (resources.length == 0) {
+            throw new BallerinaException("No resources found to handle the NATS_URL_PREFIX message in " +
+                    service.getName());
+        }
+        if (resources.length > 1) {
+            throw new BallerinaException("More than one resources found in NATS_URL_PREFIX service " + service.getName()
+                    + ". NATS_URL_PREFIX Service should only have one resource");
+        }
+        return resources[0];
     }
 }

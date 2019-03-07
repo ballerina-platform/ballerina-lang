@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.nativeimpl.Constants;
@@ -39,34 +40,47 @@ import org.ballerinalang.nats.nativeimpl.Utils;
 import java.io.IOException;
 
 /**
- * Initialize the topic producer.
+ * Establish a connection with NATS server.
  *
- * @since 0.966
+ * @since 0.995
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "nats",
         functionName = "init",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
+        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ConnectionConfig",
+                structPackage = "ballerina/nats")},
         isPublic = true
 )
 public class Init implements NativeCallableUnit {
 
+    private static final String HOST = "host";
+    private static final String PORT = "port";
+    private static final String CLUSTER_ID = "clusterId";
+    private static final String CLIENT_ID = "clientId";
+    private static final String NATS_URL_PREFIX = "nats://";
+    private static final String PROTOCOL_PREFIX = ":";
+
     /**
-     * Initializes NATS streaming connection.
+     * Initializes NATS_URL_PREFIX streaming connection.
      *
-     * @param serverConfig Holds values related to establishing a NATS connection.
+     * @param serverConfig Holds values related to establishing a NATS_URL_PREFIX connection.
      * @return Streaming connection created.
+     * @throws IOException if a failure occurs while establishing a connection.
      */
     private StreamingConnection connect(BMap<String, BValue> serverConfig) throws IOException, InterruptedException {
-        String host = ((BString) serverConfig.get("host")).value();
-        int port = ((BInteger) serverConfig.get("port")).value().intValue();
-        String clusterId = ((BString) serverConfig.get("clusterId")).value();
-        String clientId = ((BString) serverConfig.get("clientId")).value();
-        Options.Builder opts = new Options.Builder().natsUrl("nats://" + host + ":" + port);
+        String host = ((BString) serverConfig.get(HOST)).value();
+        int port = ((BInteger) serverConfig.get(PORT)).value().intValue();
+        String clusterId = ((BString) serverConfig.get(CLUSTER_ID)).value();
+        String clientId = ((BString) serverConfig.get(CLIENT_ID)).value();
+        Options.Builder opts = new Options.Builder().natsUrl(NATS_URL_PREFIX + host + PROTOCOL_PREFIX + port);
         return NatsStreaming.connect(clusterId, clientId, opts.build());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
@@ -75,15 +89,18 @@ public class Init implements NativeCallableUnit {
             StreamingConnection connection = connect(serverConfig);
             connectorEndpointStruct.addNativeData(Constants.NATS_CONNECTION, connection);
         } catch (IOException e) {
-            Utils.throwBallerinaException("Error occurred while establishing connection.", context, e);
+            Utils.throwBallerinaException("Error occurred while establishing connection", context, e);
         } catch (InterruptedException ignore) {
-            //ignore
+            // ignore
             Thread.currentThread().interrupt();
         } catch (Throwable e) {
-            Utils.throwBallerinaException("Could not establish connection.", context, e);
+            Utils.throwBallerinaException("Could not establish connection", context, e);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isBlocking() {
         return true;

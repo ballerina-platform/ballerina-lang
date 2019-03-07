@@ -14,14 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/nats;
+# Represent a message which will be pushed from the NATS server to the consumer.
+public type Message object {
+    private string content = "";
 
-public function testBasicPublish() returns boolean {
-    nats:Producer producer = new({ host: "localhost", port: 4222 });
-    var result = producer->send("SampleSubject", "SampleTextMessage");
-    if (result is string) {
-        return true;
-    } else {
-        return false;
+    # Get message content.
+    #
+    # + return - message content information.
+    public function getData() returns string {
+        return self.content;
     }
-}
+    //
+    //# Acknowleges a given message.
+    //#
+    //# + return - an error if the acknowledgment fails.
+    //public extern function ack() returns error?;
+};

@@ -14,12 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an I/O error which occurrs while communicating with the NATS server.
-#
-# + message - error message
-# + id - error id
-public type IOError record {
-    string message;
-    int id;
-    !...;
-};
+import ballerina/nats;
+import ballerina/io;
+
+listener nats:Consumer subscription = new({ host: "localhost", port: 4222,
+                                            clientId: "s0" });
+
+@nats:ServiceConfig { subject: "demo" }
+service demo on subscription {
+
+    resource function onMessage(nats:Message msg) {
+        io:println("Recived message : " + msg.getData());
+    }
+
+}

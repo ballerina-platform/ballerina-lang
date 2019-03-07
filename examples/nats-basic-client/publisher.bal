@@ -14,12 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an I/O error which occurrs while communicating with the NATS server.
-#
-# + message - error message
-# + id - error id
-public type IOError record {
-    string message;
-    int id;
-    !...;
-};
+import ballerina/nats;
+import ballerina/io;
+
+nats:Producer producer = new({ host: "localhost", port: 4222, clientId: "p0" });
+
+public function main() {
+    string message = "";
+    string subject = io:readln("Subject : ");
+    while (message != "!q") {
+        message = io:readln("Message : ");
+        if (message != "!q") {
+            var result = producer->send(subject, message);
+            if (result is error) {
+                io:println("Error occurred while producing the message");
+            } else {
+                io:println("Message produced successfully");
+            }
+        }
+    }
+}

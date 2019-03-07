@@ -14,6 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents the list of paramters required to establish a connection.
+#
+# + host - The remote host name/IP
+# + port - The remote port
+# + clusterId - The name of the NATS server cluster the connection should be established
+# + clientId - Unique identifier for the client
+# + sslEnabled - should the connection be secured
 public type ConnectionConfig record {
     string host;
     int port;
