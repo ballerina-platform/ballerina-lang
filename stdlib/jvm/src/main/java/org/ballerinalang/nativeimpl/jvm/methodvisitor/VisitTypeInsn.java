@@ -37,8 +37,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "visitTypeInsn",
-        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR,
-                structPackage = JVM_PKG_PATH),
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR, structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "opcode", type = INT),
                 @Argument(name = "classType", type = STRING),

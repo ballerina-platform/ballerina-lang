@@ -135,6 +135,8 @@ public type BTypeBoolean "boolean";
 
 public type BTypeString "string";
 
+public type BTypeByte "byte";
+
 public type BArrayType record {
     ArrayState state;
     BType eType;
@@ -179,7 +181,7 @@ public type BUnionType record {
 };
 
 
-public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
+public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
 
 

@@ -118,7 +118,7 @@
                 <include>org.ballerinalang:ballerina-mysql:jar</include>
                 <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
-                <include>org.ballerinalang:ballerina-runtime:jar</include>
+                <include>org.ballerinalang:ballerina-runtime-api:jar</include>
                 <include>org.ballerinalang:ballerina-sql:jar</include>
                 <include>org.ballerinalang:ballerina-streams:jar</include>
                 <include>org.ballerinalang:ballerina-system:jar</include>
@@ -129,6 +129,7 @@
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
+                <include>org.ballerinalang:ballerina-runtime:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
