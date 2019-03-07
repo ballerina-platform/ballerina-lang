@@ -273,6 +273,10 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(constantInfo.flags);
             dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
             if (constantInfo.isSimpleLiteral) {
+
+                dataOutStream.writeInt(constantInfo.constantValue.finiteTypeSigCPIndex);
+                dataOutStream.writeInt(constantInfo.constantValue.valueTypeSigCPIndex);
+
                 // Write literal info.
                 writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
             } else {
@@ -292,10 +296,6 @@ public class PackageInfoWriter {
 
     private static void writeSimpleLiteral(DataOutputStream dataOutStream, ConstantValue constantValue)
             throws IOException {
-
-        dataOutStream.writeInt(constantValue.finiteTypeSigCPIndex);
-        dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
-
         switch (constantValue.literalValueTypeTag) {
             case TypeTags.BOOLEAN:
                 dataOutStream.writeBoolean(constantValue.booleanValue);
@@ -327,6 +327,9 @@ public class PackageInfoWriter {
             dataOutStream.writeBoolean(constantValue.isSimpleLiteral);
             dataOutStream.writeBoolean(constantValue.isConstRef);
             if (constantValue.isSimpleLiteral) {
+                // Write value type signature CP entry.
+                dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
+
                 // If the value is a simple literal, write the simple literal info.
                 writeSimpleLiteral(dataOutStream, constantValue);
             } else {

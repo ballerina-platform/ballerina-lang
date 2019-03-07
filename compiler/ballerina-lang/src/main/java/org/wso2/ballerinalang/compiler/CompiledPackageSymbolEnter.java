@@ -798,9 +798,6 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BLangLiteral readSimpleLiteral(DataInputStream dataInStream) throws IOException {
-        // Todo - Remove?
-        int finiteTypeSigCPIndex = dataInStream.readInt();
-
         String valueTypeSig = getUTF8CPEntryValue(dataInStream);
         BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
