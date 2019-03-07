@@ -22,9 +22,17 @@ import ballerina/config;
 import ballerina/internal;
 import ballerina/time;
 
-// Abstract Snapshotable to be referenced by all snapshotable objects.
+# Abstract Snapshotable to be referenced by all snapshotable objects.
 public type Snapshotable abstract object {
+
+    # Function to return the current state of a snapshotable object.
+    # + return - A `map<any>` that represents the current state of
+    # the snapshotable instance.
     public function saveState() returns map<any>;
+
+    # Function to restore a previous state intoa a snapshotable object.
+    # + state - A `map<any>` state that can be used to restore
+    # snapshotable instance to a previous state.
     public function restoreState(map<any> state);
 };
 
@@ -35,18 +43,18 @@ map<Snapshotable> snapshotables = {};
 string persistanceDirectory = "snapshots";
 int persistanceIntervalInMillis = 30000;
 
-// Native function to deserialize a serialized snapshot.
+# Native function to deserialize a serialized snapshot.
 extern function deserialize(string str) returns map<any>;
 
-// Native function to serialize a snapshot.
+# Native function to serialize a snapshot.
 extern function serialize(map<any> data) returns string;
 
-// Function to read given number of characters from an io:ReadableCharacterChannel.
+# Function to read given number of characters from an io:ReadableCharacterChannel.
 function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns string|error {
     return rch.read(numberOfCharacters);
 }
 
-// Function to read all characters as a string from an io:ReadableCharacterChannel.
+# Function to read all characters as a string from an io:ReadableCharacterChannel.
 function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error? {
     int fixedSize = 128;
     boolean isDone = false;
@@ -66,12 +74,12 @@ function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error
     return result;
 }
 
-// Function to write a string to a file using an io:WritableCharacterChannel.
+# Function to write a string to a file using an io:WritableCharacterChannel.
 function writeCharacters(io:WritableCharacterChannel wch, string content, int startOffset) returns int|error? {
     return wch.write(content, startOffset);
 }
 
-// Function to initialize an io:ReadableCharacterChannel.
+# Function to initialize an io:ReadableCharacterChannel.
 function createReadableCharacterChannel(string filePath, string encoding) returns io:ReadableCharacterChannel? {
     io:ReadableCharacterChannel? rch = ();
     io:ReadableByteChannel|error byteChannel = trap io:openReadableFile(filePath);
@@ -81,7 +89,7 @@ function createReadableCharacterChannel(string filePath, string encoding) return
     return rch;
 }
 
-// Function to initialize an io:WritableCharacterChannel.
+# Function to initialize an io:WritableCharacterChannel.
 function createWritableCharacterChannel(string filePath, string encoding) returns io:WritableCharacterChannel? {
     io:WritableCharacterChannel? wch = ();
     io:WritableByteChannel|error byteChannel = trap io:openWritableFile(filePath);
@@ -91,7 +99,7 @@ function createWritableCharacterChannel(string filePath, string encoding) return
     return wch;
 }
 
-// Function to close writable/readable character channels.
+# Function to close writable/readable character channels.
 function closeCharChannel(any c) {
     if (c is io:ReadableCharacterChannel) {
         var err = c.close();
@@ -100,7 +108,7 @@ function closeCharChannel(any c) {
     }
 }
 
-// Function to read a text file.
+# Function to read a text file.
 function readFile(string filePath, string encoding) returns string {
     string content = "";
     io:ReadableCharacterChannel? rch = createReadableCharacterChannel(filePath, encoding);
@@ -114,7 +122,7 @@ function readFile(string filePath, string encoding) returns string {
     return content;
 }
 
-// Function to write text to a file.
+# Function to write text to a file.
 function writeToFile(string filePath, string encoding, string content) returns int {
     int written = 0;
     io:WritableCharacterChannel? wch = createWritableCharacterChannel(filePath, encoding);
@@ -128,7 +136,7 @@ function writeToFile(string filePath, string encoding, string content) returns i
     return written;
 }
 
-// Function to serialize a Snapshotable state and write that to given file.
+# Function to serialize a Snapshotable state and write that to given file.
 function writeStateToFile(string persistancePath) returns error? {
     string? snapshotFile = ();
     time:Time ct = time:currentTime();
@@ -159,12 +167,12 @@ function writeStateToFile(string persistancePath) returns error? {
     }
 }
 
-// Function to log a persitance error.
+# Function to log a persitance error.
 function persitanceError(error e) {
     io:println("[ERROR] failed to persist state: ", e.detail());
 }
 
-// Function to get all snapshot files in persistance path
+# Function to get all snapshot files in persistance path
 function getSnapshotFiles(string persistancePath) returns string[] {
     string[] snapshotFiles = [];
     internal:Path path = new(persistancePath);
@@ -189,7 +197,7 @@ function getSnapshotFiles(string persistancePath) returns string[] {
     return snapshotFiles;
 }
 
-// Function to get latest snapshot file in persistance path
+# Function to get latest snapshot file in persistance path
 function getLatestSnapshotFile(string persistancePath) returns string? {
     string[] files = getSnapshotFiles(persistancePath);
     string? latestFile = ();
@@ -199,7 +207,7 @@ function getLatestSnapshotFile(string persistancePath) returns string? {
     return latestFile;
 }
 
-// Function to purge/delete old snapshot files from persistance path
+# Function to purge/delete old snapshot files from persistance path
 function purgeOldSnapshotFiles(string persistancePath) {
     int revisionsToKeep = 5;
     string[] files = getSnapshotFiles(persistancePath);
@@ -219,7 +227,7 @@ function purgeOldSnapshotFiles(string persistancePath) {
     }
 }
 
-// Function to restore a persisted snapshotable states from a file.
+# Function to restore a persisted snapshotable states from a file.
 function restoreStates() {
     string? lastSnapshotFile = getLatestSnapshotFile(persistanceDirectory);
     if (lastSnapshotFile is string) {
@@ -237,7 +245,7 @@ function restoreStates() {
     }
 }
 
-// Function to iterate through all the snapshotables, and persist their states into a file.
+# Function to iterate through all the snapshotables, and persist their states into a file.
 function persistStatesAndPurgeOldSnapshots() returns error? {
     foreach var (k, v) in snapshotables {
         streamsPersistanceState[k] = v.saveState();
@@ -247,7 +255,7 @@ function persistStatesAndPurgeOldSnapshots() returns error? {
     return e;
 }
 
-// Function to initilize a Timer task and start periodic snapshotting.
+# Function to initilize a Timer task and start periodic snapshotting.
 function startPersisting() {
     (function () returns error?) onTriggerFunction = persistStatesAndPurgeOldSnapshots;
     function (error) onErrorFunction = persitanceError;
@@ -256,7 +264,9 @@ function startPersisting() {
     persistTimer.start();
 }
 
-// Function to restore state of a given object.
+# Function to restore state of a given object.
+# + k - An unique `string` identifier for the snapshotable reference.
+# + o - The snapshotable reference to be restored.
 public function restoreState(string k, any o) {
     var state = streamsPersistanceState[k];
     if (state is map<any> && o is Snapshotable) {
@@ -264,21 +274,25 @@ public function restoreState(string k, any o) {
     }
 }
 
-// Function to clear an existing state.
+# Function to clear an existing state.
+# + k - An unique `string` identifier for the snapshotable reference.
+# + return - A `boolean` indicating whether the state for the given key removed successfully.
 public function removeState(string k) returns boolean {
     boolean snapshotableRemoved = snapshotables.remove(k);
     boolean stateRemoved = streamsPersistanceState.remove(k);
     return snapshotableRemoved && stateRemoved;
 }
 
-// Function to register Snapshotables.
+# Function to register Snapshotables.
+# + key - An unique `string` identifier for the snapshotable reference.
+# + ref - The snapshotable reference to be registered.
 public function registerSnapshotable(string key, any ref) {
     if (ref is Snapshotable) {
         snapshotables[key] = ref;
     }
 }
 
-// Function to initialize snapshotting.
+# Function to initialize and start snapshotting.
 public function initPersistence() {
     boolean enabled = config:getAsBoolean("b7a.streaming.persistence.enabled", default = false);
     if (enabled) {
