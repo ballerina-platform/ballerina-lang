@@ -204,7 +204,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A field access expression
+     * A field access expression.
      * <p>
      * e.g., a["b"] = 10 (int)
      * or

@@ -150,8 +150,6 @@ type TerminatorGenerator object {
                         bType is bir:BObjectType ||
                         bType is bir:BUnionType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
-            } else if (bType is bir:BErrorType) {
-                self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
                                             io:sprintf("%s", callIns.lhsOp.typeValue));
