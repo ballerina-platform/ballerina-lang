@@ -278,12 +278,9 @@ public interface InstructionCodes {
     int INT_RANGE = ITR_NEXT + 1;
 
     int I2BI = INT_RANGE + 1;
-    int BI2I = I2BI + 1;
-    int F2BI = BI2I + 1;
-    int BI2F = F2BI + 1;
-    int D2BI = BI2F + 1;
-    int BI2D = D2BI + 1;
-    int BIXOR = BI2D + 1;
+    int F2BI = I2BI + 1;
+    int D2BI = F2BI + 1;
+    int BIXOR = D2BI + 1;
     int IXOR = BIXOR + 1;
     int BACONST = IXOR + 1;
     int IURSHIFT = BACONST + 1;

@@ -546,7 +546,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                             paramValue = new BInteger(((BValueArray) value).getInt(i));
                             break;
                         case TypeTags.BYTE_TAG:
-                            paramValue = new BByte(((BValueArray) value).getByte(i));
+                            paramValue = new BByte(Byte.toUnsignedLong(((BValueArray) value).getByte(i)));
                             break;
                         case TypeTags.FLOAT_TAG:
                             paramValue = new BFloat(((BValueArray) value).getFloat(i));

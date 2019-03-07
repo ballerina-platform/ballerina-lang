@@ -70,7 +70,6 @@ import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
-import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -172,10 +171,6 @@ public class PackageInfoReader {
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
                 return new IntegerCPEntry(longVal);
-
-            case CP_ENTRY_BYTE:
-                byte byteVal = dataInStream.readByte();
-                return new ByteCPEntry(byteVal);
 
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
@@ -1157,7 +1152,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.BICONST:
                 case InstructionCodes.DCONST:
                 case InstructionCodes.BACONST:
                 case InstructionCodes.IMOVE:
@@ -1201,11 +1195,8 @@ public class PackageInfoReader {
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
-                case InstructionCodes.BI2I:
                 case InstructionCodes.F2BI:
-                case InstructionCodes.BI2F:
                 case InstructionCodes.D2BI:
-                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1776,8 +1767,8 @@ public class PackageInfoReader {
                 break;
             case TypeSignature.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue.setByteValue(byteCPEntry.getValue());
+                IntegerCPEntry byteEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setByteValue(byteEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
@@ -1817,7 +1808,7 @@ public class PackageInfoReader {
                 value = new BInteger(intValue);
                 break;
             case TypeSignature.SIG_BYTE:
-                byte byteValue = defaultValue.getByteValue();
+                long byteValue = defaultValue.getByteValue();
                 value = new BByte(byteValue);
                 break;
             case TypeSignature.SIG_FLOAT:
