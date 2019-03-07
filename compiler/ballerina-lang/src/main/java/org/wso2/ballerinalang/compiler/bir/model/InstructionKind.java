@@ -38,6 +38,7 @@ public enum InstructionKind {
     NEW_ARRAY((byte) 10),
     ARRAY_STORE((byte) 11),
     ARRAY_LOAD((byte) 12),
+    NEW_ERROR((byte) 13),
 
     // Binary expression related instructions.
     ADD((byte) 20),

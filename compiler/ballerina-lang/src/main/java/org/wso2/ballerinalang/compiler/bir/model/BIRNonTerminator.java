@@ -204,7 +204,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A field access expression
+     * A field access expression.
      * <p>
      * e.g., a["b"] = 10 (int)
      * or
@@ -223,6 +223,35 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * An error constructor expression.
+     * <p>
+     * error(reason as string, detail as map)
+     *
+     * @since 0.995.0
+     */
+    public static class NewError extends BIRNonTerminator {
+
+        public BIROperand lhsOp;
+
+        public BIROperand reasonOp;
+
+        public BIROperand detailOp;
+
+        public NewError(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp,
+                        BIROperand reasonOp, BIROperand detailOp) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.reasonOp = reasonOp;
+            this.detailOp = detailOp;
         }
 
         @Override

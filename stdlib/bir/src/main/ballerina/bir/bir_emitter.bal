@@ -154,7 +154,15 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             println(" = ", ins.kind, ";");
-        } 
+        } else if (ins is NewError) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.reasonOp);
+            println(" ");
+            self.opEmitter.emitOp(ins.detailsOp);
+            println(";");
+        }
     }
 };
 

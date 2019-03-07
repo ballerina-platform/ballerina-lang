@@ -36,6 +36,7 @@ type TerminatorGenerator object {
         } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
+                bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
@@ -101,6 +102,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", OBJECT_VALUE);
+            } else if (bType is bir:BErrorType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+                methodDesc = methodDesc + io:sprintf("L%s;", ERROR_VALUE);
             } else if (bType is bir:BTypeAny ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType) {
@@ -140,6 +144,7 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(ISTORE, lhsLndex);
             } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
+                        bType is bir:BErrorType ||
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
