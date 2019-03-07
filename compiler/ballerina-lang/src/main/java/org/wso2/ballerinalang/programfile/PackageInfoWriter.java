@@ -164,7 +164,7 @@ public class PackageInfoWriter {
 
             // Todo - Use an enum?
             dataOutStream.writeBoolean(value.isSimpleLiteral);
-            dataOutStream.writeBoolean(value.isConstRef);
+//            dataOutStream.writeBoolean(value.isConstRef);
 
             if (value.isSimpleLiteral) {
                 // Write value type tag.
@@ -178,8 +178,8 @@ public class PackageInfoWriter {
                 } else {
                     dataOutStream.writeInt(value.valueCPEntryIndex);
                 }
-            } else if (value.isConstRef) {
-                dataOutStream.writeInt(value.valueCPEntryIndex);
+//            } else if (value.isConstRef) {
+//                dataOutStream.writeInt(value.valueCPEntryIndex);
             } else {
                 // This situation occurs for any nested record literal.
                 dataOutStream.writeInt(value.valueCPEntryIndex);

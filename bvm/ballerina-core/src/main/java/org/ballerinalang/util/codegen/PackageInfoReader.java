@@ -296,12 +296,11 @@ public class PackageInfoReader {
         BMap<String, BRefType> bValueMap = new BMap<>();
 
 
-        // Read the constant value CP entry index.
-        int cpEntryIndex = dataInStream.readInt();
+        // Constant value CP entry index.
+        dataInStream.readInt();
 
         // Read the size of the
         int size = dataInStream.readInt();
-
         for (int i = 0; i < size; i++) {
 
             // Read the key.
@@ -309,23 +308,23 @@ public class PackageInfoReader {
             UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
 
             boolean isSimpleLiteral = dataInStream.readBoolean();
-            boolean isConstRef = dataInStream.readBoolean();
+//            boolean isConstRef = dataInStream.readBoolean();
 
             if (isSimpleLiteral) {
                 bValueMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
-            } else if (isConstRef) {
-                int constantValueCPEntryIndex = dataInStream.readInt();
-                MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
-
-                bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
-
-                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-                ConstantValue constantValue = new ConstantValue();
-                constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
-                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
-
-                valueMap.put(keyInfo, constantValue);
+//            } else if (isConstRef) {
+//                int constantValueCPEntryIndex = dataInStream.readInt();
+//                MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
+//
+//                bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
+//
+//                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+//
+//                ConstantValue constantValue = new ConstantValue();
+//                constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
+//                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+//
+//                valueMap.put(keyInfo, constantValue);
             } else {
                 // This situation occurs for any nested record literal.
                 int constantValueCPEntryIndex = dataInStream.readInt();
@@ -795,19 +794,22 @@ public class PackageInfoReader {
         for (int i = 0; i < size; i++) {
             // Read and ignore constant name CP index.
             dataInStream.readInt();
+
             // Read simple literal flag.
             boolean isSimpleLiteral = dataInStream.readBoolean();
-            boolean isConstRef = dataInStream.readBoolean();
+
+            // Read and ignore isConstRef flag.
+            dataInStream.readBoolean();
             if (isSimpleLiteral) {
                 // Read simple literal info.
                 readSimpleLiteral(packageInfo);
                 // Todo - Add const ref
-//            } else if (isConstRef) {
-//                // Read record literal type signature CP index.
-//                dataInStream.readInt();
-//
-//                // Todo
-//                dataInStream.readInt();
+                //            } else if (isConstRef) {
+                //                // Read record literal type signature CP index.
+                //                dataInStream.readInt();
+                //
+                //                // Todo
+                //                dataInStream.readInt();
             } else {
                 // Read record literal type signature CP index.
                 dataInStream.readInt();

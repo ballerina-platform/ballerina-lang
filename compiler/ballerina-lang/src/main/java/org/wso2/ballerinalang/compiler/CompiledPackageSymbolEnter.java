@@ -350,7 +350,7 @@ public class CompiledPackageSymbolEnter {
 
             // Todo - use enum
             boolean isSimpleLiteral = dataInStream.readBoolean();
-            boolean isConstRef = dataInStream.readBoolean();
+//            boolean isConstRef = dataInStream.readBoolean();
 
             if (isSimpleLiteral) {
 
@@ -373,18 +373,18 @@ public class CompiledPackageSymbolEnter {
                     constantValue.valueCPEntryIndex = dataInStream.readInt();
                     valueMap.put(keyInfo, constantValue);
                 }
-            } else if (isConstRef) {
-                int valueCPIndex = dataInStream.readInt();
-
-                MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
-
-                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-
-                ConstantValue constantValue = new ConstantValue();
-                constantValue.valueCPEntryIndex = valueCPIndex;
-                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
-
-                valueMap.put(keyInfo, constantValue);
+//            } else if (isConstRef) {
+//                int valueCPIndex = dataInStream.readInt();
+//
+//                MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
+//
+//                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+//
+//                ConstantValue constantValue = new ConstantValue();
+//                constantValue.valueCPEntryIndex = valueCPIndex;
+//                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+//
+//                valueMap.put(keyInfo, constantValue);
             } else {
                 int valueCPIndex = dataInStream.readInt();
 
