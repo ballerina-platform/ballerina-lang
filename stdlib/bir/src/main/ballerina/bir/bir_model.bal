@@ -80,9 +80,11 @@ public const INS_KIND_NEW_ARRAY = "NEW_ARRAY";
 public const INS_KIND_ARRAY_STORE = "ARRAY_STORE";
 public const INS_KIND_MAP_LOAD = "MAP_LOAD";
 public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
+public const INS_KIND_TYPE_CAST = "TYPE_CAST";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
-                                |INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD|BinaryOpInstructionKind;
+                                |INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD|INS_KIND_TYPE_CAST
+                                |BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -300,6 +302,13 @@ public type FieldAccess record {
     InstructionKind kind;
     VarRef lhsOp;
     VarRef keyOp;
+    VarRef rhsOp;
+    !...;
+};
+
+public type TypeCast record {
+    InstructionKind kind;
+    VarRef lhsOp;
     VarRef rhsOp;
     !...;
 };

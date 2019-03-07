@@ -154,6 +154,12 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             println(" = ", ins.kind, ";");
+        } else if (ins is TypeCast) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } 
     }
 };
@@ -277,11 +283,13 @@ type TypeEmitter object {
 
     function emitUnionType(BUnionType bUnionType, string tabs) {
         int i = 0;
+        string tabst = tabs;
         foreach var t in bUnionType.members {
             if (i != 0) {
                 print(" | ");
+                tabst = "";
             }
-            self.emitType(t, tabs = tabs);
+            self.emitType(t, tabs = tabst);
             i = i + 1;
         }
     }

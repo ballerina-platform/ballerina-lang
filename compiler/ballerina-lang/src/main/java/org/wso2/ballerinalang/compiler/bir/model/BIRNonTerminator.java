@@ -230,4 +230,27 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * A type cast expression
+     * <p>
+     * e.g., int a = <int> b;
+     *
+     * @since 0.980.0
+     */
+    public static class TypeCast extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public TypeCast(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_CAST);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

@@ -13,6 +13,7 @@ public const int INS_MAP_LOAD = 9;
 public const int INS_NEW_ARRAY = 10;
 public const int INS_ARRAY_STORE = 11;
 public const int INS_ARRAY_LOAD = 12;
+public const int INS_TYPE_CAST = 13;
 
 
 // Binary expression related instructions.

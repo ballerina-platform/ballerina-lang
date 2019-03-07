@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -170,6 +171,14 @@ public class BIREmitter extends BIRVisitor {
         birFieldAccess.keyOp.accept(this);
         sb.append("] = ").append(birFieldAccess.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birFieldAccess.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(TypeCast birTypeCast) {
+        sb.append("\t\t");
+        birTypeCast.lhsOp.accept(this);
+        sb.append(" = ").append(birTypeCast.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birTypeCast.rhsOp.accept(this);
         sb.append(";\n");
     }
 
