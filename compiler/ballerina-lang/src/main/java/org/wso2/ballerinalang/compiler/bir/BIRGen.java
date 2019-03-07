@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -607,6 +608,45 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        // Emit create array instruction
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(bracedOrTupleExpr.type,
+                this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        long size = bracedOrTupleExpr.expressions.size();
+
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = bracedOrTupleExpr.pos;
+        literal.value = size;
+        literal.type = symTable.intType;
+        literal.accept(this);
+        BIROperand sizeOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewArray(bracedOrTupleExpr.pos, bracedOrTupleExpr.type, toVarRef, sizeOp));
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+            BLangExpression argExpr = bracedOrTupleExpr.expressions.get(i);
+            argExpr.accept(this);
+            BIROperand exprIndex = this.env.targetOperand;
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = bracedOrTupleExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            indexLiteral.accept(this);
+            BIROperand arrayIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.FieldAccess(bracedOrTupleExpr.pos,
+                    InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
+        }
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
     public void visit(BLangLocalVarRef astVarRefExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
