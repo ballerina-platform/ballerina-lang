@@ -147,9 +147,8 @@ type TerminatorGenerator object {
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
-                        bType is bir:BUnionType) {
-                self.mv.visitVarInsn(ASTORE, lhsLndex);
-            } else if (bType is bir:BRecordType) {
+                        bType is bir:BUnionType ||
+                        bType is bir:BRecordType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +

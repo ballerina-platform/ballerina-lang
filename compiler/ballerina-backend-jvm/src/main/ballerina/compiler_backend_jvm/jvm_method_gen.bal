@@ -194,7 +194,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         } else if (bType is bir:BTypeByte) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "B");
             mv.visitVarInsn(ISTORE, index);
-        } else if (bType is bir:BMapType) {
+        } else if (bType is bir:BMapType || bType is bir:BRecordType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", MAP_VALUE));
             mv.visitVarInsn(ASTORE, index);
@@ -202,9 +202,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", ARRAY_VALUE));
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType is bir:BRecordType) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
-                    io:sprintf("L%s;", MAP_VALUE));
         } else if (bType is bir:BObjectType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT_VALUE));
@@ -265,17 +262,15 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", ARRAY_VALUE));
-        } else if (bType is bir:BRecordType) {
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
-                    io:sprintf("L%s;", MAP_VALUE));
         } else if (bType is bir:BObjectType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BObjectType ||
+                    bType is bir:BRecordType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -375,12 +370,10 @@ function getTypeDesc(bir:BType bType) returns string {
         return "B";
     } else if (bType is bir:BTypeNil) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BArrayType) {
         return io:sprintf("L%s;", ARRAY_VALUE);
-    } else if (bType is bir:BRecordType) {
-        return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeAny || bType is bir:BUnionType) {
         return io:sprintf("L%s;", OBJECT);
     } else {
@@ -404,9 +397,7 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")V";
     } else if (bType is bir:BArrayType) {
         return io:sprintf(")L%s;", ARRAY_VALUE);
-    } else if (bType is bir:BMapType) {
-        return io:sprintf(")L%s;", MAP_VALUE);
-    } else if (bType is bir:BRecordType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeAny || bType is bir:BUnionType) {
         return io:sprintf(")L%s;", OBJECT);
