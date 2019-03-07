@@ -35,3 +35,7 @@ function testIsAbsolutePath(string path) returns boolean|error {
 function testGetFilename(string path) returns string|error {
     return path:filename(path);
 }
+
+function testGetParent(string path) returns string|error {
+    return path:parent(path);
+}

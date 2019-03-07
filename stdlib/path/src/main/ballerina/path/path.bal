@@ -81,21 +81,74 @@ public function filename(string path) returns string|error {
         return "";
     }
     if (count == 1 && path.length() > 0 && !(check isAbsolute(path))) {
-        return normalizeAndCheck(path);
+        return parse(path);
     }
     int lastOffset = offsetIndexes[count - 1];
     log:printInfo("filename path: " + path);
-    return normalizeAndCheck(path.substring(lastOffset, path.length()));
+    return parse(path.substring(lastOffset, path.length()));
 }
 
-function normalizeAndCheck(string input) returns string|error {
+# Get the enclosing parent directory.
+# If the path is empty, Dir returns ".".
+# The returned path does not end in a separator unless it is the root directory.
+#
+# + path - String value of file path.
+# + return - Path of parent folder or error occurred while getting parent directory
+public function parent(string path) returns string|error {
+    int[] offsetIndexes = getOffsetIndexes(path);
+    int count = offsetIndexes.length();
+    if (count == 0) {
+        return "";
+    }
+    int len = offsetIndexes[count-1] - 1;
+    int offset;
+    string root;
+    (root, offset) = check getRootComponent(path);
+    if (len < offset) {
+        return root;
+    }
+    string parentPath = path.substring(0, len);
+    return parse(parentPath);
+}
+
+
+# Parses the give path and remove redundent slashes.
+#
+# + input - string path value
+# + return - parsed path,error if given path is invalid.
+function parse(string input) returns string|error {
     if (input.length() <= 0) {
         return input;
     }
     if (IS_WINDOWS) {
-        int length = input.length();
         int offset = 0;
         string root = "";
+        (root, offset) = check getRootComponent(input);
+        return root + check normalizeWindowsPath(input, offset);
+    } else {
+        int n = input.length();
+        string prevC = "";
+        int i = 0;
+        while (i < n) {
+            string c = check charAt(input, i);
+            if ((c == "/") && (prevC == "/")) {
+                return normalizePosixPath(input, i - 1);
+            }
+            prevC = c;
+            i = i + 1;
+        }
+        if (prevC == "/") {
+            return normalizePosixPath(input, n - 1);
+        }
+        return input;
+    }
+}
+
+function getRootComponent(string input) returns (string,int)|error {
+    int length = input.length();
+    int offset = 0;
+    string root = "";
+    if (IS_WINDOWS) {
         if (length > 1) {
             string c0 = check charAt(input, 0);
             string c1 = check charAt(input, 1);
@@ -108,9 +161,19 @@ function normalizeAndCheck(string input) returns string|error {
                 }
                 offset = nextNonSlashIndex(input, next, length);
                 next = nextSlashIndex(input, offset, length);
+                if (offset == next) {
+                    error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
+                    " + input });
+                    return err;
+                }
                 string host = input.substring(offset, next);  //host
                 offset = nextNonSlashIndex(input, next, length);
                 next = nextSlashIndex(input, offset, length);
+                if (offset == next) {
+                    error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
+                    " + input });
+                    return err;
+                }
                 //TODO remove dot from expression. added because of formatting issue #13872.
                 root = "\\\\." + host + "\\." + input.substring(offset, next) + "\\.";
                 offset = next;
@@ -131,24 +194,13 @@ function normalizeAndCheck(string input) returns string|error {
                 }
             }
         }
-        return root + check normalizeWindowsPath(input, offset);
     } else {
-        int n = input.length();
-        string prevC = "";
-        int i = 0;
-        while (i < n) {
-            string c = check charAt(input, i);
-            if ((c == "/") && (prevC == "/")) {
-                return normalizePosixPath(input, i - 1);
-            }
-            prevC = c;
-            i = i + 1;
+        if (length > 0 && isSlash(check charAt(input, 0))) {
+            root = PATH_SEPARATOR;
+            offset = 1;
         }
-        if (prevC == "/") {
-            return normalizePosixPath(input, n - 1);
-        }
-        return input;
     }
+    return (root, offset);
 }
 
 function normalizeWindowsPath(string path, int off) returns string|error {

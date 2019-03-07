@@ -38,6 +38,11 @@ import java.nio.file.Paths;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * Test path functions in ballerina:path.
+ *
+ * @since 0.995.0
+ */
 public class PathTest {
     private CompileResult fileOperationProgramFile;
     private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
@@ -76,7 +81,7 @@ public class PathTest {
         BValue[] args = {new BString(inputPath)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
         BString absPath = (BString) returns[0];
-        log.info("Ballerina Path: absolute function. Return value: " + absPath.stringValue());
+        log.info("{ballerina/path}:absolute(). Return value: " + absPath.stringValue());
         assertEquals(absPath.stringValue(), Paths.get(inputPath).toAbsolutePath().toString());
     }
 
@@ -86,7 +91,7 @@ public class PathTest {
         BValue[] args = {new BString(inputPath)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
         BString absPath = (BString) returns[0];
-        log.info("Ballerina Path: absolute function. Return value: " + absPath.stringValue());
+        log.info("{ballerina/path}:absolute(). Return value: " + absPath.stringValue());
         assertEquals(absPath.stringValue(), Paths.get(inputPath).toAbsolutePath().toString());
     }
 
@@ -102,7 +107,7 @@ public class PathTest {
             assertEquals(error.reason, "{ballerina/path}INVALID_PATH");
         } else {
             BString absPath = (BString) returns[0];
-            log.info("Ballerina Path: absolute function. Return value: " + absPath.stringValue());
+            log.info("{ballerina/path}:absolute(). Return value: " + absPath.stringValue());
             assertEquals(absPath.stringValue(), Paths.get(illegal).toAbsolutePath().toString());
         }
     }
@@ -121,7 +126,7 @@ public class PathTest {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testIsAbsolutePath", args);
         BBoolean isAbs = (BBoolean) returns[0];
-        log.info("Ballerina Path: isAbsolute function. " + input + " is absolute: " + isAbs.booleanValue());
+        log.info("{ballerina/path}:isAbsolute(). Input: " + input + " is absolute: " + isAbs.booleanValue());
         assertEquals(isAbs.booleanValue(), Paths.get(input).isAbsolute());
     }
 
@@ -140,8 +145,27 @@ public class PathTest {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetFilename", args);
         BString filename = (BString) returns[0];
-        log.info("Ballerina Path: filename function. Return value: " + filename.stringValue());
+        log.info("{ballerina/path}:filename(). Input: " + input + " | Return: " + filename.stringValue());
         String expectedValue = Paths.get(input).getFileName() != null ? Paths.get(input).getFileName().toString() : "";
+        assertEquals(filename.stringValue(), expectedValue);
+    }
+
+    @Test(description = "Test parent path function for posix paths", dataProvider = "posix_paths")
+    public void testGetPosixParent(String path) {
+        validateParent(path);
+    }
+
+    @Test(description = "Test parent path function for windows paths", dataProvider = "windows_paths")
+    public void testGetWindowsParent(String path) {
+        validateParent(path);
+    }
+
+    private void validateParent(String input) {
+        BValue[] args = {new BString(input)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetParent", args);
+        BString filename = (BString) returns[0];
+        log.info("{ballerina/path}:parent(). Input: " + input + " | Return: " + filename.stringValue());
+        String expectedValue = Paths.get(input).getParent() != null ? Paths.get(input).getParent().toString() : "";
         assertEquals(filename.stringValue(), expectedValue);
     }
 
