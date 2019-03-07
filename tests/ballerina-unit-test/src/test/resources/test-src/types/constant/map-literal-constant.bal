@@ -112,87 +112,6 @@ function testComplexConstMap() returns map<map<map<string>>> {
 
 // -----------------------------------------------------------
 
-const sConst = "Ballerina";
-const iConst = 100;
-const map<string> mConst = { "mKey": "mValue" };
-
-public type TestConfig record {
-    string s;
-    int i;
-    map<string> m;
-    !...;
-};
-
-public annotation<function> testAnnotation TestConfig;
-
-
-@testAnnotation {
-    s: sConst,
-    i: iConst,
-    m: mConst
-}
-function testFunction() {
-
-}
-
-function testConstInAnnotations() returns reflect:annotationData[] {
-    return reflect:getFunctionAnnotations(testFunction);
-}
-
-// -----------------------------------------------------------
-
-map<map<string>> m5 = { "m5k": m6 };
-const map<string> m6 = { "m6k": "m6v" };
-
-// Negative tests.
-function getNestedConstantMapValue() returns string {
-    return m5.m5k.m6k;
-}
-
-function updateNestedConstantMapValue() {
-    m5.m5k.m6k = "m6nv";
-}
-
-function updateNestedConstantMapValue2() {
-    m5.m5k.newKey = "newValue";
-}
-
-// -----------------------------------------------------------
-
-map<string>[] a1 = [m6];
-
-// Negative tests.
-function updateConstantMapValueInArray() {
-    a1[0].m6k = "m6nv";
-}
-
-function updateConstantMapValueInArray2() {
-    a1[0].newKey = "newValue";
-}
-
-function getConstantMapValueInArray() returns string {
-    return a1[0].m6k;
-}
-
-// -----------------------------------------------------------
-
-// Negative tests.
-function updateReturnedConstantMap() {
-    map<string> m = getMap();
-    m.m6k = "m6kn";
-}
-
-function updateReturnedConstantMap2() {
-    map<string> m = getMap();
-    m.newKey = "newValue";
-}
-
-function getMap() returns map<string> {
-    return m6;
-}
-
-// -----------------------------------------------------------
-
 const map<boolean> bm4 = { "bm4k": true };
 const map<boolean> bm5 = { "bm5kn": bm4.bm4k };
 
@@ -301,4 +220,32 @@ function testStringConstKeyReferenceInLocalVar() returns string {
 function testNullConstKeyReferenceInLocalVar() returns () {
     () n = nm4.nm4k;
     return n;
+}
+
+// annotations -----------------------------------------------
+
+const sConst = "Ballerina";
+const iConst = 100;
+const map<string> mConst = { "mKey": "mValue" };
+
+public type TestConfig record {
+    string s;
+    int i;
+    map<string> m;
+    !...;
+};
+
+public annotation<function> testAnnotation TestConfig;
+
+@testAnnotation {
+    s: sConst,
+    i: iConst,
+    m: mConst
+}
+function testFunction() {
+
+}
+
+function testConstInAnnotations() returns reflect:annotationData[] {
+    return reflect:getFunctionAnnotations(testFunction);
 }

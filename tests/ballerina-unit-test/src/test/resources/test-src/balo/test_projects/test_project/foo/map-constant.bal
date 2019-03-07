@@ -136,3 +136,40 @@ public const map<string> sm5 = { "sm5kn": sm4.sm4k };
 
 public const map<()> nm4 = { "nm4k": () };
 public const map<()> nm5 = { "nm5kn": nm4.nm4k };
+
+// -----------------------------------------------------------
+
+public map<map<boolean>> bm10 = { "bm10k": bm11 };
+public const map<boolean> bm11 = { "bm11k": true };
+
+public map<boolean>[] ba1 = [bm11];
+
+public map<map<int>> im10 = { "im10k": im11 };
+public const map<int> im11 = { "im11k": 10 };
+
+public map<int>[] ia1 = [im11];
+
+public map<map<byte>> bytem10 = { "bytem10k": bytem11 };
+public const map<byte> bytem11 = { "bytem11k": 4 };
+
+public map<byte>[] bytea1 = [bytem11];
+
+public map<map<float>> fm10 = { "fm10k": fm11 };
+public const map<float> fm11 = { "fm11k": 40.0 };
+
+public map<float>[] fa1 = [fm11];
+
+public map<map<decimal>> dm10 = { "dm10k": dm11 };
+public const map<decimal> dm11 = { "dm11k": 125 };
+
+public map<decimal>[] da1 = [dm11];
+
+public map<map<string>> sm10 = { "sm10k": sm11 };
+public const map<string> sm11 = { "sm11k": "sm11v" };
+
+public map<string>[] sa1 = [sm11];
+
+public map<map<()>> nm10 = { "nm10k": nm11 };
+public const map<()> nm11 = { "nm11k": () };
+
+public map<()>[] na1 = [nm11];

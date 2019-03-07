@@ -78,68 +78,6 @@ function testComplexConstMap() returns map<map<map<string>>> {
 
 // -----------------------------------------------------------
 
-@foo:testAnnotation {
-    s: foo:sConst,
-    i: foo:iConst,
-    m: foo:mConst
-}
-function testFunction() {
-
-}
-
-function testConstInAnnotations() returns reflect:annotationData[] {
-    return reflect:getFunctionAnnotations(testFunction);
-}
-
-// -----------------------------------------------------------
-
-function getNestedConstantMapValue() returns string {
-    return foo:m5.m5k.m6k;
-}
-
-// Negative tests.
-function updateNestedConstantMapValue() {
-    foo:m5.m5k.m6k = "m6nv";
-}
-
-function updateNestedConstantMapValue2() {
-    foo:m5.m5k.newKey = "newValue";
-}
-
-// -----------------------------------------------------------
-
-// Negative tests.
-function updateConstantMapValueInArray() {
-    foo:a1[0].m6k = "m6nv";
-}
-
-function updateConstantMapValueInArray2() {
-    foo:a1[0].newKey = "newValue";
-}
-
-function getConstantMapValueInArray() returns string {
-    return foo:a1[0].m6k;
-}
-
-// -----------------------------------------------------------
-
-// Negative tests.
-function updateReturnedConstantMap() {
-    map<string> m = getMap();
-    m.m6k = "m6kn";
-}
-
-function updateReturnedConstantMap2() {
-    map<string> m = getMap();
-    m.newKey = "newValue";
-}
-
-function getMap() returns map<string> {
-    return foo:m6;
-}
-
-// -----------------------------------------------------------
-
 function testBooleanConstKeyReference() returns map<boolean> {
     return foo:bm5;
 }
@@ -203,4 +141,19 @@ function testStringConstKeyReferenceInLocalVar() returns string {
 function testNullConstKeyReferenceInLocalVar() returns () {
     () n = foo:nm4.nm4k;
     return n;
+}
+
+// annotations -----------------------------------------------
+
+@foo:testAnnotation {
+    s: foo:sConst,
+    i: foo:iConst,
+    m: foo:mConst
+}
+function testFunction() {
+
+}
+
+function testConstInAnnotations() returns reflect:annotationData[] {
+    return reflect:getFunctionAnnotations(testFunction);
 }

@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -154,64 +153,6 @@ public class MapConstantTest {
     }
 
     @Test
-    public void testConstInAnnotations() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"\", moduleVersion:\"\"," +
-                " value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
-    }
-
-    @Test
-    public void getNestedConstantMapValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getNestedConstantMapValue");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "m6v");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
-    public void updateNestedConstantMapValue() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantMapValue");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
-    public void updateNestedConstantMapValue2() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantMapValue2");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
-    public void updateConstantMapValueInArray() {
-        BRunUtil.invoke(compileResult, "updateConstantMapValueInArray");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
-    public void updateConstantMapValueInArray2() {
-        BRunUtil.invoke(compileResult, "updateConstantMapValueInArray2");
-    }
-
-    @Test
-    public void getConstantMapValueInArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getConstantMapValueInArray");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "m6v");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
-    public void updateReturnedConstantMap() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantMap");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on frozen value.*")
-    public void updateReturnedConstantMap2() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantMap2");
-    }
-
-    @Test
     public void testBooleanConstKeyReference() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReference");
         Assert.assertNotNull(returns[0]);
@@ -307,5 +248,15 @@ public class MapConstantTest {
     public void testNullConstKeyReferenceInLocalVar() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReferenceInLocalVar");
         Assert.assertNull(returns[0]);
+    }
+
+    // Annotation tests.
+
+    @Test
+    public void testConstInAnnotations() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"testAnnotation\", moduleName:\"\", moduleVersion:\"\"," +
+                " value:{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}}");
     }
 }
