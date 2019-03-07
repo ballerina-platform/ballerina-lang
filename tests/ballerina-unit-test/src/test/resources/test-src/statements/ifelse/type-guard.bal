@@ -567,3 +567,76 @@ public function testUpdatingTypeNarrowedGlobalVar() returns string {
         return "outer string: " + z;
     }
 }
+
+string reason = "error reason";
+map<anydata> detail = { code: 11, detail: "detail message" };
+
+function testTypeGuardForErrorPositive() returns boolean {
+    any|error a1 = <error> error(reason);
+    any|error a2 = <error> error(reason, detail);
+    return errorGuardHelper(a1, a2);
+}
+
+function testTypeGuardForErrorNegative() returns boolean {
+    return errorGuardHelper("hello world", 1);
+}
+
+function errorGuardHelper(any|error a1, any|error a2) returns boolean {
+    if (a1 is error && a2 is error) {
+        error e3 = a1;
+        error e4 = a2;
+
+        map<anydata> m = <map<anydata>> e4.detail();
+        return e3.reason() == reason && e4.reason() == reason && m == detail;
+    }
+    return false;
+}
+
+const ERR_REASON = "error reason";
+const ERR_REASON_TWO = "error reason two";
+
+type Details record {
+    string message;
+};
+
+type MyError error<ERR_REASON, Details>;
+type MyErrorTwo error<ERR_REASON_TWO, Details>;
+
+function testTypeGuardForCustomErrorPositive() returns (boolean, boolean) {
+    Details d = { message: "detail message" };
+    MyError e3 = error(ERR_REASON, d);
+    MyErrorTwo e4 = error(ERR_REASON_TWO, d);
+
+    any|error a1 = e3;
+    any|error a2 = e4;
+
+    boolean isSpecificError = false;
+
+    if (a1 is MyError && a2 is MyErrorTwo) {
+        MyError e5 = a1;
+        MyErrorTwo e6 = a2;
+
+        Details m1 = e5.detail();
+        Details m2 = e6.detail();
+        isSpecificError = e5.reason() == ERR_REASON && e6.reason() == ERR_REASON_TWO && m1 == d && m2 == d;
+    }
+
+    boolean isGenericError = a1 is error && a2 is error;
+    return (isSpecificError, isGenericError);
+}
+
+function testTypeGuardForCustomErrorNegative() returns boolean {
+    error e3 = error(ERR_REASON);
+    error e4 = error("error reason x", { message: "detail message" });
+
+    any|error a1 = e3;
+    any|error a2 = e4;
+
+    if (a1 is MyError || a2 is MyErrorTwo) {
+        return true;
+    } else {
+        any|error a3 = a1;
+        any|error a4 = a2;
+        return false;
+    }
+}

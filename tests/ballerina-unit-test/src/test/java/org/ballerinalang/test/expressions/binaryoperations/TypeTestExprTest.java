@@ -497,4 +497,30 @@ public class TypeTestExprTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "a is an Apple");
     }
+
+    @Test
+    public void testError_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testError_1");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+    }
+
+    @Test
+    public void testError_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testError_2");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+    }
 }

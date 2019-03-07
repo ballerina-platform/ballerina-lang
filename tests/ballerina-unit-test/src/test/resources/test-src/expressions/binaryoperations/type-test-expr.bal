@@ -678,3 +678,32 @@ function testFiniteType_2() returns string {
 
     return "a is not an Apple";
 }
+
+const ERR_REASON = "error reason";
+const ERR_REASON_TWO = "error reason two";
+
+type Details record {
+    string message;
+};
+
+type MyError error<ERR_REASON, Details>;
+type MyErrorTwo error<ERR_REASON_TWO, Details>;
+
+function testError_1() returns (boolean, boolean, boolean, boolean) {
+    error e = error("error reason one");
+    any|error f = e;
+    boolean b1 = f is error;
+    boolean b2 = f is MyError;
+
+    e = error(ERR_REASON, { errDetail: "error detail" });
+    f = e;
+    boolean b3 = f is error;
+    boolean b4 = f is MyError;
+    return (b1, b2, b3, b4);
+}
+
+function testError_2() returns (boolean, boolean, boolean) {
+    MyError e = error(ERR_REASON, { message: "detail message" });
+    any|error f = e;
+    return (f is MyError, f is error, f is MyErrorTwo);
+}

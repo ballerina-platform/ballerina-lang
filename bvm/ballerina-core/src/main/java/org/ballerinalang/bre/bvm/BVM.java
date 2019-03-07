@@ -5180,7 +5180,7 @@ public class BVM {
 
         // All the value types are immutable
         if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG ||
-                value.getType().getTag() == TypeTags.ERROR_TAG) {
+                value.getType().getTag() == TypeTags.ERROR_TAG) { // to be removed once error is frozen
             return false;
         }
 
