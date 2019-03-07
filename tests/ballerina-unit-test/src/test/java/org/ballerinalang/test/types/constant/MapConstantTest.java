@@ -128,7 +128,8 @@ public class MapConstantTest {
     public void testComplexStringConstMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testComplexStringConstMap");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key3\":{\"key1\":\"value1\"}, \"key4\":{\"key2\":\"value2\"}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"key3\":{\"key1\":\"value1\"}, " +
+                "\"key4\":{\"key2\":\"value2\"}}");
     }
 
     @Test
