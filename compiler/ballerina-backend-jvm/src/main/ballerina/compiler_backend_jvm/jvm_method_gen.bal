@@ -545,6 +545,8 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         var frameName = currentFunc.name.value + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
+        generateDefaultConstructor(cw);
+
         int k = 0;
         bir:VariableDcl[] localVars = func.localVars;
         while (k < localVars.length()) {
@@ -598,4 +600,14 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         cw.visitEnd();
         pkgEntries[frameName + ".class"] = cw.toByteArray();
     }
+}
+
+function generateDefaultConstructor(jvm:ClassWriter cw) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    mv.visitCode();
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(1, 1);
+    mv.visitEnd();
 }

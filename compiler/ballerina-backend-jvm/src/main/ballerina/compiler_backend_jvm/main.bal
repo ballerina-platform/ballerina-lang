@@ -37,6 +37,7 @@ function generateExecutableJar(bir:BIRContext birContext, bir:ModuleID entryModI
 function generateStrandClass(map<byte[]> pkgEntries){
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, "org/ballerina/jvm/Strand", null, "java/lang/Object", null);
+        generateDefaultConstructor(cw);
 
         var fv = cw.visitField(ACC_PUBLIC, "yield", "Z");
         fv.visitEnd();

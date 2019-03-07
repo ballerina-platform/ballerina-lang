@@ -192,6 +192,7 @@ final int V1_8 = 0 << 16 | 52;
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
 const string ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
 const string OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
+const string ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
 const string STRING_VALUE = "java/lang/String";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";

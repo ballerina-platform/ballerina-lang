@@ -14,24 +14,24 @@ public type ObjectGenerator object {
     // TODO: add args to the signature
     // TODO: invoke user's init function
     # Create an value instance of a given object type  
-    public function createInstance(jvm:MethodVisitor mv, string typeName) {
-        mv.visitTypeInsn(NEW, typeName);
+    public function createInstance(jvm:MethodVisitor mv, bir:BObjectType objectType) {
+        string objectValClassName = objectType.name.value;
+        mv.visitTypeInsn(NEW, objectValClassName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
+        loadType(mv, objectType);
+        mv.visitMethodInsn(INVOKESPECIAL, objectValClassName, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
     }
 
     // Private methods
 
     function createClass(bir:BObjectType objectType, string className) returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, OBJECT, [OBJECT_VALUE]);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, null);
 
         bir:BObjectField[] fields = objectType.fields;
         self.createFields(cw, fields);
 
-        // TODO:
-        // self.createInit(cw);
-
+        self.createInit(cw);
         self.createCallMethod(cw);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
@@ -47,10 +47,18 @@ public type ObjectGenerator object {
     }
 
     function createInit(jvm:ClassWriter cw) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), null, null);
         mv.visitCode();
+        // mv.visitVarInsn(ALOAD, 0);
+        // mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
+
+        // load super
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
+        // load type
+        mv.visitVarInsn(ALOAD, 1);
+        // invoke super(type);
+        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
         mv.visitEnd();
@@ -63,7 +71,7 @@ public type ObjectGenerator object {
         mv.visitCode();
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(5, 5);
+        mv.visitMaxs(-1, -1);
         mv.visitEnd();
     }
 
