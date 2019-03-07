@@ -439,13 +439,6 @@
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-path</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
 
             <!-- ballerina-http -->
             <dependency>
