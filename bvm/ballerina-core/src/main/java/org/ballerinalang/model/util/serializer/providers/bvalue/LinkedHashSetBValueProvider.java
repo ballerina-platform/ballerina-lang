@@ -35,7 +35,7 @@ import java.util.LinkedHashSet;
  * Class implements @{@link SerializationBValueProvider} to provide the mapping between {@link LinkedHashSet} and
  * {@link BValue} representation of it.
  *
- * @since 0.990.3
+ * @since 0.990.5
  */
 public class LinkedHashSetBValueProvider implements SerializationBValueProvider<LinkedHashSet> {
 

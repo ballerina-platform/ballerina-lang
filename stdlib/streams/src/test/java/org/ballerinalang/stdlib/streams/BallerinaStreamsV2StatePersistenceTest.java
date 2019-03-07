@@ -38,7 +38,7 @@ import java.io.IOException;
  * This contains methods to test state persistence capability in
  * windows and aggregators of Ballerina Streaming V2.
  *
- * @since 0.990.3
+ * @since 0.990.5
  */
 public class BallerinaStreamsV2StatePersistenceTest {
 

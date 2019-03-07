@@ -29,6 +29,8 @@ import org.ballerinalang.persistence.Serializer;
 
 /**
  * ballerina.model.streams:serialize(map obj).
+ *
+ * @since 0.990.5
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "streams",

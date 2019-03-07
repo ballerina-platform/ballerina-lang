@@ -30,6 +30,8 @@ import org.ballerinalang.persistence.Serializer;
 
 /**
  * ballerina.model.streams:deserialize(string str).
+ *
+ * @since 0.990.5
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "streams",
