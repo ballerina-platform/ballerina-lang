@@ -14,12 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an I/O error which occurrs while communicating with the NATS server.
+# Represents the list of paramters required to create a subscription.
 #
-# + message - error message
-# + id - error id
-public type IOError record {
-    string message;
-    int id;
+# + subject - The name of the subject the subscription should be bound
+# + exchange - specifies the type of exchange i.e topic or queue
+public type ServiceConfigData record {
+    string subject;
+    string exchange = "topic";
     !...;
 };
+
+# Service descriptor data generated at compile time. This is for internal use.
+public annotation <service> ServiceConfig ServiceConfigData;
