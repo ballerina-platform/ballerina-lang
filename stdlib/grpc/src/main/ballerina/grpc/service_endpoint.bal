@@ -111,6 +111,8 @@ public type ServiceEndpointConfiguration record {
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
 public type ServiceSecureSocket record {
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
@@ -128,6 +130,8 @@ public type ServiceSecureSocket record {
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
+    int handshakeTimeout?;
+    int sessionTimeout?;
     !...;
 };
 

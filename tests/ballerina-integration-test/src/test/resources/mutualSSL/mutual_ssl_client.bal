@@ -35,7 +35,9 @@ http:ClientEndpointConfig mutualSslClientConf = {
         certValidation: {
             enable: false
         },
-        ocspStapling: false
+        ocspStapling: false,
+        handshakeTimeout: 20,
+        sessionTimeout:30
     }
 };
 

@@ -119,11 +119,13 @@ import static org.ballerinalang.net.http.HttpConstants.COLON;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
@@ -1415,6 +1417,8 @@ public class HttpUtil {
         String trustCerts = secureSocket.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
         String keyPassword = secureSocket.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
         List<Parameter> clientParams = new ArrayList<>();
+        int sessionTimeout = (int) secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT);
+        long handshakeTimeout = secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT);
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
             throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
         }
@@ -1484,6 +1488,14 @@ public class HttpUtil {
         boolean ocspStaplingEnabled = secureSocket.getBooleanField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
         sslConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
         sslConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
+
+        if (sessionTimeout > 0) {
+            sslConfiguration.setSslSessionTimeOut(sessionTimeout);
+        }
+
+        if (handshakeTimeout > 0) {
+            sslConfiguration.setSslHandshakeTimeOut(handshakeTimeout);
+        }
 
         List<Value> ciphersValueList = Arrays
                 .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
