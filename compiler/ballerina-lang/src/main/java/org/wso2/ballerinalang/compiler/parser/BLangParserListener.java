@@ -48,8 +48,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.*;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.NO_BINDING_PATTERN;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
@@ -639,7 +638,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 if (children.get(index + 1).getText().equals("]")) {
                     sizes.add(UNSEALED_ARRAY_INDICATOR);
                     index += 2;
-                } else if (children.get(index + 1).getText().equals("*")) {
+                } else if (children.get(index + 1).getText().equals(OPEN_SEALED_ARRAY)) {
                     sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
                     index += 1;
                 } else {
