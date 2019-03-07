@@ -37,9 +37,6 @@ task copyBalo(type: org.gradle.api.tasks.Copy) {
 description = 'Ballerina - Docerina'
 
 test {
-    // TODO: Fix tests and remove test skip block
-//    exclude '**/*'
-
     dependsOn copyBalo
     systemProperty "ballerina.home", "$buildDir"
 
