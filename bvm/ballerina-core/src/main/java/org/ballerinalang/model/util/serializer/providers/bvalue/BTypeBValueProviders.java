@@ -56,7 +56,6 @@ public class BTypeBValueProviders {
     private static final String ELEM_TYPE = "elemType";
     private static final String PACKAGE_PATH = "packagePath";
     private static final String TYPE_NAME = "typeName";
-    private static final String VALUE_CLASS = "valueClass";
 
     private BTypeBValueProviders() {
     }
@@ -430,9 +429,9 @@ public class BTypeBValueProviders {
      */
     public static class BUnionTypeBValueProvider implements SerializationBValueProvider<BUnionType> {
 
-        private static final String PACKAGE_PATH = "packagePath";
+        private static final String PACKAGE_PATH = "pkgPath";
         private static final String TYPE_NAME = "typeName";
-        private static final String IS_NILABLE = "isNilable";
+        private static final String IS_NILABLE = "nullable";
         private static final String MEMBER_TYPES = "memberTypes";
 
         @Override
@@ -471,10 +470,10 @@ public class BTypeBValueProviders {
 
             try {
                 BUnionType unionType = new BUnionType();
-                FieldUtils.writeField(unionType, "typeName", typeName, true);
-                FieldUtils.writeField(unionType, "pkgPath", pkgPath, true);
-                FieldUtils.writeField(unionType, "nullable", isNullable, true);
-                FieldUtils.writeField(unionType, "memberTypes", memberTypes, true);
+                FieldUtils.writeField(unionType, TYPE_NAME, typeName, true);
+                FieldUtils.writeField(unionType, PACKAGE_PATH, pkgPath, true);
+                FieldUtils.writeField(unionType, IS_NILABLE, isNullable, true);
+                FieldUtils.writeField(unionType, MEMBER_TYPES, memberTypes, true);
                 return unionType;
             } catch (IllegalAccessException e) {
                 return null;
