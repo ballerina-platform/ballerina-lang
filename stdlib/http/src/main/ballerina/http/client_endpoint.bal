@@ -54,9 +54,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->post(path, message);
+    public remote function post(@sensitive string path, RequestMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->post(path, req);
     }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -65,9 +65,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        return self.httpClient->head(path, message = message);
+    public remote function head(@sensitive string path, RequestMessage message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->head(path, message = req);
     }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -76,9 +76,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->put(path, message);
+    public remote function put(@sensitive string path, RequestMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->put(path, req);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -88,9 +88,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
-                                                            |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
-        return self.httpClient->execute(httpVerb, path, message);
+    public remote function execute(@sensitive string httpVerb, @sensitive string path, RequestMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->execute(httpVerb, path, req);
     }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -99,9 +99,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->patch(path, message);
+    public remote function patch(@sensitive string path, RequestMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->patch(path, req);
     }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -110,9 +110,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->delete(path, message);
+    public remote function delete(@sensitive string path, RequestMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->delete(path, req);
     }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -121,9 +121,9 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        return self.httpClient->get(path, message = message);
+    public remote function get(@sensitive string path, RequestMessage message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->get(path, message = req);
     }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -132,9 +132,9 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        return self.httpClient->options(path, message = message);
+    public remote function options(@sensitive string path, RequestMessage message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->options(path, message = req);
     }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -155,9 +155,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
-                                            io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
-        return self.httpClient->submit(httpVerb, path, message);
+    public remote function submit(@sensitive string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+        Request req = buildRequest(message);
+        return self.httpClient->submit(httpVerb, path, req);
 
     }
 
@@ -208,7 +208,7 @@ public type Client client object {
 public type TargetService record {
     string url = "";
     SecureSocket? secureSocket = ();
-    !...
+    !...;
 };
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
@@ -237,15 +237,16 @@ public type ClientEndpointConfig record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = {};
+    PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     AuthConfig? auth = ();
-    !...
+    !...;
 };
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
+                                        returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
@@ -260,7 +261,7 @@ public type RetryConfig record {
     float backOffFactor = 0.0;
     int maxWaitInterval = 0;
     int[] statusCodes = [];
-    !...
+    !...;
 };
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
@@ -291,7 +292,7 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...
+    !...;
 };
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
@@ -301,7 +302,7 @@ public type SecureSocket record {
 public type FollowRedirects record {
     boolean enabled = false;
     int maxCount = 5;
-    !...
+    !...;
 };
 
 # Proxy server configurations to be used with the HTTP client endpoint.
@@ -315,28 +316,31 @@ public type ProxyConfig record {
     int port = 0;
     string userName = "";
     string password = "";
-    !...
-};
-
-# Provides configurations for throttling connections of the endpoint.
-#
-# + maxActiveConnections - Maximum number of active connections allowed for the endpoint. The default value, -1,
-#                          indicates that the number of connections are not restricted.
-# + waitTime - Maximum waiting time for a request to grab an idle connection from the client
-# + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
-public type ConnectionThrottling record {
-    int maxActiveConnections = -1;
-    int waitTime = 60000;
-    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
-    int maxActiveStreamsPerConnection = 20000;
-    !...
+    !...;
 };
 
 # AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
-# + scheme - Scheme of the configuration (Basic, OAuth2, JWT etc.)
+# + scheme - Authentication scheme
+# + config - Configuration related to the selected authenticator.
+public type AuthConfig record {
+    OutboundAuthScheme scheme;
+    BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
+    !...;
+};
+
+# BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.
+#
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
+public type BasicAuthConfig record {
+    string username;
+    string password;
+    !...;
+};
+
+# OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
+#
 # + accessToken - Access token for OAuth2 authentication
 # + refreshToken - Refresh token for OAuth2 authentication
 # + refreshUrl - Refresh token URL for OAuth2 authentication
@@ -347,10 +351,7 @@ public type ConnectionThrottling record {
 # + clientSecret - Client secret for OAuth2 authentication
 # + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
 # + scopes - Scope of the access request
-public type AuthConfig record {
-    AuthScheme scheme;
-    string username = "";
-    string password = "";
+public type OAuth2AuthConfig record {
     string accessToken = "";
     string refreshToken = "";
     string refreshUrl = "";
@@ -359,9 +360,17 @@ public type AuthConfig record {
     string tokenUrl = "";
     string clientId = "";
     string clientSecret = "";
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     string[] scopes = [];
-    !...
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    !...;
+};
+
+# JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.
+#
+# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
+public type JwtAuthConfig record {
+    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
+    !...;
 };
 
 function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
@@ -448,7 +457,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
 
         time:Time circuitStartTime = time:currentTime();
         int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
-        Bucket[] bucketArray = [];
+        Bucket?[] bucketArray = [];
         int bucketIndex = 0;
         while (bucketIndex < numberOfBuckets) {
             bucketArray[bucketIndex] = {};

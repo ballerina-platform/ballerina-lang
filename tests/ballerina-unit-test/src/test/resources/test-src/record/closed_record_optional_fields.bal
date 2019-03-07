@@ -20,14 +20,14 @@ type Person record {
     string fname = "default";
     string lname?;
     Address adrs = {};
-    !...
+    !...;
 };
 
 type Address record {
     string street = "";
     string city = "";
     CountryCode country = "LK";
-    !...
+    !...;
 };
 
 function testNonDefReqField() returns Person {
@@ -45,14 +45,14 @@ type Person2 record {
     string fname = "default";
     string lname?;
     Address2 adrs = {};
-    !...
+    !...;
 };
 
 type Address2 record {
     string street = "";
     string city = "";
     CountryCode country = "LK";
-    !...
+    !...;
 };
 
 function testDefaultableReqField() returns Person2 {
@@ -65,14 +65,14 @@ type Person3 record {
     string fname = "default";
     string lname?;
     Address3 adrs?;
-    !...
+    !...;
 };
 
 type Address3 record {
     string street = "";
     string city = "";
     CountryCode country = "LK";
-    !...
+    !...;
 };
 
 function testOptionalNonDefField() returns Person3 {
@@ -90,14 +90,14 @@ type Person4 record {
     string fname = "default";
     string lname?;
     Address4 adrs?;
-    !...
+    !...;
 };
 
 type Address4 record {
     string street = "";
     string city = "";
     CountryCode country = "LK";
-    !...
+    !...;
 };
 
 function testOptionalDefaultableField() returns Person4 {

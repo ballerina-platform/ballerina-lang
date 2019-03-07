@@ -9,12 +9,12 @@ import com.intellij.openapi.options.Configurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.swing.JComponent;
 
 /**
- * Class used to manage the settings related to the LSP.
+ * Class used to manage the settings related to the LSP
  */
 public final class ServersSettings implements Configurable {
 
@@ -52,8 +52,7 @@ public final class ServersSettings implements Configurable {
     }
 
     private void setGUIFields(final Map<String, LanguageServerDefinition> map) {
-        final Map<String, UserConfigurableServerDefinition> filtered = map.entrySet().stream()
-                .filter(e -> e.getValue() instanceof UserConfigurableServerDefinition)
+        final Map<String, UserConfigurableServerDefinition> filtered = map.entrySet().stream().filter(e -> e.getValue() instanceof UserConfigurableServerDefinition)
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> (UserConfigurableServerDefinition) e.getValue()));
         if (!filtered.isEmpty()) {
             lspGUI.clear();

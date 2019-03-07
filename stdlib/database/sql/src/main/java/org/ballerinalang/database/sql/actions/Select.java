@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * {@code Select} is the Select action implementation of the SQL Connector.
+ * {@code Select} is the Select remote function implementation of the SQL Connector.
  *
  * @since 0.8.0
  */

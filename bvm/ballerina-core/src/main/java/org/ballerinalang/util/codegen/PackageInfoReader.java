@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -623,11 +622,15 @@ public class PackageInfoReader {
         // Read and ignore flags
         dataInStream.readInt();
 
+        // Read memory index
         int globalMemIndex = dataInStream.readInt();
+
+        // Read identifier kind flag
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, globalMemIndex, type);
+                sigCPIndex, globalMemIndex, type, isIdentifierLiteral);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -1071,11 +1074,13 @@ public class PackageInfoReader {
         int scopeStartLineNumber = dataInStream.readInt();
         int scopeEndLineNumber = dataInStream.readInt();
 
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
+
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber, isIdentifierLiteral);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {
@@ -1169,7 +1174,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1198,6 +1202,10 @@ public class PackageInfoReader {
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.BI2F:
+                case InstructionCodes.D2BI:
+                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1222,11 +1230,6 @@ public class PackageInfoReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
-                case InstructionCodes.REASON:
-                case InstructionCodes.DETAIL:
-                case InstructionCodes.FREEZE:
-                case InstructionCodes.IS_FROZEN:
-                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1318,12 +1321,9 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTHOF:
-                case InstructionCodes.STAMP:
-                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:
@@ -1969,11 +1969,6 @@ public class PackageInfoReader {
         @Override
         public BType getConstrainedType(char typeChar, BType constraint) {
             switch (typeChar) {
-                case 'J':
-                    if (constraint == null) {
-                        return BTypes.typeJSON;
-                    }
-                    return new BJSONType(constraint);
                 case 'D':
                     if (constraint == null) {
                         return BTypes.typeTable;

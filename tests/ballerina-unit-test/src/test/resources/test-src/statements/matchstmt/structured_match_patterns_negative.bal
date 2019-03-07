@@ -19,7 +19,7 @@ import ballerina/io;
 type ClosedFoo record {
     string s;
     int i;
-    !...
+    !...;
 };
 
 type OpenedFoo record {
@@ -46,7 +46,7 @@ function testRecordInvalidPattern() returns string {
         var {s, i: integer, f} => return "A";
         var {s, i: integer} => return "A";
         var {s} => return "A";
-        var {a} => return "A";
+        var {a} => return "A"; // unreachable
         "12" => return "A"; // pattern will not be matched
         var (s, i) => return "A"; // invalid tuple variable;
     }

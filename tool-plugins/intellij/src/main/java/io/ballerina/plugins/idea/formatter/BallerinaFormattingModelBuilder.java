@@ -152,7 +152,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACKET;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_PARENTHESIS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LENGTHOF;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LT;
@@ -309,16 +308,23 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     private static boolean isGrammarViolated(ASTNode rootNode) {
         IElementType firstChildType = getFirstChild(rootNode);
         //Todo: Add more conditions
-        return firstChildType != BallerinaTypes.DEFINITION && firstChildType != BallerinaTypes.IMPORT_DECLARATION
+        return firstChildType != null && firstChildType != BallerinaTypes.DEFINITION
+                && firstChildType != BallerinaTypes.IMPORT_DECLARATION
                 && firstChildType != BallerinaTypes.NAMESPACE_DECLARATION;
     }
 
-    @NotNull
+    @Nullable
     private static IElementType getFirstChild(ASTNode parent) {
         ASTNode child = parent.getFirstChildNode();
+        if (child == null) {
+            return null;
+        }
         while (child.getElementType() == BallerinaTypes.LINE_COMMENT
                 || child.getElementType() == TokenType.WHITE_SPACE) {
             child = child.getTreeNext();
+            if (child == null) {
+                return null;
+            }
         }
         return child.getElementType();
     }
@@ -372,7 +378,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FAIL).spaceIf(true)
                 .around(ONRETRY).spaceIf(true)
                 .around(RETRIES).spaceIf(true)
-                .around(LENGTHOF).spaceIf(true)
                 .around(WITH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(LOCK).spaceIf(true)

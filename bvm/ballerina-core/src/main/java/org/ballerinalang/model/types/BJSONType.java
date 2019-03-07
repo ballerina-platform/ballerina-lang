@@ -28,8 +28,6 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BJSONType extends BType {
 
-    private BType constraint;
-
     /**
      * Create a {@code BJSONType} which represents the JSON type.
      *
@@ -40,13 +38,8 @@ public class BJSONType extends BType {
         super(typeName, pkgPath, BRefType.class);
     }
 
-    public BJSONType(BType constraint) {
+    public BJSONType() {
         super(TypeConstants.JSON_TNAME, null, BRefType.class);
-        this.constraint = constraint;
-    }
-
-    public BType getConstrainedType() {
-        return constraint;
     }
 
     @Override
@@ -56,7 +49,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BMap();
+        return (V) new BMap(this);
     }
 
     @Override
@@ -65,27 +58,12 @@ public class BJSONType extends BType {
     }
 
     @Override
-    public String toString() {
-        if (constraint == null) {
-            return super.toString();
-        } else {
-            return "json" + "<" + constraint.getName() + ">";
-        }
+    public boolean equals(Object obj) {
+        return super.equals(obj) && obj instanceof BJSONType;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BJSONType)) {
-            return false;
-        }
-
-        BJSONType other = (BJSONType) obj;
-        if (constraint == other.constraint) {
-            return true;
-        } else if (constraint == null || other.constraint == null) {
-            return false;
-        }
-
-        return constraint.equals(other.constraint);
+    public boolean isNilable() {
+        return true;
     }
 }

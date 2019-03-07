@@ -25,13 +25,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-
-import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 
 /**
  * Convert a Time to string in the given format.
@@ -41,8 +38,8 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "format",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
-        args = {@Argument(name = "pattern", type = TypeKind.UNION)},
+        args = {@Argument(name = "pattern", type = TypeKind.UNION),
+                @Argument(name = "time", type = TypeKind.RECORD)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )

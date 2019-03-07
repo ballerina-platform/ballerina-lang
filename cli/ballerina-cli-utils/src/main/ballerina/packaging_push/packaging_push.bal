@@ -70,11 +70,11 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;
-    } else if (result is error) {
+    } else {
         io:println("connection to the remote host failed : " + result.reason());
         return;
     }
-    string statusCode = <string> httpResponse.statusCode;
+    string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
@@ -103,7 +103,7 @@ public function main (string... args) {
             if (result is http:Client) {
                 httpEndpoint = result;
                 pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
-            } else if (result is error) {
+            } else {
                 io:println("failed to resolve host : " + host + " with port " + port);
                 return;
             }

@@ -1,0 +1,80 @@
+/*!
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+/*******************************
+        Import Directives
+*******************************/
+
+/*------------------
+       Theme
+-------------------*/
+
+@theme: @@element;
+
+/*--------------------
+   Site Variables
+---------------------*/
+
+@import "~semantic-ui-less/themes/default/globals/site.variables";
+
+@import "@{themesFolder}/default/globals/site.variables";
+@import (optional) "@{themesFolder}/@{site}/globals/site.variables";
+@import (optional) "@{themesFolder}/@{theme}/globals/site.variables";
+@import (optional) "@{siteFolder}/globals/site.variables";
+
+// Ballerina site variables
+@import (optional) "themes/default/globals/site.variables";
+@import (optional) "themes/@{site}/globals/site.variables";
+@import (optional) "themes/@{theme}/globals/site.variables";
+
+
+/*--------------------
+   Elements Variables
+---------------------*/
+
+@import "@{themesFolder}/default/@{type}s/@{element}.variables";
+@import (optional) "@{themesFolder}/@{theme}/@{type}s/@{element}.variables";
+@import (optional) "@{siteFolder}/@{type}s/@{element}.variables";
+
+// Ballerina elements variables
+@import (optional) "themes/default/@{type}s/@{element}.variables";
+@import (optional) "themes/@{theme}/@{type}s/@{element}.variables";
+
+
+/*******************************
+             Mix-ins
+*******************************/
+
+/*------------------
+       Fonts
+-------------------*/
+
+.loadFonts() when (@importGoogleFonts) {
+  @import (css) url('@{googleProtocol}fonts.googleapis.com/css?family=@{googleFontRequest}');
+}
+
+/*------------------
+     Overrides
+-------------------*/
+
+.loadUIOverrides() {
+  @import (optional) "@{themesFolder}/@{theme}/@{type}s/@{element}.overrides";
+  @import (optional) "@{siteFolder}/@{type}s/@{element}.overrides";
+  @import (optional) "themes/@{theme}/@{type}s/@{element}.overrides";
+}

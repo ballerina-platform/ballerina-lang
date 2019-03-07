@@ -96,9 +96,6 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitCatch?(node: Ballerina.Catch, parent?: Ballerina.ASTNode): void;
-  endVisitCatch?(node: Ballerina.Catch, parent?: Ballerina.ASTNode): void;
-
   beginVisitCheckExpr?(
     node: Ballerina.CheckExpr,
     parent?: Ballerina.ASTNode
@@ -279,15 +276,6 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitIntRangeExpr?(
-    node: Ballerina.IntRangeExpr,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitIntRangeExpr?(
-    node: Ballerina.IntRangeExpr,
-    parent?: Ballerina.ASTNode
-  ): void;
-
   beginVisitInvocation?(
     node: Ballerina.Invocation,
     parent?: Ballerina.ASTNode
@@ -308,9 +296,6 @@ export interface Visitor {
 
   beginVisitLambda?(node: Ballerina.Lambda, parent?: Ballerina.ASTNode): void;
   endVisitLambda?(node: Ballerina.Lambda, parent?: Ballerina.ASTNode): void;
-
-  beginVisitLimit?(node: Ballerina.Limit, parent?: Ballerina.ASTNode): void;
-  endVisitLimit?(node: Ballerina.Limit, parent?: Ballerina.ASTNode): void;
 
   beginVisitLiteral?(node: Ballerina.Literal, parent?: Ballerina.ASTNode): void;
   endVisitLiteral?(node: Ballerina.Literal, parent?: Ballerina.ASTNode): void;
@@ -360,6 +345,15 @@ export interface Visitor {
   beginVisitNext?(node: Ballerina.Next, parent?: Ballerina.ASTNode): void;
   endVisitNext?(node: Ballerina.Next, parent?: Ballerina.ASTNode): void;
 
+  beginVisitNumericLiteral?(
+    node: Ballerina.NumericLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitNumericLiteral?(
+    node: Ballerina.NumericLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+
   beginVisitObjectType?(
     node: Ballerina.ObjectType,
     parent?: Ballerina.ASTNode
@@ -381,44 +375,8 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitOutputRateLimit?(
-    node: Ballerina.OutputRateLimit,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitOutputRateLimit?(
-    node: Ballerina.OutputRateLimit,
-    parent?: Ballerina.ASTNode
-  ): void;
-
   beginVisitPanic?(node: Ballerina.Panic, parent?: Ballerina.ASTNode): void;
   endVisitPanic?(node: Ballerina.Panic, parent?: Ballerina.ASTNode): void;
-
-  beginVisitPatternClause?(
-    node: Ballerina.PatternClause,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitPatternClause?(
-    node: Ballerina.PatternClause,
-    parent?: Ballerina.ASTNode
-  ): void;
-
-  beginVisitPatternStreamingEdgeInput?(
-    node: Ballerina.PatternStreamingEdgeInput,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitPatternStreamingEdgeInput?(
-    node: Ballerina.PatternStreamingEdgeInput,
-    parent?: Ballerina.ASTNode
-  ): void;
-
-  beginVisitPatternStreamingInput?(
-    node: Ballerina.PatternStreamingInput,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitPatternStreamingInput?(
-    node: Ballerina.PatternStreamingInput,
-    parent?: Ballerina.ASTNode
-  ): void;
 
   beginVisitRecordDestructure?(
     node: Ballerina.RecordDestructure,
@@ -618,9 +576,6 @@ export interface Visitor {
   ): void;
   endVisitTrapExpr?(node: Ballerina.TrapExpr, parent?: Ballerina.ASTNode): void;
 
-  beginVisitTry?(node: Ballerina.Try, parent?: Ballerina.ASTNode): void;
-  endVisitTry?(node: Ballerina.Try, parent?: Ballerina.ASTNode): void;
-
   beginVisitTupleDestructure?(
     node: Ballerina.TupleDestructure,
     parent?: Ballerina.ASTNode
@@ -791,9 +746,6 @@ export interface Visitor {
     node: Ballerina.WindowClause,
     parent?: Ballerina.ASTNode
   ): void;
-
-  beginVisitWithin?(node: Ballerina.Within, parent?: Ballerina.ASTNode): void;
-  endVisitWithin?(node: Ballerina.Within, parent?: Ballerina.ASTNode): void;
 
   beginVisitWorkerFlush?(
     node: Ballerina.WorkerFlush,

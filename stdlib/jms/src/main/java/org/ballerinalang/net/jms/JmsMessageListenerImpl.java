@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.jms;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
@@ -27,6 +28,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.HashMap;
@@ -60,9 +62,9 @@ public class JmsMessageListenerImpl implements MessageListener {
     private BValue[] getSignatureParameters(Message jmsMessage) {
         ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> message = BLangConnectorSPIUtil.createBStruct(programFile,
-                                                              Constants.BALLERINA_PACKAGE_JMS,
-                                                              Constants.JMS_MESSAGE_STRUCT_NAME);
-        message.addNativeData(Constants.JMS_MESSAGE_OBJECT, jmsMessage);
+                                                                           JmsConstants.BALLERINA_PACKAGE_JMS,
+                                                                           JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+        message.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
 
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
@@ -78,12 +80,12 @@ public class JmsMessageListenerImpl implements MessageListener {
 
         @Override
         public void notifySuccess() {
-
+            // Nothing to do on success
         }
 
         @Override
-        public void notifyFailure(BError bStruct) {
-
+        public void notifyFailure(BError error) {
+            ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         }
     }
 }

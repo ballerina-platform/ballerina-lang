@@ -36,7 +36,7 @@ public type ServiceInformation record {
     DocumentationInformation externalDocs = {};
     Tag[] tags = [];
     SecurityRequirement[] security = [];
-    !...
+    !...;
 };
 
 # Model for Swagger contact information.
@@ -48,7 +48,7 @@ public type Contact record {
     string name = "";
     string email = "";
     string url = "";
-    !...
+    !...;
 };
 
 # Model for service licence information.
@@ -58,7 +58,7 @@ public type Contact record {
 public type License record {
     string name = "";
     string url = "";
-    !...
+    !...;
 };
 
 # Model for service documentation definition.
@@ -68,7 +68,7 @@ public type License record {
 public type DocumentationInformation record {
     string description = "";
     string url = "";
-    !...
+    !...;
 };
 
 # Model for Swagger service tag definition.
@@ -80,7 +80,7 @@ public type Tag record {
     string name = "";
     string description = "";
     DocumentationInformation externalDocs = {};
-    !...
+    !...;
 };
 
 # Model for security requirement definition. This is most likely the OAuth scopes.
@@ -90,7 +90,7 @@ public type Tag record {
 public type SecurityRequirement record {
     string name = "";
     string[] requirements = [];
-    !...
+    !...;
 };
 
 # Model for keeping Swagger parameter information.
@@ -112,7 +112,7 @@ public type ParameterInformation record {
     boolean discontinued = false;
     string allowEmptyValue = "";
     Schema schema = {};
-    !...
+    !...;
 };
 
 # Model for keeping additional Swagger schema information.
@@ -124,7 +124,7 @@ public type Schema record {
     string format = "";
     boolean isArray = false;
     string ref = "";
-    !...
+    !...;
 };
 
 # Model for additional Swagger resource definition.
@@ -140,7 +140,7 @@ public type ResourceInformation record {
     string description = "";
     DocumentationInformation externalDocs = {};
     ParameterInformation[] parameters = [];
-    !...
+    !...;
 };
 
 # Model for keeping Swagger response information.
@@ -156,7 +156,7 @@ public type Response record {
     string response = "";
     Header[] headers = [];
     Example[] examples = [];
-    !...
+    !...;
 };
 
 # Model for keeping Swagger header definition information.
@@ -168,7 +168,7 @@ public type Header record {
     boolean required = false;
     boolean discontinued = false;
     string description = "";
-    !...
+    !...;
 };
 
 # Model for keeping Swagger example information.
@@ -182,7 +182,7 @@ public type Example record {
     string description = "";
     any value = "";
     string externalValue = "";
-    !...
+    !...;
 };
 
 # Model for additional Swagger request body details.
@@ -200,7 +200,7 @@ public type requestBody record {
     Example[] examples = [];
     Schema schema = {};
     Encoding[] encoding = [];
-    !...
+    !...;
 };
 
 # Model for additional Swagger content type definition.
@@ -216,7 +216,7 @@ public type Encoding record {
     string style = "";
     boolean explode = false;
     boolean allowReserved = false;
-    !...
+    !...;
 };
 
 # Configuration elements for client code generation.
@@ -224,7 +224,7 @@ public type Encoding record {
 # + generate - generates client code if set to true
 public type ClientInformation record {
     boolean generate = true;
-    !...
+    !...;
 };
 
 # Model for multi swagger operation definition for ballerina resource.
@@ -232,7 +232,7 @@ public type ClientInformation record {
 # + resourceInformation - list of resource information
 public type MultiResourceInformation record {
     map<ResourceInformation> resourceInformation;
-    !...
+    !...;
 };
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation

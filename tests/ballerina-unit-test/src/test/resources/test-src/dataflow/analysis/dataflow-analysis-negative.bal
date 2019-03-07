@@ -245,7 +245,7 @@ function testUninitializedVarReferrencing() {
     }
 
     // uninitialized var in conversion
-    string str = <string> a;
+    string str = string.convert(a);
 
     // uninitialized var XML
     xml x1 = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">
@@ -253,9 +253,9 @@ function testUninitializedVarReferrencing() {
                     <!-- refering to uninitialized {{a}} -->
                     <?target content {{a}}?>
                 </foo>`;
-                
+
     // uninitialized var in string template
-    string text = string `hello {{a}}`;
+    string text = string `hello ${a}`;
 
     // uninitialized var index/field based access
     _ = m.foo;
@@ -567,7 +567,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra;
-    !...
+    !...;
 };
 
 function testVariableAssignment() returns (string, boolean, int, string) {
@@ -625,4 +625,8 @@ type F object {
 
 function F.__init() {
     self.a = 1;
+}
+
+public function testDataFlow_14(){
+    object { public string s; } o = new;
 }

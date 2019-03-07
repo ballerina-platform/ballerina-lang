@@ -53,4 +53,16 @@ suite("Ballerina Extension Core Tests", function () {
         });
     });
 
+    test("Test compareVersions", function () {
+        assert(ballerinaExtInstance.compareVersions("0.100.5", "0.100.8") === 0);
+        assert(ballerinaExtInstance.compareVersions("0.101.0", "0.100.0") > 0);
+        assert(ballerinaExtInstance.compareVersions("1.100.0", "0.100.0") > 0);
+        assert(ballerinaExtInstance.compareVersions("0.100.0", "0.101.0") < 0);
+        assert(ballerinaExtInstance.compareVersions("0.100.0", "1.100.0") < 0);
+        assert(ballerinaExtInstance.compareVersions("0.100.5", "0.100-r8") === 0);
+        assert(ballerinaExtInstance.compareVersions("0.101.0", "0.100-r1") > 0);
+        assert(ballerinaExtInstance.compareVersions("1.100.0", "0.100-r1") > 0);
+        assert(ballerinaExtInstance.compareVersions("0.100.0", "0.101-r1") < 0);
+        assert(ballerinaExtInstance.compareVersions("0.100.0", "1.100-r1") < 0);
+    });
 });

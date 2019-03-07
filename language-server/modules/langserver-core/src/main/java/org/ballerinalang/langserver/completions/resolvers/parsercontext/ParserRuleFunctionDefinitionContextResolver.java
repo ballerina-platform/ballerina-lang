@@ -24,11 +24,13 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -71,40 +73,51 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
         List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
-                || !CommonUtil.getLastItem(consumedTokens).equals(".")) {
-            return completionItems;
+        if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
+                && CommonUtil.getLastItem(consumedTokens).equals(".")) {
+            String objectName = consumedTokens.get(1);
+            Optional filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                    .stream()
+                    .filter(symbolInfo -> {
+                        BSymbol symbol = symbolInfo.getScopeEntry().symbol;
+                        return symbol instanceof BObjectTypeSymbol && symbol.getName().getValue().equals(objectName);
+                    }).findFirst();
+
+            if (!(filtered.isPresent()
+                    && ((SymbolInfo) filtered.get()).getScopeEntry().symbol instanceof BObjectTypeSymbol)) {
+                return completionItems;
+            }
+
+            BObjectTypeSymbol objectType = (BObjectTypeSymbol) (((SymbolInfo) filtered.get()).getScopeEntry().symbol);
+
+            objectType.attachedFuncs.stream()
+                    .filter(attachedFunc -> !attachedFunc.symbol.bodyExist)
+                    .forEach(attachedFunc -> {
+                        String functionName = attachedFunc.funcName.getValue();
+                        List<String> funcArguments = getFuncArguments(attachedFunc.symbol);
+                        String label = functionName + "(" + String.join(", ", funcArguments) + ")";
+                        if (!(attachedFunc.symbol.retType instanceof BNilType)) {
+                            label += " returns " + generateTypeDefinition(null, objectType.pkgID,
+                                    attachedFunc.symbol.retType);
+                        }
+                        String insertText = label + " {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                                + CommonUtil.LINE_SEPARATOR + "}";
+                        completionItems.add(BFunctionCompletionItemBuilder.build(attachedFunc.symbol, label,
+                                insertText));
+                    });
+        } else if (consumedTokens.size() == 2 && consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
+                && !CommonUtil.getLastItem(consumedTokens).equals(".")) {
+            return context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
+                    .map(symbolInfo -> {
+                        BSymbol symbol = symbolInfo.getScopeEntry().symbol;
+                        String symbolName = symbol.getName().getValue();
+                        CompletionItem completionItem = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol,
+                                symbolName);
+                        completionItem.setInsertText(symbolName + ".");
+                        return completionItem;
+                    }).collect(Collectors.toList());
         }
-
-        String objectName = consumedTokens.get(1);
-        Optional filtered = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .stream()
-                .filter(symbolInfo -> {
-                    BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    return symbol instanceof BObjectTypeSymbol && symbol.getName().getValue().equals(objectName);
-                }).findFirst();
-
-        if (!(filtered.isPresent()
-                && ((SymbolInfo) filtered.get()).getScopeEntry().symbol instanceof BObjectTypeSymbol)) {
-            return completionItems;
-        }
-
-        BObjectTypeSymbol objectType = (BObjectTypeSymbol) (((SymbolInfo) filtered.get()).getScopeEntry().symbol);
-
-        objectType.attachedFuncs.stream()
-                .filter(attachedFunc -> !attachedFunc.symbol.bodyExist)
-                .forEach(attachedFunc -> {
-                    String functionName = attachedFunc.funcName.getValue();
-                    List<String> funcArguments = getFuncArguments(attachedFunc.symbol);
-                    String label = functionName + "(" + String.join(", ", funcArguments) + ")";
-                    if (!(attachedFunc.symbol.retType instanceof BNilType)) {
-                        label += " returns " + generateTypeDefinition(null, objectType.pkgID,
-                                                                      attachedFunc.symbol.retType);
-                    }
-                    String insertText = label + " {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-                            + CommonUtil.LINE_SEPARATOR + "}";
-                    completionItems.add(BFunctionCompletionItemBuilder.build(attachedFunc.symbol, label, insertText));
-                });
         return completionItems;
     }
 }

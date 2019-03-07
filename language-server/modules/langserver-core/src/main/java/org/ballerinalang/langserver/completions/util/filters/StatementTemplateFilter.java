@@ -39,32 +39,19 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
 
         // Populate If Statement template
-        CompletionItem ifItem = Snippet.STMT_IF.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(ifItem);
-
+        completionItems.add(Snippet.STMT_IF.get().build(context, isSnippet));
         // Populate While Statement template
-        CompletionItem whileItem = Snippet.STMT_WHILE.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(whileItem);
-
+        completionItems.add(Snippet.STMT_WHILE.get().build(context, isSnippet));
         // Populate Lock Statement template
-        CompletionItem lockItem = Snippet.STMT_LOCK.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(lockItem);
-
+        completionItems.add(Snippet.STMT_LOCK.get().build(context, isSnippet));
         // Populate Foreach Statement template
-        CompletionItem forEachItem = Snippet.STMT_FOREACH.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(forEachItem);
-
+        completionItems.add(Snippet.STMT_FOREACH.get().build(context, isSnippet));
         // Populate Fork Statement template
-        CompletionItem forkItem = Snippet.STMT_FORK.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(forkItem);
-
+        completionItems.add(Snippet.STMT_FORK.get().build(context, isSnippet));
         // Populate Transaction Statement template
-        CompletionItem transactionItem = Snippet.STMT_TRANSACTION.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(transactionItem);
-
+        completionItems.add(Snippet.STMT_TRANSACTION.get().build(context, isSnippet));
         // Populate Match statement template
-        CompletionItem matchItem = Snippet.STMT_MATCH.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(matchItem);
+        completionItems.add(Snippet.STMT_MATCH.get().build(context, isSnippet));
         
         if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0 
                 && !context.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
@@ -72,37 +59,22 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
             Populate Continue Statement template only if enclosed within a looping construct
             and not in immediate transaction construct
              */
-            CompletionItem nextItem = Snippet.STMT_CONTINUE.get().build(new CompletionItem(), isSnippet);
-            completionItems.add(nextItem);
+            completionItems.add(Snippet.STMT_CONTINUE.get().build(context, isSnippet));
         }
         
         if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0) {
             // Populate Break Statement template only if there is an enclosing looping construct such as while/ foreach
-            CompletionItem breakItem = new CompletionItem();
-            Snippet.STMT_BREAK.get().build(breakItem, isSnippet);
-            completionItems.add(breakItem);
+            completionItems.add(Snippet.STMT_BREAK.get().build(context, isSnippet));
         }
-
         // Populate Return Statement template
-        CompletionItem returnItem = new CompletionItem();
-        Snippet.STMT_RETURN.get().build(returnItem, isSnippet);
-        completionItems.add(returnItem);
+        completionItems.add(Snippet.STMT_RETURN.get().build(context, isSnippet));
         
         if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
-            // Populate Worker Reply Statement template on if there is at least one enclosing transaction construct 
-            CompletionItem abortItem = new CompletionItem();
-            Snippet.STMT_ABORT.get().build(abortItem, isSnippet);
-            completionItems.add(abortItem);
-
-            CompletionItem retryItem = new CompletionItem();
-            Snippet.STMT_RETRY.get().build(retryItem, isSnippet);
-            completionItems.add(retryItem);
+            completionItems.add(Snippet.STMT_ABORT.get().build(context, isSnippet));
+            completionItems.add(Snippet.STMT_RETRY.get().build(context, isSnippet));
         }
-
         // Populate Throw Statement template
-        CompletionItem throwItem = new CompletionItem();
-        Snippet.STMT_PANIC.get().build(throwItem, isSnippet);
-        completionItems.add(throwItem);
+        completionItems.add(Snippet.STMT_PANIC.get().build(context, isSnippet));
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 

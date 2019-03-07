@@ -21,7 +21,6 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -29,8 +28,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
+import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -63,27 +62,27 @@ public class CreateSubscriber extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        Struct topicSubscriberBObject = BallerinaAdapter.getReceiverObject(context);
+        BMap<String, BValue> topicSubscriberBObject = (BMap<String, BValue>) context.getRefArgument(0);
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        String messageSelector = context.getStringArgument(0);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                Constants.JMS_SESSION,
-                Session.class,
-                context);
-        Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
-        String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
-        String consumerId = topicSubscriberConfigBRecord.getStringField(Constants.CONSUMER_IDENTIFIER);
-        if (JMSUtils.isNullOrEmptyAfterTrim(consumerId)) {
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
+                                                           context);
+
+        String topicPattern = context.getStringArgument(0);
+        String consumerId = context.getStringArgument(1);
+        String messageSelector = context.getStringArgument(2);
+        if (JmsUtils.isNullOrEmptyAfterTrim(consumerId)) {
             throw new BallerinaException("Please provide a durable subscription ID", context);
         }
 
         try {
-            Topic topic = JMSUtils.getTopic(session, topicPattern);
+            Topic topic = JmsUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId, messageSelector, false);
-            Struct consumerConnectorBObject = topicSubscriberBObject.getStructField(Constants.CONSUMER_ACTIONS);
-            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
-            consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
+            BMap<String, BValue> consumerConnectorBObject =
+                    (BMap<String, BValue>) topicSubscriberBObject.get(JmsConstants.CONSUMER_ACTIONS);
+            consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
+                                                   new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error while creating queue consumer", context, e);
         }

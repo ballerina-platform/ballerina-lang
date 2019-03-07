@@ -19,9 +19,7 @@ package org.ballerinalang.code.generator.model;
 import org.ballerinalang.code.generator.GeneratorConstants;
 import org.ballerinalang.code.generator.util.GeneratorUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -29,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.List;
@@ -50,7 +49,7 @@ public class EndpointContextHolder {
      * will be returned
      *
      * @param service service with bound endpoints
-     * @param ep      {@link EndpointNode} which to extract details from
+     * @param ep      {@link BLangSimpleVariable} which to extract details from
      * @return if {@code ep} is bound to the {@code service}, endpoint context will be returned.
      * otherwise empty null will be returned
      */
@@ -61,20 +60,21 @@ public class EndpointContextHolder {
             return null;
         }
 
-//        for (SimpleVariableReferenceNode node : service.getAttachExpr()) {
+        for (BLangExpression node : service.getAttachedExprs()) {
+            if (node instanceof BLangSimpleVarRef) {
+                BLangSimpleVarRef variableRef = (BLangSimpleVarRef) node;
+                if (variableRef.getVariableName().equals(ep.getName())) {
+                    endpoint = new EndpointContextHolder();
+                    AnnotationAttachmentNode ann = GeneratorUtils
+                            .getAnnotationFromList("ServiceConfig", GeneratorConstants.HTTP_PKG_ALIAS,
+                                    service.getAnnotationAttachments());
 
-        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachedExprs().get(0);
-        if (node.getVariableName().equals(ep.getName())) {
-            endpoint = new EndpointContextHolder();
-            AnnotationAttachmentNode ann = GeneratorUtils
-                    .getAnnotationFromList("ServiceConfig", GeneratorConstants.HTTP_PKG_ALIAS,
-                            service.getAnnotationAttachments());
+                    endpoint.extractDetails(ep, ann);
+                    break;
+                }
+            }
 
-            endpoint.extractDetails(ep, ann);
-//                break;
         }
-
-//        }
 
         return endpoint;
     }

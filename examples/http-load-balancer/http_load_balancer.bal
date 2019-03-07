@@ -52,7 +52,9 @@ service loadBalancerDemoService on new http:Listener (9090) {
 }
 
 // Define the mock backend services, which are called by the load balancer.
-@http:ServiceConfig { basePath: "/mock1" }
+@http:ServiceConfig {
+    basePath: "/mock1"
+}
 service mock1 on backendEP {
     @http:ResourceConfig {
         path: "/"
@@ -65,7 +67,9 @@ service mock1 on backendEP {
     }
 }
 
-@http:ServiceConfig { basePath: "/mock2" }
+@http:ServiceConfig {
+    basePath: "/mock2"
+}
 service mock2 on backendEP {
     @http:ResourceConfig {
         path: "/"
@@ -78,7 +82,9 @@ service mock2 on backendEP {
     }
 }
 
-@http:ServiceConfig { basePath: "/mock3" }
+@http:ServiceConfig {
+    basePath: "/mock3"
+}
 service mock3 on backendEP {
     @http:ResourceConfig {
         path: "/"

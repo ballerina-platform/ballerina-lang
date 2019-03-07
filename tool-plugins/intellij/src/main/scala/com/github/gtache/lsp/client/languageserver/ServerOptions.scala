@@ -13,6 +13,6 @@ import org.eclipse.lsp4j._
   * @param documentLinkOptions             The link options
   * @param executeCommandOptions           The execute options
   */
-case class ServerOptions(syncKind: TextDocumentSyncKind, completionOptions: CompletionOptions, signatureHelpOptions: SignatureHelpOptions, codeLensOptions: CodeLensOptions, documentOnTypeFormattingOptions: DocumentOnTypeFormattingOptions, documentLinkOptions: DocumentLinkOptions, executeCommandOptions: ExecuteCommandOptions) {
+case class ServerOptions(syncKind: TextDocumentSyncKind, completionOptions: CompletionOptions, signatureHelpOptions: SignatureHelpOptions, codeLensOptions: CodeLensOptions, documentOnTypeFormattingOptions: DocumentOnTypeFormattingOptions, documentLinkOptions: DocumentLinkOptions, executeCommandOptions: ExecuteCommandOptions, semanticHighlightingOptions: SemanticHighlightingServerCapabilities) {
 
 }

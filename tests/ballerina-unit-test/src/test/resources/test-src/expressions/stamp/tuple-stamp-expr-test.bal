@@ -25,7 +25,7 @@ type Person record {
     string status;
     string batch;
     string school;
-    !...
+    !...;
 };
 
 type Teacher record {

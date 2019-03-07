@@ -5,7 +5,7 @@ import java.util.concurrent.{CompletableFuture, FutureTask}
 
 import com.github.gtache.lsp.client.languageserver.wrapper.LanguageServerWrapper
 import com.github.gtache.lsp.editor.EditorEventManager
-import com.github.gtache.lsp.requests.WorkspaceEditHandler
+import com.github.gtache.lsp.requests.{SemanticHighlightingHandler, WorkspaceEditHandler}
 import com.github.gtache.lsp.utils.{ApplicationUtils, FileUtils}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -109,5 +109,9 @@ class LanguageClientImpl extends LanguageClient {
       case _ =>
         LOG.warn("Unknown message type for " + message)
     }
+  }
+
+  override def semanticHighlighting(params: SemanticHighlightingParams): Unit = {
+    SemanticHighlightingHandler.handlePush(params)
   }
 }

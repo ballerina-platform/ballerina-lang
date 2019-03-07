@@ -118,7 +118,7 @@ public class URIConverter implements Converter<URI> {
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_pull/packaging_pull.balx",
-                    "invokePull", u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
+                    u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
                     proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
                     supportedVersionRange, String.valueOf(isBuild));
             // Check if error has occurred or not.

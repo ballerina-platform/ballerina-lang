@@ -98,7 +98,7 @@ public type testError record {
     string message;
     error cause;
     string code?;
-    !...
+    !...;
 };
 
 function testUnreachableThrow (int value) returns (string) {

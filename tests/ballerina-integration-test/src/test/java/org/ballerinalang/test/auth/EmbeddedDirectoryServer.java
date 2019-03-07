@@ -18,28 +18,48 @@
 
 package org.ballerinalang.test.auth;
 
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
+import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
+import org.apache.directory.api.ldap.schema.loader.LdifSchemaLoader;
+import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
+import org.apache.directory.api.util.exception.Exceptions;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.entry.ServerEntry;
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.api.DirectoryService;
+import org.apache.directory.server.core.api.DnFactory;
+import org.apache.directory.server.core.api.InstanceLayout;
+import org.apache.directory.server.core.api.partition.Partition;
+import org.apache.directory.server.core.api.schema.SchemaPartition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.xdbm.Index;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashSet;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Embedded Apache directory server implementation.
  */
 public class EmbeddedDirectoryServer {
 
+    private static final Logger log = LoggerFactory.getLogger(EmbeddedDirectoryServer.class);
+    private static final String SCHEMA_PARTITION_NAME = "schema";
+    private static final String LDAP_AUTH_TEST_PARTITION_NAME = "b7a";
+    private static final String LDAP_AUTH_TEST_PARTITION_DN = "dc=BALLERINA,dc=IO";
     // The directory service
     private DirectoryService service;
-    private LdapServer ldapService;
+    private LdapServer ldapServer;
     private File workDir;
 
     /**
@@ -47,34 +67,16 @@ public class EmbeddedDirectoryServer {
      *
      * @param partitionId The partition Id
      * @param partitionDn The partition DN
+     * @param dnFactory The factory for DNs
      * @return The newly added partition
      * @throws Exception If the partition can't be added
      */
-    private Partition addPartition(String partitionId, String partitionDn) throws Exception {
-        // Create a new partition named 'foo'.
-        Partition partition = new JdbmPartition();
+    private Partition addPartition(String partitionId, String partitionDn, DnFactory dnFactory) throws Exception {
+        JdbmPartition partition = new JdbmPartition(service.getSchemaManager(), dnFactory);
         partition.setId(partitionId);
-        partition.setSuffix(partitionDn);
-        service.addPartition(partition);
-
+        partition.setPartitionPath(new File(service.getInstanceLayout().getPartitionsDirectory(), partitionId).toURI());
+        partition.setSuffixDn(new Dn(service.getSchemaManager(), partitionDn));
         return partition;
-    }
-
-    /**
-     * Add a new set of index on the given attributes.
-     *
-     * @param partition The partition on which we want to add index
-     * @param attrs The list of attributes to index
-     */
-    private void addIndex(Partition partition, String... attrs) {
-        // Index some attributes on the apache partition
-        HashSet<Index<?, ServerEntry>> indexedAttributes = new HashSet<Index<?, ServerEntry>>();
-
-        for (String attribute : attrs) {
-            indexedAttributes.add(new JdbmIndex<Object, ServerEntry>(attribute));
-        }
-
-        ((JdbmPartition) partition).setIndexedAttributes(indexedAttributes);
     }
 
     /**
@@ -88,37 +90,84 @@ public class EmbeddedDirectoryServer {
         workDir = new File(System.getProperty("java.io.tmpdir"), "TEMP_APACHEDS-" + System.currentTimeMillis());
         workDir.mkdirs();
         // Initialize the LDAP service
-        ldapService = new LdapServer();
-        ldapService.setTransports(new TcpTransport(port));
+        ldapServer = new LdapServer();
+        ldapServer.setTransports(new TcpTransport(port));
 
         service = new DefaultDirectoryService();
-        ldapService.setDirectoryService(service);
-        service.setWorkingDirectory(workDir);
+        ldapServer.setDirectoryService(service);
+        service.setInstanceLayout(new InstanceLayout(workDir));
 
         // Disable the ChangeLog system
         service.getChangeLog().setEnabled(false);
         service.setDenormalizeOpAttrsEnabled(true);
 
-        // Create some new partitions named 'foo', 'bar' and 'apache'.
-        Partition wso2Partition = addPartition("test", "dc=BALLERINA,dc=IO");
+        // Initialize a schema partition
+        initSchemaPartition();
 
-        // And start the service
+        // Initialize the system partition
+        initSystemPartition();
+
+        // Create a new partition named 'b7a'.
+        Partition b7aPartition = addPartition(LDAP_AUTH_TEST_PARTITION_NAME,
+                                                LDAP_AUTH_TEST_PARTITION_DN, service.getDnFactory());
+        service.addPartition(b7aPartition);
+
+        // Start the service
         service.startup();
+        // Start the Ldap Server
+        ldapServer.start();
 
-        //Load the LDIF file
+        // Load the LDIF file
         String ldif = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth"  + File.separator + "ldif").getAbsolutePath() + File.separator + "users-import.ldif";
         LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldif);
         ldifLoader.execute();
 
-        ldapService.start();
+    }
+
+    private void initSchemaPartition() throws IOException, LdapException {
+        InstanceLayout instanceLayout = service.getInstanceLayout();
+        File schemaPartitionDirectory = new File(instanceLayout.getPartitionsDirectory(), SCHEMA_PARTITION_NAME);
+
+        if (schemaPartitionDirectory.exists()) {
+            log.info("schema partition already exists, skipping schema extraction");
+        } else {
+            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(instanceLayout.getPartitionsDirectory());
+            extractor.extractOrCopy();
+        }
+
+        SchemaLoader loader = new LdifSchemaLoader(schemaPartitionDirectory);
+        SchemaManager schemaManager = new DefaultSchemaManager(loader);
+        schemaManager.loadAllEnabled();
+        List<Throwable> errors = schemaManager.getErrors();
+
+        if (errors != null && !errors.isEmpty()) {
+            throw new LdapException(Exceptions.printErrors(errors));
+        }
+
+        LdifPartition schemaLdifPartition = new LdifPartition(schemaManager, service.getDnFactory());
+        schemaLdifPartition.setPartitionPath(schemaPartitionDirectory.toURI());
+        SchemaPartition schemaPartition = new SchemaPartition(schemaManager);
+        schemaPartition.setWrappedPartition(schemaLdifPartition);
+        service.setSchemaManager(schemaManager);
+        service.setSchemaPartition(schemaPartition);
+    }
+
+    private void initSystemPartition() throws LdapInvalidDnException {
+        JdbmPartition systemPartition = new JdbmPartition(service.getSchemaManager(), service.getDnFactory());
+        systemPartition.setId(SystemSchemaConstants.SCHEMA_NAME);
+        systemPartition.setPartitionPath(new File(service.getInstanceLayout().getPartitionsDirectory(),
+                systemPartition.getId()).toURI());
+        systemPartition.setSuffixDn(new Dn(ServerDNConstants.SYSTEM_DN));
+        systemPartition.setSchemaManager(service.getSchemaManager());
+        service.setSystemPartition(systemPartition);
     }
 
     /**
      * Stops directory apache directory service.
      */
     public void stopLdapService() {
-        ldapService.stop();
+        ldapServer.stop();
         workDir.delete();
     }
 }

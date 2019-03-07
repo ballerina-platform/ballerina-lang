@@ -32,12 +32,12 @@ public class InvocationContext {
     public static final String INVOCATION_ID_KEY = "id";
     private BMap<String, BValue> invocationContextStruct;
     private UserPrincipal userPrincipal;
-    private AuthContext authContext;
+    private AuthenticationContext authenticationContext;
 
     public InvocationContext(BMap<String, BValue> invocationContextStruct, UserPrincipal userPrincipal,
-            AuthContext authenticationContext) {
+            AuthenticationContext authenticationContext) {
         this.invocationContextStruct = invocationContextStruct;
-        this.authContext = authenticationContext;
+        this.authenticationContext = authenticationContext;
         this.userPrincipal = userPrincipal;
     }
 
@@ -53,8 +53,8 @@ public class InvocationContext {
         invocationContextStruct.put(INVOCATION_ID_KEY, new BString(id));
     }
 
-    public AuthContext getAuthContext() {
-        return authContext;
+    public AuthenticationContext getAuthenticationContext() {
+        return authenticationContext;
     }
 
     public UserPrincipal getUserPrincipal() {

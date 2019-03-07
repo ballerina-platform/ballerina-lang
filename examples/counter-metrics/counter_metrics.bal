@@ -8,7 +8,9 @@ observe:Counter globalCounter = new("total_orders",
                                     desc = "Total quantity required");
 
 // Make sure you start the service with `--observe`, or metrics enabled.
-@http:ServiceConfig { basePath: "/online-store-service" }
+@http:ServiceConfig {
+    basePath: "/online-store-service"
+}
 service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {

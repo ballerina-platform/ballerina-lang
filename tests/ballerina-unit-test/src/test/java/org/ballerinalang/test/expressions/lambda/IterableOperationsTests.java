@@ -51,7 +51,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 26);
+        Assert.assertEquals(negative.getErrorCount(), 31);
 
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'int.foreach'", 6, 5);
@@ -93,8 +93,21 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
         BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
                 "require at least '2' variables", 99, 27);
-        BAssertUtil.validateError(negative, index, "not enough variables are defined for iterable type 'map', require" +
+        BAssertUtil.validateError(negative, index++,
+                                  "not enough variables are defined for iterable type 'map', require" +
                 " at least '2' variables", 103, 22);
+        BAssertUtil.validateError(negative, index++,
+                                  "cannot assign return value of 'filter' operation here, use a reduce operation",
+                                  110, 5);
+        BAssertUtil.validateError(negative, index++, "undefined symbol 'filtered'", 113, 17);
+        BAssertUtil.validateError(negative, index++,
+                                  "cannot assign return value of 'map' operation here, use a reduce operation",
+                                  118, 5);
+        BAssertUtil.validateError(negative, index++,
+                                  "invalid operation: type '(int) collection' does not support indexing", 129, 13);
+        BAssertUtil.validateError(negative, index,
+                                  "cannot assign return value of 'map' operation here, use a reduce operation",
+                                  141, 19);
     }
 
     @Test

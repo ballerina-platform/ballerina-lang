@@ -12,8 +12,8 @@ service chatAppUpgrader on new http:Listener(9090) {
     // Upgrade from HTTP to WebSocket and define the service the WebSocket client needs to connect to.
     @http:ResourceConfig {
         webSocketUpgrade: {
-            upgradePath: "/{name}",
-            upgradeService: chatApp
+                upgradePath: "/{name}",
+                upgradeService: chatApp
         }
     }
     resource function upgrader(http:Caller caller, http:Request req,
@@ -22,7 +22,7 @@ service chatAppUpgrader on new http:Listener(9090) {
         // Retrieves query parameters from the `http:Request`.
         map<string> queryParams = req.getQueryParams();
         // Cancel handshake by sending a 400 status code if the age parameter is missing in the request.
-        if (!queryParams.hasKey("age")){
+        if (!queryParams.hasKey("age")) {
             var err = caller->cancelWebSocketUpgrade(400, "Age is required");
             if (err is error) {
                 log:printError("Error cancelling handshake", err = err);

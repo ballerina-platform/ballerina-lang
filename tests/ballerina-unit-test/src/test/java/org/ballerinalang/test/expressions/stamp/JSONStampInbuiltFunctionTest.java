@@ -169,77 +169,6 @@ public class JSONStampInbuiltFunctionTest {
     }
 
     @Test
-    public void testStampConstraintJSONToAnydata() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintJSONToAnydata");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
-
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
-        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
-                BStringType.class);
-
-    }
-
-    @Test
-    public void testStampConstraintJSONToJSON() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintJSONToJSON");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJSONType.class);
-
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
-        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
-                BStringType.class);
-
-    }
-
-    @Test
-    public void testStampConstraintJSONToConstraintJSON() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintJSONToConstraintJSON");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
-
-        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Person");
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
-        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
-                BStringType.class);
-
-    }
-
-    @Test
-    public void testStampConstraintJSONToConstraintMapV2() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintJSONToConstraintMapV2");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BAnydataType.class);
-
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
-        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
-                BStringType.class);
-
-    }
-
-
-    @Test
     public void testStampJSONArrayToConstraintArray() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampJSONArrayToConstraintArray");
@@ -327,22 +256,6 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue0.getType().getName(), "Foo");
 
         Assert.assertEquals(((BArrayType) mapValue0.get("a").getType()).getElementType().getClass(), BStringType.class);
-    }
-
-    @Test
-    public void testStampConstraintJSONToRecord() {
-
-        BValue[] results = BRunUtil.invoke(compileResult, "stampConstraintJSONToRecord");
-        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
-
-        Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue0.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue0.getType().getName(), "Student");
-
-        Assert.assertEquals((mapValue0.getMap()).size(), 4);
-        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("batch").toString(), "LK2014");
-        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("batch")).getType().getClass(),
-                BStringType.class);
     }
 
     //----------------------------------- Negative Test cases ----------------------------------------------------
