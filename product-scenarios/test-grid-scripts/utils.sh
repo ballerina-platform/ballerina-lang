@@ -72,16 +72,25 @@ function download_and_extract_mysql_connector() {
 
 # Generate a random namespace name
 function generate_random_namespace() {
+    echo "kubernetes-namespace"-$(generate_random_name)
+}
+
+# Generate a random database name
+function generate_random_database_name() {
+    echo "test-database"-$(generate_random_name)
+}
+
+function generate_random_name() {
     local prefix=$1
     local new_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
-    echo "kubernetes-namespace"-${new_uuid}
+    echo ${new_uuid}
 }
 
 # Wait for pod readiness
 function wait_for_pod_readiness() {
     TIMEOUT=300
     INTERVAL=20
-    bash 'product-scenarios/test-grid-scripts/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
+    bash ${parent_path}/wait_for_pod_ready.sh ${TIMEOUT} ${INTERVAL}
 
     # Temporary sleep to check whether app eventually becomes ready..
     # Ideally there should have been a kubernetes readiness probe
