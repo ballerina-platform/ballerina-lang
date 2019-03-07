@@ -85,11 +85,11 @@ export DATABASE_NAME=test
 export DATABASE_USERNAME=${infra_config[DBUsername]}
 export DATABASE_PASSWORD=${infra_config[DBPassword]}
 
-bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
+bash product-scenarios/test-grid-scripts/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
 
 download_and_extract_mysql_connector
 
-ballerina build product-scenarios/scenarios/1/data-service.bal
+ballerina build product-scenarios/data/data-service.bal
 
 kubectl apply -f kubernetes/
 

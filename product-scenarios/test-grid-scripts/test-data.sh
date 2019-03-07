@@ -18,6 +18,7 @@ set -o xtrace
 
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 . ${parent_path}/utils.sh
+grand_parent_path=$(dirname ${parent_path})
 
 WORK_DIR=`pwd`
 TEST_SCRIPT=test.sh
@@ -106,7 +107,7 @@ fi
 echo Final Jmeter home: $JMETER_HOME
 
 mkdir scenario1
-bash ${JMETER_HOME}/bin/jmeter -t scenarios/1/ballerina-SELECT.jmx -n  -l ./scenario1/ballerina-SELECT.jtl -Jhost=${EXTERNAL_IP}
+bash ${JMETER_HOME}/bin/jmeter -t ${grand_parent_path}/data/ballerina-SELECT.jmx -n  -l ./scenario1/ballerina-SELECT.jtl -Jhost=${EXTERNAL_IP}
 
 cat ./scenario1/ballerina-SELECT.jtl
 

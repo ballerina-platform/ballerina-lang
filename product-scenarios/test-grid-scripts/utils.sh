@@ -81,7 +81,7 @@ function generate_random_namespace() {
 function wait_for_pod_readiness() {
     TIMEOUT=300
     INTERVAL=20
-    bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
+    bash 'product-scenarios/test-grid-scripts/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
 
     # Temporary sleep to check whether app eventually becomes ready..
     # Ideally there should have been a kubernetes readiness probe
