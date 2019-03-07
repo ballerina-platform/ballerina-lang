@@ -32,7 +32,6 @@ public class ConstantValue {
 
     public int recordLiteralSigCPIndex = -1;
 
-    // Todo - use enum to identify the type
     public boolean isSimpleLiteral;
     public boolean isConstRef;
 

@@ -2215,7 +2215,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Iterate through key-value pairs.
         for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
 
-            // Todo - verify whether key is a literal
             // Get the key. Key will always be a literal.
             String key = ((BLangLiteral) keyValue.key.expr).value.toString();
             BLangExpression valueExpr = keyValue.valueExpr;

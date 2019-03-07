@@ -106,7 +106,7 @@ public class ConstantValueChecker extends BLangNodeVisitor {
     public void visit(BLangMapLiteral mapLiteral) {
         // Iterate through all key-value pairs in the record literal.
         for (BLangRecordKeyValue keyValuePair : mapLiteral.keyValuePairs) {
-            // Todo - Add negative tests for non literal keys
+
             //  Get the key.
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
 

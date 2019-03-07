@@ -1001,8 +1001,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     boolean isValidConstantExpression(BLangExpression expression) {
         switch (expression.getKind()) {
             case LITERAL:
-            case RECORD_LITERAL_EXPR:
             case NUMERIC_LITERAL:
+            case RECORD_LITERAL_EXPR:
                 return true;
         }
         return false;

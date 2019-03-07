@@ -1966,7 +1966,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 constant.symbol.literalValueTypeTag = value.type.tag;
             }
 
-            // Todo - Remove?
             // We need to update the literal value here. Otherwise we will encounter issues when creating new literal
             // nodes in desugar because we wont be able to identify byte and decimal types.
             constant.symbol.literalValue = value.value;
@@ -2015,11 +2014,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case SIMPLE_VARIABLE_REF:
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
-                if (symbol == null) {
-                    // Todo - Log error?
-                    break;
-                }
-                if ((symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+                // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
+                if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
                     dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
                 }
                 break;

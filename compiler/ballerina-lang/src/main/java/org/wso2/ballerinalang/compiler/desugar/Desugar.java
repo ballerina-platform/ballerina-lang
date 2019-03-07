@@ -2179,30 +2179,17 @@ public class Desugar extends BLangNodeVisitor {
                 BLangMapLiteral mapLiteral = (BLangMapLiteral) constantSymbol.literalValue;
                 // Check whether the map literal is a constant.
 
-                // Retrieve the field access expression's value.
-                BLangExpression value = constantValueResolver.getValue(fieldAccessExpr.field, mapLiteral);
-
-                // If the value is `null`, that means the value could not be retrieved. In that case we just
-                // create an empty literal as the result since anyway compilation will not continue because of
-                // the error.
-                if (value == null) {
-                    // Todo - Improve position in package builder.
-                    // Create a new literal as the result.
-                    result = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                } else {
-                    result = value;
-                }
+                // Retrieve the field access expression's value. Result cannot be `null` here since we validate the
+                // existence of the key in ConstantValueChecker.
+                result = constantValueResolver.getValue(fieldAccessExpr.field, mapLiteral);
                 return;
-
             }
-            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
-                    stringLit);
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
-                    stringLit);
+            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.XML) {
-            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
-                    stringLit, fieldAccessExpr.fieldKind);
+            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                    fieldAccessExpr.fieldKind);
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;

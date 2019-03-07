@@ -738,17 +738,29 @@ public class CompiledPackageSymbolEnter {
             constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
                     valueType, valueType, enclScope.owner);
 
+            // Read the constant value CP entry index.
             int constantValueCPEntry = dataInStream.readInt();
 
+            // Get the corresponding MapCPEntry.
             MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[constantValueCPEntry];
+
+            // Since this is a top level map literal, set the symbol to the MapCPEntry. This will be later used to
+            // identify references.
             mapCPEntry.setConstantSymbol(constantSymbol);
 
+            // Read the map literal.
             BLangMapLiteral mapLiteral = readConstantValueMap(dataInStream, valueType);
 
+            // If the mapCPEntry does not contain a literalValue, that means we are encountering this value for the
+            // first time. Then we update the constant symbol's literal value and the mapCPEntries literal value with
+            // the map literal which we have read.
             if (mapCPEntry.literalValue == null) {
-                // Read the map literal.
                 constantSymbol.literalValue = mapCPEntry.literalValue = mapLiteral;
             } else {
+                // If the mapCPEntry's literal value is not null, that means we have encountered this value
+                // earlier. In such case, set the mapCPEntry's literal value as the constant symbol's literal value.
+                // This is done to make sure all the references have the same literal value. Otherwise the `===` will
+                // fail for them.
                 constantSymbol.literalValue = mapCPEntry.literalValue;
             }
 
@@ -818,10 +830,9 @@ public class CompiledPackageSymbolEnter {
 
         LinkedList<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new LinkedList<>();
 
-        // Read the size.
+        // Read the map literal size.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
-            // Get the key.
             String key = getUTF8CPEntryValue(dataInStream);
 
             boolean isSimpleLiteral = dataInStream.readBoolean();
@@ -838,11 +849,21 @@ public class CompiledPackageSymbolEnter {
                 BType valueType = getBTypeFromDescriptor(valueTypeSig);
 
                 int valueCPEntryIndex = dataInStream.readInt();
-
                 MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[valueCPEntryIndex];
 
                 BLangMapLiteral recordLiteral = readConstantValueMap(dataInStream, valueType);
 
+                // If the current map entry is a reference value, create a new BLangConstRef and set the symbol which
+                // is retrieved from the mapCPEntry (in defineConstants we set the symbol). But sometimes this symbol
+                // can be null because we might encounter the reference before the constant definition.
+                //
+                // Eg - const map<map<boolean>> bm3 = { "key2": bm1 };
+                //      const map<boolean> bm1 = { "key1": true };
+                //
+                // In such situations, we need to update the BLangConstRef's symbol with the constant symbol once we
+                // create a symbol for that. In such cases, we add the BLangConstRef and the mapCPEntry to a map and
+                // after reading all of the constants, we iterate through them and update the symbol of
+                // BLangConstRef's accordingly.
                 if (isConstRef) {
                     BLangConstRef constRef = new BLangConstRef(mapCPEntry.getConstantSymbol());
                     constRef.desugared = true;
@@ -850,9 +871,11 @@ public class CompiledPackageSymbolEnter {
 
                     value = constRef;
 
+                    // Add the BLangConstRef and the corresponding MapCPEntry to the map so we can properly update
+                    // them later.
                     this.env.unresolvedConstReferences.put(constRef, mapCPEntry);
-
                 } else {
+                    // If it is not a constant reference, we update the mapCPEntry's value.
                     value = mapCPEntry.literalValue = recordLiteral;
                 }
             }

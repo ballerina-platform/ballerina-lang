@@ -292,17 +292,19 @@ public class PackageInfoReader {
     }
 
     private ConstantPoolEntry getMapConstantPoolEntry(ConstantPool constantPool) throws IOException {
+        // We use this map to recreate `KeyInfo -> ConstantValue` mapping.
         LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+
+        // We use this BMap to generate actual value which will be loaded to the VM.
         BMap<String, BRefType> bValueMap = new BMap<>();
 
-        // Read and ignore constant value CP entry index.
+        // Read and ignore constant value CP entry index. This will be used in CompiledPackageSymbolEnter.
         dataInStream.readInt();
 
         // Read the size of the record literal.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
 
-            // Read the key.
             int keyCPIndex = dataInStream.readInt();
             UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
 
@@ -310,18 +312,25 @@ public class PackageInfoReader {
             if (isSimpleLiteral) {
                 bValueMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
             } else {
-                // This situation occurs for any nested record literal.
+                // This situation occurs for any nested record literal. This is the index of the constant pool entry
+                // which contains the corresponding MapCPEntry.
                 int constantValueCPEntryIndex = dataInStream.readInt();
                 MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
 
+                // Any nested map literal will be already in the constant pool. Corresponding BMap is also generated
+                // when the constant pool is generated. So we just need to get the corresponding value from the
+                // MapCPEntry and add it to the bValueMap.
                 bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
 
+                // Create the key.
                 KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
 
+                // Create the value.
                 ConstantValue constantValue = new ConstantValue();
                 constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
                 constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
 
+                // Add the key-value pair to the valueMap.
                 valueMap.put(keyInfo, constantValue);
             }
         }
@@ -729,7 +738,7 @@ public class PackageInfoReader {
         // Read and ignore flags.
         dataInStream.readInt();
 
-        // Read simple literal flag.
+        // Read isSimpleLiteral flag.
         boolean isSimpleLiteral = dataInStream.readBoolean();
 
         if (isSimpleLiteral) {
@@ -739,8 +748,8 @@ public class PackageInfoReader {
             // Read the value type CP index and get type.
             int valueTypeSigCPIndex = dataInStream.readInt();
             UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
-            BType type = this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo),
-                    resNameUTF8Entry.getValue());
+            RuntimeTypeCreater typeCreater = new RuntimeTypeCreater(packageInfo);
+            BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreater, resNameUTF8Entry.getValue());
 
             readSimpleLiteral(type);
         } else {
@@ -764,6 +773,7 @@ public class PackageInfoReader {
     private void readSimpleLiteral(BType type) throws IOException {
         switch (type.getTag()) {
             case TypeTags.BOOLEAN_TAG:
+                // Read and ignore boolean value.
                 dataInStream.readBoolean();
                 break;
             case INT_TAG:
@@ -771,6 +781,7 @@ public class PackageInfoReader {
             case FLOAT_TAG:
             case DECIMAL_TAG:
             case STRING_TAG:
+                // Read and ignore int value.
                 dataInStream.readInt();
                 break;
             case TypeTags.NULL_TAG:
@@ -781,13 +792,13 @@ public class PackageInfoReader {
     }
 
     private void readMapLiteral(PackageInfo packageInfo) throws IOException {
-        // Read size.
+        // Read size of the map literal.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
             // Read and ignore constant name CP index.
             dataInStream.readInt();
 
-            // Read simple literal flag.
+            // Read isSimpleLiteral flag.
             boolean isSimpleLiteral = dataInStream.readBoolean();
 
             // Read and ignore isConstRef flag.
@@ -797,8 +808,8 @@ public class PackageInfoReader {
                 // Read the value type CP index and get type.
                 int valueTypeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
-                BType type = this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo),
-                        resNameUTF8Entry.getValue());
+                RuntimeTypeCreater typeCreater = new RuntimeTypeCreater(packageInfo);
+                BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreater, resNameUTF8Entry.getValue());
 
                 // Read simple literal info.
                 readSimpleLiteral(type);

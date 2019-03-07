@@ -1554,9 +1554,7 @@ public class BVM {
                 pkgIndex = operands[0];
                 i = operands[1];
                 j = operands[2];
-
                 PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
-
                 sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).getBMap();
                 break;
             default:
