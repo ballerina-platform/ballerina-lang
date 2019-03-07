@@ -39,7 +39,7 @@ cat ${bal_path}
 
 cd data-backed-service/guide
 
-ballerina build data_backed_service --skiptests
+${ballerina_home}/bin/ballerina build data_backed_service --skiptests
 
 cd ../..
 

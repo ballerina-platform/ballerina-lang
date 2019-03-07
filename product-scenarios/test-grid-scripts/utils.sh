@@ -58,10 +58,10 @@ function write_to_properties_file() {
 # $1 - Ballerina version
 function install_ballerina() {
     local ballerina_version=$1
-    wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-linux-installer-x64-${ballerina_version}.deb --quiet
-    sudo dpkg -i ballerina-linux-installer-x64-${ballerina_version}.deb
-
-    ballerina version
+    wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-${ballerina_version}.zip --quiet
+    unzip ballerina-${ballerina_version}.zip -d ${parent_path}
+    ${parent_path}/ballerina-${ballerina_version}/bin/ballerina version
+    ballerina_home=${parent_path}/ballerina-${ballerina_version}
 }
 
 function download_and_extract_mysql_connector() {
