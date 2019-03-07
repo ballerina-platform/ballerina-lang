@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for reading constants.
  */
-public class ConstantAccessInBaloTest {
+public class SimpleConstantAccessInBaloTest {
 
     private CompileResult compileResult;
 
