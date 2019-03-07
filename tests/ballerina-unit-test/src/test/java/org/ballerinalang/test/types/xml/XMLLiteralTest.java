@@ -243,7 +243,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[1].stringValue(), "<Country>US</Country>");
 
         Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(), "<_foo id=\"hello3\" >hello</_foo>");
+        Assert.assertEquals(returns[2].stringValue(), "<_foo id=\"hello 5\">hello</_foo>");
     }
 
     @Test
