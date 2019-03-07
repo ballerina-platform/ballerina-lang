@@ -347,11 +347,18 @@ public class PackageInfoReader {
 
         // Populate the BMap accordingly.
         if (typeTag == TypeTags.NULL_TAG) {
+            BMapType bMapType = new BMapType(BTypes.typeNull);
+            bValueMap = new BMap<>(bMapType);
+
             bValueMap.put(keyCPEntry.getValue(), null);
         } else if (typeTag == TypeTags.BOOLEAN_TAG) {
+            BMapType bMapType = new BMapType(BTypes.typeBoolean);
             boolean value = dataInStream.readBoolean();
+            bValueMap = new BMap<>(bMapType);
+
             constantValue.booleanValue = value;
-            bValueMap.put(keyCPEntry.getValue(), new BBoolean(value));
+            BBoolean bBoolean = new BBoolean(value);
+            bValueMap.put(keyCPEntry.getValue(), bBoolean);
         } else {
             int valueCPIndex = dataInStream.readInt();
             constantValue.valueCPEntryIndex = valueCPIndex;
@@ -361,39 +368,39 @@ public class PackageInfoReader {
 
             switch (typeTag) {
                 case INT_TAG:
-                    BInteger bInteger = new BInteger(((IntegerCPEntry) cpEntry).getValue());
-
-                    bMapType = new BMapType(bInteger.getType());
+                    bMapType = new BMapType(BTypes.typeInt);
                     bValueMap = new BMap<>(bMapType);
+
+                    BInteger bInteger = new BInteger(((IntegerCPEntry) cpEntry).getValue());
                     bValueMap.put(keyCPEntry.getValue(), bInteger);
                     break;
                 case BYTE_TAG:
-                    BByte bByte = new BByte(((ByteCPEntry) cpEntry).getValue());
-
-                    bMapType = new BMapType(bByte.getType());
+                    bMapType = new BMapType(BTypes.typeByte);
                     bValueMap = new BMap<>(bMapType);
+
+                    BByte bByte = new BByte(((ByteCPEntry) cpEntry).getValue());
                     bValueMap.put(keyCPEntry.getValue(), bByte);
                     break;
                 case FLOAT_TAG:
-                    BFloat bFloat = new BFloat(((FloatCPEntry) cpEntry).getValue());
-
-                    bMapType = new BMapType(bFloat.getType());
+                    bMapType = new BMapType(BTypes.typeFloat);
                     bValueMap = new BMap<>(bMapType);
+
+                    BFloat bFloat = new BFloat(((FloatCPEntry) cpEntry).getValue());
                     bValueMap.put(keyCPEntry.getValue(), bFloat);
                     break;
                 case DECIMAL_TAG:
+                    bMapType = new BMapType(BTypes.typeDecimal);
+                    bValueMap = new BMap<>(bMapType);
+
                     BDecimal bDecimal = new BDecimal(new BigDecimal(((UTF8CPEntry) cpEntry).getValue(),
                             MathContext.DECIMAL128));
-
-                    bMapType = new BMapType(bDecimal.getType());
-                    bValueMap = new BMap<>(bMapType);
                     bValueMap.put(keyCPEntry.getValue(), bDecimal);
                     break;
                 case STRING_TAG:
-                    BString bString = new BString(((UTF8CPEntry) cpEntry).getValue());
-
-                    bMapType = new BMapType(bString.getType());
+                    bMapType = new BMapType(BTypes.typeString);
                     bValueMap = new BMap<>(bMapType);
+
+                    BString bString = new BString(((UTF8CPEntry) cpEntry).getValue());
                     bValueMap.put(keyCPEntry.getValue(), bString);
                     break;
                 default:
