@@ -271,12 +271,18 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
     string typeFieldName = "";
     if (bType is bir:BTypeInt) {
         typeFieldName = "typeInt";
+    } else if (bType is bir:BTypeFloat) {
+        typeFieldName = "typeFloat";
     } else if (bType is bir:BTypeString) {
         typeFieldName = "typeString";
     } else if (bType is bir:BTypeBoolean) {
         typeFieldName = "typeBoolean";
+    } else if (bType is bir:BTypeByte) {
+        typeFieldName = "typeByte";
     } else if (bType is bir:BTypeNil) {
         typeFieldName = "typeNull";
+    } else if (bType is bir:BTypeAny) {
+        typeFieldName = "typeAny";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -343,7 +349,7 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 
     // Create the members array
     bir:BType[] memberTypes = bType.members;
-    mv.visitInsn(memberTypes.length());
+    mv.visitLdcInsn(memberTypes.length());
     mv.visitInsn(L2I);
     mv.visitTypeInsn(ANEWARRAY, BTYPE);
     int i = 0;
@@ -368,7 +374,7 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 # Load a user defined type instance to the top of the stack.
 #
 # + mv - method visitor
-# + recordType - record type tp load
+# + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
     string fieldName = getTypeFieldName(typeName.value);
     mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));

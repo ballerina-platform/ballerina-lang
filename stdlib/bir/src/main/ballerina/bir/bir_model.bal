@@ -135,6 +135,8 @@ public type BTypeBoolean "boolean";
 
 public type BTypeString "string";
 
+public type BTypeByte "byte";
+
 public type BArrayType record {
     ArrayState state;
     BType eType;
@@ -162,8 +164,8 @@ public type BRecordType record {
 
 public type BObjectType record {
     Name name = {};
-    BObjectField[] fields; 
-    !...;   
+    BObjectField[] fields;
+    !...;
 };
 
 public type BRecordField record {
@@ -190,8 +192,8 @@ public type BTupleType record {
 };
 
 
-public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | "byte" | "float" | BTypeString | BUnionType | BTupleType |
-                  BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
+public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
+                  BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
 
 
 public type BTypeSymbol record {

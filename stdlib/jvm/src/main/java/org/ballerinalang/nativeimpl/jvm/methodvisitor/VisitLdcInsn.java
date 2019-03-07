@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -56,6 +57,10 @@ public class VisitLdcInsn extends BlockingNativeCallableUnit {
             case TypeTags.INT_TAG:
                 long longVal = ((BInteger) value).intValue();
                 mv.visitLdcInsn(longVal);
+                break;
+            case TypeTags.FLOAT_TAG:
+                double doubleVal = ((BFloat) value).floatValue();
+                mv.visitLdcInsn(doubleVal);
                 break;
             case TypeTags.STRING_TAG:
                 String stringVal = value.stringValue();
