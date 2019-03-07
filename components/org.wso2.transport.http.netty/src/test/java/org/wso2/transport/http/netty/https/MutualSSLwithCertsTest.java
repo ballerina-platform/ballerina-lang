@@ -69,6 +69,8 @@ public class MutualSSLwithCertsTest {
         listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
         listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
         listenerConfiguration.setServerTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
+        listenerConfiguration.setSslSessionTimeOut(TestUtil.SSL_SESSION_TIMEOUT);
+        listenerConfiguration.setSslHandshakeTimeOut(TestUtil.SSL_HANDSHAKE_TIMEOUT);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setVerifyClient("require");
         return listenerConfiguration;
@@ -80,6 +82,8 @@ public class MutualSSLwithCertsTest {
         senderConfiguration.setClientCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
         senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        senderConfiguration.setSslSessionTimeOut(TestUtil.SSL_SESSION_TIMEOUT);
+        senderConfiguration.setSslHandshakeTimeOut(TestUtil.SSL_HANDSHAKE_TIMEOUT);
         senderConfiguration.setHostNameVerificationEnabled(false);
         return senderConfiguration;
     }

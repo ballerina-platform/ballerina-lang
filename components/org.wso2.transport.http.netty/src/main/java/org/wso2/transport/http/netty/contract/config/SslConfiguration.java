@@ -161,6 +161,14 @@ public class SslConfiguration {
         sslConfig.setServerKeyPassword(serverKeyPassword);
     }
 
+    public void setSslSessionTimeOut(int sessionTimeOut) {
+        sslConfig.setSessionTimeOut(sessionTimeOut);
+    }
+
+    public void setSslHandshakeTimeOut(long handshakeTimeOut) {
+        sslConfig.setHandshakeTimeOut(handshakeTimeOut);
+    }
+
     public SSLConfig getClientSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;

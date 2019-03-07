@@ -60,6 +60,7 @@ import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setHostNameVerfication;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.setSslHandshakeTimeOut;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -171,11 +172,12 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             if (referenceCountedOpenSslContext != null) {
                 SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(ch.alloc());
                 ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
+                setSslHandshakeTimeOut(sslConfig, sslHandler);
                 ch.pipeline().addLast(sslHandler);
                 ch.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
         } else {
-            sslHandlerFactory.createSSLContextFromKeystores();
+            sslHandlerFactory.createSSLContextFromKeystores(false);
             SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForClient(false);
             SslHandler sslHandler = sslCtx.newHandler(ch.alloc(), httpRoute.getHost(), httpRoute.getPort());
             SSLEngine sslEngine = sslHandler.engine();
@@ -183,10 +185,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             if (sslConfig.isHostNameVerificationEnabled()) {
                 setHostNameVerfication(sslEngine);
             }
-            clientPipeline.addLast(new SslHandler(sslEngine));
+            setSslHandshakeTimeOut(sslConfig, sslHandler);
+            clientPipeline.addLast(sslHandler);
             if (sslConfig.isValidateCertEnabled()) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(sslHandler.engine(), sslConfig.getCacheValidityPeriod(),
+                        new CertificateValidationHandler(sslEngine, sslConfig.getCacheValidityPeriod(),
                                 sslConfig.getCacheSize()));
             }
         }

@@ -98,6 +98,8 @@ public class TestHttp2WithALPN {
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
         listenerConfiguration.setVerifyClient(OPTIONAL);
+        listenerConfiguration.setSslSessionTimeOut(TestUtil.SSL_SESSION_TIMEOUT);
+        listenerConfiguration.setSslHandshakeTimeOut(TestUtil.SSL_HANDSHAKE_TIMEOUT);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         return listenerConfiguration;
@@ -112,6 +114,8 @@ public class TestHttp2WithALPN {
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setHttpVersion(httpVersion);
+        senderConfiguration.setSslSessionTimeOut(TestUtil.SSL_SESSION_TIMEOUT);
+        senderConfiguration.setSslHandshakeTimeOut(TestUtil.SSL_HANDSHAKE_TIMEOUT);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
     }
