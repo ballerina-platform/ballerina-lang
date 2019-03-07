@@ -348,12 +348,8 @@ public class CompiledPackageSymbolEnter {
             int keyCPIndex = dataInStream.readInt();
             UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool[keyCPIndex];
 
-            // Todo - use enum
             boolean isSimpleLiteral = dataInStream.readBoolean();
-//            boolean isConstRef = dataInStream.readBoolean();
-
             if (isSimpleLiteral) {
-
                 // Read value type tag.
                 int typeTag = dataInStream.readInt();
 
@@ -373,18 +369,6 @@ public class CompiledPackageSymbolEnter {
                     constantValue.valueCPEntryIndex = dataInStream.readInt();
                     valueMap.put(keyInfo, constantValue);
                 }
-//            } else if (isConstRef) {
-//                int valueCPIndex = dataInStream.readInt();
-//
-//                MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
-//
-//                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-//
-//                ConstantValue constantValue = new ConstantValue();
-//                constantValue.valueCPEntryIndex = valueCPIndex;
-//                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
-//
-//                valueMap.put(keyInfo, constantValue);
             } else {
                 int valueCPIndex = dataInStream.readInt();
 
@@ -745,19 +729,6 @@ public class CompiledPackageSymbolEnter {
                     finiteType, valueType, enclScope.owner);
             constantSymbol.literalValue = object;
             constantSymbol.literalValueTypeTag = valueType.tag;
-//        } else if (isConstRef) {
-//            // Read value type. Don't need the finite type since the literal is not a simple literal.
-//            String valueTypeSig = getUTF8CPEntryValue(dataInStream);
-//            BType valueType = getBTypeFromDescriptor(valueTypeSig);
-//
-//            // Create the constant symbol.
-//            constantSymbol = new BConstantSymbol(flags, names.fromString(constantName), this.env.pkgSymbol.pkgID,
-//                    valueType, valueType, enclScope.owner);
-//
-//            int valueCPEntryIndex = dataInStream.readInt();
-//
-//            MapCPEntry mapCPEntry = (MapCPEntry) this.env.constantPool[valueCPEntryIndex];
-
         } else {
             // Read value type. Don't need the finite type since the literal is not a simple literal.
             String valueTypeSig = getUTF8CPEntryValue(dataInStream);
@@ -778,22 +749,10 @@ public class CompiledPackageSymbolEnter {
                 // Read the map literal.
                 constantSymbol.literalValue = mapCPEntry.literalValue = mapLiteral;
             } else {
-
-                // Todo - new const ref
-
-//                BLangSimpleVarRef.BLangConstRef constRef = new BLangSimpleVarRef.BLangConstRef(constantSymbol);
-//                constRef.desugared = true;
-//                constRef.type = valueType;
-//
-//                constantSymbol.literalValue = constRef;
-
                 constantSymbol.literalValue = mapCPEntry.literalValue;
             }
 
-//            constantSymbol.literalValue = mapCPEntry.literalValue =
-//                    readConstantValueMap(dataInStream, valueType);
             constantSymbol.literalValueTypeTag = valueType.tag;
-
             constantSymbol.cpEntryIndex = mapCPEntry.getCPEntryIndex();
         }
 

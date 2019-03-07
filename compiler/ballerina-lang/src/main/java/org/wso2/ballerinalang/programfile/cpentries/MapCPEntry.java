@@ -72,7 +72,6 @@ public class MapCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object o) {
-
         if (!(o instanceof MapCPEntry)) {
             return false;
         }

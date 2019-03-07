@@ -1962,7 +1962,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else {
                 // We don't have any expected type in this case since the type node is not available. So we get the type
                 // from the value.
-                resultType =typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
+                resultType = typeChecker.checkExpr(value, env, symTable.getTypeFromTag(value.type.tag));
                 constant.symbol.literalValueTypeTag = value.type.tag;
             }
 

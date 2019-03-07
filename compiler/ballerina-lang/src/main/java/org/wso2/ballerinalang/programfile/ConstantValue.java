@@ -52,21 +52,12 @@ public class ConstantValue {
 
         ConstantValue constantValue = (ConstantValue) obj;
 
-        boolean equals = finiteTypeSigCPIndex == constantValue.finiteTypeSigCPIndex &&
+        return finiteTypeSigCPIndex == constantValue.finiteTypeSigCPIndex &&
                 valueTypeSigCPIndex == constantValue.valueTypeSigCPIndex &&
                 recordLiteralSigCPIndex == constantValue.recordLiteralSigCPIndex &&
                 isSimpleLiteral == constantValue.isSimpleLiteral &&
                 literalValueTypeTag == constantValue.literalValueTypeTag &&
                 valueCPEntryIndex == constantValue.valueCPEntryIndex &&
                 booleanValue == constantValue.booleanValue;
-
-        if (!equals) {
-            return false;
-        }
-
-        // Todo - Iterate and check map
-        // Todo - Iterate map or check valueCPEntryIndex instead?
-
-        return true;
     }
 }

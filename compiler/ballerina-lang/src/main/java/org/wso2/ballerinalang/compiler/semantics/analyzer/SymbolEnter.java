@@ -1024,12 +1024,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constant.symbol.literalValueType = symTable.getTypeFromTag(constant.symbol.literalValueTypeTag);
             }
 
-            if (!isAllowedConstantType(constant.symbol, constant.typeNode)) {
-                // Constant might not have a typeNode.
-                if (constant.typeNode != null) {
-                    dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
-                            constant.typeNode);
-                }
+            if (isAllowedConstantType(constant.symbol, constant.typeNode)) {
+                continue;
+            }
+            // Constant might not have a typeNode.
+            if (constant.typeNode != null) {
+                dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
             }
         }
     }

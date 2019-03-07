@@ -35,7 +35,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
-    private BLangIdentifier key;
+    private BLangIdentifier keyIdentifier;
     private BLangExpression result;
 
     private ConstantValueResolver(CompilerContext context) {
@@ -50,10 +50,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return constantValueResolver;
     }
 
-    public BLangExpression getValue(BLangIdentifier key, BLangMapLiteral mapLiteral) {
+    public BLangExpression getValue(BLangIdentifier keyIdentifier, BLangMapLiteral mapLiteral) {
         this.result = null;
-
-        this.key = key;
+        this.keyIdentifier = keyIdentifier;
 
         mapLiteral.accept(this);
 
@@ -68,7 +67,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             Object key = ((BLangLiteral) keyValuePair.key.expr).value;
             // If the key is equal to the value of the key, that means the key which we are looking for is
             // in the record literal.
-            if (!key.equals(this.key.value)) {
+            if (!key.equals(keyIdentifier.value)) {
                 continue;
             }
             // Since we are looking for a literal which can be used as at compile time, it should be a literal.

@@ -931,7 +931,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
                     BLangRecordLiteral mapLiteral = (BLangRecordLiteral) constantSymbol.literalValue;
                     // Retrieve the field access expression's value.
-                    constantValueChecker.checkValue( fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
+                    constantValueChecker.checkValue(fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
                 }
             }
         }

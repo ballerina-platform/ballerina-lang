@@ -295,11 +295,10 @@ public class PackageInfoReader {
         LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
         BMap<String, BRefType> bValueMap = new BMap<>();
 
-
-        // Constant value CP entry index.
+        // Read and ignore constant value CP entry index.
         dataInStream.readInt();
 
-        // Read the size of the
+        // Read the size of the record literal.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
 
@@ -308,23 +307,8 @@ public class PackageInfoReader {
             UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
 
             boolean isSimpleLiteral = dataInStream.readBoolean();
-//            boolean isConstRef = dataInStream.readBoolean();
-
             if (isSimpleLiteral) {
                 bValueMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
-//            } else if (isConstRef) {
-//                int constantValueCPEntryIndex = dataInStream.readInt();
-//                MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
-//
-//                bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
-//
-//                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
-//
-//                ConstantValue constantValue = new ConstantValue();
-//                constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
-//                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
-//
-//                valueMap.put(keyInfo, constantValue);
             } else {
                 // This situation occurs for any nested record literal.
                 int constantValueCPEntryIndex = dataInStream.readInt();
@@ -341,7 +325,7 @@ public class PackageInfoReader {
                 valueMap.put(keyInfo, constantValue);
             }
         }
-        return new MapCPEntry( valueMap, bValueMap);
+        return new MapCPEntry(valueMap, bValueMap);
     }
 
     private BMap<String, BRefType> readSimpleLiteral(ConstantPool constantPool,
@@ -800,16 +784,10 @@ public class PackageInfoReader {
 
             // Read and ignore isConstRef flag.
             dataInStream.readBoolean();
+
             if (isSimpleLiteral) {
                 // Read simple literal info.
                 readSimpleLiteral(packageInfo);
-                // Todo - Add const ref
-                //            } else if (isConstRef) {
-                //                // Read record literal type signature CP index.
-                //                dataInStream.readInt();
-                //
-                //                // Todo
-                //                dataInStream.readInt();
             } else {
                 // Read record literal type signature CP index.
                 dataInStream.readInt();
