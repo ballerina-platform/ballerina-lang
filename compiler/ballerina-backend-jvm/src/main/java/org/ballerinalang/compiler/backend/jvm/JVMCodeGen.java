@@ -75,6 +75,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_HOME;
+import static org.ballerinalang.util.BLangConstants.JAR_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
@@ -90,7 +91,6 @@ public class JVMCodeGen {
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
     private static final String JAR_ENTRIES = "jarEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
-    private static final String JAR_EXT = ".jar";
     private static final String functionName = "generateExecutableJar";
     private static final String BALLERINA_RUNTIME_JAR_NAME = "ballerina-runtime";
 
@@ -142,7 +142,7 @@ public class JVMCodeGen {
     private static void generateJar(Path outputPath, String targetFileName, LinkedHashMap<String, BValue> entries)
             throws IOException {
 
-        Path jarFilePath = Paths.get(outputPath.toString(), cleanupFileExtension(targetFileName) + JAR_EXT);
+        Path jarFilePath = Paths.get(outputPath.toString(), cleanupFileExtension(targetFileName) + JAR_FILE_SUFFIX);
 
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
