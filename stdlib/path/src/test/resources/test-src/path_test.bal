@@ -28,15 +28,10 @@ function testGetPathListSeparator() returns string {
     return path:PATH_LIST_SEPARATOR;
 }
 
-function testIsAbsolutePath(string path) returns boolean {
+function testIsAbsolutePath(string path) returns boolean|error {
     return path:isAbsolute(path);
 }
 
-function testGetFilename(string path) returns string {
-    var filename = path:filename(path);
-    if (filename is string) {
-        return filename;
-    } else {
-        return "";
-    }
+function testGetFilename(string path) returns string|error {
+    return path:filename(path);
 }

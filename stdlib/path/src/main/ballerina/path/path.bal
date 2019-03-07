@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/log;
 import ballerina/system;
 
@@ -36,7 +37,7 @@ public extern function absolute(string path) returns string|error;
 #
 # + path - String value of file path.
 # + return - True if path is absolute, else false
-public function isAbsolute(string path) returns boolean {
+public function isAbsolute(string path) returns boolean|error {
     if (path.length() <= 0) {
         return false;
     }
@@ -44,25 +45,16 @@ public function isAbsolute(string path) returns boolean {
         if (path.length() <= 1) {
             return false;
         }
-        string c0 = path.substring(0,1);
-        string c1 = path.substring(1,2);
+        string c0 = check charAt(path, 0);
+        string c1 = check charAt(path, 1);
         if (isSlash(c0) && isSlash(c1)) {
-            var unc = isUNC(path);
-            if (unc is error) {
-                log:printError("Error while checking whether path has valid UNC format", err = unc);
-                return false;
-            } else {
-                if (!unc) {
-                    log:printError("Invaild UNC path");
-                }
-                return unc;
-            }
+            return isUNC(path);
         } else {
             if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
                 if (path.length() <= 2) {
                     return false;
                 }
-                string c2 = path.substring(2,3);
+                string c2 = check charAt(path, 2);
                 if (isSlash(c2)) {
                     return true;
                 }
@@ -82,13 +74,13 @@ public function isAbsolute(string path) returns boolean {
 #
 # + path - String value of file path.
 # + return - Returns the name of the file
-public function filename(string path) returns string?|error {
+public function filename(string path) returns string|error {
     int[] offsetIndexes = getOffsetIndexes(path);
     int count = offsetIndexes.length();
     if (count == 0) {
-        return ();
+        return "";
     }
-    if (count == 1 && path.length() > 0 && !isAbsolute(path)) {
+    if (count == 1 && path.length() > 0 && !(check isAbsolute(path))) {
         return normalizeAndCheck(path);
     }
     int lastOffset = offsetIndexes[count - 1];
@@ -105,32 +97,27 @@ function normalizeAndCheck(string input) returns string|error {
         int offset = 0;
         string root = "";
         if (length > 1) {
-            string c0 = input.substring(0, 1);
-            string c1 = input.substring(1, 2);
+            string c0 = check charAt(input, 0);
+            string c1 = check charAt(input, 1);
             int next = 2;
             if (isSlash(c0) && isSlash(c1)) {
-                var unc = isUNC(input);
-                if (unc is error) {
-                    log:printError("Error while checking whether path has valid UNC format", err = unc);
-                    return unc;
-                } else {
-                    if (!unc) {
-                        error err = error("Invaild UNC path");
-                        return err;
-                    }
+                boolean unc = check isUNC(input);
+                if (!unc) {
+                    error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Invalid UNC path: " + input });
+                    return err;
                 }
                 offset = nextNonSlashIndex(input, next, length);
                 next = nextSlashIndex(input, offset, length);
                 string host = input.substring(offset, next);  //host
                 offset = nextNonSlashIndex(input, next, length);
                 next = nextSlashIndex(input, offset, length);
-                //TODO suffix dot. added before of formatting issue in idea.
+                //TODO remove dot from expression. added because of formatting issue #13872.
                 root = "\\\\." + host + "\\." + input.substring(offset, next) + "\\.";
                 offset = next;
             } else {
                 if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
-                    if (input.length() > 2 && isSlash(input.substring(2, 3))) {
-                        string c2 = input.substring(2, 3);
+                    if (input.length() > 2 && isSlash(check charAt(input, 2))) {
+                        string c2 = check charAt(input, 2);
                         if (c2 == "\\.") {
                             root = input.substring(0, 3);
                         } else {
@@ -144,13 +131,13 @@ function normalizeAndCheck(string input) returns string|error {
                 }
             }
         }
-        return root + normalizeWindowsPath(input, offset);
+        return root + check normalizeWindowsPath(input, offset);
     } else {
         int n = input.length();
         string prevC = "";
         int i = 0;
         while (i < n) {
-            string c = input.substring(i, i+1);
+            string c = check charAt(input, i);
             if ((c == "/") && (prevC == "/")) {
                 return normalizePosixPath(input, i - 1);
             }
@@ -164,14 +151,14 @@ function normalizeAndCheck(string input) returns string|error {
     }
 }
 
-function normalizeWindowsPath(string path, int off) returns string {
+function normalizeWindowsPath(string path, int off) returns string|error {
     string normalizedPath = "";
     int length = path.length();
     int offset = nextNonSlashIndex(path, off, length);
     int startIndex = offset;
     string lastC = "";
     while (offset < length) {
-        string c = path.substring(offset, offset+1);
+        string c = check charAt(path, offset);
         if (isSlash(c)) {
             normalizedPath = normalizedPath + path.substring(startIndex, offset);
             offset = nextNonSlashIndex(path, offset, length);
@@ -190,7 +177,7 @@ function normalizeWindowsPath(string path, int off) returns string {
     return normalizedPath;
 }
 
-function normalizePosixPath(string input, int off) returns string {
+function normalizePosixPath(string input, int off) returns string|error {
     int n = input.length();
     byte[] bytes = input.toByteArray("UTF-8");
     while((n > 0) && (bytes[n-1] == 47)) {
@@ -206,7 +193,7 @@ function normalizePosixPath(string input, int off) returns string {
     string prevC = "";
     int i = off;
     while(i < n) {
-        string c = input.substring(i, i + 1);
+        string c = check charAt(input, i);
         if (c == "/" && prevC == "/") {
             continue;
         }
@@ -256,7 +243,13 @@ function isLetter(string c) returns boolean {
 
 function isUNC(string path) returns boolean|error {
     string regEx = "\\\\[a-zA-Z0-9.-_]{1,}(\\[a-zA-Z0-9-_]{1,}){1,}[$]{0,1}";
-    return path.matches(regEx);
+    boolean|error output = path.matches(regEx);
+    if (output is error) {
+        error err = error("{ballerina/path}INVALID_UNC_PATH", output.detail());
+        return err;
+    } else {
+        return output;
+    }
 }
 
 function isEmpty(string path) returns boolean {
@@ -287,4 +280,14 @@ function getOffsetIndexes(string path) returns int[] {
         }
     }
     return offsetIndexes;
+}
+
+function charAt(string input, int index) returns string|error {
+    int length = input.length();
+    if (index > length) {
+        error err = error("{ballerina/path}INVALID_OPERATION",
+        { message: io:sprintf("Character index %d is greater then path string length %d", index, length) });
+        return err;
+    }
+    return input.substring(index, index + 1);
 }

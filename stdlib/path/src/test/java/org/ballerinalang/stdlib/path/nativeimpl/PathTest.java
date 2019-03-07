@@ -38,14 +38,14 @@ import java.nio.file.Paths;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public class AbsoluteTest {
+public class PathTest {
     private CompileResult fileOperationProgramFile;
     private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
-    private static final Logger log = LoggerFactory.getLogger(AbsoluteTest.class);
+    private static final Logger log = LoggerFactory.getLogger(PathTest.class);
 
     @BeforeMethod
     public void setup() {
-        fileOperationProgramFile = BCompileUtil.compile("test-src/absolute_test.bal");
+        fileOperationProgramFile = BCompileUtil.compile("test-src/path_test.bal");
         Diagnostic[] diagnostics = fileOperationProgramFile.getDiagnostics();
         for (Diagnostic diag : diagnostics) {
             log.error(diag.getMessage());
@@ -141,7 +141,8 @@ public class AbsoluteTest {
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetFilename", args);
         BString filename = (BString) returns[0];
         log.info("Ballerina Path: filename function. Return value: " + filename.stringValue());
-        assertEquals(filename.stringValue(), Paths.get(input).getFileName().toString());
+        String expectedValue = Paths.get(input).getFileName() != null ? Paths.get(input).getFileName().toString() : "";
+        assertEquals(filename.stringValue(), expectedValue);
     }
 
     @DataProvider(name = "posix_paths")
@@ -153,7 +154,9 @@ public class AbsoluteTest {
                 "foo/",
                 "foo/bar/",
                 "/AAA/////BBB/",
-                ""
+                "",
+                "//////////////////",
+                "\\\\\\\\\\\\\\\\\\\\"
         };
     }
 
@@ -167,7 +170,8 @@ public class AbsoluteTest {
                 "D;\\bar\\baz",
                 "bar\\baz",
                 "bar/baz",
-                "."
+                ".",
+                "C:\\\\\\\\"
         };
     }
 }
