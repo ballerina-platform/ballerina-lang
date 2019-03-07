@@ -18,6 +18,12 @@ const map<boolean> bm11 = { "key": bm10.key};
 map<map<boolean>> bm12 = {};
 const map<boolean> bm13 = { "key": bm12.key.key};
 
+const map<boolean> bm15 = { getKey(): getBooleanValue() };
+
+function getBooleanValue() returns boolean {
+    return true;
+}
+
 // int -------------------------------------------------------
 
 const map<int> im1 = {};
@@ -37,6 +43,12 @@ const map<int> im11 = { "key": im10.key};
 
 map<map<int>> im12 = {};
 const map<int> im13 = { "key": im12.key.key};
+
+const map<int> im15 = { getKey(): getIntValue() };
+
+function getIntValue() returns int {
+    return 10;
+}
 
 // byte ------------------------------------------------------
 
@@ -58,6 +70,12 @@ const map<byte> bytem11 = { "key": bytem10.key};
 map<map<byte>> bytem12 = {};
 const map<byte> bytem13 = { "key": bytem12.key.key};
 
+const map<byte> bytem15 = { getKey(): getByteValue() };
+
+function getByteValue() returns byte {
+    return 64;
+}
+
 // float -----------------------------------------------------
 
 const map<float> fm1 = {};
@@ -77,6 +95,12 @@ const map<float> fm11 = { "key": fm10.key};
 
 map<map<float>> fm12 = {};
 const map<float> fm13 = { "key": fm12.key.key};
+
+const map<float> fm15 = { getKey(): getFloatValue() };
+
+function getFloatValue() returns float {
+    return 12.5;
+}
 
 // decimal ---------------------------------------------------
 
@@ -98,6 +122,12 @@ const map<decimal> dm11 = { "key": dm10.key};
 map<map<decimal>> dm12 = {};
 const map<decimal> dm13 = { "key": dm12.key.key};
 
+const map<decimal> dm15 = { getKey(): getDecimalValue() };
+
+function getDecimalValue() returns decimal {
+    return 25;
+}
+
 // string ----------------------------------------------------
 
 const map<string> sm1 = {};
@@ -118,6 +148,12 @@ const map<string> sm11 = { "key": sm10.key};
 map<map<string>> sm12 = {};
 const map<string> sm13 = { "key": sm12.key.key};
 
+const map<string> sm15 = { getKey(): getStringValue() };
+
+function getStringValue() returns string {
+    return "Shan";
+}
+
 // nil -------------------------------------------------------
 
 const map<()> nm1 = {};
@@ -137,3 +173,15 @@ const map<()> nm11 = { "key": nm10.key};
 
 map<map<()>> nm12 = {};
 const map<()> nm13 = { "key": nm12.key.key};
+
+const map<()> nm15 = { getKey(): getNilValue() };
+
+function getNilValue() returns () {
+    return ();
+}
+
+// -----------------------------------------------------------
+
+function getKey() returns string {
+    return "key";
+}
