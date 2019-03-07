@@ -76,52 +76,24 @@ export DATA_BUCKET_LOCATION=${INPUT_DIR}
 # YOUR TEST EXECUTION LOGIC GOES HERE
 # A sample execution for maven-based testng/junit tests is shown below.
 # For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
-#IFS='=' read -r -a array <<< "$(head -n 1 infrastructure.properties)"
 
-cat $INPUT_DIR/infrastructure.properties
+source ${parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
-declare -A CONFIG
-
-read_property_file "$INPUT_DIR/infrastructure.properties" CONFIG
-
-export DATABASE_HOST=${CONFIG[DatabaseHost]}
-export DATABASE_PORT=${CONFIG[DatabasePort]}
+export DATABASE_HOST=${infra_config[DatabaseHost]}
+export DATABASE_PORT=${infra_config[DatabasePort]}
 export DATABASE_NAME=test
-export DATABASE_USERNAME=${CONFIG[DBUsername]}
-export DATABASE_PASSWORD=${CONFIG[DBPassword]}
-
-ClusterName=${CONFIG[ClusterName]};
-ClusterRegion=${CONFIG[ClusterRegion]};
-ConfigFileName=${CONFIG[ConfigFileName]};
+export DATABASE_USERNAME=${infra_config[DBUsername]}
+export DATABASE_PASSWORD=${infra_config[DBPassword]}
 
 bash product-scenarios/mysql_init.sh ${DATABASE_HOST} ${DATABASE_PORT} ${DATABASE_USERNAME} ${DATABASE_PASSWORD}
-
-install_ballerina "0.990.3"
 
 download_and_extract_mysql_connector
 
 ballerina build product-scenarios/scenarios/1/data-service.bal
 
-export KUBECONFIG=${INPUT_DIR}/${ConfigFileName}
-
-kubectl config view
-
-kubectl config current-context
-
 kubectl apply -f kubernetes/
 
-TIMEOUT=300
-INTERVAL=20
-bash 'product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
-
-# Temporary sleep to check whether app eventually becomes ready..
-# Ideally there should have been a kubernetes readiness probe
-# which would make sure the "Ready" status would actually mean
-# the pod is ready to accept requests (app is ready) so the above
-# readiness script would suffice
-sleep 120s
-
-kubectl get svc
+wait_for_pod_readiness
 
 kubectl get pods
 
@@ -130,4 +102,3 @@ kubectl get svc ballerina-data-service -o=json
 EXTERNAL_IP=$(kubectl get svc ballerina-data-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
 echo "ExternalIP=$EXTERNAL_IP" >> ${OUTPUT_DIR}/deployment.properties
-echo "ServicesToBeDeleted=ballerina-data-service" >> ${OUTPUT_DIR}/infrastructure-cleanup.properties

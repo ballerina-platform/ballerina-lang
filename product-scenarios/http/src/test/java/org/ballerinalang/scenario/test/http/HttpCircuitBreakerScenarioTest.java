@@ -33,14 +33,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
-import static org.apache.http.HttpStatus.SC_OK;
-
 /**
  * Test cases for the resiliency scenarios.
  */
 public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
 
+    private static final int SC_OK = 200;
+    private static final int SC_INTERNAL_SERVER_ERROR = 500;
     private static final String SUCCESS_HELLO_MESSAGE = "Hello World!!!";
     private static final String UPSTREAM_UNAVAILABLE_MESSAGE = "Upstream service unavailable.";
     private static final String IDLE_TIMEOUT_MESSAGE = "Idle timeout triggered before initiating inbound response";

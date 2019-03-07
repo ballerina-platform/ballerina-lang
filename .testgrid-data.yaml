@@ -11,7 +11,7 @@ infrastructureConfig:
   provisioners:
   - name: ballerina-deployment
     remoteRepository: "git@github.com:ballerina-platform/aws-ballerina.git"
-    remoteBranch: "master"
+    remoteBranch: "use-existing-cluster"
     description: creates infrastructure for ballerina scenario tests
     scripts:
       - name: ballerina-deployment
@@ -19,6 +19,8 @@ infrastructureConfig:
         type: SHELL
         phase: CREATE
         file: data-integration/provision-infrastructure-default.sh
+        inputParameters:
+          BallerinaVersion: "0.990.3"
       - name: destroy
         file: data-integration/destroy-cluster.sh
         type: SHELL
