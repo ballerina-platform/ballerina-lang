@@ -125,6 +125,10 @@ public type GlobalVariableDcl record {
 
 public type BTypeAny "any";
 
+public type BTypeAnyData "anydata";
+
+public type BTypeNone "none";
+
 public type BTypeNil "()";
 
 public type BTypeInt "int";
@@ -193,7 +197,8 @@ public type BTupleType record {
 
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
-                  BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
+                  BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
+                  BTypeAnyData | BTypeNone;
 
 
 public type BTypeSymbol record {

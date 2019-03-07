@@ -52,6 +52,10 @@ public type TypeParser object {
         var typeTag = self.reader.readInt8();
         if (typeTag == self.TYPE_TAG_ANY){
             return "any";
+        } else if (typeTag == self.TYPE_TAG_ANYDATA ){
+            return "anydata";
+        } else if (typeTag == self.TYPE_TAG_NONE ){
+            return "none";
         } else if (typeTag == self.TYPE_TAG_NIL ){
             return "()";
         } else if (typeTag == self.TYPE_TAG_INT){
