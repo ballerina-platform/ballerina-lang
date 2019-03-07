@@ -2364,7 +2364,7 @@
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
-        <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
+        <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.6</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.1.6</awaitility.version>
 
