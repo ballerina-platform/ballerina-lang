@@ -239,7 +239,7 @@ type TypeEmitter object {
     }
 
     function emitRecordType(BRecordType bRecordType, string tabs) {
-        println("record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
+        println(tabs, "record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
         foreach var f in bRecordType.fields {
             self.emitType(f.typeValue, tabs = tabs + "\t");
             println(" ", f.name.value);
@@ -250,7 +250,7 @@ type TypeEmitter object {
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        println("object {\\\\ name - ", bObjectType.name.value);
+        println(tabs, "object {\\\\ name - ", bObjectType.name.value);
         foreach var f in bObjectType.fields {
             print(tabs + "\t", f.visibility, " ");
             self.emitType(f.typeValue);
