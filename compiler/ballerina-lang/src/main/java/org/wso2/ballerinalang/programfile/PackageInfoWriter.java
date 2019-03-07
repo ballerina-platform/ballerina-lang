@@ -179,8 +179,6 @@ public class PackageInfoWriter {
                     dataOutStream.writeInt(value.valueCPEntryIndex);
                 }
             } else if (value.isConstRef) {
-                // Todo - remove recordLiteralSigCPIndex
-                dataOutStream.writeInt(value.recordLiteralSigCPIndex);
                 dataOutStream.writeInt(value.valueCPEntryIndex);
             } else {
                 // This situation occurs for any nested record literal.

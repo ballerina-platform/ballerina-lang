@@ -374,9 +374,6 @@ public class CompiledPackageSymbolEnter {
                     valueMap.put(keyInfo, constantValue);
                 }
             } else if (isConstRef) {
-                // Todo - Remove?
-                int recordLiteralSigCPIndex = dataInStream.readInt();
-
                 int valueCPIndex = dataInStream.readInt();
 
                 MapCPEntry mapCPEntry = (MapCPEntry) constantPool[valueCPIndex];
@@ -868,11 +865,10 @@ public class CompiledPackageSymbolEnter {
         // Read the size.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {
-            // Read the key.
+            // Get the key.
             String key = getUTF8CPEntryValue(dataInStream);
-            // Read the simple literal flag.
-            boolean isSimpleLiteral = dataInStream.readBoolean();
 
+            boolean isSimpleLiteral = dataInStream.readBoolean();
             boolean isConstRef = dataInStream.readBoolean();
 
             // Get the value.
@@ -901,22 +897,7 @@ public class CompiledPackageSymbolEnter {
                     this.env.unresolvedConstReferences.put(constRef, mapCPEntry);
 
                 } else {
-//                    if (mapCPEntry.literalValue == null) {
-                        // Read the map literal.
-                        value = mapCPEntry.literalValue = recordLiteral;
-//                    } else {
-//
-//                        BLangConstRef constRef = new BLangConstRef(mapCPEntry.getConstantSymbol());
-//                        constRef.desugared = true;
-//                        constRef.type = valueType;
-//
-//                        //                    constantSymbol.literalValue = constRef;
-//
-//                        // Todo - create const ref
-//                        value = constRef;
-//
-//                        this.env.unresolvedConstReferences.put(constRef, mapCPEntry);
-//                    }
+                    value = mapCPEntry.literalValue = recordLiteral;
                 }
             }
             // Create a new literal for the key.

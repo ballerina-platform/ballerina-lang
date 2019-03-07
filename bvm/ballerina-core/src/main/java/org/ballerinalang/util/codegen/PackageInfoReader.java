@@ -295,7 +295,6 @@ public class PackageInfoReader {
         LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
         BMap<String, BRefType> bValueMap = new BMap<>();
 
-        BType type = null;
 
         // Read the constant value CP entry index.
         int cpEntryIndex = dataInStream.readInt();
@@ -304,8 +303,6 @@ public class PackageInfoReader {
         int size = dataInStream.readInt();
 
         for (int i = 0; i < size; i++) {
-
-            type = null;
 
             // Read the key.
             int keyCPIndex = dataInStream.readInt();
@@ -317,12 +314,6 @@ public class PackageInfoReader {
             if (isSimpleLiteral) {
                 bValueMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
             } else if (isConstRef) {
-
-                // Todo - Remove type?
-                int recordLiteralSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry typeDesc = (UTF8CPEntry) constantPool.getCPEntry(recordLiteralSigCPIndex);
-                type = getBTypeFromDescriptor((PackageInfo) constantPool, typeDesc.getValue());
-
                 int constantValueCPEntryIndex = dataInStream.readInt();
                 MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
 
