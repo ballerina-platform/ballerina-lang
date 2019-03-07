@@ -32,9 +32,6 @@ sourceSets {
 }
 
 test {
-    minHeapSize = "256m"
-    maxHeapSize = "1g"
-
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
