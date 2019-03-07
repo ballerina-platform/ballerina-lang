@@ -84,7 +84,7 @@ public type Scheduler object {
             if (<int>first - currentTime <= 0) {
                 _ = self.wrapperFunc();
             } else {
-                self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1});
+                self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1 });
                 _ = self.timer.attach(schedulerService, attachment = self);
                 _ = self.timer.start();
             }
