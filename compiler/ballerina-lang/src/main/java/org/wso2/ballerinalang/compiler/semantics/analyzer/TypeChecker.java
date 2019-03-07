@@ -1687,7 +1687,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = conversionExpr.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.ERROR || targetType.tag == TypeTags.FUTURE) {
+        if (targetType.tag == TypeTags.FUTURE) {
             dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
         } else {
             BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr, sourceType, targetType);
