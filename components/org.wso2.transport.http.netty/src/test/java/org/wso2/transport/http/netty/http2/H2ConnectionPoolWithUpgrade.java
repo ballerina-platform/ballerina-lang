@@ -57,7 +57,7 @@ import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 /**
  * Test cases for H2C client connection pool with upgrade.
  *
- * @since 6.0.271
+ * @since 6.0.273
  */
 public class H2ConnectionPoolWithUpgrade {
     private static final Logger LOG = LoggerFactory.getLogger(H2ConnectionPoolWithUpgrade.class);

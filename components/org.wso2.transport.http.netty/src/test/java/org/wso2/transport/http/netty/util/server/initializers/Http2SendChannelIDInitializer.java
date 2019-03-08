@@ -36,6 +36,11 @@ import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
+/**
+ * Handler responsible for sending out the channel ID.
+ *
+ * @since 6.0.273
+ */
 public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
     @Override
     protected ChannelHandler getBusinessLogicHandler() {
@@ -65,11 +70,11 @@ public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
         }
 
         @Override
-        public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        public void channelReadComplete(ChannelHandlerContext ctx) {
             ctx.flush();
         }
 
-        private void onDataRead(ChannelHandlerContext ctx, Http2DataFrame data) throws Exception {
+        private void onDataRead(ChannelHandlerContext ctx, Http2DataFrame data) {
             Http2FrameStream stream = data.stream();
 
             if (data.isEndStream()) {
@@ -81,8 +86,7 @@ public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
             ctx.write(new DefaultHttp2WindowUpdateFrame(data.initialFlowControlledBytes()).stream(stream));
         }
 
-        private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame headers)
-            throws Exception {
+        private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame headers) {
             if (headers.isEndStream()) {
                 sendResponse(ctx, headers.stream());
             }

@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.util.TestUtil.SERVER_PORT1;
 /**
  * Test case for H2 client connection pool.
  *
- * @since 6.0.271
+ * @since 6.0.273
  */
 public class H2ConnectionPoolWithALPN {
     private static final Logger LOG = LoggerFactory.getLogger(H2ConnectionPoolWithALPN.class);

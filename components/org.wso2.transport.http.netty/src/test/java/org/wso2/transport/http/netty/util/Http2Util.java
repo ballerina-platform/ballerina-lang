@@ -40,7 +40,7 @@ import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
 /**
  * Utilities required for HTTP/2 test cases.
  *
- * @since 6.0.271
+ * @since 6.0.273
  */
 public class Http2Util {
 
