@@ -28,11 +28,20 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-scenario-test</artifactId>
     <name>Ballerina - Scenario Test</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-scenario-test-commons</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <packaging>pom</packaging>
 
     <modules>
         <module>scenarios-commons</module>
         <module>http</module>
+        <module>bbg</module>
     </modules>
 
 </project>

@@ -72,10 +72,6 @@ kubectl get svc ballerina-guides-employee-database-service -o=json
 
 kubectl get nodes --output wide
 
-kubectl get ingress
-
-kubectl get nodes -o=json
-
 external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
 node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
 

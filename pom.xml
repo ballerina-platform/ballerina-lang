@@ -1594,6 +1594,20 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+
+            <!-- Scenario Tests -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-scenario-test-commons</artifactId>
+                <version>${ballerina.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-integration-test-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1935,6 +1949,7 @@
                 <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
+                <module>product-scenarios</module>
             </modules>
             <properties>
                 <skipBenchmarks>true</skipBenchmarks>

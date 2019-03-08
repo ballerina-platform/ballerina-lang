@@ -39,6 +39,8 @@ curl -v -X PUT -d '{"name":"Alice Updated", "age":30,"ssn":123456789,"employeeId
 
 curl -v -X DELETE "http://${host_port}/records/employee/1"
 
+mvn clean install -f ${grand_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
 
+mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service-bbg
 
-
+find ${grand_parent_path}/bbg/target/* -name "surefire-reports" -exec cp -r {} ${OUTPUT_DIR}/scenarios/data-backed-service-bbg \;
