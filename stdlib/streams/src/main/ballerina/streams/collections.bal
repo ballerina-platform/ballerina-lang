@@ -422,8 +422,6 @@ public type LinkedList object {
 };
 
 public type IntSort object {
-    public function __init() {
-    }
 
     public function sort(int[] arr) {
         self.sortInternal(arr, 0, arr.length() - 1);
