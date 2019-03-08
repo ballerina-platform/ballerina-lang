@@ -67,7 +67,7 @@ function install_ballerina() {
 function download_and_extract_mysql_connector() {
     wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
-    tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ./
+    tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ${parent_path}
 }
 
 # Generate a random namespace name

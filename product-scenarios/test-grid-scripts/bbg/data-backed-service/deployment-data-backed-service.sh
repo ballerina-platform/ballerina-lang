@@ -15,11 +15,15 @@ bal_path=data-backed-service/guide/data_backed_service/employee_db_service.bal
 
 download_and_extract_mysql_connector
 
-docker build -t mysql-ballerina:1.0 data-backed-service/resources/
+ls
+
+ls mysql-connector-java-5.1.47
+
+docker build -t ballerinascenarios/mysql-ballerina:1.0 data-backed-service/resources/
 
 docker login --username=ballerinascenarios --password=ballerina75389
 
-docker push mysql-ballerina:1.0
+docker push ballerinascenarios/mysql-ballerina:1.0
 
 sed -i "s/mysql-ballerina/ballerinascenarios\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
 
