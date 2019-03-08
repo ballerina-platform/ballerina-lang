@@ -18,12 +18,6 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <!--<parent>
-        <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina-parent</artifactId>
-        <version>0.990.4-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>-->
     <groupId>org.ballerinalang</groupId>
     <version>0.990.4-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
@@ -55,6 +49,11 @@
         <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <awaitility.version>3.1.6</awaitility.version>
+        <testng.version>6.14.3</testng.version>
+        <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
+        <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
     </properties>
 
 </project>
