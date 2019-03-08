@@ -16,7 +16,8 @@
   ~ * limitations under the License.
   ~ */
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
@@ -113,6 +114,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jms</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-rabbitmq</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -697,8 +704,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.build.directory}/extracted-distributions/ballerina" />
-                                <chmod file="${project.build.directory}/extracted-distributions/ballerina" perm="u+x" />
+                                <mkdir dir="${project.build.directory}/extracted-distributions/ballerina"/>
+                                <chmod file="${project.build.directory}/extracted-distributions/ballerina" perm="u+x"/>
                             </target>
                         </configuration>
                     </execution>
@@ -710,7 +717,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.build.directory}/api-docs" includeemptydirs="true" deleteonexit="true" />
+                                <delete dir="${project.build.directory}/api-docs" includeemptydirs="true"
+                                        deleteonexit="true"/>
                             </target>
                         </configuration>
                     </execution>

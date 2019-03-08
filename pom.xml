@@ -531,6 +531,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-rabbitmq -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-rabbitmq</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-log-api -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1560,6 +1581,13 @@
                 <version>${wso2.securevault.version}</version>
             </dependency>
 
+            <!-- RabbitMQ connector dependencies -->
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>${rabbitmq.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.wso2.transport.file</groupId>
                 <artifactId>org.wso2.transport.local-file-system</artifactId>
@@ -1710,6 +1738,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1798,6 +1827,7 @@
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1882,6 +1912,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -2392,6 +2423,9 @@
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <andes.client.version>3.2.87</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
+
+        <!-- RabbitMQ Connector -->
+        <rabbitmq.version>5.6.0</rabbitmq.version>
 
         <file.transport.version>6.0.55</file.transport.version>
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
