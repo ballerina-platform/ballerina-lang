@@ -34,6 +34,8 @@ public class BCastOperatorSymbol extends BOperatorSymbol {
 
     public boolean implicit;
 
+    public boolean safe;
+
     public BCastOperatorSymbol(PackageID pkgID,
                                BType type,
                                BType sourceType,
@@ -45,5 +47,6 @@ public class BCastOperatorSymbol extends BOperatorSymbol {
         this.kind = SymbolKind.CAST_OPERATOR;
         this.params = Lists.of(new BVarSymbol(0, new Name("_"), pkgID, sourceType, this));
         this.implicit = implicit;
+        this.safe = safe;
     }
 }

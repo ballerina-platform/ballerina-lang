@@ -20,6 +20,7 @@ package org.ballerinalang.test.record;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
@@ -65,8 +66,11 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test record literal with repeated keys")
     public void testDuplicatedKeysInRecordLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/open_record_duplicated_key.bal");
-        validateError(compileResult, 0, "invalid usage of record literal: " +
-                "duplicate key 'noOfChildren'", 8, 58);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        String duplicateKey = "invalid usage of record literal: duplicate key ";
+        validateError(compileResult, 0, duplicateKey + "'noOfChildren'", 13, 58);
+        validateError(compileResult, 1, duplicateKey + "'x'", 14, 41);
+        validateError(compileResult, 2, duplicateKey + "'x'", 15, 53);
     }
 
     @Test(description = "Test function invocation on a nil-able function pointer")

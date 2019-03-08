@@ -19,6 +19,7 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
+import ReactMarkdown from "react-markdown";
 import { Table } from "semantic-ui-react";
 
 export interface OpenApiParameterListProps {
@@ -57,7 +58,7 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
                                 </Table.Cell>
                                 <Table.Cell>
                                     <div className="markdown">
-                                        {param.description}
+                                        <ReactMarkdown escapeHtml={false} source={param.description} />
                                     </div>
                                 </Table.Cell>
                             </Table.Row>

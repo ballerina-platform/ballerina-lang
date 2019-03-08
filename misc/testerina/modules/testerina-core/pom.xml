@@ -120,6 +120,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+        </dependency>
         <!-- End Balo jar dependencies -->
 
         <dependency>
@@ -317,6 +321,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>

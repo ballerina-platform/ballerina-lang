@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -266,9 +265,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(mapType);
-        foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
+        foreachStmt.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
 
         // foreach variable are the result variables.
         if (isReturningIteratorFunction(ctx)) {
@@ -321,9 +318,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(mapType);
-        foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
+        foreachStmt.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
 
         if (foreachVariables.size() > 1) {
             // Create tuple, for lambda invocation.

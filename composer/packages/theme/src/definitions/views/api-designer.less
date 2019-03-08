@@ -66,7 +66,8 @@
                 text-align: justify;
             
                 &.editing {
-            
+                    margin-top: 10px;
+
                     .ui.form button {
                         outline: none;
                         box-shadow: none !important;
@@ -114,10 +115,11 @@
                 }
             }
             .add-operation {
+
                 .field {
                     label {
                         font-size: 12px;
-                        font-weight: 600px;
+                        font-weight: 600 !important;
                     }
                 }
             }
@@ -153,17 +155,11 @@
                         font-size: 14px;
                         font-weight: 400;
                     }
-                }
-                .btn-close {
-                    float: right;
-                    margin-left: 1em !important;
-                    color: ~"@{@{color}-api-designer-action-icon-color}";
-                    background-color: ~"@{@{color}-api-designer-text-background-color}";
-                    padding: 6px 7px !important;
-                    border: 1px solid~"@{@{color}-api-designer-text-background-color}" !important;
-
-                    &:hover {
-                        color: ~"@{@{color}-api-designer-action-icon-hover-color}";
+                    .field {
+                        label {
+                            font-size: 12px;
+                            font-weight: 400;
+                        }
                     }
                 }
             }
@@ -193,9 +189,18 @@
                         }
 
                     }
+                    &.active {
+                        .path-op-container {
+
+                            .label {
+                                opacity: 0.3;
+                            }
+                        }
+                    }
                     .path-op-container {
                         display: inline;
                         float: right;
+                        margin-top: -3px;
                         
                         .label {
                             font-weight: 400;
@@ -204,21 +209,10 @@
                             padding: 5px;
                             min-width: 50px;
                             text-align: center;
+                            text-transform: uppercase;
+                            font-size: 11px;
                             
                             .gen-method-styles(border-color color);
-                        }
-                    }
-                    .add-operation-action {
-                        margin-left: 1em !important;
-                        display: inline-block !important;
-                        color: ~"{@{color}-api-designer-action-icon-color}";
-                        background-color: ~"@{@{color}-api-designer-text-background-color}";
-                        border: 1px solid~"@{@{color}-api-designer-border-color}";
-                        padding: 6px 7px !important;
-    
-                        &:hover {
-                            border: 1px solid~"@{@{color}-api-designer-icon-text-color}";
-                            color: ~"@{@{color}-api-designer-icon-text-color}";
                         }
                     }
                 }
@@ -247,6 +241,17 @@
     
                                 .gen-method-styles(border-color);
                             }
+                            .editing {
+                                margin-left: 4px !important;
+                                margin-top: 10px;
+                            }
+                            .inline-editor-span {
+                                &:hover {
+                                    margin-left: 4px !important;
+                                    cursor: text;
+                                }
+                            }
+
                             .op-method {
                                 color: ~"@{@{color}-api-designer-fill-method-text-color}";
                                 font-weight: 400;
@@ -254,6 +259,8 @@
                                 display: inline-block;
                                 min-width: 70px;
                                 text-align: center;
+                                text-transform: uppercase;
+                                font-size: 11px;
                                 
                                 .gen-method-styles(background);
                                 
@@ -299,6 +306,25 @@
                                 .op-section {
                                     margin-bottom: 10px; 
 
+                                    .add-operation {
+                                        background: ~"@{@{color}-api-designer-form-bg-color}";
+                                        padding: 10px;
+                                        margin-top: -15px !important;
+
+                                        .field {
+                                            input::-webkit-input-placeholder,
+                                            textarea::-webkit-input-placeholder,
+                                            .default.text {
+                                                font-size: 13px;
+                                                font-weight: 300;
+                                            }
+                                        }
+                                    }
+
+                                    .btn-close {
+                                        margin-top: -42px !important;
+                                    }
+
                                     .title {
                                         border: 0;
                                         
@@ -315,6 +341,10 @@
                                     color: ~"@{@{color}-api-designer-resource-text-color}";
                                     display: inline-bllock; 
                                     padding-bottom: 10px;
+
+                                    &.editing {
+                                        padding-top: 15px !important; 
+                                    }
                                 
                                     span {
                                         color: ~"@{@{color}-api-designer-inline-text-color}";
@@ -337,10 +367,38 @@
 
                 input {
                     background: ~"@{@{color}-api-designer-form-background-color}";
+                    font-size: 12px;
+                    font-weight: 100;
+                }
+                .button {
+                    padding: 10px 12px;
+                    margin: 0 !important;
                 }
             }
         }
     }
+    .add-operation-action,
+    .btn-close {
+        margin: -3px 10px 0 7px !important;
+        display: inline-block ;
+        color: ~"@{@{color}-api-designer-action-icon-color}";
+        background: transparent;
+        border: 1px solid~"@{@{color}-api-designer-action-icon-color}";
+        padding: 4px 5px !important;
+        font-size: 10px !important;
+
+        &:focus{
+            background: transparent;
+            color: ~"@{@{color}-api-designer-action-icon-color}";
+        }
+
+        &:hover {
+            border: 1px solid~"@{@{color}-api-designer-icon-text-color}";
+            color: ~"@{@{color}-api-designer-icon-text-color}";
+            background: transparent;
+        }
+    }
+
     .inline-editor {
         .inline-editor-textarea {
             padding: 10px;
@@ -350,20 +408,30 @@
             display: block;
             width: 100%;
         }
-        
-        .inline-editor-span, .markdown {
+
+        &.url, &.contact, &.license {
+            padding-top: 10px;
+
+            .inline-editor {
+                padding-top: 0;
+            }
+        }
+
+        .inline-editor-span, .markdown, a {
             display: inline-block;
-            padding: 3px;
+            padding-right: 5px;
+            color: ~"@{@{color}-api-designer-inline-text-color}";
+            font-weight: 300;
 
             &:hover {
-                color: ~"@{@{color}-api-designer-inline-text-color}";
-                font-weight: 300;
-
+                color: ~"@{@{color}-api-designer-inline-text-hover-color}";
+                
                 .edit-icon {
                     display: inline-block;
-                    color: ~"@{@{color}-api-designer-inline-text-color}";
+                    color: ~"@{@{color}-api-designer-inline-text-hover-color}";
                     padding-left: 20px;
                     cursor: pointer;
+                    font-size: 11px;
                 }
             }
             .edit-icon {
@@ -372,7 +440,7 @@
         }
     }
 }
-  
+
  body.api-designer {
      .api-designer("light");
  }

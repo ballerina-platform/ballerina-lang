@@ -151,18 +151,19 @@ public class ArrayTest {
         Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 8);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0,
                                   format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "FT", "FT?"), 74, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "1|2|3", "1|2|3?"), 74, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2,
-                                  format(errMsgFormat, "FTUnion", "FTUnion?"), 89, 1);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 89, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 3,
-                                  format(errMsgFormat, "FTSingle", "FTSingle?"), 92, 1);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 92, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 4,
-                                  format(errMsgFormat, "error<>", "error<>?"), 100, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "UN", "UN?"), 115, 1);
+                                  format(errMsgFormat, "error", "error?"), 100, 1);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "int|float", "int|float?"),
+                                  115, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6,
-                                  format(errMsgFormat, "error<>", "error<>?"), 141, 1);
+                                  format(errMsgFormat, "error", "error?"), 141, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
-                                  format(errMsgFormat, "FTUnion", "FTUnion?"), 149, 9);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 149, 9);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")
@@ -171,13 +172,14 @@ public class ArrayTest {
                 "test-src/statements/arrays/array-implicit-initial-value-finite-type-negative.bal");
         Assert.assertEquals(negResult.getErrorCount(), 3);
         BAssertUtil.validateError(negResult, 0,
-                "array element type 'allInitNonZero' does not have an implicit initial value, use 'allInitNonZero?'",
-                22, 1);
+                                  "array element type '1|2|3' does not have an implicit initial value, use '1|2|3?'",
+                                  22, 1);
         BAssertUtil.validateError(negResult, 1,
-                "array element type 'allFloatNonZero' does not have an implicit initial value, use 'allFloatNonZero?'",
-                29, 1);
+                                  "array element type '1.0|3.143' does not have an implicit initial value, use " +
+                                          "'1.0|3.143?'",
+                                  29, 1);
         BAssertUtil.validateError(negResult, 2,
-                "array element type 'allStrNonEmpty' does not have an implicit initial value, use 'allStrNonEmpty?'",
-                43, 1);
+                                  "array element type 'a|b|c' does not have an implicit initial value, use 'a|b|c?'",
+                                  43, 1);
     }
 }
