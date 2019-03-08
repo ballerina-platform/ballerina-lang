@@ -50,7 +50,4 @@ public interface BallerinaSimpleLiteral extends BallerinaCompositeElement {
   @Nullable
   PsiElement getSub();
 
-  @Nullable
-  PsiElement getSymbolicStringLiteral();
-
 }

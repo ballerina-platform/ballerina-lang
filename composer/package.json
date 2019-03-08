@@ -58,7 +58,7 @@
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-test-renderer": "16.2.0",
     "rimraf": "^2.6.2",
-    "sass-loader": "^6.0.3",
+    "sass-loader": "^7.1.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^0.23.1",
     "ts-jest": "^23.10.4",
