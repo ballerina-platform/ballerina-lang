@@ -987,9 +987,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!Symbols.isPublic(varNode.symbol)) {
-            if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
-            }
             return;
         }
 

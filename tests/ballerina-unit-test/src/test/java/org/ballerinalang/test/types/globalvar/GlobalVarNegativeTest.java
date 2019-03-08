@@ -27,14 +27,19 @@ import org.testng.annotations.Test;
 /**
  * Global variable error scenarios.
  */
-public class GlobalVarErrorTest {
+public class GlobalVarNegativeTest {
 
     @Test
-    public void testStructFieldWithChildPackagePaths() {
+    public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         BAssertUtil.validateError(resultNegative, 0, "extraneous input ':'", 23, 20);
         BAssertUtil.validateError(resultNegative, 1, "invalid token 'int'", 27, 8);
+        BAssertUtil.validateError(resultNegative, 2, "invalid token 'int'", 29, 8);
+        BAssertUtil.validateError(resultNegative, 3, "mismatched input ';'. expecting '='", 31, 32);
+        BAssertUtil.validateError(resultNegative, 4, "mismatched input ';'. expecting '='", 33, 27);
+        BAssertUtil.validateError(resultNegative, 5, "mismatched input ';'. expecting '='", 35, 46);
+        BAssertUtil.validateError(resultNegative, 6, "mismatched input ';'. expecting '='", 37, 59);
     }
 }
