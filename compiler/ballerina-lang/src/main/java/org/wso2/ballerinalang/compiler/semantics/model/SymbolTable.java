@@ -301,7 +301,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, intType, intType, InstructionCodes.IOR);
         defineBinaryOperator(OperatorKind.BITWISE_OR, intType, byteType, intType, InstructionCodes.IOR);
         defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType, InstructionCodes.IOR);
-        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, intType, InstructionCodes.IXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType, InstructionCodes.IXOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, intType, intType, InstructionCodes.IXOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, byteType, intType, InstructionCodes.IXOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.IXOR);
