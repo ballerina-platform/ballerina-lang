@@ -70,6 +70,9 @@ type InstructionGenerator object {
                         bType is bir:BUnionType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BRecordType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else if (bType is bir:BErrorType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
