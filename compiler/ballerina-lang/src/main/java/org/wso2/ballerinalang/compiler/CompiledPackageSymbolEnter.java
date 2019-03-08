@@ -336,9 +336,6 @@ public class CompiledPackageSymbolEnter {
                                                        ConstantPoolEntry[] constantPool) throws IOException {
         LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
 
-        // Read the constant value CP entry index.
-        int constantValueCPEntryIndex = dataInStream.readInt();
-
         // Read the size of the constant value map.
         int size = dataInStream.readInt();
 
@@ -384,10 +381,7 @@ public class CompiledPackageSymbolEnter {
             }
         }
 
-        MapCPEntry mapCPEntry = new MapCPEntry(valueMap);
-        mapCPEntry.setCPEntryIndex(constantValueCPEntryIndex);
-
-        return mapCPEntry;
+        return new MapCPEntry(null, valueMap);
     }
 
     private void defineSymbols(DataInputStream dataInStream,
@@ -765,7 +759,7 @@ public class CompiledPackageSymbolEnter {
             }
 
             constantSymbol.literalValueTypeTag = valueType.tag;
-            constantSymbol.cpEntryIndex = mapCPEntry.getCPEntryIndex();
+            constantSymbol.cpEntryIndex = constantValueCPEntry;
         }
 
         // Define constant.

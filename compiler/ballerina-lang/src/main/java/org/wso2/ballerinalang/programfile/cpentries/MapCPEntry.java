@@ -33,29 +33,16 @@ public class MapCPEntry implements ConstantPoolEntry {
 
     private BConstantSymbol constantSymbol;
     private Map<KeyInfo, ConstantValue> constantValueMap;
-    private int cpEntryIndex = -1;
 
     public BLangMapLiteral literalValue;
 
-    public MapCPEntry(Map<KeyInfo, ConstantValue> value) {
-        this(null, value);
-    }
-
     public MapCPEntry(BConstantSymbol constantSymbol, Map<KeyInfo, ConstantValue> constantValueMap) {
-        this.constantValueMap = constantValueMap;
         this.constantSymbol = constantSymbol;
+        this.constantValueMap = constantValueMap;
     }
 
     public Map<KeyInfo, ConstantValue> getConstantValueMap() {
         return constantValueMap;
-    }
-
-    public void setCPEntryIndex(int valueCPEntryIndex) {
-        this.cpEntryIndex = valueCPEntryIndex;
-    }
-
-    public int getCPEntryIndex() {
-        return cpEntryIndex;
     }
 
     public EntryType getEntryType() {

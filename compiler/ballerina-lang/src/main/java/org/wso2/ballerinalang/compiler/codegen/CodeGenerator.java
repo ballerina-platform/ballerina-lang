@@ -2164,9 +2164,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             MapCPEntry mapCPEntry = new MapCPEntry(constantSymbol, constantValue.constantValueMap);
 
             // Add the MapCPEntry to the constant pool and get the index.
-            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
-            // Set the CP entry index to the MapCPEntry. This is needed when the MCONST instruction is emitted.
-            mapCPEntry.setCPEntryIndex(constantSymbol.cpEntryIndex);
+            constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex;
 
             // Set the value type (record type). This is needed when recreating the record literal.
             constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
@@ -2248,11 +2247,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                     keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
                 }
                 // Create a new MapCPEntry.
-                MapCPEntry mapCPEntry = new MapCPEntry(constantValue.constantValueMap);
+                MapCPEntry mapCPEntry = new MapCPEntry(null, constantValue.constantValueMap);
+
                 // Add the MapCPEntry to the CP and get the index.
                 constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
-                // Set the CP entry index to the MapCPEntry. This is needed when the MCONST instruction is emitted.
-                mapCPEntry.setCPEntryIndex(constantValue.valueCPEntryIndex);
             } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
                 BConstantSymbol symbol = (BConstantSymbol) ((BLangConstRef) valueExpr).symbol;
                 // Get the literal value.
@@ -2274,10 +2272,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
                 // Create a new MapCPEntry.
                 MapCPEntry mapCPEntry = new MapCPEntry(symbol, constantValue.constantValueMap);
+
                 // Add the MapCPEntry to the CP and get the index.
                 constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
-                // Set the CP entry index to the MapCPEntry. This is needed when the MCONST instruction is emitted.
-                mapCPEntry.setCPEntryIndex(constantValue.valueCPEntryIndex);
             } else {
                 throw new RuntimeException("unexpected node kind");
             }

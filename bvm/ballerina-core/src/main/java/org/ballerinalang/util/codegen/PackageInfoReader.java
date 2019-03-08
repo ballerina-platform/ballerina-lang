@@ -298,9 +298,6 @@ public class PackageInfoReader {
         // We use this BMap to generate actual value which will be loaded to the VM.
         BMap<String, BRefType> bValueMap = new BMap<>();
 
-        // Read and ignore constant value CP entry index. This will be used in CompiledPackageSymbolEnter.
-        dataInStream.readInt();
-
         // Read the size of the record literal.
         int size = dataInStream.readInt();
         for (int i = 0; i < size; i++) {

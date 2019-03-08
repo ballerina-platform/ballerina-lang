@@ -149,9 +149,6 @@ public class PackageInfoWriter {
     }
 
     private static void writeMapCPEntry(DataOutputStream dataOutStream, MapCPEntry mapCPEntry) throws IOException {
-        // Write constant CP entry index.
-        dataOutStream.writeInt(mapCPEntry.getCPEntryIndex());
-
         // Write size of the constant value map.
         dataOutStream.writeInt(mapCPEntry.getConstantValueMap().size());
 

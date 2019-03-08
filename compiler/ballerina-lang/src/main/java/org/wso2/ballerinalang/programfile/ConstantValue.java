@@ -55,8 +55,8 @@ public class ConstantValue {
                 valueTypeSigCPIndex == constantValue.valueTypeSigCPIndex &&
                 recordLiteralSigCPIndex == constantValue.recordLiteralSigCPIndex &&
                 isSimpleLiteral == constantValue.isSimpleLiteral &&
+                isConstRef == constantValue.isConstRef &&
                 literalValueTypeTag == constantValue.literalValueTypeTag &&
-                valueCPEntryIndex == constantValue.valueCPEntryIndex &&
-                booleanValue == constantValue.booleanValue;
+                valueCPEntryIndex == constantValue.valueCPEntryIndex;
     }
 }
