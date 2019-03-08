@@ -13,7 +13,7 @@
       
     - Can arrange fields horizontally 
       - Shouldn't have any spaces before comma.
-      - Should have a single space after comma. 
+      - There Should be a single space after comma.
       
       ```ballerina
       
@@ -79,7 +79,7 @@
 
 * Always try to keep function invocation in a single line.
 * No spaces between function name and the opening parentheses `(`,
-  opening parentheses and first argument or last parentheses and the last parentheses.
+  opening parentheses and first argument and last parentheses and the last parentheses.
 * No space between argument and the trailing comma `,`
 
   ```ballerina
@@ -96,7 +96,8 @@
   
   - Trailing comma always should be on a end of the line and inline with a argument.
   - No space before opening parentheses
-  - closing parentheses is on it's own line and indented to align with the parent.
+  - closing parentheses is on it's own line and indented to align with the start 
+    position of the statement.
     
     ```ballerina
     

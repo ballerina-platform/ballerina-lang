@@ -58,11 +58,13 @@
   a = -a;
   ``` 
 
-* There should be a single space before and after any `binary` or `ternary` operator.
+* There should be only a single space before and after any `binary` or `ternary` operator.
 
   ```ballerina
   var fullName = firstName + lastName;
   
-  var name = isNameAvailable() ? getName() : "Unknown";
+  string | () name = isNameAvailable() ? getName() : "Unknown";
+  
+  var elvisOperator = name ?: "Unknown";
   ```
   

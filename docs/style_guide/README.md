@@ -153,9 +153,10 @@ Separate both statements and top level definitions by zero or one blank lines (o
 
 ### [Top Level Definitions](definitions.md)
   - [Imports](definitions.md#imports)
-  - [Function](definitions.md#function)
-  - [Service](definitions.md#service)
+  - [Function](definitions.md#function-definition)
+  - [Service](definitions.md#service-definition)
     - [Resource Function](definitions.md#resource-function)
+  - [Global Variable Definition](definitions.md#global-variable-definition)
   - [Object Definition](definitions.md#object-definition)
   - [Record Definition](definitions.md#record-definition)
   - [Referencing Record or Abstract Object](definitions.md#referencing-record-or-abstract-object)
