@@ -9,6 +9,8 @@ great_grand_parent_path=$(dirname ${grand_parent_path})
 
 source ${great_grand_parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
+work_dir=$(pwd)
+
 git clone https://github.com/ballerina-guides/data-backed-service --branch testgrid-onboarding
 
 bal_path=data-backed-service/guide/data_backed_service/employee_db_service.bal
@@ -45,7 +47,7 @@ ${ballerina_home}/bin/ballerina build data_backed_service --skiptests
 
 cd ../..
 
-kubectl apply -f data-backed-service/guide/kubernetes/
+kubectl apply -f ${work_dir}/data-backed-service/guide/target/kubernetes/data_backed_service
 
 wait_for_pod_readiness
 
