@@ -162,7 +162,7 @@ finiteTypeUnit
 
 typeName
     :   simpleTypeName                                                                          # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET (integerLiteral | sealedLiteral)? RIGHT_BRACKET)+                # arrayTypeNameLabel
+    |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
@@ -206,7 +206,7 @@ valueTypeName
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
     |   TYPE_FUTURE LT typeName GT
-    |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
+    |   TYPE_XML
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
     |   TYPE_STREAM LT typeName GT
@@ -768,7 +768,6 @@ simpleLiteral
     :   SUB? integerLiteral
     |   SUB? floatingPointLiteral
     |   QuotedStringLiteral
-    |   SymbolicStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
     |   blobLiteral

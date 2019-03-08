@@ -220,7 +220,7 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     boolean[4] b2 = [false, false, false, false];
 
     boolean[3] b3 = [true, false, false];
-    boolean[!...] b4 = [true, false, false];
+    boolean[*] b4 = [true, false, false];
 
     int[5] i1 = [0, 0, 0, 0, 0];
     int[5] i2 = [0, 0, 0, 0, 0];
@@ -232,13 +232,13 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     float[8] f2 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
     float[1] f3 = [12.3];
-    float[!...] f4 = [12.3];
+    float[*] f4 = [12.3];
 
     byte[3] by1 = [0, 0, 0];
     byte[3] by2 = [0, 0, 0];
 
     byte[4] by3 = [0, 10, 100, 255];
-    byte[!...] by4 = [0, 10, 100, 255];
+    byte[*] by4 = [0, 10, 100, 255];
 
     string[3] s1 = ["", "", ""];
     string[3] s2 = ["", "", ""];
@@ -268,7 +268,7 @@ function check1DClosedArrayEqualityPositive() returns boolean {
 
 function check1DClosedArrayEqualityNegative() returns boolean {
     boolean[3] b1 = [true, false, false];
-    boolean[!...] b2 = [true, false, true];
+    boolean[*] b2 = [true, false, true];
 
     int[2] i1 = [123, 45678];
     int[2] i2 = [123, 45674];
@@ -277,7 +277,7 @@ function check1DClosedArrayEqualityNegative() returns boolean {
     byte[4] by2 = [123, 45, 255, 0];
 
     float[1] f1 = [12.3];
-    float[!...] f2 = [12.2];
+    float[*] f2 = [12.2];
 
     string[3] s1 = ["hello", "from", "ballerina"];
     string[3] s2 = ["hello", "from", "ball"];
@@ -322,7 +322,7 @@ function check1DAnyArrayEqualityNegative() returns boolean {
 }
 
 function checkOpenClosedArrayEqualityPositive() returns boolean {
-    string[!...] a = ["a", "bcd", "ef"];
+    string[*] a = ["a", "bcd", "ef"];
     string[] b = ["a", "bcd", "ef"];
 
     (int|float)?[] c = [5, 4.12, 54, 23.1];
