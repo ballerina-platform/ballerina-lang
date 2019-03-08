@@ -35,10 +35,12 @@ under the License.
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-scenario-test-commons</artifactId>
             <scope>test</scope>
+            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-integration-test-utils</artifactId>
+            <version>${ballerina.version}</version>
         </dependency>
     </dependencies>
 
@@ -47,6 +49,7 @@ under the License.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>

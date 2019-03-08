@@ -18,30 +18,43 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <parent>
+    <!--<parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
         <version>0.990.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
-    </parent>
-
+    </parent>-->
+    <groupId>org.ballerinalang</groupId>
+    <version>0.990.4-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-scenario-test</artifactId>
     <name>Ballerina - Scenario Test</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-scenario-test-commons</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
     <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <modules>
         <module>scenarios-commons</module>
         <module>http</module>
         <module>bbg</module>
     </modules>
+
+    <properties>
+        <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
+        <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
+        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
+    </properties>
 
 </project>
