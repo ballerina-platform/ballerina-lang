@@ -42,19 +42,12 @@ function serializeTypes(BType[] bTypes, string delimiter) returns string {
 
 function serializeFields(BObjectField[] fields) returns string {
     var result = "";
-<<<<<<< HEAD
-    var delimiter = ";";
-=======
     var delimiter = "; ";
->>>>>>> 1cbf0625ded69da1ed558db987a9c040991dceec
     foreach var field in fields {
         result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
     }
     return result;
 }
-<<<<<<< HEAD
-=======
-
 
 function serializeAttachedFunc(BAttachedFunction[] functions) returns string {
     var result = "";
@@ -63,4 +56,3 @@ function serializeAttachedFunc(BAttachedFunction[] functions) returns string {
     }
     return result;
 }
->>>>>>> 1cbf0625ded69da1ed558db987a9c040991dceec

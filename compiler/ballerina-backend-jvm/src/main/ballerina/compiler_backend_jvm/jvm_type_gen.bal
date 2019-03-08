@@ -199,7 +199,7 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, stri
     return;
 }
 
-# Add the field type information of a object type. The object type is assumed
+# Add the field type information to an object type. The object type is assumed
 # to be at the top of the stack.
 #
 # + mv - method visitor
@@ -248,9 +248,9 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 
     // Load flags
     // TODO: get the flags
-    int visibility = 0;
+    int visibility = 1;
     if (field.visibility == "PACKAGE_PRIVATE") {
-        visibility = 1;
+        visibility = 0;
     }
     mv.visitLdcInsn(visibility);
     mv.visitInsn(L2I);
@@ -260,7 +260,7 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
             false);
 }
 
-# Add the attached function information of a object type. The object type is assumed
+# Add the attached function information to an object type. The object type is assumed
 # to be at the top of the stack.
 #
 # + mv - method visitor
@@ -305,7 +305,11 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
 
     // Load flags
     // TODO: get the flags
-    mv.visitLdcInsn(0);
+    int visibility = 1;
+    if (attachedFunc.visibility == "PACKAGE_PRIVATE") {
+        visibility = 0;
+    }
+    mv.visitLdcInsn(visibility);
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
@@ -450,6 +454,10 @@ function getTypeFieldName(string typeName) returns string {
     return io:sprintf("$type$%s", typeName);
 }
 
+# Create and load an invokable type.
+#
+# + mv - method visitor
+# + bType - invokable type to be created
 function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
     mv.visitTypeInsn(NEW, FUNCTION_TYPE);
     mv.visitInsn(DUP);

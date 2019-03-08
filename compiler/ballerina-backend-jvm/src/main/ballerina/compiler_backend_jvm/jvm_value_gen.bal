@@ -49,8 +49,6 @@ public type ObjectGenerator object {
     function createInit(jvm:ClassWriter cw) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), null, null);
         mv.visitCode();
-        // mv.visitVarInsn(ALOAD, 0);
-        // mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
 
         // load super
         mv.visitVarInsn(ALOAD, 0);
