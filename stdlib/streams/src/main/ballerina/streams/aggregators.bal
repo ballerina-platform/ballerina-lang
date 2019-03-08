@@ -76,11 +76,11 @@ public type Sum object {
     }
 
     public function restoreState(map<any> state) {
-        any? iSum = state["iSum"];
+        any iSum = state["iSum"];
         if (iSum is int) {
             self.iSum = iSum;
         }
-        any? fSum = state["fSum"];
+        any fSum = state["fSum"];
         if (fSum is float) {
             self.fSum = fSum;
         }
@@ -147,11 +147,11 @@ public type Average object {
     }
 
     public function restoreState(map<any> state) {
-        any? c = state["count"];
+        any c = state["count"];
         if (c is int) {
             self.count = c;
         }
-        any? s = state["sum"];
+        any s = state["sum"];
         if (s is float) {
             self.sum = s;
         }
@@ -195,7 +195,7 @@ public type Count object {
     }
 
     public function restoreState(map<any> state) {
-        any? c = state["count"];
+        any c = state["count"];
         if (c is int) {
             self.count = c;
         }
@@ -248,7 +248,7 @@ public type DistinctCount object {
     }
 
     public function restoreState(map<any> state) {
-        any? distinctValues = state["distinctValues"];
+        any distinctValues = state["distinctValues"];
         if (distinctValues is map<int>) {
             self.distinctValues = distinctValues;
         }
@@ -371,21 +371,21 @@ public type Max object {
     }
 
     public function restoreState(map<any> state) {
-        any? iMaxQ = state["iMaxQ"];
+        any iMaxQ = state["iMaxQ"];
         if (iMaxQ is any[]) {
             self.iMaxQueue = new;
             self.iMaxQueue.addAll(iMaxQ);
         }
-        any? fMaxQ = state["fMaxQ"];
+        any fMaxQ = state["fMaxQ"];
         if (fMaxQ is any[]) {
             self.fMaxQueue = new;
             self.fMaxQueue.addAll(fMaxQ);
         }
-        any? iMax = state["iMax"];
+        any iMax = state["iMax"];
         if (iMax is int) {
             self.iMax = iMax;
         }
-        any? fMax = state["fMax"];
+        any fMax = state["fMax"];
         if (fMax is float) {
             self.fMax = fMax;
         }
@@ -506,21 +506,21 @@ public type Min object {
     }
 
     public function restoreState(map<any> state) {
-        any? iMinQ = state["iMinQ"];
+        any iMinQ = state["iMinQ"];
         if (iMinQ is any[]) {
             self.iMinQueue = new;
             self.iMinQueue.addAll(iMinQ);
         }
-        any? fMinQ = state["fMinQ"];
+        any fMinQ = state["fMinQ"];
         if (fMinQ is any[]) {
             self.fMinQueue = new;
             self.fMinQueue.addAll(fMinQ);
         }
-        any? iMin = state["iMin"];
+        any iMin = state["iMin"];
         if (iMin is int) {
             self.iMin = iMin;
         }
-        any? fMin = state["fMin"];
+        any fMin = state["fMin"];
         if (fMin is float) {
             self.fMin = fMin;
         }
@@ -616,19 +616,19 @@ public type StdDev object {
     }
 
     public function restoreState(map<any> state) {
-        any? mean = state["mean"];
+        any mean = state["mean"];
         if (mean is float) {
             self.mean = mean;
         }
-        any? stdDeviation = state["stdDeviation"];
+        any stdDeviation = state["stdDeviation"];
         if (stdDeviation is float) {
             self.stdDeviation = stdDeviation;
         }
-        any? sumValue = state["sumValue"];
+        any sumValue = state["sumValue"];
         if (sumValue is float) {
             self.sumValue = sumValue;
         }
-        any? c = state["count"];
+        any c = state["count"];
         if (c is int) {
             self.count = c;
         }
@@ -694,11 +694,11 @@ public type MaxForever object {
     }
 
     public function restoreState(map<any> state) {
-        any? iMax = state["iMax"];
+        any iMax = state["iMax"];
         if (iMax is int) {
             self.iMax = iMax;
         }
-        any? fMax = state["fMax"];
+        any fMax = state["fMax"];
         if (fMax is float) {
             self.fMax = fMax;
         }
@@ -764,11 +764,11 @@ public type MinForever object {
     }
 
     public function restoreState(map<any> state) {
-        any? iMin = state["iMin"];
+        any iMin = state["iMin"];
         if (iMin is int) {
             self.iMin = iMin;
         }
-        any? fMin = state["fMin"];
+        any fMin = state["fMin"];
         if (fMin is float) {
             self.fMin = fMin;
         }

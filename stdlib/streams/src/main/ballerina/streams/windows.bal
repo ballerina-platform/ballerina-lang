@@ -66,7 +66,7 @@ public type LengthWindow object {
             StreamEvent event = <StreamEvent>evt;
             if (self.linkedList.getSize() == self.size) {
 
-                any? anyValue = self.linkedList.removeFirst();
+                any anyValue = self.linkedList.removeFirst();
                 if (anyValue is StreamEvent) {
                     outputEvents[outputEvents.length()] = anyValue;
                 }
@@ -267,7 +267,7 @@ public type TimeWindow object {
             self.expiredEventQueue = new;
             self.expiredEventQueue.addAll(streamEvents);
         }
-        any? lastTimestamp = state["lastTimestamp"];
+        any lastTimestamp = state["lastTimestamp"];
         if (lastTimestamp is int) {
             self.lastTimestamp = lastTimestamp;
         }
@@ -352,7 +352,7 @@ public type LengthBatchWindow object {
             while streamEventChunks.hasNext() {
                 StreamEvent?[] events = [];
                 LinkedList streamEventChunk;
-                any? next = streamEventChunks.next();
+                any next = streamEventChunks.next();
                 if (next is LinkedList) {
                     streamEventChunk = next;
                 } else {
@@ -418,7 +418,7 @@ public type LengthBatchWindow object {
             StreamEvent r = toStreamEvent(resetEvt);
             self.resetEvent = r;
         }
-        any? c = state["count"];
+        any c = state["count"];
         if (c is int) {
             self.count = c;
         }
@@ -578,11 +578,11 @@ public type TimeBatchWindow object {
             StreamEvent r = toStreamEvent(resetEvt);
             self.resetEvent = r;
         }
-        any? millis = state["timeInMilliSeconds"];
+        any millis = state["timeInMilliSeconds"];
         if (millis is int) {
             self.timeInMilliSeconds = millis;
         }
-        any? nxtEmitTime = state["nextEmitTime"];
+        any nxtEmitTime = state["nextEmitTime"];
         if (nxtEmitTime is int) {
             self.nextEmitTime = nxtEmitTime;
         }
@@ -730,11 +730,11 @@ public type ExternalTimeWindow object {
             self.expiredEventQueue = new;
             self.expiredEventQueue.addAll(expiredEvents);
         }
-        any? millis = state["timeInMillis"];
+        any millis = state["timeInMillis"];
         if (millis is int) {
             self.timeInMillis = millis;
         }
-        any? ts = state["timeStamp"];
+        any ts = state["timeStamp"];
         if (ts is string) {
             self.timeStamp = ts;
         }
@@ -940,7 +940,7 @@ public type ExternalTimeBatchWindow object {
             if (complexEventChunks.getSize() != 0) {
                 while (complexEventChunks.hasNext()) {
                     StreamEvent?[] streamEvent;
-                    any? next = complexEventChunks.next();
+                    any next = complexEventChunks.next();
                     if (next is StreamEvent?[]) {
                         streamEvent = next;
                     } else {
@@ -1017,27 +1017,27 @@ public type ExternalTimeBatchWindow object {
             StreamEvent r = toStreamEvent(resetEvt);
             self.resetEvent = r;
         }
-        any? f = state["flushed"];
+        any f = state["flushed"];
         if (f is boolean) {
             self.flushed = f;
         }
-        any? et = state["endTime"];
+        any et = state["endTime"];
         if (et is int) {
             self.endTime = et;
         }
-        any? lst = state["lastScheduledTime"];
+        any lst = state["lastScheduledTime"];
         if (lst is int) {
             self.lastScheduledTime = lst;
         }
-        any? lct = state["lastCurrentEventTime"];
+        any lct = state["lastCurrentEventTime"];
         if (lct is int) {
             self.lastCurrentEventTime = lct;
         }
-        any? se = state["storeExpiredEvents"];
+        any se = state["storeExpiredEvents"];
         if (se is boolean) {
             self.storeExpiredEvents = se;
         }
-        any? outExp = state["outputExpectsExpiredEvents"];
+        any outExp = state["outputExpectsExpiredEvents"];
         if (outExp is boolean) {
             self.outputExpectsExpiredEvents = outExp;
         }
@@ -1365,7 +1365,7 @@ public type TimeLengthWindow object {
             self.expiredEventChunk = new;
             self.expiredEventChunk.addAll(expiredEvents);
         }
-        any? c = state["count"];
+        any c = state["count"];
         if (c is int) {
             self.count = c;
         }
@@ -1553,7 +1553,7 @@ public type UniqueLengthWindow object {
                 self.uniqueMap[k] = toStreamEvent(v);
             }
         }
-        any? c = state["count"];
+        any c = state["count"];
         if (c is int) {
             self.count = c;
         }
@@ -1705,7 +1705,7 @@ public type DelayWindow object {
             self.delayedEventQueue = new;
             self.delayedEventQueue.addAll(delayedEvents);
         }
-        any? lts = state["lastTimestamp"];
+        any lts = state["lastTimestamp"];
         if (lts is int) {
             self.lastTimestamp = lts;
         }
@@ -2044,7 +2044,7 @@ public type TimeAccumulatingWindow object {
             self.currentEventQueue = new;
             self.currentEventQueue.addAll(currentEvents);
         }
-        any? lts = state["lastTimestamp"];
+        any lts = state["lastTimestamp"];
         if (lts is int) {
             self.lastTimestamp = lts;
         }
@@ -2221,7 +2221,7 @@ public type HoppingWindow object {
             StreamEvent r = toStreamEvent(resetEvt);
             self.resetEvent = r;
         }
-        any? n = state["nextEmitTime"];
+        any n = state["nextEmitTime"];
         if (n is int) {
             self.nextEmitTime = n;
         }
@@ -2423,7 +2423,7 @@ public type TimeOrderWindow object {
             self.expiredEventQueue = new;
             self.expiredEventQueue.addAll(expiredEvents);
         }
-        any? lts = state["lastTimestamp"];
+        any lts = state["lastTimestamp"];
         if (lts is int) {
             self.lastTimestamp = lts;
         }
