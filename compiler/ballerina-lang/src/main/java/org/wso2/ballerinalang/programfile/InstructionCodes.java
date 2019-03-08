@@ -94,17 +94,10 @@ public interface InstructionCodes {
 
     int IS_LIKE = RGSTORE + 1;
 
-    int STAMP = IS_LIKE + 1;
-
-    int FREEZE = STAMP + 1;
-    int IS_FROZEN = FREEZE + 1;
-
-    int ERROR = IS_FROZEN + 1;
+    int ERROR = IS_LIKE + 1;
     int PANIC = ERROR + 1;
-    int REASON = PANIC + 1;
-    int DETAIL = REASON + 1;
 
-    int MAPSTORE = DETAIL + 1;
+    int MAPSTORE = PANIC + 1;
     int JSONSTORE = MAPSTORE + 1;
 
     int IADD = JSONSTORE + 1;
@@ -270,22 +263,17 @@ public interface InstructionCodes {
     int SNEWARRAY = FNEWARRAY + 1;
     int BNEWARRAY = SNEWARRAY + 1;
     int RNEWARRAY = BNEWARRAY + 1;
+    
+    int FLUSH = RNEWARRAY + 1;
 
-    int CLONE = RNEWARRAY + 1;
-
-    int FLUSH = CLONE + 1;
-
-    int LENGTH = FLUSH + 1;
-    int WAITALL = LENGTH + 1;
+    int WAITALL = FLUSH + 1;
 
     int NEWSTRUCT = WAITALL + 1;
     int NEWMAP = NEWSTRUCT + 1;
     int NEWTABLE = NEWMAP + 1;
     int NEWSTREAM = NEWTABLE + 1;
     
-    int CONVERT = NEWSTREAM + 1;
-
-    int ITR_NEW = CONVERT + 1;
+    int ITR_NEW = NEWSTREAM + 1;
     int ITR_NEXT = ITR_NEW + 1;
     int INT_RANGE = ITR_NEXT + 1;
 

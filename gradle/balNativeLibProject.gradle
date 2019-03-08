@@ -56,3 +56,9 @@ artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
 build {
     dependsOn createBalo
 }
+
+test {
+    minHeapSize = "256m"
+    maxHeapSize = "1024m"
+    systemProperty "ballerina.home", "$buildDir"
+}

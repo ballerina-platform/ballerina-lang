@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,9 +156,9 @@ public class HtmlDocTest {
 
     @Test(description = "Connectors in a module should be shown in the constructs with new docerina syntax")
     public void testConnectorsWithNewSyntax() throws IOException {
-        String testClientBalPath = BallerinaFunctionDocGenTest.class.getProtectionDomain().getCodeSource().getLocation()
-                                    .getPath() + "balFiles/objects/github_test_client.bal";
-        
+        String testClientBalPath = Paths.get("src", "test", "resources", "balFiles", "objects",
+                "github_test_client.bal").toString();
+
         BLangPackage bLangPackage = createPackage(FileUtils.readFileToString(new File(testClientBalPath)));
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 2);
@@ -171,12 +172,12 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.get(1).icon, "fw-endpoint");
         Assert.assertEquals(page.constructs.get(1).description, "<p>GitHub client</p>\n");
         Assert.assertTrue(page.constructs.get(1) instanceof EndpointDoc, "Invalid documentable type");
-    
+
         EndpointDoc endpointDoc = (EndpointDoc) page.constructs.get(1);
         Assert.assertEquals(endpointDoc.fields.size(), 1);
         Assert.assertEquals(endpointDoc.children.size(), 2);
         Assert.assertTrue(endpointDoc.children.get(0) instanceof FunctionDoc, "Invalid documentable type");
-        
+
         FunctionDoc functionDoc1 = (FunctionDoc) endpointDoc.children.get(0);
         Assert.assertEquals(functionDoc1.name, "testAction", "Invalid function name testAction");
         Assert.assertEquals(functionDoc1.icon, "fw-action", "testAction function is not detected as an action");
@@ -307,9 +308,8 @@ public class HtmlDocTest {
 
     @Test(description = "Objects in a module should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() throws IOException {
-        String testClientBalPath = BallerinaFunctionDocGenTest.class.getProtectionDomain().getCodeSource().getLocation()
-                                           .getPath() + "balFiles/objects/test_object.bal";
-    
+        String testClientBalPath = Paths.get("src", "test", "resources", "balFiles", "objects", 
+                                           "test_object.bal").toString();
         BLangPackage bLangPackage = createPackage(FileUtils.readFileToString(new File(testClientBalPath)));
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
