@@ -76,9 +76,8 @@ kubectl get ingress
 
 kubectl get nodes -o=json
 
-external_ip=$(kubectl get nodes -o go-template --template='{{range.items}}{{range.status.addresses}}{{if eq .type "ExternalIP"}}{{.address}}{{end}}{{end}} {{end}}')
-
-node_port=$(kubectl get svc ballerina-guides-employee-database-service -o go-template --template='{{range .spec.ports}}{{.nodePort}}{{end}}')
+external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
 
 echo "ExternalIP: ${external_ip}"
 echo "NodePort: ${node_port}"
