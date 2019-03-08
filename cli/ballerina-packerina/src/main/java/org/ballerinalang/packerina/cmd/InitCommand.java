@@ -76,13 +76,9 @@ public class InitCommand implements BLauncherCmd {
                 return true;
             }
             Path path = (Path) pathIterator.next();
-            Path filePath = path.getFileName();
-            if (filePath != null && filePath.toString().equals(ProjectDirConstants.DS_STORE_FILE)) {
-
-                return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("mac") &&
-                        !pathIterator.hasNext();
-            }
-            return false;
+            Path fileName = path.getFileName();
+            return fileName != null && fileName.toString().equals(ProjectDirConstants.DS_STORE_FILE) &&
+                    !pathIterator.hasNext();
         }
     }
 
@@ -251,8 +247,7 @@ public class InitCommand implements BLauncherCmd {
             do {
                 out.print("Organization name: (" + defaultOrg + ") ");
                 orgName = scanner.nextLine().trim();
-            }
-            while (!validateOrgName(orgName));
+            } while (!validateOrgName(orgName));
             // Set org-name
             manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
             String version;
@@ -260,8 +255,7 @@ public class InitCommand implements BLauncherCmd {
                 out.print("Version: (" + DEFAULT_VERSION + ") ");
                 version = scanner.nextLine().trim();
                 version = version.isEmpty() ? DEFAULT_VERSION : version;
-            }
-            while (!validateVersion(out, version));
+            } while (!validateVersion(out, version));
 
             manifest.setVersion(version);
         }
