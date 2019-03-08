@@ -51,7 +51,7 @@ function testArrayTypeDescriptor() {
     // type descriptor in which array-length occurs (see “Typed binding patterns”); its meaning
     // is the same as if the length was specified explicitly.
     string[3] array2 = ["a", "b", "c"];
-    string[!...] array3 = ["a", "b", "c"];
+    string[*] array3 = ["a", "b", "c"];
     any tempVar = array3;
     test:assertTrue(tempVar is string[3], msg = EXPECTED_FIXED_AND_IMPLIED_LENGTH_TO_BE_EQUAL_FAILURE_MESSAGE);
     test:assertEquals(array2, array3, msg = EXPECTED_FIXED_AND_IMPLIED_LENGTH_TO_BE_EQUAL_FAILURE_MESSAGE);

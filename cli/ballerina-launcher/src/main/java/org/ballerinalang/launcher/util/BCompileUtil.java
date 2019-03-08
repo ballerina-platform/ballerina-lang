@@ -131,6 +131,19 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
+     * @return Semantic errors
+     */
+    public static CompileResult compile(String sourceRoot, String packageName) {
+        Path rootPath = Paths.get(sourceRoot);
+        Path packagePath = Paths.get(packageName);
+        return getCompileResult(packageName, rootPath, packagePath);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
      * @param obj this is to find the original callers location.
      * @param sourceRoot  root path of the modules
      * @param packageName name of the module to compile
@@ -138,7 +151,6 @@ public class BCompileUtil {
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
         try {
-            String effectiveSource;
             CodeSource codeSource = obj.getClass().getProtectionDomain().getCodeSource();
             URL location = codeSource.getLocation();
             URI locationUri = location.toURI();
@@ -146,29 +158,34 @@ public class BCompileUtil {
             String filePath = concatFileName(sourceRoot, pathLocation);
             Path rootPath = Paths.get(filePath);
             Path packagePath = Paths.get(packageName);
-            if (Files.isDirectory(packagePath)) {
-                String[] pkgParts = packageName.split("\\/");
-                List<Name> pkgNameComps = Arrays.stream(pkgParts)
-                        .map(part -> {
-                            if (part.equals("")) {
-                                return Names.EMPTY;
-                            } else if (part.equals("_")) {
-                                return Names.EMPTY;
-                            }
-                            return new Name(part);
-                        })
-                        .collect(Collectors.toList());
-                // TODO: orgName is anon, fix it.
-                PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
-                effectiveSource = pkgId.getName().getValue();
-                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
-            } else {
-                effectiveSource = packageName;
-                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
-                        new FileSystemProjectDirectory(rootPath));
-            }
+            return getCompileResult(packageName, rootPath, packagePath);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        }
+    }
+
+    private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath) {
+        String effectiveSource;
+        if (Files.isDirectory(packagePath)) {
+            String[] pkgParts = packageName.split("\\/");
+            List<Name> pkgNameComps = Arrays.stream(pkgParts)
+                    .map(part -> {
+                        if (part.equals("")) {
+                            return Names.EMPTY;
+                        } else if (part.equals("_")) {
+                            return Names.EMPTY;
+                        }
+                        return new Name(part);
+                    })
+                    .collect(Collectors.toList());
+            // TODO: orgName is anon, fix it.
+            PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
+            effectiveSource = pkgId.getName().getValue();
+            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
+        } else {
+            effectiveSource = packageName;
+            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+                           new FileSystemProjectDirectory(rootPath));
         }
     }
 

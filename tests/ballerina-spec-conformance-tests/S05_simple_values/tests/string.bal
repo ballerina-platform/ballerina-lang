@@ -22,20 +22,16 @@ const S = "test string const";
 // string-literal :=
 // DoubleQuotedStringLiteral | symbolic-string-literal
 // DoubleQuotedStringLiteral := " (StringChar | StringEscape)* "
-// symbolic-string-literal := ' UndelimitedIdentifier
 // StringChar := ^ ( 0xA | 0xD | \ | " )
 // StringEscape := StringSingleEscape | StringNumericEscape
 // StringSingleEscape := \t | \n | \r | \\ | \"
 // StringNumericEscape := \u[ CodePoint ]
 // CodePoint := HexDigit+
 //
-// A symbolic-string-literal 'foo is equivalent to a
-// double-quoted-string-literal "foo"; this form of string literal is convenient when
-// strings are used to represent an enumeration.
 @test:Config {}
 function testStringLiterals() {
     string s1 = "a";
-    string s2 = 'A0;
+    string s2 = "A0";
     string s3 = "\t\n";
     string s4 = "b\r\\\"c";
     string s5 = "\u2ABC";
@@ -43,7 +39,7 @@ function testStringLiterals() {
     test:assertEquals(s1 + s2 + s3 + s4 + s5, s6, msg = "expected strings to be equal");
 
     s1 = "a0Bc";
-    s2 = 'A;
+    s2 = "A";
     s3 = "\t";
     s4 = "\rbc\\\"";
     s5 = "D\u2ABCe\u2222F";

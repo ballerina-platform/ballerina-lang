@@ -2283,7 +2283,7 @@
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <orbit.version.axiom>1.2.22</orbit.version.axiom>
-        <c14n.axiom.orbit.version>1.2.11-wso2v11</c14n.axiom.orbit.version>
+        <c14n.axiom.orbit.version>1.2.22</c14n.axiom.orbit.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>
@@ -2364,7 +2364,7 @@
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
-        <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
+        <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.6</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.1.6</awaitility.version>
 
