@@ -176,7 +176,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -1108,8 +1107,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
         BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
         if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
-            BLangType eType = arrayPart.elemtype;
-            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType eType = arrayPart.elemtype.type;
+            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
     }
 
@@ -1124,9 +1123,26 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BLangType eType = ((BLangArrayType) typeNode).elemtype;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType eType = ((BLangArrayType) typeNode).elemtype.type;
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
+    }
+
+    private BType getNilableType(BType type) {
+        if (type.isNullable()) {
+            return type;
+        }
+
+        BUnionType unionType = BUnionType.create(null);
+
+        if (type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memTypes = new LinkedHashSet<>(((BUnionType) type).getMemberTypes());
+            unionType.addAll(memTypes);
+        }
+
+        unionType.add(type);
+        unionType.add(symTable.nilType);
+        return unionType;
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -1411,11 +1427,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordLiteral recordLiteral) {
         List<BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
-        keyValuePairs.forEach(kv -> {
-            analyzeExpr(kv.valueExpr);
-        });
+        keyValuePairs.forEach(kv -> analyzeExpr(kv.valueExpr));
 
-        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
+        Set<Object> names = new HashSet<>();
         for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
