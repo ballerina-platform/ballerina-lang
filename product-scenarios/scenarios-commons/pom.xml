@@ -50,4 +50,8 @@
             <artifactId>testng</artifactId>
         </dependency>
     </dependencies>
+
+    <properties>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+    </properties>
 </project>
