@@ -40,9 +40,11 @@ curl -v -X PUT -d '{"name":"Alice Updated", "age":30,"ssn":123456789,"employeeId
 
 curl -v -X DELETE "http://${host_port}/records/employee/1"
 
-mvn clean install -f ${great_great_grant_parent_path}/pom.xml
+mvn -version
 
-mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
+mvn clean install -f ${great_great_grant_parent_path}/pom.xml -Dmaven.repo.local=./tempm2
+
+mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port} -Dmaven.repo.local=./tempm2
 
 mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service-bbg
 
