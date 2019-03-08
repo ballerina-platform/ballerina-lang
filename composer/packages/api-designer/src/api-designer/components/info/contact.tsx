@@ -22,7 +22,7 @@ import * as React from "react";
 
 import { OpenApiContext, OpenApiContextConsumer } from "../context/open-api-context";
 
-import InlineEdit from "../utils/inline-edit";
+import InlineEdit from "../utils/inline-edit/inline-edit";
 
 export interface OpenApiContactProps {
     contact?: Swagger.ContactObject;
@@ -42,17 +42,17 @@ class OpenApiContact extends React.Component<OpenApiContactProps, any> {
                     if (contact) {
                         return (
                             <InlineEdit
-                                text={contact}
+                                editableObject={contact}
                                 changeModel={context!.openApiJson}
                                 changeAttribute={{key: "info.contact", changeValue: ""}}
                                 placeholderText="+ Contact information"
-                                onInlineValueChange={context!.onInlineValueChange}
+                                onValueChange={context!.onInlineValueChange}
                             />
                         );
                     } else {
                         return (
                             <InlineEdit
-                                text={{
+                                editableObject={{
                                     email: "",
                                     name: "",
                                     url: "",
@@ -60,7 +60,7 @@ class OpenApiContact extends React.Component<OpenApiContactProps, any> {
                                 changeModel={context!.openApiJson}
                                 changeAttribute={{key: "info.contact", changeValue: ""}}
                                 placeholderText="+ Contact information"
-                                onInlineValueChange={context!.onInlineValueChange}
+                                onValueChange={context!.onInlineValueChange}
                             />
                         );
                     }

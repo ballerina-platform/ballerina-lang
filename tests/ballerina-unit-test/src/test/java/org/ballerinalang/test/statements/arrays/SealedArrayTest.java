@@ -309,7 +309,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "array index out of range: index: '4', size: '4'", 83, 8);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85, 21);
+                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85, 18);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87, 18);
     }
