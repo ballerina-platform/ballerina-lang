@@ -35,19 +35,19 @@ function generateExecutableJar(bir:BIRContext birContext, bir:ModuleID entryModI
 }
 
 function generateStrandClass(map<byte[]> pkgEntries){
-        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, "org/ballerina/jvm/Strand", null, "java/lang/Object", null);
-        generateDefaultConstructor(cw);
+    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, "org/ballerina/jvm/Strand", null, "java/lang/Object", null);
+    generateDefaultConstructor(cw);
 
-        var fv = cw.visitField(ACC_PUBLIC, "yield", "Z");
-        fv.visitEnd();
+    var fv = cw.visitField(ACC_PUBLIC, "yield", "Z");
+    fv.visitEnd();
 
-        fv = cw.visitField(ACC_PUBLIC, "frames", "[Ljava/lang/Object;");
-        fv.visitEnd();
+    fv = cw.visitField(ACC_PUBLIC, "frames", "[Ljava/lang/Object;");
+    fv.visitEnd();
 
-        fv = cw.visitField(ACC_PUBLIC, "resumeIndex", "I");
-        fv.visitEnd();
+    fv = cw.visitField(ACC_PUBLIC, "resumeIndex", "I");
+    fv.visitEnd();
 
-        cw.visitEnd();
-        pkgEntries["org/ballerina/jvm/Strand.class"] = cw.toByteArray();
+    cw.visitEnd();
+    pkgEntries["org/ballerina/jvm/Strand.class"] = cw.toByteArray();
 }
