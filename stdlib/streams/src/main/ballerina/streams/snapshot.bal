@@ -42,6 +42,8 @@ map<map<any>> streamsPersistanceState = {};
 map<Snapshotable> snapshotables = {};
 string persistanceDirectory = "snapshots";
 int persistanceIntervalInMillis = 30000;
+boolean stateLoaded = false;
+map<boolean> loadedStates = {};
 
 # Native function to deserialize a serialized snapshot.
 extern function deserialize(string str) returns map<any>;
@@ -229,17 +231,24 @@ function purgeOldSnapshotFiles(string persistancePath) {
 
 # Function to restore a persisted snapshotable states from a file.
 function restoreStates() {
-    string? lastSnapshotFile = getLatestSnapshotFile(persistanceDirectory);
-    if (lastSnapshotFile is string) {
-        string stateStr = readFile(lastSnapshotFile, "UTF8");
-        var retrievedState = trap deserialize(stateStr);
-        if (retrievedState is map<map<any>>) {
-            streamsPersistanceState = retrievedState;
-            foreach var (k, v) in streamsPersistanceState {
-                Snapshotable? s = snapshotables[k];
-                if (s is Snapshotable) {
-                    s.restoreState(v);
-                }
+    if (!stateLoaded) {
+        string? lastSnapshotFile = getLatestSnapshotFile(persistanceDirectory);
+        if (lastSnapshotFile is string) {
+            string stateStr = readFile(lastSnapshotFile, "UTF8");
+            var retrievedState = trap deserialize(stateStr);
+            if (retrievedState is map<map<any>>) {
+                streamsPersistanceState = retrievedState;
+                stateLoaded = true;
+            }
+        }
+    }
+    foreach var (k, v) in streamsPersistanceState {
+        boolean loaded = loadedStates[k] ?: false;
+        if (!loaded) {
+            Snapshotable? s = snapshotables[k];
+            if (s is Snapshotable) {
+                s.restoreState(v);
+                loadedStates[k] = true;
             }
         }
     }
