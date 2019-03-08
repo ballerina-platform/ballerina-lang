@@ -1340,8 +1340,6 @@ public class HttpUtil {
         String trustCerts = secureSocket.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
         String keyPassword = secureSocket.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
         List<Parameter> clientParams = new ArrayList<>();
-        int sessionTimeout = (int) secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT);
-        long handshakeTimeout = secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT);
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
             throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
         }
@@ -1412,16 +1410,12 @@ public class HttpUtil {
         sslConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
         sslConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
-        if (sessionTimeout > 0) {
-            sslConfiguration.setSslSessionTimeOut(sessionTimeout);
-        }
+        sslConfiguration
+                .setSslSessionTimeOut((int) secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
 
-        if (handshakeTimeout > 0) {
-            sslConfiguration.setSslHandshakeTimeOut(handshakeTimeout);
-        }
+        sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
 
-        List<Value> ciphersValueList = Arrays
-                .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        List<Value> ciphersValueList = Arrays.asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
         if (ciphersValueList.size() > 0) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
@@ -1635,6 +1629,10 @@ public class HttpUtil {
         }
         String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
+        listenerConfiguration
+                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+        listenerConfiguration
+                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
         if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
             throw new BallerinaException(
                     "Truststore location or trustCertificates must be provided to enable Mutual SSL");

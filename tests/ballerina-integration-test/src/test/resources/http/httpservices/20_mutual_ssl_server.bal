@@ -40,7 +40,7 @@ http:ServiceEndpointConfiguration mutualSslServiceConf = {
             enable: false
         },
         handshakeTimeout: 20,
-        sessionTimeout:30
+        sessionTimeout: 30
     }
 };
 
