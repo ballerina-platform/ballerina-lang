@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/time;
 import ballerina/task;
+import ballerina/time;
 
 public type Window abstract object {
 

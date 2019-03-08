@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
+import ballerina/internal;
 import ballerina/io;
 import ballerina/math;
 import ballerina/runtime;
 import ballerina/task;
-import ballerina/config;
-import ballerina/internal;
 import ballerina/time;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
