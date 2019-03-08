@@ -1,28 +1,12 @@
 # Statements
 
-* Statement are indented as to the context (top level or in a block). 
-
-## Variable Definition
-* No spaces around optional operator `?`
-  
-  ```ballerina
-  string? name;
-  ```
-
-## Compound Assignment
-* Single spaces around compound operators such as `-=`, `+=`.
-
-  ```ballerina
-  name += lastName;
-  ```
-
 ## Flow Control
 
 ### If Statement
 
-* It is recommended to have condition enclosing parentheses all the time.
-* No spaces between condition and parentheses.
-* Statements in if block, each should block-indented in their own line.
+* It's recommended to have condition enclosing parentheses all the time.
+* There shouldn't be any spaces between condition expression and parentheses.
+* Statements in if block, each should block-indent on its own line.
 
   ```ballerina
   if (age >= 20 && age < 25) {
@@ -33,8 +17,7 @@
   closing brace `}`.
   
   - Single space between closing brace and `else` keyword.
-  - In else block, single space should be added between `else` and `{` of the block.
-  - Each statements should block-indented in their own line.
+  - Each statements should block-indented on its own line.
   
     ```ballerina
   
@@ -48,10 +31,8 @@
   
     ```
 
-* To have `if` or `else if` block without condition enclosing parentheses. 
-
-  - Expression should be simple and single expression.
-  - There should be single spaces around condition expression.
+* To have `if` or `else if` block without condition enclosing parentheses 
+  condition should be a simple expression.
   
     ```ballerina
     if inProperSallaryRange {
@@ -63,8 +44,8 @@
     ```
 #### Empty Block
 
-* Not recommended to have empty `if`, `else if` and `else` statements.
-* So if there is an empty if statement
+* It's not recommended to have empty `if`, `else if` and `else` blocks.
+* But if there are empty `if`, `else` and `else if` blocks
   - There should be a single space before opening brace.
   - There should be a empty line between opening and closing brace.
   - Closing brace should be indented and aligned
@@ -82,11 +63,16 @@
       
   }
   ```
-
+* Above guidelines for empty blocks are valid even if only a `if` block is available.
+  ```ballerina
+  if (inProperSallaryRange) {
+  
+  }
+  ```
 ## Match Statement
 
-* Each pattern statement available in match should block-indented on a own line.
-* Closing brace should indent and align with parent.
+* Each pattern clause available in the match statement should be block-indented on its own line.
+* Closing brace should indent and align with the start position of the match statement.
 
   ```ballerina
   function foo(string | int | boolean a) returns string {
@@ -103,11 +89,11 @@
   }
   ```
 
-### Match Patterns
+### Match Patterns Clause
 
-* All patterns should block-indent.
-* There should be space around `=>`.
-* If pattern only contains one statement it is recommended to put all in a single line.
+* All pattern clauses should block-indent on its own line.
+* There should be a single space before and after `=>`.
+* If pattern clause only contains one statement it is recommended to place pattern clause on a single line.
 
   ```ballerina
   function foo(string | int | boolean a) returns string {
@@ -118,10 +104,10 @@
       return "Value is 'Default'";
   }
   ```
-* If pattern has more than one statement then it is recommended to use block notation.
-  - Before opening brace there should be a single space and it should be on the same line as the pattern. 
-  - Each statement then should be block-indented on a own line.
-  - Closing brace should be on it own line and indented to align with the pattern start position.
+* If a pattern clause has more than one statement then
+  - Before the opening brace there should be a single space and it should be on the same line as the pattern clause. 
+  - Each statement then should be block-indented on its own line.
+  - Closing brace should be on its own line and indented to align with the pattern clause start position.
   
     ```ballerina
     function typeGuard1((string, int) | (int, boolean) | int | float x) returns string {
@@ -139,8 +125,8 @@
         return "";
     }
     ```
-* If pattern statement block is empty both braces should be on the same line and there shouldn't be any spaces between
-  them.
+* If the pattern clause block is empty then both braces should be on the same line and there shouldn't be any spaces
+  between them.
   
   ```ballerina
     function typeGuard1((string, int) | (int, boolean) | int | float x) returns string {
@@ -154,8 +140,8 @@
   ```
 ## Transaction Statement
 
-* Each sub clauses such as `onretry`, `committed`, `aborted` must be start on the same line 
-  as the closing brace of the previous clause block.
+* Each clause such as `onretry`, `committed`, `aborted` must be start on the same line 
+  as the closing brace of the previous clause.
 * If blocks are empty there should be an empty line between braces. 
   
   ```ballerina

@@ -47,7 +47,11 @@
   
   ```
 * When accessing a type(Record or Object) from a another module there cannot be any spaces around colon `http:Response`  
-
+* There shouldn't be any spaces between type and the optional operator `?`.
+  
+  ```ballerina
+  string? name;
+  ```
 ### Operators
 * There should be single space before and after `=` operator.
 * There shouldn't be any spaces around semicolon `;`.
@@ -66,5 +70,10 @@
   string | () name = isNameAvailable() ? getName() : "Unknown";
   
   var elvisOperator = name ?: "Unknown";
+  ```
+* There should be a single space before and after a compound operator such as `-=` and `+=`.
+
+  ```ballerina
+  name += lastName;
   ```
   
