@@ -55,6 +55,12 @@ kubectl get pods
 
 kubectl get svc ballerina-guides-employee-database-service -o=json
 
+kubectl get nodes --output wide
+
+kubectl get ingress
+
+sleep 10m
+
 EXTERNAL_IP=$(kubectl get svc ballerina-guides-employee-database-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 
 echo "ExternalIP=$EXTERNAL_IP" >> ${OUTPUT_DIR}/deployment.properties
