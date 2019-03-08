@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -173,6 +174,14 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
+    public void visit(TypeCast birTypeCast) {
+        sb.append("\t\t");
+        birTypeCast.lhsOp.accept(this);
+        sb.append(" = ").append(birTypeCast.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birTypeCast.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
     // Terminating instructions
 
     public void visit(BIRTerminator.Return birReturn) {
@@ -190,7 +199,16 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birBranch.falseBB.id).append("];\n");
     }
 
-
+    public void visit(BIRNonTerminator.NewError birNewError) {
+        sb.append("\t\t");
+        birNewError.lhsOp.accept(this);
+        sb.append(" = ").append(birNewError.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birNewError.reasonOp.accept(this);
+        sb.append(" ");
+        birNewError.detailOp.accept(this);
+        sb.append(";\n");
+    }
+    
     // Operands
     public void visit(BIROperand birOp) {
         sb.append(birOp.variableDcl.name);

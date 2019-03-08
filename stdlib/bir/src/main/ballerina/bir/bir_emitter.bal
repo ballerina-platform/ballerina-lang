@@ -154,6 +154,20 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             println(" = ", ins.kind, ";");
+        } else if (ins is NewError) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.reasonOp);
+            println(" ");
+            self.opEmitter.emitOp(ins.detailsOp);
+            println(";");
+        } else if (ins is TypeCast) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            println(";");
         } 
     }
 };
@@ -208,8 +222,8 @@ type OperandEmitter object {
 type TypeEmitter object {
     
     function emitType(BType typeVal, string tabs = "") {
-        if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString 
-                || typeVal is BTypeBoolean || typeVal is BTypeFloat) {
+        if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean 
+                || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
             self.emitRecordType(typeVal, tabs);
@@ -221,6 +235,8 @@ type TypeEmitter object {
             self.emitArrayType(typeVal, tabs);
         } else if (typeVal is BUnionType) {
             self.emitUnionType(typeVal, tabs);
+        } else if (typeVal is BTupleType) {
+            self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
@@ -231,7 +247,7 @@ type TypeEmitter object {
     }
 
     function emitRecordType(BRecordType bRecordType, string tabs) {
-        println("record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
+        println(tabs, "record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
         foreach var f in bRecordType.fields {
             self.emitType(f.typeValue, tabs = tabs + "\t");
             println(" ", f.name.value);
@@ -242,7 +258,7 @@ type TypeEmitter object {
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        println("object {\\\\ name - ", bObjectType.name.value);
+        println(tabs, "object {\\\\ name - ", bObjectType.name.value);
         foreach var f in bObjectType.fields {
             print(tabs + "\t", f.visibility, " ");
             self.emitType(f.typeValue);
@@ -275,13 +291,28 @@ type TypeEmitter object {
 
     function emitUnionType(BUnionType bUnionType, string tabs) {
         int i = 0;
+        string tabst = tabs;
         foreach var t in bUnionType.members {
             if (i != 0) {
                 print(" | ");
+                tabst = "";
             }
-            self.emitType(t, tabs = tabs);
+            self.emitType(t, tabs = tabst);
             i = i + 1;
         }
+    }
+
+    function emitTupleType(BTupleType bUnionType, string tabs) {
+        int i = 0;
+        print(tabs, "(");
+        foreach var t in bUnionType.tupleTypes {
+            if (i != 0) {
+                print(", ");
+            }
+            self.emitType(t);
+            i = i + 1;
+        }
+        print(")");
     }
 
     function emitMapType(BMapType bMapType, string tabs) {

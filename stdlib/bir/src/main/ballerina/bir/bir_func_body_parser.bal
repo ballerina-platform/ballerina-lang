@@ -1,4 +1,5 @@
 import ballerina/internal;
+import ballerina/io;
 
 public type FuncBodyParser object {
     BirChannelReader reader;
@@ -63,14 +64,20 @@ public type FuncBodyParser object {
             kind = INS_KIND_NEW_ARRAY;
             var lhsOp = self.parseVarRef();
             var sizeOp = self.parseVarRef();
-            NewArray newMap = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
-            return newMap;
+            NewArray newArray = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
+            return newArray;
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_MAP;
             var lhsOp = self.parseVarRef();
             NewMap newMap = {kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
+        } else if (kindTag == INS_TYPE_CAST) {
+            kind = INS_KIND_TYPE_CAST;
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeCast;
         } else if (kindTag == INS_CONST_LOAD){
             //TODO: remove redundent
             var bType = self.typeParser.parseType();
@@ -95,6 +102,13 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             Move move = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return move;
+        } else if (kindTag == INS_NEW_ERROR) {
+            kind = INS_KIND_NEW_ERROR;
+            var lhsOp = self.parseVarRef();
+            var reasonOp = self.parseVarRef();
+            var detailsOp = self.parseVarRef();
+            NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            return newError;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }

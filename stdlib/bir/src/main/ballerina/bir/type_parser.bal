@@ -52,6 +52,10 @@ public type TypeParser object {
         var typeTag = self.reader.readInt8();
         if (typeTag == self.TYPE_TAG_ANY){
             return "any";
+        } else if (typeTag == self.TYPE_TAG_ANYDATA ){
+            return "anydata";
+        } else if (typeTag == self.TYPE_TAG_NONE ){
+            return "none";
         } else if (typeTag == self.TYPE_TAG_NIL ){
             return "()";
         } else if (typeTag == self.TYPE_TAG_INT){
@@ -66,6 +70,8 @@ public type TypeParser object {
             return "boolean";
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
+        } else if (typeTag == self.TYPE_TAG_TUPLE){
+            return self.parseTupleType();
         } else if (typeTag == self.TYPE_TAG_ARRAY){
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
@@ -93,6 +99,10 @@ public type TypeParser object {
 
     function parseUnionType() returns BUnionType {
         return { members:self.parseTypes() };
+    }
+
+    function parseTupleType() returns BTupleType {
+        return { tupleTypes:self.parseTypes() };
     }
 
     function parseInvokableType() returns BInvokableType {

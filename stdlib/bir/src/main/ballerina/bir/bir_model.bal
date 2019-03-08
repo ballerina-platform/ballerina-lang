@@ -80,9 +80,12 @@ public const INS_KIND_NEW_ARRAY = "NEW_ARRAY";
 public const INS_KIND_ARRAY_STORE = "ARRAY_STORE";
 public const INS_KIND_MAP_LOAD = "MAP_LOAD";
 public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
+public const INS_KIND_NEW_ERROR = "NEW_ERROR";
+public const INS_KIND_TYPE_CAST = "TYPE_CAST";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
-                                |INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD|BinaryOpInstructionKind;
+                                |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
+                                |INS_KIND_TYPE_CAST|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -125,6 +128,10 @@ public type GlobalVariableDcl record {
 
 public type BTypeAny "any";
 
+public type BTypeAnyData "anydata";
+
+public type BTypeNone "none";
+
 public type BTypeNil "()";
 
 public type BTypeInt "int";
@@ -140,15 +147,18 @@ public type BTypeByte "byte";
 public type BArrayType record {
     ArrayState state;
     BType eType;
+    !...;
 };
 
 public type BMapType record {
     BType constraint;
+    !...;
 };
 
 public type BErrorType record {
     BType reasonType;
     BType detailType;
+    !...;
 };
 
 public type BRecordType record {
@@ -156,11 +166,13 @@ public type BRecordType record {
     boolean sealed;
     BType restFieldType;
     BRecordField[] fields;
+    !...;
 };
 
 public type BObjectType record {
     Name name = {};
-    BObjectField[] fields;    
+    BObjectField[] fields;
+    !...;
 };
 
 public type BRecordField record {
@@ -178,11 +190,18 @@ public type BObjectField record {
 
 public type BUnionType record {
    BType[]  members;
+   !...;
+};
+
+public type BTupleType record {
+   BType[]  tupleTypes;
+   !...;
 };
 
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
-                  BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType;
+                  BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
+                  BTypeAnyData | BTypeNone;
 
 
 public type BTypeSymbol record {
@@ -288,6 +307,13 @@ public type FieldAccess record {
     !...;
 };
 
+public type TypeCast record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+    !...;
+};
+
 public type VarRef object {
     public Kind kind;
     public BType typeValue;
@@ -342,5 +368,13 @@ public type GOTO record {
 
 public type Return record {
     TerminatorKind kind;
+    !...;
+};
+
+public type NewError record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef reasonOp;
+    VarRef detailsOp;
     !...;
 };

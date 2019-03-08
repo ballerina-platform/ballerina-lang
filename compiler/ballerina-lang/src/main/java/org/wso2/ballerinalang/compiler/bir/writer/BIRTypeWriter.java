@@ -8,6 +8,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -115,6 +116,11 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
+    public void visit(BAnydataType bAnydataType) {
+        buff.writeByte(bAnydataType.tag);
+    }
+
+    @Override
     public void visit(BPackageType bPackageType) {
         throwUnimplementedError(bPackageType);
     }
@@ -132,7 +138,11 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        throwUnimplementedError(bTupleType);
+        buff.writeByte(bTupleType.tag);
+        buff.writeInt(bTupleType.tupleTypes.size());
+        for (BType memberType : bTupleType.tupleTypes) {
+            memberType.accept(this);
+        }
     }
 
     @Override
