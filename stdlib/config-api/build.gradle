@@ -13,3 +13,12 @@ dependencies {
 }
 
 description = 'Ballerina - Config API'
+
+task copyGeneratedBalo(type: org.gradle.api.tasks.Copy) {
+    from "$buildDir/generated-balo/repo/ballerina"
+    into "$buildDir/lib/repo/ballerina"
+}
+
+build {
+    dependsOn copyGeneratedBalo
+}
