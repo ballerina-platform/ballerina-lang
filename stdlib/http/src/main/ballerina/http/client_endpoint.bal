@@ -279,6 +279,8 @@ public type RetryConfig record {
 # + verifyHostname - Enable/disable host name verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
 public type SecureSocket record {
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
@@ -292,6 +294,8 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
+    int handshakeTimeout?;
+    int sessionTimeout?;
     !...;
 };
 
