@@ -303,7 +303,7 @@ public function registerSnapshotable(string key, any ref) {
 
 # Function to initialize and start snapshotting.
 public function initPersistence() {
-    boolean enabled = config:getAsBoolean("b7a.streaming.persistence.enabled", default = false);
+    boolean enabled = config:getAsBoolean("b7a.streaming.persistence.enabled");
     if (enabled) {
         persistanceDirectory = config:getAsString("b7a.streaming.persistence.directory", default = "snapshots");
         int interval = config:getAsInt("b7a.streaming.persistence.interval", default = 30);
