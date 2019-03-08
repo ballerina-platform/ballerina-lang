@@ -51,9 +51,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
@@ -442,6 +445,21 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
+    public void visit(BLangTypeConversionExpr astTypeConversionExpr) {
+
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTypeConversionExpr.targetType,
+                this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        astTypeConversionExpr.expr.accept(this);
+        BIROperand rhsOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
+
+        this.env.targetOperand = toVarRef;
+    }
+
     public void visit(BLangStructLiteral astStructLiteralExpr) {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.type,
                 this.env.nextLocalVarId(names), VarKind.TEMP);
@@ -512,40 +530,49 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
+    @Override
     public void visit(BLangMapAccessExpr astMapAccessExpr) {
+        visitIndexBased(astMapAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangStructFieldAccessExpr astStructFieldAccessExpr) {
+        visitIndexBased(astStructFieldAccessExpr);
+    }
+
+    private void visitIndexBased(BLangIndexBasedAccess astIndexBasedAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
 
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
-            astMapAccessExpr.expr.accept(this);
+            astIndexBasedAccessExpr.expr.accept(this);
             BIROperand varRefRegIndex = this.env.targetOperand;
 
-            astMapAccessExpr.indexExpr.accept(this);
+            astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos,
+            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos,
                     InstructionKind.MAP_STORE, varRefRegIndex, keyRegIndex, rhsOp));
         } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type,
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type,
                     this.env.nextLocalVarId(names), VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
-            astMapAccessExpr.expr.accept(this);
+            astIndexBasedAccessExpr.expr.accept(this);
             BIROperand varRefRegIndex = this.env.targetOperand;
 
-            astMapAccessExpr.indexExpr.accept(this);
+            astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos,
+            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos,
                     InstructionKind.MAP_LOAD, tempVarRef, keyRegIndex, varRefRegIndex));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
     }
-
 
     public void visit(BLangArrayAccessExpr astArrayAccessExpr) {
         boolean variableStore = this.varAssignment;
@@ -582,6 +609,45 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        // Emit create array instruction
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(bracedOrTupleExpr.type,
+                this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        long size = bracedOrTupleExpr.expressions.size();
+
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = bracedOrTupleExpr.pos;
+        literal.value = size;
+        literal.type = symTable.intType;
+        literal.accept(this);
+        BIROperand sizeOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewArray(bracedOrTupleExpr.pos, bracedOrTupleExpr.type, toVarRef, sizeOp));
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+            BLangExpression argExpr = bracedOrTupleExpr.expressions.get(i);
+            argExpr.accept(this);
+            BIROperand exprIndex = this.env.targetOperand;
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = bracedOrTupleExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            indexLiteral.accept(this);
+            BIROperand arrayIndex = this.env.targetOperand;
+
+            emit(new BIRNonTerminator.FieldAccess(bracedOrTupleExpr.pos,
+                    InstructionKind.ARRAY_STORE, toVarRef, arrayIndex, exprIndex));
+        }
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
     public void visit(BLangLocalVarRef astVarRefExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
