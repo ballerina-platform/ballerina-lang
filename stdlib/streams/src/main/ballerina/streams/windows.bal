@@ -398,7 +398,7 @@ public type LengthBatchWindow object {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
         SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
-        ? toSnapshottableEvent(resetStreamEvt) : ();
+            ? toSnapshottableEvent(resetStreamEvt) : ();
         return {
             "currentEventsList": currentEventsList,
             "resetEvt": resetEvt,
@@ -557,7 +557,7 @@ public type TimeBatchWindow object {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
         SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
-        ? toSnapshottableEvent(resetStreamEvt) : ();
+            ? toSnapshottableEvent(resetStreamEvt) : ();
         return {
             "currentEventsList": currentEventsList,
             "resetEvt": resetEvt,
@@ -985,7 +985,7 @@ public type ExternalTimeBatchWindow object {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
         SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
-        ? toSnapshottableEvent(resetStreamEvt) : ();
+            ? toSnapshottableEvent(resetStreamEvt) : ();
         return {
             "currentEventsList": currentEventsList,
             "expiredEventsList": expiredEventsList,
@@ -2029,7 +2029,7 @@ public type TimeAccumulatingWindow object {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
         SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
-        ? toSnapshottableEvent(resetStreamEvt) : ();
+            ? toSnapshottableEvent(resetStreamEvt) : ();
         return {
             "currentEventsList": currentEventsList,
             "resetEvt": resetEvt,
@@ -2201,7 +2201,7 @@ public type HoppingWindow object {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
         SnapshottableStreamEvent? resetEvt = (resetStreamEvt is StreamEvent)
-        ? toSnapshottableEvent(resetStreamEvt) : ();
+            ? toSnapshottableEvent(resetStreamEvt) : ();
         return {
             "currentEventsList": currentEventsList,
             "resetEvt": resetEvt,
