@@ -18,6 +18,7 @@
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 grand_parent_path=$(dirname ${parent_path})
 great_grand_parent_path=$(dirname ${grand_parent_path})
+great_great_grant_parent_path=$(dirname ${great_grand_parent_path})
 
 . ${great_grand_parent_path}/usage.sh
 . ${great_grand_parent_path}/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
@@ -39,7 +40,7 @@ curl -v -X PUT -d '{"name":"Alice Updated", "age":30,"ssn":123456789,"employeeId
 
 curl -v -X DELETE "http://${host_port}/records/employee/1"
 
-mvn clean install -f ${grand_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
+mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
 
 mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service-bbg
 
