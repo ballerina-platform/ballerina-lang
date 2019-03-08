@@ -1099,11 +1099,6 @@
                 <version>${staxon.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.james</groupId>
-                <artifactId>apache-mime4j-core</artifactId>
-                <version>${mime4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
                 <version>${saxon.wso2.version}</version>
