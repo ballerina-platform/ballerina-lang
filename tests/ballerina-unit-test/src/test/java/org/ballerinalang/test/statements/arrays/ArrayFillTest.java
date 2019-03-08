@@ -297,7 +297,7 @@ public class ArrayFillTest {
         assertEquals(unionArr.size(), index + 1);
 
         for (int i = 0; i < index; i++) {
-            assertEquals(unionArr.getBValue(i).stringValue(), "{name:\"\", age:0}");
+            assertNull(unionArr.getBValue(i));
         }
 
         assertEquals(unionArr.getBValue(index).stringValue(), "{name:\"John\", age:25}");
