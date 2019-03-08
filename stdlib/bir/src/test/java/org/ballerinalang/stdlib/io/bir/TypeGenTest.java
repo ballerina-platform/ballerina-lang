@@ -1,4 +1,4 @@
-package org.ballerinalang.test.bir;
+package org.ballerinalang.stdlib.io.bir;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,8 +35,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+
 public class TypeGenTest {
 
+    public static final String EXPECTED_PREFIX = "// expected: ";
+    public static final int EXPECTED_PREFIX_LEN = EXPECTED_PREFIX.length();
+
+    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
     private ProgramFile programFile;
     private String entryPkgName;
 
@@ -50,27 +56,36 @@ public class TypeGenTest {
     }
 
     @DataProvider()
-    public static Iterator<Object[]> bTypes() {
-        CompileResult result = BCompileUtil.compile("test-src/bir/types.bal", CompilerPhase.TYPE_CHECK);
+    public static Iterator<Object[]> bTypes() throws IOException {
+        String sourceFilePath = "test-src/bir/types.bal";
+        List<String> source = Files.readAllLines(resourceDir.resolve(sourceFilePath));
+        CompileResult result = BCompileUtil.compile(sourceFilePath, CompilerPhase.TYPE_CHECK);
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.toString(result.getDiagnostics()));
         PackageNode ast = result.getAST();
         List<TopLevelNode> topLevelNodes = ((BLangPackage) ast).topLevelNodes;
         List<Object[]> testCases = new ArrayList<>();
         for (TopLevelNode topLevelNode : topLevelNodes) {
             if (topLevelNode.getKind() == NodeKind.VARIABLE) {
-                testCases.add(new Object[]{((BLangVariable) topLevelNode).type});
+                int typeStartLine = ((BLangVariable) topLevelNode).pos.sLine - 1;
+                String comment = source.get(typeStartLine - 1);
+
+                Assert.assertTrue(comment.startsWith(EXPECTED_PREFIX),
+                                  "missing the expected type string for " + source.get(typeStartLine));
+
+                testCases.add(new Object[]{((BLangVariable) topLevelNode).type,
+                                           comment.substring(EXPECTED_PREFIX_LEN)});
             }
         }
         return testCases.iterator();
     }
 
     @Test(dataProvider = "bTypes")
-    public void serializeAndDeserializeBTypeTest(BType type) {
+    public void serializeAndDeserializeBTypeTest(BType type, String source) {
         ConstantPool cp = new ConstantPool();
         byte[] typeBinary = serializeBType(type, cp);
         byte[] cpBinary = cp.serialize();
         BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
-        Assert.assertEquals(testParseTypes[0].stringValue(), type.toString(),
+        Assert.assertEquals(testParseTypes[0].stringValue(), source,
                             "Unable to recover type info from " + Arrays.toString(typeBinary));
 
     }

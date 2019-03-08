@@ -94,6 +94,10 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRTypeWriter"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.CPEntry$FloatCPEntry"/>
         <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
     </Match>
