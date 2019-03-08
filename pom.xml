@@ -2008,7 +2008,6 @@
                                 <suppressionsLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/suppressions.xml
                                 </suppressionsLocation>
-                                <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
