@@ -319,8 +319,8 @@ function testStaticMatchOrPatterns3() returns string[] {
 function caz2(Foo|AnotherFoo|map<any>|int f) returns string {
 
     match f {
-        { x: 12, y: "B" } | {x: 12, y: "Ballerina" } => return "Value is : 1st pattern - " + io:sprintf("%s", f);
-        { x: 10, y: "Ballerina"} | { x: 12, y: "Ballerina", z: true } => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
+        { x: 10, y: "Ballerina"} | { x: 12, y: "Ballerina", z: true } => return "Value is : 1st pattern - " + io:sprintf("%s", f);
+        { x: 12, y: "B" } | {x: 12, y: "Ballerina" } => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
         { x: 15, y: ("Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"), z:15.1 } |
             { x: 40, y: ("Tyrion", { x: 12, y: "Ballerina" }, "Lanister"), z: 56.9 } => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
         16 | 15 | { x: 10, y: "B" } => return "Value is : 4th pattern - " + io:sprintf("%s", f);
@@ -353,8 +353,8 @@ function testStaticMatchOrPatterns4() returns string[] {
 function caz3(any f) returns string {
 
     match f {
-        { x: 12, y: "B"} | { x: 12, y: "Ballerina" } => return "Value is : 1st pattern - " + io:sprintf("%s", f);
-        { x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true } => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
+        { x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true } => return "Value is : 1st pattern - " + io:sprintf("%s", f);
+        { x: 12, y: "B"} | { x: 12, y: "Ballerina" } => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
         { x: 15, y: ("Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"), z:15.1 } |
             { x: 40, y: ("Tyrion", { x: 12, y: "Ballerina" }, "Lanister"), z: 56.9 } => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
         16 | 15 | { x: 10, y: "B" } => return "Value is : 4th pattern - " + io:sprintf("%s", f);
