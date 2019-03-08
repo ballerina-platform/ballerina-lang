@@ -59,6 +59,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typ
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
+            addObjectAtatchedFunctions(mv, bType.attachedFunctions);
         }
     }
 }
@@ -259,6 +260,59 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
             false);
 }
 
+# Add the attached function information of a object type. The object type is assumed
+# to be at the top of the stack.
+#
+# + mv - method visitor
+# + attachedFunctions - attached functions to be added
+function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction[] attachedFunctions) {
+    // Create the attached function array
+    mv.visitLdcInsn(attachedFunctions.length());
+    mv.visitInsn(L2I);
+    mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
+    int i = 0;
+    foreach var attachedFunc in attachedFunctions {
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(i);
+        mv.visitInsn(L2I);
+
+        // create and load attached function
+        createObjectAttachedFunction(mv, attachedFunc);
+
+        // Add the member to the array
+        mv.visitInsn(AASTORE);
+        i += 1;
+    }
+
+    // Set the fields of the object
+    mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setAttachedFunctions", 
+            io:sprintf("([L%s;)V", ATTACHED_FUNCTION), false);
+}
+
+# Create a attached function information for objects.
+#
+# + mv - method visitor
+# + attachedFunc - object attached function
+function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc) {
+    mv.visitTypeInsn(NEW, ATTACHED_FUNCTION);
+    mv.visitInsn(DUP);
+
+    // Load function name
+    mv.visitLdcInsn(attachedFunc.name.value);
+
+    // Load the field type
+    loadType(mv, attachedFunc.funcType);
+
+    // Load flags
+    // TODO: get the flags
+    mv.visitLdcInsn(0);
+    mv.visitInsn(L2I);
+
+    mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
+            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, FUNCTION_TYPE),
+            false);
+}
+
 // -------------------------------------------------------
 //              Type loading methods
 // -------------------------------------------------------
@@ -267,7 +321,12 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 # to the top of the stack.
 #
 # + bType - type to load
-function loadType(jvm:MethodVisitor mv, bir:BType bType) {
+function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
+    if (bType == ()) {
+        mv.visitInsn(ACONST_NULL);
+        return;
+    }
+
     string typeFieldName = "";
     if (bType is bir:BTypeInt) {
         typeFieldName = "typeInt";
@@ -297,6 +356,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
         return;
     } else if (bType is bir:BObjectType) {
         loadUserDefinedType(mv, bType.name);
+        return;
+    } else if (bType is bir:BInvokableType) {
+        loadInvokableType(mv, bType);
         return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -386,4 +448,33 @@ function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
 # + return - name of the field that holds the type instance
 function getTypeFieldName(string typeName) returns string {
     return io:sprintf("$type$%s", typeName);
+}
+
+function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
+    mv.visitTypeInsn(NEW, FUNCTION_TYPE);
+    mv.visitInsn(DUP);
+
+    // Create param types array
+    mv.visitLdcInsn(bType.paramTypes.length());
+    mv.visitInsn(L2I);
+    mv.visitTypeInsn(ANEWARRAY, BTYPE);
+    int i = 0;
+    foreach var paramType in bType.paramTypes {
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(i);
+        mv.visitInsn(L2I);
+
+        // load param type
+        loadType(mv, paramType);
+
+        // Add the member to the array
+        mv.visitInsn(AASTORE);
+        i += 1;
+    }
+
+    // load return type type
+    loadType(mv, bType.retType);
+
+    // initialize the function type using the param types array and the return type
+    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
 }
