@@ -15,10 +15,6 @@ bal_path=data-backed-service/guide/data_backed_service/employee_db_service.bal
 
 download_and_extract_mysql_connector
 
-ls
-
-ls mysql-connector-java-5.1.47
-
 docker build -t ballerinascenarios/mysql-ballerina:1.0 data-backed-service/resources/
 
 docker login --username=ballerinascenarios --password=ballerina75389
@@ -38,6 +34,8 @@ sed -i "s:<path_to_JDBC_jar>:"${parent_path}/mysql-connector-java-5.1.47/mysql-c
 sed -i "s:<USERNAME>:ballerinascenarios:g" ${bal_path}
 
 sed -i "s:<PASSWORD>:ballerina75389:g" ${bal_path}
+
+sed -i "s:ballerina.guides.io:ballerinascenarios:g" ${bal_path}
 
 cat ${bal_path}
 
