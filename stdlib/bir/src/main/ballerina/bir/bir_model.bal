@@ -179,6 +179,8 @@ public type BObjectType record {
 public type BAttachedFunction record {
     Name name = {};
     BInvokableType funcType;
+    Visibility visibility;
+    !...;
 };
 
 public type BRecordField record {

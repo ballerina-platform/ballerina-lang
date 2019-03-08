@@ -144,8 +144,8 @@ public type TypeParser object {
             var visibility = parseVisibility(self.reader);
 
             var typeTag = self.reader.readInt8();
-            if(typeTag != 16 ){
-                error err = error("expected invokable type tag (16) but found " + typeTag);
+            if(typeTag != self.TYPE_TAG_INVOKABLE ){
+                error err = error("expected invokable type tag (" + self.TYPE_TAG_INVOKABLE + ") but found " + typeTag);
                 panic err;
             }
             attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
