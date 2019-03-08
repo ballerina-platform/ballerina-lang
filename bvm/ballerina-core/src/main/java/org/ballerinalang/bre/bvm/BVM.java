@@ -2043,13 +2043,13 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                sf.longRegs[k] = Byte.toUnsignedLong((byte) (sf.longRegs[i] << sf.longRegs[j]));
                 break;
             case InstructionCodes.BIRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
+                sf.longRegs[k] = Byte.toUnsignedLong((byte) ((byte) sf.longRegs[i] >> sf.longRegs[j]));
                 break;
             case InstructionCodes.IRSHIFT:
                 i = operands[0];
