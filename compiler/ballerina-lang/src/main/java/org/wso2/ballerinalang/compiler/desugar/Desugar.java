@@ -195,6 +195,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -2279,9 +2280,87 @@ public class Desugar extends BLangNodeVisitor {
                     typeInitExpr.initInvocation.symbol =
                             ((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc.symbol;
                 }
-                typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
-                result = typeInitExpr;
+                result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
         }
+    }
+
+    private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
+        typeInitExpr.desugared = true;
+
+        // Person|error $result$;
+        BLangSimpleVariableDef resultVarDef = createVarDef("$result$", typeInitExpr.type, null, typeInitExpr.pos);
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, resultVarDef.var.symbol);
+
+        // Person $obj$ = new;
+        BType objType = getObjectType(typeInitExpr.type);
+        BLangSimpleVariableDef objVarDef = createVarDef("$obj$", objType, typeInitExpr, typeInitExpr.pos);
+        BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, objVarDef.var.symbol);
+
+        // var $temp$ = $obj$.__init();
+        typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
+        BLangSimpleVariableDef initInvRetValVarDef = createVarDef("$temp$", typeInitExpr.initInvocation.type,
+                                                                  typeInitExpr.initInvocation, typeInitExpr.pos);
+        BLangSimpleVarRef initRetValVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos,
+                                                                              initInvRetValVarDef.var.symbol);
+
+        // if ($temp$ is error) {
+        //      $result$ = $temp$;
+        // } else {
+        //      $result$ = $obj$;
+        // }
+        BLangBlockStmt thenStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
+        BLangTypeTestExpr isErrorTest = ASTBuilderUtil.createTypeTestExpr(typeInitExpr.pos, initRetValVarRef,
+                                                                          getErrorTypeNode());
+        isErrorTest.type = symTable.booleanType;
+
+        BLangAssignment errAssignment = ASTBuilderUtil.createAssignmentStmt(typeInitExpr.pos, resultVarRef,
+                                                                            initRetValVarRef);
+        thenStmt.addStatement(errAssignment);
+
+        BLangBlockStmt elseStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
+        BLangAssignment objAssignment = ASTBuilderUtil.createAssignmentStmt(typeInitExpr.pos, resultVarRef, objVarRef);
+        elseStmt.addStatement(objAssignment);
+
+        BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(typeInitExpr.pos, isErrorTest, thenStmt, elseStmt);
+
+        // Add it all to an expression statement
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
+        blockStmt.addStatement(resultVarDef);
+        blockStmt.addStatement(objVarDef);
+        blockStmt.addStatement(initInvRetValVarDef);
+        blockStmt.addStatement(ifelse);
+
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);
+        stmtExpr.type = resultVarRef.symbol.type;
+        return stmtExpr;
+    }
+
+    private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {
+        BVarSymbol objSym = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                           type, this.env.scope.owner);
+        BLangSimpleVariable objVar = ASTBuilderUtil.createVariable(pos, "", type, expr, objSym);
+        BLangSimpleVariableDef objVarDef = ASTBuilderUtil.createVariableDef(pos);
+        objVarDef.var = objVar;
+        return objVarDef;
+    }
+
+    private BType getObjectType(BType type) {
+        if (type.tag == TypeTags.OBJECT) {
+            return type;
+        } else if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType);
+        }
+
+        throw new IllegalStateException("None object type '" + type.toString() + "' found in object init conext");
+    }
+
+    private BLangErrorType getErrorTypeNode() {
+        BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorTypeNode.type = symTable.errorType;
+        return errorTypeNode;
     }
 
     @Override

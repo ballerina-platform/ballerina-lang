@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -1094,6 +1095,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
+
+                    if (includesErrorType(cIExpr.initInvocation.symbol.type.getReturnType())
+                            && (expType.tag != TypeTags.NONE && !includesErrorType(expType))) {
+                        dlog.error(cIExpr.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR_INVOCATION, expType,
+                                   getObjectConstructorReturnType(actualType,
+                                                                  cIExpr.initInvocation.symbol.type.getReturnType()));
+                    }
+
+                    cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
                 } else if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
                     // pass any arguments.
@@ -1114,15 +1124,22 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);
+                cIExpr.initInvocation.type = symTable.nilType;
 
-                expType = matchedType;
                 if (matchedType.tag == TypeTags.OBJECT
                         && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
+                    if (includesErrorType(cIExpr.initInvocation.symbol.type.getReturnType())
+                            && (expType.tag != TypeTags.NONE && !includesErrorType(expType))) {
+                        dlog.error(cIExpr.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR_INVOCATION, expType,
+                                   getObjectConstructorReturnType(actualType,
+                                                                  cIExpr.initInvocation.symbol.type.getReturnType()));
+                    }
+
+                    cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
                 }
-                cIExpr.initInvocation.type = symTable.nilType;
-                types.checkType(cIExpr, matchedType, actualType);
+                types.checkType(cIExpr, matchedType, expType);
                 cIExpr.type = matchedType;
                 resultType = matchedType;
                 return;
@@ -1132,8 +1149,54 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
         }
 
-        cIExpr.initInvocation.type = symTable.nilType;
-        resultType = types.checkType(cIExpr, actualType, expType);
+        if (cIExpr.initInvocation.type == null) {
+            cIExpr.initInvocation.type = symTable.nilType;
+        }
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
+        resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+    }
+
+    private boolean includesErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
+        }
+
+        return type.tag == TypeTags.ERROR;
+    }
+
+    private BType getObjectConstructorReturnType(BType objType, BType initRetType) {
+        if (initRetType.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
+            retTypeMembers.add(objType);
+
+            ((BUnionType) initRetType).getMemberTypes().forEach(type -> {
+                if (type.tag != TypeTags.NIL) {
+                    retTypeMembers.add(type);
+                }
+            });
+
+            BUnionType unionType = BUnionType.create(null, retTypeMembers);
+            BTypeSymbol tsym = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
+                                                        Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
+                                                        env.scope.owner);
+            unionType.tsymbol = tsym;
+            return unionType;
+        } else if (initRetType.tag == TypeTags.NIL) {
+            return objType;
+        } else if (initRetType.tag == TypeTags.ERROR) {
+            LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
+            retTypeMembers.add(objType);
+            retTypeMembers.add(initRetType);
+
+            BUnionType unionType = BUnionType.create(null, retTypeMembers);
+            BTypeSymbol tsym = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
+                                                        Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
+                                                        env.scope.owner);
+            unionType.tsymbol = tsym;
+
+            return unionType;
+        }
+        return symTable.semanticError;
     }
 
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {

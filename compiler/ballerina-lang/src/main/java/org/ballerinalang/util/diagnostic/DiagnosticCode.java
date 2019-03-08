@@ -71,6 +71,7 @@ public enum DiagnosticCode {
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
+    INVALID_OBJECT_CONSTRUCTOR_INVOCATION("invalid.object.constructor.invocation"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
