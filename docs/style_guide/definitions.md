@@ -84,7 +84,7 @@
 ### Resource Function
 
 * Resource is intended accordingly related to parent service.
-* As rest of the syntaxes for resource is similar to function please refer to [function](#Function) formatting guidelines for
+* As rest of the syntaxes for resource is similar to function refer to [function](#Function) formatting guidelines for
 parameter, return type and resource body formatting.  
 
   ```ballerina
@@ -109,7 +109,7 @@ parameter, return type and resource body formatting.
 
 * Field definitions should indented relative to the parent object.
 * Function definitions should indent relative to parent object.
-* For rest of function syntax formatting please refer to [function](#Function) formatting guidelines.
+* For rest of function syntax formatting refer to [function](#Function) formatting guidelines.
 
   ```ballerina
   type Person object {

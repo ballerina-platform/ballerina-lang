@@ -30,9 +30,24 @@ will support only this format. Also following this guide will form a standard st
   ```
 * Maximum line length is 120 characters. 
 
-### Blank Lines
+### Spacing
 
-* Separate both statements and top level definitions by zero or one blank lines (one or two new lines).
+#### Inline Spacing
+
+When applying spaces to separate keywords, types and identifiers always use only a single space. 
+
+```ballerina
+// public keyword, type keyword, identifier Employee, abstract keyword and object keyword
+// All have to be separated with only a single space.
+public type Employee abstract object {
+    public int id;
+    public string name;
+};
+```
+
+#### Blank Lines
+
+Separate both statements and top level definitions by zero or one blank lines (one or two new lines).
 
   ```ballerina
   import ballerina/http;
@@ -52,7 +67,7 @@ will support only this format. Also following this guide will form a standard st
   function setAge(int age) {}
   ```
 ### Blocks
-* Before opening curly brace there should be a space. 
+* Before opening curly brace there should be a single space. 
 
   ```ballerina
 
