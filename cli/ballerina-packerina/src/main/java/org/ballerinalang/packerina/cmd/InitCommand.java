@@ -72,21 +72,17 @@ public class InitCommand implements BLauncherCmd {
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
             //Check whether the OS is MacOS and the folder contains .DS_Store file
             Iterator pathIterator = dirStream.iterator();
-            if (pathIterator.hasNext()) {
-
-                Path path = (Path) pathIterator.next();
-                Path filePath = path.getFileName();
-                if (filePath != null && filePath.toString().equals(ProjectDirConstants.MAC_OS_DS_STORE_FILE)) {
-
-                    return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("mac") &&
-                            !pathIterator.hasNext();
-                } else {
-                    return false;
-                }
-
-            } else {
+            if (!pathIterator.hasNext()) {
                 return true;
             }
+            Path path = (Path) pathIterator.next();
+            Path filePath = path.getFileName();
+            if (filePath != null && filePath.toString().equals(ProjectDirConstants.DS_STORE_FILE)) {
+
+                return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("mac") &&
+                        !pathIterator.hasNext();
+            }
+            return false;
         }
     }
 
@@ -277,7 +273,6 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public String getName() {
-
         return INIT_COMMAND;
     }
 
@@ -286,7 +281,6 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void printLongDesc(StringBuilder out) {
-
         out.append("Initializes a Ballerina Project. \n");
         out.append("\n");
         out.append("Use --interactive or -i to create a ballerina project in interactive mode.\n");
@@ -297,7 +291,6 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void printUsage(StringBuilder out) {
-
         out.append("  ballerina init [-i] \n");
     }
 
