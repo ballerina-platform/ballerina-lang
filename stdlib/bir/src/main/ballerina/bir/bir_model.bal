@@ -162,7 +162,13 @@ public type BRecordType record {
 
 public type BObjectType record {
     Name name = {};
-    BObjectField[] fields;    
+    BObjectField[] fields;
+    BAttachedFunction[] attachedFunctions;
+};
+
+public type BAttachedFunction record {
+    Name name = {};
+    BInvokableType funcType;
 };
 
 public type BRecordField record {
@@ -172,7 +178,7 @@ public type BRecordField record {
 };
 
 public type BObjectField record {
-    Name name;    
+    Name name;
     Visibility visibility;
     BType typeValue;
     //TODO add position

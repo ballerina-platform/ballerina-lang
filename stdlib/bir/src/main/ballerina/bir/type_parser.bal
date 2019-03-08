@@ -100,7 +100,7 @@ public type TypeParser object {
     }
 
     function parseRecordType() returns BRecordType {
-        return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(), 
+        return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(),
                     restFieldType: self.parseType(), fields: self.parseRecordFields() };
     }
 
@@ -110,7 +110,7 @@ public type TypeParser object {
         BRecordField[] fields = [];
         while c < size {
             fields[c] = self.parseRecordField();
-            c = c + 1;    
+            c = c + 1;
         }
         return fields;
     }
@@ -120,7 +120,28 @@ public type TypeParser object {
     }
 
     function parseObjectType() returns BObjectType {
-        return { name:{value:self.reader.readStringCpRef()}, fields: self.parseObjectFields() };
+        return { name: { value: self.reader.readStringCpRef() },
+            fields: self.parseObjectFields(),
+            attachedFunctions:self.parseObjectAttachedFunctions() };
+    }
+
+    function parseObjectAttachedFunctions() returns BAttachedFunction[] {
+        int size = self.reader.readInt32();
+        int c = 0;
+        BAttachedFunction[] attachedFunctions = [];
+        while c < size {
+            var funcName = self.reader.readStringCpRef();
+            var visibility = parseVisibility(self.reader);
+
+            var typeTag = self.reader.readInt8();
+            if(typeTag != 16 ){
+                error err = error("expected invokable type tag (16) but found " + typeTag);
+                panic err;
+            }
+            attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
+            c = c + 1;
+        }
+        return attachedFunctions;
     }
 
     function parseObjectFields() returns BObjectField[] {
@@ -129,7 +150,7 @@ public type TypeParser object {
         BObjectField[] fields = [];
         while c < size {
             fields[c] = self.parseObjectField();
-            c = c + 1;    
+            c = c + 1;
         }
         return fields;
     }
@@ -162,7 +183,7 @@ public type TypeParser object {
             return "OPEN_SEALED";
         } else if (b == 3) {
             return "UNSEALED";
-        } 
+        }
         error err = error("unknown array state tag " + b);
         panic err;
     }

@@ -13,14 +13,14 @@ public function serialize(BType bType) returns string {
         return "float";
     } else if (bType == "string"){
         return "string";
-    }
-    if (bType is BUnionType) {
+    } else if (bType is BUnionType) {
         return serializeTypes(bType.members, "|");
     } else if (bType is BInvokableType) {
-        return "function (" + serializeTypes(bType.paramTypes, ",") +
-                                                    ") returns " + serialize(bType.retType);
+        return "function (" + serializeTypes(bType.paramTypes, ", ") + ") returns " + serialize(bType.retType);
     } else if (bType is BArrayType) {
         return serialize(bType.eType) + "[]";
+    } else if (bType is BObjectType) {
+        return "object {" + serializeFields(bType.fields) + "}";
     }
 
     error err = error("Unsupported type serializtion ");
@@ -36,6 +36,15 @@ function serializeTypes(BType[] bTypes, string delimiter) returns string {
         }
         result = result + serialize(bType);
         first = false;
+    }
+    return result;
+}
+
+function serializeFields(BObjectField[] fields) returns string {
+    var result = "";
+    var delimiter = ";";
+    foreach var field in fields {
+        result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
     }
     return result;
 }
