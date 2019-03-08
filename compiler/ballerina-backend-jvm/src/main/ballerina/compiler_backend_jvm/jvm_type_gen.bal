@@ -283,6 +283,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
         typeFieldName = "typeNull";
     } else if (bType is bir:BTypeAny) {
         typeFieldName = "typeAny";
+    } else if (bType is bir:BTypeAnyData) {
+        typeFieldName = "typeAnydata";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -297,6 +299,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType bType) {
         return;
     } else if (bType is bir:BObjectType) {
         loadUserDefinedType(mv, bType.name);
+        return;
+    } else if (bType is bir:BTypeNone) {
+        mv.visitInsn(ACONST_NULL);
         return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));

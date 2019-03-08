@@ -469,13 +469,20 @@ type InstructionGenerator object {
     function generateLocalVarStore(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LSTORE, valueIndex);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DSTORE, valueIndex);
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitVarInsn(ASTORE, valueIndex);
-        } else if (bType is bir:BArrayType) {
-            self.mv.visitVarInsn(ASTORE, valueIndex);
-        } else if (bType is bir:BMapType) {
+        } else if (bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(ISTORE, valueIndex);
+        } else if (bType is bir:BArrayType ||
+                        bType is bir:BTypeString ||
+                        bType is bir:BMapType ||
+                        bType is bir:BTypeAny ||
+                        bType is bir:BTypeNil ||
+                        bType is bir:BUnionType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BErrorType) {
             self.mv.visitVarInsn(ASTORE, valueIndex);
         } else {
             error err = error( "JVM generation is not supported for type " +
