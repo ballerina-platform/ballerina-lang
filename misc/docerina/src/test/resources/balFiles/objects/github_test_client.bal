@@ -14,10 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-
 public type GitHubClientConfig record {
-    http:ClientEndpointConfig clientEndpointConfiguration = {};
+    string repositoryOwner = "";
+    string repositoryName = "";
+    string issueTitle = "";
+    string issueContent = "";
+    string[] labelList = [];
+    string[] assigneeList = [];
 };
 
 # GitHub client
