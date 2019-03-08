@@ -34,6 +34,6 @@ const int length = 3;
 //    test:assertEquals(array1, expectedArray, msg = "expected fixed length array and implied length array to be equal");
 //
 //    string[length] array2 = ["a", "b", "c"];
-//    string[!...] array3 = ["a", "b", "c"];
+//    string[*] array3 = ["a", "b", "c"];
 //    test:assertEquals(array2, array3, msg = "expected fixed length array and implied length array to be equal");
 //}

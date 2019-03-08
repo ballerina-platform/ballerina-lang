@@ -138,4 +138,8 @@ public class PathConverter implements Converter<Path> {
             return root.toString();
         }
     }
+
+    public Path getRoot() {
+        return root;
+    }
 }

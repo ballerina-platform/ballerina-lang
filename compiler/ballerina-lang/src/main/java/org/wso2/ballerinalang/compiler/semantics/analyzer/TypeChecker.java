@@ -133,7 +133,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -148,8 +147,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -268,7 +265,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
             } else if (expType.tag == TypeTags.BYTE) {
-                if (!isByteLiteralValue((Long) literalValue)) {
+                if (!types.isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
                     resultType = symTable.semanticError;
                     return;
@@ -314,10 +311,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(literalExpr, literalType, expType);
-    }
-
-    private static boolean isByteLiteralValue(Long longObject) {
-        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
@@ -809,11 +802,12 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
             checkExpr(recordRefField.variableReference, env);
-            BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(recordRefField.variableReference);
-            if (bVarSymbol == null) {
+            if (((BLangVariableReference) recordRefField.variableReference).symbol == null ||
+                    !isValidVariableReference(recordRefField.variableReference)) {
                 unresolvedReference = true;
                 continue;
             }
+            BVarSymbol bVarSymbol = (BVarSymbol) ((BLangVariableReference) recordRefField.variableReference).symbol;
             fields.add(new BField(names.fromIdNode(recordRefField.variableName),
                     new BVarSymbol(0, names.fromIdNode(recordRefField.variableName), env.enclPkg.symbol.pkgID,
                             bVarSymbol.type, recordSymbol)));
@@ -822,8 +816,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.restParam != null) {
             BLangExpression restParam = (BLangExpression) varRefExpr.restParam;
             checkExpr(restParam, env);
-            BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(restParam);
-            unresolvedReference = (bVarSymbol == null);
+            unresolvedReference = !isValidVariableReference(restParam);
         }
 
         if (unresolvedReference) {
@@ -847,7 +840,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        // TODO: Complete
+        BType reasonType = checkExpr(varRefExpr.reason, env);
+        BType detailType = checkExpr(varRefExpr.detail, env);
+        BErrorType actualType = new BErrorType(null, reasonType, detailType);
+        resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
     @Override
@@ -2129,28 +2125,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
     // Private methods
 
-    private BVarSymbol getVarSymbolForRecordVariableReference(BLangExpression varRef) {
-        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return (BVarSymbol) ((BLangSimpleVarRef) varRef).symbol;
+    private boolean isValidVariableReference(BLangExpression varRef) {
+        switch (varRef.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+            case RECORD_VARIABLE_REF:
+            case TUPLE_VARIABLE_REF:
+            case ERROR_VARIABLE_REF:
+            case FIELD_BASED_ACCESS_EXPR:
+            case INDEX_BASED_ACCESS_EXPR:
+            case XML_ATTRIBUTE_ACCESS_EXPR:
+                return true;
+            default:
+                dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
+                return false;
         }
-        if (varRef.getKind() == NodeKind.RECORD_VARIABLE_REF) {
-            return (BVarSymbol) ((BLangRecordVarRef) varRef).symbol;
-        }
-        if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
-            return (BVarSymbol) ((BLangTupleVarRef) varRef).symbol;
-        }
-        if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            return (BVarSymbol) ((BLangFieldBasedAccess) varRef).symbol;
-        }
-        if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return (BVarSymbol) ((BLangIndexBasedAccess) varRef).symbol;
-        }
-        if (varRef.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
-            return (BVarSymbol) ((BLangXMLAttributeAccess) varRef).symbol;
-        }
-
-        dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
-        return null;
     }
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
@@ -3117,7 +3105,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             retType = BUnionType.create(null, type, symTable.errorType);
         }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType, InstructionCodes.FREEZE);
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType);
     }
 
     private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
@@ -3125,8 +3113,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!types.isLikeAnydataOrNotNil(type)) {
             return symTable.notFoundSymbol;
         }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType,
-                InstructionCodes.IS_FROZEN);
+        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
     }
 
     private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {

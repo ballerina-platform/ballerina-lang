@@ -125,6 +125,7 @@
                 <include>org.ballerinalang:ballerina-task:jar</include>
                 <include>org.ballerinalang:ballerina-time:jar</include>
                 <include>org.ballerinalang:ballerina-transactions:jar</include>
+                <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
 
@@ -148,7 +149,6 @@
                 <include>jaxen:jaxen</include>
                 <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
                 <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
-                <include>org.apache.james:apache-mime4j-core</include>
                 <include>info.picocli:picocli</include>
                 <include>org.slf4j:slf4j-api</include>
                 <include>org.slf4j:slf4j-jdk14</include>

@@ -177,10 +177,6 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
-            },
-            {
-                "name": "Symbolic String Literal",
-                "url": "symbolic-string-literal"
             }
         ]
     },
