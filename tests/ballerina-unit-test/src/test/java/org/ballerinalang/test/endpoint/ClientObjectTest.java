@@ -126,9 +126,6 @@ public class ClientObjectTest {
 
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 154, 5);
         BAssertUtil.validateError(compileResult, errIdx++, "a remote function in a non client object", 163, 5);
-        BAssertUtil
-                .validateError(compileResult, errIdx++, "client objects requires at least one remote function", 170, 5);
-
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 }

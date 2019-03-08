@@ -106,7 +106,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                     <Button size="mini" floated="right" className="btn-close" circular onClick={() => {
                         onClose();
                     }}>
-                        <i className="fw fw-close icon"></i>
+                        <i className="fw fw-close"></i>
                     </Button>
                     <Input label="/"
                         placeholder="Example: users/{userId}"
