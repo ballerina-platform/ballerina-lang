@@ -43,8 +43,7 @@ service publisher on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on ordering", err = err);
         }
@@ -58,17 +57,12 @@ service publisher on publisherServiceEP {
         remoteRegisterTopic();
         string mode = "";
         string contentType = "";
-        var jsonPayload = req.getJsonPayload();
-        if (jsonPayload is json) {
-            mode = jsonPayload.mode.toString();
-            contentType = jsonPayload.content_type.toString();
-        } else {
-            panic jsonPayload;
-        }
+        json jsonPayload = <json> req.getJsonPayload();
+        mode = jsonPayload.mode.toString();
+        contentType = jsonPayload.content_type.toString();
 
         http:Response response = new;
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
         }
@@ -96,14 +90,10 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            var j = json.convert(details[0]);
-            if (j is json) {
-                var err = caller->respond(j);
-                if (err is error) {
-                    log:printError("Error responding on topicInfo request", err = err);
-                }
-            } else {
-                panic j;
+            json j = <json> json.convert(details[0]);
+            var err = caller->respond(j);
+            if (err is error) {
+                log:printError("Error responding on topicInfo request", err = err);
             }
         } else {
             map<string> allTopics = {};
@@ -113,14 +103,10 @@ service publisher on publisherServiceEP {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            var j = json.convert(allTopics);
-            if (j is json) {
-                var err = caller->respond(j);
-                if (err is error) {
-                    log:printError("Error responding on topicInfo request", err = err);
-                }
-            } else {
-                panic j;
+            json j = <json> json.convert(allTopics);
+            var err = caller->respond(j);
+            if (err is error) {
+                log:printError("Error responding on topicInfo request", err = err);
             }
         }
     }
@@ -134,8 +120,7 @@ service publisherTwo on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
-        response.statusCode = 202;
-        var err = caller->respond(response);
+        var err = caller->accepted(message = response);
         if (err is error) {
             log:printError("Error responding on ordering", err = err);
         }
@@ -215,21 +200,18 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     if (contentType == "" || contentType == "json") {
         if (mode == "internal") {
             return {"action":"publish","mode":"internal-hub"};
-        } else {
-            return {"action":"publish","mode":"remote-hub"};
         }
+        return {"action":"publish","mode":"remote-hub"};
     } else if (contentType == "string") {
         if (mode == "internal") {
             return "Text update for internal Hub";
-        } else {
-            return "Text update for remote Hub";
         }
+        return "Text update for remote Hub";
     } else if (contentType == "xml") {
         if (mode == "internal") {
             return xml `<websub><request>Notification</request><type>Internal</type></websub>`;
-        } else {
-            return xml `<websub><request>Notification</request><type>Remote</type></websub>`;
         }
+        return xml `<websub><request>Notification</request><type>Remote</type></websub>`;
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
