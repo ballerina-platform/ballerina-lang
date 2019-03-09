@@ -54,7 +54,7 @@ import static org.wso2.transport.http.netty.util.Http2Util.getTestClient;
 import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 
 /**
- * Test cases for H2C client connection pool prior knowledge.
+ * Test case for H2C client connection pool with prior knowledge.
  *
  * @since 6.0.273
  */
@@ -123,7 +123,7 @@ public class H2ConnectionPoolWithPriorKnowledge {
             http2Server.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
-            LOG.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Resource clean up is interrupted", e);
         }
     }
 }

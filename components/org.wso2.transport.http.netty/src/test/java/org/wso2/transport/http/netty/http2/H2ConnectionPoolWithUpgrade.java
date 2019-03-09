@@ -122,7 +122,7 @@ public class H2ConnectionPoolWithUpgrade {
             http2Server.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
-            LOG.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Resource clean up is interrupted", e);
         }
     }
 }
