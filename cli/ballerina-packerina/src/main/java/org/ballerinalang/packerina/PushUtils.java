@@ -20,7 +20,6 @@ package org.ballerinalang.packerina;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
-import org.ballerinalang.toml.model.Central;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
@@ -141,24 +140,8 @@ public class PushUtils {
         }
         
         if (installToRepo == null) {
-            // The access token can be specified as an environment variable or in 'Settings.toml'. First we would
-            // check if the access token was specified as an environment variable. If not we would read it from
-            // 'Settings.toml'.
-
-            // Check if the access token is specified as an environment variable
-            String accessToken = System.getenv("BALLERINA_CENTRAL_ACCESS_TOKEN");
-            if (accessToken != null) {
-                // Read 'Settings.toml' to get values of other properties specified
-                settings = TomlParserUtils.readSettings();
-                // Add the access token to the settings object
-                Central b7aCentral = new Central();
-                b7aCentral.setAccessToken(accessToken);
-                settings.setCentral(b7aCentral);
-            } else {
-                // If the access token is not given as an environment variable, read the access token from
-                // 'Settings.toml'
-                accessToken = checkAccessToken();
-            }
+            // Get access token
+            String accessToken = checkAccessToken();
 
             // Read the Module.md file content from the artifact
             String mdFileContent = getModuleMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
@@ -316,6 +299,12 @@ public class PushUtils {
      */
     private static String getAccessTokenOfCLI() {
         settings = TomlParserUtils.readSettings();
+        // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
+        // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
+        String tokenAsEnvVar = System.getenv(ProjectDirConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
+        if (tokenAsEnvVar != null) {
+            return tokenAsEnvVar;
+        }
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
