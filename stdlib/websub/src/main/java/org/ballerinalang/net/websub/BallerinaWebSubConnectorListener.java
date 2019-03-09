@@ -86,15 +86,15 @@ import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
  */
-public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorListener {
+public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaWebSubConnectionListener.class);
+    private static final Logger log = LoggerFactory.getLogger(BallerinaWebSubConnectorListener.class);
     private WebSubServicesRegistry webSubServicesRegistry;
     private PrintStream console = System.out;
     private Context context;
 
-    public BallerinaWebSubConnectionListener(WebSubServicesRegistry webSubServicesRegistry, Struct endpointConfig,
-                                             Context context) {
+    public BallerinaWebSubConnectorListener(WebSubServicesRegistry webSubServicesRegistry, Struct endpointConfig,
+                                            Context context) {
         super(webSubServicesRegistry, endpointConfig);
         this.webSubServicesRegistry = webSubServicesRegistry;
         this.context = context;
@@ -311,15 +311,15 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
                 response.waitAndReleaseAllEntities();
                 URIUtil.populateQueryParamMap(queryString, params);
-                String mode = params.get(PARAM_HUB_MODE).stringValue();
                 if (!params.hasKey(PARAM_HUB_MODE) || !params.hasKey(PARAM_HUB_TOPIC) ||
                         !params.hasKey(PARAM_HUB_CHALLENGE)) {
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
                     console.println("error: Error auto-responding to intent verification request: Mode, Topic "
-                                            + "and/or callback not specified");
+                                            + "and/or challenge not specified");
                 }
+                String mode = params.get(PARAM_HUB_MODE).stringValue();
                 if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
                         && annotatedTopic.equals(params.get(PARAM_HUB_TOPIC).stringValue())) {
                     String challenge = params.get(PARAM_HUB_CHALLENGE).stringValue();
