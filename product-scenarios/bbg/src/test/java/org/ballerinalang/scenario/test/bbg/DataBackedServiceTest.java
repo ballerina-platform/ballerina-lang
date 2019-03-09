@@ -40,13 +40,12 @@ public class DataBackedServiceTest extends ScenarioTestBase {
     public void testCreateEmployee() throws Exception {
         Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        String url = "http://" + host + ":" + port + "/records/employee/1";
+        String url = "http://" + host + ":" + port + "/records/employee";
         PrintStream printStream = System.out;
         printStream.println("URL: " + url);
-        HttpResponse httpResponse = HttpClientRequest
-                .doGet(url, headers);
+        HttpResponse httpResponse = HttpClientRequest.doPost(url, "{\"name\":\"Alice\", \"age\":20,\"ssn\":123456789,"
+                + "\"employeeId\":1}", headers);
         Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
-        Assert.assertEquals(httpResponse.getData(),
-                "[{\"EmployeeID\":1, \"Name\":\"Alice\", \"Age\":20, " + "\"SSN\":123456789}]");
+        Assert.assertEquals(httpResponse.getData(), "{\"Status\":\"Data Inserted Successfully\"}");
     }
 }
