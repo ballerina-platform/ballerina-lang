@@ -48,4 +48,4 @@ mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.
 
 mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service-bbg
 
-find ${great_great_grant_parent_path}/bbg/target/* -name "surefire-reports" -exec cp -r {} ${OUTPUT_DIR}/scenarios/data-backed-service-bbg \;
+find ${great_great_grant_parent_path}/bbg/* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR}/scenarios/data-backed-service-bbg \;
