@@ -49,55 +49,68 @@ public class JBallerinaInMemoryClassLoader {
 
     public Class loadClass(String className) {
 
-        Class loadedClazz = null;
-        try {
-            final Map<String, byte[]> map = new HashMap<>();
-            try (JarInputStream is = new JarInputStream(new ByteArrayInputStream(jarBinaryContent))) {
-                JarEntry nextEntry;
-                while ((nextEntry = is.getNextJarEntry()) != null) {
-                    final int est = (int) nextEntry.getSize();
-                    byte[] data = new byte[est > 0 ? est : 1024];
-                    int real = 0;
-                    for (int r = is.read(data); r > 0; r = is.read(data, real, data.length - real)) {
-                        if (data.length == (real += r)) {
-                            data = Arrays.copyOf(data, data.length * 2);
-                        }
+        final Map<String, byte[]> map = new HashMap<>();
+        try (JarInputStream is = new JarInputStream(new ByteArrayInputStream(jarBinaryContent))) {
+            JarEntry nextEntry;
+            while ((nextEntry = is.getNextJarEntry()) != null) {
+                final int est = (int) nextEntry.getSize();
+                byte[] data = new byte[est > 0 ? est : 1024];
+                int real = 0;
+
+                for (int r = is.read(data); r > 0; r = is.read(data, real, data.length - real)) {
+                    if (data.length == (real += r)) {
+                        data = Arrays.copyOf(data, data.length * 2);
                     }
-                    if (real != data.length) {
-                        data = Arrays.copyOf(data, real);
-                    }
-                    map.put("/" + nextEntry.getName(), data);
                 }
+
+                if (real != data.length) {
+                    data = Arrays.copyOf(data, real);
+                }
+
+                map.put("/" + nextEntry.getName(), data);
             }
-            URL u = new URL("x-buffer", null, -1, "/", new URLStreamHandler() {
-                @Override
-                protected URLConnection openConnection(URL u) throws IOException {
 
-                    final byte[] data = map.get(u.getFile());
-                    if (data == null) {
-                        throw new FileNotFoundException(u.getFile());
-                    }
-                    return new URLConnection(u) {
-                        @Override
-                        public void connect() {
+            URL jarFileUrl = new URL("x-buffer", null, -1, "/", new InMemoryURLStreamHandler(map));
 
-                        }
-
-                        @Override
-                        public InputStream getInputStream() {
-
-                            return new ByteArrayInputStream(data);
-                        }
-                    };
-                }
+            URLClassLoader cl = URLClassLoader.newInstance(new URL[]{
+                    jarFileUrl
             });
-            try (URLClassLoader cl = new URLClassLoader(new URL[]{u})) {
-                loadedClazz = cl.loadClass(className);
-            }
-        } catch (Exception e) {
+
+            return cl.loadClass(className);
+        } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException("Class '" + className + "' cannot be loaded in-memory", e);
         }
+    }
 
-        return loadedClazz;
+    static class InMemoryURLStreamHandler extends URLStreamHandler {
+
+        private final Map<String, byte[]> jarFiles;
+
+        InMemoryURLStreamHandler(Map<String, byte[]> jarFiles) {
+
+            this.jarFiles = jarFiles;
+        }
+
+        @Override
+        protected URLConnection openConnection(URL url) throws IOException {
+
+            final byte[] data = jarFiles.get(url.getFile());
+
+            if (data == null) {
+                throw new FileNotFoundException(url.getFile());
+            }
+
+            return new URLConnection(url) {
+                @Override
+                public void connect() {
+
+                }
+
+                @Override
+                public InputStream getInputStream() {
+                    return new ByteArrayInputStream(data);
+                }
+            };
+        }
     }
 }

@@ -116,13 +116,13 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath) {
-//        if (jBallerinaTestsEnabled()) {
+        if (jBallerinaTestsEnabled()) {
             return compileOnJBallerina(sourceFilePath);
-//        }
-//        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+        }
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
-    public static boolean jBallerinaTestsEnabled() {
+    static boolean jBallerinaTestsEnabled() {
         String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
         return value != null && Boolean.valueOf(value);
     }

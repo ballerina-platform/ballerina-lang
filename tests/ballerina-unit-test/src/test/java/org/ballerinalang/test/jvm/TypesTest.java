@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  * @since 0.955.0
  */
 public class TypesTest {
+
     private CompileResult compileResult;
 
     @BeforeClass
@@ -43,13 +44,13 @@ public class TypesTest {
     @Test
     public void testInt1() {
         BValue[] result = BRunUtil.invoke(compileResult, "testIntWithoutArgs", new BValue[]{});
-        Assert.assertEquals(((BInteger)result[0]).intValue(), 7);
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 7);
     }
 
     @Test
     public void testInt2() {
         BValue[] result = BRunUtil.invoke(compileResult, "testIntWithArgs", new BValue[]{new BInteger(5)});
-        Assert.assertEquals(((BInteger)result[0]).intValue(), 10);
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
     }
 
     @Test

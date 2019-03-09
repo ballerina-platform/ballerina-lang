@@ -60,7 +60,7 @@ public class BuilderUtils {
                                                 boolean lockEnabled,
                                                 boolean skipTests,
                                                 boolean enableExperimentalFeatures) {
-        CompilerContext context = getCompilerContext(sourceRootPath, CompilerPhase.CODE_GEN,buildCompiledPkg, offline,
+        CompilerContext context = getCompilerContext(sourceRootPath, CompilerPhase.CODE_GEN, buildCompiledPkg, offline,
                 lockEnabled, skipTests, enableExperimentalFeatures);
 
         Compiler compiler = Compiler.getInstance(context);
@@ -139,9 +139,6 @@ public class BuilderUtils {
         }
     }
 
-    /**
-     * Compiles and write the compiled content as an executable java archive.
-     */
     public static void compileAndWriteJar(Path sourceRootPath,
                                           String packagePath,
                                           String targetFileName,
