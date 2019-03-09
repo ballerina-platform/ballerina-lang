@@ -76,6 +76,7 @@ service publisher on publisherServiceEP {
         if (subscriber != "skip_subscriber_check") {
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubThree");
         }
 
         if (mode == "internal") {
@@ -144,24 +145,23 @@ service publisherTwo on publisherServiceEP {
         methods: ["POST"]
     }
     resource function notify(http:Caller caller, http:Request req) {
-        checkSubscriberAvailability(WEBSUB_TOPIC_THREE, "http://localhost:8383/websub");
-        var err = webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"});
-        if (err is error) {
-            log:printError("Error publishing update directly", err = err);
-        }
+        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_THREE, "http://localhost:8383/websub",
+                                                     {"action":"publish","mode":"internal-hub"});
+        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_FOUR, "http://localhost:8383/websubTwo",
+                                                     {"action":"publish","mode":"internal-hub-two"});
 
-        checkSubscriberAvailability(WEBSUB_TOPIC_FOUR, "http://localhost:8383/websubTwo");
-        err = webSubHub.publishUpdate(WEBSUB_TOPIC_FOUR, {"action":"publish","mode":"internal-hub-two"});
-        if (err is error) {
-            log:printError("Error publishing update directly", err = err);
-        }
-
-        http:Response response = new;
-        response.statusCode = 202;
-        err = caller->respond(response);
+        var err = caller->accepted();
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
         }
+    }
+}
+
+function checkSubscrberAvailabilityAndPublishDirectly(string topic, string subscriber, json payload) {
+    checkSubscriberAvailability(topic, subscriber);
+    var err = webSubHub.publishUpdate(topic, payload);
+    if (err is error) {
+        log:printError("Error publishing update directly", err = err);
     }
 }
 

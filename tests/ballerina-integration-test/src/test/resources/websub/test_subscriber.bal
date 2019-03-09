@@ -68,3 +68,25 @@ service websubSubscriberTwo on websubEP {
     }
 }
 
+string subscriberThreeTopic = "http://one.websub.topic.com";
+
+@websub:SubscriberServiceConfig {
+    path:"/websubThree",
+    subscribeOnStartUp:true,
+    topic: subscriberThreeTopic,
+    hub: config:getAsString("test.hub.url"),
+    leaseSeconds: 300,
+    callback: "http://0.0.0.0:8181/websubThree?topic=" + subscriberThreeTopic,
+    secret: "Xaskdnfe234"
+}
+service websubSubscriberWithQueryParams on websubEP {
+    resource function onNotification (websub:Notification notification) {
+        var payload = notification.getPayloadAsString();
+        if (payload is string) {
+            io:println("WebSub Notification Received by Three: ", payload);
+            io:println("Query Params: ", notification.getQueryParams());
+        } else {
+            panic payload;
+        }
+    }
+}
