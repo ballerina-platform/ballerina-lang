@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +40,11 @@ public class DataBackedServiceTest extends ScenarioTestBase {
     public void testCreateEmployee() throws Exception {
         Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        String url = "http://" + host + ":" + port + "/records/employee/1";
+        PrintStream printStream = System.out;
+        printStream.println("URL: " + url);
         HttpResponse httpResponse = HttpClientRequest
-                .doGet("http://" + host + ":" + port + "/records/employee", headers);
+                .doGet(url, headers);
         Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
         Assert.assertEquals(httpResponse.getData(),
                 "[{\"EmployeeID\":1, \"Name\":\"Alice\", \"Age\":20, " + "\"SSN\":123456789}]");
