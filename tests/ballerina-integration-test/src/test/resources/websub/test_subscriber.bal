@@ -71,7 +71,7 @@ string subscriberThreeTopic = "http://one.websub.topic.com";
     topic: subscriberThreeTopic,
     hub: config:getAsString("test.hub.url"),
     leaseSeconds: 300,
-    callback: "http://0.0.0.0:8181/websubThree?topic=" + subscriberThreeTopic,
+    callback: "http://localhost:8181/websubThree?topic=" + subscriberThreeTopic,
     secret: "Xaskdnfe234"
 }
 service websubSubscriberWithQueryParams on websubEP {

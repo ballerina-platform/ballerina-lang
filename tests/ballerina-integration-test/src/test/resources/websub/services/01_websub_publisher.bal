@@ -55,14 +55,11 @@ service publisher on publisherServiceEP {
     }
     resource function notify(http:Caller caller, http:Request req, string subscriber) {
         remoteRegisterTopic();
-        string mode = "";
-        string contentType = "";
         json jsonPayload = <json> req.getJsonPayload();
-        mode = jsonPayload.mode.toString();
-        contentType = jsonPayload.content_type.toString();
+        string mode = jsonPayload.mode.toString();
+        string contentType = jsonPayload.content_type.toString();
 
-        http:Response response = new;
-        var err = caller->accepted(message = response);
+        var err = caller->accepted();
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
         }
@@ -70,7 +67,8 @@ service publisher on publisherServiceEP {
         if (subscriber != "skip_subscriber_check") {
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
-            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubThree");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE,
+                                        "http://localhost:" + subscriber + "/websubThree?topic=" + WEBSUB_TOPIC_ONE);
         }
 
         if (mode == "internal") {
@@ -138,6 +136,40 @@ service publisherTwo on publisherServiceEP {
         var err = caller->accepted();
         if (err is error) {
             log:printError("Error responding on notify request", err = err);
+        }
+    }
+}
+
+service contentTypePublisher on publisherServiceEP {
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/notify/{port}"
+    }
+    resource function notify(http:Caller caller, http:Request req, string port) {
+        json jsonPayload = <json>req.getJsonPayload();
+        string mode = jsonPayload.mode.toString();
+        string contentType = jsonPayload.content_type.toString();
+
+        var err = caller->accepted();
+        if (err is error) {
+            log:printError("Error responding on notify request", err = err);
+        }
+
+        if (port != "skip_subscriber_check") {
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + port + "/websub");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + port + "/websubTwo");
+        }
+
+        if (mode == "internal") {
+            err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (err is error) {
+                log:printError("Error publishing update directly", err = err);
+            }
+        } else {
+            err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (err is error) {
+                log:printError("Error publishing update remotely", err = err);
+            }
         }
     }
 }
