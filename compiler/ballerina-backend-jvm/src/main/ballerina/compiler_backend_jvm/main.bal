@@ -13,7 +13,7 @@ public function main(string... args) {
     //do nothing
 }
 
-function generateExecutableJar(bir:BIRContext birContext, bir:ModuleID entryModId, string progName) returns JarFile {
+function generateJarBinary(bir:BIRContext birContext, bir:ModuleID entryModId, string progName) returns JarFile {
 
     bir:Package entryMod = birContext.lookupBIRModule(entryModId);
 

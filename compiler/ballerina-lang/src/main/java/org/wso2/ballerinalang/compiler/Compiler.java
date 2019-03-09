@@ -119,6 +119,18 @@ public class Compiler {
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 
+
+    /**
+     * Writes the given binary content as a java archive to specified location with the name.
+     *
+     * @param jarContent the binary content of jar
+     * @param packagePath path to be used for writing the jar file
+     * @param targetFileName file name of the jar to be used
+     */
+    public void write(byte[] jarContent, String packagePath, String targetFileName) {
+        this.binaryFileWriter.write(jarContent, packagePath, targetFileName);
+    }
+
     public void list() {
         compilePackages().forEach(this.dependencyTree::listDependencyPackages);
     }

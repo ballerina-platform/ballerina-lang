@@ -19,6 +19,7 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -41,7 +42,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
@@ -57,23 +58,15 @@ public class BuilderUtils {
                                                 boolean buildCompiledPkg,
                                                 boolean offline,
                                                 boolean lockEnabled,
-                                                boolean skiptests,
+                                                boolean skipTests,
                                                 boolean enableExperimentalFeatures) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(BUILD_COMPILED_MODULE, Boolean.toString(buildCompiledPkg));
-        options.put(OFFLINE, Boolean.toString(offline));
-        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-        options.put(SKIP_TESTS, Boolean.toString(skiptests));
-        options.put(TEST_ENABLED, "true");
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
+        CompilerContext context = getCompilerContext(sourceRootPath, CompilerPhase.CODE_GEN,buildCompiledPkg, offline,
+                lockEnabled, skipTests, enableExperimentalFeatures);
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
 
-        if (skiptests) {
+        if (skipTests) {
             outStream.println();
             compiler.write(bLangPackage, targetPath);
         } else {
@@ -144,5 +137,46 @@ public class BuilderUtils {
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap);
         }
+    }
+
+    /**
+     * Compiles and write the compiled content as an executable java archive.
+     */
+    public static void compileAndWriteJar(Path sourceRootPath,
+                                          String packagePath,
+                                          String targetFileName,
+                                          boolean buildCompiledPkg,
+                                          boolean offline,
+                                          boolean lockEnabled,
+                                          boolean skipTests,
+                                          boolean enableExperimentalFeatures) {
+
+        CompilerContext context = getCompilerContext(sourceRootPath, CompilerPhase.BIR_GEN, buildCompiledPkg, offline,
+                lockEnabled, skipTests, enableExperimentalFeatures);
+
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage bLangPackage = compiler.build(packagePath);
+        byte[] jarContent = JVMCodeGen.generateJarBinary(bLangPackage, context, packagePath);
+        compiler.write(jarContent, packagePath, targetFileName);
+    }
+
+    private static CompilerContext getCompilerContext(Path sourceRootPath,
+                                                      CompilerPhase compilerPhase,
+                                                      boolean buildCompiledPkg,
+                                                      boolean offline,
+                                                      boolean lockEnabled,
+                                                      boolean skipTests,
+                                                      boolean enableExperimentalFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(BUILD_COMPILED_MODULE, Boolean.toString(buildCompiledPkg));
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skipTests));
+        options.put(TEST_ENABLED, Boolean.toString(true));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
+        return context;
     }
 }
