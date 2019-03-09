@@ -52,6 +52,10 @@ public type TypeParser object {
         var typeTag = self.reader.readInt8();
         if (typeTag == self.TYPE_TAG_ANY){
             return "any";
+        } else if (typeTag == self.TYPE_TAG_ANYDATA ){
+            return "anydata";
+        } else if (typeTag == self.TYPE_TAG_NONE ){
+            return "none";
         } else if (typeTag == self.TYPE_TAG_NIL ){
             return "()";
         } else if (typeTag == self.TYPE_TAG_INT){
@@ -66,6 +70,8 @@ public type TypeParser object {
             return "boolean";
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
+        } else if (typeTag == self.TYPE_TAG_TUPLE){
+            return self.parseTupleType();
         } else if (typeTag == self.TYPE_TAG_ARRAY){
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
@@ -95,12 +101,16 @@ public type TypeParser object {
         return { members:self.parseTypes() };
     }
 
+    function parseTupleType() returns BTupleType {
+        return { tupleTypes:self.parseTypes() };
+    }
+
     function parseInvokableType() returns BInvokableType {
         return { paramTypes:self.parseTypes(), retType: self.parseType() };
     }
 
     function parseRecordType() returns BRecordType {
-        return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(), 
+        return { name:{value:self.reader.readStringCpRef()}, sealed:self.reader.readBoolean(),
                     restFieldType: self.parseType(), fields: self.parseRecordFields() };
     }
 
@@ -110,7 +120,7 @@ public type TypeParser object {
         BRecordField[] fields = [];
         while c < size {
             fields[c] = self.parseRecordField();
-            c = c + 1;    
+            c = c + 1;
         }
         return fields;
     }
@@ -120,7 +130,28 @@ public type TypeParser object {
     }
 
     function parseObjectType() returns BObjectType {
-        return { name:{value:self.reader.readStringCpRef()}, fields: self.parseObjectFields() };
+        return { name: { value: self.reader.readStringCpRef() },
+            fields: self.parseObjectFields(),
+            attachedFunctions:self.parseObjectAttachedFunctions() };
+    }
+
+    function parseObjectAttachedFunctions() returns BAttachedFunction[] {
+        int size = self.reader.readInt32();
+        int c = 0;
+        BAttachedFunction[] attachedFunctions = [];
+        while c < size {
+            var funcName = self.reader.readStringCpRef();
+            var visibility = parseVisibility(self.reader);
+
+            var typeTag = self.reader.readInt8();
+            if(typeTag != self.TYPE_TAG_INVOKABLE ){
+                error err = error("expected invokable type tag (" + self.TYPE_TAG_INVOKABLE + ") but found " + typeTag);
+                panic err;
+            }
+            attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
+            c = c + 1;
+        }
+        return attachedFunctions;
     }
 
     function parseObjectFields() returns BObjectField[] {
@@ -129,7 +160,7 @@ public type TypeParser object {
         BObjectField[] fields = [];
         while c < size {
             fields[c] = self.parseObjectField();
-            c = c + 1;    
+            c = c + 1;
         }
         return fields;
     }
@@ -162,7 +193,7 @@ public type TypeParser object {
             return "OPEN_SEALED";
         } else if (b == 3) {
             return "UNSEALED";
-        } 
+        }
         error err = error("unknown array state tag " + b);
         panic err;
     }

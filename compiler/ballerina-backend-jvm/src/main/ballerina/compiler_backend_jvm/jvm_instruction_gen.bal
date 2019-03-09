@@ -48,7 +48,6 @@ type InstructionGenerator object {
         //io:println("LHS Index is :::::::::::", lhsLndex);
 
         bir:BType bType = moveIns.rhsOp.typeValue;
-
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, rhsIndex);
             self.mv.visitVarInsn(LSTORE, lhsLndex);
@@ -69,6 +68,12 @@ type InstructionGenerator object {
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BRecordType) {
+            self.mv.visitVarInsn(ALOAD, rhsIndex);
+            self.mv.visitVarInsn(ASTORE, lhsLndex);
+        } else if (bType is bir:BErrorType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else {
@@ -437,6 +442,21 @@ type InstructionGenerator object {
             self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         }
     }
+    
+    function generateNewErrorIns(bir:NewError newErrorIns) {
+        // create new error value
+        self.mv.visitTypeInsn(NEW, ERROR_VALUE);
+        self.mv.visitInsn(DUP);
+        // visit reason and detail
+        int reasonIndex = self.getJVMIndexOfVarRef(newErrorIns.reasonOp.variableDcl);
+        int detailsIndex = self.getJVMIndexOfVarRef(newErrorIns.detailsOp.variableDcl);
+        int lhsIndex = self.getJVMIndexOfVarRef(newErrorIns.lhsOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, reasonIndex);
+        self.mv.visitVarInsn(ALOAD, detailsIndex);
+        self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
+                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, REF_VALUE), false);
+        self.mv.visitVarInsn(ASTORE, lhsIndex);
+    }
 
     function generateLocalVarLoad(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
@@ -451,13 +471,20 @@ type InstructionGenerator object {
     function generateLocalVarStore(bir:BType bType, int valueIndex) {
         if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LSTORE, valueIndex);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitVarInsn(DSTORE, valueIndex);
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitVarInsn(ASTORE, valueIndex);
-        } else if (bType is bir:BArrayType) {
-            self.mv.visitVarInsn(ASTORE, valueIndex);
-        } else if (bType is bir:BMapType) {
+        } else if (bType is bir:BTypeByte) {
+            self.mv.visitVarInsn(ISTORE, valueIndex);
+        } else if (bType is bir:BArrayType ||
+                        bType is bir:BTypeString ||
+                        bType is bir:BMapType ||
+                        bType is bir:BTypeAny ||
+                        bType is bir:BTypeNil ||
+                        bType is bir:BUnionType ||
+                        bType is bir:BRecordType ||
+                        bType is bir:BErrorType) {
             self.mv.visitVarInsn(ASTORE, valueIndex);
         } else {
             error err = error( "JVM generation is not supported for type " +

@@ -179,11 +179,24 @@ public class BIRInstructionWriter extends BIRVisitor {
         birFieldAccess.rhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.TypeCast birTypeCast) {
+        buf.writeByte(birTypeCast.kind.getValue());
+        birTypeCast.lhsOp.accept(this);
+        birTypeCast.rhsOp.accept(this);
+    }
+
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());
         // TODO use the integer index of the variable.
         addCpAndWriteString(birOperand.variableDcl.name.value);
+    }
+
+    public void visit(BIRNonTerminator.NewError birNewError) {
+        buf.writeByte(birNewError.kind.getValue());
+        birNewError.lhsOp.accept(this);
+        birNewError.reasonOp.accept(this);
+        birNewError.detailOp.accept(this);
     }
 
 

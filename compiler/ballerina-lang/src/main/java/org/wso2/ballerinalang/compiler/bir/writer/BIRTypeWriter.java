@@ -4,10 +4,13 @@ import io.netty.buffer.ByteBuf;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -115,6 +118,11 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
+    public void visit(BAnydataType bAnydataType) {
+        buff.writeByte(bAnydataType.tag);
+    }
+
+    @Override
     public void visit(BPackageType bPackageType) {
         throwUnimplementedError(bPackageType);
     }
@@ -132,7 +140,11 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        throwUnimplementedError(bTupleType);
+        buff.writeByte(bTupleType.tag);
+        buff.writeInt(bTupleType.tupleTypes.size());
+        for (BType memberType : bTupleType.tupleTypes) {
+            memberType.accept(this);
+        }
     }
 
     @Override
@@ -161,13 +173,20 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BObjectType bObjectType) {
         buff.writeByte(bObjectType.tag);
-        buff.writeInt(addStringCPEntry(bObjectType.tsymbol.name.value));
+        BObjectTypeSymbol tsymbol = (BObjectTypeSymbol) bObjectType.tsymbol;
+        buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields) {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeByte(getVisibility(field.symbol).value());
             field.type.accept(this);
+        }
+        buff.writeInt(tsymbol.attachedFuncs.size());
+        for (BAttachedFunction attachedFunc : tsymbol.attachedFuncs) {
+            buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
+            buff.writeByte(getVisibility(attachedFunc.symbol).value());
+            attachedFunc.type.accept(this);
         }
     }
 
