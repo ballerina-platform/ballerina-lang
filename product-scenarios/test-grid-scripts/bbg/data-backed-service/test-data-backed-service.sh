@@ -42,10 +42,10 @@ curl -v -X DELETE "http://${host_port}/records/employee/1"
 
 mvn -version
 
-mvn clean install -f ${great_great_grant_parent_path}/pom.xml -Dmaven.repo.local=./tempm2
+mvn clean install -f ${great_great_grant_parent_path}/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
 
-mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port} -Dmaven.repo.local=./tempm2
+#mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port} -Dmaven.repo.local=./tempm2
 
-mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service-bbg
+mkdir -p ${OUTPUT_DIR}/scenarios
 
-find ${great_great_grant_parent_path}/bbg/* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR}/scenarios/data-backed-service-bbg \;
+find ./* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR}/scenarios \;
