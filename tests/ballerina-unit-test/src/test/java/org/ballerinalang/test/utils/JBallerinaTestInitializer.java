@@ -20,8 +20,9 @@ package org.ballerinalang.test.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.ISuite;
-import org.testng.ISuiteListener;
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
 
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
 
@@ -30,18 +31,50 @@ import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
  *
  * @since 0.955.0
  */
-public class JBallerinaTestInitializer implements ISuiteListener {
+public class JBallerinaTestInitializer implements ITestListener {
 
     private static Logger log = LoggerFactory.getLogger(JBallerinaTestInitializer.class);
 
     @Override
-    public void onStart(ISuite iSuite) {
-        log.info("JBallerina tests initialized...");
-        System.setProperty(ENABLE_JBALLERINA_TESTS, "true");
+    public void onStart(ITestContext context) {
+        String property = context.getCurrentXmlTest().getParameter(ENABLE_JBALLERINA_TESTS);
+        if (property != null && Boolean.valueOf(property)) {
+            log.info("JBallerina tests initialized...");
+            System.setProperty(ENABLE_JBALLERINA_TESTS, "true");
+        }
     }
 
     @Override
-    public void onFinish(ISuite iSuite) {
-        System.clearProperty(ENABLE_JBALLERINA_TESTS);
+    public void onFinish(ITestContext context) {
+        String property = context.getCurrentXmlTest().getParameter(ENABLE_JBALLERINA_TESTS);
+        if (property != null && Boolean.valueOf(property)) {
+            log.info("JBallerina tests disabled...");
+            System.clearProperty(ENABLE_JBALLERINA_TESTS);
+        }
+    }
+
+    @Override
+    public void onTestStart(ITestResult result) {
+        //ignore
+    }
+
+    @Override
+    public void onTestSuccess(ITestResult result) {
+        //ignore
+    }
+
+    @Override
+    public void onTestFailure(ITestResult result) {
+        //ignore
+    }
+
+    @Override
+    public void onTestSkipped(ITestResult result) {
+        //ignore
+    }
+
+    @Override
+    public void onTestFailedButWithinSuccessPercentage(ITestResult result) {
+        //ignore
     }
 }

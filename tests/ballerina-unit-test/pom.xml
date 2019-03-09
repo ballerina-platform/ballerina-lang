@@ -513,9 +513,7 @@
                         <ballerina.home>${project.build.directory}</ballerina.home>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
-                        <suiteXmlFile>
-                            src/test/resources/testng.xml,src/test/resources/testng-jballerina.xml
-                        </suiteXmlFile>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                     <classpathDependencyExcludes>
                         <classpathDependencyExcludes>org.slf4j:slf4j-log4j12</classpathDependencyExcludes>
