@@ -452,8 +452,14 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ALOAD, reasonIndex);
         self.mv.visitVarInsn(ALOAD, detailsIndex);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, REF_VALUE), false);
+                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
+    }
+
+    function generatePanicIns(bir:Panic panicIns) {
+        int errorIndex = self.getJVMIndexOfVarRef(panicIns.errorOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, errorIndex);
+        self.mv.visitInsn(ATHROW);
     }
 
     function generateLocalVarLoad(bir:BType bType, int valueIndex) {

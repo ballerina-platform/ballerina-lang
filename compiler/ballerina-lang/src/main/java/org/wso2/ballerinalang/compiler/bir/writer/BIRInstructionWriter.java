@@ -200,6 +200,12 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
 
+    public void visit(BIRNonTerminator.Panic birPanic) {
+        buf.writeByte(birPanic.kind.getValue());
+        birPanic.errorOp.accept(this);
+    }
+
+
     // private methods
 
     private void addCpAndWriteString(String string) {

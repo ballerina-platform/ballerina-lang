@@ -208,6 +208,12 @@ public class BIREmitter extends BIRVisitor {
         birNewError.detailOp.accept(this);
         sb.append(";\n");
     }
+
+    public void visit(BIRNonTerminator.Panic birPanic) {
+        sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birPanic.errorOp.accept(this);
+        sb.append(";\n");
+    }
     
     // Operands
     public void visit(BIROperand birOp) {

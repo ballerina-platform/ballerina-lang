@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -722,6 +723,11 @@ public class BIRGen extends BLangNodeVisitor {
                                                                            lhsOp, reasonOp, detailsOp);
         emit(newError);
         this.env.targetOperand = lhsOp;
+    }
+
+    public void visit(BLangPanic panicNode) {
+        panicNode.expr.accept(this);
+        emit(new BIRNonTerminator.Panic(panicNode.pos, InstructionKind.PANIC, this.env.targetOperand));
     }
 
     // private methods

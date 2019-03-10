@@ -40,6 +40,7 @@ public enum InstructionKind {
     ARRAY_LOAD((byte) 12),
     NEW_ERROR((byte) 13),
     TYPE_CAST((byte) 14),
+    PANIC((byte) 15),
 
     // Binary expression related instructions.
     ADD((byte) 20),

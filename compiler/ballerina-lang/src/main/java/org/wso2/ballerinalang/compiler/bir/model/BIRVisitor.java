@@ -26,7 +26,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewError;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
@@ -110,7 +112,11 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BIRNonTerminator.NewError birNewError) {
+    public void visit(NewError birNewError) {
+        throw new AssertionError();
+    }
+
+    public void visit(Panic birPanic) {
         throw new AssertionError();
     }
     public void visit(TypeCast birTypeCast) {

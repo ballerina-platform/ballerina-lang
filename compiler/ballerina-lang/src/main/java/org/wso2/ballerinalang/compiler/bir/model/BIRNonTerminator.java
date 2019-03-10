@@ -283,4 +283,26 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * A panic statement.
+     * <p>
+     * panic error
+     *
+     * @since 0.995.0
+     */
+    public static class Panic extends BIRNonTerminator {
+
+        public BIROperand errorOp;
+
+        public Panic(DiagnosticPos pos, InstructionKind kind, BIROperand errorOp) {
+            super(pos, kind);
+            this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }
