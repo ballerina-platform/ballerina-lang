@@ -55,7 +55,7 @@ public class RenameTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "rename-data-provider")
+    @Test(dataProvider = "rename-data-provider", enabled = false)
     public void test(String config, String source)
             throws IOException {
         String configJsonPath = "rename" + File.separator + config;

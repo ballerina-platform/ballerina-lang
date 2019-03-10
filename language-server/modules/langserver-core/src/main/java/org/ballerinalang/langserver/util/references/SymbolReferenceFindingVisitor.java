@@ -83,15 +83,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Node Visitor to find the symbol references in different compilation units in multiple packages.
@@ -140,7 +137,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         if (xmlnsNode.prefix.value.equals(this.tokenName)) {
-            this.addSymbol(xmlnsNode.symbol, true, xmlnsNode.pos);
+            DiagnosticPos xmlNsPos = xmlnsNode.pos;
+            List<Whitespace> wsList = new ArrayList<>(xmlnsNode.getWS());
+            List<Whitespace> napespaceUriWsList = new ArrayList<>(xmlnsNode.namespaceURI.getWS());
+            int sCol = xmlNsPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList)
+                    + napespaceUriWsList.get(0).getPrevious().length() + napespaceUriWsList.get(0).getWs().length();
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(xmlNsPos.src, xmlNsPos.sLine, xmlNsPos.sLine, sCol, eCol);
+            this.addSymbol(xmlnsNode.symbol, true, pos);
         }
     }
 
@@ -193,7 +197,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.flagSet.contains(Flag.SERVICE)) {
+        if (typeDefinition.flagSet.contains(Flag.SERVICE) || typeDefinition.name.value.contains("$")) {
+            // skip if service type definition or anon type
             return;
         }
         List<Whitespace> wsList = new ArrayList<>(typeDefinition.getWS());
@@ -280,6 +285,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangRecordVariable bLangRecordVariable) {
         bLangRecordVariable.variableList
                 .forEach(variableKeyValue -> this.acceptNode(variableKeyValue.valueBindingPattern));
+        this.acceptNode(bLangRecordVariable.typeNode);
     }
 
     @Override
@@ -291,8 +297,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos pos;
             // Type node is null when the variable is for type binding patterns
             if (typeNode != null) {
-                boolean isNested = varNode.flagSet.contains(Flag.PUBLIC);
-                int sSol = varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+                boolean isNested = varNode.flagSet.contains(Flag.PUBLIC) || varNode.flagSet.contains(Flag.LISTENER)
+                        || varNode.flagSet.contains(Flag.FINAL);
+                int sSol = varPos.sCol + (isNested ? this.getCharLengthBeforeToken(this.tokenName, wsList)
+                        : wsList.get(0).getWs().length());
                 sSol += this.getTypeLengthWithWS(typeNode, isNested);
                 int eCol = sSol + this.tokenName.length();
                 pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sSol, eCol);
@@ -308,6 +316,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.memberVariables.forEach(this::acceptNode);
+        this.acceptNode(bLangTupleVariable.typeNode);
     }
 
     @Override
@@ -317,12 +326,25 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (variable.name.value.equals(this.tokenName)) {
             List<Whitespace> wsList = new ArrayList<>(varDefNode.getWS());
             DiagnosticPos varPos = varDefNode.getPosition();
-            int sSol = varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList)
-                    + this.getTypeLengthWithWS(variable.typeNode, false);
-            int eCol = sSol + this.tokenName.length();
-            DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sSol, eCol);
+            int sCol;
+
+            if (this.forEachVariableDef(wsList)) {
+                sCol = this.getForEachVarDefStart(typeNode, varPos, wsList);
+            } else if (typeNode == null) {
+                /*
+                Ex: var myTestVar = .....
+                consider myTestVar here
+                 */
+                sCol = varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            } else {
+                sCol = varPos.sCol + wsList.get(0).getWs().length()
+                        + this.getTypeLengthWithWS(variable.typeNode, false);
+            }
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sCol, eCol);
             this.addSymbol(variable.symbol, true, pos);
         } else {
+            // In the foreach's variable definition node, type becomes null and will be handled by the acceptNode
             this.acceptNode(typeNode);
         }
 
@@ -424,7 +446,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         this.acceptNode(xmlAttributeAccessExpr.expr);
-        // todo: visit the index expression
+        this.acceptNode(xmlAttributeAccessExpr.indexExpr);
         /*
         Example:
         xml x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
@@ -447,8 +469,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        // TODO: Complete
-        super.visit(arrayType);
+        this.acceptNode(arrayType.elemtype);
     }
 
     @Override
@@ -459,8 +480,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
-        // TODO: Complete
-        super.visit(constrainedType);
+        this.acceptNode(constrainedType.type);
+        this.acceptNode(constrainedType.constraint);
     }
 
     @Override
@@ -554,8 +575,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             }
             sCol += this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
-            DiagnosticPos SymbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.eLine, sCol, eCol);
-            this.addSymbol(invocationExpr.symbol, false, SymbolPos);
+            DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.eLine, sCol, eCol);
+            this.addSymbol(invocationExpr.symbol, false, symbolPos);
         }
         invocationExpr.argExprs.forEach(this::acceptNode);
     }
@@ -571,9 +592,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         Temporarily disable the check since the BLangPackageBuilder cannot handle the positions correctly for bellow
          return arr[0] + arr[1] + arr[2];
          */
-//        if (!this.isWithinNodeRange(binaryExpr)) {
-//            return;
-//        }
         // Visit left and right expressions
         this.acceptNode(binaryExpr.lhsExpr);
         this.acceptNode(binaryExpr.rhsExpr);
@@ -616,16 +634,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     private SymbolReferencesModel.Reference getSymbolReference(BSymbol symbol, DiagnosticPos position) {
-        String pkgName = symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."));
         return new SymbolReferencesModel.Reference(position, symbol);
     }
 
     private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getSymbolAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
+        // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
-                && symbolAtCursor.get().getSymbol() != bSymbol.type.tsymbol
-                && symbolAtCursor.get().getSymbol().type.tsymbol != bSymbol.type.tsymbol)) {
+               /* && symbolAtCursor.get().getSymbol() != bSymbol.type.tsymbol
+                && symbolAtCursor.get().getSymbol().type.tsymbol != bSymbol.type.tsymbol*/)) {
             return;
         }
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
@@ -652,7 +670,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         int length = 0;
         for (int i = 0; i < whitespaces.size(); i++) {
             String previous = whitespaces.get(i).getPrevious();
-            if (previous.equals(tokenName) || i != 0) {
+            if (i != 0) {
                 length += whitespaces.get(i).getWs().length();
             }
             if (!previous.equals(tokenName)) {
@@ -673,7 +691,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             length = getUnionTypeLength((BLangUnionTypeNode) typeNode, nested);
         } else if (typeNode instanceof BLangTupleTypeNode) {
             length += this.getTupleTypeLength((BLangTupleTypeNode) typeNode, nested);
-        } else {
+        } else if (typeNode instanceof BLangValueType || typeNode instanceof BLangUserDefinedType
+                || typeNode instanceof BLangBuiltInRefTypeNode) {
+            // Ex: int or http:Request or MyType
             int startCounter = 0;
             if (!nested) {
                 length += whitespaces.get(0).getPrevious().length();
@@ -682,6 +702,19 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             for (int i = startCounter; i < whitespaces.size(); i++) {
                 Whitespace whitespace = whitespaces.get(i);
                 length += whitespace.getPrevious().length() + whitespace.getWs().length();
+            }
+        } else if (typeNode instanceof BLangArrayType) {
+            int typeLength = this.getTypeLengthWithWS(((BLangArrayType) typeNode).elemtype, nested);
+            List<Whitespace> arrWs = new ArrayList<>(typeNode.getWS());
+            for (Whitespace whitespace : arrWs) {
+                length += whitespace.getPrevious().length() + whitespace.getWs().length();
+            }
+            length += typeLength;
+        } else if (typeNode instanceof BLangConstrainedType) {
+            BLangConstrainedType cType = (BLangConstrainedType) typeNode;
+            length += this.getTypeLengthWithWS(cType.type, nested) + this.getTypeLengthWithWS(cType.constraint, true);
+            for (Whitespace whitespace : whitespaces) {
+                length += whitespace.getWs().length() + whitespace.getPrevious().length();
             }
         }
 
@@ -720,14 +753,20 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             startCounter++;
         }
         for (int i = startCounter; i < memberTypeNodes.size(); i++) {
-            List<Whitespace> typeWs = new ArrayList<>(memberTypeNodes.get(i).getWS());
-            for (Whitespace ws : typeWs) {
-                length += ws.getPrevious().length() + ws.getWs().length();
-            }
+            length += this.getTypeLengthWithWS(memberTypeNodes.get(i), true);
         }
 
-        for (Whitespace ws : unionWs) {
-            length += ws.getPrevious().length() + ws.getWs().length();
+        boolean addFirstWS = unionWs.get(0).getPrevious().equals("|");
+        for (int i = 0; i < unionWs.size(); i++) {
+            Whitespace ws = unionWs.get(i);
+            if (i != 0 || addFirstWS) {
+                /*
+                Avoid cases like (int|boolean) and in these cases we do not add the first ws length
+                In cases like boolean|int first ws is | then we have to add the first ws length
+                 */
+                length += ws.getWs().length();
+            }
+            length += ws.getPrevious().length();
         }
 
         return length;
@@ -753,5 +792,25 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         int eCol = sCol + typeName.length();
 
         return new DiagnosticPos(typePos.src, typePos.sLine, typePos.eLine, sCol, eCol);
+    }
+
+    private boolean forEachVariableDef(List<Whitespace> wsList) {
+        return wsList.get(0).getPrevious().equals("foreach");
+    }
+
+    private int getForEachVarDefStart(BLangType typeNode, DiagnosticPos varPos, List<Whitespace> wsList) {
+        if (typeNode == null) {
+                /*
+                Ex: foreach var itr in data ...
+                itr is considered here
+                 */
+            return varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+        }
+        /*
+        Ex: foreach string str in ....
+        str is considered here
+         */
+        return varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList)
+                + this.getTypeLengthWithWS(typeNode, true);
     }
 }

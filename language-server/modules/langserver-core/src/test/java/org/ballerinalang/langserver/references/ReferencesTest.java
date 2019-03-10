@@ -57,7 +57,7 @@ public class ReferencesTest {
         TestUtil.openDocument(serviceEndpoint, balPath2);
     }
 
-    @Test(description = "Test Find references", dataProvider = "referencesDataProvider")
+    @Test(description = "Test Find references", dataProvider = "referencesDataProvider", enabled = false)
     public void testReferences(ReferencesTestDTO referencesTestDTO, Position position) throws IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
         String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,

@@ -244,8 +244,13 @@ public class LSCompiler {
             Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
             List<BLangPackage> projectPackages = compiler.compilePackages(false);
             packages.addAll(projectPackages);
-            projectPackages.forEach(bLangPackage ->
-                    LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID));
+            Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
+                String name = bLangPackage.packageID.nameComps.stream()
+                        .map(Name::getValue).collect(Collectors.joining("."));
+                return context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY).equals(name);
+            }).findAny();
+            // No need to check the option is existing since the current package always exist
+            LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
         } else {
             Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
             BLangPackage bLangPackage = compiler.compile(pkgName);

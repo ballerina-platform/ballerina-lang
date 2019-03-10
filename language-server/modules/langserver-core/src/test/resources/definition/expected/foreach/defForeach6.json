@@ -1,0 +1,25 @@
+{
+  "source": {
+    "path": "module1/dir2",
+    "file": "dir2fl6.bal"
+  },
+  "position": {
+    "line": 30,
+    "character": 28
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 25,
+          "character": 16
+        },
+        "end": {
+          "line": 36,
+          "character": 22
+        }
+      },
+      "uri": "module1/dir2/dir2fl6.bal"
+    }
+  ]
+}
