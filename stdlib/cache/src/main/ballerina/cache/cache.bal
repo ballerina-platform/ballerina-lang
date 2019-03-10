@@ -27,9 +27,6 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 # Map which stores all of the caches.
 map<Cache> cacheMap = {};
 
-# Cleanup task which cleans the cache periodically.
-task:Timer cacheCleanupTimer = createCacheCleanupTask();
-
 # Represents a cache entry.
 #
 # + value - cache value
@@ -74,6 +71,16 @@ public type Cache object {
         self.expiryTimeMillis = expiryTimeMillis;
         self.capacity = capacity;
         self.evictionFactor = evictionFactor;
+
+        task:TimerConfiguration cacheCleanupTimerConfiguration = {
+            interval: CACHE_CLEANUP_INTERVAL,
+            initialDelay: CACHE_CLEANUP_START_DELAY
+        };
+        task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
+
+        _ = cacheCleanupTimer.attach(cacheCleanupService);
+        _ = cacheCleanupTimer.start();
+
     }
 
     # Checks whether the given key has an accociated cache value.
@@ -309,12 +316,9 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     }
 }
 
-# Creates a new cache cleanup task.
-#
-# + return - cache cleanup task ID
-function createCacheCleanupTask() returns task:Timer {
-    (function () returns error?) onTriggerFunction = runCacheExpiry;
-    task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);
-    timer.start();
-    return timer;
-}
+# Cleanup service which cleans the cache periodically.
+service cacheCleanupService = service {
+    resource function onTrigger() {
+        _ = runCacheExpiry();
+    }
+};

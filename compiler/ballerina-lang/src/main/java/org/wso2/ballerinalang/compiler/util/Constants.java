@@ -36,4 +36,5 @@ public class Constants {
     public static final String WORKER_LAMBDA_VAR_PREFIX = "0";
 
     public static final String SKIP_TESTS = "false";
+    public static final String OPEN_SEALED_ARRAY = "*";
 }
