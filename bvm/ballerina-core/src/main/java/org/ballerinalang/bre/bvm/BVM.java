@@ -1653,7 +1653,7 @@ public class BVM {
                         elementType = tupleType.getTupleTypes().get((int) index);
                     }
                 }
-                if (elementType != null && !checkCast(refReg, elementType)) {
+                if (elementType != null && !checkIsType(refReg, elementType)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
