@@ -65,7 +65,7 @@ public class PushUtils {
     private static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
-                                                                        ProjectDirConstants.SETTINGS_FILE_NAME);
+            ProjectDirConstants.SETTINGS_FILE_NAME);
 
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
     private static Settings settings;

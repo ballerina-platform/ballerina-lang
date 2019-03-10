@@ -66,7 +66,6 @@ public class ModulePushTestCase extends BaseTest {
         logLeecher.waitForText(5000);
     }
 
-
     /**
      * Get environment variables.
      *
