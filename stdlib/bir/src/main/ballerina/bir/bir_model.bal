@@ -82,10 +82,11 @@ public const INS_KIND_MAP_LOAD = "MAP_LOAD";
 public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
 public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
+public const INS_KIND_NEW_PANIC = "PANIC";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|BinaryOpInstructionKind;
+                                |INS_KIND_TYPE_CAST|INS_KIND_NEW_PANIC|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -384,5 +385,11 @@ public type NewError record {
     VarRef lhsOp;
     VarRef reasonOp;
     VarRef detailsOp;
+    !...;
+};
+
+public type Panic record {
+    InstructionKind kind;
+    VarRef errorOp;
     !...;
 };

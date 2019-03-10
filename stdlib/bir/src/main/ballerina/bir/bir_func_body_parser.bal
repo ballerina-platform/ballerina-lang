@@ -109,13 +109,16 @@ public type FuncBodyParser object {
             var detailsOp = self.parseVarRef();
             NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
             return newError;
+        } else if (kindTag == INS_PANIC) {
+            kind = INS_KIND_NEW_PANIC;
+            var errorOp = self.parseVarRef();
+            Panic panicStmt = {kind:kind, errorOp:errorOp};
+            return panicStmt;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }
     }
-
-
-
+    
     public function parseTerminator() returns Terminator {
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
