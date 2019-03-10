@@ -11,7 +11,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] 
     foreach var typeDef in typeDefs {
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
-        if (bType is bir:BRecordType || bType is bir:BObjectType) {
+        if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType) {
             jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
@@ -37,6 +37,8 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typ
             createRecordType(mv, bType, typeDef.name.value);
         } else if (bType is bir:BObjectType) {
             createObjectType(mv, bType, typeDef.name.value);
+        } else if (bType is bir:BErrorType) {
+            createErrorType(mv, bType, typeDef.name.value);
         } else {
             error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
             panic err;
@@ -257,6 +259,36 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
     mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
             io:sprintf("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
             false);
+}
+
+// -------------------------------------------------------
+//              Error type generation methods
+// -------------------------------------------------------
+
+# Create a runtime type instance for the error.
+#
+# + mv - method visitor
+# + errorType - error type
+# + name - name of the error
+function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name) {
+    // Create the record type
+    mv.visitTypeInsn(NEW, ERROR_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load type name
+    mv.visitLdcInsn(name);
+
+    // Load package path
+    // TODO: get it from the type
+    mv.visitLdcInsn("pkg");
+    
+    // Load reason and details type
+    loadType(mv, errorType.reasonType);
+    loadType(mv, errorType.detailType);
+
+    // initialize the record type
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
+            STRING_VALUE, BTYPE, BTYPE), false);
 }
 
 // -------------------------------------------------------
