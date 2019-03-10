@@ -2095,16 +2095,11 @@ public class Types {
 
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
-        if (type.getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+        if (type.isNullable()) {
             return true;
         }
 
-        // Value space contains nil.
-        if (type.getMemberTypes().stream().anyMatch(BType::isNullable)) {
-            return true;
-        }
-
-        // All members are of same type and has the implicit initial value as a member.
+        // All members are of same type.
         Iterator<BType> iterator = type.iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
@@ -2113,7 +2108,7 @@ public class Types {
             }
         }
         // Control reaching this point means there is only one type in the union.
-        return hasImplicitInitialValue(firstMember);
+        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
     }
 
     private boolean analyzeObjectType(BObjectType type) {
