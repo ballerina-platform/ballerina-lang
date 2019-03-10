@@ -2105,8 +2105,19 @@ public class TypeChecker extends BLangNodeVisitor {
                 .map(expr -> checkExpr(expr, env, ((BErrorType) expType).reasonType))
                 .orElseThrow(AssertionError::new);
 
-        Optional.ofNullable(errorConstructorExpr.detailsExpr)
-                .ifPresent(expr -> checkExpr(expr, env, ((BErrorType) expType).detailType));
+        if (errorConstructorExpr.detailsExpr == null) {
+            resultType = expType;
+            return;
+        }
+
+        BType detailType = ((BErrorType) expType).detailType;
+        if (detailType == symTable.mapType) {
+            LinkedHashSet<BType> anydataOrErrorSet = new LinkedHashSet<>();
+            anydataOrErrorSet.add(symTable.anydataType);
+            anydataOrErrorSet.add(symTable.errorType);
+            detailType = new BMapType(TypeTags.MAP, BUnionType.create(null, anydataOrErrorSet), null);
+        }
+        checkExpr(errorConstructorExpr.detailsExpr, env, detailType);
         resultType = expType;
     }
 
