@@ -67,8 +67,8 @@ service publisher on publisherServiceEP {
         if (subscriber != "skip_subscriber_check") {
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
-            checkSubscriberAvailability(WEBSUB_TOPIC_ONE,
-                                        "http://localhost:" + subscriber + "/websubThree?topic=" + WEBSUB_TOPIC_ONE);
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubThree?topic=" +
+                    WEBSUB_TOPIC_ONE + "&fooVal=barVal");
         }
 
         if (mode == "internal") {
@@ -146,7 +146,7 @@ service contentTypePublisher on publisherServiceEP {
         path: "/notify/{port}"
     }
     resource function notify(http:Caller caller, http:Request req, string port) {
-        json jsonPayload = <json>req.getJsonPayload();
+        json jsonPayload = <json> req.getJsonPayload();
         string mode = jsonPayload.mode.toString();
         string contentType = jsonPayload.content_type.toString();
 
