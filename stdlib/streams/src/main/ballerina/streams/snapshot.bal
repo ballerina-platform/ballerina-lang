@@ -310,30 +310,30 @@ function startPersisting() {
 }
 
 # Function to restore state of a given object.
-# + k - An unique `string` identifier for the snapshotable reference.
-# + o - The snapshotable reference to be restored.
-public function restoreState(string k, any o) {
-    var state = streamsPersistanceState[k];
-    if (state is map<any> && o is Snapshotable) {
-        o.restoreState(state);
+# + key - An unique `string` identifier for the snapshotable reference.
+# + reference - The snapshotable reference to be restored.
+public function restoreState(string key, any reference) {
+    var state = streamsPersistanceState[key];
+    if (state is map<any> && reference is Snapshotable) {
+        reference.restoreState(state);
     }
 }
 
 # Function to clear an existing state.
-# + k - An unique `string` identifier for the snapshotable reference.
+# + key - An unique `string` identifier for the snapshotable reference.
 # + return - A `boolean` indicating whether the state for the given key removed successfully.
-public function removeState(string k) returns boolean {
-    boolean snapshotableRemoved = snapshotables.remove(k);
-    boolean stateRemoved = streamsPersistanceState.remove(k);
+public function removeState(string key) returns boolean {
+    boolean snapshotableRemoved = snapshotables.remove(key);
+    boolean stateRemoved = streamsPersistanceState.remove(key);
     return snapshotableRemoved && stateRemoved;
 }
 
 # Function to register Snapshotables.
 # + key - An unique `string` identifier for the snapshotable reference.
-# + ref - The snapshotable reference to be registered.
-public function registerSnapshotable(string key, any ref) {
-    if (ref is Snapshotable) {
-        snapshotables[key] = ref;
+# + reference - The snapshotable reference to be registered.
+public function registerSnapshotable(string key, any reference) {
+    if (reference is Snapshotable) {
+        snapshotables[key] = reference;
     }
 }
 
