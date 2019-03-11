@@ -1,11 +1,11 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/swagger;
+import ballerina/openapi;
 
 listener http:Listener ep0 = new(9090);
 
-@swagger:ServiceInfo {
+@openapi:ServiceInfo {
     title: "serviceName",
     serviceVersion: "1.0.0"
 }
@@ -14,7 +14,7 @@ listener http:Listener ep0 = new(9090);
 }
 service serviceName on ep0 {
 
-    @swagger:MultiResourceInfo {
+    @openapi:MultiResourceInfo {
         resourceInformation: {
             "GET":{
                 summary: "Get operation for the path /user"
@@ -33,7 +33,7 @@ service serviceName on ep0 {
         _ = outboundEp->respond(_resource1Res);
     }
 
-    @swagger:ResourceInfo {
+    @openapi:ResourceInfo {
         summary: "Put operation for the path /user"
     }
     @http:ResourceConfig {

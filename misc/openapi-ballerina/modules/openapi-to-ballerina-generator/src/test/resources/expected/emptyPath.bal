@@ -1,11 +1,11 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/swagger;
+import ballerina/openapi;
 
 listener http:Listener ep0 = new(9090);
 
-@swagger:ServiceInfo {
+@openapi:ServiceInfo {
     title: "serviceName",
     serviceVersion: "1.0.0"
 }

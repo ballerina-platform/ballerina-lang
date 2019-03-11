@@ -1,11 +1,11 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/swagger;
+import ballerina/openapi;
 {{#servers}}
 listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{host}}"}{{/host}});
 {{/servers}}
-@swagger:ServiceInfo {{=<% %>=}}{<%={{ }}=%>{{#info}}
+@openapi:ServiceInfo {{=<% %>=}}{<%={{ }}=%>{{#info}}
     title: "{{title}}"{{#description}},
     description: "{{{description}}}"{{/description}},
     serviceVersion: "{{version}}"{{#termsOfService}},
@@ -25,7 +25,7 @@ listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{
 }
 service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {{=<% %>=}}{<%={{ }}=%>{{#paths}}{{#value}}{{#if sameResourceOperationExists}}{{#sameResourceOperations}}{{#value}}{{!-- If multiple methods belongs to one Ballerina resource implementation this will generate the code --}}
 
-    @swagger:MultiResourceInfo {
+    @openapi:MultiResourceInfo {
         resourceInformation: {{=<% %>=}}{<%={{ }}=%>{{#operations}}
             "{{upper key}}":{{#value}}{
                 summary: "{{summary}}"{{#if tags}},
@@ -64,7 +64,7 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
         _ = outboundEp->respond(_{{resourceName}}Res);
     }{{/if}}{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}{{!-- Generate Ballerina resource for single method resources --}}
 
-    @swagger:ResourceInfo {
+    @openapi:ResourceInfo {
         summary: "{{summary}}"{{#if tags}},
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}]{{/if}}{{#if description}},
         description: "{{description}}"{{/if}}{{#if externalDocs}},
