@@ -37,10 +37,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PROG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
@@ -160,6 +162,23 @@ public class BinaryFileWriter {
         }
     }
 
+    /**
+     * Writes the given binary content as a java archive to specified location with the name.
+     *
+     * @param jarContent the binary content of jar
+     * @param packagePath path to be used for writing the jar file
+     * @param targetFileName file name of the jar to be used
+     */
+    public void write(byte[] jarContent, String packagePath, String targetFileName) {
+        Path path = null;
+        try {
+            path = Paths.get(packagePath, cleanupExecutableJarFileName(targetFileName));
+            Files.write(path, jarContent);
+        } catch (IOException e) {
+            String msg = "error writing the jar file to '" + path + "': " + e.getMessage();
+            throw new BLangCompilerException(msg, e);
+        }
+    }
 
     // private methods
 
@@ -208,6 +227,23 @@ public class BinaryFileWriter {
 
         if (!updatedFileName.endsWith(BLANG_COMPILED_PROG_EXT)) {
             updatedFileName += BLANG_COMPILED_PROG_EXT;
+        }
+        return updatedFileName;
+    }
+
+    private String cleanupExecutableJarFileName(String fileName) {
+        String updatedFileName = fileName;
+        if (updatedFileName == null || updatedFileName.isEmpty()) {
+            throw new IllegalArgumentException("invalid target file name");
+        }
+
+        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
+            updatedFileName = updatedFileName.substring(0,
+                    updatedFileName.length() - BLANG_SOURCE_EXT.length());
+        }
+
+        if (!updatedFileName.endsWith(BLANG_COMPILED_JAR_EXT)) {
+            updatedFileName += BLANG_COMPILED_JAR_EXT;
         }
         return updatedFileName;
     }
