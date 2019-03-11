@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-public int forceCloseStateCount = 0;
+int forceCloseStateCount = 0;
 
 listener http:Listener circuitBreakerEP02 = new(9308);
 
