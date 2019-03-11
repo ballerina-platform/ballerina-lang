@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import java.util.StringJoiner;
+import java.util.Map.Entry;
+
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
  *
@@ -60,5 +63,20 @@ public class BObjectType extends BStructureType {
 
     public void setAttachedFunctions(BAttachedFunction[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
+    }
+
+    public String toString() {
+        String name = (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
+        StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
+
+        for (Entry<String, BField> field : getFields().entrySet()) {
+            sj.add(field.getKey() + " : " + field.getValue().type);
+        }
+
+        for (BAttachedFunction func : attachedFunctions) {
+            sj.add(func.toString());
+        }
+
+        return sj.toString();
     }
 }

@@ -66,6 +66,7 @@ type InstructionGenerator object {
         } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
                         bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
@@ -481,6 +482,7 @@ type InstructionGenerator object {
                         bType is bir:BTypeString ||
                         bType is bir:BMapType ||
                         bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType ||
