@@ -89,7 +89,10 @@ type FTUnion FT|FT;
 FTUnion[] fU = [];
 
 type FTSingle FT;
-FTSingle[] fUS;
+
+function testFTSingleArray() {
+    FTSingle[] fUS;
+}
 
 type FTNUnion FTN|FTN;
 FTNUnion[] ftnU = [];

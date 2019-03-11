@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -173,7 +174,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -741,13 +741,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             for (int i = 0; i < precedingRecVar.variableList.size(); i++) {
                 BLangRecordVariableKeyValue precedingKeyValue = precedingRecVar.variableList.get(i);
                 if (!recVarAsMap.containsKey(precedingKeyValue.key.value)) {
-                    return false;
+                    continue;
                 }
-
                 if (!checkStructuredPatternSimilarity(
                         precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
                     return false;
                 }
+            }
+
+            if (!precedingRecVar.isClosed && !recVar.isClosed) {
+                return true;
             }
 
             return !precedingRecVar.isClosed || recVar.isClosed;
@@ -768,8 +771,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (precedingVar.getKind() == NodeKind.VARIABLE &&
-                (var.getKind() == NodeKind.RECORD_VARIABLE || var.getKind() == NodeKind.TUPLE_VARIABLE)) {
+        if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
+            BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
+            BLangErrorVariable errVar = (BLangErrorVariable) var;
+            if (precedingErrVar.detail != null && errVar.detail != null) {
+                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+            }
             return true;
         }
 
@@ -954,10 +961,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         }
         objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
-        if (Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.CLIENT) && objectTypeNode.functions.stream()
-                .noneMatch(func -> Symbols.isFlagOn(func.symbol.flags, Flags.REMOTE))) {
-            this.dlog.error(objectTypeNode.pos, DiagnosticCode.CLIENT_HAS_NO_REMOTE_FUNCTION);
-        }
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -987,9 +990,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!Symbols.isPublic(varNode.symbol)) {
-            if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
-            }
             return;
         }
 
@@ -1007,10 +1007,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
                 NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
-        }
-
-        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
-            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
         }
     }
 
@@ -1036,8 +1032,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
         BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
         if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
-            BLangType eType = arrayPart.elemtype;
-            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType eType = arrayPart.elemtype.type;
+            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
     }
 
@@ -1052,9 +1048,26 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BLangType eType = ((BLangArrayType) typeNode).elemtype;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, eType);
+            BType eType = ((BLangArrayType) typeNode).elemtype.type;
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
+    }
+
+    private BType getNilableType(BType type) {
+        if (type.isNullable()) {
+            return type;
+        }
+
+        BUnionType unionType = BUnionType.create(null);
+
+        if (type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memTypes = new LinkedHashSet<>(((BUnionType) type).getMemberTypes());
+            unionType.addAll(memTypes);
+        }
+
+        unionType.add(type);
+        unionType.add(symTable.nilType);
+        return unionType;
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -1339,11 +1352,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangRecordLiteral recordLiteral) {
         List<BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
-        keyValuePairs.forEach(kv -> {
-            analyzeExpr(kv.valueExpr);
-        });
+        keyValuePairs.forEach(kv -> analyzeExpr(kv.valueExpr));
 
-        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
+        Set<Object> names = new HashSet<>();
         for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {

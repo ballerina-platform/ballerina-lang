@@ -68,6 +68,8 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -80,6 +82,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -1612,21 +1617,88 @@ public class Types {
         }
 
         BFiniteType expType = (BFiniteType) type;
-        long matchCount = expType.valueSpace.stream().filter(memberLiteral -> {
+        return expType.valueSpace.stream().anyMatch(memberLiteral -> {
             if (((BLangLiteral) memberLiteral).value == null) {
                 return literalExpr.value == null;
             }
-            // Check whether the member literal and the literal that needs to be tested are of same kind and check
-            // the value equality between them.
-            return memberLiteral.getKind().equals(literalExpr.getKind()) &&
-                    ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
-        }).count();
+            // Check whether the literal that needs to be tested is assignable to any of the member literal in the
+            // value space.
+            return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
+        });
+    }
 
-        // If more than one match means the value space contains ambiguous values.
-        if (matchCount > 1) {
-            dlog.error(literalExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, type);
+    /**
+     * Method to check the literal assignability based on the types of the literals. For numeric literals the
+     * assignability depends on the equivalency of the literals. If the candidate literal could either be a simple
+     * literal or a constant. In case of a constant, it is assignable to the base literal if and only if both
+     * literals have same type and equivalent values.
+     *
+     * @param baseLiteral      Literal based on which we check the assignability.
+     * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
+     * @return true if assignable; false otherwise.
+     */
+    private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+        // Different literal kinds.
+        if (baseLiteral.getKind() != candidateLiteral.getKind()) {
+            return false;
         }
-        return matchCount == 1;
+        Object baseValue = baseLiteral.value;
+        Object candidateValue = candidateLiteral.value;
+        int candidateTypeTag = candidateLiteral.type.tag;
+
+        // Numeric literal assignability is based on assignable type and numeric equivalency of values.
+        // If the base numeric literal is,
+        // (1) byte: we can assign byte or a int simple literal (Not an int constant) with the same value.
+        // (2) int: we can assign int literal or int constants with the same value.
+        // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
+        // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
+        // with the same value.
+        switch (baseLiteral.type.tag) {
+            case TypeTags.BYTE:
+                if (candidateTypeTag == TypeTags.BYTE) {
+                    return (byte) baseValue == (byte) candidateValue;
+                } else if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
+                        isByteLiteralValue((Long) candidateValue)) {
+                    return (byte) baseValue == ((Long) candidateValue).byteValue();
+                }
+                break;
+            case TypeTags.INT:
+                if (candidateTypeTag == TypeTags.INT) {
+                    return (long) baseValue == (long) candidateValue;
+                }
+                break;
+            case TypeTags.FLOAT:
+                double baseDoubleVal = Double.parseDouble(String.valueOf(baseValue));
+                double candidateDoubleVal;
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
+                    candidateDoubleVal = ((Long) candidateValue).doubleValue();
+                    return baseDoubleVal == candidateDoubleVal;
+                } else if (candidateTypeTag == TypeTags.FLOAT) {
+                    candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
+                    return baseDoubleVal == candidateDoubleVal;
+                }
+                break;
+            case TypeTags.DECIMAL:
+                BigDecimal baseDecimalVal = new BigDecimal(String.valueOf(baseValue), MathContext.DECIMAL128);
+                BigDecimal candidateDecimalVal;
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
+                    candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
+                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
+                        candidateTypeTag == TypeTags.DECIMAL) {
+                    candidateDecimalVal = new BigDecimal(String.valueOf(candidateValue), MathContext.DECIMAL128);
+                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                }
+                break;
+            default:
+                // Non-numeric literal kind.
+                return baseValue.equals(candidateValue);
+        }
+        return false;
+    }
+
+    boolean isByteLiteralValue(Long longObject) {
+        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
@@ -2023,16 +2095,11 @@ public class Types {
 
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
-        if (type.getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+        if (type.isNullable()) {
             return true;
         }
 
-        // Value space contains nil.
-        if (type.getMemberTypes().stream().anyMatch(BType::isNullable)) {
-            return true;
-        }
-
-        // All members are of same type and has the implicit initial value as a member.
+        // All members are of same type.
         Iterator<BType> iterator = type.iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
@@ -2041,7 +2108,7 @@ public class Types {
             }
         }
         // Control reaching this point means there is only one type in the union.
-        return hasImplicitInitialValue(firstMember);
+        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
     }
 
     private boolean analyzeObjectType(BObjectType type) {

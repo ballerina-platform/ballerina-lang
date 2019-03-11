@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const byte BCONST = 5;
 const int ICONST = 5;
 const float FCONST = 5;
 const decimal DCONST = 5;
@@ -27,17 +28,55 @@ type Finite ICONST|ICONST2;
 
 type FloatingPoint FCONST2|SCONST;
 
-// Test invalid literal assignment
-function testInvalidAssignment() {
-    Number n = 5.0;
-}
-
 // Test invalid string assignment
 function testDifferentLiteralKindsWithSameValue() {
     Finite f = "5";
 }
 
-// Test float with same value but different precision assignment
-function testDifferentPrecisionFloatAssignment() {
-    FloatingPoint f = 100.50000000;
+type ByteType BCONST;
+
+// Test assigning int constant to byte finite type
+function testAssigningIntConstantToByteFiniteType() {
+    ByteType b = ICONST;
+}
+
+type IntType ICONST;
+
+// Test assigning byte constant to int finite type
+function testAssigningByteConstantToIntFiniteType() {
+    IntType i = BCONST;
+}
+
+// Test assigning float literal to int finite type
+function testAssigningFloatLiteralToIntFiniteType() {
+    IntType i = 23.00;
+}
+
+type FloatType FCONST;
+
+// Test assigning int constant to float finite type
+function testAssigningIntConstantToFloatFiniteType() {
+    FloatType f = ICONST;
+}
+
+// Test assigning decimal constant to float finite type
+function testAssigningDecimalConstantToFloatFiniteType() {
+    FloatType f = DCONST;
+}
+
+type DecimalType DCONST;
+
+// Test assigning int constant to decimal finite type
+function testAssigningIntConstantToDecimalFiniteType() {
+    DecimalType d = ICONST;
+}
+
+// Test assigning float constant to decimal finite type
+function testAssigningFloatConstantToDecimalFiniteType() {
+    DecimalType d = FCONST;
+}
+
+// Test assigning an expression to a finite type
+function testAssigningExpressionToFiniteType() {
+    IntType i = 2 + 3;
 }
