@@ -271,11 +271,11 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 # + errorType - error type
 # + name - name of the error
 function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name) {
-    // Create the record type
+    // Create the error type
     mv.visitTypeInsn(NEW, ERROR_TYPE);
     mv.visitInsn(DUP);
 
-    // Load type name
+    // Load error type name
     mv.visitLdcInsn(name);
 
     // Load package path
@@ -286,7 +286,7 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
     loadType(mv, errorType.reasonType);
     loadType(mv, errorType.detailType);
 
-    // initialize the record type
+    // initialize the error type
     mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
             STRING_VALUE, BTYPE, BTYPE), false);
 }

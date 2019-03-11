@@ -205,7 +205,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         birPanic.errorOp.accept(this);
     }
 
-
     // private methods
 
     private void addCpAndWriteString(String string) {
