@@ -102,7 +102,7 @@ public class HttpsServer implements TestServer {
 
             if (HTTP2_VERSION.equals(httpVersion)) {
                 List<String> ciphers = new ArrayList<>();
-                ciphers.add("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+                ciphers.add("TLS_RSA_WITH_AES_128_CBC_SHA");
                 nettySSLCtx = SslContextBuilder.forServer(kmf).applicationProtocolConfig(
                     new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                                                   ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
