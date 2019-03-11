@@ -40,7 +40,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     LabelGenerator labelGen = new();
 
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     jvm:Label resumeLable = labelGen.getLabel(funcName + "resume");
     mv.visitJumpInsn(IFGT, resumeLable);
 
@@ -87,7 +87,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     // mv.visitJumpInsn(IF_ICMPNE, l0);
     // mv.visitVarInsn(ALOAD, 0);
     // mv.visitInsn(ICONST_1);
-    // mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "yield", "Z");
+    // mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
     // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
     // mv.visitLabel(l0);
 
@@ -167,14 +167,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     var frameName = funcName + "Frame";
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
     mv.visitVarInsn(ALOAD, 0);
     mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(ICONST_1);
     mv.visitInsn(ISUB);
     mv.visitInsn(DUP_X1);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
@@ -311,14 +311,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     mv.visitVarInsn(ASTORE, frameVarIndex);
 
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
     mv.visitVarInsn(ALOAD, 0);
     mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(DUP_X1);
     mv.visitInsn(ICONST_1);
     mv.visitInsn(IADD);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitVarInsn(ALOAD, frameVarIndex);
     mv.visitInsn(AASTORE);
 
@@ -363,7 +363,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
 }
 
 function getMethodDesc(bir:Function func) returns string {
-    string desc = "(Lorg/ballerina/jvm/Strand;";
+    string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
     while (i < func.argsCount) {
         desc = desc + getTypeDesc(func.typeValue.paramTypes[i]);
@@ -460,13 +460,13 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string desc = getMethodDesc(userMainFunc);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
-    mv.visitTypeInsn(NEW, "org/ballerina/jvm/Strand");
+    mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
     mv.visitInsn(DUP);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, "org/ballerina/jvm/Strand", "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
 
     // load and cast param values
     int paramIndex = 0;

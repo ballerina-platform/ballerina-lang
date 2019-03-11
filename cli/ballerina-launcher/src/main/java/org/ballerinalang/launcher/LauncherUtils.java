@@ -24,12 +24,9 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.jvm.BallerinaProgram;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.cli.ArgumentParser;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -54,15 +51,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -77,7 +70,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.JAR_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
@@ -112,11 +104,6 @@ public class LauncherUtils {
         // Set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
         loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
-
-        if (srcPathStr.endsWith(JAR_FILE_SUFFIX)) {
-            runJar(sourcePath, args);
-            return;
-        }
 
         runBal(sourceRootPath, sourcePath, functionName, args, offline, printReturn, siddhiRuntimeFlag,
                 experimentalFlag, srcPathStr, fullPath);
@@ -455,47 +442,4 @@ public class LauncherUtils {
         programFile = compile(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag);
         return programFile;
     }
-
-    private static void runJar(Path sourcePath, String[] args) {
-        BallerinaProgram program = getExecutableProgram(sourcePath);
-        BType[] paramsTypes = program.__getMainFuncParams();
-        int i = 0;
-        BValue[] values = new BValue[paramsTypes.length];
-        for (BType type : paramsTypes) {
-            values[i] = ArgumentParser.getBValue(type, args[i++]);
-        }
-
-        // TODO: add validation
-
-        // TODO:
-        boolean runServicesOnly = false;
-
-        // Load launcher listeners
-        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
-
-        program.__main(values);
-
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-        return;
-    }
-
-    private static BallerinaProgram getExecutableProgram(Path sourcePath) {
-        URLClassLoader classLoader;
-        try {
-            classLoader =
-                    new URLClassLoader(new URL[] { sourcePath.toUri().toURL() }, ClassLoader.getSystemClassLoader());
-        } catch (MalformedURLException e) {
-            throw createLauncherException("error occured while lauching jar");
-        }
-        ServiceLoader<BallerinaProgram> serviceLoader = ServiceLoader.load(BallerinaProgram.class, classLoader);
-        Iterator<BallerinaProgram> serviceItr = serviceLoader.iterator();
-        if (!serviceItr.hasNext()) {
-            throw createLauncherException("no runnable class found");
-        }
-
-        BallerinaProgram program = serviceItr.next();
-        return program;
-    }
-
 }
