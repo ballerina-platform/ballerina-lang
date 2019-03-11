@@ -73,8 +73,6 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BTypeBValueProviders.BAnydataTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BMapTypeBValueProvider());
-        bValueProvider.register(new BTypeBValueProviders.BUnionTypeBValueProvider());
-        bValueProvider.register(new BTypeBValueProviders.BAttachedFunctionBValueProvider());
         bValueProvider.register(new DateTimeBValueProviders.DateBValueProvider());
         bValueProvider.register(new DateTimeBValueProviders.InstantBValueProvider());
         bValueProvider.register(new BXMLBValueProviders.BXMLItemBValueProvider());

@@ -23,12 +23,10 @@ import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
-import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
@@ -42,9 +40,7 @@ import org.ballerinalang.util.codegen.RecordTypeInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -307,52 +303,6 @@ public class BTypeBValueProviders {
     }
 
     /**
-     * Provide mapping between {@link BAttachedFunction} and {@link BValue} representation of it.
-     */
-    public static class BAttachedFunctionBValueProvider implements SerializationBValueProvider<BAttachedFunction> {
-
-        private static final String FUNC_NAME = "funcName";
-        private static final String FLAGS = "flags";
-
-        @Override
-        public Class<?> getType() {
-            return BAttachedFunction.class;
-        }
-
-        @Override
-        public String typeName() {
-            return getType().getName();
-        }
-
-        @Override
-        public BPacket toBValue(BAttachedFunction function, BValueSerializer serializer) {
-            String funcName = function.funcName;
-            int flags = function.flags;
-            BType elementType = function.type;
-            BValue fields = serializer.toBValue(elementType, null);
-
-            BPacket packet = BPacket.from(typeName(), null);
-            packet.put(FUNC_NAME, new BString(funcName));
-            packet.put(FLAGS, new BInteger(flags));
-            packet.put(ELEM_TYPE, fields);
-
-            return packet;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public BAttachedFunction toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
-            String funcName = packet.get(FUNC_NAME).stringValue();
-            int flags = (int) ((BInteger) packet.get(FLAGS)).intValue();
-            BFunctionType elemType = (BFunctionType) bValueDeserializer.deserialize(packet.get(ELEM_TYPE), BType.class);
-
-            BAttachedFunction function = new BAttachedFunction(funcName, elemType, flags);
-            bValueDeserializer.addObjReference(packet.toBMap(), function);
-            return function;
-        }
-    }
-
-    /**
      * Provide mapping between {@link BRecordType} and {@link BValue} representation of it.
      */
     public static class BRecordTypeBValueProvider implements SerializationBValueProvider<BRecordType> {
@@ -421,63 +371,6 @@ public class BTypeBValueProviders {
             bRecType.sealed = closed.booleanValue();
 
             return bRecType;
-        }
-    }
-
-    /**
-     * Provide mapping between {@link BUnionType} and {@link BValue} representation of it.
-     */
-    public static class BUnionTypeBValueProvider implements SerializationBValueProvider<BUnionType> {
-
-        private static final String PACKAGE_PATH = "pkgPath";
-        private static final String TYPE_NAME = "typeName";
-        private static final String IS_NILABLE = "nullable";
-        private static final String MEMBER_TYPES = "memberTypes";
-
-        @Override
-        public Class<?> getType() {
-            return BUnionType.class;
-        }
-
-        @Override
-        public String typeName() {
-            return getType().getName();
-        }
-
-        @Override
-        public BPacket toBValue(BUnionType unionType, BValueSerializer serializer) {
-            String packagePath = unionType.getPackagePath();
-            String typeName = unionType.getName();
-            boolean isNullable = unionType.isNilable();
-            BValue memberTypes = serializer.toBValue(unionType.getMemberTypes(), null);
-
-            BPacket packet = BPacket.from(typeName(), null);
-            packet.put(PACKAGE_PATH, (packagePath != null) ? new BString(packagePath) : null);
-            packet.put(TYPE_NAME, (typeName != null) ? new BString(typeName) : null);
-            packet.put(IS_NILABLE, new BBoolean(isNullable));
-            packet.put(MEMBER_TYPES, memberTypes);
-
-            return packet;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public BUnionType toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
-            String typeName = (packet.get(TYPE_NAME) != null) ? packet.get(TYPE_NAME).stringValue() : null;
-            String pkgPath = (packet.get(PACKAGE_PATH) != null) ? packet.get(PACKAGE_PATH).stringValue() : null;
-            boolean isNullable = ((BBoolean) packet.get(IS_NILABLE)).booleanValue();
-            List memberTypes = (ArrayList) bValueDeserializer.deserialize(packet.get(MEMBER_TYPES), List.class);
-
-            try {
-                BUnionType unionType = new BUnionType();
-                FieldUtils.writeField(unionType, TYPE_NAME, typeName, true);
-                FieldUtils.writeField(unionType, PACKAGE_PATH, pkgPath, true);
-                FieldUtils.writeField(unionType, IS_NILABLE, isNullable, true);
-                FieldUtils.writeField(unionType, MEMBER_TYPES, memberTypes, true);
-                return unionType;
-            } catch (IllegalAccessException e) {
-                return null;
-            }
         }
     }
 }
