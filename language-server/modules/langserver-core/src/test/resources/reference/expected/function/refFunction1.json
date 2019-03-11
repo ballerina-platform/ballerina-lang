@@ -1,0 +1,77 @@
+{
+  "source": {
+    "path": "module1/dir2",
+    "file": "dir2fl4.bal"
+  },
+  "position": {
+    "line": 2,
+    "character": 32
+  },
+  "result": [
+    {
+      "uri":"module1/dir2/dir2fl4.bal",
+      "range":{
+        "start":{
+          "line":5,
+          "character":8
+        },
+        "end":{
+          "line":5,
+          "character":9
+        }
+      }
+    },
+    {
+      "uri":"module1/dir2/dir2fl4.bal",
+      "range":{
+        "start":{
+          "line":9,
+          "character":13
+        },
+        "end":{
+          "line":9,
+          "character":14
+        }
+      }
+    },
+    {
+      "uri":"module1/dir2/dir2fl4.bal",
+      "range":{
+        "start":{
+          "line":16,
+          "character":31
+        },
+        "end":{
+          "line":16,
+          "character":32
+        }
+      }
+    },
+    {
+      "uri":"module1/dir2/dir2fl4.bal",
+      "range":{
+        "start":{
+          "line":20,
+          "character":15
+        },
+        "end":{
+          "line":20,
+          "character":16
+        }
+      }
+    },
+    {
+      "uri":"module1/dir2/dir2fl4.bal",
+      "range":{
+        "start":{
+          "line":2,
+          "character":31
+        },
+        "end":{
+          "line":2,
+          "character":32
+        }
+      }
+    }
+  ]
+}

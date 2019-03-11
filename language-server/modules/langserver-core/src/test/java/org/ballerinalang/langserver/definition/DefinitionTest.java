@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -33,6 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -42,20 +42,20 @@ import java.nio.file.Paths;
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    private Path configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
-    private Path referencesPath = FileUtils.RES_DIR.resolve("references");
-    private Path projectPath = referencesPath.resolve("referenceProject");
-    private Gson gson = new Gson();
-    private JsonParser parser = new JsonParser();
-    private Endpoint serviceEndpoint;
+    protected Path configRoot;
+    protected Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
+    protected Gson gson = new Gson();
+    protected JsonParser parser = new JsonParser();
+    protected Endpoint serviceEndpoint;
 
     @BeforeClass
     public void init() throws Exception {
+        configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
-    
-    @Test(description = "Test goto definitions", dataProvider = "definitionsDataProvider")
-    public void testGoToDefinitions(String configPath, String configDir) throws IOException {
+
+    @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
+    public void test(String configPath, String configDir) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -69,12 +69,13 @@ public class DefinitionTest {
 
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
-        this.alterUri(actual);
+        this.alterExpectedUri(expected);
+        this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);
     }
 
     @DataProvider
-    public Object[][] definitionsDataProvider() throws IOException {
+    public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
                 {"defXMLNS1.json", "xmlns"},
                 {"defXMLNS2.json", "xmlns"},
@@ -162,14 +163,26 @@ public class DefinitionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    private void alterUri(JsonArray actualList) throws IOException {
-        for (JsonElement jsonElement : actualList) {
+    protected void alterExpectedUri(JsonArray expected) throws IOException {
+        for (JsonElement jsonElement : expected) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
+            Path expectedPath = Paths.get(this.projectPath.toUri());
+            for (String uriComponent : uriComponents) {
+                expectedPath = expectedPath.resolve(uriComponent);
+            }
+            item.remove("uri");
+            item.addProperty("uri", expectedPath.toFile().getCanonicalPath());
+        }
+    }
+
+    protected void alterActualUri(JsonArray actual) throws IOException {
+        for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
             String uri = item.get("uri").toString().replace("\"", "");
-            String relativePath = this.projectPath.relativize(Paths.get(URI.create(uri).getPath()))
-                    .toString().replace(CommonUtil.FILE_SEPARATOR, "/");
+            String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
             item.remove("uri");
-            item.addProperty("uri", relativePath);
+            item.addProperty("uri", canonicalPath);
         }
     }
 }
