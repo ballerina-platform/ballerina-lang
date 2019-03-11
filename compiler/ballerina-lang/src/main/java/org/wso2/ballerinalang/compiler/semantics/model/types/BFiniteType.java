@@ -68,4 +68,9 @@ public class BFiniteType extends BType implements FiniteType {
     public String getDesc() {
         return TypeDescriptor.SIG_FINITE + getQualifiedTypeName() + ";";
     }
+
+    @Override
+    public boolean isNullable() {
+        return this.valueSpace.stream().anyMatch(v -> v.type.tag == TypeTags.NIL);
+    }
 }

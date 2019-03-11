@@ -57,4 +57,8 @@ public class ProjectDirConstants {
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
 
     public static final String NIGHTLY_BUILD = "nightly.build";
+
+    public static final String BALLERINA_CENTRAL_ACCESS_TOKEN = "BALLERINA_CENTRAL_ACCESS_TOKEN";
+
+
 }
