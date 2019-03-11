@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BArrayType;
