@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/testableBaloProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.26'

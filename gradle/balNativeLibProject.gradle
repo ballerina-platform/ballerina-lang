@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/testableBaloProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 task createBalo(type: JavaExec) {
     def balFiles = file("src/main/ballerina/")

@@ -1,4 +1,4 @@
-apply from: "$rootDir/gradle/testableBaloProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
     testImplementation project(':ballerina-core')
