@@ -14,13 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-
-Person person = {
-    name: employee.name,
-    age: 30
+type s1 record {
+    float x;
 };
 
-(Employee, Person) pp2 = (employee, person);
+function getGlobalVars() returns float {
+    s1 v = {};
+    float f = v.foo:x;
+    return f;
+}
 
-int dep2 = dep1;
+public int invalidPublicGlobalInt = 1;
+
+public int invalidPublicGobalVar = 1;
+
+int uninitializedModuleVariable;
+
+var uninitializedModuleVar;
+
+listener Listener uninitializedModuleListener;
+
+public listener Listener uninitializedPublicModuleListener;
+
+public type Listener object {
+
+    *AbstractListener;
+
+    public function __init() {
+
+    }
+
+    public function __attach(service s, map<any> data) returns error? {
+
+    }
+
+    public function __start() returns error? {
+
+    }
+
+    public function __stop() returns error? {
+
+    }
+};
