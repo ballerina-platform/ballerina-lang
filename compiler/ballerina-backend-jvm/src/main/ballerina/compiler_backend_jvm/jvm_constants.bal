@@ -214,3 +214,4 @@ const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
+const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";

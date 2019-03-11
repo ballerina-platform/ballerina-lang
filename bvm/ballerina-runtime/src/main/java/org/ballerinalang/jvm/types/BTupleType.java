@@ -30,7 +30,7 @@ public class BTupleType extends BType {
     private List<BType> tupleTypes;
 
     /**
-     * Create a {@code BUnionType} which represents the union type.
+     * Create a {@code BTupleType} which represents the tuple type.
      *
      * @param typeList of the tuple type
      */

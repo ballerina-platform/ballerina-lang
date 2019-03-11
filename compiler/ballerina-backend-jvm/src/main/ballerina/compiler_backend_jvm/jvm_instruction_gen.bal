@@ -67,7 +67,8 @@ type InstructionGenerator object {
                         bType is bir:BMapType ||
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeNil ||
-                        bType is bir:BUnionType) {
+                        bType is bir:BUnionType ||
+                        bType is bir:BTupleType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else if (bType is bir:BRecordType) {
@@ -385,11 +386,16 @@ type InstructionGenerator object {
     function generateArrayNewIns(bir:NewArray inst) {
         self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
-        
         bir:BType arrayType = inst.typeValue;
         if (arrayType is bir:BArrayType) {
             loadType(self.mv, arrayType.eType);
             self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
+            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
+        } else if (arrayType is bir:BTupleType) {
+            //load reftype
+            loadType(self.mv, arrayType);
+            self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
+            //load size
             self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
         }
         self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
