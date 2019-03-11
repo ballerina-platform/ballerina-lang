@@ -51,7 +51,7 @@ declare -A sys_prop_array
 sys_prop_array["data.backed.service.host"]=${external_ip}
 sys_prop_array["data.backed.service.port"]=${node_port}
 
-build_scenario_commons
+build_scenarios_commons
 build_bbg_section data sys_prop_array ${INPUT_DIR}
 
 #mkdir -p ${OUTPUT_DIR}/scenarios
