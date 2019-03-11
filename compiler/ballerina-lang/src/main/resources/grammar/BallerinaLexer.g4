@@ -707,10 +707,6 @@ XML_TAG_WS
     :   [ \t\r\n]   -> channel(HIDDEN)
     ;
 
-XMLTagExpressionStart
-    :   INTERPOLATION_START                                 -> pushMode(DEFAULT_MODE)
-    ;
-
 fragment
 HEXDIGIT    
     :   [a-fA-F0-9] 

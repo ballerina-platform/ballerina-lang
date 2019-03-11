@@ -869,7 +869,6 @@ xmlDoubleQuotedString
 
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
-    |   XMLTagExpressionStart expression RIGHT_BRACE
     ;
 
 stringTemplateLiteral
