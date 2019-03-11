@@ -311,6 +311,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         } else {
             this.acceptNode(typeNode);
         }
+        this.acceptNode(varNode.expr);
     }
 
     @Override
