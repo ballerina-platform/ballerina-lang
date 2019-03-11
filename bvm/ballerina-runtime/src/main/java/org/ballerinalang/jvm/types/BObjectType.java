@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
-import java.util.StringJoiner;
 import java.util.Map.Entry;
+import java.util.StringJoiner;
 
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
