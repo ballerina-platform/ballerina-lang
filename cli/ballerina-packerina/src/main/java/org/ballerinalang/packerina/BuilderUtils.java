@@ -154,7 +154,7 @@ public class BuilderUtils {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
         byte[] jarContent = JVMCodeGen.generateJarBinary(bLangPackage, context, packagePath);
-        compiler.write(jarContent, packagePath, targetFileName);
+        compiler.write(jarContent, sourceRootPath, targetFileName);
     }
 
     private static CompilerContext getCompilerContext(Path sourceRootPath,
