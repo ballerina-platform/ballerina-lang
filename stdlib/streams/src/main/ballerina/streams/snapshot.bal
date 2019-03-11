@@ -198,9 +198,9 @@ function writeStateToFile(string persistancePath) returns error? {
     }
 }
 
-# Function to log a persitance error.
+# Function to log a persistence error.
 # + error - The `error` occured while persisting the state.
-function persitanceError(error e) {
+function persistenceError(error e) {
     io:println("[ERROR] failed to persist state: ", e.detail());
 }
 
@@ -303,7 +303,7 @@ function persistStatesAndPurgeOldSnapshots() returns error? {
 # Function to initilize a Timer task and start periodic snapshotting.
 function startPersisting() {
     (function () returns error?) onTriggerFunction = persistStatesAndPurgeOldSnapshots;
-    function (error) onErrorFunction = persitanceError;
+    function (error) onErrorFunction = persistenceError;
     persistTimer = new task:Timer(onTriggerFunction, onErrorFunction, persistanceIntervalInMillis,
         delay = persistanceIntervalInMillis);
     persistTimer.start();
