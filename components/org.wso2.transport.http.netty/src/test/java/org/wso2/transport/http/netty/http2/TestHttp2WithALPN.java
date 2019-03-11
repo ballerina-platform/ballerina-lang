@@ -89,7 +89,7 @@ public class TestHttp2WithALPN {
     }
 
     private ListenerConfiguration getListenerConfigs() {
-        Parameter paramServerCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        Parameter paramServerCiphers = new Parameter("ciphers", "TLS_RSA_WITH_AES_128_CBC_SHA");
         List<Parameter> serverParams = new ArrayList<>(1);
         serverParams.add(paramServerCiphers);
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
@@ -106,7 +106,7 @@ public class TestHttp2WithALPN {
     }
 
     private SenderConfiguration getSenderConfigs(String httpVersion) {
-        Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        Parameter paramClientCiphers = new Parameter("ciphers", "TLS_RSA_WITH_AES_128_CBC_SHA");
         List<Parameter> clientParams = new ArrayList<>(1);
         clientParams.add(paramClientCiphers);
         SenderConfiguration senderConfiguration = new SenderConfiguration();

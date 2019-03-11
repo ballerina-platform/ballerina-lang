@@ -90,13 +90,13 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     }
 
     @Override
-    public void onError(ChannelHandlerContext ctx, Throwable cause) {
+    public void onError(ChannelHandlerContext ctx, boolean outbound, Throwable cause) {
         Http2Exception embedded = getEmbeddedHttp2Exception(cause);
         if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
             // We will end up here if we try to write to a already rejected stream
             LOG.warn("Stream creation failed, {}, {}", Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
         } else {
-            super.onError(ctx, cause);
+            super.onError(ctx, outbound, cause);
         }
     }
 
