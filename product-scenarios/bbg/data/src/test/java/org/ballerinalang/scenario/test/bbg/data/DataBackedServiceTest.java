@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.scenario.test.bbg;
+package org.ballerinalang.scenario.test.bbg.data;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.scenario.test.common.ScenarioTestBase;
