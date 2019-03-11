@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.Resource;
 
 import java.nio.channels.SelectableChannel;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 /**
  * This will hold the ServerSocketChannel or client SocketChannel
@@ -33,6 +34,7 @@ public class SocketService {
 
     private SelectableChannel socketChannel;
     private Map<String, Resource> resources;
+    private Semaphore resourceLock = new Semaphore(1);
 
     public SocketService(SelectableChannel socketChannel, Map<String, Resource> resources) {
         this.socketChannel = socketChannel;
@@ -49,5 +51,9 @@ public class SocketService {
 
     public Map<String, Resource> getResources() {
         return resources;
+    }
+
+    public Semaphore getResourceLock() {
+        return resourceLock;
     }
 }

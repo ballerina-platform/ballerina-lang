@@ -17,7 +17,7 @@
 # The abstract SQL Client object for SQL databases.
 public type AbstractSQLClient abstract client object {
 
-    # The call operation implementation for SQL Client to invoke stored procedures/functions.
+    # The call remote function implementation for SQL Client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
@@ -27,7 +27,7 @@ public type AbstractSQLClient abstract client object {
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
        returns @tainted table<record {}>[]|()|error;
 
-    # The select operation implementation for SQL Client to select data from tables.
+    # The select remote function implementation for SQL Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
@@ -37,14 +37,17 @@ public type AbstractSQLClient abstract client object {
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
        Param... parameters) returns @tainted table<record {}>|error;
 
-    # The update operation implementation for SQL Client to update data and schema of the database.
+    # The update remote function implementation for SQL Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
+    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public remote function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
+    # + return - A `sql:UpdateResult` with the updated row count and key column values,
+    #            else `error` will be returned if there is any error
+    public remote function update(@sensitive string sqlQuery, string[]? keyColumns = (), Param... parameters)
+                               returns UpdateResult|error;
 
-    # The batchUpdate operation implementation for SQL Client to batch data insert.
+    # The batchUpdate remote function implementation for SQL Client to batch data insert.
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
@@ -53,21 +56,9 @@ public type AbstractSQLClient abstract client object {
     #            an`error` will be returned if there is any error.
     #            A number greater than or equal to zero - indicates that the command was processed successfully
     #                                                     and is an update count giving the number of rows
-    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
-    #                            is unknown
+    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
+    #                            affected is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
     public remote function batchUpdate(@sensitive string sqlQuery, Param?[]... parameters) returns int[]|error;
-
-    # The updateWithGeneratedKeys operation implementation for SQL Client which returns the auto
-    # generated keys during the `update` remote function.
-    #
-    # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
-    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
-    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
-    #            aray of auto generated key values during the query execution, in order.
-    #            Else `error` will be returned if there is any error.
-    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
-       Param... parameters) returns (int, string[])|error;
 };

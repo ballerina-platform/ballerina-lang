@@ -34,10 +34,13 @@ import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -55,6 +58,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class CryptoUtils {
 
+    private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
     /**
      * Cipher mode that is used to decide if encryption or decryption operation should be performed.
      */
@@ -131,6 +135,29 @@ public class CryptoUtils {
             sig.initSign(privateKey);
             sig.update(input);
             return sig.sign();
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage(), context);
+        }
+    }
+
+    /**
+     * Verify signature of a byte array based on the provided signing algorithm.
+     *
+     * @param context BRE context used to raise error messages
+     * @param algorithm algorithm used during verification
+     * @param publicKey public key to be used during verification
+     * @param data input byte array for verification
+     * @param signature signature byte array for verification
+     * @return validity of the signature
+     * @throws InvalidKeyException if the publicKey is invalid
+     */
+    public static boolean verify(Context context, String algorithm, PublicKey publicKey, byte[] data,
+                                byte[] signature) throws InvalidKeyException {
+        try {
+            Signature sig = Signature.getInstance(algorithm);
+            sig.initVerify(publicKey);
+            sig.update(data);
+            return sig.verify(signature);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new BallerinaException("error occurred while calculating signature: " + e.getMessage(), context);
         }
@@ -350,5 +377,53 @@ public class CryptoUtils {
                 throw new BallerinaException("unsupported padding: " + algorithmPadding, context);
         }
         return algorithmPadding;
+    }
+
+    /**
+     * Replace system property holders in the property values.
+     * e.g. Replace ${ballerina.home} with value of the ballerina.home system property.
+     *
+     * This logic is originally from http-transport-utils. Since, HTTP stdlib depends on http-transport,
+     * HTTP stdlib directly uses this method form the original utility. This is added here, not to make Auth stdlib
+     * depend on http-transport.
+     *
+     * @param value string value to substitute
+     * @return String substituted string
+     */
+    public static String substituteVariables(String value) {
+        Matcher matcher = varPattern.matcher(value);
+        boolean found = matcher.find();
+        if (!found) {
+            return value;
+        } else {
+            StringBuffer sb = new StringBuffer();
+
+            do {
+                String sysPropKey = matcher.group(1);
+                String sysPropValue = getSystemVariableValue(sysPropKey, null);
+                if (sysPropValue == null || sysPropValue.length() == 0) {
+                    throw new RuntimeException("System property " + sysPropKey + " is not specified");
+                }
+
+                sysPropValue = sysPropValue.replace("\\", "\\\\");
+                matcher.appendReplacement(sb, sysPropValue);
+            } while(matcher.find());
+
+            matcher.appendTail(sb);
+            return sb.toString();
+        }
+    }
+
+    private static String getSystemVariableValue(String variableName, String defaultValue) {
+        String value;
+        if (System.getProperty(variableName) != null) {
+            value = System.getProperty(variableName);
+        } else if (System.getenv(variableName) != null) {
+            value = System.getenv(variableName);
+        } else {
+            value = defaultValue;
+        }
+
+        return value;
     }
 }

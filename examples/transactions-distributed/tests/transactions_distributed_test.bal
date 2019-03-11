@@ -15,7 +15,6 @@ public function mockLogInfo(string | (function() returns (string)) msg) {
             outputs[count] = msg;
             count += 1;
         }
-        log:printWarn(msg);
     }
 }
 
@@ -46,7 +45,6 @@ function testFunc() {
     test:assertTrue(foundMatch(untaint outputs, "Got response from bizservice"));
 
     test:assertTrue(foundMatch(untaint outputs,  "Initiated transaction committed"));
-    test:assertTrue(foundMatch(untaint outputs, "Sent response back to client"));
 }
 
 function foundMatch(string[] arr, string target) returns boolean {

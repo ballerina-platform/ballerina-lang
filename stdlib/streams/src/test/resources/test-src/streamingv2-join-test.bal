@@ -69,18 +69,18 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockWithPriceStream.subscribe(function(StockWithPrice e) {printCompanyStockPrice(e);});
 
     stockStream.publish(s1);
-    runtime:sleep(100);
+    runtime:sleep(1000);
     twitterStream.publish(t1);
-    runtime:sleep(100);
+    runtime:sleep(1000);
     stockStream.publish(s2);
-    runtime:sleep(100);
+    runtime:sleep(1000);
     stockStream.publish(s3);
 
     int count = 0;
     while(true) {
-        runtime:sleep(500);
+        runtime:sleep(1000);
         count += 1;
-        if((globalEventsArray.length()) == 2 || count == 10) {
+        if((globalEventsArray.length()) == 2 || count == 20) {
             break;
         }
     }

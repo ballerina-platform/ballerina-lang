@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -297,11 +298,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
             // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
             orgName = names.fromIdNode(importPkgNode.orgName);
-            // Here we set the version as empty due to the following cases:
-            // 1) Suppose the import is from the same package, then the project version will be set later
+            // Here we set the version to enclosing package version. Following cases will be handled properly:
+            // 1) Suppose the import is from the same project, then the enclosing package version set here will be used
+            //    to lookup package symbol cache, avoiding re-defining package symbol.
             // 2) Suppose the import is from Ballerina Central or another project which has the same org, then the
-            //    version is set when loading the import module
-            version = new Name("");
+            //    version is set when loading the import module.
+            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
@@ -918,6 +920,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable varNode) {
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangErrorVariable varNode) {
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }

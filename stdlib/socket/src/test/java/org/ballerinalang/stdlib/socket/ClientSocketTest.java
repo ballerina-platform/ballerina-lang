@@ -32,7 +32,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -69,8 +68,7 @@ public class ClientSocketTest {
             log.error("Unable to open Socket Server: " + e.getMessage(), e);
             Assert.fail(e.getMessage());
         }
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
         socketClient = BCompileUtil.compile(testResourceRoot.resolve("client_socket.bal").toString());
     }
@@ -139,7 +137,7 @@ public class ClientSocketTest {
 
     @Test(description = "Open client socket connection to the remote server and write content")
     public void testOneWayWrite() {
-        String msg = "Hello Ballerina\\n";
+        String msg = "Hello Ballerina";
         BValue[] args = { new BString(msg) };
         BRunUtil.invoke(socketClient, "oneWayWrite", args);
         Assert.assertEquals(mockSocketServer.getReceivedString(), msg);
@@ -148,13 +146,39 @@ public class ClientSocketTest {
     @Test(description = "Write some content, then shutdown the write and try to write it again",
           dependsOnMethods = "testOneWayWrite")
     public void testShutdownWrite() {
-        String firstMsg = "Hello Ballerina1\\n";
-        String secondMsg = "Hello Ballerina2\\n";
+        String firstMsg = "Hello Ballerina1";
+        String secondMsg = "Hello Ballerina2";
         BValue[] args = { new BString(firstMsg), new BString(secondMsg) };
         final BValue[] shutdownWritesResult = BRunUtil.invoke(socketClient, "shutdownWrite", args);
         BError error = (BError) shutdownWritesResult[0];
         Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
                 "Client socket close already.");
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
+    }
+
+    @Test(description = "Test echo behavior", dependsOnMethods = "testShutdownWrite")
+    public void testClientEcho() {
+        String msg = "Hello Ballerina echo";
+        BValue[] args = { new BString(msg) };
+        final BValue[] echoResult = BRunUtil.invoke(socketClient, "echo", args);
+        String echo = echoResult[0].stringValue();
+        Assert.assertEquals(echo, msg, "Client did not receive expected echoed message");
+        Assert.assertEquals(mockSocketServer.getReceivedString(), msg, "Server didn't get expected msg");
+    }
+
+    @Test(description = "Test invalid read param", dependsOnMethods = "testClientEcho")
+    public void testInvalidReadParam() {
+        final BValue[] result = BRunUtil.invoke(socketClient, "invalidReadParam");
+        BError error = (BError) result[0];
+        Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
+                "Requested byte length need to be 1 or more");
+    }
+
+    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam")
+    public void testInvalidAddress() {
+        final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
+        BError error = (BError) result[0];
+        Assert.assertEquals(((BMap) error.getDetails()).getMap().get("message").toString(),
+                "Unable to start the client socket: Connection refused");
     }
 }

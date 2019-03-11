@@ -19,8 +19,25 @@ import ballerina/runtime;
 
 const string CONFIG_USER_SECTION = "b7a.users";
 
+# Represents configurations that required for Config auth store.
+#
+public type ConfigAuthProviderConfig record {
+    !...;
+};
+
 # Represents Ballerina configuration file based auth store provider
+#
+# + configAuthProviderConfig - Config auth store configurations
 public type ConfigAuthStoreProvider object {
+
+    public ConfigAuthProviderConfig configAuthProviderConfig;
+
+    # Create an Config auth store with the given configurations.
+    #
+    # + configAuthProviderConfig -  Config auth store configurations
+    public function __init(ConfigAuthProviderConfig configAuthProviderConfig) {
+        self.configAuthProviderConfig = configAuthProviderConfig;
+    }
 
     # Attempts to authenticate with username and password
     #
@@ -30,10 +47,10 @@ public type ConfigAuthStoreProvider object {
     public function authenticate(string user, string password) returns boolean {
         boolean isAuthenticated = password == self.readPassword(user);
             if(isAuthenticated){
-                runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-                userPrincipal.userId = user;
+                runtime:Principal principal = runtime:getInvocationContext().principal;
+                principal.userId = user;
                 // By default set userId as username.
-                userPrincipal.username = user;
+                principal.username = user;
             }
             return isAuthenticated;
         }
