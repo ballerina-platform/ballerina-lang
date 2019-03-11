@@ -197,3 +197,18 @@ function testMultipleErrorReturn() returns (Person4|FooErr|BarErr, Person4|FooEr
     Person4|FooErr|BarErr p2 = new(false);
     return (p1, p2);
 }
+
+type Person5 object {
+    string name;
+
+    function __init() returns error {
+        self.name = "foo";
+        error e = error("failed to create Person5 object");
+        return e;
+    }
+};
+
+function testErrorOnlyReturnInInit() returns Person5|error {
+    Person5|error p = new Person5();
+    return p;
+}

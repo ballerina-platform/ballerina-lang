@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -29,6 +28,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Test cases for object initializer feature.
@@ -69,18 +70,22 @@ public class ObjectInitializerTest {
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile(this, "test-src/object", "init.negative");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "attempt to refer to non-accessible symbol 'student.__init'", 5, 21);
+        validateError(result, 0, "attempt to refer to non-accessible symbol 'student.__init'", 5, 21);
 
     }
 
     @Test(description = "Test negative object initializers scenarios")
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "redeclared symbol 'Foo.__init'", 7, 14);
-        BAssertUtil.validateError(result, 1,
-                                  "object initializer function can not be declared as private", 11, 4);
-
+        Assert.assertEquals(result.getErrorCount(), 5);
+        validateError(result, 0, "redeclared symbol 'Foo.__init'", 23, 14);
+        validateError(result, 1,
+                      "object initializer function can not be declared as private", 27, 4);
+        validateError(result, 2, "incompatible types: expected 'Person', found 'Person|error'", 47, 17);
+        validateError(result, 3, "incompatible types: expected 'Person', found 'Person|error'", 48, 17);
+        validateError(result, 4,
+                      "invalid object constructor for 'Person2': expected sub-type of 'error?', but found 'string?'",
+                      54, 5);
     }
 
     @Test(description = "Test object initializer invocation")
@@ -154,5 +159,13 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).reason, "failed to create Person object");
         Assert.assertEquals(((BError) returns[0]).details.stringValue(), "{\"f\":\"foo\"}");
+    }
+
+    @Test(description = "Test returning only errors in initializer")
+    public void testErrorOnlyReturnInInit() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorOnlyReturnInInit");
+
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertEquals(((BError) returns[0]).reason, "failed to create Person5 object");
     }
 }
