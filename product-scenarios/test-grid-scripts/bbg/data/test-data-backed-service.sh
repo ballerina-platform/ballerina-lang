@@ -42,12 +42,18 @@ curl -v -X DELETE "http://${host_port}/records/employee/1"
 
 mvn -version
 
-mvn clean install -f ${great_great_grant_parent_path}/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
+#mvn clean install -f ${great_great_grant_parent_path}/scenario-commons/pom.xml -Dmaven.repo.local=./tempm2
 
-#mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port} -Dmaven.repo.local=./tempm2
+#mvn clean install -f ${great_great_grant_parent_path}/bbg/data/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
 
-mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service
+declare -A sys_prop_array
 
-cp -r ${great_great_grant_parent_path}/bbg/target ${OUTPUT_DIR}/scenarios/data-backed-service/
+sys_prop_array["data.backed.service.host"]=${external_ip}
+sys_prop_array["data.backed.service.port"]=${node_port}
 
-#find ${great_great_grant_parent_path}/* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR}/scenarios \;
+build_scenario_commons
+build_bbg_section data sys_prop_array ${INPUT_DIR}
+
+#mkdir -p ${OUTPUT_DIR}/scenarios
+#
+#cp -r ${great_great_grant_parent_path}/bbg/data/target ${OUTPUT_DIR}/scenarios/data/

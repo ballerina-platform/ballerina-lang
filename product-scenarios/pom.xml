@@ -137,7 +137,7 @@
     <modules>
         <module>scenarios-commons</module>
         <module>http</module>
-        <module>bbg</module>
+        <module>bbg/data</module>
     </modules>
 
     <properties>

@@ -16,6 +16,7 @@
 # under the License.
 
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+grand_parent_path=$(dirname ${parent_path})
 
 cluster_name="ballerina-testgrid-cluster-v2"
 
@@ -41,7 +42,8 @@ function read_property_file() {
 
 # Write key value pairs in a given associative array to a given property file
 #
-# $1 file path
+# $1 - file path
+# $2 - associative array of key value pairs
 function write_to_properties_file() {
     local properties_file_path=$1
     local -n properties_array=$2
@@ -107,4 +109,26 @@ function setup_env() {
     input_dir=$1
     output_dir=$2
     bash ${parent_path}/setup_env.sh ${input_dir} ${output_dir}
+}
+
+# $1 - BBG section directory name
+# $2 - Associative array of system property-value pairs
+function build_bbg_section() {
+    bbg_section=$1
+    local -n properties_array=$2
+    input_dir=$3
+    output_dir=$4
+    local sys_prop_str=""
+    for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]}," ; done
+    local final_sys_prop_str="${sys_prop_str::-1}"
+
+    mvn clean install -f ${grant_parent_path}/bbg/${bbg_section}/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${input_dir} ${final_sys_prop_str}
+
+    mkdir -p ${output_dir}/scenarios
+
+    cp -r ${grant_parent_path}/bbg/${bbg_section}/target ${output_dir}/scenarios/${bbg_section}/
+}
+
+function build_scenario_commons() {
+    mvn clean install -f ${grand_parent_path}/scenario-commons/pom.xml -Dmaven.repo.local=./tempm2
 }
