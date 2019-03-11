@@ -26,7 +26,7 @@ public class GeneratorConstants {
      *
      */
     public enum GenType {
-        CLIENT("client"), OPENAPI3("oas3.0"), OPENAPI("swagger");
+        CLIENT("client"), OPENAPI3("oas3.0"), OPENAPI("oas");
         private String name;
         GenType(String name) {
             this.name = name;

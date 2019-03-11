@@ -13,4 +13,4 @@ dependencies {
     implementation project(':ballerina-io')
 }
 
-description = 'Ballerina - Swagger'
+description = 'Ballerina - OpenApi'

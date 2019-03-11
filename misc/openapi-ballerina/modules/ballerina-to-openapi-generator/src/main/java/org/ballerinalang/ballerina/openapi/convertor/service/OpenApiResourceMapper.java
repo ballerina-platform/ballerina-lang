@@ -74,7 +74,7 @@ public class OpenApiResourceMapper {
      *
      * @param openApi      The OpenAPI definition.
      * @param httpAlias    The alias for ballerina/http module.
-     * @param openApiAlias The alias for ballerina.swagger module.
+     * @param openApiAlias The alias for ballerina.openapi module.
      */
     OpenApiResourceMapper(Swagger openApi, String httpAlias, String openApiAlias) {
         this.httpAlias = httpAlias;

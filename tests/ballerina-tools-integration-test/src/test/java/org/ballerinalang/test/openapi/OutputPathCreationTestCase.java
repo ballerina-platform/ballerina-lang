@@ -37,7 +37,7 @@ import java.util.HashMap;
  */
 public class OutputPathCreationTestCase extends BaseTest {
     private static final String MODULE_NAME = "say";
-    private static final String SWAGGER_YAML = (new File("src/test/resources/openapi/sample.yaml")).getAbsolutePath();
+    private static final String OPENAPI_YAML = (new File("src/test/resources/openapi/sample.yaml")).getAbsolutePath();
     private Path balProject;
     private Path balModule;
     
@@ -52,9 +52,9 @@ public class OutputPathCreationTestCase extends BaseTest {
     
     @Test(description = "Test if folder paths are created correctly.")
     public void testFolderStructureCreation() throws BallerinaTestException {
-        String[] clientArgsForSwaggerClientGen = {"client", SWAGGER_YAML, "-o", balProject.toString(), "-m",
+        String[] clientArgsForOpenApiClientGen = {"client", OPENAPI_YAML, "-o", balProject.toString(), "-m",
                 MODULE_NAME};
-        balClient.runMain("swagger", clientArgsForSwaggerClientGen, new HashMap<>(), new String[]{},
+        balClient.runMain("swagger", clientArgsForOpenApiClientGen, new HashMap<>(), new String[]{},
                 new LogLeecher[]{}, balServer.getServerHome());
         Assert.assertTrue(Files.exists(balModule), "OpenApi client was not generated");
     }
@@ -64,9 +64,9 @@ public class OutputPathCreationTestCase extends BaseTest {
         Path tempBalFile = balModule.resolve("temp.bal");
         Files.createFile(tempBalFile);
     
-        String[] clientArgsForSwaggerClientGen = {"client", SWAGGER_YAML, "-o", balProject.toString(), "--module",
+        String[] clientArgsForOpenApiClientGen = {"client", OPENAPI_YAML, "-o", balProject.toString(), "--module",
                 MODULE_NAME};
-        balClient.runMain("swagger", clientArgsForSwaggerClientGen, new String[]{});
+        balClient.runMain("swagger", clientArgsForOpenApiClientGen, new String[]{});
         Assert.assertTrue(Files.exists(balModule), "OpenApi client was not generated");
         Assert.assertTrue(Files.exists(tempBalFile), "Created temp file has been deleted");
     }

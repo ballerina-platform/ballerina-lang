@@ -29,7 +29,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * Utilities used by ballerina swagger code generator.
+ * Utilities used by ballerina openapi code generator.
  */
 public class CodegenUtils {
 

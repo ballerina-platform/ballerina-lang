@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 
 /**
- * Represents a Ballerina swagger change request.
+ * Represents a Ballerina OpenApi change request.
  *
  * @since 0.983.0
  */

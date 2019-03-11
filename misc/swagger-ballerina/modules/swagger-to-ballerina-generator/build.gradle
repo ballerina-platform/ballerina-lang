@@ -10,4 +10,4 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
 }
 
-description = 'Ballerina - Swagger Tooling - Swagger to Ballerina'
+description = 'Ballerina - OpenApi Tooling - OpenApi to Ballerina'
