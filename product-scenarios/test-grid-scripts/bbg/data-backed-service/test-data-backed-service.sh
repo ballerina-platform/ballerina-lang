@@ -46,6 +46,8 @@ mvn clean install -f ${great_great_grant_parent_path}/pom.xml -Dmaven.repo.local
 
 #mvn clean install -f ${great_great_grant_parent_path}/bbg/pom.xml -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port} -Dmaven.repo.local=./tempm2
 
-mkdir -p ${OUTPUT_DIR}/scenarios
+mkdir -p ${OUTPUT_DIR}/scenarios/data-backed-service
 
-find ${great_great_grant_parent_path}/* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR}/scenarios \;
+cp -r ${great_great_grant_parent_path}/bbg/target ${OUTPUT_DIR}/scenarios/data-backed-service/
+
+#find ${great_great_grant_parent_path}/* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR}/scenarios \;
