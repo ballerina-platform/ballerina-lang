@@ -114,7 +114,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
-                instGen.generateMoveIns(inst);
+                if (inst.kind == "TYPE_CAST") {
+                    instGen.generateCastIns(inst);
+                } else {
+                    instGen.generateMoveIns(inst);
+                }
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
             } else if (inst is bir:NewArray) {
@@ -467,7 +471,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     // load and cast param values
     int paramIndex = 0;
     foreach var paramType in paramTypes {
-        generateCast(paramIndex, paramType, mv);
+        generateParamCast(paramIndex, paramType, mv);
         paramIndex += 1;
     }
 
@@ -497,7 +501,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitEnd();
 }
 
-function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
+function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array
     mv.visitVarInsn(ALOAD, 0);
 

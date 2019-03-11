@@ -492,25 +492,24 @@ type InstructionGenerator object {
             panic err;
         }
     }
+
+    function generateCastIns(bir:TypeCast typeCastIns) {
+        int sourceIndex = self.getJVMIndexOfVarRef(typeCastIns.rhsOp.variableDcl);
+        bir:BType sourceType = typeCastIns.rhsOp.variableDcl.typeValue;
+        self.generateLocalVarLoad(sourceType, sourceIndex);
+
+        generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+
+        int targetIndex = self.getJVMIndexOfVarRef(typeCastIns.lhsOp.variableDcl);
+        bir:BType targetType = typeCastIns.lhsOp.variableDcl.typeValue;
+        self.generateLocalVarStore(targetType, targetIndex);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    } else {
-        return;
-    }
+    generateCast(mv, bType, "any");
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-    } else if (bType is bir:BTypeString) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    } else if (bType is bir:BMapType) {
-        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-    } else {
-        return;
-    }
+    generateCast(mv, "any", bType);
 }
