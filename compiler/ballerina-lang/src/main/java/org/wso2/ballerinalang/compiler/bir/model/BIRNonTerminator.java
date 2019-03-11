@@ -261,7 +261,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         }
     }
 
-    /*
+    /**
      * A type cast expression
      * <p>
      * e.g., int a = cast(int) b;
@@ -274,6 +274,56 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
         public TypeCast(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.TYPE_CAST);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A is like instruction.
+     * <p>
+     * e.g., map a = {}
+     *
+     * @since 0.980.0
+     */
+    public static class IsLike extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public IsLike(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.IS_LIKE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A is like instruction.
+     * <p>
+     * e.g., map a = {}
+     *
+     * @since 0.980.0
+     */
+    public static class TypeTest extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public TypeTest(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_TEST);
+            this.type = type;
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
         }

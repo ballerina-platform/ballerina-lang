@@ -82,10 +82,12 @@ public const INS_KIND_MAP_LOAD = "MAP_LOAD";
 public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
 public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
+public const INS_KIND_IS_LIKE = "IS_LIKE";
+public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|BinaryOpInstructionKind;
+                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
                                         AND|OR;
@@ -319,6 +321,22 @@ public type TypeCast record {
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
+    !...;
+};
+
+public type IsLike record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+    BType typeValue;
+    !...;
+};
+
+public type TypeTest record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+    BType typeValue;
     !...;
 };
 
