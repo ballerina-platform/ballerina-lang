@@ -29,7 +29,7 @@ function testArrayAccessWithFiniteType() returns boolean {
 
     boolean accessSuccessful = arr[1] == x;
 
-    boolean[!...] bArr = [false, true, y];
+    boolean[*] bArr = [false, true, y];
     a = 2;
     accessSuccessful = accessSuccessful && bArr[a] == y;
 
@@ -51,7 +51,7 @@ function testArrayAccessUsingUnionWithFiniteTypes() returns boolean {
 
     boolean accessSuccessful = arr[1] == x;
 
-    boolean[!...] bArr = [false, true, y];
+    boolean[*] bArr = [false, true, y];
     a = 2;
     accessSuccessful = accessSuccessful && bArr[a] == y;
 

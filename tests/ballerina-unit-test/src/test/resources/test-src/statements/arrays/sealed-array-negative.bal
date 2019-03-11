@@ -96,7 +96,7 @@ type FiniteFour FiniteThree|"S3";
 type FiniteFive FiniteTwo|SEVEN;
 
 function testInvalidArrayAccessByFiniteType() {
-    (string|int)[!...] sArray = ["ballerina", 1];
+    (string|int)[*] sArray = ["ballerina", 1];
     string[1] sArrayTwo = ["ballerina"];
     FiniteOne f1 = "S1";
     FiniteTwo f2 = 3;

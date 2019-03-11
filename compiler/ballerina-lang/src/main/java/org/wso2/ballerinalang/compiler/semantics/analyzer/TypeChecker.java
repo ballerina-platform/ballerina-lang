@@ -774,13 +774,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
-                if (types.isAssignable(symbol.type, expType) &&
-                        // TODO: 2/21/19 Temp workaround for constants issue
-                        (symbol.type.tag != TypeTags.FINITE ||
-                                 expType.tag == TypeTags.FINITE ||
-                                 !((BFiniteType) symbol.type).valueSpace.stream()
-                                         .allMatch(expression -> types.isAssignable(expression.type, expType)))) {
-                    actualType = symbol.type;
+                BType symbolType = symbol.type;
+                if (expType.tag == TypeTags.FINITE ||
+                        (expType.tag == TypeTags.UNION && ((BUnionType) expType).getMemberTypes().stream()
+                                .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
+                                        types.isAssignable(symbolType, memType)))) {
+                    actualType = symbolType;
                 } else {
                     actualType = ((BConstantSymbol) symbol).literalValueType;
                 }
