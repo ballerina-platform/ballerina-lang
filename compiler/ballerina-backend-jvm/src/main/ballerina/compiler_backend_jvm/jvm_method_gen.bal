@@ -40,7 +40,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     LabelGenerator labelGen = new();
 
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     jvm:Label resumeLable = labelGen.getLabel(funcName + "resume");
     mv.visitJumpInsn(IFGT, resumeLable);
 
@@ -87,7 +87,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     // mv.visitJumpInsn(IF_ICMPNE, l0);
     // mv.visitVarInsn(ALOAD, 0);
     // mv.visitInsn(ICONST_1);
-    // mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "yield", "Z");
+    // mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
     // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
     // mv.visitLabel(l0);
 
@@ -165,14 +165,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     var frameName = funcName + "Frame";
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
     mv.visitVarInsn(ALOAD, 0);
     mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(ICONST_1);
     mv.visitInsn(ISUB);
     mv.visitInsn(DUP_X1);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
@@ -216,6 +216,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
+                    bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
@@ -280,6 +281,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
+                    bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BObjectType ||
                     bType is bir:BRecordType) {
@@ -307,14 +309,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     mv.visitVarInsn(ASTORE, frameVarIndex);
 
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
     mv.visitVarInsn(ALOAD, 0);
     mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitInsn(DUP_X1);
     mv.visitInsn(ICONST_1);
     mv.visitInsn(IADD);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "resumeIndex", "I");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
     mv.visitVarInsn(ALOAD, frameVarIndex);
     mv.visitInsn(AASTORE);
 
@@ -345,6 +347,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BErrorType ||
                 bType is bir:BTypeNil ||
                 bType is bir:BTypeAny ||
+                bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType) {
@@ -358,7 +361,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
 }
 
 function getMethodDesc(bir:Function func) returns string {
-    string desc = "(Lorg/ballerina/jvm/Strand;";
+    string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
     while (i < func.argsCount) {
         desc = desc + getTypeDesc(func.typeValue.paramTypes[i]);
@@ -389,7 +392,9 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE);
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAny || bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAny ||
+                bType is bir:BTypeAnyData ||
+                bType is bir:BUnionType) {
         return io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -416,7 +421,9 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BErrorType) {
         return io:sprintf(")L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAny || bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAny ||
+                bType is bir:BTypeAnyData ||
+                bType is bir:BUnionType) {
         return io:sprintf(")L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -451,13 +458,13 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string desc = getMethodDesc(userMainFunc);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
-    mv.visitTypeInsn(NEW, "org/ballerina/jvm/Strand");
+    mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
     mv.visitInsn(DUP);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, "org/ballerina/jvm/Strand", "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-    mv.visitFieldInsn(PUTFIELD, "org/ballerina/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
 
     // load and cast param values
     int paramIndex = 0;
@@ -511,14 +518,13 @@ function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
     } else if (targetType is bir:BTypeByte) {
         mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "parseByte", "(Ljava/lang/String;)B", false);
-    } else if (targetType is bir:BTypeNil) {
-        // do nothing
-        return;
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
     } else if (targetType is bir:BTypeAny ||
+                targetType is bir:BTypeAnyData ||
+                targetType is bir:BTypeNil ||
                 targetType is bir:BUnionType) {
         // do nothing
         return;
@@ -565,6 +571,8 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         var frameName = currentFunc.name.value + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
+        generateDefaultConstructor(cw);
+
         int k = 0;
         bir:VariableDcl[] localVars = func.localVars;
         while (k < localVars.length()) {
@@ -605,6 +613,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", OBJECT_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
                         bType is bir:BUnionType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", OBJECT));
                 fv.visitEnd();
@@ -623,4 +632,14 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         cw.visitEnd();
         pkgEntries[frameName + ".class"] = cw.toByteArray();
     }
+}
+
+function generateDefaultConstructor(jvm:ClassWriter cw) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    mv.visitCode();
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(1, 1);
+    mv.visitEnd();
 }

@@ -36,6 +36,7 @@ type TerminatorGenerator object {
         } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
+                bType is bir:BTypeAnyData ||
                 bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
@@ -70,7 +71,8 @@ type TerminatorGenerator object {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
-        string methodDesc = "(Lorg/ballerina/jvm/Strand;";
+
+        string methodDesc = "(Lorg/ballerinalang/jvm/Strand;";
 
         self.mv.visitVarInsn(ALOAD, 0);
         foreach var arg in callIns.args {
@@ -110,6 +112,7 @@ type TerminatorGenerator object {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", ERROR_VALUE);
             } else if (bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BUnionType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
@@ -150,6 +153,7 @@ type TerminatorGenerator object {
                         bType is bir:BMapType ||
                         bType is bir:BErrorType ||
                         bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
                         bType is bir:BUnionType ||
@@ -164,7 +168,7 @@ type TerminatorGenerator object {
         }
 
         self.mv.visitVarInsn(ALOAD, 0);
-        self.mv.visitFieldInsn(GETFIELD, "org/ballerina/jvm/Strand", "yield", "Z");
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
         jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
         self.mv.visitJumpInsn(IFNE, yieldLabel);
 

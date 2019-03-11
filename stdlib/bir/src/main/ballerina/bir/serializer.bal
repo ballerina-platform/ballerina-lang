@@ -49,7 +49,6 @@ function serializeFields(BObjectField[] fields) returns string {
     return result;
 }
 
-
 function serializeAttachedFunc(BAttachedFunction[] functions) returns string {
     var result = "";
     foreach var func in functions {

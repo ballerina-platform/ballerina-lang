@@ -280,7 +280,7 @@ public type Scope record {
 
 public type BInvokableType record {
     BType[] paramTypes = [];
-    BType retType = "()";
+    BType retType?;
 };
 
 public type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";

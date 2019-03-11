@@ -432,8 +432,7 @@ public class TypeChecker {
 
     private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
                                                                   List<TypePair> unresolvedTypes) {
-        if (source.paramTypes.length != target.paramTypes.length ||
-                source.retParamTypes.length != target.retParamTypes.length) {
+        if (source.paramTypes.length != target.paramTypes.length) {
             return false;
         }
 
@@ -443,16 +442,14 @@ public class TypeChecker {
             }
         }
 
-        if (source.retParamTypes == null && target.retParamTypes == null) {
+        if (source.retType == null && target.retType == null) {
             return true;
-        } else if (source.retParamTypes == null || target.retParamTypes == null) {
+        } else if (source.retType == null || target.retType == null) {
             return false;
         }
 
-        for (int i = 0; i < source.retParamTypes.length; i++) {
-            if (!checkIsType(source.retParamTypes[i], target.retParamTypes[i], unresolvedTypes)) {
-                return false;
-            }
+        if (!checkIsType(source.retType, target.retType, unresolvedTypes)) {
+            return false;
         }
 
         return true;
@@ -464,8 +461,7 @@ public class TypeChecker {
         }
 
         BFunctionType source = (BFunctionType) sourceType;
-        if (source.paramTypes.length != targetType.paramTypes.length ||
-                source.retParamTypes.length != targetType.retParamTypes.length) {
+        if (source.paramTypes.length != targetType.paramTypes.length) {
             return false;
         }
 
@@ -475,10 +471,8 @@ public class TypeChecker {
             }
         }
 
-        for (int i = 0; i < source.retParamTypes.length; i++) {
-            if (!isSameType(source.retParamTypes[i], targetType.retParamTypes[i])) {
-                return false;
-            }
+        if (!isSameType(source.retType, targetType.retType)) {
+            return false;
         }
 
         return true;
@@ -612,7 +606,7 @@ public class TypeChecker {
         }
 
         if (BTypes.isValueType(source.elementType)) {
-            int bound = (int) source.size();
+            int bound = source.size();
             for (int i = 0; i < bound; i++) {
                 if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
                     return false;
@@ -621,7 +615,7 @@ public class TypeChecker {
             return true;
         }
 
-        int bound = (int) source.size();
+        int bound = source.size();
         for (int i = 0; i < bound; i++) {
             if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues)) {
                 return false;
