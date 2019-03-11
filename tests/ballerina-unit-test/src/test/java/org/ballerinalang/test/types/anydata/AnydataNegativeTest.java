@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
-import static org.ballerinalang.launcher.util.BCompileUtil.compile;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BCompileUtil.compile;
 import static org.testng.Assert.assertEquals;
 
 /**

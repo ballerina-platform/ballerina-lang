@@ -32,4 +32,8 @@
     <Match>
         <Package name="org.ballerinalang.test.util.client"/>
     </Match>
+
+    <Match>
+        <Package name="org.ballerinalang.test.util.jvm"/>
+    </Match>
 </FindBugsFilter>

@@ -23,6 +23,7 @@ under the License.
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
+        <listener class-name="org.ballerinalang.test.utils.JBallerinaTestInitializer"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
@@ -79,9 +80,11 @@ under the License.
             <package name="org.ballerinalang.test.entry.function.*"/>
         </packages>
     </test>
-    <test name="ballerina-bir-test-suite" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.bir.TypeGenTest"/>
-        </classes>
+
+    <test name="jballerina-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.test.jvm.*"/>
+        </packages>
     </test>
 </suite>

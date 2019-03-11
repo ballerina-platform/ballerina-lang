@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
 import org.ballerinalang.compiler.backend.llvm.NativeGen;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -181,7 +180,7 @@ public class BuildCommand implements BLauncherCmd {
             }
 
             if (jvmTarget) {
-                JVMCodeGen.generateExecutableJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag);
             } else {
                 BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,

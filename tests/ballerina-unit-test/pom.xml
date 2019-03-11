@@ -68,10 +68,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
         </dependency>
         <dependency>
@@ -161,6 +157,14 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-packerina</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-test-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -410,42 +414,15 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jvm</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
-
-            <!-- Generate balx -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>ballerina.compiler.backend.llvm</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>ballerina.home</key>
-                                    <value>${project.build.directory}</value>
-                                </systemProperty>
-                            </systemProperties>
-                            <arguments>
-                                <argument>${basedir}/src/test/ballerina</argument>
-                                <argument>bir_test</argument>
-                                <argument>${basedir}/target/bir_test.balx</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>org.ballerinalang.compiler.backend.llvm.GenerateBalx</mainClass>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -459,6 +436,22 @@
                         <configuration>
                             <includeClassifiers>ballerina-binary-repo</includeClassifiers>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-installed</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.ballerinalang</groupId>
+                                    <artifactId>ballerina-runtime</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/bre/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

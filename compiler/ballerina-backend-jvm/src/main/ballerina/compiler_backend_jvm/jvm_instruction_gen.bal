@@ -431,7 +431,8 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
             self.mv.visitVarInsn(LSTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
+                                        false);
             self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
