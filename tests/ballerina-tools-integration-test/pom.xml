@@ -216,7 +216,7 @@
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/protobuf-ballerina/target/classes" />
-                                                        <!--<fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/target/classes" />-->
+                                                        <!--<fileset dir="${basedir}/../../misc/openapi-ballerina/modules/ballerina-code-generator/target/classes" />-->
                                                         <fileset dir="${basedir}/../../misc/openapi-ballerina/modules/ballerina-to-openapi-generator/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/openapi-ballerina/modules/openapi-to-ballerina-generator/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/target/classes" />
@@ -260,7 +260,7 @@
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/protobuf-ballerina/src/main/java" />
-                                                        <!--<fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/src/main/java" />-->
+                                                        <!--<fileset dir="${basedir}/../../misc/openapi-ballerina/modules/ballerina-code-generator/src/main/java" />-->
                                                         <fileset dir="${basedir}/../../misc/openapi-ballerina/modules/ballerina-to-openapi-generator/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/openapi-ballerina/modules/openapi-to-ballerina-generator/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/src/main/java" />

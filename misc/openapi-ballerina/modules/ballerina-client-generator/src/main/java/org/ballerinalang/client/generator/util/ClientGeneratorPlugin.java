@@ -47,7 +47,7 @@ import java.util.Map;
 /**
  * Compiler plugin for ballerina client code generation.
  */
-@SupportedAnnotationPackages(value = {"ballerina/swagger"})
+@SupportedAnnotationPackages(value = {"ballerina/openapi"})
 public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
     List<BLangSimpleVariable> endpoints;
 

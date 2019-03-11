@@ -18,41 +18,41 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Extract Swagger server information from and Ballerina endpoint.
+ * Extract OpenApi server information from and Ballerina endpoint.
  */
 public class OpenApiEndpointMapper {
 
     /**
-     * Convert endpoints bound to {@code service} swagger server information.
+     * Convert endpoints bound to {@code service} openapi server information.
      * Currently this method only selects last endpoint bound to {@code service}
-     * as the Server for swagger definition. This is due to OAS2 not supporting
+     * as the Server for openapi definition. This is due to OAS2 not supporting
      * multiple Server definitions.
      *
      * @param endpoints all endpoints defined in ballerina source
      * @param service   service node with bound endpoints
-     * @param swagger   swagger definition to attach extracted information
-     * @return swagger definition with Server information
+     * @param openapi   openapi definition to attach extracted information
+     * @return openapi definition with Server information
      */
     public Swagger convertBoundEndpointsToOpenApi(List<BLangSimpleVariable> endpoints, ServiceNode service,
-                                                  Swagger swagger) {
+                                                  Swagger openapi) {
         if (endpoints == null || service == null || service.getAttachedExprs().isEmpty()
                 || service.getAttachedExprs().get(0).getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return swagger;
+            return openapi;
         }
-        if (swagger == null) {
+        if (openapi == null) {
             return new Swagger();
         }
 
         SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachedExprs().get(0);
         for (BLangSimpleVariable ep : endpoints) {
-            // At the moment only the last bound endpoint will be populated in swagger
+            // At the moment only the last bound endpoint will be populated in openapi
             // we need to move to OAS3 models to support multiple server support
             if (node.getVariableName().equals(ep.getName())) {
-                extractServer(ep, swagger);
+                extractServer(ep, openapi);
                 break;
             }
         }
-        return swagger;
+        return openapi;
     }
 
     private void extractServer(BLangSimpleVariable ep, Swagger swagger) {

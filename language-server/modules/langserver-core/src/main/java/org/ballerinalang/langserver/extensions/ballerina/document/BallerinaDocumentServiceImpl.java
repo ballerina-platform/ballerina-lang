@@ -352,9 +352,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     /**
-     * A Util method to create a temporary swagger JSON file to be used to convert into ballerina definition.
+     * A Util method to create a temporary openapi JSON file to be used to convert into ballerina definition.
      *
-     * @param oasDefinition Swagger JSON string for file creation
+     * @param oasDefinition OpenApi JSON string for file creation
      * @return Temporary file created with provided string
      * @throws IOException will throw IO Exception if file error
      */
@@ -624,12 +624,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
      * Util method to match given resource in a service node.
      *
      * @param astResource     service node
-     * @param swaggerResource resource which needs to be checked
+     * @param openApiResource resource which needs to be checked
      * @return true if matched else false
      */
-    private boolean matchResource(JsonObject astResource, JsonObject swaggerResource) {
+    private boolean matchResource(JsonObject astResource, JsonObject openApiResource) {
         return astResource.getAsJsonObject("name").get("value").getAsString()
-                .equals(swaggerResource.getAsJsonObject("name").get("value").getAsString());
+                .equals(openApiResource.getAsJsonObject("name").get("value").getAsString());
     }
 
     /**

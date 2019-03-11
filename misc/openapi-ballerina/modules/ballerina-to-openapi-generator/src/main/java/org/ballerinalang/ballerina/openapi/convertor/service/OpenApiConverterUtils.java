@@ -87,7 +87,7 @@ public class OpenApiConverterUtils {
 
     /**
      * This method will generate open API 3.X specification for given ballerina service. Since we will need to
-     * support both swagger 2.0 and OAS 3.0 it was implemented to convert to openapi by default and convert it
+     * support both OAS 2.0 and OAS 3.0 it was implemented to convert to openapi by default and convert it
      * to OAS on demand.
      *
      * @param ballerinaSource ballerina source to be converted to OpenApi definition
@@ -178,7 +178,7 @@ public class OpenApiConverterUtils {
 
     /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to
-     * {@code outPath} in Swagger (OAS2) format.
+     * {@code outPath} in OpenApi format.
      *
      * @param servicePath path to ballerina service
      * @param outPath     output path to write generated openapi file
