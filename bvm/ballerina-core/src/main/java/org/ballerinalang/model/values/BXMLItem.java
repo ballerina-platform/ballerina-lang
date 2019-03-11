@@ -263,15 +263,6 @@ public final class BXMLItem extends BXML<OMNode> {
             return;
         }
 
-        // Attributes cannot cannot be belong to default namespace. Hence, if the current namespace is the default one,
-        // treat this attribute-add operation as a namespace addition.
-        if ((node.getDefaultNamespace() != null && namespaceUri.equals(node.getDefaultNamespace().getNamespaceURI()))
-                || namespaceUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-
-            node.declareNamespace(value, localName);
-            return;
-        }
-
         OMNamespace ns = null;
         if (prefix != null && !prefix.isEmpty()) {
             OMNamespace existingNs = node.findNamespaceURI(prefix);
@@ -287,29 +278,24 @@ public final class BXMLItem extends BXML<OMNode> {
             return;
         }
 
-        // We reach here if the namespace prefix is null/empty, and a namespace uri exists
-        if (namespaceUri != null && !namespaceUri.isEmpty()) {
-            prefix = null;
-            // Find a prefix that has the same namespaceUri, out of the defined namespaces
-            Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
-            while (prefixes.hasNext()) {
-                String definedPrefix = prefixes.next();
-                if (definedPrefix.isEmpty()) {
-                    continue;
-                }
-                prefix = definedPrefix;
-                break;
+        // We reach here if the namespace prefix is null/empty, and a namespace uri exists.
+        // Find a prefix that has the same namespaceUri, out of the defined namespaces
+        Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
+        if (prefixes.hasNext()) {
+            prefix = prefixes.next();
+            if (prefix.isEmpty()) {
+                node.addAttribute(localName, value, null);
+                return;
             }
-
-            if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
                 // If found, and if its the default namespace, add a namespace decl
                 node.declareNamespace(value, localName);
                 return;
             }
-
-            // else use the prefix. If the prefix is null, it will generate a random prefix.
-            ns = new OMNamespaceImpl(namespaceUri, prefix);
         }
+
+        // else use the prefix. If the prefix is null, it will generate a random prefix.
+        ns = new OMNamespaceImpl(namespaceUri, prefix);
         node.addAttribute(localName, value, ns);
     }
 
@@ -503,15 +489,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         currentNode.removeChildren();
-
-        if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BValueArray childSeq = ((BXMLSequence) seq).value();
-            for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.getRefValue(i).value());
-            }
-        } else {
-            currentNode.addChild((OMNode) seq.value());
-        }
+        addChildren(seq);
     }
 
     /**

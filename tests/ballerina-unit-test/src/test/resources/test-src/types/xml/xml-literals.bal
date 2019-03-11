@@ -39,24 +39,6 @@ function testXMLPILiteral() returns (xml, xml, xml, xml, xml) {
     return (x1, x2, x3, x4, x5);
 }
 
-function testExpressionAsElementName() returns (xml, xml) {
-    string v1 = "foo";
-    string v2 = "bar";
-    xml x1 = xml `<${v1}>hello</${v1}>`;
-    xml x2 = xml `<${v2 + 3}>hello</${v2 + 3}>`;
-
-    return (x1, x2);
-}
-
-function testExpressionAsAttributeName() returns (xml, xml) {
-    string v1 = "foo";
-    string v2 = "bar";
-    xml x1 = xml `<foo ${v1}="attribute value">hello</foo>`;
-    xml x2 = xml `<foo ${v2 + 5}="attribute value">hello</foo>`;
-
-    return (x1, x2);
-}
-
 function testExpressionAsAttributeValue() returns (xml, xml, xml, xml, xml) {
     string v0 = "\"zzz\"";
     string v1 = "zzz";
@@ -84,13 +66,6 @@ function testDefineInlineNamespace() returns (xml) {
     return x1;
 }
 
-function testMismatchTagNameVar() returns (xml) {
-    string startTagName = "foo";
-    string endTagName = "bar";
-    xml x1 = xml `<${startTagName}>hello</${endTagName}>`;
-    return x1;
-}
-
 function testTextWithValidMultiTypeExpressions() returns (xml) {
     int v1 = 11;
     string v2 = "world";
@@ -115,27 +90,6 @@ function f1() returns (string) {
 function testFunctionCallInXMLTemplate() returns (xml) {
     xml x1 = xml `<foo>${ "<-->" + f1()}</foo>`;
     
-    return x1;
-}
-
-function testInvalidElementName_1() returns (xml) {
-    string v1 = "11";
-    xml x1 = xml `<${v1}>hello</${v1}>`;
-
-    return x1;
-}
-
-function testInvalidElementName_2() returns (xml) {
-    string v1 = "foo>bar";
-    xml x1 = xml `<${v1}>hello</${v1}>`;
-
-    return x1;
-}
-
-function testIvalidAttributeName() returns (xml) {
-    string v1 = "foo>bar";
-    xml x1 = xml `<foo ${v1}="attribute value">hello</foo>`;
-
     return x1;
 }
 

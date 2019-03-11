@@ -326,14 +326,18 @@ function testSetChildren() returns (xml, boolean, boolean, xml) {
 }
 
 function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, string) {
+// todo: verify with Supun and haitha
+// citizen="${attributeValue}" inside the element and x1@["{http://sample.com/wso2/c1}foo1"] = "bar1";
+// where given url is the default namespace for x1, the issue is we consider the url as 'xmlns' keyword
+// at the moment we will have to support either one from the above to, as they colide.
+// I prefer not to consider url as xmlns.
+
     xmlns "http://sample.com/test";
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
-    string elemantName = "residency";
-    string attributeName = "citizen";
     string elementValue = "true";
     string attributeValue = "true";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<residency citizen="${attributeValue}">${elementValue}</residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -341,26 +345,6 @@ function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
     xml x5 = x1["{http://sample.com/test}residency"];
-
-    return (x1, isEmpty, isSingleton, x1.*, x5@["citizen"]);
-}
-
-function testSetChildrenEmptyNamespace() returns (xml, boolean, boolean, xml, string) {
-    xmlns "http://sample.com/test";
-
-    var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
-    string elemantName = "{}residency";
-    string attributeName = "citizen";
-    string elementValue = "true";
-    string attributeValue = "true";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
-    xml x3 = x1.*;
-    xml x4 = x3 + x2;
-    x1.setChildren(x4);
-
-    boolean isEmpty = x1.isEmpty();
-    boolean isSingleton = x1.isSingleton();
-    xml x5 = x1["{}residency"];
 
     return (x1, isEmpty, isSingleton, x1.*, x5@["citizen"]);
 }
@@ -370,10 +354,9 @@ function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boole
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
     string elemantName = "residency";
-    string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "true";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<residency xmlns:nsncdom="http://sample.com/test/code" citizen="${attributeValue}">${elementValue}</residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -382,20 +365,18 @@ function testSetChildrenWithDifferentNamespaceForAttribute() returns (xml, boole
     boolean isSingleton = x1.isSingleton();
     xml x5 = x1["{http://sample.com/test}residency"];
 
-    return (x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"]);
+    return (x1, isEmpty, isSingleton, x5@["citizen"]);
 }
 
 function testSetChildrenWithPrefixedAttribute() returns (xml, boolean, boolean, string) {
     xmlns "http://sample.com/test";
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;
-    string elemantName = "residency";
-    string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "true";
 
     xmlns "http://sample.com/test/code" as pre;
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<residency pre:citizen="${attributeValue}">${elementValue}</residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -412,11 +393,9 @@ function testSetChildrenWithSameNamespace() returns (xml, boolean, boolean, stri
     xmlns "http://sample.com/test" as ns0;
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    string elemantName = "{http://sample.com/test}residency";
-    string attributeName = "{http://sample.com/test}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<ns0:residency ns0:citizen="${attributeValue}">${elementValue}</ns0:residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -432,18 +411,16 @@ function testSetChildrenWithDifferentNamespace() returns (xml, boolean, boolean,
     xmlns "http://sample.com/test/code" as ns0;
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    string elemantName = "{http://sample.com/test/code}residency";
-    string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<ns0:residency ns0:citizen="${attributeValue}">${elementValue}</ns0:residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
 
     boolean isEmpty = x1.isEmpty();
     boolean isSingleton = x1.isSingleton();
-    xml x5 = x1["{http://sample.com/test/code}residency"];
+    xml x5 = x1[ns0:residency];
 
     return (x1, isEmpty, isSingleton, x5@[ns0:citizen]);
 }
@@ -452,11 +429,9 @@ function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, 
     xmlns "http://sample.com/test/code";
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    string elemantName = "{http://sample.com/test/code}residency";
-    string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<residency citizen="${attributeValue}">${elementValue}</residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -465,7 +440,7 @@ function testSetChildrenWithDiffNamespaceWithoutPrefix() returns (xml, boolean, 
     boolean isSingleton = x1.isSingleton();
     xml x5 = x1["{http://sample.com/test/code}residency"];
 
-    return (x1, isEmpty, isSingleton, x5@["{http://sample.com/test/code}citizen"]);
+    return (x1, isEmpty, isSingleton, x5@["citizen"]);
 }
 
 function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, boolean, string) {
@@ -473,11 +448,10 @@ function testSetChildrenWithAttributeDiffNamespace() returns (xml, boolean, bool
     xmlns "http://sample.com/test/code" as pre;
 
     xml x1 = xml `<ns0:name xmlns:ns0="http://sample.com/test"><ns0:fname>supun</ns0:fname><ns0:lname>setunga</ns0:lname></ns0:name>`;
-    string elemantName = "{http://sample.com/test}residency";
     string attributeName = "{http://sample.com/test/code}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<ns0:residency pre:citizen="${attributeValue}">${elementValue}</ns0:residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);
@@ -498,7 +472,7 @@ function testSetChildrenWithElementDiffNamespace() returns (xml, boolean, boolea
     string attributeName = "{http://sample.com/test}citizen";
     string elementValue = "true";
     string attributeValue = "yes";
-    xml x2 = xml `<${elemantName} ${attributeName}="${attributeValue}">${elementValue}</${elemantName}>`;
+    xml x2 = xml `<pre:residency ns0:citizen="${attributeValue}">${elementValue}</pre:residency>`;
     xml x3 = x1.*;
     xml x4 = x3 + x2;
     x1.setChildren(x4);

@@ -1,12 +1,10 @@
 public function main (string... args) {
-    string data = "static";
-
     xmlns "http://ballerina.com/updated" as ns0;
 
     xml x1 = xml `<book>The Lost World${data}</book>`;
     secureFunction(x1, x1);
 
-    xml x2 = xml `<${data}>The Lost World</${data}>`;
+    xml x2 = xml `<static>The Lost World</static>`;
     secureFunction(x2, x2);
 
     xml x3 = xml `<ns0:book ns0:status="${data}" count="5"/>`;

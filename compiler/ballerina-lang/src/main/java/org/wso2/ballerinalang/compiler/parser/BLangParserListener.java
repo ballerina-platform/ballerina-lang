@@ -2568,10 +2568,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ctx.expression() != null) {
-            return;
-        }
-
         List<TerminalNode> qnames = ctx.XMLQName();
         String prefix = null;
         String localname;
