@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -70,12 +69,11 @@ public class BArrayType extends BType implements BIndexedType {
             switch (tag) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.BOOLEAN_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BYTE_TAG:
                     return (V) new BValueArray(elementType, size);
-                case TypeTags.DECIMAL_TAG:
-                    return (V) new BDecimalArray(size);
                 case TypeTags.ARRAY_TAG: // fall through
                 default:
                     return (V) new BValueArray(this);
@@ -91,14 +89,13 @@ public class BArrayType extends BType implements BIndexedType {
         switch (tag) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BYTE_TAG:
                 return (V) new BValueArray(elementType);
-            case TypeTags.DECIMAL_TAG:
-                return (V) new BDecimalArray();
             default:
-                return (V) new BValueArray();
+                return (V) new BValueArray(this);
         }
     }
 

@@ -1,7 +1,5 @@
 import ballerina/test;
 import ballerina/io;
-import ballerina/log;
-import ballerina/runtime;
 
 any[] outputs = [];
 int counter = 0;

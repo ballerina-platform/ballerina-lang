@@ -125,7 +125,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
 
     // indicates the frequency to send diagnostics to server upon document did change
-    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
+    private static final int DIAG_PUSH_DEBOUNCE_DELAY = 750;
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     private final LSCompiler lsCompiler;
@@ -471,7 +471,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
                 codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, false,
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, true,
                                                                        LSCustomErrorStrategy.class, false);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
@@ -707,7 +707,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
                 lock = documentManager.updateFile(compilationPath, content);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
-                this.diagPushDebouncer.call(() -> {
+                this.diagPushDebouncer.call(compilationPath, () -> {
                     diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, changedPath, compilationPath);
                 });
             } catch (WorkspaceDocumentException e) {

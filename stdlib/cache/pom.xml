@@ -21,7 +21,7 @@
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.3-SNAPSHOT</version>
+        <version>0.990.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -98,6 +98,18 @@
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <scope>test</scope>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -111,6 +123,18 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-stdlib-test-common</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>
         </dependency>
     </dependencies>

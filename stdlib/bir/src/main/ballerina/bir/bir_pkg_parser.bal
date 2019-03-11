@@ -35,9 +35,7 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
 
         VariableDcl[] dcls = [];
-        map<VariableDcl> localVarMap = {
-        
-        };
+        map<VariableDcl> localVarMap = {};
         int i = 0;
         while (i < numLocalVars) {
             var dcl = self.parseVariableDcl();
@@ -47,7 +45,7 @@ public type PackageParser object {
         }
         FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
 
-        BasicBlock[] basicBlocks = [];
+        BasicBlock?[] basicBlocks = [];
         var numBB = self.reader.readInt32();
         i = 0;
         while (i < numBB) {
@@ -72,7 +70,7 @@ public type PackageParser object {
         TypeDef[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl[] globalVars = self.parseGlobalVars();
         var numFuncs = self.reader.readInt32();
-        Function[] funcs = [];
+        Function?[] funcs = [];
         int i = 0;
         while (i < numFuncs) {
             funcs[i] = self.parseFunction();

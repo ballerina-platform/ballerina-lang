@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,8 +35,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 
 /**
@@ -318,14 +317,6 @@ public class TableLiteralTest {
                 "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, {\"id\":2, " +
                 "\"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}, {\"id\":3, \"age\":42, " +
                 "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
-    }
-
-    @Test(priority = 1,
-          description = "Test struct with any typed field",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Unsupported column type for table : any.*")
-    public void testTableWithAnyDataToJson() {
-        BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }
 
     @Test(priority = 1,

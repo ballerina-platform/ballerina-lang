@@ -18,3 +18,6 @@ The Direction type represents the direction of the parameter used in call operat
 
 The Parameter type represents a parameter for the SQL operations when a variable needs to be passed into the sql statement given in the operation.
 
+### UpdateResult
+
+The UpdateResult type represents the output of the `update` remote function.  It contains the updated row count and auto generated column values.

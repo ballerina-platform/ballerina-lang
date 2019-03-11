@@ -350,7 +350,7 @@ public class MarkdownDocumentationTest {
                 packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
-                "  ``string s = string `hello {{name}}`;``\n\n" +
+                "  ``string s = string `hello ${name}`;``\n\n" +
                 "Example for an xml literal:\n" +
                 "  ``xml x = xml `<{{tagName}}>hello</{{tagName}}>`;``");
 
@@ -372,7 +372,7 @@ public class MarkdownDocumentationTest {
                 packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Example of a string template:\n" +
-                "  ```string s = string `hello {{name}}`;```\n" +
+                "  ```string s = string `hello ${name}`;```\n" +
                 "Example for an xml literal:\n" +
                 "  ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```");
 

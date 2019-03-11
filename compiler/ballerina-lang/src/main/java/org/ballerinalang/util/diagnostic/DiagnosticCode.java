@@ -38,6 +38,8 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
+    TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
+    FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
@@ -66,7 +68,9 @@ public enum DiagnosticCode {
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
     PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
+    EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -93,6 +97,8 @@ public enum DiagnosticCode {
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
+    MAIN_PARAMS_SHOULD_BE_ANYDATA("main.params.should.be.anydata"),
+    MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL("main.return.should.be.error.or.nil"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
@@ -131,7 +137,6 @@ public enum DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
-    CLIENT_HAS_NO_REMOTE_FUNCTION("client.has.no.remote.function"),
     REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
     RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
@@ -147,8 +152,7 @@ public enum DiagnosticCode {
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
 
-    TYPE_ASSERTION_NOT_YET_SUPPORTED("type.assertion.not.yet.supported.for.type"),
-    INVALID_EXPLICIT_TYPE_FOR_EXPRESSION("invalid.explicit.type.for.expression"),
+    TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -211,6 +215,7 @@ public enum DiagnosticCode {
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
+    INVALID_TUPLE_INDEX_EXPR("invalid.tuple.index.expr"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
@@ -223,6 +228,7 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
+    INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
     INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
@@ -242,7 +248,9 @@ public enum DiagnosticCode {
     NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS("not.enough.fields.to.match.closed.record"),
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
-    ERROR_BINDING_PATTERN_NOT_SUPPORTED("error.binding.pattern.not.supported"),
+    INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
+    INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
+    INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -386,7 +394,9 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
 
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
-    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature");
+    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
+
+    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal");
 
     private String value;
 
