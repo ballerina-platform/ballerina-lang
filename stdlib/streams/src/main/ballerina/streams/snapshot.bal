@@ -46,17 +46,26 @@ boolean stateLoaded = false;
 map<boolean> loadedStates = {};
 
 # Native function to deserialize a serialized snapshot.
+# + str - A `string` of serialized content.
+# + return - A deserialized `map<any>` state.
 extern function deserialize(string str) returns map<any>;
 
 # Native function to serialize a snapshot.
+# + data - A `map<any>` state to be serialized.
+# + return - A `string` of serialized state.
 extern function serialize(map<any> data) returns string;
 
 # Function to read given number of characters from an io:ReadableCharacterChannel.
+# + rch - A `ReadableCharacterChannel` instance.
+# + numberOfCharacters - A `int` indicating number of chars to read.
+# + return - A `string` of content or an `error`.
 function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns string|error {
     return rch.read(numberOfCharacters);
 }
 
 # Function to read all characters as a string from an io:ReadableCharacterChannel.
+# + rch - A `ReadableCharacterChannel` instance.
+# + return - A `string` of content or an `error`.
 function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error? {
     int fixedSize = 128;
     boolean isDone = false;
@@ -77,11 +86,18 @@ function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error
 }
 
 # Function to write a string to a file using an io:WritableCharacterChannel.
+# + wch - A `WritableCharacterChannel` instance.
+# + content - The `string` content to be written.
+# + startOffset - A `int` indicating start offset.
+# + return - A `int` indicating number of chars got written or an `error`.
 function writeCharacters(io:WritableCharacterChannel wch, string content, int startOffset) returns int|error? {
     return wch.write(content, startOffset);
 }
 
 # Function to initialize an io:ReadableCharacterChannel.
+# + filePath - A `string` path to the file.
+# + encoding - A `string` indicating the encoding type.
+# + return - The `ReadableCharacterChannel` which got initilized.
 function createReadableCharacterChannel(string filePath, string encoding) returns io:ReadableCharacterChannel? {
     io:ReadableCharacterChannel? rch = ();
     io:ReadableByteChannel|error byteChannel = trap io:openReadableFile(filePath);
@@ -92,6 +108,9 @@ function createReadableCharacterChannel(string filePath, string encoding) return
 }
 
 # Function to initialize an io:WritableCharacterChannel.
+# + filePath - A `string` path to the file.
+# + encoding - A `string` indicating the encoding type.
+# + return - The `WritableCharacterChannel` which got initilized.
 function createWritableCharacterChannel(string filePath, string encoding) returns io:WritableCharacterChannel? {
     io:WritableCharacterChannel? wch = ();
     io:WritableByteChannel|error byteChannel = trap io:openWritableFile(filePath);
@@ -102,6 +121,7 @@ function createWritableCharacterChannel(string filePath, string encoding) return
 }
 
 # Function to close writable/readable character channels.
+# + c - Character channel to be closed.
 function closeCharChannel(any c) {
     if (c is io:ReadableCharacterChannel) {
         var err = c.close();
@@ -111,6 +131,9 @@ function closeCharChannel(any c) {
 }
 
 # Function to read a text file.
+# + filePath - A `string` path to the file.
+# + encoding - A `string` indicating the encoding type.
+# + return - The `string` content of the file.
 function readFile(string filePath, string encoding) returns string {
     string content = "";
     io:ReadableCharacterChannel? rch = createReadableCharacterChannel(filePath, encoding);
@@ -125,6 +148,10 @@ function readFile(string filePath, string encoding) returns string {
 }
 
 # Function to write text to a file.
+# + filePath - A `string` path to the file.
+# + encoding - A `string` indicating the encoding type.
+# + content - A `string` content to be written.
+# + return - An `int` indicating how many chars got written.
 function writeToFile(string filePath, string encoding, string content) returns int {
     int written = 0;
     io:WritableCharacterChannel? wch = createWritableCharacterChannel(filePath, encoding);
@@ -139,6 +166,8 @@ function writeToFile(string filePath, string encoding, string content) returns i
 }
 
 # Function to serialize a Snapshotable state and write that to given file.
+# + persistancePath - A `string` path of the persistance directory.
+# + return - An `error` if state cannot be written to a file.
 function writeStateToFile(string persistancePath) returns error? {
     string? snapshotFile = ();
     time:Time ct = time:currentTime();
@@ -170,11 +199,14 @@ function writeStateToFile(string persistancePath) returns error? {
 }
 
 # Function to log a persitance error.
+# + error - The `error` occured while persisting the state.
 function persitanceError(error e) {
     io:println("[ERROR] failed to persist state: ", e.detail());
 }
 
 # Function to get all snapshot files in persistance path
+# + persistancePath - A `string` path of the persistance directory.
+# + return - An `array` containing absolute paths of all snapshot files.
 function getSnapshotFiles(string persistancePath) returns string[] {
     string[] snapshotFiles = [];
     internal:Path path = new(persistancePath);
@@ -200,6 +232,8 @@ function getSnapshotFiles(string persistancePath) returns string[] {
 }
 
 # Function to get latest snapshot file in persistance path
+# + persistancePath - A `string` path of the persistance directory.
+# + return - A `string` absolute path of the latest snapshot file.
 function getLatestSnapshotFile(string persistancePath) returns string? {
     string[] files = getSnapshotFiles(persistancePath);
     string? latestFile = ();
@@ -210,6 +244,7 @@ function getLatestSnapshotFile(string persistancePath) returns string? {
 }
 
 # Function to purge/delete old snapshot files from persistance path
+# + persistancePath - A `string` path of the directory where the states should get persisted.
 function purgeOldSnapshotFiles(string persistancePath) {
     int revisionsToKeep = 5;
     string[] files = getSnapshotFiles(persistancePath);
@@ -255,6 +290,7 @@ function restoreStates() {
 }
 
 # Function to iterate through all the snapshotables, and persist their states into a file.
+# + return - An `error` if the state cannot be persisted into a file.
 function persistStatesAndPurgeOldSnapshots() returns error? {
     foreach var (k, v) in snapshotables {
         streamsPersistanceState[k] = v.saveState();
