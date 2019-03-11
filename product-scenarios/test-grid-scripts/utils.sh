@@ -120,10 +120,9 @@ function build_bbg_section() {
     output_dir=$4
     local sys_prop_str=""
     bash --version
-    for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]}," ; done
-    local final_sys_prop_str="${sys_prop_str: : -1}"
+    for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${grand_parent_path}/bbg/${bbg_section}/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${input_dir} ${final_sys_prop_str}
+    mvn clean install -f ${grand_parent_path}/bbg/${bbg_section}/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${input_dir} ${str}
 
     mkdir -p ${output_dir}/scenarios
 
