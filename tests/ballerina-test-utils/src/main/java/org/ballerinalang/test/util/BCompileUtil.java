@@ -403,6 +403,10 @@ public class BCompileUtil {
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
 
+        if (compileResult.getErrorCount() > 0) {
+            return compileResult;
+        }
+
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName);
         compileResult.setCompiledJarFile(compiledJar);
