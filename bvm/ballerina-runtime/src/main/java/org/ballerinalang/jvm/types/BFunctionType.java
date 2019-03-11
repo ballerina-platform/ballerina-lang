@@ -27,30 +27,26 @@ import java.util.Arrays;
 public class BFunctionType extends BType {
 
     public BType[] paramTypes;
-    public BType[] retParamTypes;
-
-    private boolean hasReturnsKeyword;
-    private String[] parametersFieldsNames = new String[0];
-    private String[] returnsParametersFieldsNames = new String[0];
+    public BType retType;
 
     public BFunctionType() {
         super("function ()", null, Object.class);
         this.paramTypes = new BType[0];
-        this.retParamTypes = new BType[0];
+        this.retType = BTypes.typeNull;
     }
 
-    public BFunctionType(BType[] paramTypes, BType[] retParamType) {
+    public BFunctionType(BType[] paramTypes, BType retType) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
-        this.retParamTypes = retParamType;
+        this.retType = retType;
     }
 
     public BType[] getParameterType() {
         return paramTypes;
     }
 
-    public BType[] getReturnParameterType() {
-        return retParamTypes;
+    public BType getReturnParameterType() {
+        return retType;
     }
 
     @Override
@@ -68,9 +64,9 @@ public class BFunctionType extends BType {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-    public static String getTypeName(BType[] parameterType, BType[] returnParameterType) {
+    public static String getTypeName(BType[] parameterType, BType retType) {
         return "function (" + (parameterType != null ? getBTypeListAsString(parameterType) : "") + ")" +
-                (returnParameterType != null ? " returns (" + getBTypeListAsString(returnParameterType) + ")" : "");
+                (retType != null ? " returns (" + retType + ")" : "");
     }
 
     private static String getBTypeListAsString(BType[] typeNames) {
@@ -101,45 +97,19 @@ public class BFunctionType extends BType {
         if (!Arrays.equals(paramTypes, that.paramTypes)) {
             return false;
         }
-        return Arrays.equals(retParamTypes, that.retParamTypes);
+        return retType.equals(that.retType);
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + Arrays.hashCode(paramTypes);
-        result = 31 * result + Arrays.hashCode(retParamTypes);
+        result = 31 * result + retType.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return getTypeName(paramTypes, retParamTypes);
-    }
-
-    /* Utility methods for Composer. */
-
-    public boolean hasReturnsKeyword() {
-        return hasReturnsKeyword;
-    }
-
-    public void setHasReturnsKeyword(boolean hasReturnsKeyword) {
-        this.hasReturnsKeyword = hasReturnsKeyword;
-    }
-
-    public String[] getParametersFieldsNames() {
-        return parametersFieldsNames;
-    }
-
-    public void setParametersFieldsNames(String[] parametersFieldsNames) {
-        this.parametersFieldsNames = parametersFieldsNames;
-    }
-
-    public String[] getReturnsParametersFieldsNames() {
-        return returnsParametersFieldsNames;
-    }
-
-    public void setReturnsParametersFieldsNames(String[] returnsParametersFieldsNames) {
-        this.returnsParametersFieldsNames = returnsParametersFieldsNames;
+        return getTypeName(paramTypes, retType);
     }
 }
