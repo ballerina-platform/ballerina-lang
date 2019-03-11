@@ -189,8 +189,7 @@ function writeStateToFile(string persistancePath) returns error? {
         if (written > 0) {
             return;
         } else {
-            error e = error("Error while writing streaming state to a file.");
-            return e;
+            return error("Error while writing streaming state to a file.");
         }
     } else {
         error e = error("Error while creating snapshot file: " + path.getPathValue());
