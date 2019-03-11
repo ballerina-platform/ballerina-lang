@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import java.util.StringJoiner;
+
 /**
  * {@code BAttachedFunction} represents a attached function in Ballerina.
  *
@@ -32,5 +34,14 @@ public class BAttachedFunction {
         this.funcName = funcName;
         this.type = type;
         this.flags = flags;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner sj = new StringJoiner(",", "function " + funcName + "(", ") returns (" + type.retType + ")");
+        for (BType type : type.paramTypes) {
+            sj.add(type.getName());
+        }
+        return sj.toString();
     }
 }

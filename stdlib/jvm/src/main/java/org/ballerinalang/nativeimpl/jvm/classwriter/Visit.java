@@ -68,18 +68,6 @@ public class Visit extends BlockingNativeCallableUnit {
         String superName = context.getStringArgument(1);
         String[] interfaces = getInterfaces(context.getNullableRefArgument(2));
         cw.visit(versionNumber, access, name, null, superName, interfaces);
-        generateDefaultConstructor(cw);
-    }
-
-    private void generateDefaultConstructor(ClassWriter cw) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V", false);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
     }
 
     private String[] getInterfaces(BValue value) {

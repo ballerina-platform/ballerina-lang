@@ -22,7 +22,7 @@ package org.ballerinalang.jvm.values;
  * 
  * @since 0.995.0
  */
-public interface ObjectValue {
+public interface ObjectValue extends RefValue {
 
     Object call(String funcName, Object... args);
 
