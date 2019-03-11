@@ -393,10 +393,8 @@ type InstructionGenerator object {
             self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
             self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
         } else if (arrayType is bir:BTupleType) {
-            //load reftype
             loadType(self.mv, arrayType);
             self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
-            //load size
             self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
         }
         self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
