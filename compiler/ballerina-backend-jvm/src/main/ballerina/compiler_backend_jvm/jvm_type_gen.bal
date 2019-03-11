@@ -462,10 +462,10 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     foreach var tupleType in tupleTypes {
         mv.visitInsn(DUP);
         loadType(mv, tupleType);
-        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", io:sprintf("(L%s;)Z", BTYPE), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
-    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", "(Ljava/util/ArrayList;)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", "(Ljava/util/List;)V", false);
     return;
 }
 

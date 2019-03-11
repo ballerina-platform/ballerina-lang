@@ -60,6 +60,9 @@ public final class XMLAttributes implements RefValue {
         if (obj == null || !(obj instanceof XMLAttributes)) {
             return false;
         }
+        ArrayValue ara = new ArrayValue(BTypes.typeMap, 5);
+        ara.add(0,new MapValue<>());
+        MapValue val = (MapValue) ara.getRefValue(0);
         return ((XMLAttributes) obj).toString().equals(value.toString());
     }
 
