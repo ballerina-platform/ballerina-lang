@@ -55,11 +55,6 @@
             <artifactId>ballerina-backend-jvm</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.mina</groupId>
-            <artifactId>mina-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -116,7 +111,6 @@
                         <configuration>
                             <artifactSet>
                                 <excludes>
-                                    <exclude>org.apache.mina:mina-core</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
                                     <exclude>org.apache.commons:commons-lang3</exclude>
                                     <exclude>org.wso2.transport.http:org.wso2.transport.http.netty</exclude>
