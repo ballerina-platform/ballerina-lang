@@ -7,7 +7,7 @@ import { DiagramContext } from "../../diagram/index";
 import { getCodePoint } from "../../utils";
 import { BlockViewState } from "../../view-model/block";
 import { ExpandContext } from "../../view-model/expand-context";
-import { FunctionViewState } from "../../view-model/index";
+import { StmntViewState } from "../../view-model/index";
 import { visitor as initVisitor } from "../../visitors/init-visitor";
 import { Block } from "./block";
 
@@ -46,7 +46,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             x={expandedFnBbox.x - expandedFnBbox.leftMargin - config.statement.expanded.margin}
                             y={bBox.y}
                             width={expandedFnBbox.w + expandedFnBbox.leftMargin + config.statement.expanded.margin}
-                            height={bBox.h}/>
+                            height={bBox.h - config.statement.expanded.footer}/>
                         <text
                             x={bBox.statement.x}
                             y={bBox.statement.y + (config.statement.height / 2)}>
@@ -65,7 +65,8 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                                 y2={bBox.y + config.statement.expanded.header} />
                             <line x1={bBox.x} x2={bBox.x}
                                 y1={bBox.y + config.statement.expanded.header}
-                                y2={bBox.y + bBox.h - config.statement.expanded.footer} />
+                                y2={bBox.y + bBox.h - config.statement.expanded.footer
+                                        - config.statement.expanded.bottomMargin } />
                         </g>
                         { /* Override the docUri context value */ }
                         <DiagramContext.Provider value={{ ...context, docUri }}>
@@ -79,18 +80,23 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
 };
 
 interface FunctionExpanderProps {
-    x: number;
-    y: number;
+    statementViewState: StmntViewState;
     position: NodePosition;
     expandContext: ExpandContext;
 }
 
-export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ x, y, position, expandContext }) => {
+export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ statementViewState, position, expandContext }) => {
+
+    const x = statementViewState.bBox.x + statementViewState.bBox.labelWidth + 10;
+    const y = statementViewState.bBox.y + (statementViewState.bBox.h / 2) + 2;
     return (
         <DiagramContext.Consumer>
             {({ langClient, docUri, update }) => (
                 <text x={x} y={y}
-                    onClick={getExpandFunctionHandler(langClient, docUri, position, expandContext, update)}>
+                    className="expander"
+                    // style={{visibility: statementViewState.hovered ? "visible" : "hidden"}}
+                    onClick={getExpandFunctionHandler(
+                        langClient, docUri, position, expandContext, statementViewState, update)}>
                     {getCodePoint("down")}
                 </text>
             )}
@@ -100,7 +106,7 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ x, y, posit
 
 function getExpandFunctionHandler(
     langClient: IBallerinaLangClient | undefined, docUri: string | undefined,
-    position: NodePosition, expandContext: ExpandContext, update: () => void) {
+    position: NodePosition, expandContext: ExpandContext, statementViewState: StmntViewState, update: () => void) {
 
     return async (e: React.MouseEvent<SVGTextElement>) => {
         if (!langClient || !docUri) {
@@ -132,9 +138,6 @@ function getExpandFunctionHandler(
 
         const defTree = subTree as BallerinaFunction;
         ASTUtil.traversNode(defTree, initVisitor);
-
-        const viewState = defTree.viewState as FunctionViewState;
-        viewState.client.bBox.x = expandContext.expanderX - config.statement.expanded.offset;
 
         expandContext.expandedSubTree = defTree;
         expandContext.expandedSubTreeDocUri = res.uri;

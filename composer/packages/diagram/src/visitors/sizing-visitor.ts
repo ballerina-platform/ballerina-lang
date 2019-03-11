@@ -14,195 +14,18 @@ import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
-
-function sizeStatement(node: ASTNode) {
-    const viewState: StmntViewState = node.viewState;
-    // If hidden do nothing.
-    if (node.viewState.hidden) {
-        viewState.bBox.h = 0;
-        viewState.bBox.w = 0;
-        return;
-    }
-
-    const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
-    viewState.bBox.h = config.statement.height;
-    viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
-    viewState.bBox.label = label.text;
-    viewState.bBox.labelWidth = label.labelWidth;
-    // Check if statement is action invocation.
-    const action = ASTUtil.isActionInvocation(node);
-    if (action) {
-        // find the endpoint view state
-        const epName = ASTUtil.getEndpointName(action as Invocation);
-        endpointHolder.forEach((element: VisibleEndpoint) => {
-            if (element.name === epName) {
-                viewState.endpoint = element.viewState;
-                viewState.isAction = true;
-                viewState.bBox.h = config.statement.actionHeight;
-                let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
-                actionName = (actionName) ? actionName : "";
-                viewState.bBox.label = DiagramUtils.getTextWidth(actionName).text;
-                // Set visible to true so we can only draw used endpoints.
-                (element.viewState as EndpointViewState).visible = true;
-                viewState.isReturn = (element.viewState as EndpointViewState).usedAsClient;
-            }
-        });
-    }
-
-    if (node.viewState.hiddenBlock) {
-        viewState.bBox.w = 60;
-    }
-
-    if (viewState.expandContext) {
-        // add space for the expander
-        viewState.bBox.w += 10;
-        if (viewState.expandContext.expandedSubTree) {
-            const expandedSubTree = viewState.expandContext.expandedSubTree as BalFunction;
-
-            ASTUtil.traversNode(expandedSubTree, visitor); // TODO: create a 'new Visitor()'
-            if (expandedSubTree.body) {
-                const subTreeViewState = expandedSubTree.body.viewState as BlockViewState;
-                const sizes = config.statement.expanded;
-                viewState.bBox.h = (subTreeViewState.bBox.h + sizes.header + sizes.footer);
-                viewState.bBox.leftMargin = subTreeViewState.bBox.leftMargin;
-                if (subTreeViewState.bBox.w > viewState.bBox.w) {
-                    viewState.bBox.w = subTreeViewState.bBox.w;
-                }
-                viewState.bBox.w += sizes.offset + sizes.margin;
-            }
-        }
-    }
-}
-
-function sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
-    const variable: Variable = (node.variable as Variable);
-    const lambda: Lambda = (variable.initialExpression as Lambda);
-    const functionNode = lambda.functionNode;
-    const viewState: WorkerViewState = node.viewState;
-    // set top pad
-    functionNode.body!.viewState.paddingTop = preWorkerHeight;
-    viewState.bBox.h = functionNode.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
-        + functionNode.body!.viewState.paddingTop
-        + config.statement.height  // leave room for start call.
-        + config.statement.height; // for bottom plus
-    viewState.bBox.w = (functionNode.body!.viewState.bBox.w) ? functionNode.body!.viewState.bBox.w :
-        config.lifeLine.width;
-    viewState.lifeline.bBox.w = config.lifeLine.width;
-    // tslint:disable-next-line:prefer-conditional-expression
-    if (functionNode.body!.viewState.bBox.leftMargin) {
-        viewState.bBox.leftMargin = functionNode.body!.viewState.bBox.leftMargin;
-    } else {
-        viewState.bBox.leftMargin = config.lifeLine.leftMargin;
-    }
-    viewState.name = variable.name.value.replace("0", "");
-    workerHolder.push({ block: functionNode.body!, view: viewState });
-}
-
-function calcPreWorkerHeight(body: Block) {
-    let height = config.statement.height * 2;
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < body!.statements.length; i++) {
-        const statement = body!.statements[i];
-        if (ASTUtil.isWorker(statement)) {
-            break;
-        }
-        height += statement.viewState.bBox.h;
-    }
-    return height;
-}
-
 interface WorkerTuple { block: Block; view: WorkerViewState; }
-function syncWorkerInvocations(workerBlocks: WorkerTuple[]) {
-    const workerMap: { [s: string]: Block; } = {};
-    workerBlocks.forEach((workerBlock) => {
-        workerMap[workerBlock.view.name] = workerBlock.block;
-    });
-    // Clear out previous calculations.
-    setZeroPadding(workerBlocks);
-    // traverse default identify interaction
-    workerBlocks.forEach((workerBlock) => {
-        workerBlock.block.statements.forEach((statement, index) => {
-            if (ASTKindChecker.isWorkerSend(statement)) {
-                const workerViewState = workerBlocks.find((worker) => {
-                    return worker.view.name === (statement as WorkerSend).workerName.value;
-                });
-                if (!workerViewState) { return; }
-                (statement as WorkerSend).viewState.to = workerViewState!.view;
-                // if statement is not synced call balance.
-                balanceWorkerInvocation(index,
-                    workerBlock.view.name,
-                    (statement as WorkerSend).workerName.value,
-                    workerMap);
-            }
-        });
-    });
-}
 
-function setZeroPadding(workerBlocks: WorkerTuple[]) {
-    workerBlocks.forEach((workerBlock) => {
-        workerBlock.block.statements.forEach((statement) => {
-            statement.viewState.synced = false;
-            statement.viewState.paddingTop = 0;
-        });
-    });
-}
+class SizingVisitor implements Visitor {
+    private endpointHolder: VisibleEndpoint[] = [];
+    private returnStatements: Return[] = [];
 
-function balanceWorkerInvocation(index: number, from: string, to: string, workerMap: { [s: string]: Block; }) {
-    // Iterate the specifc worker till you find the index.
-    const fromWorker: Block = workerMap[from];
-    const toWorker: Block = workerMap[to];
-    let toHeight = 0;
-    for (let i = 0; i < index; i++) {
-        // Add height while you iterate.
-        toHeight += fromWorker.statements[i].viewState.bBox.h
-            + fromWorker.statements[i].viewState.bBox.paddingTop;
-    }
-    const sendStatement = fromWorker.statements[index];
-
-    // Iterate the target worker till you find a compatible receive.
-    let receiveHeight = 0;
-    // tslint:disable-next-line:prefer-for-of
-    for (let j = 0; j < toWorker.statements.length; j++) {
-        // If you find another send or receive call recursive
-        const stmt = toWorker.statements[j];
-        // Add height while iterating.
-        if (ASTKindChecker.isWorkerSend(stmt) && !stmt.viewState.synced) {
-            balanceWorkerInvocation(j, to, (stmt as WorkerSend).workerName.value, workerMap);
-        }
-        const receiveName = ASTUtil.isWorkerReceive(stmt);
-        if (receiveName) {
-            if (!stmt.viewState.synced) {
-                // Check if compatible
-                if (from === (receiveName as string)) {
-                    if (receiveHeight > toHeight) {
-                        sendStatement.viewState.bBox.paddingTop = receiveHeight - toHeight;
-                    } else {
-                        stmt.viewState.bBox.paddingTop = toHeight - receiveHeight;
-                    }
-                    sendStatement.viewState.synced = true;
-                    stmt.viewState.synced = true;
-                } else {
-                    // ToDo bug need to find other send.
-                    // balanceWorkerInvocation(j, to, (receiveName as string), workerMap);
-                }
-            }
-        }
-        receiveHeight += stmt.viewState.bBox.h + stmt.viewState.bBox.paddingTop;
-    }
-}
-
-let endpointHolder: VisibleEndpoint[] = [];
-let returnStatements: Return[] = [];
-
-export const visitor: Visitor = {
-
-    // tslint:disable-next-line:ban-types
-    beginVisitFunction(node: BalFunction) {
+    public beginVisitFunction(node: BalFunction) {
         const viewState: FunctionViewState = node.viewState;
         if (node.VisibleEndpoints && !node.lambda) {
-            endpointHolder = node.VisibleEndpoints;
+            this.endpointHolder = node.VisibleEndpoints;
             // clear return statements.
-            returnStatements = [];
+            this.returnStatements = [];
         }
         // If resource set the caller as first param.
         if (node.resource && node.VisibleEndpoints !== undefined) {
@@ -258,22 +81,22 @@ export const visitor: Visitor = {
                 }
             });
         }
-    },
+    }
 
-    beginVisitIf(node: If) {
+    public beginVisitIf(node: If) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-    },
+    }
 
-    beginVisitWhile(node: While) {
+    public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-    },
+    }
 
-    beginVisitForeach(node: Foreach) {
+    public beginVisitForeach(node: Foreach) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-    },
+    }
 
     // tslint:disable-next-line:ban-types
-    endVisitFunction(node: BalFunction) {
+    public endVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
@@ -305,16 +128,16 @@ export const visitor: Visitor = {
         // Size the other workers
         let lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         let workerWidth = 0;
-        defaultWorker.initHeight = calcPreWorkerHeight(node.body);
+        defaultWorker.initHeight = this.calcPreWorkerHeight(node.body);
         node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
-            sizeWorker(worker as VariableDef, defaultWorker.initHeight, workerHolder);
+            this.sizeWorker(worker as VariableDef, defaultWorker.initHeight, workerHolder);
             if (lineHeight < worker.viewState.bBox.h) {
                 lineHeight = worker.viewState.bBox.h;
             }
             workerWidth += worker.viewState.bBox.w;
         });
         // Set Worker Arrows
-        syncWorkerInvocations(workerHolder);
+        this.syncWorkerInvocations(workerHolder);
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
         defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
@@ -349,7 +172,7 @@ export const visitor: Visitor = {
         viewState.bBox.h = body.h + header.h;
 
         // Update return statement view-states.
-        returnStatements.forEach((returnStmt) => {
+        this.returnStatements.forEach((returnStmt) => {
             const returnViewState: ReturnViewState = returnStmt.viewState;
             returnViewState.client = client;
             // hide empty return stmts in resources
@@ -363,7 +186,7 @@ export const visitor: Visitor = {
 
         // show an implicit return line for functions with return type nil
         // and doesn't have any return statements
-        if (!node.resource && returnStatements.length === 0) {
+        if (!node.resource && this.returnStatements.length === 0) {
             const isNilType = (target: ASTNode) => ASTKindChecker.isValueType(target)
                 && (target as ValueType).typeKind === "nil";
 
@@ -376,9 +199,9 @@ export const visitor: Visitor = {
             viewState.implicitReturn.bBox.h = config.statement.height;
             viewState.implicitReturn.bBox.w = config.statement.width;
         }
-    },
+    }
 
-    endVisitBlock(node: Block) {
+    public endVisitBlock(node: Block) {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
         viewState.bBox.w = config.statement.width;
@@ -400,9 +223,9 @@ export const visitor: Visitor = {
         viewState.hoverRect.h = viewState.bBox.h;
         viewState.hoverRect.w = viewState.bBox.w + hoverRectLeftMargin;
         viewState.hoverRect.leftMargin = hoverRectLeftMargin;
-    },
+    }
 
-    endVisitWhile(node: While) {
+    public endVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
@@ -417,9 +240,9 @@ export const visitor: Visitor = {
         } else {
             viewState.bBox.leftMargin = config.flowCtrl.leftMarginDefault;
         }
-    },
+    }
 
-    endVisitForeach(node: Foreach) {
+    public endVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
@@ -433,9 +256,9 @@ export const visitor: Visitor = {
         } else {
             viewState.bBox.leftMargin = config.flowCtrl.leftMarginDefault;
         }
-    },
+    }
 
-    endVisitIf(node: If) {
+    public endVisitIf(node: If) {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
@@ -456,48 +279,48 @@ export const visitor: Visitor = {
             viewState.bBox.h += node.elseStatement.viewState.bBox.h;
             viewState.bBox.w += node.elseStatement.viewState.bBox.w;
         }
-    },
+    }
 
-    endVisitExpressionStatement(node: ExpressionStatement) {
-        sizeStatement(node);
-    },
+    public endVisitExpressionStatement(node: ExpressionStatement) {
+        this.sizeStatement(node);
+    }
 
-    endVisitVariableDef(node: VariableDef) {
-        sizeStatement(node);
-    },
+    public endVisitVariableDef(node: VariableDef) {
+        this.sizeStatement(node);
+    }
 
-    endVisitAssignment(node: Assignment) {
-        sizeStatement(node);
-    },
+    public endVisitAssignment(node: Assignment) {
+        this.sizeStatement(node);
+    }
 
-    endVisitReturn(node: Return) {
-        sizeStatement(node);
+    public endVisitReturn(node: Return) {
+        this.sizeStatement(node);
         node.viewState.bBox.label = DiagramUtils
             .getTextWidth(ASTUtil.genSource(node.expression)).text;
-        returnStatements.push(node);
-    },
+        this.returnStatements.push(node);
+    }
 
-    endVisitCompoundAssignment(node: CompoundAssignment) {
-        sizeStatement(node);
-    },
+    public endVisitCompoundAssignment(node: CompoundAssignment) {
+        this.sizeStatement(node);
+    }
 
-    endVisitWorkerSend(node: WorkerSend) {
-        sizeStatement(node);
-    },
+    public endVisitWorkerSend(node: WorkerSend) {
+        this.sizeStatement(node);
+    }
 
-    endVisitPanic(node: Panic) {
-        sizeStatement(node);
-    },
+    public endVisitPanic(node: Panic) {
+        this.sizeStatement(node);
+    }
 
-    endVisitBreak(node: Break) {
-        sizeStatement(node);
-    },
+    public endVisitBreak(node: Break) {
+        this.sizeStatement(node);
+    }
 
-    endVisitConstant(node: Constant) {
-        sizeStatement(node);
-    },
+    public endVisitConstant(node: Constant) {
+        this.sizeStatement(node);
+    }
 
-    endVisitService(node: Service) {
+    public endVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
         let height = config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
@@ -508,9 +331,9 @@ export const visitor: Visitor = {
             element.viewState.icon = "resource";
         });
         viewState.bBox.h = height;
-    },
+    }
 
-    endVisitTypeDefinition(node: TypeDefinition) {
+    public endVisitTypeDefinition(node: TypeDefinition) {
         // If it is a service do nothing.
         if (node.service || !ASTUtil.isValidObjectType(node)) { return; }
         const viewState: ViewState = node.viewState;
@@ -523,17 +346,17 @@ export const visitor: Visitor = {
             element.viewState.icon = "function";
         });
         viewState.bBox.h = height;
-    },
+    }
 
-    endVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
+    public endVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
         const viewState: ViewState = node.viewState;
         viewState.bBox.w = node.statement.viewState.bBox.w;
         viewState.bBox.h = node.statement.viewState.bBox.h
             + config.statement.height; // To print literal
         viewState.bBox.label = DiagramUtils.getTextWidth(ASTUtil.genSource(node.literal)).text;
-    },
+    }
 
-    endVisitMatch(node: Match) {
+    public endVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
         let height = config.frame.topMargin + config.frame.header.height;
         let width = 0;
@@ -546,4 +369,181 @@ export const visitor: Visitor = {
         viewState.bBox.w = width;
         viewState.bBox.leftMargin = 60;
     }
-};
+
+    private sizeStatement(node: ASTNode) {
+        const viewState: StmntViewState = node.viewState;
+        // If hidden do nothing.
+        if (node.viewState.hidden) {
+            viewState.bBox.h = 0;
+            viewState.bBox.w = 0;
+            return;
+        }
+
+        const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
+        viewState.bBox.h = config.statement.height;
+        viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
+        viewState.bBox.label = label.text;
+        viewState.bBox.labelWidth = label.labelWidth;
+        // Check if statement is action invocation.
+        const action = ASTUtil.isActionInvocation(node);
+        if (action) {
+            // find the endpoint view state
+            const epName = ASTUtil.getEndpointName(action as Invocation);
+            this.endpointHolder.forEach((element: VisibleEndpoint) => {
+                if (element.name === epName) {
+                    viewState.endpoint = element.viewState;
+                    viewState.isAction = true;
+                    viewState.bBox.h = config.statement.actionHeight;
+                    let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
+                    actionName = (actionName) ? actionName : "";
+                    viewState.bBox.label = DiagramUtils.getTextWidth(actionName).text;
+                    // Set visible to true so we can only draw used endpoints.
+                    (element.viewState as EndpointViewState).visible = true;
+                    viewState.isReturn = (element.viewState as EndpointViewState).usedAsClient;
+                }
+            });
+        }
+
+        if (node.viewState.hiddenBlock) {
+            viewState.bBox.w = 60;
+        }
+
+        if (viewState.expandContext) {
+            // add space for the expander
+            viewState.bBox.w += 10;
+            if (viewState.expandContext.expandedSubTree) {
+                const expandedSubTree = viewState.expandContext.expandedSubTree as BalFunction;
+
+                ASTUtil.traversNode(expandedSubTree, new SizingVisitor());
+                if (expandedSubTree.body) {
+                    const subTreeViewState = expandedSubTree.body.viewState as BlockViewState;
+                    const sizes = config.statement.expanded;
+                    viewState.bBox.h = (subTreeViewState.bBox.h + sizes.header + sizes.footer + sizes.bottomMargin);
+                    viewState.bBox.leftMargin = subTreeViewState.bBox.leftMargin;
+                    if (subTreeViewState.bBox.w > viewState.bBox.w) {
+                        viewState.bBox.w = subTreeViewState.bBox.w;
+                    }
+                    viewState.bBox.w += sizes.offset + sizes.margin;
+                }
+            }
+        }
+    }
+
+    private sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
+        const variable: Variable = (node.variable as Variable);
+        const lambda: Lambda = (variable.initialExpression as Lambda);
+        const functionNode = lambda.functionNode;
+        const viewState: WorkerViewState = node.viewState;
+        // set top pad
+        functionNode.body!.viewState.paddingTop = preWorkerHeight;
+        viewState.bBox.h = functionNode.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+            + functionNode.body!.viewState.paddingTop
+            + config.statement.height  // leave room for start call.
+            + config.statement.height; // for bottom plus
+        viewState.bBox.w = (functionNode.body!.viewState.bBox.w) ? functionNode.body!.viewState.bBox.w :
+            config.lifeLine.width;
+        viewState.lifeline.bBox.w = config.lifeLine.width;
+        // tslint:disable-next-line:prefer-conditional-expression
+        if (functionNode.body!.viewState.bBox.leftMargin) {
+            viewState.bBox.leftMargin = functionNode.body!.viewState.bBox.leftMargin;
+        } else {
+            viewState.bBox.leftMargin = config.lifeLine.leftMargin;
+        }
+        viewState.name = variable.name.value.replace("0", "");
+        workerHolder.push({ block: functionNode.body!, view: viewState });
+    }
+
+    private calcPreWorkerHeight(body: Block) {
+        let height = config.statement.height * 2;
+        // tslint:disable-next-line:prefer-for-of
+        for (let i = 0; i < body!.statements.length; i++) {
+            const statement = body!.statements[i];
+            if (ASTUtil.isWorker(statement)) {
+                break;
+            }
+            height += statement.viewState.bBox.h;
+        }
+        return height;
+    }
+
+    private syncWorkerInvocations(workerBlocks: WorkerTuple[]) {
+        const workerMap: { [s: string]: Block; } = {};
+        workerBlocks.forEach((workerBlock) => {
+            workerMap[workerBlock.view.name] = workerBlock.block;
+        });
+        // Clear out previous calculations.
+        this.setZeroPadding(workerBlocks);
+        // traverse default identify interaction
+        workerBlocks.forEach((workerBlock) => {
+            workerBlock.block.statements.forEach((statement, index) => {
+                if (ASTKindChecker.isWorkerSend(statement)) {
+                    const workerViewState = workerBlocks.find((worker) => {
+                        return worker.view.name === (statement as WorkerSend).workerName.value;
+                    });
+                    if (!workerViewState) { return; }
+                    (statement as WorkerSend).viewState.to = workerViewState!.view;
+                    // if statement is not synced call balance.
+                    this.balanceWorkerInvocation(index,
+                        workerBlock.view.name,
+                        (statement as WorkerSend).workerName.value,
+                        workerMap);
+                }
+            });
+        });
+    }
+
+    private setZeroPadding(workerBlocks: WorkerTuple[]) {
+        workerBlocks.forEach((workerBlock) => {
+            workerBlock.block.statements.forEach((statement) => {
+                statement.viewState.synced = false;
+                statement.viewState.paddingTop = 0;
+            });
+        });
+    }
+
+    private balanceWorkerInvocation(index: number, from: string, to: string, workerMap: { [s: string]: Block; }) {
+        // Iterate the specifc worker till you find the index.
+        const fromWorker: Block = workerMap[from];
+        const toWorker: Block = workerMap[to];
+        let toHeight = 0;
+        for (let i = 0; i < index; i++) {
+            // Add height while you iterate.
+            toHeight += fromWorker.statements[i].viewState.bBox.h
+                + fromWorker.statements[i].viewState.bBox.paddingTop;
+        }
+        const sendStatement = fromWorker.statements[index];
+
+        // Iterate the target worker till you find a compatible receive.
+        let receiveHeight = 0;
+        // tslint:disable-next-line:prefer-for-of
+        for (let j = 0; j < toWorker.statements.length; j++) {
+            // If you find another send or receive call recursive
+            const stmt = toWorker.statements[j];
+            // Add height while iterating.
+            if (ASTKindChecker.isWorkerSend(stmt) && !stmt.viewState.synced) {
+                this.balanceWorkerInvocation(j, to, (stmt as WorkerSend).workerName.value, workerMap);
+            }
+            const receiveName = ASTUtil.isWorkerReceive(stmt);
+            if (receiveName) {
+                if (!stmt.viewState.synced) {
+                    // Check if compatible
+                    if (from === (receiveName as string)) {
+                        if (receiveHeight > toHeight) {
+                            sendStatement.viewState.bBox.paddingTop = receiveHeight - toHeight;
+                        } else {
+                            stmt.viewState.bBox.paddingTop = toHeight - receiveHeight;
+                        }
+                        sendStatement.viewState.synced = true;
+                        stmt.viewState.synced = true;
+                    } else {
+                        // ToDo bug need to find other send.
+                        // balanceWorkerInvocation(j, to, (receiveName as string), workerMap);
+                    }
+                }
+            }
+            receiveHeight += stmt.viewState.bBox.h + stmt.viewState.bBox.paddingTop;
+        }
+    }
+}
+
+export const visitor = new SizingVisitor();

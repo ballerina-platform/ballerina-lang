@@ -40,8 +40,7 @@ export const Statement: React.StatelessComponent<{
             const expanderProps = {
                 expandContext: viewState.expandContext,
                 position: viewState.expandContext.expandableNode.position!,
-                x: viewState.bBox.x + viewState.bBox.labelWidth + 10,
-                y: viewState.bBox.y + (viewState.bBox.h / 2) + 2,
+                statementViewState: viewState,
             };
 
             expander = <FunctionExpander {...expanderProps}/>;
@@ -83,7 +82,10 @@ export const Statement: React.StatelessComponent<{
                     <HiddenBlock model={model} />
                 }
                 {!viewState.hiddenBlock &&
-                    <g className="statement">
+                    <g className="statement"
+                        onMouseEnter={() => {(viewState as any).hovered = true; console.log(viewState.hovered);}}
+                        onMouseLeave={() => {(viewState as any).hovered = false; console.log(viewState.hovered);}}
+                    >
                         {viewState.isAction && !viewState.isReturn
                             && <ActionInvocation
                                 model={viewState}

@@ -154,15 +154,38 @@ export const visitor: Visitor = {
             if (elViewStatement.expandContext) {
                 if (elViewStatement.expandContext.expandedSubTree) {
                     const expandedSubTree = elViewStatement.expandContext.expandedSubTree as BalFunction;
+                    const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
+
+                    // Expanded function is rendered as being called from the function this statement is in
+                    // So set its x as the client x
+                    expandedFunctionVS.client.bBox.x = elViewStatement.bBox.x;
+                    expandedFunctionVS.client.bBox.w = 0;
+
                     if (expandedSubTree.body) {
                         const bodyViewState = expandedSubTree.body.viewState as BlockViewState;
                         bodyViewState.bBox.x = elViewStatement.bBox.x + config.statement.expanded.offset;
                         bodyViewState.bBox.y = elViewStatement.bBox.y + config.statement.expanded.header;
-                        ASTUtil.traversNode(expandedSubTree.body, visitor); // TODO create a 'new Visitor'
+                        ASTUtil.traversNode(expandedSubTree.body, visitor);
                     }
                 }
             }
         });
+
+        if (node.parent && ASTKindChecker.isFunction(node.parent)) {
+            const functionViewState = node.parent.viewState as FunctionViewState;
+            // Position the implicit return if not hidden
+            if (!functionViewState.implicitReturn.hidden) {
+                functionViewState.implicitReturn.bBox.x = node.viewState.bBox.x;
+                functionViewState.implicitReturn.bBox.y = node.viewState.bBox.y + (node.viewState.bBox.h / 2);
+
+                if (node.statements.length > 0) {
+                    const lastStatement = node.statements[node.statements.length - 1];
+                    const lsvs: StmntViewState = lastStatement.viewState;
+                    functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                }
+            }
+        }
+
         viewState.menuTrigger = {
             x: viewState.bBox.x,
             y: viewState.bBox.y + viewState.bBox.h - config.block.menuTriggerMargin
@@ -236,5 +259,5 @@ export const visitor: Visitor = {
             element.viewState.bBox.y = viewState.bBox.y + height;
             height += element.viewState.bBox.h;
         });
-    }
+    },
 };

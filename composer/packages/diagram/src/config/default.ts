@@ -15,10 +15,11 @@ export class DiagramConfig {
     public statement = {
         actionHeight: STATEMENT_HEIGHT * 2,
         expanded: {
+            bottomMargin: 10,
             footer: 10,
             header: 40,
             margin: 20,
-            offset: 20,
+            offset: 45,
         },
         height: STATEMENT_HEIGHT,
         margin: {

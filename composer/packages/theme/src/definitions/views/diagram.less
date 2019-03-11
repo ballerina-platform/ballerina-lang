@@ -147,6 +147,15 @@
                     }
                     .statement {
                         font-size: @diagram-statement-font-size;
+                        .expander {
+                            visibility: hidden;
+                        }
+                    }
+                    .statement:hover > .expander {
+                        visibility: visible;
+                    }
+                    .expander:hover {
+                        visibility: visible;
                     }
                     .action-invocation {
                         line {
