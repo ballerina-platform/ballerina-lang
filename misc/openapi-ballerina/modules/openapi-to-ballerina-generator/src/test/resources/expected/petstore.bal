@@ -1,13 +1,13 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/swagger;
+import ballerina/openapi;
 
 listener http:Listener ep0 = new(80, config = {host: "petstore.openapi.io"});
 
 listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
 
-@swagger:ServiceInfo {
+@openapi:ServiceInfo {
     title: "Swagger Petstore",
     serviceVersion: "1.0.0",
     license: {name: "MIT", url: ""},
@@ -31,7 +31,7 @@ service SwaggerPetstore on ep0, ep1 {
         _ = outboundEp->respond(_actionRes);
     }
 
-    @swagger:ResourceInfo {
+    @openapi:ResourceInfo {
         summary: "List all pets",
         tags: ["pets","list"],
         description: "Show a list of pets in the system",
@@ -54,7 +54,7 @@ service SwaggerPetstore on ep0, ep1 {
         _ = outboundEp->respond(_listPetsRes);
     }
 
-    @swagger:ResourceInfo {
+    @openapi:ResourceInfo {
         summary: "Create a pet",
         tags: ["pets"]
     }
@@ -67,7 +67,7 @@ service SwaggerPetstore on ep0, ep1 {
         _ = outboundEp->respond(_resource1Res);
     }
 
-    @swagger:ResourceInfo {
+    @openapi:ResourceInfo {
         summary: "Info for a specific pet",
         tags: ["pets"],
         parameters: [

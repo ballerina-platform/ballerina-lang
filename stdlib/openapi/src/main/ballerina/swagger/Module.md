@@ -10,7 +10,7 @@ Code generation from OpenAPI to Ballerina can produce `mock services` and `clien
 For build time client stub generation, annotation support is provided.
 
 ### Mock Service from OpenAPI
-`ballerina openapi mock <openapifile>
+`ballerina swagger mock <openapifile>
     [-m <module-name>|--module <module-name>] 
     [-o <path>|--output<path>]`
 
@@ -19,7 +19,7 @@ Generates a Ballerina service for the OpenAPI file.
 This generated service is a mock version of the actual service. Generated sources contain the service definition in `gen/` and the resource implementation file in the module root directory with the suffix `_impl`. The `_impl` file is not overwritten by code regeneration.
 
 ### Client Stub from OpenAPI
-`ballerina openapi client <openapifile>
+`ballerina swagger client <openapifile>
     [-m <module-name>|--module <module-name>] 
     [-o <path>|--output<path>]`
     
@@ -28,7 +28,7 @@ Generates a Ballerina client stub for the service defined in a OpenAPI file.
 This client can be used in client applications to call the service defined in the OpenAPI file.
 
 ### Service to OpenAPI Export
-`ballerina openapi export <balfile>
+`ballerina swagger export <balfile>
     [-o <path>|--output<path>]
     [-s <servicename>|--service <servicename>]`
 
@@ -43,26 +43,26 @@ The `@swagger:ClientConfig { generate: true }` annotation is used to enable or d
 
 ## Samples
 ### Mock Service From OpenAPI
-`ballerina openapi mock hello_service.yaml -p hello_service`
+`ballerina swagger mock hello_service.yaml -p hello_service`
 
 ### Client Stub From OpenAPI
-`ballerina openapi client hello_service.yaml -p hello_client`
+`ballerina swagger client hello_service.yaml -p hello_client`
 
 ### OpenAPI From Service
-`ballerina openapi export hello_service.bal`
+`ballerina swagger export hello_service.bal`
 
 ### Client stub From Service
 ```ballerina
 import ballerina/http;
 import ballerina/log;
-import ballerina/swagger;
+import ballerina/openapi;
 
 // Define this endpoint as a selected endpoint for client generation.
-@swagger:ClientEndpoint
+@openapi:ClientEndpoint
 listener http:Listener helloEp = new(9090);
 
 // Enable client code generation for this service.
-@swagger:ClientConfig {
+@openapi:ClientConfig {
     generate: true
 }
 @http:ServiceConfig {
