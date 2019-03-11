@@ -17,6 +17,7 @@
 import ballerina/config;
 import ballerina/internal;
 import ballerina/io;
+import ballerina/log;
 import ballerina/math;
 import ballerina/runtime;
 import ballerina/task;
@@ -37,7 +38,7 @@ public type Snapshotable abstract object {
 };
 
 // Global variables to be used with snapshot persistence.
-task:Timer? persistTimer = ();
+task:Scheduler persistScheduler = new({ interval: 1 });
 map<map<any>> streamsPersistanceState = {};
 map<Snapshotable> snapshotables = {};
 string persistanceDirectory = "snapshots";
@@ -123,10 +124,14 @@ function createWritableCharacterChannel(string filePath, string encoding) return
 # Function to close writable/readable character channels.
 # + c - Character channel to be closed.
 function closeCharChannel(any c) {
+    error? e = ();
     if (c is io:ReadableCharacterChannel) {
-        var err = c.close();
+        e = c.close();
     } else if (c is io:WritableCharacterChannel) {
-        var err = c.close();
+        e = c.close();
+    }
+    if (e is error) {
+        log:printError("Couldn't close char channel.", err = e);
     }
 }
 
@@ -189,18 +194,13 @@ function writeStateToFile(string persistancePath) returns error? {
         if (written > 0) {
             return;
         } else {
-            return error("Error while writing streaming state to a file.");
+            error e = error("Error while writing streaming state to a file.");
+            return e;
         }
     } else {
         error e = error("Error while creating snapshot file: " + path.getPathValue());
         return e;
     }
-}
-
-# Function to log a persistence error.
-# + error - The `error` occured while persisting the state.
-function persistenceError(error e) {
-    io:println("[ERROR] failed to persist state: ", e.detail());
 }
 
 # Function to get all snapshot files in persistance path
@@ -255,7 +255,7 @@ function purgeOldSnapshotFiles(string persistancePath) {
             if (p.exists()) {
                 error? e = p.delete();
                 if (e is error) {
-                    io:println("couldn't delete snapshot ", p.getPathValue(), ". ", e.detail());
+                    log:printError("Couldn't delete snapshot.", err = e);
                 }
             }
             i += 1;
@@ -299,14 +299,26 @@ function persistStatesAndPurgeOldSnapshots() returns error? {
     return e;
 }
 
-# Function to initilize a Timer task and start periodic snapshotting.
+# Function to initilize a Scheduler task and start periodic snapshotting.
 function startPersisting() {
-    (function () returns error?) onTriggerFunction = persistStatesAndPurgeOldSnapshots;
-    function (error) onErrorFunction = persistenceError;
-    persistTimer = new task:Timer(onTriggerFunction, onErrorFunction, persistanceIntervalInMillis,
-        delay = persistanceIntervalInMillis);
-    persistTimer.start();
+    persistScheduler = new({
+            interval: persistanceIntervalInMillis,
+            initialDelay: persistanceIntervalInMillis
+        }
+    );
+    _ = persistScheduler.attach(persistanceSchedulerService);
+    _ = persistScheduler.start();
 }
+
+# Scheduler service for persisting states.
+service persistanceSchedulerService = service {
+    resource function onTrigger() {
+        error? e = persistStatesAndPurgeOldSnapshots();
+        if (e is error) {
+            log:printError("Couldn't persist state and purge old snapshots.", err = e);
+        }
+    }
+};
 
 # Function to restore state of a given object.
 # + key - An unique `string` identifier for the snapshotable reference.
