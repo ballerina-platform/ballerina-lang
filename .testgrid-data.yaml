@@ -24,7 +24,7 @@ infrastructureConfig:
         type: SHELL
         phase: DESTROY
 scenarioConfigs:
-- testType: JMETER
+- testType: TESTNG
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
   remoteBranch: "ballerina-scenarios"
   name: "ballerinaScenarios"
