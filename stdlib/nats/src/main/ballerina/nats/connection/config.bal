@@ -20,12 +20,16 @@
 # + port - The remote port
 # + clusterId - The name of the NATS server cluster the connection should be established
 # + clientId - Unique identifier for the client
-# + sslEnabled - should the connection be secured
+# + connectionTimeout - Specify the time server should wait to establish a connection (in seconds)
+# + maxPubAcksInFlight - Specify the number of messages which can be dispatched without receiving acks
+# + ackTimeout - The time (in seconds) before retrying to send an unacknowledged message
 public type ConnectionConfig record {
     string host;
     int port;
     string clusterId = "test-cluster";
     string clientId = "ballerina_client";
-    boolean sslEnabled?;
+    int connectTimeout = 30;
+    int maxPubAcksInFlight = 100;
+    int ackTimeout = 30;
     !...;
 };

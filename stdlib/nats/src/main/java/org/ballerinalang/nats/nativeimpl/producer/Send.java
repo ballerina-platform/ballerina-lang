@@ -59,11 +59,8 @@ public class Send implements NativeCallableUnit {
             byte[] content = ((BValueArray) context.getRefArgument(1)).getBytes();
             StreamingConnection connection = (StreamingConnection) publisher.getStructField(Constants.CONNECTION_STRUCT)
                     .getNativeData(Constants.NATS_CONNECTION);
-            //TODO this operation should happen in a different thread group
-            //TODO need to handle async acks as well
-            connection.publish(subject, content);
-            //TODO we set blank for the moment
-            context.setReturnValues(new BString(""));
+            Acknowledgment acknowledgment = new Acknowledgment(context, callback);
+            connection.publish(subject, content, acknowledgment);
         } catch (IOException | TimeoutException e) {
             context.setReturnValues(Utils.createError(context, Constants.NATS_ERROR_CODE, e.getMessage()));
         } catch (InterruptedException ignore) {

@@ -38,6 +38,7 @@ import org.ballerinalang.nats.nativeimpl.Constants;
 import org.ballerinalang.nats.nativeimpl.Utils;
 
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * Establish a connection with NATS server.
@@ -61,6 +62,9 @@ public class Init implements NativeCallableUnit {
     private static final String CLIENT_ID = "clientId";
     private static final String NATS_URL_PREFIX = "nats://";
     private static final String PROTOCOL_PREFIX = ":";
+    private static final String CONNECT_TIMEOUT = "connectTimeout";
+    private static final String MAX_PUB_ACKS_IN_FLIGHT = "maxPubAcksInFlight";
+    private static final String ACK_TIMEOUT = "ackTimeout";
 
     /**
      * Initializes NATS_URL_PREFIX streaming connection.
@@ -74,7 +78,13 @@ public class Init implements NativeCallableUnit {
         int port = ((BInteger) serverConfig.get(PORT)).value().intValue();
         String clusterId = ((BString) serverConfig.get(CLUSTER_ID)).value();
         String clientId = ((BString) serverConfig.get(CLIENT_ID)).value();
+        long connectionTimeout = ((BInteger) serverConfig.get(CONNECT_TIMEOUT)).intValue();
+        long mexPubAcksInFlight = ((BInteger) serverConfig.get(MAX_PUB_ACKS_IN_FLIGHT)).intValue();
+        long ackTimeout = ((BInteger) serverConfig.get(ACK_TIMEOUT)).intValue();
         Options.Builder opts = new Options.Builder().natsUrl(NATS_URL_PREFIX + host + PROTOCOL_PREFIX + port);
+        opts.connectWait(Duration.ofSeconds(connectionTimeout));
+        opts.maxPubAcksInFlight((int) mexPubAcksInFlight);
+        opts.pubAckWait(Duration.ofSeconds(ackTimeout));
         return NatsStreaming.connect(clusterId, clientId, opts.build());
     }
 

@@ -27,9 +27,9 @@ public function main() {
         if (message != "!q") {
             var result = producer->send(subject, message);
             if (result is error) {
-                io:println("Error occurred while producing the message");
+                io:println("Error occurred while producing the message.");
             } else {
-                io:println("Message produced successfully");
+                io:println("GUID "+result+" received for the produced message.");
             }
         }
     }

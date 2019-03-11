@@ -43,10 +43,22 @@ public type Producer client object {
         }
     }
 
+    public remote function requestReply(string subject,
+                                        string content,
+                                        string replyTo,
+                                        int timeout) returns Message|error {
+
+    }
+
     # Sends a message via a given connection.
     #
     # + subject - Could also be referred as the 'topic/queue' name.
     # + message - Message could be either a string, json representation.
     # + return -  GUID of acknowledgment or the specific error which might have occurred while publishing the message.
     extern function sendMsg(string subject, byte[] message) returns string|error;
+};
+
+public type PubMsg record {
+    string|json content;
+    string encoding = "UTF-8";
 };
