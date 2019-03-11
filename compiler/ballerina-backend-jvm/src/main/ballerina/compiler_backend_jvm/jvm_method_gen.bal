@@ -608,7 +608,8 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
             } else if (bType is bir:BRecordType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
                 fv.visitEnd();
-            } else if (bType is bir:BArrayType || bType is bir:BTupleType) {
+            } else if (bType is bir:BArrayType ||
+                        bType is bir:BTupleType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", ARRAY_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BErrorType) {

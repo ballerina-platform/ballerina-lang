@@ -204,6 +204,8 @@ const string BYTE_VALUE = "java/lang/Byte";
 const string OBJECT = "java/lang/Object";
 const string MAP = "java/util/Map";
 const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
+const string ARRAY_LIST = "java/util/ArrayList";
+const string LIST = "java/util/List";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

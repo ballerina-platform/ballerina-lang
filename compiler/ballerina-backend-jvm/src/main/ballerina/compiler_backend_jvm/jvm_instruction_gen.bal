@@ -453,10 +453,8 @@ type InstructionGenerator object {
     }
 
     function generateNewErrorIns(bir:NewError newErrorIns) {
-        // create new error value
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
-        // visit reason and detail
         int reasonIndex = self.getJVMIndexOfVarRef(newErrorIns.reasonOp.variableDcl);
         int detailsIndex = self.getJVMIndexOfVarRef(newErrorIns.detailsOp.variableDcl);
         int lhsIndex = self.getJVMIndexOfVarRef(newErrorIns.lhsOp.variableDcl);

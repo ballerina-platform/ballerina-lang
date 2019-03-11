@@ -452,20 +452,19 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     mv.visitTypeInsn(NEW, TUPLE_TYPE);
     mv.visitInsn(DUP);
-
     //new arraylist
-    mv.visitTypeInsn(NEW, "java/util/ArrayList");
+    mv.visitTypeInsn(NEW, ARRAY_LIST);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
    
     bir:BType[] tupleTypes = bType.tupleTypes;
     foreach var tupleType in tupleTypes {
         mv.visitInsn(DUP);
         loadType(mv, tupleType);
-        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
-    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", "(Ljava/util/List;)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;)V",LIST), false);
     return;
 }
 
