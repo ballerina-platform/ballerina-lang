@@ -2286,22 +2286,35 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
         typeInitExpr.desugared = true;
-
-        // Person|error $result$;
-        BLangSimpleVariableDef resultVarDef = createVarDef("$result$", typeInitExpr.type, null, typeInitExpr.pos);
-        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, resultVarDef.var.symbol);
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
 
         // Person $obj$ = new;
         BType objType = getObjectType(typeInitExpr.type);
         BLangSimpleVariableDef objVarDef = createVarDef("$obj$", objType, typeInitExpr, typeInitExpr.pos);
         BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, objVarDef.var.symbol);
+        blockStmt.addStatement(objVarDef);
+        typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
+
+        // __init() returning nil is the common case and the type test is not needed for it.
+        if (typeInitExpr.initInvocation.type.tag == TypeTags.NIL) {
+            BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
+            initInvExpr.expr = typeInitExpr.initInvocation;
+            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, objVarRef);
+            stmtExpr.type = objVarRef.symbol.type;
+            return stmtExpr;
+        }
 
         // var $temp$ = $obj$.__init();
-        typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
         BLangSimpleVariableDef initInvRetValVarDef = createVarDef("$temp$", typeInitExpr.initInvocation.type,
                                                                   typeInitExpr.initInvocation, typeInitExpr.pos);
         BLangSimpleVarRef initRetValVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos,
                                                                               initInvRetValVarDef.var.symbol);
+        blockStmt.addStatement(initInvRetValVarDef);
+
+        // Person|error $result$;
+        BLangSimpleVariableDef resultVarDef = createVarDef("$result$", typeInitExpr.type, null, typeInitExpr.pos);
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, resultVarDef.var.symbol);
+        blockStmt.addStatement(resultVarDef);
 
         // if ($temp$ is error) {
         //      $result$ = $temp$;
@@ -2322,12 +2335,6 @@ public class Desugar extends BLangNodeVisitor {
         elseStmt.addStatement(objAssignment);
 
         BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(typeInitExpr.pos, isErrorTest, thenStmt, elseStmt);
-
-        // Add it all to an expression statement
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(typeInitExpr.pos);
-        blockStmt.addStatement(resultVarDef);
-        blockStmt.addStatement(objVarDef);
-        blockStmt.addStatement(initInvRetValVarDef);
         blockStmt.addStatement(ifelse);
 
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, resultVarRef);

@@ -1443,9 +1443,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        // TODO: 2/8/19 IMPROVE THIS ERROR MESSAGE!!!
-        dlog.error(objectInitFn.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR_INVOCATION, objectInitFn.name.value,
-                   objectInitFn.receiver.type.toString());
+        dlog.error(objectInitFn.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR, objectInitFn.receiver.type.toString(),
+                   objectInitFn.returnTypeNode.type.toString());
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

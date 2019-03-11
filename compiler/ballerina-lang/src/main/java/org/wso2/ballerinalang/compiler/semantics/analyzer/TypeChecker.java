@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -1095,14 +1094,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
-
-                    if (includesErrorType(cIExpr.initInvocation.symbol.type.getReturnType())
-                            && (expType.tag != TypeTags.NONE && !includesErrorType(expType))) {
-                        dlog.error(cIExpr.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR_INVOCATION, expType,
-                                   getObjectConstructorReturnType(actualType,
-                                                                  cIExpr.initInvocation.symbol.type.getReturnType()));
-                    }
-
                     cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
                 } else if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
@@ -1130,12 +1121,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
-                    if (includesErrorType(cIExpr.initInvocation.symbol.type.getReturnType())
-                            && (expType.tag != TypeTags.NONE && !includesErrorType(expType))) {
-                        dlog.error(cIExpr.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR_INVOCATION, expType,
-                                   getObjectConstructorReturnType(actualType,
-                                                                  cIExpr.initInvocation.symbol.type.getReturnType()));
-                    }
 
                     cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
                 }
@@ -1156,30 +1141,18 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
     }
 
-    private boolean includesErrorType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
-        }
-
-        return type.tag == TypeTags.ERROR;
-    }
-
     private BType getObjectConstructorReturnType(BType objType, BType initRetType) {
         if (initRetType.tag == TypeTags.UNION) {
             LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
             retTypeMembers.add(objType);
 
-            ((BUnionType) initRetType).getMemberTypes().forEach(type -> {
-                if (type.tag != TypeTags.NIL) {
-                    retTypeMembers.add(type);
-                }
-            });
+            retTypeMembers.addAll(((BUnionType) initRetType).getMemberTypes());
+            retTypeMembers.remove(symTable.nilType);
 
             BUnionType unionType = BUnionType.create(null, retTypeMembers);
-            BTypeSymbol tsym = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
-                                                        Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
-                                                        env.scope.owner);
-            unionType.tsymbol = tsym;
+            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
+                                                         Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
+                                                         env.scope.owner);
             return unionType;
         } else if (initRetType.tag == TypeTags.NIL) {
             return objType;
@@ -1189,10 +1162,9 @@ public class TypeChecker extends BLangNodeVisitor {
             retTypeMembers.add(initRetType);
 
             BUnionType unionType = BUnionType.create(null, retTypeMembers);
-            BTypeSymbol tsym = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
-                                                        Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
-                                                        env.scope.owner);
-            unionType.tsymbol = tsym;
+            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
+                                                         Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
+                                                         env.scope.owner);
 
             return unionType;
         }
