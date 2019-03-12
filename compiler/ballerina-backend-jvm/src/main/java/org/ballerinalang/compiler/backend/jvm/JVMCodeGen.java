@@ -82,8 +82,6 @@ public class JVMCodeGen {
 
     public static byte[] generateJarBinary(BLangPackage bLangPackage, CompilerContext context, String packagePath) {
         PackageID packageID = bLangPackage.packageID;
-        BIRNode.BIRPackage bir = bLangPackage.symbol.bir;
-        emitBIRText(bir);
         URI resURI = getExecResourceURIFromThisJar();
         byte[] resBytes = readExecResource(resURI);
         ProgramFile programFile = loadProgramFile(resBytes);

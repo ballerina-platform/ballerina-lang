@@ -166,13 +166,13 @@ public class BinaryFileWriter {
      * Writes the given binary content as a java archive to specified location with the name.
      *
      * @param jarContent the binary content of jar
-     * @param packagePath path to be used for writing the jar file
+     * @param outputPath path to be used for writing the jar file
      * @param targetFileName file name of the jar to be used
      */
-    public void write(byte[] jarContent, String packagePath, String targetFileName) {
+    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
         Path path = null;
         try {
-            path = Paths.get(packagePath, cleanupExecutableJarFileName(targetFileName));
+            path = outputPath.resolve(cleanupExecutableJarFileName(targetFileName));
             Files.write(path, jarContent);
         } catch (IOException e) {
             String msg = "error writing the jar file to '" + path + "': " + e.getMessage();
