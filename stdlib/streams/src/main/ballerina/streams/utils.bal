@@ -32,3 +32,48 @@ public function createResetStreamEvent(StreamEvent event) returns StreamEvent {
 public function getStreamEvent(any? anyEvent) returns StreamEvent {
     return <StreamEvent>anyEvent;
 }
+
+public function toSnapshottableEvents(StreamEvent[]|any[]? events) returns SnapshottableStreamEvent?[] {
+    SnapshottableStreamEvent?[] evts = [];
+    if (events is StreamEvent[]) {
+        foreach StreamEvent e in events {
+            evts[evts.length()] = toSnapshottableEvent(e);
+        }
+    } else if (events is any[]) {
+        foreach var e in events {
+            if (e is StreamEvent) {
+                evts[evts.length()] = toSnapshottableEvent(e);
+            }
+        }
+    }
+    return evts;
+}
+
+public function toStreamEvents(SnapshottableStreamEvent[]|any[]? events) returns StreamEvent?[] {
+    StreamEvent?[] evts = [];
+    if (events is SnapshottableStreamEvent[]) {
+        foreach SnapshottableStreamEvent e in events {
+            evts[evts.length()] = toStreamEvent(e);
+        }
+    } else if (events is any[]) {
+        foreach var e in events {
+            if (e is SnapshottableStreamEvent) {
+                evts[evts.length()] = toStreamEvent(e);
+            }
+        }
+    }
+    return evts;
+}
+
+public function toSnapshottableEvent(StreamEvent event) returns SnapshottableStreamEvent {
+    return {
+        eventType: event.eventType,
+        timestamp: event.timestamp,
+        data: event.data
+    };
+}
+
+public function toStreamEvent(SnapshottableStreamEvent event) returns StreamEvent {
+    StreamEvent se = new(event.data, event.eventType, event.timestamp);
+    return se;
+}
