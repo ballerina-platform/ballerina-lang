@@ -135,7 +135,7 @@
     ];
     
     ```
-## Type Conversion
+## Type Casting
 
 * No spaces around angle brackets `<>`.
 * No spaces around the type. `<string>`.

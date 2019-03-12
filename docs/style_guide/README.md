@@ -90,37 +90,10 @@ Separate both statements and top level definitions by zero or one blank lines (o
   ```
   
 ### Line Breaks
-* Line should break after `;`.
-* Only one statement on a line. 
-* Avoid line breaking in types and conversions.
-  e.g., prefer
 
-  ```ballerina
-
-  map<
-      int
-      |
-      string
-  > 
-
-  // or
-
-  <
-      string
-  >
-  ```
-
-  to
-
-  ```ballerina
-  map<int | string> 
-
-  // or
-
-  <string>
-  ```
-
-* When splitting lines which contains operator/s split should happen 
+* Only one statement on a line.
+* Always try to split a line from a point located in the direction from end to start of the line.
+* When splitting lines which contains operator/s split should be done 
   right before an operator.
   
   example:
@@ -150,6 +123,55 @@ Separate both statements and top level definitions by zero or one blank lines (o
     
   }
   ```
+* Avoid line breaking in constrained types and type casting.
+  e.g., 
+  
+  Dos
+  
+  ```ballerina
+  map<int | string> // map reference type
+  
+  // or
+  
+  <string>
+  ```
+  
+  Don'ts
+
+  ```ballerina
+
+  map<
+      int
+      |
+      string
+  > 
+
+  // or
+
+  <
+      string
+  >
+  ```
+  
+  But if type casting expression or statement with constrained type cannot be put on a single line, 
+  due to exceeding max line length, 
+    - Try to move the casting type with operators to a new line.
+  
+      ```ballerina
+      string name =
+          <string>json.name;
+      ```
+  
+    - Keep the constrained type on the same line by splitting statement from a 
+      point located in a direction from end to start of the line.
+      
+      ```ballerina
+      map<int | string> registry = {};
+      
+      table<Employee> employee = table {
+          {key id, name, address}
+      };
+      ```
 
 ### [Top Level Definitions](definitions.md)
 ### [Statements](statements.md)

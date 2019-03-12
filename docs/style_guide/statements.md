@@ -71,8 +71,8 @@
   ```
 ## Match Statement
 
-* Each pattern clause available in the match statement should be block-indented on its own line.
-* Closing brace should indent and align with the start position of the match statement.
+* Each pattern clauses within a match statement, each should be block-indented on its own line.
+* Closing brace of a match statement should indent and align with the start position of the match statement.
 
   ```ballerina
   function foo(string | int | boolean a) returns string {
@@ -91,9 +91,10 @@
 
 ### Match Patterns Clause
 
-* All pattern clauses should block-indent on its own line.
+* All pattern clauses should be block-indented on its own line.
 * There should be a single space before and after `=>`.
-* If pattern clause only contains one statement it is recommended to place pattern clause on a single line.
+* If a pattern clause only contains one statement it is recommended to place the statement on the same line as the 
+  pattern clause.
 
   ```ballerina
   function foo(string | int | boolean a) returns string {
