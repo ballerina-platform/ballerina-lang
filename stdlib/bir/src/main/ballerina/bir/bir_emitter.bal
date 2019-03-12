@@ -195,7 +195,7 @@ type TerminalEmitter object {
                 self.opEmitter.emitOp(lhsOp);
                 print(" = ");
             }
-            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.versionValue, ":", term.name.value, "(");
+            print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
             int i = 0;
             foreach var o in term.args {
                 if (i != 0) {
@@ -219,9 +219,6 @@ type TerminalEmitter object {
 
 type OperandEmitter object {
     function emitOp(VarRef op, string tabs = "") {
-        if (op.variableDcl.kind is GlobalVarKind) {
-            print("G");
-        }
         print(op.variableDcl.name.value);
         // TODO add the rest, currently only have var ref
     }

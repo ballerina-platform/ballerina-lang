@@ -133,23 +133,23 @@ public type FuncBodyParser object {
     public function parseTerminator() returns Terminator {
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
-            TerminatorKind kind = "BRANCH";
+            TerminatorKind kind = TERMINATOR_BRANCH;
             var op = self.parseVarRef();
             BasicBlock trueBB = self.parseBBRef();
             BasicBlock falseBB = self.parseBBRef();
             Branch branch = {falseBB:falseBB, kind:kind, op:op, trueBB:trueBB};
             return branch;
         } else if (kindTag == INS_GOTO){
-            TerminatorKind kind = "GOTO";
+            TerminatorKind kind = TERMINATOR_GOTO;
             GOTO goto = {kind:kind, targetBB:self.parseBBRef()};
             return goto;
         } else if (kindTag == INS_RETURN){
-            TerminatorKind kind = "RETURN";
+            TerminatorKind kind = TERMINATOR_RETURN;
             Return ret = {kind:kind};
             return ret;
         } else if (kindTag == INS_CALL){
-            TerminatorKind kind = "CALL";
-            var pkgId = self.reader.readPackageIdCpRef();
+            TerminatorKind kind = TERMINATOR_CALL;
+            var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
             VarRef[] args = [];
@@ -175,9 +175,10 @@ public type FuncBodyParser object {
 
     public function parseVarRef() returns VarRef {
         var kind = parseVarKind(self.reader);
+        var varScope = parseVarScope(self.reader);
         var varName = self.reader.readStringCpRef();
-        var decl = getDecl(self.globalVarMap, self.localVarMap, kind, varName);
-        return new VarRef("VAR_REF", decl.typeValue, decl);
+        var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName);
+        return new VarRef(decl.typeValue, decl);
     }
 
     public function parseBBRef() returns BasicBlock {
@@ -220,8 +221,8 @@ public type FuncBodyParser object {
 
 };
 
-function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarKind kind, string varName) returns VariableDcl {
-    if (kind is GlobalVarKind) {
+function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName) returns VariableDcl {
+    if (varScope == VAR_SCOPE_GLOBAL) {
         var posibalDcl = globalVarMap[varName];
         if (posibalDcl is VariableDcl) {
             return posibalDcl;
