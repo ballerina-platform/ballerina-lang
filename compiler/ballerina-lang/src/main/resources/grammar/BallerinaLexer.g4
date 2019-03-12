@@ -851,8 +851,12 @@ XMLCommentChar
     |   XMLBracesSequence
     |   XMLEscapedSequence
     |   '\\' [`]
-    |   '$' ~'{'
-    |   ~'$' '{'
+    |   '$' LookAheadTokenIsNotOpenBrace
+    ;
+
+fragment
+LookAheadTokenIsNotOpenBrace
+    : {_input.LA(1) != '{'}?
     ;
 
 fragment
