@@ -226,7 +226,7 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
         if (posibalDcl is VariableDcl) {
             return posibalDcl;
         } else {
-            error err = error("local var missing " + varName);
+            error err = error("global var missing " + varName);
             panic err;
         }
     }

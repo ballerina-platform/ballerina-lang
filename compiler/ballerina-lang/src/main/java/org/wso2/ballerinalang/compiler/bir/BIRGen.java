@@ -708,7 +708,7 @@ public class BIRGen extends BLangNodeVisitor {
             emit(new Move(astPackageVarRefExpr.pos, this.env.targetOperand, varRef));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astPackageVarRefExpr.type,
-                    this.env.nextLocalVarId(names), VarKind.GLOBAL);
+                    this.env.nextLocalVarId(names), VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
             BIROperand fromVarRef = new BIROperand(this.env.globalVarMap.get(astPackageVarRefExpr.symbol));
