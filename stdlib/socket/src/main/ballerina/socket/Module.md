@@ -2,9 +2,9 @@
 This module provides an implementation for connecting to a remote socket server or acts as a server for an incoming socket request. The module facilitates two types of endpoints called `Client` and `Listener`.
 ## Samples
 ### Listener endpoints
-The sample given below shows how a listener is used to listen to the incoming socket request. The `onAccept(socket:Caller)` resource function gets invoked when a new client is connected. The new client is represented using the `socket:Caller`.
-`onReadReady(socket:Caller, byte[])` resource gets invoked once the remote client sends some data and `onClose(socket:Caller)` is invoked once the client is departs.
-
+The sample given below shows how a listener is used to listen to the incoming socket request. The `onConnect(socket:Caller)` resource function gets invoked when a new client is connected. The new client is represented using the `socket:Caller`.
+`onReadReady(socket:Caller)` resource gets invoked once the remote client sends some data.
+ 
 ```ballerina
 import ballerina/io;
 import ballerina/socket;
@@ -12,17 +12,22 @@ import ballerina/socket;
 listener socket:Listener server = new({ port:61598 });
 
 service echoServer on server {
-
-    resource function onAccept(socket:Caller caller) {
+    resource function onConnect(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        _ = caller->write(content);
-    }
-
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: " + caller.remotePort);
+    resource function onReadReady(socket:Caller caller) {
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                _ = caller->write(content);
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
+        } else {
+            io:println(result);
+        }
     }
 
     resource function onError(socket:Caller caller, error er) {
@@ -51,17 +56,39 @@ service ClientService = service {
         io:println("connect: ", caller.remotePort);
     }
     
-    resource function onReadReady(socket:Caller caller, byte[] content) {
-        io:println("client write");
-        _ = caller->write(content);
-    }
-    
-    resource function onClose(socket:Caller caller) {
-        io:println("Leave: ", caller.remotePort);
+    resource function onReadReady(socket:Caller caller) {
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                var str = getString(content);
+                if (str is string) {
+                    io:println(untaint str);
+                } else {
+                    io:println(str.reason());
+                }
+                var closeResult = caller->close();
+                if (closeResult is error) {
+                    io:println(closeResult.detail().message);
+                } else {
+                    io:println("Client connection closed successfully.");
+                }
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
+        } else {
+            io:println(result);
+        }
     }
     
     resource function onError(socket:Caller caller, error er) {
         io:println(er.reason());
     }
 };
+
+function getString(byte[] content) returns string | error {
+    io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
+    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+    return characterChannel.read(50);
+}
 ```

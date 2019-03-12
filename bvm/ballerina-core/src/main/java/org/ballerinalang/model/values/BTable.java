@@ -404,7 +404,7 @@ public class BTable implements BRefType<Object>, BCollection {
      *
      * @return number of rows of the table
      */
-    public int length() {
+    public long size() {
         if (tableName == null) {
             return 0;
         }

@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -166,13 +165,10 @@ public class Symbols {
             retType = targetType;
         } else if (targetType.tag == TypeTags.UNION && targetType instanceof BUnionType) {
             BUnionType unionType = (BUnionType) targetType;
-            unionType.memberTypes.add(errorType);
+            unionType.add(errorType);
             retType = unionType;
         } else {
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-            memberTypes.add(targetType);
-            memberTypes.add(errorType);
-            retType = new BUnionType(null, memberTypes, false);
+            retType = BUnionType.create(null, targetType, errorType);
         }
 
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);

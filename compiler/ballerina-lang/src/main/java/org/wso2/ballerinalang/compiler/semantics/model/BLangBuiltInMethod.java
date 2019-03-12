@@ -30,6 +30,8 @@ public enum BLangBuiltInMethod {
 
     IS_FINITE("isFinite", true),
 
+    STRING_LENGTH("string.length", true),
+
     LENGTH("length", true),
 
     REASON("reason", true),
@@ -47,6 +49,8 @@ public enum BLangBuiltInMethod {
     STAMP("stamp", true),
 
     CONVERT("convert", true),
+
+    SIMPLE_VALUE_CONVERT("simpleValueConvert", true),
     
     CALL("call", true),
 

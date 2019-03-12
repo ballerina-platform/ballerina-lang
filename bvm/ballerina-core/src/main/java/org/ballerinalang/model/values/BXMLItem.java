@@ -683,7 +683,7 @@ public final class BXMLItem extends BXML<OMNode> {
     /**
      * {@inheritDoc}
      */
-    public int length() {
+    public long size() {
         return this.omNode == null ? 0 : 1;
     }
 
@@ -819,6 +819,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
         BXMLItem value;
         int cursor = 0;
+        BXMLCodePointIterator codePointIterator;
 
         BXMLItemIterator(BXMLItem bxmlItem) {
             value = bxmlItem;
@@ -826,7 +827,13 @@ public final class BXMLItem extends BXML<OMNode> {
 
         @Override
         public BValue getNext() {
-            if (hasNext()) {
+            if (value.getNodeType() == XMLNodeType.TEXT) {
+                if (codePointIterator == null) {
+                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                }
+                cursor++;
+                return codePointIterator.getNext();
+            } else if (hasNext()) {
                 cursor++;
                 return value;
             }
@@ -835,6 +842,12 @@ public final class BXMLItem extends BXML<OMNode> {
 
         @Override
         public boolean hasNext() {
+            if (value.getNodeType() == XMLNodeType.TEXT) {
+                if (codePointIterator == null) {
+                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                }
+                return codePointIterator.hasNext();
+            }
             return cursor == 0;
         }
 
