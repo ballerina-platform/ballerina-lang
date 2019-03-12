@@ -9,14 +9,8 @@ Fixes #<Issue Number>
 ## Samples
 > Provide high-level details about the samples related to this feature.
 
-## Related PRs
-> List any other related PRs, if applicable.
-
-## Related Issues
-> List any other related issues, if applicable.
-
 ## Remarks
-> List any other known issues, TODO items or any other notes related to the PR.
+> List any other known issues, releated PRs, TODO items or any other notes related to the PR.
 
 ## Check List 
 - [ ] Read the [Contributing Guide](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md)
