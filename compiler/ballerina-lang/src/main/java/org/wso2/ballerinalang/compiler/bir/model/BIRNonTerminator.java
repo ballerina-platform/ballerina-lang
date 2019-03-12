@@ -287,7 +287,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * A is like instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., a isLike b
      *
      * @since 0.980.0
      */
@@ -310,9 +310,9 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A is like instruction.
+     * A type test instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., a is int
      *
      * @since 0.980.0
      */
