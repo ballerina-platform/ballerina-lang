@@ -179,7 +179,7 @@ service echo03 on backendEP03 {
     }
 }
 
-public int counter03 = 1;
+int counter03 = 1;
 // Define the sample service to mock a healthy service.
 @http:ServiceConfig {
     basePath: "/mock"

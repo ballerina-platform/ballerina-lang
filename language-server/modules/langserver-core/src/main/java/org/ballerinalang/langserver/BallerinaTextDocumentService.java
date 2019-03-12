@@ -79,6 +79,7 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -562,10 +563,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
         Path openedPath = new LSDocument(params.getTextDocument().getUri()).getPath();
         if (openedPath != null) {
             String content = params.getTextDocument().getText();
-            Optional<Lock> lock = Optional.empty();
+            Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath);
+            Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath);
-                lock = documentManager.openFile(compilationPath, content);
+                documentManager.openFile(compilationPath, content);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, openedPath, compilationPath);
             } catch (WorkspaceDocumentException e) {
@@ -580,11 +581,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didChange(DidChangeTextDocumentParams params) {
         Path changedPath = new LSDocument(params.getTextDocument().getUri()).getPath();
         if (changedPath != null) {
-            String content = params.getContentChanges().get(0).getText();
-            Optional<Lock> lock = Optional.empty();
+            Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
+            Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                Path compilationPath = getUntitledFilePath(changedPath.toString()).orElse(changedPath);
-                lock = documentManager.updateFile(compilationPath, content);
+                // Update content
+                List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
+                for (TextDocumentContentChangeEvent changeEvent : changes) {
+                    Range changesRange = changeEvent.getRange();
+                    documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
+                }
+                // Schedule diagnostics
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 this.diagPushDebouncer.call(compilationPath, () -> {
                     diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, changedPath, compilationPath);

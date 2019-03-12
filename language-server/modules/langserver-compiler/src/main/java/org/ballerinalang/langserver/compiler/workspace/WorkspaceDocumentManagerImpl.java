@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.compiler.workspace;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
+import org.eclipse.lsp4j.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,29 +69,38 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException {
+    public void openFile(Path filePath, String content) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             throw new WorkspaceDocumentException(
                     "File " + filePath.toString() + " is already opened in document manager."
             );
         }
-        Optional<Lock> lock = lockFile(filePath);
         documentList.put(filePath, new DocumentPair(new WorkspaceDocument(filePath, content)));
         rescanProjectRoot(filePath);
-        return lock;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
+    public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
-            Optional<Lock> lock = lockFile(filePath);
             documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(updatedContent));
-            return lock;
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
-        throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException {
+        if (isFileOpen(filePath)) {
+            documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(range, updatedContent));
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
     }
 
     /**
