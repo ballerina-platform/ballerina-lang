@@ -78,6 +78,20 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
+        } else if (kindTag == INS_IS_LIKE) {
+            kind = INS_KIND_IS_LIKE;
+            var bType = self.typeParser.parseType();
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            IsLike isLike = {kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            return isLike;
+        } else if (kindTag == INS_TYPE_TEST) {
+            kind = INS_KIND_TYPE_TEST;
+            var bType = self.typeParser.parseType();
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            TypeTest typeTest = {kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeTest;
         } else if (kindTag == INS_CONST_LOAD){
             //TODO: remove redundent
             var bType = self.typeParser.parseType();
@@ -212,7 +226,7 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
         if (posibalDcl is VariableDcl) {
             return posibalDcl;
         } else {
-            error err = error("local var missing " + varName);
+            error err = error("global var missing " + varName);
             panic err;
         }
     }
