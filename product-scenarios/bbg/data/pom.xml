@@ -37,6 +37,11 @@ under the License.
             <scope>test</scope>
             <version>${ballerina.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

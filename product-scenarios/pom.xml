@@ -47,11 +47,6 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-integration-test-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
@@ -84,7 +79,7 @@
         <testng.version>6.14.3</testng.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
-        <netty.version>.1.19.Final</netty.version>
+        <netty.version>4.1.19.Final</netty.version>
     </properties>
 
 </project>
