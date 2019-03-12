@@ -19,11 +19,11 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 . ${parent_path}/utils.sh
 
-input_dir=$1
-output_dir=$2
+readonly input_dir=$1
+readonly output_dir=$2
 
 # Read deployment.properties content into an associative array
 declare -A deployment_config

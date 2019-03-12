@@ -15,10 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-grand_parent_path=$(dirname ${parent_path})
-great_grand_parent_path=$(dirname ${grand_parent_path})
-great_great_grant_parent_path=$(dirname ${great_grand_parent_path})
+readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly grand_parent_path=$(dirname ${parent_path})
+readonly great_grand_parent_path=$(dirname ${grand_parent_path})
+readonly great_great_grant_parent_path=$(dirname ${great_grand_parent_path})
 
 . ${great_grand_parent_path}/usage.sh
 . ${great_grand_parent_path}/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
@@ -28,10 +28,10 @@ function print_debug_info() {
 }
 
 function run_tests() {
-    external_ip=${deployment_config["ExternalIP"]}
-    node_port=${deployment_config["NodePort"]}
+    local external_ip=${deployment_config["ExternalIP"]}
+    local node_port=${deployment_config["NodePort"]}
 
-    is_debug_enabled=${deployment_config["isDebugEnabled"]}
+    local is_debug_enabled=${deployment_config["isDebugEnabled"]}
     if [ ${is_debug_enabled} -eq "true" ]; then
         print_debug_info
     fi
