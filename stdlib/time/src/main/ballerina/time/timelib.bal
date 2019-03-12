@@ -22,21 +22,19 @@ public type TimeFormat "RFC_1123";
 #
 # + is - Zone short ID or offset string
 # + offset - The offset in seconds
-public type TimeZone record {
+public type TimeZone record {|
     string id;
     int offset = 0;
-    !...;
-};
+|};
 
 # Ballerina Time represents a particular time with its associated time-zone.
 #
 # + time - Time value as milliseconds since epoch
 # + zone - The time zone of the time
-public type Time record {
+public type Time record {|
     int time;
     TimeZone zone;
-    !...;
-};
+|};
 # Returns ISO 8601 string representation of the given time.
 #
 # + time - The Time record to be converted to string

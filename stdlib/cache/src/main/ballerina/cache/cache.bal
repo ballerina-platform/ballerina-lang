@@ -31,11 +31,10 @@ map<Cache> cacheMap = {};
 #
 # + value - cache value
 # + lastAccessedTime - last accessed time in ms of this value which is used to remove LRU cached values
-type CacheEntry record {
+type CacheEntry record {|
     any value;
     int lastAccessedTime;
-    !...;
-};
+|};
 
 # Represents a cache.
 public type Cache object {

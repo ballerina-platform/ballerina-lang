@@ -63,9 +63,8 @@ public type StreamEvent object {
 
 };
 
-public type SnapshottableStreamEvent record {
+public type SnapshottableStreamEvent record {|
     EventType eventType = "CURRENT";
     int timestamp = 0;
     map<anydata> data = {};
-    !...;
-};
+|};

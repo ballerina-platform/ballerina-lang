@@ -505,10 +505,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...;
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #

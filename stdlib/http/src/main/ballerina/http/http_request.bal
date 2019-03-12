@@ -421,10 +421,9 @@ public function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel
 # A record for providing mutual ssl handshake results.
 #
 # + status - Status of the handshake.
-public type MutualSslHandshake record {
+public type MutualSslHandshake record {|
     MutualSslStatus status = ();
-    !...;
-};
+|};
 
 # Defines the possible values for the mutual ssl status.
 #

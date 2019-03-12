@@ -53,7 +53,7 @@ import ballerina/config;
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 #                       Default value of this field can be set through the configuration API with the key
 #                       "b7a.sql.validation.time.out"
-public type PoolOptions record {
+public type PoolOptions record {|
     string connectionInitSql = config:getAsString("b7a.sql.connection.init.sql", default = "");
     string dataSourceClassName = config:getAsString("b7a.sql.datasource.class.name", default = "");
     boolean autoCommit = config:getAsBoolean("b7a.sql.connection.auto.commit", default = true);
@@ -64,8 +64,7 @@ public type PoolOptions record {
     int minimumIdle = config:getAsInt("b7a.sql.connection.min.idle.count", default = 15);
     int maxLifetime = config:getAsInt("b7a.sql.connection.max.life.time", default = 1800000);
     int validationTimeout = config:getAsInt("b7a.sql.validation.time.out", default = 5000);
-    !...;
-};
+|};
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools
 public type GlobalPoolConfigContainer object {
@@ -188,28 +187,25 @@ public const DIRECTION_INOUT = "INOUT";
 # + direction - Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
 # + recordType - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
 #                result row
-public type Parameter record {
+public type Parameter record {|
     SQLType sqlType;
     any value = ();
     Direction direction = DIRECTION_IN;
     typedesc recordType?;
-    !...;
-};
+|};
 
 # Result represents the output of the `update` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
-public type UpdateResult record {
+public type UpdateResult record {|
     int updatedRowCount;
     map<anydata> generatedKeys;
-    !...;
-};
+|};
 
 # The parameter passed into the operations.
 type Param string|int|boolean|float|decimal|byte[]|Parameter;
 
-public type DatabaseErrorData record {
+public type DatabaseErrorData record {|
     string message;
-    !...;
-};
+|};
