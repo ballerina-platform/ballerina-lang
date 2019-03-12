@@ -511,6 +511,23 @@ type InstructionGenerator object {
         bir:BType targetType = typeCastIns.lhsOp.variableDcl.typeValue;
         self.generateLocalVarStore(targetType, targetIndex);
     }
+
+    function generateTypeTestIns(bir:TypeTest typeTestIns) {
+        // load source value
+        int sourceIndex = self.getJVMIndexOfVarRef(typeTestIns.rhsOp.variableDcl);
+        bir:BType sourceType = typeTestIns.rhsOp.variableDcl.typeValue;
+        self.generateLocalVarLoad(sourceType, sourceIndex);
+
+        // load targetType
+        loadType(self.mv, typeTestIns.typeValue);
+
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
+                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
+
+        int targetIndex = self.getJVMIndexOfVarRef(typeTestIns.lhsOp.variableDcl);
+        bir:BType targetType = typeTestIns.lhsOp.variableDcl.typeValue;
+        self.generateLocalVarStore(targetType, targetIndex);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {

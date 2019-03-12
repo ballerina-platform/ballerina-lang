@@ -137,6 +137,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                 } else if (inst.kind == "ARRAY_LOAD") {
                     instGen.generateArrayValueLoad(inst);
                 }
+            } else if (inst is bir:TypeTest) {
+                instGen.generateTypeTestIns(inst);
             } else {
                 error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;

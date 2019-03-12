@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -53,6 +54,50 @@ import java.util.Set;
  */
 @SuppressWarnings({ "rawtypes" })
 public class TypeChecker {
+
+    public static Object checkCast(Object sourceVal, BType targetType) {
+        if (checkIsType(sourceVal, targetType)) {
+            return sourceVal;
+        }
+
+        throw getTypeCastError(sourceVal, targetType);
+    }
+
+    public static long anyToInt(Object sourceVal) {
+        if (sourceVal instanceof Long) {
+            return ((Long) sourceVal).longValue();
+        } else if (sourceVal instanceof Double) {
+            return ((Double) sourceVal).longValue();
+        } else {
+            throw getTypeCastError(sourceVal, BTypes.typeInt);
+        }
+    }
+
+    public static double anyToFloat(Object sourceVal) {
+        if (sourceVal instanceof Long) {
+            return ((Long) sourceVal).doubleValue();
+        } else if (sourceVal instanceof Double) {
+            return ((Double) sourceVal).doubleValue();
+        } else {
+            throw getTypeCastError(sourceVal, BTypes.typeFloat);
+        }
+    }
+
+    public static boolean anyToBoolean(Object sourceVal) {
+        if (sourceVal instanceof Boolean) {
+            return ((Boolean) sourceVal).booleanValue();
+        }
+
+        throw getTypeCastError(sourceVal, BTypes.typeBoolean);
+    }
+
+    public static byte anyToByte(Object sourceVal) {
+        if (sourceVal instanceof Byte) {
+            return ((Byte) sourceVal).byteValue();
+        }
+
+        throw getTypeCastError(sourceVal, BTypes.typeByte);
+    }
 
     /**
      * Check whether a given value belongs to the given type.
@@ -754,6 +799,10 @@ public class TypeChecker {
             }
         }
         return false;
+    }
+
+    private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
+        return new BLangRuntimeException("'" + getType(sourceVal) + "' cannot be cast to '" + targetType + "'");
     }
 
     /**
