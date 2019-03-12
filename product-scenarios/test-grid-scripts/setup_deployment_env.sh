@@ -15,6 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
+set -o errexit
+set -o pipefail
+set -o nounset
+
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 . ${parent_path}/utils.sh
 

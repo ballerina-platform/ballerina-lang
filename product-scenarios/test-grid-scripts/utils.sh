@@ -108,7 +108,7 @@ function wait_for_pod_readiness() {
 function setup_env() {
     input_dir=$1
     output_dir=$2
-    bash ${parent_path}/setup_env.sh ${input_dir} ${output_dir}
+    bash ${parent_path}/setup_deployment_env.sh ${input_dir} ${output_dir}
 }
 
 # $1 - BBG section directory name
