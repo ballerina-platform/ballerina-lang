@@ -168,6 +168,14 @@ type InstructionEmitter object {
             print(" = ", ins.kind, " ");
             self.opEmitter.emitOp(ins.rhsOp);
             println(";");
+        } else if (ins is IsLike) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ");
+            self.opEmitter.emitOp(ins.rhsOp);
+            print(" ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);            
+            println(";");
         } 
     }
 };
