@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.stdlib.services.configuration.compression;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.net.http.HttpConstants;
@@ -27,11 +29,7 @@ import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
@@ -69,8 +67,8 @@ public class CompressionConfigSuccessTest {
     @Test(description = "Test Compression.AUTO, with Accept-Encoding header. The response here means the one " +
             "that should be sent to transport, not to end user.")
     public void testAutoCompressWithAcceptEncoding() {
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompress",
                 HttpConstants.HTTP_METHOD_GET, headers, "hello");
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
@@ -106,8 +104,8 @@ public class CompressionConfigSuccessTest {
     @Test(description = "Test Compression.ALWAYS, with Accept-Encoding header. The response here means the one " +
             "that should be sent to transport, not to end user.")
     public void testAlwaysCompressWithAcceptEncoding() {
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompress",
                 HttpConstants.HTTP_METHOD_GET, headers, "hello");
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
@@ -143,8 +141,8 @@ public class CompressionConfigSuccessTest {
     @Test(description = "Test Compression.NEVER, with a user overridden content-encoding header. The response here " +
             "means the one that should be sent to transport, not to end user.")
     public void testNeverCompressWithAcceptEncoding() {
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/userOverridenValue",
                 HttpConstants.HTTP_METHOD_GET, headers, "hello");
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
