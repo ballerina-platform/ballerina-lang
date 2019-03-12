@@ -990,9 +990,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!Symbols.isPublic(varNode.symbol)) {
-            if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
-            }
             return;
         }
 
@@ -1010,10 +1007,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
                 NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
-        }
-
-        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
-            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
         }
     }
 
