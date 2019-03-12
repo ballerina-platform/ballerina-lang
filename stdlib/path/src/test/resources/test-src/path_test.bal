@@ -39,3 +39,7 @@ function testGetFilename(string path) returns string|error {
 function testGetParent(string path) returns string|error {
     return path:parent(path);
 }
+
+function testNormalizePath(string path) returns string|error {
+    return path:normalize(path);
+}

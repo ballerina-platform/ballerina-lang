@@ -169,6 +169,25 @@ public class PathTest {
         assertEquals(filename.stringValue(), expectedValue);
     }
 
+    @Test(description = "Test normalize path function for posix paths", dataProvider = "posix_paths")
+    public void testPosixNormalizePath(String path) {
+        validateNormalizePath(path);
+    }
+
+    @Test(description = "Test normalize path function for windows paths", dataProvider = "windows_paths")
+    public void testWindowsNormalizePath(String path) {
+        validateNormalizePath(path);
+    }
+
+    private void validateNormalizePath(String input) {
+        BValue[] args = {new BString(input)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testNormalizePath", args);
+        BString filename = (BString) returns[0];
+        log.info("{ballerina/path}:normalize(). Input: " + input + " | Return: " + filename.stringValue());
+        String expectedValue = Paths.get(input).normalize() != null ? Paths.get(input).normalize().toString() : "";
+        assertEquals(filename.stringValue(), expectedValue);
+    }
+
     @DataProvider(name = "posix_paths")
     public Object[] getPosixPaths() {
         return new Object[] {
@@ -180,7 +199,12 @@ public class PathTest {
                 "/AAA/////BBB/",
                 "",
                 "//////////////////",
-                "\\\\\\\\\\\\\\\\\\\\"
+                "\\\\\\\\\\\\\\\\\\\\",
+                "/foo/./bar",
+                "foo/../bar",
+                "../foo/bar",
+                "./foo/bar/../",
+                "../../foo/../bar/zoo"
         };
     }
 
@@ -195,7 +219,8 @@ public class PathTest {
                 "bar\\baz",
                 "bar/baz",
                 ".",
-                "C:\\\\\\\\"
+                "C:\\\\\\\\",
+                "\\..\\A\\B"
         };
     }
 }

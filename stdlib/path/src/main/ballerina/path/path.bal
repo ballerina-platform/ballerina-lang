@@ -111,6 +111,89 @@ public function parent(string path) returns string|error {
     return parse(parentPath);
 }
 
+# Returns the shortest path name equivalent to path by purely lexical processing.
+# Replace multiple Separator elements with a single one.
+# Eliminate each . path name element (the current directory).
+# Eliminate each inner .. path name element (the parent directory)
+#
+# + path - String value of file path.
+# + return - Normalized file path
+public function normalize(string path) returns string|error {
+    string filepath = check parse(path);
+    int[] offsetIndexes = getOffsetIndexes(filepath);
+    int count = offsetIndexes.length();
+    if (count == 0 || isEmpty(filepath)) {
+        return filepath;
+    }
+
+    int i = 0;
+    string[] parts = [];
+    boolean[] ignore = [];
+    boolean[] parentRef = [];
+    int remaining = count;
+    while(i < count) {
+        int begin = offsetIndexes[i];
+        int length;
+        ignore[i] = false;
+        parentRef[i] = false;
+        if (i == (count - 1)) {
+            length = filepath.length() - begin;
+            parts[i] = filepath.substring(begin, filepath.length());
+        } else {
+            length = offsetIndexes[i + 1] - begin - 1;
+            parts[i] = filepath.substring(begin, offsetIndexes[i + 1] - 1);
+        }
+        if (check charAt(filepath, begin) == ".") {
+            if (length == 1) {
+                ignore[i] = true;
+                remaining = remaining - 1;
+            } else if (length == 2 && check charAt(filepath, begin + 1) == ".") {
+                parentRef[i] = true;
+                int j = i - 1;
+                boolean hasPrevious = false;
+                while (j >= 0) {
+                    // A/B/<ignore>/..
+                    if (ignore.length() > 0 && !parentRef[j] && !ignore[j]) {
+                        ignore[j] = true;
+                        remaining = remaining - 1;
+                        hasPrevious = true;
+                        break;
+                    }
+                    j = j - 1;
+                }
+                if (hasPrevious) {
+                    ignore[i] = true;
+                    remaining = remaining - 1;
+                }
+            }
+        }
+        i = i + 1;
+    }
+
+    if (remaining == count) {
+        return filepath;
+    }
+    boolean abs = check isAbsolute(filepath);
+    string root;
+    (root, _) = check getRootComponent(filepath);
+    if (remaining == 0) {
+        return abs? root : "";
+    }
+
+    string normalizedPath = "";
+    if (root != "") {
+        normalizedPath = normalizedPath + root;
+    }
+    i = 0;
+    while (i < count) {
+        if (!ignore[i]) {
+            normalizedPath = normalizedPath + parts[i] + PATH_SEPARATOR;
+        }
+        i = i + 1;
+    }
+    return parse(normalizedPath);
+}
+
 
 # Parses the give path and remove redundent slashes.
 #
@@ -247,6 +330,7 @@ function normalizePosixPath(string input, int off) returns string|error {
     while(i < n) {
         string c = check charAt(input, i);
         if (c == "/" && prevC == "/") {
+            i = i + 1;
             continue;
         }
         normalizedPath = normalizedPath + c;
