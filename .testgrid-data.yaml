@@ -30,6 +30,9 @@ scenarioConfigs:
   name: "ballerinaScenarios"
   description: "ballerina-scenarios"
   file: product-scenarios/test-grid-scripts/bbg/data/test-data-backed-service.sh
+  inputParameters:
+    BallerinaVersion: "0.990.3"
+    isDebugEnabled: true
 deploymentConfig:
   deploymentPatterns:
     - name: 'scenario-tests'
@@ -43,3 +46,4 @@ deploymentConfig:
           file: product-scenarios/test-grid-scripts/bbg/data/deployment-data-backed-service.sh
           inputParameters:
             BallerinaVersion: "0.990.3"
+            isDebugEnabled: true

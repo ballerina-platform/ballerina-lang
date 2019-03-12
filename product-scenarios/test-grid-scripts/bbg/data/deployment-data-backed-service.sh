@@ -21,7 +21,7 @@ great_grand_parent_path=$(dirname ${grand_parent_path})
 
 . ${great_grand_parent_path}/usage.sh
 . ${great_grand_parent_path}/utils.sh
-. ${great_grand_parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${great_grand_parent_path}/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
     clone_bbg_and_set_bal_path
@@ -30,7 +30,10 @@ function setup_deployment() {
     build_and_deploy_guide
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
-    print_debug_info
+    is_debug_enabled=${infra_config["isDebugEnabled"]}
+    if [ ${is_debug_enabled} -eq "true" ]; then
+        print_debug_info
+    fi
 }
 
 ## Functions

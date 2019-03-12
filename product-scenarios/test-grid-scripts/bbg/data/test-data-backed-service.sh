@@ -23,15 +23,25 @@ great_great_grant_parent_path=$(dirname ${great_grand_parent_path})
 . ${great_grand_parent_path}/usage.sh
 . ${great_grand_parent_path}/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
-external_ip=${deployment_config["ExternalIP"]}
-node_port=${deployment_config["NodePort"]}
+function print_debug_info() {
+    echo "Host And Port: ${external_ip}:${node_port}"
+}
 
-echo "Host And Port: ${external_ip}:${node_port}"
+function run_tests() {
+    external_ip=${deployment_config["ExternalIP"]}
+    node_port=${deployment_config["NodePort"]}
 
-declare -A sys_prop_array
+    is_debug_enabled=${deployment_config["isDebugEnabled"]}
+    if [ ${is_debug_enabled} -eq "true" ]; then
+        print_debug_info
+    fi
 
-sys_prop_array["data.backed.service.host"]=${external_ip}
-sys_prop_array["data.backed.service.port"]=${node_port}
+    declare -A sys_prop_array
+    sys_prop_array["data.backed.service.host"]=${external_ip}
+    sys_prop_array["data.backed.service.port"]=${node_port}
 
-# Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
-run_bbg_section_tests bbg-data data sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
+    # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
+    run_bbg_section_tests bbg-data data sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
+}
+
+run_tests
