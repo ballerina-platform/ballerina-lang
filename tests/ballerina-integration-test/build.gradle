@@ -49,9 +49,4 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
 }
 
-// TODO: Fix tests and remove test skip block
-test {
-    exclude '**/*'
-}
-
 description = 'Ballerina - Integration Test'

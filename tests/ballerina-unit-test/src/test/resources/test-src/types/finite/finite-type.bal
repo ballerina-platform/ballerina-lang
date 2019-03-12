@@ -249,3 +249,69 @@ function testFiniteTypeWithConstants() returns (FiniteType, FiniteType) {
 
     return (f,s);
 }
+
+const byte BCONST = 5;
+const int ICONST = 5;
+const float FCONST = 5;
+const decimal DCONST = 5;
+
+type Number DCONST|FCONST|ICONST|BCONST;
+
+function testFiniteTypeWithNumericConstants() returns (Number, Number) {
+    Number n1 = 5;
+    Number n2 = 5.0;
+    return (n1, n2);
+}
+
+type ByteType BCONST;
+
+function testAssigningIntLiteralToByteFiniteType() returns (ByteType) {
+    ByteType b = 5;
+    return b;
+}
+
+type FloatType FCONST;
+
+function testAssigningIntLiteralToFloatFiniteType() returns (FloatType) {
+    FloatType f = 5;
+    return f;
+}
+
+type DecimalType DCONST;
+
+function testAssigningIntLiteralToDecimalFiniteType() returns (DecimalType) {
+    DecimalType d = 5;
+    return d;
+}
+
+function testAssigningFloatLiteralToDecimalFiniteType() returns (DecimalType) {
+    DecimalType d = 5.0;
+    return d;
+}
+
+function testDifferentPrecisionFloatAssignment() returns (FloatType) {
+    // Though, the below value is mathematically different when comparing to 5.0, the double value(representation)
+    // is same. Hence, it is assignable to 5.0 float value.
+    FloatType f = 5.00000000000000000001;
+    return f;
+}
+
+const float FLOAT = 5.0000000000000;
+
+function testDifferentPrecisionFloatConstantAssignment() returns (FloatType) {
+    FloatType f = FLOAT;
+    return f;
+}
+
+function testDifferentPrecisionDecimalAssignment() returns (DecimalType) {
+    DecimalType d = 5.0000000000000;
+    return d;
+}
+
+const decimal DECIMAL = 5.0000000000000;
+
+
+function testDifferentPrecisionDecimalConstantAssignment() returns (DecimalType) {
+    DecimalType d = DECIMAL;
+    return d;
+}
