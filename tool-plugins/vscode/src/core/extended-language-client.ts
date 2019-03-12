@@ -162,7 +162,7 @@ export class ExtendedLangClient extends LanguageClient {
             },
             ballerinaService: oasService
         }
-        return this.sendRequest("ballerinaDocument/swaggerDef", req);
+        return this.sendRequest("ballerinaDocument/openApiDefinition", req);
     }
 
     triggerSwaggerDefChange(oasJson: string, uri: Uri): void {
