@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -788,6 +789,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 nodeType = XMLNodeType.ELEMENT;
                 break;
             case OMNode.TEXT_NODE:
+            case OMNode.SPACE_NODE:
                 nodeType = XMLNodeType.TEXT;
                 break;
             case OMNode.COMMENT_NODE:
