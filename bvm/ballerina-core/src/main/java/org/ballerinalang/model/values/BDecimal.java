@@ -26,6 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Map;
 
@@ -58,9 +59,68 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         }
     }
 
+    public BDecimal(String value) {
+        // Check whether a hexadecimal number provided.
+        if (value.startsWith("0x") || value.startsWith("0X")) {
+            this.value = hexToDecimalFloatingPointNumber(value);
+        } else {
+            this.value = new BigDecimal(value, MathContext.DECIMAL128);
+        }
+        if (!this.booleanValue()) {
+            this.valueKind = DecimalValueKind.ZERO;
+        }
+    }
+
     public BDecimal(String value, DecimalValueKind valueKind) {
-        this.value = new BigDecimal(value, MathContext.DECIMAL128);
+        this(value);
         this.valueKind = valueKind;
+    }
+
+    /**
+     * Method used to convert the hexadecimal number to decimal floating point number.
+     * BigDecimal does not support hexadecimal numbers. Hence, we need to convert the hexadecimal number to a
+     * decimal floating point number before passing the string value to the BigDecimal constructor.
+     *
+     * @param value Hexadecimal value that needs to be converted.
+     * @return BigDecimal corresponds to the hexadecimal number provided.
+     */
+    private BigDecimal hexToDecimalFloatingPointNumber(String value) {
+        // Remove the hexadecimal indicator prefix.
+        String hexValue = value.substring(2);
+        // Isolate the binary exponent and the number.
+        String[] splitAtExponent = hexValue.split("p|P");
+        int binaryExponent = Integer.parseInt(splitAtExponent[1]);
+        String numberWithoutExp = splitAtExponent[0];
+        String intComponent;
+
+        // Check whether the hex number has a decimal part.
+        // If there is a decimal part, turn the hex floating point number to a whole number by multiplying it by a
+        // power of 16.
+        // i.e: 23FA2.123 = 23FA2123 * 16^(-3)
+        if (numberWithoutExp.contains(".")) {
+            String[] numberComponents = numberWithoutExp.split("\\.");
+            intComponent = numberComponents[0];
+            String decimalComponent = numberComponents[1];
+            // Change the base of the hex power to 2 and calculate the binary exponent.
+            // i.e: 23FA2123 * 16^(-3) = 23FA2123 * (2^4)^(-3) = 23FA2123 * 2^(-12)
+            binaryExponent += 4 * (-1) * decimalComponent.length();
+            intComponent = intComponent.concat(decimalComponent);
+        } else {
+            intComponent = numberWithoutExp;
+        }
+
+        BigDecimal exponentValue;
+        // Find the value corresponding to the binary exponent.
+        if (binaryExponent >= 0) {
+            exponentValue = new BigDecimal(2).pow(binaryExponent);
+        } else {
+            //If negative exponent e, then the corresponding value equals to (1 / 2^(-e)).
+            exponentValue = BigDecimal.ONE.divide(new BigDecimal(2).pow(-binaryExponent), MathContext.DECIMAL128);
+        }
+        // Convert the hexadecimal whole number(without exponent) to decimal big integer.
+        BigInteger hexEquivalentNumber = new BigInteger(intComponent, 16);
+        // Calculate and return the final decimal floating point number equivalent to the hex number provided.
+        return new BigDecimal(hexEquivalentNumber).multiply(exponentValue, MathContext.DECIMAL128);
     }
 
     @Override
