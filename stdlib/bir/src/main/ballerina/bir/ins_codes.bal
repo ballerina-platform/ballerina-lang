@@ -15,8 +15,10 @@ public const int INS_ARRAY_STORE = 11;
 public const int INS_ARRAY_LOAD = 12;
 public const int INS_NEW_ERROR = 13;
 public const int INS_TYPE_CAST = 14;
+public const int INS_IS_LIKE = 15;
+public const int INS_TYPE_TEST = 16;
 
-public const int INS_PANIC = 15;
+public const int INS_PANIC = 19;
 
 // Binary expression related instructions.
 public const int INS_ADD = 20;

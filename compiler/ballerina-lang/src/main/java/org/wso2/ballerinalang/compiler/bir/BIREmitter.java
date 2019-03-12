@@ -21,9 +21,11 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -179,6 +181,26 @@ public class BIREmitter extends BIRVisitor {
         birTypeCast.lhsOp.accept(this);
         sb.append(" = ").append(birTypeCast.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birTypeCast.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(IsLike birIsLike) {
+        sb.append("\t\t");
+        birIsLike.lhsOp.accept(this);
+        sb.append(" = ");
+        birIsLike.rhsOp.accept(this);
+        sb.append(" ").append(birIsLike.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        //TODO emit type
+        sb.append(";\n");
+    }
+
+    public void visit(TypeTest birTypeTest) {
+        sb.append("\t\t");
+        birTypeTest.lhsOp.accept(this);
+        sb.append(" = ");
+        birTypeTest.rhsOp.accept(this);
+        sb.append(" ").append(birTypeTest.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        //TODO emit type
         sb.append(";\n");
     }
 
