@@ -21,8 +21,8 @@ dependencies {
     implementation 'commons-io:commons-io:2.6'
     implementation project(':ballerina-http')
     implementation project(':ballerina-swagger')
-    implementation project(':swagger-ballerina:swagger-to-ballerina-generator')
-    implementation project(':swagger-ballerina:ballerina-to-swagger')
+    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
+    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
     implementation project(':ballerina-h2')
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')

@@ -110,9 +110,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
-            String swaggerDefinition = OpenApiConverterUtils
+            String openApiDefinition = OpenApiConverterUtils
                     .generateOAS3Definitions(fileContent, request.getBallerinaService());
-            reply.setBallerinaOASJson(convertToJson(swaggerDefinition));
+            reply.setBallerinaOASJson(convertToJson(openApiDefinition));
         } catch (Exception e) {
             reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + e.getMessage(), e);
@@ -139,7 +139,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
         try {
             //Generate compilation unit for provided Open Api Sep JSON
-            File tempOasJsonFile = getSwaggerFile(params.getOASDefinition());
+            File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
             List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.MOCK,
                     tempOasJsonFile.getPath());
@@ -358,7 +358,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
      * @return Temporary file created with provided string
      * @throws IOException will throw IO Exception if file error
      */
-    private File getSwaggerFile(String oasDefinition) throws IOException {
+    private File getOpenApiFile(String oasDefinition) throws IOException {
         File oasTempFile = File.createTempFile("oasTempFile", ".json");
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
                 StandardCharsets.UTF_8))) {
