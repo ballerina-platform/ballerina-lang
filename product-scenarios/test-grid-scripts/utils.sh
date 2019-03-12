@@ -15,10 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-grand_parent_path=$(dirname ${parent_path})
+readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly grand_parent_path=$(dirname ${parent_path})
 
-cluster_name="ballerina-testgrid-cluster-v2"
+readonly cluster_name="ballerina-testgrid-cluster-v2"
 
 # Read a property file to a given associative array
 #
@@ -63,7 +63,7 @@ function install_ballerina() {
     wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-${ballerina_version}.zip --quiet
     unzip ballerina-${ballerina_version}.zip -d ${parent_path}
     ${parent_path}/ballerina-${ballerina_version}/bin/ballerina version
-    ballerina_home=${parent_path}/ballerina-${ballerina_version}
+    readonly ballerina_home=${parent_path}/ballerina-${ballerina_version}
 }
 
 function download_and_extract_mysql_connector() {
@@ -91,9 +91,9 @@ function generate_random_name() {
 
 # Wait for pod readiness
 function wait_for_pod_readiness() {
-    TIMEOUT=300
-    INTERVAL=20
-    bash ${parent_path}/wait_for_pod_ready.sh ${TIMEOUT} ${INTERVAL}
+    local timeout=300
+    local interval=20
+    bash ${parent_path}/wait_for_pod_ready.sh ${timeout} ${interval}
 
     # Temporary sleep to check whether app eventually becomes ready..
     # Ideally there should have been a kubernetes readiness probe
@@ -103,21 +103,14 @@ function wait_for_pod_readiness() {
     sleep 120s
 }
 
-# Set up environment
-function setup_env() {
-    input_dir=$1
-    output_dir=$2
-    bash ${parent_path}/setup_deployment_env.sh ${input_dir} ${output_dir}
-}
-
 # $1 - BBG section directory name
 # $2 - Associative array of system property-value pairs
 function run_bbg_section_tests() {
-    maven_profile=$1
-    bbg_section=$2
+    local maven_profile=$1
+    local bbg_section=$2
     local -n properties_array=$3
-    input_dir=$4
-    output_dir=$5
+    local input_dir=$4
+    local output_dir=$5
     local sys_prop_str=""
     bash --version
     for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]} " ; done
@@ -131,6 +124,6 @@ function run_bbg_section_tests() {
 
 # $1 - BBG repository name
 function clone_bbg() {
-    bbg_repo=$1
+    local bbg_repo=$1
     git clone https://github.com/ballerina-guides/${bbg_repo} --branch testgrid-onboarding
 }
