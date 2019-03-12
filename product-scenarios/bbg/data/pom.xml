@@ -37,11 +37,6 @@ under the License.
             <scope>test</scope>
             <version>${ballerina.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-integration-test-utils</artifactId>
-            <version>${ballerina.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

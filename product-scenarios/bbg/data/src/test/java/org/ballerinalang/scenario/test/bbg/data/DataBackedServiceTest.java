@@ -19,13 +19,13 @@ package org.ballerinalang.scenario.test.bbg.data;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.scenario.test.common.ScenarioTestBase;
-import org.ballerinalang.test.util.HttpClientRequest;
-import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestConstant;
+import org.ballerinalang.scenario.test.common.http.HttpClientRequest;
+import org.ballerinalang.scenario.test.common.http.HttpResponse;
+import org.ballerinalang.scenario.test.common.http.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,11 +41,37 @@ public class DataBackedServiceTest extends ScenarioTestBase {
         Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         String url = "http://" + host + ":" + port + "/records/employee";
-        PrintStream printStream = System.out;
-        printStream.println("URL: " + url);
         HttpResponse httpResponse = HttpClientRequest.doPost(url, "{\"name\":\"Alice\", \"age\":20,\"ssn\":123456789,"
                 + "\"employeeId\":1}", headers);
         Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
         Assert.assertEquals(httpResponse.getData(), "{\"Status\":\"Data Inserted Successfully\"}");
+    }
+
+    @Test(description = "Test employee retrieval", dependsOnMethods = "testCreateEmployee")
+    public void testGetEmployee() throws Exception {
+        String url = "http://" + host + ":" + port + "/records/employee/1";
+        HttpResponse httpResponse = HttpClientRequest.doGet(url);
+        Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
+        Assert.assertEquals(httpResponse.getData(), "[{\"EmployeeID\":1, \"Name\":\"Alice\", \"Age\":20, "
+                + "\"SSN\":123456789}]");
+    }
+
+    @Test(description = "Test employee update", dependsOnMethods = "testGetEmployee")
+    public void testUpdateEmployee() throws IOException {
+        Map<String, String> headers = new HashMap<>(1);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        String url = "http://" + host + ":" + port + "/records/employee";
+        HttpResponse httpResponse = HttpClientRequest
+                .doPut(url, "{\"name\":\"Alice\", \"age\":20,\"ssn\":123556789," + "\"employeeId\":1}", headers);
+        Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
+        Assert.assertEquals(httpResponse.getData(), "{\"Status\":\"Data Updated Successfully\"}");
+    }
+
+    @Test(description = "Test employee deletion", dependsOnMethods = "testUpdateEmployee")
+    public void testDeleteEmployee() throws IOException {
+        String url = "http://" + host + ":" + port + "/records/employee/1";
+        HttpResponse httpResponse = HttpClientRequest.doDelete(url);
+        Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
+        Assert.assertEquals(httpResponse.getData(), "{\"Status\":\"Data Deleted Successfully\"}");
     }
 }

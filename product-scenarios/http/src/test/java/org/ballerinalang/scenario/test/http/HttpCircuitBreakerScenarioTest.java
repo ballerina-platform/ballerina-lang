@@ -20,9 +20,9 @@ package org.ballerinalang.scenario.test.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.scenario.test.common.ScenarioTestBase;
-import org.ballerinalang.test.util.HttpClientRequest;
-import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestConstant;
+import org.ballerinalang.scenario.test.common.http.HttpClientRequest;
+import org.ballerinalang.scenario.test.common.http.HttpResponse;
+import org.ballerinalang.scenario.test.common.http.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;

@@ -39,76 +39,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-        <repository>
-            <id>wso2.snapshots</id>
-            <name>WSO2 Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>wso2.releases</id>
-            <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>wso2.snapshots</id>
-            <name>WSO2 Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -131,6 +61,11 @@
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -149,6 +84,7 @@
         <testng.version>6.14.3</testng.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
+        <netty.version>.1.19.Final</netty.version>
     </properties>
 
 </project>
