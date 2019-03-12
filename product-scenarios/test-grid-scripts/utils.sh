@@ -114,21 +114,18 @@ function setup_env() {
 # $1 - BBG section directory name
 # $2 - Associative array of system property-value pairs
 function build_bbg_section() {
-    bbg_section=$1
-    local -n properties_array=$2
-    input_dir=$3
-    output_dir=$4
+    maven_profile=$1
+    bbg_section=$2
+    local -n properties_array=$3
+    input_dir=$4
+    output_dir=$5
     local sys_prop_str=""
     bash --version
     for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${grand_parent_path}/bbg/${bbg_section}/pom.xml -fae -Ddata.bucket.location=${input_dir} ${str}
+    mvn clean install -f ${grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${input_dir} ${str} -P ${maven_profile}
 
     mkdir -p ${output_dir}/scenarios
 
     cp -r ${grand_parent_path}/bbg/${bbg_section}/target ${output_dir}/scenarios/${bbg_section}/
-}
-
-function build_scenarios_commons() {
-    mvn clean install -f ${grand_parent_path}/scenarios-commons/pom.xml
 }
