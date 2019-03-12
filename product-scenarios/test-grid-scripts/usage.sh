@@ -2,7 +2,7 @@
 
 set -o xtrace
 
-WORK_DIR=`pwd`
+readonly WORK_DIR=`pwd`
 
 function usage()
 {
