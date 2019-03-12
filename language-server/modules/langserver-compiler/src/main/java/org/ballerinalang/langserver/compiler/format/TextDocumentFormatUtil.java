@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -101,7 +100,7 @@ public class TextDocumentFormatUtil {
 
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false);
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+//        context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
