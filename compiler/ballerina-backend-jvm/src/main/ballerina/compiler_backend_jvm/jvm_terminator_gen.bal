@@ -40,7 +40,8 @@ type TerminatorGenerator object {
                 bType is bir:BErrorType ||
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
-                bType is bir:BRecordType) {
+                bType is bir:BRecordType ||
+                bType is bir:BTupleType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -96,7 +97,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
                 methodDesc = methodDesc + "I";
-            } else if (bType is bir:BArrayType) {
+            } else if (bType is bir:BArrayType ||
+                        bType is bir:BTupleType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", ARRAY_VALUE);
             } else if (bType is bir:BRecordType) {
@@ -157,7 +159,8 @@ type TerminatorGenerator object {
                         bType is bir:BTypeNil ||
                         bType is bir:BObjectType ||
                         bType is bir:BUnionType ||
-                        bType is bir:BRecordType) {
+                        bType is bir:BRecordType || 
+                        bType is bir:BTupleType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
