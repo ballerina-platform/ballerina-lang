@@ -29,10 +29,10 @@ public extern function stopServices(string moduleName);
 # Start a service skeleton from a given OpenApi definition in the given ballerina module.
 #
 # + moduleName - Name of the module
-# + swaggerFilePath - Path to the OpenApi definition
+# + openApiFilePath - Path to the OpenApi definition
 #
 # + return - `true` if the service skeleton was started successfully, `false` otherwise
-public extern function startServiceSkeleton(string moduleName, string swaggerFilePath) returns boolean;
+public extern function startServiceSkeleton(string moduleName, string openApiFilePath) returns boolean;
 
 # Stop a service skeleton and cleanup created directories of a given ballerina module.
 #

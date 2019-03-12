@@ -33,7 +33,7 @@ fi
 
 # List of BBEs excluded from building
 exclude=("proto-to-ballerina"
-        "swagger-to-ballerina"
+        "openapi-to-ballerina-generator"
         "taint-checking"
         "websub-hub-client-sample"
         "websub-remote-hub-sample"

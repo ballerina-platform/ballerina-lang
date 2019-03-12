@@ -55,7 +55,7 @@ public class OpenApiEndpointMapper {
         return openapi;
     }
 
-    private void extractServer(BLangSimpleVariable ep, Swagger swagger) {
+    private void extractServer(BLangSimpleVariable ep, Swagger openapi) {
         BLangTypeInit bTypeInit = (BLangTypeInit) ep.getInitialExpression();
         List<BLangExpression> list = bTypeInit.argsExpr;
         List<Scheme> schemes = new ArrayList<>();
@@ -88,7 +88,7 @@ public class OpenApiEndpointMapper {
             host += ':' + port;
         }
 
-        swagger.setHost(host);
-        swagger.setSchemes(schemes);
+        openapi.setHost(host);
+        openapi.setSchemes(schemes);
     }
 }

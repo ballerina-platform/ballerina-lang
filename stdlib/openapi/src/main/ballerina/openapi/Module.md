@@ -38,8 +38,8 @@ For the export to work properly, the input Ballerina service should be defined u
 ### Client Stub for Service
 Generates a Ballerina client stub to communicate with a Ballerina service.
 
-All endpoint(s) that are used for client stub generation should be marked with the `@swagger:ClientEndpoint` annotation. If not, there might be errors during client stub generation. Endpoints that are not marked with this annotation are not picked for client stub generation.
-The `@swagger:ClientConfig { generate: true }` annotation is used to enable or disable client stub generation per service.
+All endpoint(s) that are used for client stub generation should be marked with the `@openapi:ClientEndpoint` annotation. If not, there might be errors during client stub generation. Endpoints that are not marked with this annotation are not picked for client stub generation.
+The `@openapi:ClientConfig { generate: true }` annotation is used to enable or disable client stub generation per service.
 
 ## Samples
 ### Mock Service From OpenAPI

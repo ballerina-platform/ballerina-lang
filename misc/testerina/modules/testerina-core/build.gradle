@@ -27,7 +27,7 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
     implementation project(':ballerina-websub')
-    implementation project(':swagger-ballerina:swagger-to-ballerina-generator')
+    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':ballerina-launcher')
     implementation 'info.picocli:picocli:3.3.0'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'

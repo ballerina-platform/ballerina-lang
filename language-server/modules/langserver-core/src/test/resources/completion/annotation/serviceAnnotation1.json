@@ -6,7 +6,7 @@
   "source": "annotation/source/serviceAnnotation1.bal",
   "items": [
     {
-      "label":"swagger:ServiceInfo",
+      "label":"openapi:ServiceInfo",
       "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
