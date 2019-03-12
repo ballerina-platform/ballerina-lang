@@ -2,10 +2,12 @@ import ballerina/io;
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
+    string currentPackageName;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
+    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
         self.mv = mv;
         self.indexMap = indexMap;
+        self.currentPackageName = currentPackageName;
     }
 
     function generateConstantLoadIns(bir:ConstantLoad loadIns) {
@@ -42,47 +44,8 @@ type InstructionGenerator object {
     }
 
     function generateMoveIns(bir:Move moveIns) {
-        int rhsIndex = self.getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl);
-        //io:println("RHS Index is :::::::::::", rhsIndex);
-        int lhsLndex = self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl);
-        //io:println("LHS Index is :::::::::::", lhsLndex);
-
-        bir:BType bType = moveIns.rhsOp.typeValue;
-        if (bType is bir:BTypeInt) {
-            self.mv.visitVarInsn(LLOAD, rhsIndex);
-            self.mv.visitVarInsn(LSTORE, lhsLndex);
-        } else if (bType is bir:BTypeFloat) {
-            self.mv.visitVarInsn(DLOAD, rhsIndex);
-            self.mv.visitVarInsn(DSTORE, lhsLndex);
-        } else if (bType is bir:BTypeString) {
-            self.mv.visitVarInsn(ALOAD, rhsIndex);
-            self.mv.visitVarInsn(ASTORE, lhsLndex);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ILOAD, rhsIndex);
-            self.mv.visitVarInsn(ISTORE, lhsLndex);
-        } else if (bType is bir:BTypeByte) {
-            self.mv.visitVarInsn(ILOAD, rhsIndex);
-            self.mv.visitVarInsn(ISTORE, lhsLndex);
-        } else if (bType is bir:BArrayType ||
-                        bType is bir:BMapType ||
-                        bType is bir:BTypeAny ||
-                        bType is bir:BTypeAnyData ||
-                        bType is bir:BTypeNil ||
-                        bType is bir:BUnionType ||
-                        bType is bir:BTupleType) {
-            self.mv.visitVarInsn(ALOAD, rhsIndex);
-            self.mv.visitVarInsn(ASTORE, lhsLndex);
-        } else if (bType is bir:BRecordType) {
-            self.mv.visitVarInsn(ALOAD, rhsIndex);
-            self.mv.visitVarInsn(ASTORE, lhsLndex);
-        } else if (bType is bir:BErrorType) {
-            self.mv.visitVarInsn(ALOAD, rhsIndex);
-            self.mv.visitVarInsn(ASTORE, lhsLndex);
-        } else {
-            error err = error( "JVM generation is not supported for type " +
-                                        io:sprintf("%s", moveIns.rhsOp.typeValue));
-            panic err;
-        }
+        self.generateVarLoad(moveIns.rhsOp.variableDcl);
+        self.generateVarStore(moveIns.lhsOp.variableDcl);
     }
 
 
@@ -349,9 +312,8 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ALOAD, keyIndex);
 
         // visit value_expr
-        int valueIndex = self.getJVMIndexOfVarRef(mapStoreIns.rhsOp.variableDcl);
         bir:BType valueType = mapStoreIns.rhsOp.variableDcl.typeValue;
-        self.generateLocalVarLoad(valueType, valueIndex);
+        self.generateVarLoad(mapStoreIns.rhsOp.variableDcl);
         addBoxInsn(self.mv, valueType);
 
         self.mv.visitMethodInsn(INVOKEVIRTUAL, MAP_VALUE, "put",
@@ -377,8 +339,7 @@ type InstructionGenerator object {
         // store in the target reg
         bir:BType targetType = mapStoreIns.lhsOp.variableDcl.typeValue;
         addUnboxInsn(self.mv, targetType);
-        int targetIndex = self.getJVMIndexOfVarRef(mapStoreIns.lhsOp.variableDcl);
-        self.generateLocalVarStore(targetType, targetIndex);
+        self.generateVarStore(mapStoreIns.lhsOp.variableDcl);
     }
 
     # Generate a new instance of an array value
@@ -408,9 +369,8 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ALOAD, varRefIndex);
         int keyIndex = self.getJVMIndexOfVarRef(inst.keyOp.variableDcl);
         self.mv.visitVarInsn(LLOAD, keyIndex);
-        int valueIndex = self.getJVMIndexOfVarRef(inst.rhsOp.variableDcl);
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
-        self.generateLocalVarLoad(valueType, valueIndex);
+        self.generateVarLoad(inst.rhsOp.variableDcl);
 
         string valueDesc = getTypeDesc(valueType);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
@@ -464,39 +424,85 @@ type InstructionGenerator object {
         self.mv.visitVarInsn(ASTORE, lhsIndex);
     }
 
-    function generateLocalVarLoad(bir:BType bType, int valueIndex) {
-        if (bType is bir:BTypeInt) {
-            self.mv.visitVarInsn(LLOAD, valueIndex);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ILOAD, valueIndex);
+    function generateVarLoad(bir:VariableDcl varDcl) {
+        bir:BType bType = varDcl.typeValue;
+
+        if (varDcl.kind == "GLOBAL") {
+            string varName = varDcl.name.value;
+            string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
+
+            if (bType is bir:BTypeInt) {
+                self.mv.visitFieldInsn(GETSTATIC, className, varName, "J");
+            } else if (bType is bir:BMapType) {
+                self.mv.visitFieldInsn(GETSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
+            } else {
+                error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
+                panic err;
+            }
         } else {
-            self.mv.visitVarInsn(ALOAD, valueIndex);
+            int valueIndex = self.getJVMIndexOfVarRef(varDcl);
+            if (bType is bir:BTypeInt) {
+                self.mv.visitVarInsn(LLOAD, valueIndex);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitVarInsn(DLOAD, valueIndex);
+            } else if (bType is bir:BTypeBoolean || bType is bir:BTypeByte) {
+                self.mv.visitVarInsn(ILOAD, valueIndex);
+            } else if (bType is bir:BArrayType ||
+                          bType is bir:BTypeString ||
+                          bType is bir:BMapType ||
+                          bType is bir:BTypeAny ||
+                          bType is bir:BTypeAnyData ||
+                          bType is bir:BTypeNil ||
+                          bType is bir:BUnionType ||
+                          bType is bir:BTupleType ||
+                          bType is bir:BRecordType ||
+                          bType is bir:BErrorType) {
+                self.mv.visitVarInsn(ALOAD, valueIndex);
+            } else {
+                error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
+                panic err;
+            }
         }
     }
 
-    function generateLocalVarStore(bir:BType bType, int valueIndex) {
-        if (bType is bir:BTypeInt) {
-            self.mv.visitVarInsn(LSTORE, valueIndex);
-        } else if (bType is bir:BTypeFloat) {
-            self.mv.visitVarInsn(DSTORE, valueIndex);
-        } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (bType is bir:BTypeByte) {
-            self.mv.visitVarInsn(ISTORE, valueIndex);
-        } else if (bType is bir:BArrayType ||
-                        bType is bir:BTypeString ||
-                        bType is bir:BMapType ||
-                        bType is bir:BTypeAny ||
-                        bType is bir:BTypeAnyData ||
-                        bType is bir:BTypeNil ||
-                        bType is bir:BUnionType ||
-                        bType is bir:BRecordType ||
-                        bType is bir:BErrorType) {
-            self.mv.visitVarInsn(ASTORE, valueIndex);
+    function generateVarStore(bir:VariableDcl varDcl) {
+        bir:BType bType = varDcl.typeValue;
+
+        if (varDcl.kind == "GLOBAL") {
+            string varName = varDcl.name.value;
+            string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
+
+            if (bType is bir:BTypeInt) {
+                self.mv.visitFieldInsn(PUTSTATIC, className, varName, "J");
+            } else if (bType is bir:BMapType) {
+                self.mv.visitFieldInsn(PUTSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
+            } else {
+                error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
+                panic err;
+            }
         } else {
-            error err = error( "JVM generation is not supported for type " +
-                                        io:sprintf("%s", bType));
-            panic err;
+            int valueIndex = self.getJVMIndexOfVarRef(varDcl);
+            if (bType is bir:BTypeInt) {
+                self.mv.visitVarInsn(LSTORE, valueIndex);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitVarInsn(DSTORE, valueIndex);
+            } else if (bType is bir:BTypeBoolean || bType is bir:BTypeByte) {
+                self.mv.visitVarInsn(ISTORE, valueIndex);
+            } else if (bType is bir:BArrayType ||
+                            bType is bir:BTypeString ||
+                            bType is bir:BMapType ||
+                            bType is bir:BTypeAny ||
+                            bType is bir:BTypeAnyData ||
+                            bType is bir:BTypeNil ||
+                            bType is bir:BUnionType ||
+                            bType is bir:BTupleType ||
+                            bType is bir:BRecordType ||
+                            bType is bir:BErrorType) {
+                self.mv.visitVarInsn(ASTORE, valueIndex);
+            } else {
+                error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
+                panic err;
+            }
         }
     }
 };

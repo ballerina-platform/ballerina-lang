@@ -80,7 +80,8 @@ public type PackageParser object {
         }
 
 //        BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, functions: funcs,
-//                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}});
+//                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue},
+//                    globalVars: globalVars});
 //        emitter.emitPackage();
 
         return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: funcs,

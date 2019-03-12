@@ -1,4 +1,6 @@
-function generateMethod(bir:Function func, jvm:ClassWriter cw) {
+function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
+    string currentPackageName = getPackageName(module.org.value, module.name.value);
+
     BalToJVMIndexMap indexMap = new;
     string funcName = untaint func.name.value;
     int returnVarRefIndex = -1;
@@ -110,7 +112,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         int m = 0;
         while (m < bb.instructions.length()) {
             bir:Instruction inst = bb.instructions[m];
-            InstructionGenerator instGen = new(mv, indexMap);
+            InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
@@ -134,7 +136,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
                     instGen.generateArrayValueLoad(inst);
                 }
             } else {
-                error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
             }
             m += 1;
@@ -453,7 +455,18 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
-    // todo : generate the global var init class and other crt0 loading
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
+    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
+
+    if (hasInitFunction(pkg)) {
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, mainClass, "..<init>", "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;",
+                            false);
+        mv.visitInsn(POP);
+    }
+
     generateUserDefinedTypes(mv, pkg.typeDefs);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
@@ -481,9 +494,6 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     // invoke the user's main method
-    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
-
     mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);
 
     if (!isVoidFunction) {
@@ -504,6 +514,15 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitInsn(RETURN);
     mv.visitMaxs(paramTypes.length() + 5, 10);
     mv.visitEnd();
+}
+
+function hasInitFunction(bir:Package pkg) returns boolean {
+    foreach var func in pkg.functions {
+        if (func.name.value == "..<init>") {
+            return true;
+        }
+    }
+    return false;
 }
 
 function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
