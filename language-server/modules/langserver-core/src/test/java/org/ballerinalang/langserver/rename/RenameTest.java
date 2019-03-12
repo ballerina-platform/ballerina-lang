@@ -59,9 +59,10 @@ public class RenameTest extends DefinitionTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         PrintStream out = System.out;
         JsonObject expected = configObject.getAsJsonObject("result");
-        out.println("=== Expected");
+        out.println("=== CRoot Rename" + this.configRoot.toAbsolutePath().toAbsolutePath());
+        out.println("=== Expected Rename");
         out.println(expected);
-        out.println("=== Actual");
+        out.println("=== Actual Rename");
         out.println(actualStr);
         out.println("============");
         JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");

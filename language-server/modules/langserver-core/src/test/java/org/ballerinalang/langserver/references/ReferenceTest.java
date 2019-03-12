@@ -57,7 +57,8 @@ public class ReferenceTest extends DefinitionTest {
 
         PrintStream out = System.out;
         JsonArray expected = configObject.getAsJsonArray("result");
-        out.println("=== Expected");
+        out.println("=== CRoot Ref" + this.configRoot.toAbsolutePath().toAbsolutePath());
+        out.println("=== Expected Ref");
         out.println(expected);
         out.println("=== Actual");
         out.println(actualStr);
