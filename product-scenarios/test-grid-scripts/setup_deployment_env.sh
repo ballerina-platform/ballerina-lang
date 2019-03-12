@@ -43,4 +43,3 @@ install_ballerina ${ballerina_version}
 
 # Store namespace to be cleaned up at the end
 echo "NamespacesToCleanup=${custom_namespace}" >> ${output_dir}/infrastructure-cleanup.properties
-

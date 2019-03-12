@@ -15,13 +15,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-readonly grand_parent_path=$(dirname ${parent_path})
-readonly great_grand_parent_path=$(dirname ${grand_parent_path})
-readonly great_great_grant_parent_path=$(dirname ${great_grand_parent_path})
+readonly test_data_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly test_data_grand_parent_path=$(dirname ${test_data_parent_path})
+readonly test_data_great_grand_parent_path=$(dirname ${test_data_grand_parent_path})
+readonly test_data_great_great_grant_parent_path=$(dirname ${test_data_great_grand_parent_path})
 
-. ${great_grand_parent_path}/usage.sh
-. ${great_grand_parent_path}/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${test_data_great_grand_parent_path}/usage.sh
+. ${test_data_great_grand_parent_path}/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function print_debug_info() {
     echo "Host And Port: ${external_ip}:${node_port}"
