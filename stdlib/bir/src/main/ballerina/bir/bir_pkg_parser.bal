@@ -81,8 +81,14 @@ public type PackageParser object {
 //                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}});
 //        emitter.emitPackage();
 
-        return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: funcs,
-                name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}};
+        var result = Function[].stamp(funcs);
+        if (result is Function[]) {
+            return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: result,
+                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}};
+        } else {
+            error err = error("error while parsing args");
+            panic err;
+        }
     }
 
     function parseImportMods() returns ImportModule[] {

@@ -6,13 +6,14 @@ public type PackageId record {
 
 public type Package record {
     ImportModule[] importModules = [];
-    TypeDef[] typeDefs = [];
-    GlobalVariableDcl[] globalVars = [];
-    Function[] functions = [];
+    TypeDef[] typeDefs;
+    GlobalVariableDcl[] globalVars;
+    Function[] functions;
     Name name = {};
     Name org = {};
     BType?[] types = [];
     Name versionValue = {};
+    !...;
 };
 
 public type ImportModule record {
@@ -22,9 +23,9 @@ public type ImportModule record {
 };
 
 public type TypeDef record {
-    Name name;
-    Visibility visibility;
-    BType typeValue;
+    Name name = {};
+    Visibility visibility = "PACKAGE_PRIVATE";
+    BType typeValue = "()";
 };
 
 public type Function record {
@@ -49,12 +50,12 @@ public type Name record {
 
 public type Instruction record  {
     InstructionKind kind;
-    any...; // This is to type match with Object type fields in subtypes
+    anydata...; // This is to type match with Object type fields in subtypes
 };
 
 public type Terminator record {
     TerminatorKind kind;
-    any...; // This is to type match with Object type fields in subtypes
+    anydata...; // This is to type match with Object type fields in subtypes
 };
 
 public type ADD "ADD";
@@ -115,7 +116,7 @@ public type VariableDcl record {
     VarKind kind = "LOCAL";
     Name name = {};
     BType typeValue = "()";
-    any...; // This is to type match with Object type fields in subtypes
+    anydata...; // This is to type match with Object type fields in subtypes
 };
 
 public type GlobalVariableDcl record {
@@ -322,15 +323,11 @@ public type TypeCast record {
     !...;
 };
 
-public type VarRef object {
-    public Kind kind;
-    public BType typeValue;
-    public VariableDcl variableDcl;
-    public function __init(Kind kind, BType typeValue, VariableDcl variableDcl) {
-        self.kind = kind;
-        self.typeValue = typeValue;
-        self.variableDcl = variableDcl;
-    }
+public type VarRef record {
+    Kind kind;
+    BType typeValue;
+    VariableDcl variableDcl;
+    !...;
 };
 
 public type Kind "VAR_REF"|"CONST";

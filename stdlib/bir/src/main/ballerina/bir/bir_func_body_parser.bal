@@ -22,9 +22,14 @@ public type FuncBodyParser object {
             instructions[i] = self.parseInstruction();
             i += 1;
         }
-        return { id: { value: id },
-            instructions: instructions,
-            terminator: self.parseTerminator() };
+
+        var ins = Instruction[].stamp(instructions);
+        if (ins is Instruction[]) {
+            return { id: { value: id }, instructions: ins, terminator: self.parseTerminator() };
+        } else {
+            error err = error("error while parsing instructions");
+            panic err;
+        }
     }
 
     public function parseInstruction() returns Instruction {
@@ -138,7 +143,7 @@ public type FuncBodyParser object {
             var pkgId = self.reader.readPackageIdCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
-            VarRef[] args = [];
+            VarRef?[] args = [];
             int i = 0;
             while (i < argsCount) {
                 args[i] = self.parseVarRef();
@@ -149,9 +154,16 @@ public type FuncBodyParser object {
             if (hasLhs){
                 lhsOp = self.parseVarRef();
             }
-            BasicBlock thenBB = self.parseBBRef();
-            Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
-            return call;
+
+            var result = VarRef[].stamp(args);
+            if (result is VarRef[]) {
+                BasicBlock thenBB = self.parseBBRef();
+                Call call = {args:result, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+                return call;
+            } else {
+                error err = error("error while parsing args");
+                panic err;
+            }
 
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
@@ -163,7 +175,7 @@ public type FuncBodyParser object {
         var kind = parseVarKind(self.reader);
         var varName = self.reader.readStringCpRef();
         var decl = getDecl(self.globalVarMap, self.localVarMap, kind, varName);
-        return new VarRef("VAR_REF", decl.typeValue, decl);
+        return {kind : "VAR_REF", typeValue : decl.typeValue, variableDcl : decl};
     }
 
     public function parseBBRef() returns BasicBlock {
