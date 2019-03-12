@@ -2988,13 +2988,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = checkTypeForIndexBasedAccess(accessExpr, actualType);
                     return actualType;
                 }
-                LinkedHashSet<BType> fieldTypes = collectRecordFieldTypes(recordType, new LinkedHashSet<>());
+                LinkedHashSet<BType> fieldTypes = recordType.fields.stream()
+                        .map(field -> field.type)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
                 if (recordType.restFieldType.tag != TypeTags.NONE) {
                     fieldTypes.add(recordType.restFieldType);
                 }
-                BUnionType unionType = BUnionType.create(null, fieldTypes);
-                unionType.getMemberTypes().add(symTable.nilType);
-                actualType = unionType;
+                fieldTypes.add(symTable.nilType);
+                actualType = BUnionType.create(null, fieldTypes);
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
@@ -3032,20 +3033,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
         }
         return actualType;
-    }
-
-    private LinkedHashSet<BType> collectRecordFieldTypes(BRecordType recordType, LinkedHashSet<BType> memberTypes) {
-        List<BField> fields = recordType.fields;
-        fields.stream()
-                .map(field -> field.type)
-                .forEach(fieldType -> {
-                    if (fieldType.tag == TypeTags.UNION) {
-                        collectMemberTypes((BUnionType) fieldType, memberTypes);
-                    } else {
-                        memberTypes.add(fieldType);
-                    }
-                });
-        return memberTypes;
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {

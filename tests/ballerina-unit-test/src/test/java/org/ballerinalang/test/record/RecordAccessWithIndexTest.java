@@ -191,15 +191,15 @@ public class RecordAccessWithIndexTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found 'string|int?'", 27, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid index expression: invalid finite type value space 'fieldOne|fieldTwo|0'", 54, 40);
+                "invalid record index expression: value space 'fieldOne|fieldTwo|0' out of range", 54, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid index expression: invalid finite type value space '0|1'", 55, 40);
+                "invalid record index expression: value space '0|1' out of range", 55, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid index expression: invalid finite type value space 'fieldOne|fieldTwo|0'", 58, 40);
+                "invalid record index expression: value space 'fieldOne|fieldTwo|0' out of range", 58, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid index expression: invalid finite type value space '0|1'", 59, 40);
+                "invalid record index expression: value space '0|1' out of range", 59, 40);
         BAssertUtil.validateError(negativeResult, i,
-                "invalid index expression: invalid finite type value space 'fieldOne|fieldTwo|fieldThree'", 60, 40);
+                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range", 60, 40);
     }
 
     @Test(description = "Test accessing an field of a noninitialized record",
