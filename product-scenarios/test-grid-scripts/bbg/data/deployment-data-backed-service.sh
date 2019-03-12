@@ -62,15 +62,14 @@ function deploy_mysql_resources() {
 function replace_variables_in_bal_file() {
     sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
     sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
-    sed -i "s:<path_to_JDBC_jar>:"${deployment_data_parent_path}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
+    sed -i "s:<path_to_JDBC_jar>:"${work_dir}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
     sed -i "s:<USERNAME>:ballerinascenarios:g" ${bal_path}
     sed -i "s:<PASSWORD>:ballerina75389:g" ${bal_path}
     sed -i "s:ballerina.guides.io:ballerinascenarios:g" ${bal_path}
 }
 
 function build_and_deploy_guide() {
-    readonly work_dir=$(pwd)
-    download_and_extract_mysql_connector
+    download_and_extract_mysql_connector ${work_dir}
     cd data-backed-service/guide
     ${ballerina_home}/bin/ballerina build data_backed_service --skiptests
     cd ../..

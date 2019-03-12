@@ -24,6 +24,7 @@ readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
 readonly input_dir=$1
 readonly output_dir=$2
+readonly work_dir=$(pwd)
 
 # Read infrastructure.properties content into an associative array
 declare -A infra_config
