@@ -356,6 +356,65 @@ function testFiniteTypeAsIndex() returns string {
     return result;
 }
 
+const string FIELD_FOUR = "fieldFour";
+type FiniteOne "fieldOne"|"fieldTwo";
+type FiniteTwo "fieldTwo"|"fieldThree";
+type FiniteThree FiniteOne|FiniteTwo|FIELD_FOUR;
+
+function testUnionInFiniteTypeAsIndex() returns string {
+    FiniteThree index1 = "fieldOne";
+    FiniteThree index2 = "fieldTwo";
+    FiniteThree index3 = "fieldThree";
+    FiniteThree index4 = "fieldFour";
+
+    Foo foo = {
+        fieldOne: "string",
+        fieldTwo: 100,
+        fieldThree: true,
+        fieldFour: (),
+        fieldFive: 25.5,
+        fieldSix: 96.9
+    };
+
+    string|int|boolean|() r1 = foo[index1];
+    var r2 = foo[index2];
+    string|int|boolean? r3 = foo[index3];
+    string|int|boolean|() r4 = foo[index4];
+
+    string result = "";
+    if r1 is string {
+        result += r1;
+    }
+    if r2 is int {
+        result += io:sprintf("%s", r2);
+    }
+    if r3 is boolean {
+        result += io:sprintf("%s", r3);
+    }
+    if r4 is () {
+        result += "()";
+    }
+
+    return result;
+}
+
+function testUnionInFiniteTypeAsIndexNoField() returns string {
+    FiniteThree index = "fieldFour";
+
+    Bar f = {
+        fieldOne: 50,
+        fieldTwo: "string",
+        fieldThree: true
+    };
+
+    var r1 = f[index];
+    if (r1 is ()) {
+        return "Passed";
+    } else {
+        return "Failed";
+    }
+}
+
 function testGetNonInitAttribute () returns string? {
     Person emp1 = {};
     Person emp2 = {};

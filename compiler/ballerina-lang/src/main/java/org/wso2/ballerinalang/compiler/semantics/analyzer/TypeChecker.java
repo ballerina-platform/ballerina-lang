@@ -2869,7 +2869,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.RECORD:
-                checkExpr(indexExpr, this.env, symTable.noType);
+                checkExpr(indexExpr, this.env, symTable.stringType);
                 actualType = checkRecordIndexBasedAccess(indexBasedAccessExpr, (BRecordType) varRefType);
                 break;
             case TypeTags.MAP:
@@ -3064,59 +3064,93 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkRecordIndexBasedAccess(BLangIndexBasedAccess accessExpr, BRecordType recordType) {
+        return checkRecordIndexBasedAccess(accessExpr, recordType, accessExpr.indexExpr.type);
+    }
+
+    private BType checkRecordIndexBasedAccess(BLangIndexBasedAccess accessExpr, BRecordType record, BType currentType) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (indexExpr.type.tag) {
+        switch (currentType.tag) {
             case TypeTags.STRING:
                 if (indexExpr.getKind() == NodeKind.LITERAL) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    actualType = checkRecordFieldAccess(accessExpr, names.fromString(fieldName), recordType);
+                    actualType = checkRecordFieldAccess(accessExpr, names.fromString(fieldName), record);
                     actualType = checkTypeForIndexBasedAccess(accessExpr, actualType);
                     return actualType;
                 }
-                LinkedHashSet<BType> fieldTypes = recordType.fields.stream()
+                LinkedHashSet<BType> fieldTypes = record.fields.stream()
                         .map(field -> field.type)
                         .collect(Collectors.toCollection(LinkedHashSet::new));
-                if (recordType.restFieldType.tag != TypeTags.NONE) {
-                    fieldTypes.add(recordType.restFieldType);
+                if (record.restFieldType.tag != TypeTags.NONE) {
+                    fieldTypes.add(record.restFieldType);
                 }
                 fieldTypes.add(symTable.nilType);
                 actualType = BUnionType.create(null, fieldTypes);
                 break;
             case TypeTags.FINITE:
-                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
+                BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
                     if (finiteMember.type.tag != TypeTags.STRING) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
                         return actualType;
                     }
                     if (finiteMember.getKind() != NodeKind.LITERAL) {
                         continue;
                     }
                     String fieldName = (String) ((BLangLiteral) finiteMember).value;
-                    BType fieldType = getRecordFieldType(accessExpr, names.fromString(fieldName), recordType);
+                    BType fieldType = getRecordFieldType(accessExpr, names.fromString(fieldName), record);
                     if (fieldType.tag == TypeTags.SEMANTIC_ERROR) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
                         return actualType;
                     }
-                    if (fieldType.tag == TypeTags.UNION) {
-                        collectMemberTypes((BUnionType) fieldType, possibleTypes);
-                    } else {
-                        possibleTypes.add(fieldType);
-                    }
+                    possibleTypes.add(fieldType);
                 }
                 if (possibleTypes.isEmpty()) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
                     break;
                 }
                 possibleTypes.add(symTable.nilType);
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
                         BUnionType.create(null, possibleTypes);
                 break;
-            default:
-                dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, indexExpr.type);
-                break;
+            case TypeTags.UNION:
+                LinkedHashSet<BType> possibleTypesByMember = new LinkedHashSet<>();
+                List<BFiniteType> finiteTypes = new ArrayList<>();
+                ((BUnionType) currentType).getMemberTypes().forEach(memType -> {
+                    if (memType.tag == TypeTags.FINITE) {
+                        finiteTypes.add((BFiniteType) memType);
+                    } else {
+                        BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, memType);
+                        if (possibleType.tag == TypeTags.UNION) {
+                            possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
+                        } else {
+                            possibleTypesByMember.add(possibleType);
+                        }
+                    }
+                });
+
+                BFiniteType finiteType;
+                if (finiteTypes.size() == 1) {
+                    finiteType = finiteTypes.get(0);
+                } else {
+                    Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+                    finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+                    finiteType = new BFiniteType(null, valueSpace);
+                }
+
+                BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, finiteType);
+                if (possibleType.tag == TypeTags.UNION) {
+                    possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
+                } else {
+                    possibleTypesByMember.add(possibleType);
+                }
+
+                if (possibleTypesByMember.contains(symTable.semanticError)) {
+                    return symTable.semanticError;
+                }
+                actualType = possibleTypesByMember.size() == 1 ? possibleTypesByMember.iterator().next() :
+                        BUnionType.create(null, possibleTypesByMember);
         }
         return actualType;
     }

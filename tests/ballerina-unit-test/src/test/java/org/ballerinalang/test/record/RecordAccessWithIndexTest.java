@@ -179,11 +179,23 @@ public class RecordAccessWithIndexTest {
         Assert.assertEquals(returns[0].stringValue(), "stringbarField98.995");
     }
 
+    @Test(description = "Test using expression as the index")
+    public void testUnionInFiniteTypeAsIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndex");
+        Assert.assertEquals(returns[0].stringValue(), "string100true()");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testUnionInFiniteTypeAsIndexNoField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndexNoField");
+        Assert.assertEquals(returns[0].stringValue(), "Passed");
+    }
+
     // Negative tests
 
     @Test(description = "Test accessing an undeclared record")
     public void testUndeclaredStructAccess() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'dpt1'", 3, 5);
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'id' in record 'Department'", 9, 5);
@@ -191,15 +203,18 @@ public class RecordAccessWithIndexTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found 'string|int?'", 27, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record index expression: value space 'fieldOne|fieldTwo|0' out of range", 54, 40);
+                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 57, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record index expression: value space '0|1' out of range", 55, 40);
+                "incompatible types: expected 'string', found '0|1'", 58, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record index expression: value space 'fieldOne|fieldTwo|0' out of range", 58, 40);
+                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 61, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record index expression: value space '0|1' out of range", 59, 40);
+                "incompatible types: expected 'string', found '0|1'", 62, 40);
+        BAssertUtil.validateError(negativeResult, i++,
+                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range", 63, 40);
         BAssertUtil.validateError(negativeResult, i,
-                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range", 60, 40);
+                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree|fieldFour' out of range",
+                64, 18);
     }
 
     @Test(description = "Test accessing an field of a noninitialized record",
