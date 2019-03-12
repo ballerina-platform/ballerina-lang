@@ -29,7 +29,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
@@ -39,6 +38,7 @@ public class ReferenceTest extends DefinitionTest {
     @BeforeClass
     public void init() throws Exception {
         this.configRoot = FileUtils.RES_DIR.resolve("reference").resolve("expected");
+        this.sourceRoot = FileUtils.RES_DIR.resolve("reference").resolve("sources");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
@@ -47,22 +47,14 @@ public class ReferenceTest extends DefinitionTest {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
-        Path sourcePath = projectPath.resolve(source.get("path")
-                .getAsString()).resolve(source.get("file").getAsString());
+        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
-        PrintStream out = System.out;
         JsonArray expected = configObject.getAsJsonArray("result");
-        out.println("=== CRoot Ref" + this.configRoot.toAbsolutePath().toAbsolutePath());
-        out.println("=== Expected Ref");
-        out.println(expected);
-        out.println("=== Actual");
-        out.println(actualStr);
-        out.println("============");
         JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
         this.alterExpectedUri(expected);
         this.alterActualUri(actual);

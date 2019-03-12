@@ -1,23 +1,22 @@
 {
   "source": {
-    "path": "module1/dir2",
-    "file": "dir2fl4.bal"
+    "file": "renameFl1.bal"
   },
   "position": {
-    "line": 2,
+    "line": 0,
     "character": 31
   },
   "result": {
     "changes":{
-      "module1/dir2/dir2fl4.bal":[
+      "renameFl1.bal":[
         {
           "range":{
             "start":{
-              "line":5,
+              "line":3,
               "character":8
             },
             "end":{
-              "line":5,
+              "line":3,
               "character":9
             }
           },
@@ -26,11 +25,11 @@
         {
           "range":{
             "start":{
-              "line":9,
+              "line":7,
               "character":13
             },
             "end":{
-              "line":9,
+              "line":7,
               "character":14
             }
           },
@@ -39,11 +38,11 @@
         {
           "range":{
             "start":{
-              "line":16,
+              "line":14,
               "character":31
             },
             "end":{
-              "line":16,
+              "line":14,
               "character":32
             }
           },
@@ -52,11 +51,11 @@
         {
           "range":{
             "start":{
-              "line":20,
+              "line":18,
               "character":15
             },
             "end":{
-              "line":20,
+              "line":18,
               "character":16
             }
           },
@@ -65,11 +64,11 @@
         {
           "range":{
             "start":{
-              "line":2,
+              "line":0,
               "character":31
             },
             "end":{
-              "line":2,
+              "line":0,
               "character":32
             }
           },

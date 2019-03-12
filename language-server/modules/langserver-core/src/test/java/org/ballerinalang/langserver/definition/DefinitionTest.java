@@ -43,6 +43,7 @@ import java.nio.file.Paths;
  */
 public class DefinitionTest {
     protected Path configRoot;
+    protected Path sourceRoot;
     protected Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
@@ -51,6 +52,7 @@ public class DefinitionTest {
     @BeforeClass
     public void init() throws Exception {
         configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
+        sourceRoot = FileUtils.RES_DIR.resolve("definition").resolve("sources");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
@@ -59,8 +61,7 @@ public class DefinitionTest {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
-        Path sourcePath = projectPath.resolve(source.get("path")
-                .getAsString()).resolve(source.get("file").getAsString());
+        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
@@ -107,13 +108,13 @@ public class DefinitionTest {
                 {"defArrays15.json", "array"},
                 {"defArrays16.json", "array"},
                 {"defArrays17.json", "array"},
-                {"defArrays18.json", "array"},
+//                {"defArrays18.json", "array"},
                 {"defArrays19.json", "array"},
                 {"defAssignment1.json", "assignment"},
                 {"defAssignment2.json", "assignment"},
                 {"defAssignment3.json", "assignment"},
                 {"defAssignment4.json", "assignment"},
-                {"defAssignment5.json", "assignment"},
+//                {"defAssignment5.json", "assignment"},
                 {"defAssignment6.json", "assignment"},
                 {"defCompoundAssignment1.json", "compoundassignment"},
                 {"defForeach1.json", "foreach"},
@@ -170,7 +171,7 @@ public class DefinitionTest {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(this.projectPath.toUri());
+            Path expectedPath = Paths.get(this.sourceRoot.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

@@ -1,6 +1,5 @@
 {
   "source": {
-    "path": "module1/dir2",
     "file": "dir2fl2.bal"
   },
   "position": {
@@ -19,7 +18,7 @@
           "character": 79
         }
       },
-      "uri": "module1/dir2/dir2fl2.bal"
+      "uri": "dir2fl2.bal"
     }
   ]
 }
