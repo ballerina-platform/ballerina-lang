@@ -401,7 +401,9 @@ function getTypeDesc(bir:BType bType) returns string {
 }
 
 function generateReturnType(bir:BType? bType) returns string {
-    if (bType is bir:BTypeInt) {
+    if (bType is ()) {
+        return ")V";
+    } else if (bType is bir:BTypeInt) {
         return ")J";
     } else if (bType is bir:BTypeFloat) {
         return ")D";
