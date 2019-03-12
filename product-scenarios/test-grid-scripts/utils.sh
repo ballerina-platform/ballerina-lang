@@ -15,8 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-readonly grand_parent_path=$(dirname ${parent_path})
+readonly utils_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly utils_grand_parent_path=$(dirname ${utils_parent_path})
 
 readonly cluster_name="ballerina-testgrid-cluster-v2"
 
@@ -61,17 +61,17 @@ function write_to_properties_file() {
 function install_ballerina() {
     local ballerina_version=$1
     wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-${ballerina_version}.zip --quiet
-    unzip ballerina-${ballerina_version}.zip -d ${parent_path}
-    ${parent_path}/ballerina-${ballerina_version}/bin/ballerina version
-    readonly ballerina_home=${parent_path}/ballerina-${ballerina_version}
+    unzip ballerina-${ballerina_version}.zip -d ${utils_parent_path}
+    ${utils_parent_path}/ballerina-${ballerina_version}/bin/ballerina version
+    readonly ballerina_home=${utils_parent_path}/ballerina-${ballerina_version}
 }
 
 function download_and_extract_mysql_connector() {
     wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
-    tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ${parent_path}
+    tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ${utils_parent_path}
 
-    ls ${parent_path}/mysql-connector-java-5.1.47
+    ls ${utils_parent_path}/mysql-connector-java-5.1.47
 }
 
 # Generate a random namespace name
@@ -93,7 +93,7 @@ function generate_random_name() {
 function wait_for_pod_readiness() {
     local timeout=300
     local interval=20
-    bash ${parent_path}/wait_for_pod_ready.sh ${timeout} ${interval}
+    bash ${utils_parent_path}/wait_for_pod_ready.sh ${timeout} ${interval}
 
     # Temporary sleep to check whether app eventually becomes ready..
     # Ideally there should have been a kubernetes readiness probe
@@ -115,11 +115,11 @@ function run_bbg_section_tests() {
     bash --version
     for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${input_dir} ${str} -P ${maven_profile}
+    mvn clean install -f ${utils_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${input_dir} ${str} -P ${maven_profile}
 
     mkdir -p ${output_dir}/scenarios
 
-    cp -r ${grand_parent_path}/bbg/${bbg_section}/target ${output_dir}/scenarios/${bbg_section}/
+    cp -r ${utils_grand_parent_path}/bbg/${bbg_section}/target ${output_dir}/scenarios/${bbg_section}/
 }
 
 # $1 - BBG repository name

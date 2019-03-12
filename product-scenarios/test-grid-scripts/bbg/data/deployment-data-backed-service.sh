@@ -15,13 +15,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-readonly grand_parent_path=$(dirname ${parent_path})
-readonly great_grand_parent_path=$(dirname ${grand_parent_path})
+readonly deployment_data_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly deployment_data_grand_parent_path=$(dirname ${deployment_data_parent_path})
+readonly deployment_data_great_grand_parent_path=$(dirname ${deployment_data_grand_parent_path})
 
-. ${great_grand_parent_path}/usage.sh
-. ${great_grand_parent_path}/utils.sh
-. ${great_grand_parent_path}/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${deployment_data_great_grand_parent_path}/usage.sh
+. ${deployment_data_great_grand_parent_path}/utils.sh
+. ${deployment_data_great_grand_parent_path}/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
     clone_bbg_and_set_bal_path
@@ -30,7 +30,7 @@ function setup_deployment() {
     build_and_deploy_guide
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
-    is_debug_enabled=${infra_config["isDebugEnabled"]}
+    local is_debug_enabled=${infra_config["isDebugEnabled"]}
     if [ ${is_debug_enabled} -eq "true" ]; then
         print_debug_info
     fi
@@ -63,7 +63,7 @@ function deploy_mysql_resources() {
 function replace_variables_in_bal_file() {
     sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
     sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
-    sed -i "s:<path_to_JDBC_jar>:"${parent_path}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
+    sed -i "s:<path_to_JDBC_jar>:"${deployment_data_parent_path}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
     sed -i "s:<USERNAME>:ballerinascenarios:g" ${bal_path}
     sed -i "s:<PASSWORD>:ballerina75389:g" ${bal_path}
     sed -i "s:ballerina.guides.io:ballerinascenarios:g" ${bal_path}
