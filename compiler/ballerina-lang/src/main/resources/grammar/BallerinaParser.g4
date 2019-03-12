@@ -99,7 +99,6 @@ fieldDefinition
 
 recordRestFieldDefinition
     :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
-    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral
@@ -168,12 +167,26 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
+    |   openRecordTypeDescriptor                                                                # openRecordTypeNameLabel
+    |   closedRecordTypeDescriptor                                                              # closedRecordTypeNameLabel
     ;
 
-recordFieldDefinitionList
-    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
+openRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* recordRestFieldDefinition? RIGHT_BRACE
     ;
+
+closedRecordTypeDescriptor
+    :   RECORD LEFT_BRACE PIPE fieldDescriptor* PIPE RIGHT_BRACE
+    ;
+
+fieldDescriptor
+    :   fieldDefinition
+    |   typeReference
+    ;
+
+//recordFieldDefinitionList
+//    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
+//    ;
 
 // Temporary production rule name
 simpleTypeName
