@@ -301,11 +301,10 @@ function waitTest27() returns map<anydata> {
     return m;
 }
 
-type sealedRec record {
+type sealedRec record {|
     int id = 0;
     string name = "default";
-    !...;
-};
+|};
 
 type openRec record {
     int id = 0;

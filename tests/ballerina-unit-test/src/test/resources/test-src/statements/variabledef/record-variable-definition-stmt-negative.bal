@@ -64,17 +64,15 @@ function mismatchTypes() {
 
 Person gPerson = {name: "Peter", married: true, extra: "extra"};
 
-type ClosedFoo record {
+type ClosedFoo record {|
     int a;
     ClosedBar b;
-    !...;
-};
+|};
 
-type ClosedBar record {
+type ClosedBar record {|
     float a;
     string b;
-    !...;
-};
+|};
 
 function testClosedBindingPattern() {
     Person {name, married, !...} = gPerson; // type 'Person' is not a closed record type

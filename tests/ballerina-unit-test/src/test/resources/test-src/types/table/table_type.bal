@@ -19,7 +19,7 @@ import ballerina/h2;
 import ballerina/io;
 import ballerina/time;
 
-type ResultPrimitive record {
+type ResultPrimitive record {|
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;
@@ -50,8 +50,7 @@ type ResultClosed record {
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
-    !...;
-};
+|};
 
 type ResultObject record {
     byte[] BLOB_TYPE;

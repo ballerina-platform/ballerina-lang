@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type OpenEmployee record {
+type OpenEmployee record {|
     string|json name = "";
     int id = 0;
 };
@@ -26,10 +26,9 @@ type OpenPerson record {
 type ClosedEmployee record {
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
-type OpenEmployeeTwo record {
+type OpenEmployeeTwo record {|
     string name;
     int...;
 };
@@ -47,14 +46,12 @@ type OpenRecordWithOptionalFieldTwo record {
 type ClosedRecordWithOptionalFieldOne record {
     string name;
     int one?;
-    !...;
-};
+|};
 
-type ClosedRecordWithOptionalFieldTwo record {
+type ClosedRecordWithOptionalFieldTwo record {|
     string name;
     int two?;
-    !...;
-};
+|};
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
     return (a == b) && !(a != b);

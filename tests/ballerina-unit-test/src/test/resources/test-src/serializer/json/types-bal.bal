@@ -16,7 +16,7 @@
 
 import ballerina/io;
 
-type Student record {
+type Student record {|
     string name = "";
     int age = 0;
     Grades grades = {};
@@ -27,8 +27,7 @@ type Grades record {
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
-    !...;
-};
+|};
 
 function getThatStudent() returns Student {
     Grades g = { maths: 100, physics:100, chemistry:100 };

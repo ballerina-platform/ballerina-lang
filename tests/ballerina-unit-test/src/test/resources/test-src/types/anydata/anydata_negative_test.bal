@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {
+type Foo record {|
     int ra = 0;
     any...;
 };
@@ -27,8 +27,7 @@ type Employee record {
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type ValueType int|float|string|boolean|byte;
 type DataType ValueType|table<any>|json|xml|Bar|map<anydata>|anydata[]|();

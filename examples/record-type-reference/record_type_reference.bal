@@ -1,10 +1,9 @@
 import ballerina/io;
 
-type Person record {
+type Person record {|
     string name;
     int age = 25;
-    !...;
-};
+|};
 
 type Employee record {
     // Referencing the `Person` record

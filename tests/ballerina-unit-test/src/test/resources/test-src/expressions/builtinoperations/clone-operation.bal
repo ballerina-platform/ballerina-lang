@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-public type Person record {
+public type Person record {|
     int id;
     string name;
     float salary;
@@ -30,8 +30,7 @@ type ConstrainedEmp record {
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type A record {
     int a;

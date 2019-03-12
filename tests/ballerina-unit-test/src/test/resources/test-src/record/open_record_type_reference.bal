@@ -18,7 +18,7 @@ import testorg/records version v1;
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 
-type ValType record {
+type ValType record {|
     int ri;
     float rf;
     string rs;
@@ -32,8 +32,7 @@ type ClosedValType record {
     string crs;
     boolean crb?;
     byte cry?;
-    !...;
-};
+|};
 
 type Foo1 record {
     int a;
@@ -62,14 +61,13 @@ type Person object {
     }
 };
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
-type Address record {
+type Address record {|
     string city;
     string country;
 };
@@ -86,8 +84,7 @@ type ClosedRefType record {
     xml crx;
     Person crp;
     Address cra?;
-    !...;
-};
+|};
 
 type Foo2 record {
     string s;

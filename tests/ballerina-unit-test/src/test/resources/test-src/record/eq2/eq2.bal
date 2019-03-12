@@ -1,4 +1,4 @@
-public type employee record {
+public type employee record {|
     int age = 0;
     string name = "";
     string address = "";
@@ -15,5 +15,4 @@ public type closedEmployee record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    !...;
-};
+|};

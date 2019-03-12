@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Age record {
+type Age record {|
     int age;
     string format;
 };
@@ -24,8 +24,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra?;
-    !...;
-};
+|};
 
 function testVariableAssignment() returns (string, boolean, int, string) {
     string fName;

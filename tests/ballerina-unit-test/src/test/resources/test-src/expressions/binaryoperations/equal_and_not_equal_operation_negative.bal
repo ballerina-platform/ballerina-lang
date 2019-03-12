@@ -120,7 +120,7 @@ function testEqualityWithNonAnydataType() returns boolean {
     return equals;
 }
 
-type Employee record {
+type Employee record {|
     string name;
     int id = 0;
 };
@@ -132,17 +132,14 @@ type Person record {
 
 type ClosedDept record {
     string code;
-    !...;
-};
+|};
 
-type EmployeeWithOptionalId record {
+type EmployeeWithOptionalId record {|
     string name;
     float id?;
-    !...;
-};
+|};
 
-type PersonWithOptionalId record {
+type PersonWithOptionalId record {|
     string name;
     string id?;
-    !...;
-};
+|};

@@ -170,12 +170,11 @@ function testRecordBindingPatternWithOnlyRestParam() {
     test:assertEquals(restParam.field7, <int[]>[8, 9, 10, 11], msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
 }
 
-type ClosedBindingPattern record {
+type ClosedBindingPattern record {|
     int field1;
     string field2;
     float field3;
-    !...;
-};
+|};
 
 @test:Config {}
 function testRecordBindingPatternWithClosedRestParam() {

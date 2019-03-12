@@ -2,12 +2,11 @@ import ballerina/io;
 import ballerina/task;
 
 // Define a custom record type to use in timer.
-public type Person record {
+public type Person record {|
     string name;
     int age;
     int maxAge;
-    !...;
-};
+|};
 
 public function main() {
     // Interval in which the timer should trigger.

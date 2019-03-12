@@ -14,15 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record {
+type Student record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
-type Employee record {
+type Employee record {|
     string name;
     string status;
     string batch;
@@ -33,8 +32,7 @@ type Person record {
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Teacher record {
     string name;
@@ -290,7 +288,7 @@ function stampAnyRecordToRecord() returns OpenEmployee|error {
 
 //--------------------------------- Nil type related scenarios ---------------------------------------------
 
-type ExtendedEmployeeWithNilMap record {
+type ExtendedEmployeeWithNilMap record {|
     string name;
     string status;
     string batch;
@@ -358,8 +356,7 @@ type ComplexPerson record {
     float score = 0.0;
     boolean alive = false;
     ComplexPerson[]? children?;
-    !...;
-};
+|};
 
 function stampComplexRecordToJSON() returns map<anydata>|error {
     int[] value = [67, 38, 91];

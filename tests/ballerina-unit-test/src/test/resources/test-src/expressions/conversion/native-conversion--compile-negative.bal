@@ -19,7 +19,7 @@ type PersonObj object {
     public int age = 10;
 };
 
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     Person? parent = ();
@@ -30,21 +30,18 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...;
-};
+|};
 
-type Person2 record {
+type Person2 record {|
     string name = "";
     int age = 0;
-    !...;
-};
+|};
 
-type Person3 record {
+type Person3 record {|
     string name = "";
     int age = 0;
     string gender = "";
-    !...;
-};
+|};
 
 function testFloatToIntWithMultipleArguments() returns int {
     float a = 5.0;

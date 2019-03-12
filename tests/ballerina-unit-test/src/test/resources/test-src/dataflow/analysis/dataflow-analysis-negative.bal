@@ -525,7 +525,7 @@ type E object {
     int c;
 };
 
-type Age record {
+type Age record {|
     int age;
     string format;
 };
@@ -535,8 +535,7 @@ type Person record {
     boolean married;
     Age age;
     (string, int) extra;
-    !...;
-};
+|};
 
 function testVariableAssignment() returns (string, boolean, int, string) {
     string fName;

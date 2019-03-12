@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Employee record {
+type Employee record {|
     string name;
     string status;
     string batch;
@@ -25,8 +25,7 @@ type Person record {
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type EmployeeObj object {
     public string name = "Mohan";

@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type Student record {
+type Student record {|
     string name;
     int age;
     Grades grades;
@@ -11,8 +11,7 @@ type Grades record {
     int maths;
     int physics;
     int chemistry;
-    !...;
-};
+|};
 
 public function main() {
     // This creates a `Student` record. Since all the fields are required and none of the fields

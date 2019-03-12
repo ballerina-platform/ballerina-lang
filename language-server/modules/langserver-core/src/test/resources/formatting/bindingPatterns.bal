@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Age record {
+type Age record {|
     int age;
     string format;
 };
@@ -22,8 +22,7 @@ type Age record {
 type Person record {
     string name;
     boolean married;
-    !...;
-};
+|};
 
 function simpleDefinition() returns (string, boolean) {
   Person p = {name: "Peter", married: true};Person {name: fName, married} = p;

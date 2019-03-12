@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type ClosedFoo record {
+type ClosedFoo record {|
     string s;
     int i;
-    !...;
-};
+|};
 
 type OpenedFoo record {
     string s;

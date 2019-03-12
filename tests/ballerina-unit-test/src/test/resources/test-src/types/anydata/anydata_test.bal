@@ -14,23 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {
+type Foo record {|
     int a = 0;
 };
 
 type ClosedFoo record {
     int ca = 0;
-    !...;
-};
+|};
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
     
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     Person? parent = ();
@@ -41,8 +39,7 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children = ();
-    !...;
-};
+|};
 
 function testLiteralValueAssignment() returns (anydata, anydata, anydata, anydata) {
     anydata adi = 10;

@@ -27,7 +27,7 @@ function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
     }
 }
 
-type Student record {
+type Student record {|
     int score = 0;
 };
 
@@ -37,15 +37,13 @@ public type CircuitBreakerInferredConfig record {
     boolean[] statusCodes = [];
     int noOfBuckets = 0;
     RollingWindow rollingWindow = {};
-    !...;
-};
+|};
 
-public type RollingWindow record {
+public type RollingWindow record {|
     int requestVolumeThreshold = 10;
     int timeWindowMillis = 60000;
     int bucketSizeMillis = 10000;
-    !...;
-};
+|};
 
 public type Bucket record {
     int id = 0;

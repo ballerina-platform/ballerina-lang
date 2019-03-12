@@ -80,12 +80,11 @@ function simpleTypes() returns string {
     return "Fail";
 }
 
-type Rec1 record {
+type Rec1 record {|
     int | float a;
-    !...;
-};
+|};
 
-type Rec2 record {
+type Rec2 record {|
     int | float a;
 };
 
@@ -99,8 +98,7 @@ type Rec4 record {
 
 type Rec5 record {
     int | float | boolean a;
-    !...;
-};
+|};
 
 
 function recordTypes() returns string {

@@ -1,14 +1,13 @@
 import ballerina/io;
 
-type RecordOne record {
+type RecordOne record {|
     string var1;
 };
 
 type RecordTwo record {
     string var1;
     int var2;
-    !...;
-};
+|};
 
 type RecordThree record {
     string var1;

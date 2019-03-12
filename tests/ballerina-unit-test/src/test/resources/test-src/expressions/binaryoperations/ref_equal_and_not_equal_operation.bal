@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type OpenEmployee record {
+type OpenEmployee record {|
     string name = "";
     int id = 0;
 };
@@ -27,8 +27,7 @@ type OpenPerson record {
 type ClosedEmployee record {
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
 type Abc object {
     public string name;

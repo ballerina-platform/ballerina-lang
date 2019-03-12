@@ -1,4 +1,4 @@
-type RecordName1 record {
+type RecordName1 record {|
     int a = 0;
     string s;
 };
@@ -27,8 +27,7 @@ type RecordName5 record {
 public type RecordName6 record {
     int a = 0;
     string s;
-    !...;
-};
+|};
 
 public type RecordName7 record {
     int a = 0;

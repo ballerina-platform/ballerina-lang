@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Age record {
+type Age record {|
     int age;
     string format;
 };
@@ -22,24 +22,21 @@ type Age record {
 type ClosedAge record {
     int age;
     string format;
-    !...;
-};
+|};
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
     Age age;
     (string, int) extra?;
-    !...;
-};
+|};
 
-type Person2 record {
+type Person2 record {|
     string name;
     boolean married;
     ClosedAge age;
     (string, int) extra?;
-    !...;
-};
+|};
 
 function testUndefinedSymbol() {
     // undefined symbols. age is not a closed record

@@ -162,14 +162,13 @@ function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean,
     return (b0, b1, b2, b3, b4);
 }
 
-type A3 record {
+type A3 record {|
     int x = 0;
 };
 
 type B3 record {
     int x = 0;
-    !...;
-};
+|};
 
 function testSealedRecordTypes() returns string {
     A3 a = {};

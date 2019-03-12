@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Employee record {
+type Employee record {|
     string name;
     int age;
     float salary;
@@ -24,16 +24,14 @@ type Student record {
     string name;
     int age;
     string batch;
-    !...;
-};
+|};
 
-type Person record {
+type Person record {|
     string name;
     int age;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Teacher record {
     string name;
