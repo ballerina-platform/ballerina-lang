@@ -100,7 +100,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request) {
+    public CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request) {
         String fileUri = request.getBallerinaDocument().getUri();
         Path formattingFilePath = new LSDocument(fileUri).getPath();
         Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
