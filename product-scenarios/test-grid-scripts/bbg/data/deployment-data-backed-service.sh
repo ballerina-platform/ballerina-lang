@@ -21,27 +21,23 @@ great_grand_parent_path=$(dirname ${grand_parent_path})
 
 . ${great_grand_parent_path}/usage.sh
 . ${great_grand_parent_path}/utils.sh
+. ${great_grand_parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
-source ${great_grand_parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
-
-clone_bbg
-
-deploy_mysql_resources
-
-replace_variables_in_bal_file
-
-build_and_deploy_guide
-
-wait_for_pod_readiness
-
-retrieve_and_write_properties_to_data_bucket
-
-print_debug_info
+function setup_deployment() {
+    clone_bbg_and_set_bal_path
+    deploy_mysql_resources
+    replace_variables_in_bal_file
+    build_and_deploy_guide
+    wait_for_pod_readiness
+    retrieve_and_write_properties_to_data_bucket
+    print_debug_info
+}
 
 ## Functions
-function clone_bbg() {
-    git clone https://github.com/ballerina-guides/data-backed-service --branch testgrid-onboarding
-    bal_path=data-backed-service/guide/data_backed_service/employee_db_service.bal
+function clone_bbg_and_set_bal_path() {
+    bbg_repo_name="data-backed-service"
+    clone_bbg ${bbg_repo_name}
+    bal_path=${bbg_repo_name}/guide/data_backed_service/employee_db_service.bal
 }
 
 function print_debug_info() {
@@ -82,6 +78,10 @@ function build_and_deploy_guide() {
 function retrieve_and_write_properties_to_data_bucket() {
     external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
     node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
-    echo "ExternalIP=${external_ip}" >> ${OUTPUT_DIR}/deployment.properties
-    echo "NodePort=${node_port}" >> ${OUTPUT_DIR}/deployment.properties
+    declare -A deployment_props
+    deployment_props["ExternalIP"]=${external_ip}
+    deployment_props["NodePort"]=${node_port}
+    write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
 }
+
+setup_deployment

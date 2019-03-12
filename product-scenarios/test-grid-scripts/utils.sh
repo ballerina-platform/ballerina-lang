@@ -129,3 +129,9 @@ function run_bbg_section_tests() {
 
     cp -r ${grand_parent_path}/bbg/${bbg_section}/target ${output_dir}/scenarios/${bbg_section}/
 }
+
+# $1 - BBG repository name
+function clone_bbg() {
+    bbg_repo=$1
+    git clone https://github.com/ballerina-guides/${bbg_repo} --branch testgrid-onboarding
+}
