@@ -85,7 +85,6 @@ function generate_random_database_name() {
 }
 
 function generate_random_name() {
-    local prefix=$1
     local new_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
     echo ${new_uuid}
 }
