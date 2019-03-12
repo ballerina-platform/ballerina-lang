@@ -1,6 +1,6 @@
 {
   "source": {
-    "file": "dir1fl1.bal"
+    "file": "defFl1.bal"
   },
   "position": {
     "line": 31,
@@ -18,7 +18,7 @@
           "character": 8
         }
       },
-      "uri": "dir1fl1.bal"
+      "uri": "defFl1.bal"
     }
   ]
 }

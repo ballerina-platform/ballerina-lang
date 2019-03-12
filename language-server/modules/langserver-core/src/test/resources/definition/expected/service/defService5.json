@@ -1,6 +1,6 @@
 {
   "source": {
-    "file": "dir2fl2.bal"
+    "file": "defFl3.bal"
   },
   "position": {
     "line": 16,
@@ -18,7 +18,7 @@
           "character": 30
         }
       },
-      "uri": "dir2fl2.bal"
+      "uri": "defFl3.bal"
     }
   ]
 }
