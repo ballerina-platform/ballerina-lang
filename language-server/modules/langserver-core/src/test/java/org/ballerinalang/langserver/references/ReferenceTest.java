@@ -29,6 +29,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
@@ -54,7 +55,13 @@ public class ReferenceTest extends DefinitionTest {
         String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
+        PrintStream out = System.out;
         JsonArray expected = configObject.getAsJsonArray("result");
+        out.println("=== Expected");
+        out.println(expected);
+        out.println("=== Actual");
+        out.println(actualStr);
+        out.println("============");
         JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
         this.alterExpectedUri(expected);
         this.alterActualUri(actual);

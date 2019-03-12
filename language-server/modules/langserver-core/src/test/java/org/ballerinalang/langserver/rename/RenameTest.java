@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,8 +57,13 @@ public class RenameTest extends DefinitionTest {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getRenameResponse(sourcePath.toString(), position, "renamedVal", serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-
+        PrintStream out = System.out;
         JsonObject expected = configObject.getAsJsonObject("result");
+        out.println("=== Expected");
+        out.println(expected);
+        out.println("=== Actual");
+        out.println(actualStr);
+        out.println("============");
         JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");
         this.alterExpectedUri(expected);
         this.alterActualUri(actual);
