@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,6 +52,7 @@ public class PackagingTestCase extends BaseTest {
     private String moduleName = "test";
     private String orgName = "integrationtests";
     private Map<String, String> envVariables;
+    private static PrintStream outStream = System.out;
 
     @BeforeClass()
     public void setUp() throws IOException {
@@ -131,6 +133,8 @@ public class PackagingTestCase extends BaseTest {
     public void testSearch() throws BallerinaTestException {
         String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
                 balServer.getServerHome());
+
+        outStream.println(actualMsg);
 
         // Check if the search results contains the following.
         Assert.assertTrue(actualMsg.contains(orgName + "/" + moduleName));
