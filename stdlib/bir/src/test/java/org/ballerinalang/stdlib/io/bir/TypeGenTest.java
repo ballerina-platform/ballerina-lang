@@ -35,7 +35,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-
+/**
+ * Test cases for bir type gen.
+ */
 public class TypeGenTest {
 
     public static final String EXPECTED_PREFIX = "// expected: ";
