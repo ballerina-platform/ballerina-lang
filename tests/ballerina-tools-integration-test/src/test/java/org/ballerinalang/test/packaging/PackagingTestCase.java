@@ -35,8 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.given;
@@ -51,12 +49,11 @@ public class PackagingTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
     private String moduleName = "test";
-    private String datePushed;
     private String orgName = "integrationtests";
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         createSettingToml();
@@ -78,8 +75,6 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
-        datePushed = dtf.format(LocalDateTime.now());
 
         // First try to push with the --no-build flag
         String firstMsg = "error: Couldn't locate the module artifact to be pushed. Run 'ballerina push' " +
@@ -139,7 +134,6 @@ public class PackagingTestCase extends BaseTest {
 
         // Check if the search results contains the following.
         Assert.assertTrue(actualMsg.contains(orgName + "/" + moduleName));
-        Assert.assertTrue(actualMsg.contains(datePushed));
         Assert.assertTrue(actualMsg.contains("Prints \"hello world\" to command line output"));
         Assert.assertTrue(actualMsg.contains("0.0.1"));
     }

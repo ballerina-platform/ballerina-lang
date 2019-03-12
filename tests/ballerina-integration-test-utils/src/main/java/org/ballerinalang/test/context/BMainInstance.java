@@ -295,9 +295,7 @@ public class BMainInstance implements BMain {
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
 
             Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+            env.putAll(envProperties);
 
             Process process = processBuilder.start();
 
