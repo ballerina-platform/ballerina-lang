@@ -20,7 +20,6 @@ readonly deployment_data_grand_parent_path=$(dirname ${deployment_data_parent_pa
 readonly deployment_data_great_grand_parent_path=$(dirname ${deployment_data_grand_parent_path})
 
 . ${deployment_data_great_grand_parent_path}/usage.sh
-. ${deployment_data_great_grand_parent_path}/utils.sh
 . ${deployment_data_great_grand_parent_path}/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
