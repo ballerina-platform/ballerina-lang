@@ -77,7 +77,7 @@ public class ObjectInitializerTest {
     @Test(description = "Test negative object initializers scenarios")
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 7);
         validateError(result, 0, "redeclared symbol 'Foo.__init'", 23, 14);
         validateError(result, 1,
                       "object initializer function can not be declared as private", 27, 4);
@@ -86,6 +86,13 @@ public class ObjectInitializerTest {
         validateError(result, 4,
                       "invalid object constructor for 'Person2': expected sub-type of 'error?', but found 'string?'",
                       54, 5);
+        validateError(result, 5,
+                      "invalid object constructor for 'Person3': expected sub-type of 'error?', but found 'error'",
+                      63, 5);
+        validateError(result, 6,
+                      "invalid object constructor for 'Person4': expected sub-type of 'error?', but found " +
+                              "'error|error'",
+                      85, 5);
     }
 
     @Test(description = "Test object initializer invocation")
@@ -159,13 +166,5 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).reason, "failed to create Person object");
         Assert.assertEquals(((BError) returns[0]).details.stringValue(), "{\"f\":\"foo\"}");
-    }
-
-    @Test(description = "Test returning only errors in initializer")
-    public void testErrorOnlyReturnInInit() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorOnlyReturnInInit");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).reason, "failed to create Person5 object");
     }
 }

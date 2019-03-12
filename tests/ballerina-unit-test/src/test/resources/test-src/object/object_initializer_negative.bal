@@ -56,3 +56,35 @@ type Person2 object {
         return "foo";
     }
 };
+
+type Person3 object {
+    string name;
+
+    function __init() returns error {
+        self.name = "";
+        error e = error("failed to create Person3");
+        return e;
+    }
+};
+
+type FooErrData record {
+    string f;
+};
+
+type FooErr error<string, FooErrData>;
+
+type BarErrData record {
+    string b;
+};
+
+type BarErr error<string, BarErrData>;
+
+type Person4 object {
+    string name;
+
+    function __init() returns FooErr|BarErr {
+        self.name = "";
+        FooErr e = error("Foo Error", {f:"foo"});
+        return e;
+    }
+};

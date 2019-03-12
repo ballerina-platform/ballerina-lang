@@ -1433,13 +1433,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void validateObjectInitFnReturnSignature(BLangFunction objectInitFn) {
         BType returnType = objectInitFn.returnTypeNode.type;
 
-        if (returnType.tag == TypeTags.UNION &&
-                ((BUnionType) returnType).getMemberTypes().stream()
-                        .noneMatch(type -> type.tag != TypeTags.NIL && type.tag != TypeTags.ERROR)) {
-            return;
+        if (returnType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (memberTypes.stream().noneMatch(type -> type.tag != TypeTags.NIL && type.tag != TypeTags.ERROR)
+                    && memberTypes.contains(symTable.nilType)) {
+                return;
+            }
         }
 
-        if (returnType.tag == TypeTags.NIL || returnType.tag == TypeTags.ERROR) {
+        if (returnType.tag == TypeTags.NIL) {
             return;
         }
 

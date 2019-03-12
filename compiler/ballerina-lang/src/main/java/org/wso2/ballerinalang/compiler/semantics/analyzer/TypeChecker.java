@@ -1156,17 +1156,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return unionType;
         } else if (initRetType.tag == TypeTags.NIL) {
             return objType;
-        } else if (initRetType.tag == TypeTags.ERROR) {
-            LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
-            retTypeMembers.add(objType);
-            retTypeMembers.add(initRetType);
-
-            BUnionType unionType = BUnionType.create(null, retTypeMembers);
-            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
-                                                         Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
-                                                         env.scope.owner);
-
-            return unionType;
         }
         return symTable.semanticError;
     }
