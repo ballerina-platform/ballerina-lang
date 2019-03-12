@@ -81,9 +81,9 @@ public class LSCompiler {
         java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
         ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         Optional<Lock> exModeLock = documentManager.enableExplicitMode(filePath);
-        Optional<Lock> fileLock = Optional.empty();
+        Optional<Lock> fileLock = documentManager.lockFile(filePath);
         try {
-            fileLock = documentManager.updateFile(filePath, content);
+            documentManager.updateFile(filePath, content);
             BallerinaFile bFile = INSTANCE.compileFile(filePath, phase);
             documentManager.closeFile(filePath);
             return bFile;
@@ -163,9 +163,9 @@ public class LSCompiler {
     public BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase,
                                               WorkspaceDocumentManager documentManager)
             throws LSCompilerException {
-        Optional<Lock> lock = Optional.empty();
+        Optional<Lock> lock = documentManager.lockFile(filePath);
         try {
-            lock = documentManager.updateFile(filePath, content);
+            documentManager.updateFile(filePath, content);
             return this.compileFile(filePath, phase);
         } catch (WorkspaceDocumentException e) {
             throw new LSCompilerException(
