@@ -113,7 +113,7 @@ function setup_env() {
 
 # $1 - BBG section directory name
 # $2 - Associative array of system property-value pairs
-function build_bbg_section() {
+function run_bbg_section_tests() {
     maven_profile=$1
     bbg_section=$2
     local -n properties_array=$3

@@ -24,59 +24,64 @@ great_grand_parent_path=$(dirname ${grand_parent_path})
 
 source ${great_grand_parent_path}/setup_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
-work_dir=$(pwd)
+clone_bbg
 
-git clone https://github.com/ballerina-guides/data-backed-service --branch testgrid-onboarding
+deploy_mysql_resources
 
-bal_path=data-backed-service/guide/data_backed_service/employee_db_service.bal
+replace_variables_in_bal_file
 
-download_and_extract_mysql_connector
-
-docker build -t ballerinascenarios/mysql-ballerina:1.0 data-backed-service/resources/
-
-docker login --username=ballerinascenarios --password=ballerina75389
-
-docker push ballerinascenarios/mysql-ballerina:1.0
-
-sed -i "s/mysql-ballerina/ballerinascenarios\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
-
-kubectl create -f data-backed-service/resources/kubernetes/
-
-sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
-
-sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
-
-sed -i "s:<path_to_JDBC_jar>:"${parent_path}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
-
-sed -i "s:<USERNAME>:ballerinascenarios:g" ${bal_path}
-
-sed -i "s:<PASSWORD>:ballerina75389:g" ${bal_path}
-
-sed -i "s:ballerina.guides.io:ballerinascenarios:g" ${bal_path}
-
-cat ${bal_path}
-
-cd data-backed-service/guide
-
-${ballerina_home}/bin/ballerina build data_backed_service --skiptests
-
-cd ../..
-
-kubectl apply -f ${work_dir}/data-backed-service/guide/target/kubernetes/data_backed_service
+build_and_deploy_guide
 
 wait_for_pod_readiness
 
-kubectl get pods
+retrieve_and_write_properties_to_data_bucket
 
-kubectl get svc ballerina-guides-employee-database-service -o=json
+print_debug_info
 
-kubectl get nodes --output wide
+## Functions
+function clone_bbg() {
+    git clone https://github.com/ballerina-guides/data-backed-service --branch testgrid-onboarding
+    bal_path=data-backed-service/guide/data_backed_service/employee_db_service.bal
+}
 
-external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
-node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
+function print_debug_info() {
+    cat ${bal_path}
+    kubectl get pods
+    kubectl get svc ballerina-guides-employee-database-service -o=json
+    kubectl get nodes --output wide
+    echo "ExternalIP: ${external_ip}"
+    echo "NodePort: ${node_port}"
+}
 
-echo "ExternalIP: ${external_ip}"
-echo "NodePort: ${node_port}"
+function deploy_mysql_resources() {
+    docker build -t ballerinascenarios/mysql-ballerina:1.0 data-backed-service/resources/
+    docker login --username=ballerinascenarios --password=ballerina75389
+    docker push ballerinascenarios/mysql-ballerina:1.0
+    sed -i "s/mysql-ballerina/ballerinascenarios\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
+    kubectl create -f data-backed-service/resources/kubernetes/
+}
 
-echo "ExternalIP=${external_ip}" >> ${OUTPUT_DIR}/deployment.properties
-echo "NodePort=${node_port}" >> ${OUTPUT_DIR}/deployment.properties
+function replace_variables_in_bal_file() {
+    sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
+    sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
+    sed -i "s:<path_to_JDBC_jar>:"${parent_path}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
+    sed -i "s:<USERNAME>:ballerinascenarios:g" ${bal_path}
+    sed -i "s:<PASSWORD>:ballerina75389:g" ${bal_path}
+    sed -i "s:ballerina.guides.io:ballerinascenarios:g" ${bal_path}
+}
+
+function build_and_deploy_guide() {
+    work_dir=$(pwd)
+    download_and_extract_mysql_connector
+    cd data-backed-service/guide
+    ${ballerina_home}/bin/ballerina build data_backed_service --skiptests
+    cd ../..
+    kubectl apply -f ${work_dir}/data-backed-service/guide/target/kubernetes/data_backed_service
+}
+
+function retrieve_and_write_properties_to_data_bucket() {
+    external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+    node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
+    echo "ExternalIP=${external_ip}" >> ${OUTPUT_DIR}/deployment.properties
+    echo "NodePort=${node_port}" >> ${OUTPUT_DIR}/deployment.properties
+}

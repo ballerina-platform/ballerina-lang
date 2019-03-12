@@ -26,33 +26,12 @@ great_great_grant_parent_path=$(dirname ${great_grand_parent_path})
 external_ip=${deployment_config["ExternalIP"]}
 node_port=${deployment_config["NodePort"]}
 
-host_port=${external_ip}:${node_port}
-
-echo "Host Port: ${host_port}"
-
-curl -v -X POST -d '{"name":"Alice", "age":20,"ssn":123456789,"employeeId":1}' \
-"http://${host_port}/records/employee" -H "Content-Type:application/json"
-
-curl -v  "http://${host_port}/records/employee/1"
-
-curl -v -X PUT -d '{"name":"Alice Updated", "age":30,"ssn":123456789,"employeeId":1}' \
-"http://${host_port}/records/employee" -H "Content-Type:application/json"
-
-curl -v -X DELETE "http://${host_port}/records/employee/1"
-
-mvn -version
-
-#mvn clean install -f ${great_great_grant_parent_path}/scenario-commons/pom.xml -Dmaven.repo.local=./tempm2
-
-#mvn clean install -f ${great_great_grant_parent_path}/bbg/data/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${INPUT_DIR} -Ddata.backed.service.host=${external_ip} -Ddata.backed.service.port=${node_port}
+echo "Host And Port: ${external_ip}:${node_port}"
 
 declare -A sys_prop_array
 
 sys_prop_array["data.backed.service.host"]=${external_ip}
 sys_prop_array["data.backed.service.port"]=${node_port}
 
-build_bbg_section bbg-data data sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
-
-#mkdir -p ${OUTPUT_DIR}/scenarios
-#
-#cp -r ${great_great_grant_parent_path}/bbg/data/target ${OUTPUT_DIR}/scenarios/data/
+# Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
+run_bbg_section_tests bbg-data data sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
