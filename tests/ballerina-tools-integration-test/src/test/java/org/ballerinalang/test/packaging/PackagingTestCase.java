@@ -134,6 +134,8 @@ public class PackagingTestCase extends BaseTest {
         String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
                 balServer.getServerHome());
 
+        envVariables.putIfAbsent("BALLERINA_CLI_WIDTH", "200");
+
         outStream.println(actualMsg);
 
         // Check if the search results contains the following.
