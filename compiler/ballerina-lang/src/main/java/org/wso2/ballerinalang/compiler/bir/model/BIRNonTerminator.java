@@ -262,7 +262,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A type cast expression
+     * A type cast expression.
      * <p>
      * e.g., int a = cast(int) b;
      *
