@@ -122,7 +122,7 @@ function build_bbg_section() {
     bash --version
     for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${grand_parent_path}/bbg/${bbg_section}/pom.xml -Dmaven.repo.local=./tempm2 -fae -Ddata.bucket.location=${input_dir} ${str}
+    mvn clean install -f ${grand_parent_path}/bbg/${bbg_section}/pom.xml -fae -Ddata.bucket.location=${input_dir} ${str}
 
     mkdir -p ${output_dir}/scenarios
 
@@ -130,5 +130,5 @@ function build_bbg_section() {
 }
 
 function build_scenarios_commons() {
-    mvn clean install -f ${grand_parent_path}/scenarios-commons/pom.xml -Dmaven.repo.local=./tempm2
+    mvn clean install -f ${grand_parent_path}/scenarios-commons/pom.xml
 }
