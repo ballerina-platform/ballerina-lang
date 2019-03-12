@@ -68,7 +68,8 @@ type InstructionGenerator object {
                         bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
-                        bType is bir:BUnionType) {
+                        bType is bir:BUnionType ||
+                        bType is bir:BTupleType) {
             self.mv.visitVarInsn(ALOAD, rhsIndex);
             self.mv.visitVarInsn(ASTORE, lhsLndex);
         } else if (bType is bir:BRecordType) {
@@ -386,10 +387,13 @@ type InstructionGenerator object {
     function generateArrayNewIns(bir:NewArray inst) {
         self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
-        
         bir:BType arrayType = inst.typeValue;
         if (arrayType is bir:BArrayType) {
             loadType(self.mv, arrayType.eType);
+            self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
+            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
+        } else if (arrayType is bir:BTupleType) {
+            loadType(self.mv, arrayType);
             self.mv.visitVarInsn(LLOAD, self.getJVMIndexOfVarRef(inst.sizeOp.variableDcl));
             self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
         }
@@ -437,18 +441,19 @@ type InstructionGenerator object {
         } else if (bType == "float") {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
             self.mv.visitVarInsn(DSTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
+        } else if (bType is bir:BRecordType) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+            self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT_VALUE),
-                                        false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
             self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(inst.lhsOp.variableDcl));
         }
     }
-    
+
     function generateNewErrorIns(bir:NewError newErrorIns) {
-        // create new error value
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
-        // visit reason and detail
         int reasonIndex = self.getJVMIndexOfVarRef(newErrorIns.reasonOp.variableDcl);
         int detailsIndex = self.getJVMIndexOfVarRef(newErrorIns.detailsOp.variableDcl);
         int lhsIndex = self.getJVMIndexOfVarRef(newErrorIns.lhsOp.variableDcl);

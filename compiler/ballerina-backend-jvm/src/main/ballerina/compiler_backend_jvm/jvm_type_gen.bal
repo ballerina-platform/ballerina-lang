@@ -369,6 +369,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTypeNone) {
         mv.visitInsn(ACONST_NULL);
         return;
+    } else if (bType is bir:BTupleType) {
+        loadTupleType(mv, bType);
+        return;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -439,6 +442,29 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 
     // initialize the union type using the members array
     mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", io:sprintf("([L%s;)V", BTYPE), false);
+    return;
+}
+
+# Load a Tuple type instance to the top of the stack.
+# 
+# + mv - method visitor
+# + bType - tuple type to be loaded
+function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
+    mv.visitTypeInsn(NEW, TUPLE_TYPE);
+    mv.visitInsn(DUP);
+    //new arraylist
+    mv.visitTypeInsn(NEW, ARRAY_LIST);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
+   
+    bir:BType[] tupleTypes = bType.tupleTypes;
+    foreach var tupleType in tupleTypes {
+        mv.visitInsn(DUP);
+        loadType(mv, tupleType);
+        mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+        mv.visitInsn(POP);
+    }
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;)V",LIST), false);
     return;
 }
 
