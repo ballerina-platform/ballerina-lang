@@ -707,12 +707,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
 
         boolean hasExplicitRestField = ctx.recordRestFieldDefinition() != null;
 
@@ -735,12 +735,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, true,
                                       false);
