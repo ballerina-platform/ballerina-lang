@@ -2259,7 +2259,7 @@
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.2.8</carbon.kernel.version>
-        <transport.http.version>6.0.271</transport.http.version>
+        <transport.http.version>6.0.274</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.8</carbon.config.version>

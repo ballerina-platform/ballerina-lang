@@ -2544,7 +2544,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return keyExpr.type;
     }
 
-    private BType checkIndexExprForStructFieldAccess(BLangExpression indexExpr) {
+    private BType checkIndexExprForObjectFieldAccess(BLangExpression indexExpr) {
         if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
             indexExpr.type = symTable.semanticError;
             dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
@@ -2567,8 +2567,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return BUnionType.create(null, actualType, symTable.nilType);
     }
 
-    private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, structType.tsymbol);
+    private BType checkRecordFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BRecordType recordType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
         if (fieldSymbol != symTable.notFoundSymbol) {
             // Setting the field symbol. This is used during the code generation phase
@@ -2576,35 +2576,59 @@ public class TypeChecker extends BLangNodeVisitor {
             return fieldSymbol.type;
         }
 
-        if (structType.tag == TypeTags.OBJECT) {
-            // check if it is an attached function pointer call
-            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
-                    fieldName.value));
-            fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
+        // Assuming this method is only used for records
+        if (recordType.sealed) {
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                    recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
+            return symTable.semanticError;
+        }
 
-            if (fieldSymbol == symTable.notFoundSymbol) {
-                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                        structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
-                return symTable.semanticError;
-            }
+        return recordType.restFieldType;
+    }
 
+    private BType getRecordFieldType(BLangVariableReference varReferExpr, Name fieldName, BRecordType recordType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
+
+        if (fieldSymbol != symTable.notFoundSymbol) {
             // Setting the field symbol. This is used during the code generation phase
             varReferExpr.symbol = fieldSymbol;
             return fieldSymbol.type;
         }
 
-        // Assuming this method is only used for objects and records
-        if (((BRecordType) structType).sealed) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                    structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
+        if (recordType.sealed) {
             return symTable.semanticError;
         }
 
-        return ((BRecordType) structType).restFieldType;
+        return recordType.restFieldType;
     }
 
-    private BType checkTupleFieldType(BTupleType tupleType, int indexValue) {
-        List<BType> tupleTypes = tupleType.tupleTypes;
+    private BType checkObjectFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BObjectType objectType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, objectType.tsymbol);
+
+        if (fieldSymbol != symTable.notFoundSymbol) {
+            // Setting the field symbol. This is used during the code generation phase
+            varReferExpr.symbol = fieldSymbol;
+            return fieldSymbol.type;
+        }
+
+        // check if it is an attached function pointer call
+        Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value,
+                fieldName.value));
+        fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, objectType.tsymbol);
+
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                    objectType.tsymbol.type.getKind().typeName(), objectType.tsymbol);
+            return symTable.semanticError;
+        }
+
+        // Setting the field symbol. This is used during the code generation phase
+        varReferExpr.symbol = fieldSymbol;
+        return fieldSymbol.type;
+    }
+
+    private BType checkTupleFieldType(BType tupleType, int indexValue) {
+        List<BType> tupleTypes = ((BTupleType) tupleType).tupleTypes;
         if (indexValue < 0 || tupleTypes.size() <= indexValue) {
             return symTable.semanticError;
         }
@@ -2790,8 +2814,10 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
+                actualType = checkObjectFieldAccess(fieldAccessExpr, fieldName, (BObjectType) varRefType);
+                break;
             case TypeTags.RECORD:
-                actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
+                actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
                 break;
             case TypeTags.MAP:
                 actualType = ((BMapType) varRefType).getConstraint();
@@ -2799,13 +2825,13 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAM:
                 BType streamConstraintType = ((BStreamType) varRefType).constraint;
                 if (streamConstraintType.tag == TypeTags.RECORD) {
-                    actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, streamConstraintType);
+                    actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) streamConstraintType);
                 }
                 break;
             case TypeTags.TABLE:
                 BType tableConstraintType = ((BTableType) varRefType).constraint;
                 if (tableConstraintType.tag == TypeTags.RECORD) {
-                    actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, tableConstraintType);
+                    actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) tableConstraintType);
                 }
                 break;
             case TypeTags.JSON:
@@ -2835,19 +2861,16 @@ public class TypeChecker extends BLangNodeVisitor {
         BType indexExprType;
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
+                indexExprType = checkIndexExprForObjectFieldAccess(indexExpr);
                 if (indexExprType.tag == TypeTags.STRING) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
+                    actualType = checkObjectFieldAccess(indexBasedAccessExpr, names.fromString(fieldName),
+                            (BObjectType) varRefType);
                 }
                 break;
             case TypeTags.RECORD:
-                indexExprType = checkIndexExprForStructFieldAccess(indexExpr);
-                if (indexExprType.tag == TypeTags.STRING) {
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    actualType = checkStructFieldAccess(indexBasedAccessExpr, names.fromString(fieldName), varRefType);
-                    actualType = checkTypeForIndexBasedAccess(indexBasedAccessExpr, actualType);
-                }
+                checkExpr(indexExpr, this.env, symTable.noType);
+                actualType = checkRecordIndexBasedAccess(indexBasedAccessExpr, (BRecordType) varRefType);
                 break;
             case TypeTags.MAP:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
@@ -3038,6 +3061,64 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 });
         return memberTypes;
+    }
+
+    private BType checkRecordIndexBasedAccess(BLangIndexBasedAccess accessExpr, BRecordType recordType) {
+        BType actualType = symTable.semanticError;
+        BLangExpression indexExpr = accessExpr.indexExpr;
+        switch (indexExpr.type.tag) {
+            case TypeTags.STRING:
+                if (indexExpr.getKind() == NodeKind.LITERAL) {
+                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                    actualType = checkRecordFieldAccess(accessExpr, names.fromString(fieldName), recordType);
+                    actualType = checkTypeForIndexBasedAccess(accessExpr, actualType);
+                    return actualType;
+                }
+                LinkedHashSet<BType> fieldTypes = recordType.fields.stream()
+                        .map(field -> field.type)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+                if (recordType.restFieldType.tag != TypeTags.NONE) {
+                    fieldTypes.add(recordType.restFieldType);
+                }
+                fieldTypes.add(symTable.nilType);
+                actualType = BUnionType.create(null, fieldTypes);
+                break;
+            case TypeTags.FINITE:
+                BFiniteType finiteIndexExpr = (BFiniteType) indexExpr.type;
+                LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
+                for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
+                    if (finiteMember.type.tag != TypeTags.STRING) {
+                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                        return actualType;
+                    }
+                    if (finiteMember.getKind() != NodeKind.LITERAL) {
+                        continue;
+                    }
+                    String fieldName = (String) ((BLangLiteral) finiteMember).value;
+                    BType fieldType = getRecordFieldType(accessExpr, names.fromString(fieldName), recordType);
+                    if (fieldType.tag == TypeTags.SEMANTIC_ERROR) {
+                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                        return actualType;
+                    }
+                    if (fieldType.tag == TypeTags.UNION) {
+                        collectMemberTypes((BUnionType) fieldType, possibleTypes);
+                    } else {
+                        possibleTypes.add(fieldType);
+                    }
+                }
+                if (possibleTypes.isEmpty()) {
+                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                    break;
+                }
+                possibleTypes.add(symTable.nilType);
+                actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
+                        BUnionType.create(null, possibleTypes);
+                break;
+            default:
+                dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, indexExpr.type);
+                break;
+        }
+        return actualType;
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {

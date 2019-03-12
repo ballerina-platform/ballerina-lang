@@ -295,15 +295,7 @@ function testDataflow_11() returns string {
     }
 }
 
-public int globalVar;
-
-function updateGlobalVar() {
-    globalVar = 4;
-}
-
-function testGlobalVar() returns int {
-    return globalVar;
-}
+int globalVar = 4;
 
 type Foo object {
     int a = globalVar;
@@ -318,10 +310,6 @@ type Foo object {
         self.c = c;
         self.e = e;
         self.f = f;
-    }
-
-    function getGlobalVar() returns int {
-        return globalVar;
     }
 
     function getA() returns int {
@@ -392,24 +380,7 @@ service echo on echoEP {
     }
 }
 
-string yyy;
-function testWorkers() returns string {
-    worker w1 returns string {
-        io:println(yyy);
-        yyy = "w1";
-        return yyy;
-    }
-
-    worker w2 returns string {
-        io:println(yyy);
-        yyy = "w2";
-        return "hello";
-    }
-    
-    return "hello";
-}
-
-function testCounpundAssignment() {
+function testCompoundAssignment() {
     int a;
     a += 2;
 }
@@ -465,9 +436,6 @@ type C object {
     function __init() {
     }
 };
-
-public int publicGlobalVar_1;
-int publicGlobalVar_2;
 
 public type D record {
     string a;
@@ -605,16 +573,6 @@ function testDataflow_12() returns string {
     return val;
 }
 
-(function () returns (int)) fa;
-
-function testDataflow_13() returns (int, int) {
-    int a = fa.call();
-    int b = fb.call();
-    return (a, b);
-}
-
-(function () returns (int)) fb;
-
 type F object {
     public int a;
     public int b;
@@ -627,6 +585,6 @@ function F.__init() {
     self.a = 1;
 }
 
-public function testDataFlow_14(){
+public function testDataFlow_13(){
     object { public string s; } o = new;
 }
