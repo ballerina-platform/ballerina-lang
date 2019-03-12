@@ -64,11 +64,29 @@
         </dependencies>
     </dependencyManagement>
 
-    <modules>
-        <module>scenarios-commons</module>
-        <module>http</module>
-        <module>bbg/data</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>scenarios-commons</module>
+                <module>http</module>
+                <module>bbg/data</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>bbg-data</id>
+            <modules>
+                <module>scenarios-commons</module>
+                <module>bbg/data</module>
+            </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
 
     <properties>
         <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
