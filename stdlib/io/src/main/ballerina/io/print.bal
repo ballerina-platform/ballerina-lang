@@ -19,7 +19,7 @@
 public extern function print((any|error)... values);
 
 # Prints `any` or `error` value(s) to the STDOUT followed by a new line.
-# + a - The value(s) to be printed.
+# + values - The value(s) to be printed.
 public extern function println((any|error)... values);
 
 # Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.

@@ -34,6 +34,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -238,6 +239,34 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannel");
     }
 
+    @Test(description = "Test 'write' function with `append = true` in ballerina/io package")
+    public void appendCharacters() throws IOException {
+        String initialContent = "Hi, I'm the initial content. ";
+        String appendingContent = "Hi, I was appended later. ";
+        String sourceToWrite = currentDirectoryPath + "/appendCharacterFile.txt";
+        //Will initialize the writable channel
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannel", args);
+
+        // Write chars to file
+        args = new BValue[]{new BString(initialContent), new BInteger(0)};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeCharacters", args);
+
+        //Will initialize the writable channel to append characters
+        args = new BValue[]{new BString(sourceToWrite), new BString("UTF-8")};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannelToAppend", args);
+
+        // Append chars to file
+        args = new BValue[]{new BString(appendingContent), new BInteger(0)};
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "appendCharacters", args);
+
+        Assert.assertEquals(readFile(sourceToWrite), initialContent + appendingContent);
+
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannel");
+        BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeWritableChannelToAppend");
+        deleteFile(sourceToWrite);
+    }
+
     @Test(description = "Test 'writeRecords' function in ballerina/io package")
     public void testWriteRecords() {
         String[] content = {"Name", "Email", "Telephone"};
@@ -361,5 +390,16 @@ public class IOTest {
         lines.forEach(line -> data.append(line.trim()));
         lines.close();
         return data.toString();
+    }
+
+    private String readFile(String path) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(path)));
+    }
+
+    private void deleteFile(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }
