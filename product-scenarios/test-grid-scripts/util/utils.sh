@@ -17,6 +17,7 @@
 
 readonly utils_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 readonly utils_grand_parent_path=$(dirname ${utils_parent_path})
+readonly utils_great_grand_parent_path=$(dirname ${utils_grand_parent_path})
 
 readonly cluster_name="ballerina-testgrid-cluster-v2"
 
@@ -125,11 +126,11 @@ function run_bbg_section_tests() {
     bash --version
     for x in "${!properties_array[@]}"; do sys_prop_str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${utils_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${__input_dir} ${sys_prop_str} -P ${maven_profile}
+    mvn clean install -f ${utils_great_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${__input_dir} ${sys_prop_str} -P ${maven_profile}
 
     mkdir -p ${__output_dir}/scenarios
 
-    cp -r ${utils_grand_parent_path}/bbg/${bbg_section}/target ${__output_dir}/scenarios/${bbg_section}/
+    cp -r ${utils_great_grand_parent_path}/bbg/${bbg_section}/target ${__output_dir}/scenarios/${bbg_section}/
 }
 
 # Clones the given BBG.
