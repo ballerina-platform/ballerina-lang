@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeAssert;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -183,6 +184,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birTypeCast.kind.getValue());
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
+    }
+
+    public void visit(TypeAssert birTypeAssert) {
+        buf.writeByte(birTypeAssert.kind.getValue());
+        birTypeAssert.lhsOp.accept(this);
+        birTypeAssert.rhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {

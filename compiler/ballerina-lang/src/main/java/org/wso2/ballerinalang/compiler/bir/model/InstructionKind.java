@@ -40,8 +40,9 @@ public enum InstructionKind {
     ARRAY_LOAD((byte) 12),
     NEW_ERROR((byte) 13),
     TYPE_CAST((byte) 14),
-    IS_LIKE((byte) 15),
-    TYPE_TEST((byte) 16),
+    TYPE_ASSERT((byte) 15),
+    IS_LIKE((byte) 16),
+    TYPE_TEST((byte) 17),
 
     // Binary expression related instructions.
     ADD((byte) 20),
