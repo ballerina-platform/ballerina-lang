@@ -6,7 +6,7 @@ dependencies {
     implementation 'info.picocli:picocli:3.3.0'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
     implementation project(':ballerina-launcher')
-    implementation project(':swagger-ballerina:ballerina-to-swagger')
+    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
     testCompile 'org.testng:testng:6.13.1'
 }
 
