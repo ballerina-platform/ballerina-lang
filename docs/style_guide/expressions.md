@@ -2,58 +2,62 @@
 
 ## Record Literals
 
-* When formatting fields in record literal 
-    - If empty, with no fields
-      - both braces will be placed on same line.
-      - No spaces between opening and closing brace.
+* If record literal is empty
+  - Both braces should be placed on the same line as the record.
+  - There shouldn't be any spaces between opening and closing brace.
       
-      ```ballerina
-          Person p = {};
-      ```
+    ```ballerina
+    Person p = {};
+    ```
+* If record literal is not empty closing brace should be put on its
+  own line and indent and aligned with the start position of the statement.
+  
+  ```ballerina
+  Person p = {
+      name: "john",
+      age: 20
+  };
+  ```
+### Fields
+* In a record literal fields can be arranged on a single line. Then
+  - A record field shouldn't have any spaces before comma.
+  - There Should be only one space after comma.
       
-    - Can arrange fields horizontally 
-      - Shouldn't have any spaces before comma.
-      - There Should be a single space after comma.
+    ```ballerina  
+    Person p = {name: "john", age: 20}; 
+    ``` 
+* There shouldn't be any spaces between key and colon.
+* There should be only one space between the colon and the value.
+  
+  ```ballerina
+  Person person = {
+      name: "john", // in this field Key is the "name" and value is "john".
+  };
+  ```
+* If at least one field is splitted in to a new line then all the fields should 
+  split in to new lines. For a example if record literal is as below
       
-      ```ballerina
+  ```ballerina
       
-      Person p = {name: "john", age: 20}; 
+  Person p = {name: "john",
+  age: 20}; 
       
-      ``` 
-    - There should be no spaces between key and colon.
-    - There should be a single space between the colon and the value.
-            
-      ```ballerina
-      Person person = {
-          name: "john", // in this field Key is the "name" and value is "john".
-      };
-      ```
-    - But if at least one field is splitted in to a new line then all the fields should splitted in to a new lines.
+  ``` 
+  then all the fields should be move in to new lines and should be block-indented.
       
-      If record literal is as below
-      
-      ```ballerina
-      
-      Person p = {name: "john",
-      age: 20}; 
-      
-      ``` 
-      then all the fields should be move in to new lines and should indent.
-      
-      ```ballerina
-      Person p = {
-          name: "john",
-          age: 20
-      };
-      ```
-    - 
+  ```ballerina
+  Person p = {
+      name: "john",
+      age: 20
+  };
+  ``` 
 ## Map Literal
 
 * Map literals uses the same formatting guidelines as [record literals](#record-literals). 
 
 ## Tuple
 
-* Arrange tuple on a single line.
+* Always try to Arrange tuple on a single line.
 
   ```ballerina
 
