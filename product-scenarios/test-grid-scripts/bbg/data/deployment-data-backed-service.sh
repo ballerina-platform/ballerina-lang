@@ -23,6 +23,7 @@ readonly deployment_data_great_grand_parent_path=$(dirname ${deployment_data_gra
 . ${deployment_data_great_grand_parent_path}/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
+    cat ${INPUT_DIR}/infrastructure.properties
     clone_bbg_and_set_bal_path
     deploy_mysql_resources
     replace_variables_in_bal_file
