@@ -32,8 +32,7 @@ public type BirChannelReader object {
         return self.cp.floats[self.reader.readInt32()];
     }
 
-    public function readPackageIdCpRef() returns PackageId {
-        //TODO do we need to replace packageId with module id?
+    public function readModuleIDCpRef() returns ModuleID {
         return self.cp.packages[self.reader.readInt32()];
     }
 

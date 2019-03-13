@@ -105,7 +105,7 @@ public class BinaryFileWriter {
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        String execFileName = cleanupExecFileName(fileName);
+        String execFileName = cleanupExecFileName(fileName, BLANG_COMPILED_PROG_EXT);
 
         // Generate code for the given executable
         ProgramFile programFile = this.codeGenerator.generateBALX(packageNode);
@@ -166,13 +166,13 @@ public class BinaryFileWriter {
      * Writes the given binary content as a java archive to specified location with the name.
      *
      * @param jarContent the binary content of jar
-     * @param packagePath path to be used for writing the jar file
+     * @param outputPath path to be used for writing the jar file
      * @param targetFileName file name of the jar to be used
      */
-    public void write(byte[] jarContent, String packagePath, String targetFileName) {
+    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
         Path path = null;
         try {
-            path = Paths.get(packagePath, cleanupExecutableJarFileName(targetFileName));
+            path = outputPath.resolve(cleanupExecFileName(targetFileName, BLANG_COMPILED_JAR_EXT));
             Files.write(path, jarContent);
         } catch (IOException e) {
             String msg = "error writing the jar file to '" + path + "': " + e.getMessage();
@@ -214,7 +214,7 @@ public class BinaryFileWriter {
         return packageID.getName().value + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
-    private String cleanupExecFileName(String fileName) {
+    private String cleanupExecFileName(String fileName, String extension) {
         String updatedFileName = fileName;
         if (updatedFileName == null || updatedFileName.isEmpty()) {
             throw new IllegalArgumentException("invalid target file name");
@@ -225,25 +225,8 @@ public class BinaryFileWriter {
                     updatedFileName.length() - BLANG_SOURCE_EXT.length());
         }
 
-        if (!updatedFileName.endsWith(BLANG_COMPILED_PROG_EXT)) {
-            updatedFileName += BLANG_COMPILED_PROG_EXT;
-        }
-        return updatedFileName;
-    }
-
-    private String cleanupExecutableJarFileName(String fileName) {
-        String updatedFileName = fileName;
-        if (updatedFileName == null || updatedFileName.isEmpty()) {
-            throw new IllegalArgumentException("invalid target file name");
-        }
-
-        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
-            updatedFileName = updatedFileName.substring(0,
-                    updatedFileName.length() - BLANG_SOURCE_EXT.length());
-        }
-
-        if (!updatedFileName.endsWith(BLANG_COMPILED_JAR_EXT)) {
-            updatedFileName += BLANG_COMPILED_JAR_EXT;
+        if (!updatedFileName.endsWith(extension)) {
+            updatedFileName += extension;
         }
         return updatedFileName;
     }

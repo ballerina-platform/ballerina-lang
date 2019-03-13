@@ -16,8 +16,8 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     string orgName = module.org.value;
     string moduleName = module.name.value;
 
-    // TODO: need to get source file name
-    string moduleClass = getModuleClassName(untaint orgName, untaint moduleName, untaint moduleName);
+    // TODO: need to get bal source file name for class name mapping
+    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint moduleName);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
@@ -36,6 +36,12 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     string pkgName = getPackageName(orgName, moduleName);
 
+    // populate global variable to class name mapping and generate them
+    foreach var globalVar in module.globalVars {
+        fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+        generatePackageVariable(globalVar, cw);
+    }
+
     // populate function to class name mapping
     foreach var func in module.functions {
         fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
@@ -43,7 +49,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw);
+        generateMethod(func, cw, module);
     }
 
     cw.visitEnd();
@@ -58,7 +64,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     string orgName = module.org.value;
     string moduleName = module.name.value;
 
-    string moduleClass = getModuleClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
+    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
@@ -77,6 +83,12 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     string pkgName = getPackageName(orgName, moduleName);
 
+    // populate global variable to class name mapping and generate them
+    foreach var globalVar in module.globalVars {
+        fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+        generatePackageVariable(globalVar, cw);
+    }
+
     // populate function to class name mapping
     foreach var func in module.functions {
         fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
@@ -90,7 +102,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw);
+        generateMethod(func, cw, module);
     }
 
     cw.visitEnd();
@@ -99,7 +111,23 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     pkgEntries[moduleClass + ".class"] = classContent;
 }
 
-function getModuleClassName(string orgName, string moduleName, string sourceFileName) returns string {
+function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
+    string varName = globalVar.name.value;
+    bir:BType bType = globalVar.typeValue;
+
+    if (bType is bir:BTypeInt) {
+        jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, varName, "J");
+        fv.visitEnd();
+    } else if (bType is bir:BMapType) {
+        jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, varName, io:sprintf("L%s;", MAP_VALUE));
+        fv.visitEnd();
+    } else {
+        error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
+        panic err;
+    }
+}
+
+function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
     string name = sourceFileName;
 
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {

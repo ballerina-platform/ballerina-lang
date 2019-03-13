@@ -204,6 +204,8 @@ const string BYTE_VALUE = "java/lang/Byte";
 const string OBJECT = "java/lang/Object";
 const string MAP = "java/util/Map";
 const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
+const string ARRAY_LIST = "java/util/ArrayList";
+const string LIST = "java/util/List";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -214,6 +216,7 @@ const string UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
 const string RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
 const string OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
+const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/BAttachedFunction";

@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,11 +125,11 @@ public class Compiler {
      * Writes the given binary content as a java archive to specified location with the name.
      *
      * @param jarContent the binary content of jar
-     * @param packagePath path to be used for writing the jar file
+     * @param outputPath path to be used for writing the jar file
      * @param targetFileName file name of the jar to be used
      */
-    public void write(byte[] jarContent, String packagePath, String targetFileName) {
-        this.binaryFileWriter.write(jarContent, packagePath, targetFileName);
+    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
+        this.binaryFileWriter.write(jarContent, outputPath, targetFileName);
     }
 
     public void list() {

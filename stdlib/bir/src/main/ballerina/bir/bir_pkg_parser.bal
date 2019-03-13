@@ -65,7 +65,7 @@ public type PackageParser object {
     }
 
     public function parsePackage() returns Package {
-        PackageId pkgId = self.reader.readPackageIdCpRef();
+        ModuleID pkgId = self.reader.readModuleIDCpRef();
         ImportModule[] importModules = self.parseImportMods();
         TypeDef[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl[] globalVars = self.parseGlobalVars();
@@ -77,14 +77,20 @@ public type PackageParser object {
             i += 1;
         }
 
-//        BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, functions: funcs,
-//                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}});
-//        emitter.emitPackage();
+//       BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
+//                                    functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
+//                                    versionValue: {value: pkgId.modVersion}});
+//       emitter.emitPackage();
 
         var result = Function[].stamp(funcs);
         if (result is Function[]) {
-            return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: result,
-                    name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.versionValue}};
+            return { importModules : importModules, 
+                     typeDefs : typeDefs, 
+                     globalVars : globalVars, 
+                     functions : result,
+                     name : { value: pkgId.name }, 
+                     org : { value: pkgId.org }, 
+                     versionValue : { value: pkgId.modVersion } };
         } else {
             error err = error("error while parsing args");
             panic err;
@@ -152,26 +158,39 @@ public type PackageParser object {
 };
 
 public function parseVarKind(BirChannelReader reader) returns VarKind {
-        int b = reader.readInt8();
-        if (b == 1) {
-            LocalVarKind local = "LOCAL";
-            return local;
-        } else if (b == 2) {
-            ArgVarKind arg = "ARG";
-            return arg;
-        } else if (b == 3) {
-            TempVarKind temp = "TEMP";
-            return temp;
-        } else if (b == 4) {
-            ReturnVarKind ret = "RETURN";
-            return ret;
-        } else if (b == 5) {
-            GlobalVarKind glob = "GLOBAL";
-            return glob;
-        }
-        error err = error("unknown var kind tag " + b);
-        panic err;
+    int b = reader.readInt8();
+    if (b == 1) {
+        LocalVarKind local = "LOCAL";
+        return local;
+    } else if (b == 2) {
+        ArgVarKind arg = "ARG";
+        return arg;
+    } else if (b == 3) {
+        TempVarKind temp = "TEMP";
+        return temp;
+    } else if (b == 4) {
+        ReturnVarKind ret = "RETURN";
+        return ret;
+    } else if (b == 5) {
+        GlobalVarKind ret = "GLOBAL";
+        return ret;
+    } 
+    error err = error("unknown var kind tag " + b);
+    panic err;
+}
+
+public function parseVarScope(BirChannelReader reader) returns VarScope {
+    int b = reader.readInt8();
+    if (b == 1) {
+        VarScope local = VAR_SCOPE_FUNCTION;
+        return local;
+    } else if (b == 2) {
+        VarScope glob = VAR_SCOPE_GLOBAL;
+        return glob;
     }
+    error err = error("unknown var scope tag " + b);
+    panic err;
+}
 
 public function parseVisibility(BirChannelReader reader) returns Visibility {
     int b = reader.readInt8();
