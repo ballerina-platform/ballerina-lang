@@ -1,5 +1,7 @@
 final map<string> fullQualifiedClassNames = {};
 
+final map<(bir:Call,string)> lambdas = {};
+
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];
 
@@ -43,7 +45,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw);
+        generateMethod(func, cw, moduleClass);
     }
 
     cw.visitEnd();
@@ -90,7 +92,11 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw);
+        generateMethod(func, cw, moduleClass);
+    }
+
+    foreach var (k,v) in lambdas {
+        generateLambdaMethod(v[0], cw, v[1], k);
     }
 
     cw.visitEnd();

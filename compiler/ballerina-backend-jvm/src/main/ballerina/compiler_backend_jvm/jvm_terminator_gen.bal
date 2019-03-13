@@ -2,6 +2,7 @@ type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     LabelGenerator labelGen;
+    int lambdaIndex = 0;
 
     public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen) {
         self.mv = mv;
@@ -64,7 +65,7 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    function genCallTerm(bir:Call callIns, string funcName) {
+    function genCallTerm(bir:Call callIns, string funcName, string className) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string methodName = callIns.name.value;
 
@@ -129,6 +130,13 @@ type TerminatorGenerator object {
         string returnTypeDesc = generateReturnType(returnType);
         methodDesc = methodDesc + returnTypeDesc;
 
+        //TODO: check isAsync start
+        if(true) {
+            string lambdaName = "$" + funcName + "$lambda$" + "$" + self.lambdaIndex + "$";
+            self.mv.visitInvokeDynamicInsn(className, lambdaName);
+            lambdas[lambdaName] = (callIns, className);
+            self.lambdaIndex += 1;
+        }
         // call method
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
 

@@ -1,10 +1,11 @@
-function generateMethod(bir:Function func, jvm:ClassWriter cw) {
+function generateMethod(bir:Function func, jvm:ClassWriter cw, string className) {
+    int lambdaIndex = 0;
     BalToJVMIndexMap indexMap = new;
     string funcName = untaint func.name.value;
     int returnVarRefIndex = -1;
 
     // generate method desc
-    string desc = getMethodDesc(func);
+    string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, null, null);
     mv.visitCode();
 
@@ -151,7 +152,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
-            termGen.genCallTerm(terminator, funcName);
+            termGen.genCallTerm(terminator, funcName, className);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -324,6 +325,35 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     mv.visitEnd();
 }
 
+function generateLambdaMethod(bir:Call callIns, jvm:ClassWriter cw, string className, string lambdaName) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, "lambda$stamp$0", "([Ljava/lang/Object;)Ljava/lang/Object;", null, null);
+    mv.visitCode();
+    mv.visitVarInsn(ALOAD, 0);
+
+    bir:BType[] paramTypes = callIns.args;
+
+    //load strand as first arg
+    mv.visitVarInsn(ALOAD, 1);
+    mv.visitIntInsn(BIPUSH, 0);
+    mv.visitInsn(AALOAD);
+
+    // load and cast param values
+    int paramIndex = 1;
+    foreach var paramType in paramTypes {
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitIntInsn(BIPUSH, paramIndex);
+        mv.visitInsn(AALOAD);
+        checkCast(paramType, mv);
+        paramIndex += 1;
+    }
+
+    mv.visitMethodInsn(INVOKEVIRTUAL, className, callIns.name.value, getMethodDesc(paramTypes, callIns.lhsOp.typeValue), false);
+    generateObjectCast(callIns.lhsOp.typeValue, mv);
+    mv.visitInsn(ARETURN);
+    mv.visitMaxs(paramTypes.length() + 2, 2);
+    mv.visitEnd();
+}
+
 function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     if (bType is bir:BTypeInt) {
         mv.visitInsn(LCONST_0);
@@ -358,14 +388,14 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     }
 }
 
-function getMethodDesc(bir:Function func) returns string {
+function getMethodDesc(bir:BType[] paramTypes, bir:BType retType) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
-    while (i < func.argsCount) {
-        desc = desc + getTypeDesc(func.typeValue.paramTypes[i]);
+    while (i < paramTypes.length()) {
+        desc = desc + getTypeDesc(paramTypes[i]);
         i += 1;
     }
-    string returnType = generateReturnType(func.typeValue.retType);
+    string returnType = generateReturnType(retType);
     desc =  desc + returnType;
 
     return desc;
@@ -455,7 +485,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
     }
 
-    string desc = getMethodDesc(userMainFunc);
+    string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
     mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
@@ -497,6 +527,68 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitInsn(RETURN);
     mv.visitMaxs(paramTypes.length() + 5, 10);
     mv.visitEnd();
+}
+# Generate cast instruction from Object to target type
+# 
+# + targetType - target type to be casted
+# + mv - method visitor
+function checkCast(bir:BType targetType, jvm:MethodVisitor mv) {  
+    if (targetType is bir:BTypeInt) {
+        mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
+    } else if (targetType is bir:BTypeFloat) {
+        mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "()D", false);
+    } else if (targetType is bir:BTypeString) {
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+    } else if (targetType is bir:BTypeBoolean) {
+        mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "()Z", false);
+    } else if (targetType is bir:BTypeByte) {
+        mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
+        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "parseByte", "()B", false);
+    } else if (targetType is bir:BArrayType) {
+        mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
+    } else if (targetType is bir:BMapType) {
+        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BTypeAny ||
+                targetType is bir:BTypeAnyData ||
+                targetType is bir:BTypeNil ||
+                targetType is bir:BUnionType) {
+        // do nothing
+        return;
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
+        panic err;
+    }
+}
+
+# Cast a given type to object
+# 
+# + targetType - target type to be casted
+# + mv - method visitor
+function generateObjectCast(bir:BType targetType, jvm:MethodVisitor mv) {  
+    if (targetType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+    } else if (targetType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", "(D)Ljava/lang/Double;", false);
+    } else if (targetType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", "(Z)Ljava/lang/Boolean;", false);
+    } else if (targetType is bir:BTypeByte) {
+        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", "(B)Ljava/lang/Byte;", false);
+    } else if (targetType is bir:BTypeAny ||
+                targetType is bir:BTypeAnyData ||
+                targetType is bir:BTypeNil ||
+                targetType is bir:BUnionType ||
+                targetType is bir:BTypeString ||
+                targetType is bir:BArrayType ||
+                targetType is bir:BMapType) {
+        // do nothing
+        return;
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
+        panic err;
+    }
 }
 
 function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
