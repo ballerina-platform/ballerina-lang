@@ -78,6 +78,12 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
+        } else if (kindTag == INS_TYPE_ASSERT) {
+            kind = INS_KIND_TYPE_ASSERT;
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            TypeAssert typeAssert = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return typeAssert;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
             var bType = self.typeParser.parseType();
@@ -133,23 +139,23 @@ public type FuncBodyParser object {
     public function parseTerminator() returns Terminator {
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
-            TerminatorKind kind = "BRANCH";
+            TerminatorKind kind = TERMINATOR_BRANCH;
             var op = self.parseVarRef();
             BasicBlock trueBB = self.parseBBRef();
             BasicBlock falseBB = self.parseBBRef();
             Branch branch = {falseBB:falseBB, kind:kind, op:op, trueBB:trueBB};
             return branch;
         } else if (kindTag == INS_GOTO){
-            TerminatorKind kind = "GOTO";
+            TerminatorKind kind = TERMINATOR_GOTO;
             GOTO goto = {kind:kind, targetBB:self.parseBBRef()};
             return goto;
         } else if (kindTag == INS_RETURN){
-            TerminatorKind kind = "RETURN";
+            TerminatorKind kind = TERMINATOR_RETURN;
             Return ret = {kind:kind};
             return ret;
         } else if (kindTag == INS_CALL){
-            TerminatorKind kind = "CALL";
-            var pkgId = self.reader.readPackageIdCpRef();
+            TerminatorKind kind = TERMINATOR_CALL;
+            var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
             VarRef[] args = [];
@@ -175,9 +181,10 @@ public type FuncBodyParser object {
 
     public function parseVarRef() returns VarRef {
         var kind = parseVarKind(self.reader);
+        var varScope = parseVarScope(self.reader);
         var varName = self.reader.readStringCpRef();
-        var decl = getDecl(self.globalVarMap, self.localVarMap, kind, varName);
-        return new VarRef("VAR_REF", decl.typeValue, decl);
+        var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName);
+        return new VarRef(decl.typeValue, decl);
     }
 
     public function parseBBRef() returns BasicBlock {
@@ -185,27 +192,27 @@ public type FuncBodyParser object {
     }
 
     public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
-        BinaryOpInstructionKind kind = "ADD";
+        BinaryOpInstructionKind kind = BINARY_ADD;
         if (kindTag == INS_ADD){
-            kind = "ADD";
+            kind = BINARY_ADD;
         } else if (kindTag == INS_SUB){
-            kind = "SUB";
+            kind = BINARY_SUB;
         } else if (kindTag == INS_MUL){
-            kind = "MUL";
+            kind = BINARY_MUL;
         } else if (kindTag == INS_DIV){
-            kind = "DIV";
+            kind = BINARY_DIV;
         } else if (kindTag == INS_EQUAL){
-            kind = "EQUAL";
+            kind = BINARY_EQUAL;
         } else if (kindTag == INS_NOT_EQUAL){
-            kind = "NOT_EQUAL";
+            kind = BINARY_NOT_EQUAL;
         } else if (kindTag == INS_GREATER_THAN){
-            kind = "GREATER_THAN";
+            kind = BINARY_GREATER_THAN;
         } else if (kindTag == INS_GREATER_EQUAL){
-            kind = "GREATER_EQUAL";
+            kind = BINARY_GREATER_EQUAL;
         } else if (kindTag == INS_LESS_THAN){
-            kind = "LESS_THAN";
+            kind = BINARY_LESS_THAN;
         } else if (kindTag == INS_LESS_EQUAL){
-            kind = "LESS_EQUAL";
+            kind = BINARY_LESS_EQUAL;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;
@@ -220,8 +227,8 @@ public type FuncBodyParser object {
 
 };
 
-function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarKind kind, string varName) returns VariableDcl {
-    if (kind is GlobalVarKind) {
+function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName) returns VariableDcl {
+    if (varScope == VAR_SCOPE_GLOBAL) {
         var posibalDcl = globalVarMap[varName];
         if (posibalDcl is VariableDcl) {
             return posibalDcl;

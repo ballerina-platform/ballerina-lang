@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeAssert;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -185,6 +186,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         birTypeCast.rhsOp.accept(this);
     }
 
+    public void visit(TypeAssert birTypeAssert) {
+        buf.writeByte(birTypeAssert.kind.getValue());
+        birTypeAssert.lhsOp.accept(this);
+        birTypeAssert.rhsOp.accept(this);
+    }
+
     public void visit(BIRNonTerminator.IsLike birIsLike) {
         buf.writeByte(birIsLike.kind.getValue());
         birIsLike.type.accept(typeWriter);
@@ -202,6 +209,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Operands
     public void visit(BIROperand birOperand) {
         buf.writeByte(birOperand.variableDcl.kind.getValue());
+        buf.writeByte(birOperand.variableDcl.scope.getValue());
         // TODO use the integer index of the variable.
         addCpAndWriteString(birOperand.variableDcl.name.value);
     }

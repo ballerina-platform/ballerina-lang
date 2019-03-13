@@ -285,9 +285,32 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
+     * A type assert expression.
+     * <p>
+     * e.g., int a = assert(int) b;
+     *
+     * @since 0.995.0
+     */
+    public static class TypeAssert extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public TypeAssert(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_ASSERT);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A is like instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., a isLike b
      *
      * @since 0.980.0
      */
@@ -310,9 +333,9 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
-     * A is like instruction.
+     * A type test instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., a is int
      *
      * @since 0.980.0
      */
