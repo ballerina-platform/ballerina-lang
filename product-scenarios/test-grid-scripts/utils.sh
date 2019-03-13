@@ -110,17 +110,17 @@ function run_bbg_section_tests() {
     local maven_profile=$1
     local bbg_section=$2
     local -n properties_array=$3
-    local input_dir=$4
-    local output_dir=$5
+    local __input_dir=$4
+    local __output_dir=$5
     local sys_prop_str=""
     bash --version
-    for x in "${!properties_array[@]}"; do str+="-D$x=${properties_array[$x]} " ; done
+    for x in "${!properties_array[@]}"; do sys_prop_str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${utils_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${input_dir} ${str} -P ${maven_profile}
+    mvn clean install -f ${utils_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${__input_dir} ${sys_prop_str} -P ${maven_profile}
 
-    mkdir -p ${output_dir}/scenarios
+    mkdir -p ${__output_dir}/scenarios
 
-    cp -r ${utils_grand_parent_path}/bbg/${bbg_section}/target ${output_dir}/scenarios/${bbg_section}/
+    cp -r ${utils_grand_parent_path}/bbg/${bbg_section}/target ${__output_dir}/scenarios/${bbg_section}/
 }
 
 # $1 - BBG repository name
