@@ -186,27 +186,27 @@ public type FuncBodyParser object {
     }
 
     public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
-        BinaryOpInstructionKind kind = "ADD";
+        BinaryOpInstructionKind kind = BINARY_ADD;
         if (kindTag == INS_ADD){
-            kind = "ADD";
+            kind = BINARY_ADD;
         } else if (kindTag == INS_SUB){
-            kind = "SUB";
+            kind = BINARY_SUB;
         } else if (kindTag == INS_MUL){
-            kind = "MUL";
+            kind = BINARY_MUL;
         } else if (kindTag == INS_DIV){
-            kind = "DIV";
+            kind = BINARY_DIV;
         } else if (kindTag == INS_EQUAL){
-            kind = "EQUAL";
+            kind = BINARY_EQUAL;
         } else if (kindTag == INS_NOT_EQUAL){
-            kind = "NOT_EQUAL";
+            kind = BINARY_NOT_EQUAL;
         } else if (kindTag == INS_GREATER_THAN){
-            kind = "GREATER_THAN";
+            kind = BINARY_GREATER_THAN;
         } else if (kindTag == INS_GREATER_EQUAL){
-            kind = "GREATER_EQUAL";
+            kind = BINARY_GREATER_EQUAL;
         } else if (kindTag == INS_LESS_THAN){
-            kind = "LESS_THAN";
+            kind = BINARY_LESS_THAN;
         } else if (kindTag == INS_LESS_EQUAL){
-            kind = "LESS_EQUAL";
+            kind = BINARY_LESS_EQUAL;
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;
