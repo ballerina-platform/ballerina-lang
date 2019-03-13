@@ -18,8 +18,11 @@
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
 import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BType;
@@ -48,7 +51,6 @@ public class BTypeBValueProviders {
     private static final String ELEM_TYPE = "elemType";
     private static final String PACKAGE_PATH = "packagePath";
     private static final String TYPE_NAME = "typeName";
-    private static final String VALUE_CLASS = "valueClass";
 
     private BTypeBValueProviders() {
     }
@@ -72,15 +74,11 @@ public class BTypeBValueProviders {
         public BPacket toBValue(BAnyType type, BValueSerializer serializer) {
             String packagePath = type.getPackagePath();
             String typeName = type.getName();
-            Class<?> clazz = type.getValueClass();
-
             BPacket packet = BPacket.from(typeName(), null);
             if (packagePath != null) {
                 packet.put(PACKAGE_PATH, new BString(packagePath));
             }
             packet.put(TYPE_NAME, new BString(typeName));
-            packet.put(VALUE_CLASS, serializer.toBValue(clazz, null));
-
             return packet;
         }
 
@@ -96,6 +94,54 @@ public class BTypeBValueProviders {
 
             try {
                 Constructor<BAnyType> constructor = BAnyType.class.getDeclaredConstructor(String.class, String.class);
+                constructor.setAccessible(true);
+                return constructor.newInstance(typeName, pkgPath);
+            } catch (InstantiationException | IllegalAccessException |
+                    InvocationTargetException | NoSuchMethodException e) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Provide mapping between {@link BAnydataType} and {@link BValue} representation of it.
+     */
+    public static class BAnydataTypeBValueProvider implements SerializationBValueProvider<BAnydataType> {
+
+        @Override
+        public Class<?> getType() {
+            return BAnydataType.class;
+        }
+
+        @Override
+        public String typeName() {
+            return getType().getName();
+        }
+
+        @Override
+        public BPacket toBValue(BAnydataType type, BValueSerializer serializer) {
+            String packagePath = type.getPackagePath();
+            String typeName = type.getName();
+            BPacket packet = BPacket.from(typeName(), null);
+            if (packagePath != null) {
+                packet.put(PACKAGE_PATH, new BString(packagePath));
+            }
+            packet.put(TYPE_NAME, new BString(typeName));
+            return packet;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public BAnydataType toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+            String typeName = packet.get(TYPE_NAME).stringValue();
+            String pkgPath = null;
+            BValue pkgP = packet.get(PACKAGE_PATH);
+            if (pkgP != null) {
+                pkgPath = pkgP.stringValue();
+            }
+            try {
+                Constructor<BAnydataType> constructor =
+                        BAnydataType.class.getDeclaredConstructor(String.class, String.class);
                 constructor.setAccessible(true);
                 return constructor.newInstance(typeName, pkgPath);
             } catch (InstantiationException | IllegalAccessException |
@@ -148,6 +194,39 @@ public class BTypeBValueProviders {
     }
 
     /**
+     * Provide mapping between {@link BMapType} and {@link BValue} representation of it.
+     */
+    public static class BMapTypeBValueProvider implements SerializationBValueProvider<BMapType> {
+
+        @Override
+        public Class<?> getType() {
+            return BMapType.class;
+        }
+
+        @Override
+        public String typeName() {
+            return getType().getName();
+        }
+
+        @Override
+        public BPacket toBValue(BMapType type, BValueSerializer serializer) {
+            BType elementType = type.getConstrainedType();
+            BPacket packet = BPacket.from(typeName(), null);
+            packet.put(ELEM_TYPE, serializer.toBValue(elementType, null));
+            return packet;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public BMapType toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+            BType elemType = (BType) bValueDeserializer.deserialize(packet.get(ELEM_TYPE), BType.class);
+            BMapType bMapType = new BMapType(elemType);
+            bValueDeserializer.addObjReference(packet.toBMap(), bMapType);
+            return bMapType;
+        }
+    }
+
+    /**
      * Provide mapping between {@link BObjectType} and {@link BValue} representation of it.
      */
     public static class BObjectTypeBValueProvider implements SerializationBValueProvider<BObjectType> {
@@ -155,6 +234,11 @@ public class BTypeBValueProviders {
         private static final String PACKAGE_PATH = "packagePath";
         private static final String TYPE_NAME = "typeName";
         private static final String FLAGS = "flags";
+        private static final String FIELDS = "fields";
+
+        private static final String ATTACHED_FUNCTIONS = "attachedFunctions";
+        private static final String INITIALIZER = "initializer";
+        private static final String DEFAULT_INIT = "defaultsValuesInitFunc";
 
         @Override
         public Class<?> getType() {
@@ -171,11 +255,19 @@ public class BTypeBValueProviders {
             String packagePath = objType.getPackagePath();
             String typeName = objType.getName();
             int flags = objType.flags;
+            BValue fields = serializer.toBValue(objType.getFields(), null);
+            BValue attachedFunctions = serializer.toBValue(objType.getAttachedFunctions(), null);
+            BValue initializer = serializer.toBValue(objType.initializer, null);
+            BValue defaultsValuesInitFunc = serializer.toBValue(objType.defaultsValuesInitFunc, null);
 
             BPacket packet = BPacket.from(typeName(), null);
             packet.put(PACKAGE_PATH, new BString(packagePath));
             packet.put(TYPE_NAME, new BString(typeName));
             packet.put(FLAGS, new BInteger(flags));
+            packet.put(FIELDS, fields);
+            packet.put(ATTACHED_FUNCTIONS, attachedFunctions);
+            packet.put(INITIALIZER, initializer);
+            packet.put(DEFAULT_INIT, defaultsValuesInitFunc);
 
             return packet;
         }
@@ -190,6 +282,21 @@ public class BTypeBValueProviders {
             ObjectTypeInfo objectTypeInfo = new ObjectTypeInfo();
             BObjectType bObjectType = new BObjectType(objectTypeInfo, typeName, pkgPath, flags);
             objectTypeInfo.setType(bObjectType);
+
+            bValueDeserializer.addObjReference(packet.toBMap(), bObjectType);
+            LinkedHashMap fields = (LinkedHashMap) bValueDeserializer
+                    .deserialize(packet.get(FIELDS), LinkedHashMap.class);
+            BAttachedFunction[] attachedFunctions = (BAttachedFunction[]) bValueDeserializer
+                    .deserialize(packet.get(ATTACHED_FUNCTIONS), BAttachedFunction[].class);
+            BAttachedFunction initializer = (BAttachedFunction) bValueDeserializer
+                    .deserialize(packet.get(INITIALIZER), BAttachedFunction.class);
+            BAttachedFunction defaultsValuesInitFunc = (BAttachedFunction) bValueDeserializer
+                    .deserialize(packet.get(DEFAULT_INIT), BAttachedFunction.class);
+
+            bObjectType.setFields(fields);
+            bObjectType.setAttachedFunctions(attachedFunctions);
+            bObjectType.initializer = initializer;
+            bObjectType.defaultsValuesInitFunc = defaultsValuesInitFunc;
             return bObjectType;
         }
     }
