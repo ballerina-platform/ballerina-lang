@@ -30,6 +30,9 @@ readonly work_dir=$(pwd)
 declare -A infra_config
 read_property_file "${input_dir}/infrastructure.properties" infra_config
 
+readonly docker_user=infra_config["dockerhub_ballerina_scenarios_username"]
+readonly docker_password=infra_config["dockerhub_ballerina_scenarios_password"]
+
 # Update kube config to point to the existing cluster
 aws eks update-kubeconfig --name ${cluster_name}
 # Create a custom random namespace
