@@ -160,7 +160,7 @@ function testHexAssignment8() returns decimal {
 
 // Test assigning negative hexadecimal literal with positive power but without floating point.
 function testHexAssignment9() returns (decimal, decimal) {
-    decimal d1 = -0x1A2Fp5;
+    decimal d1 = -0X1A2Fp5;
     decimal d2 = -0x1A2FP5;
     return (d1, d2);
 }
@@ -168,7 +168,7 @@ function testHexAssignment9() returns (decimal, decimal) {
 // Test assigning negative hexadecimal literal with negative power but without floating point.
 function testHexAssignment10() returns (decimal, decimal) {
     decimal d1 = -0x1A2Fp-2;
-    decimal d2 = -0x1A2FP-2;
+    decimal d2 = -0X1A2FP-2;
     return (d1, d2);
 }
 
@@ -188,7 +188,7 @@ function testHexAssignment12() returns (decimal, decimal) {
 
 // Test assigning a hexadecimal literal with extra whitespaces
 function testHexWithAdditionalWhiteSpaces() returns decimal {
-    decimal d =     -    0x1A2F.1C2p-2;
+    decimal d =     -    0X1A2F.1C2p-2;
     return d;
 }
 
