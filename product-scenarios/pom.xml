@@ -86,6 +86,16 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
+        <profile>
+            <id>bbg-kafka</id>
+            <modules>
+                <module>scenarios-commons</module>
+                <module>bbg/kafka</module>
+            </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
     </profiles>
 
     <properties>

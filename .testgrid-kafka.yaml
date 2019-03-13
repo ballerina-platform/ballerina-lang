@@ -1,0 +1,49 @@
+# TestGrid Test Configuration Parameters
+version: '0.9'
+emailToList: "thisaru@wso2.com"
+infrastructureConfig:
+  infrastructureProvider: SHELL
+  containerOrchestrationEngine: K8S
+  includes:
+    - Ubuntu-18.04
+    - MySQL-5.7
+    - OracleJDK-8
+  provisioners:
+  - name: ballerina-deployment
+    remoteRepository: "git@github.com:ballerina-platform/aws-ballerina.git"
+    remoteBranch: "use-existing-cluster"
+    description: creates infrastructure for ballerina scenario tests
+    scripts:
+      - name: ballerina-deployment
+        description: Creates Kubernetes infrastructure for a database and ballerina installed instance.
+        type: SHELL
+        phase: CREATE
+        file: bbg/common_infra.sh
+      - name: destroy
+        file: bbg/common-cleanup.sh
+        type: SHELL
+        phase: DESTROY
+scenarioConfigs:
+- testType: TESTNG
+  remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+  remoteBranch: "ballerina-scenarios"
+  name: "ballerinaScenarios"
+  description: "ballerina-scenarios"
+  file: product-scenarios/test-grid-scripts/bbg/kafka/test-kafka-service.sh
+  inputParameters:
+    BallerinaVersion: "0.990.3"
+    isDebugEnabled: "true"
+deploymentConfig:
+  deploymentPatterns:
+    - name: 'scenario-tests'
+      description: 'dummy'
+      remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+      remoteBranch: "ballerina-scenarios"
+      dir: .
+      scripts:
+        - name: 'default'
+          type: SHELL
+          file: product-scenarios/test-grid-scripts/bbg/kafka/deployment-kafka-service.sh
+          inputParameters:
+            BallerinaVersion: "0.990.3"
+            isDebugEnabled: "true"
