@@ -16,11 +16,12 @@
 
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
+# The time format defined by the RFC-1123.
 public type TimeFormat "RFC_1123";
 
 # Ballerina TimeZone represents the time-zone information associated with a particular time.
 #
-# + is - Zone short ID or offset string
+# + id - Zone short ID or offset string
 # + offset - The offset in seconds
 public type TimeZone record {
     string id;
@@ -38,7 +39,8 @@ public type Time record {
     !...;
 };
 
-public type TimeError record {
+
+type TimeError record {
     string message;
     !...;
 };
