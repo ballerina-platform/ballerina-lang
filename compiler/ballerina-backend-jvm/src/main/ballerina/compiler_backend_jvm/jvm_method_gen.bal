@@ -2,7 +2,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
-    string funcName = untaint func.name.value;
+    string funcName = cleanupFunctionName(untaint func.name.value);
     int returnVarRefIndex = -1;
 
     // generate method desc
@@ -459,7 +459,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, mainClass, "..<init>", "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;",
+        mv.visitMethodInsn(INVOKESTATIC, mainClass, "__init_", "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;",
                             false);
         mv.visitInsn(POP);
     }
@@ -591,7 +591,7 @@ type BalToJVMIndexMap object {
 function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     foreach var func in pkg.functions {
         var currentFunc = untaint func;
-        var frameName = currentFunc.name.value + "Frame";
+        var frameName = cleanupFunctionName(currentFunc.name.value) + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
         generateDefaultConstructor(cw);
@@ -666,4 +666,8 @@ function generateDefaultConstructor(jvm:ClassWriter cw) {
     mv.visitInsn(RETURN);
     mv.visitMaxs(1, 1);
     mv.visitEnd();
+}
+
+function cleanupFunctionName(string functionName) returns string {
+    return functionName.replaceFirst("..<", "__").replaceFirst(">", "_");
 }
