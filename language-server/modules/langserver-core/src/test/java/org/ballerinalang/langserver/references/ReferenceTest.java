@@ -17,24 +17,37 @@
  */
 package org.ballerinalang.langserver.references;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.definition.DefinitionTest;
+import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test suit for testing find all references.
  */
-public class ReferenceTest extends DefinitionTest {
+public class ReferenceTest {
+    private Path configRoot;
+    private Path sourceRoot;
+    protected Gson gson = new Gson();
+    protected JsonParser parser = new JsonParser();
+    protected Endpoint serviceEndpoint;
+
     @BeforeClass
     public void init() throws Exception {
         this.configRoot = FileUtils.RES_DIR.resolve("reference").resolve("expected");
@@ -63,10 +76,37 @@ public class ReferenceTest extends DefinitionTest {
 
 
     @DataProvider
-    @Override
     public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
                 {"refFunction1.json", "function"}
         };
+    }
+
+    @AfterClass
+    public void shutDownLanguageServer() throws IOException {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
+    }
+
+    private void alterExpectedUri(JsonArray expected) throws IOException {
+        for (JsonElement jsonElement : expected) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
+            Path expectedPath = Paths.get(this.sourceRoot.toUri());
+            for (String uriComponent : uriComponents) {
+                expectedPath = expectedPath.resolve(uriComponent);
+            }
+            item.remove("uri");
+            item.addProperty("uri", expectedPath.toFile().getCanonicalPath());
+        }
+    }
+
+    private void alterActualUri(JsonArray actual) throws IOException {
+        for (JsonElement jsonElement : actual) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String uri = item.get("uri").toString().replace("\"", "");
+            String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+            item.remove("uri");
+            item.addProperty("uri", canonicalPath);
+        }
     }
 }

@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -42,9 +43,9 @@ import java.nio.file.Paths;
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    protected Path configRoot;
-    protected Path sourceRoot;
-    protected Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
+    private Path configRoot;
+    private Path sourceRoot;
+    private Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
@@ -63,14 +64,40 @@ public class DefinitionTest {
         JsonObject source = configObject.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
+        this.compareResults(sourcePath, position, configObject, sourceRoot);
+    }
 
+    @Test(description = "Test Go to definition between two files in same module")
+    public void testDifferentFiles() throws IOException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
+                .resolve("defMultiFile1.json").toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        String dirPath = source.get("dir").getAsString().replace("/", CommonUtil.FILE_SEPARATOR);
+        Path sourcePath = projectPath.resolve(dirPath).resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
+        this.compareResults(sourcePath, position, configObject, projectPath);
+    }
+
+    @Test(description = "Test Go to definition between two modules")
+    public void testDifferentModule() throws IOException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
+                .resolve("defMultiPkg1.json").toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        String dirPath = source.get("dir").getAsString().replace("/", CommonUtil.FILE_SEPARATOR);
+        Path sourcePath = projectPath.resolve(dirPath).resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
+        this.compareResults(sourcePath, position, configObject, projectPath);
+    }
+
+    private void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
+            throws IOException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonArray("result");
-        this.alterExpectedUri(expected);
+        this.alterExpectedUri(expected, root);
         this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);
     }
@@ -82,7 +109,6 @@ public class DefinitionTest {
                 {"defXMLNS2.json", "xmlns"},
                 {"defXMLNS3.json", "xmlns"},
                 {"defFunction1.json", "function"},
-//                {"defFunction2.json", "function"},
                 {"defFunction3.json", "function"},
                 {"defFunction4.json", "function"},
                 {"defFunction5.json", "function"},
@@ -108,13 +134,11 @@ public class DefinitionTest {
                 {"defArrays15.json", "array"},
                 {"defArrays16.json", "array"},
                 {"defArrays17.json", "array"},
-//                {"defArrays18.json", "array"},
                 {"defArrays19.json", "array"},
                 {"defAssignment1.json", "assignment"},
                 {"defAssignment2.json", "assignment"},
                 {"defAssignment3.json", "assignment"},
                 {"defAssignment4.json", "assignment"},
-//                {"defAssignment5.json", "assignment"},
                 {"defAssignment6.json", "assignment"},
                 {"defCompoundAssignment1.json", "compoundassignment"},
                 {"defForeach1.json", "foreach"},
@@ -157,8 +181,6 @@ public class DefinitionTest {
                 {"defMatchStmt6.json", "matchstmt"},
                 {"defTransaction1.json", "transaction"},
                 {"defGlobal1.json", "global"},
-                {"defGlobal2.json", "global"},
-                {"defGlobal3.json", "global"},
         };
     }
     
@@ -167,11 +189,11 @@ public class DefinitionTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    protected void alterExpectedUri(JsonArray expected) throws IOException {
+    private void alterExpectedUri(JsonArray expected, Path root) throws IOException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
-            Path expectedPath = Paths.get(this.sourceRoot.toUri());
+            Path expectedPath = Paths.get(root.toUri());
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }
@@ -180,7 +202,7 @@ public class DefinitionTest {
         }
     }
 
-    protected void alterActualUri(JsonArray actual) throws IOException {
+    private void alterActualUri(JsonArray actual) throws IOException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
             String uri = item.get("uri").toString().replace("\"", "");

@@ -15,12 +15,15 @@
  */
 package org.ballerinalang.langserver.rename;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.definition.DefinitionTest;
+import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,7 +39,12 @@ import java.nio.file.Paths;
  *
  * @since 0.982.0
  */
-public class RenameTest extends DefinitionTest {
+public class RenameTest {
+    private Path configRoot;
+    private Path sourceRoot;
+    protected Gson gson = new Gson();
+    protected JsonParser parser = new JsonParser();
+    protected Endpoint serviceEndpoint;
 
     @BeforeClass
     public void init() throws Exception {
@@ -65,11 +73,15 @@ public class RenameTest extends DefinitionTest {
 
 
     @DataProvider
-    @Override
     public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
                 {"renameFunction1.json", "function"}
         };
+    }
+
+    @AfterClass
+    public void shutDownLanguageServer() throws IOException {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
     private void alterExpectedUri(JsonObject expected) throws IOException {

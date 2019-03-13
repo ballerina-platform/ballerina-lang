@@ -1,4 +1,4 @@
-import module2;
+
 
 function testIntAssignStmt(int a) returns int {
     // primitive assignment
@@ -20,9 +20,9 @@ function testIntAssignStmt(int a) returns int {
     float f;
     f = <float>a;
 
-    // union assignment
-    boolean|float|module2:M2Rec2 u;
-    u = false;
+
+
+
 
     return 0;
 }

@@ -1,4 +1,4 @@
-import module2;
+
 
 function valueAssignmentAndRetrieval() returns (int) {
     int[] x = [3];
@@ -48,7 +48,7 @@ function twoDarrayStructTest() returns (int) {
     B b1 = {x:1};
     B b2 = {x:2};
 
-    module2:M2Rec2[] x3 = [];
+
     B[] x1 = [b1, b2];
     B[] x2 = [b2, b1];
     B[][] xx = [x1, x2];

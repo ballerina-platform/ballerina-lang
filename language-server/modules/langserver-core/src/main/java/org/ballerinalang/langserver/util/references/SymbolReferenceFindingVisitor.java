@@ -303,7 +303,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                         : wsList.get(0).getWs().length());
                 sSol += this.getTypeLengthWithWS(typeNode, isNested);
                 int eCol = sSol + this.tokenName.length();
-                pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sSol, eCol);
+                pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.sLine, sSol, eCol);
             } else {
                 pos = varPos;
             }
