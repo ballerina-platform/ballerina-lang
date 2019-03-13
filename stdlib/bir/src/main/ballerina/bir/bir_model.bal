@@ -1,8 +1,3 @@
-public type PackageId record {
-    string name = "";
-    string versionValue = "";
-    string org = "";
-};
 
 public type Package record {
     ImportModule[] importModules = [];
@@ -47,30 +42,22 @@ public type Name record {
     string value = "";
 };
 
-public type Instruction record  {
-    InstructionKind kind;
-    any...; // This is to type match with Object type fields in subtypes
-};
+public const BINARY_ADD = "ADD";
+public const BINARY_SUB = "SUB";
+public const BINARY_MUL = "MUL";
+public const BINARY_DIV = "DIV";
+public const BINARY_EQUAL = "EQUAL";
+public const BINARY_NOT_EQUAL = "NOT_EQUAL";
+public const BINARY_GREATER_THAN = "GREATER_THAN";
+public const BINARY_GREATER_EQUAL = "GREATER_EQUAL";
+public const BINARY_LESS_THAN = "LESS_THAN";
+public const BINARY_LESS_EQUAL = "LESS_EQUAL";
+public const BINARY_AND = "AND";
+public const BINARY_OR = "OR";
 
-public type Terminator record {
-    TerminatorKind kind;
-    any...; // This is to type match with Object type fields in subtypes
-};
-
-public type ADD "ADD";
-public type SUB "SUB";
-public type MUL "MUL";
-public type DIV "DIV";
-public type EQUAL "EQUAL";
-public type NOT_EQUAL "NOT_EQUAL";
-public type GREATER_THAN "GREATER_THAN";
-public type GREATER_EQUAL "GREATER_EQUAL";
-public type LESS_THAN "LESS_THAN";
-public type LESS_EQUAL "LESS_EQUAL";
-public type AND "AND";
-public type OR "OR";
-
-public type TerminatorKind "GOTO"|"CALL"|"BRANCH"|"RETURN";
+public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_EQUAL|BINARY_NOT_EQUAL
+                                       |BINARY_GREATER_THAN|BINARY_GREATER_EQUAL|BINARY_LESS_THAN|BINARY_LESS_EQUAL
+                                       |BINARY_AND|BINARY_OR;
 
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
@@ -82,39 +69,50 @@ public const INS_KIND_MAP_LOAD = "MAP_LOAD";
 public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
 public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
+public const INS_KIND_TYPE_ASSERT = "TYPE_ASSERT";
 public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
+                                |INS_KIND_TYPE_CAST|INS_KIND_TYPE_ASSERT|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST
+                                |BinaryOpInstructionKind;
 
-public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL|
-                                        AND|OR;
 
+public const TERMINATOR_GOTO = "GOTO";
+public const TERMINATOR_CALL = "CALL";
+public const TERMINATOR_BRANCH = "BRANCH";
+public const TERMINATOR_RETURN = "RETURN";
+
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN;
+
+
+//TODO try to make below details meta
 public type LocalVarKind "LOCAL";
-
 public type TempVarKind "TEMP";
-
 public type ReturnVarKind "RETURN";
-
+public type ArgVarKind "ARG";
 public type GlobalVarKind "GLOBAL";
 
-public type ArgVarKind "ARG";
 
-public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | GlobalVarKind | ArgVarKind;
+public type VarKind LocalVarKind | TempVarKind | ReturnVarKind | ArgVarKind | GlobalVarKind;
 
 
-public type ClosedSealed "CLOSED_SEALED";
+public const VAR_SCOPE_GLOBAL = "GLOBAL_SCOPE";
+public const VAR_SCOPE_FUNCTION = "FUNCTION_SCOPE";
 
-public type OpenSealed "OPEN_SEALED";
+public type VarScope VAR_SCOPE_GLOBAL | VAR_SCOPE_FUNCTION;
 
-public type UnSealed "UNSEALED";
 
-public type ArrayState ClosedSealed | OpenSealed | UnSealed;
+public const ARRAY_STATE_CLOSED_SEALED = "CLOSED_SEALED";
+public const ARRAY_STATE_OPEN_SEALED = "OPEN_SEALED";
+public const ARRAY_STATE_UNSEALED = "UNSEALED";
+
+public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
 public type VariableDcl record {
     VarKind kind = "LOCAL";
+    VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
     any...; // This is to type match with Object type fields in subtypes
@@ -122,29 +120,39 @@ public type VariableDcl record {
 
 public type GlobalVariableDcl record {
     VarKind kind = "GLOBAL";
+    VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
     Visibility visibility = "PACKAGE_PRIVATE";
     !...;
 };
 
-public type BTypeAny "any";
+public const TYPE_ANY = "any";
+public type BTypeAny TYPE_ANY;
 
-public type BTypeAnyData "anydata";
+public const TYPE_ANYDATA = "anydata";
+public type BTypeAnyData TYPE_ANYDATA;
 
-public type BTypeNone "none";
+public const TYPE_NONE = "none";
+public type BTypeNone TYPE_NONE;
 
-public type BTypeNil "()";
+public const TYPE_NIL = "()";
+public type BTypeNil TYPE_NIL;
 
-public type BTypeInt "int";
+public const TYPE_INT = "int";
+public type BTypeInt TYPE_INT;
 
-public type BTypeFloat "float";
+public const TYPE_FLOAT = "float";
+public type BTypeFloat TYPE_FLOAT;
 
-public type BTypeBoolean "boolean";
+public const TYPE_BOOLEAN = "boolean";
+public type BTypeBoolean TYPE_BOOLEAN;
 
-public type BTypeString "string";
+public const TYPE_STRING = "string";
+public type BTypeString TYPE_STRING;
 
-public type BTypeByte "byte";
+public const TYPE_BYTE = "byte";
+public type BTypeByte TYPE_BYTE;
 
 public type BArrayType record {
     ArrayState state;
@@ -213,78 +221,38 @@ public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BT
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone;
 
-
-public type BTypeSymbol record {
-    boolean closure = false;
-    DocAttachment documentationValue = {};
-    int flags = 0;
-    boolean isLabel = false;
-    SymbolKind kind = "OTHER";
-    Name name = {};
-//BSymbol owner;
-    ModuleID pkgID = {};
-    Scope scopeValue = {};
-    int tag = 0;
-    boolean tainted = false;
-    BType typeValue = "()";
-};
-//
-public type DocAttachment record {
-    DocAttribute[] attributes = [];
-    string description = "";
-};
-
-public type DocAttribute record {
-    string description = "";
-    DocTag docTag;
-    string name = "";
-};
-
-public type DocTag "RETURN"|"PARAM"|"RECEIVER"|"FIELD"|"VARIABLE"|"ENDPOINT";
-
-public type SymbolKind "PACKAGE"|"STRUCT"|"OBJECT"|"RECORD"|"ENUM"|"CONNECTOR"|"ACTION"|"SERVICE"|"RESOURCE"|"FUNCTION"|
-"WORKER"|"ANNOTATION"|"ANNOTATION_ATTRIBUTE"|"CONSTANT"|"PACKAGE_VARIABLE"|"TRANSFORMER"|"TYPE_DEF"|"PARAMETER"|
-"LOCAL_VARIABLE"|"SERVICE_VARIABLE"|"CONNECTOR_VARIABLE"|"CAST_OPERATOR"|"CONVERSION_OPERATOR"|"XMLNS"|"SCOPE"|"OTHER";
-
-public type BSymbol record {
-    boolean closure = false;
-    DocAttachment documentationValue = {};
-    int flags = 0;
-    SymbolKind kind = "OTHER";
-    Name name = {};
-//BSymbol owner;
-    ModuleID pkgID = {};
-//Scope scopeValue;
-    int tag = 0;
-    boolean tainted = false;
-    BType typeValue = "()";
-};
-
 public type ModuleID record {
     string org = "";
     string name = "";
     string modVersion = "";
     boolean isUnnamed = false;
     string sourceFilename = "";
+    !...;
 };
-
-public type Scope record {
-//ScopeEntry NOT_FOUND_ENTRY;
-//Map entries;
-    BSymbol owner = {};
-};
-//
-//type ScopeEntry record {
-//     ScopeEntry next;
-//BSymbol symbol;
-//};
 
 public type BInvokableType record {
     BType[] paramTypes = [];
     BType retType?;
 };
 
-public type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";
+public const VISIBILITY_PACKAGE_PRIVATE = "PACKAGE_PRIVATE";
+public const VISIBILITY_PRIVATE = "PRIVATE";
+public const VISIBILITY_PUBLIC = "PUBLIC";
+
+public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_PUBLIC;
+
+
+// Instructions
+
+public type Instruction record  {
+    InstructionKind kind;
+    any...; // This is to type match with Object type fields in subtypes
+};
+
+public type Terminator record {
+    TerminatorKind kind;
+    any...; // This is to type match with Object type fields in subtypes
+};
 
 public type ConstantLoad record {
     InstructionKind kind;
@@ -324,6 +292,13 @@ public type TypeCast record {
     !...;
 };
 
+public type TypeAssert record {
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+    !...;
+};
+
 public type IsLike record {
     InstructionKind kind;
     VarRef lhsOp;
@@ -341,17 +316,13 @@ public type TypeTest record {
 };
 
 public type VarRef object {
-    public Kind kind;
     public BType typeValue;
     public VariableDcl variableDcl;
-    public function __init(Kind kind, BType typeValue, VariableDcl variableDcl) {
-        self.kind = kind;
+    public function __init(BType typeValue, VariableDcl variableDcl) {
         self.typeValue = typeValue;
         self.variableDcl = variableDcl;
     }
 };
-
-public type Kind "VAR_REF"|"CONST";
 
 public type Move record {
     InstructionKind kind;
@@ -372,7 +343,7 @@ public type Call record {
     VarRef[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
-    PackageId pkgID;
+    ModuleID pkgID;
     Name name;
     BasicBlock thenBB;
     !...;
