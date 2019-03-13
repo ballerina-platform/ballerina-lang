@@ -70,8 +70,8 @@ class BIRGenEnv {
     }
 
     Name nextGlobalVarId(Names names) {
-        currentLocalVarId++;
-        return names.merge(Names.BIR_GLOBAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
+        currentGlobalVarId++;
+        return names.merge(Names.BIR_GLOBAL_VAR_PREFIX, names.fromString(Integer.toString(currentGlobalVarId)));
     }
 
     void clear() {
