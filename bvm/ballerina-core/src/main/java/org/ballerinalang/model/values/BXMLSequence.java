@@ -167,7 +167,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
             return ((BXMLItem) sequence.getRefValue(0)).getAttributesMap();
         }
 
-        return new BMap<>(new BMapType(BTypes.typeString));
+        return null;
     }
 
     @Override

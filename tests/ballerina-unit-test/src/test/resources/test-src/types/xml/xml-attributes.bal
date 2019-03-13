@@ -193,18 +193,21 @@ function testUsingQNameAsString () returns (string, string) {
     return (s1, s2);
 }
 
-function testGetAttributesAsMap() returns (map<string>, map<string>, string, string) {
+function testGetAttributesAsMap() returns (map<string>|error, map<string>|error, string, string) {
     var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     
-    map<string> m1 = map<string>.convert(x1@);
-    map<string> m2 = map<string>.convert(x2@);
+    map<string>|error m1 = map<string>.convert(x1@);
+    map<string>|error m2 = map<string>.convert(x2@);
 
-    var a = m1["{http://sample.com/wso2/a1}foo1"];
-    var s1 = a is string ?  a : "";
-    a = m1[ns0:foo1];
-    var s2 =  a is string ? a : "";
-    return (m1, m2, s1, s2);
+    if (m1 is map<string>) {
+        var a = m1["{http://sample.com/wso2/a1}foo1"];
+        var s1 = a is string ?  a : "";
+        a = m1[ns0:foo1];
+        var s2 =  a is string ? a : "";
+        return (m1, m2, s1, s2);
+    }
+    return (m1, m2, "", "");
 }
 
 function testXMLAttributesToAny() returns (any) {
@@ -277,21 +280,33 @@ function testGetAttributeFromLiteral() returns (string) {
 
 function testGetAttributeMap() returns (map<string>?) {
     var x1 = xml `<child xmlns:p1="http://wso2.com/" xmlns:p2="http://sample.com/wso2/a1/" p1:foo="bar"/>`;
-    map<string> s = x1@;
+    map<string>? s = x1@;
     return s;
 }
 
-function takeInAMap(map<string> input) returns map<string> {
-    input["tracer"] = "1";
+function takeInAMap(map<string>? input) returns map<string>? {
+    if (input is map<string>) {
+        input["tracer"] = "1";
+    }
     return input;
 }
 
-function passXmlAttrToFunction() returns map<string> {
+function passXmlAttrToFunction() returns map<string>? {
     var x1 = xml `<child foo="bar"/>`;
     return takeInAMap(x1@);
 }
 
-function mapOperationsOnXmlAttribute() returns (int, string[]) {
+function mapOperationsOnXmlAttribute() returns (int?, string[]?) {
     var x1 = xml `<child foo="bar"/>`;
     return (x1@.length(), x1@.keys());
+}
+
+function nonSingletonXmlAttributeAccess() returns boolean {
+    xml x = xml `<someEle>cont</someEle>`;
+    xml y = xml `<elem>More-Stuff</elem>`;
+    xml nonSingleton = x + y;
+    if (nonSingleton@ is ()) {
+        return true;
+    }
+    return false;
 }

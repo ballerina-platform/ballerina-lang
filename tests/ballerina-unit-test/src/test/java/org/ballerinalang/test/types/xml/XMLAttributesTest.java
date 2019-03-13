@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.xml;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -383,5 +384,11 @@ public class XMLAttributesTest {
                 "{http://sample.com/wso2/c1}ns1\", \"" +
                 "{http://sample.com/wso2/c1}ns3\", \"" +
                 "{http://sample.com/wso2/c1}foo\"]");
+    }
+
+    @Test(description = "Test xml@ return nil when xml is non singleton xml item")
+    public void testMapOpera() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "nonSingletonXmlAttributeAccess");
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
 }
