@@ -87,23 +87,23 @@ type InstructionGenerator object {
 
 
     function generateBinaryOpIns(bir:BinaryOp binaryIns) {
-        if (binaryIns.kind is bir:LESS_THAN) {
+        if (binaryIns.kind == bir:BINARY_LESS_THAN) {
             self.generateLessThanIns(binaryIns);
-        } else if (binaryIns.kind is bir:ADD) {
+        } else if (binaryIns.kind == bir:BINARY_ADD) {
             self.generateAddIns(binaryIns);
-        } else if (binaryIns.kind is bir:EQUAL) {
+        } else if (binaryIns.kind == bir:BINARY_EQUAL) {
             self.generateEqualIns(binaryIns);
-        } else if (binaryIns.kind is bir:SUB) {
+        } else if (binaryIns.kind == bir:BINARY_SUB) {
             self.generateSubIns(binaryIns);
-        } else if (binaryIns.kind is bir:DIV) {
+        } else if (binaryIns.kind == bir:BINARY_DIV) {
             self.generateDivIns(binaryIns);
-        } else if (binaryIns.kind is bir:MUL) {
+        } else if (binaryIns.kind == bir:BINARY_MUL) {
             self.generateMulIns(binaryIns);
-        } else if (binaryIns.kind is bir:AND) {
+        } else if (binaryIns.kind == bir:BINARY_AND) {
             self.generateAndIns(binaryIns);
-        } else if (binaryIns.kind is bir:OR) {
+        } else if (binaryIns.kind == bir:BINARY_OR) {
             self.generateOrIns(binaryIns);
-        } else if (binaryIns.kind is bir:LESS_EQUAL) {
+        } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
             self.generateLessEqualIns(binaryIns);
         } else {
             error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
