@@ -128,6 +128,7 @@
                 <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
+                <include>org.ballerinalang:ballerina-xslt:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>

@@ -158,6 +158,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-privacy</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-xslt</artifactId>
+        </dependency>
         <!-- end of stdlib jar dependencies -->
 
         <dependency>
@@ -511,6 +515,12 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-xslt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
         <!-- end of balo dependencies -->
 
         <!-- ballerina source dependencies -->
@@ -700,6 +710,12 @@
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-xslt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
         <!-- end of ballerina source dependencies -->
 
         <dependency>
@@ -781,6 +797,7 @@
                                 ballerina-utils,
                                 ballerina-websub,
                                 ballerina-privacy,
+                                ballerina-xslt,
                                 <!-- other dependencies -->
                                 ballerina-config,
                                 strip-bouncycastle,
@@ -965,6 +982,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-xslt-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                             </resources>
