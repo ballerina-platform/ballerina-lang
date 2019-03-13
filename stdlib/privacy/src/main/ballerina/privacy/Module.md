@@ -5,12 +5,13 @@ Privacy module acts as the foundation of making Ballerina programming
  that allow pseudonymization, depseudonymization and deletion of
  personally identifiable information (PII).
 
-Pseudonymized identifier will be issued by the `pseudonymize` function
+A pseudonymized identifier will be issued by the `pseudonymize` function
  for a provided PII. The actual PII value will be stored in the selected
  pluggable `PII Store`. The issued identifier can be used to represent
- the particular PII in other locations. The `depseudonymize` function can be
- used to get the actual PII value, give the pseudonymized identifier.
- PII can be deleted from the storage using the `delete` function.
+ the particular PII in other locations. The `depseudonymize` function
+ can be used to get the actual PII value, give the pseudonymized
+ identifier. PII can be deleted from the storage using the `delete`
+ function.
 
 ## Samples
 
