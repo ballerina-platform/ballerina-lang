@@ -75,7 +75,7 @@ public type ConfigAuthStoreProvider object {
     }
 
     public function getConfigAuthValue(string instanceId, string property) returns string {
-        return config:getAsString(instanceId + "." + property, default = "");
+        return config:getAsString(instanceId + "." + property, defaultValue = "");
     }
 
     # Construct an array of groups from the comma separed group string passed
