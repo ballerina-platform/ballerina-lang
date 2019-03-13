@@ -2112,10 +2112,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType detailType = ((BErrorType) expType).detailType;
         if (detailType == symTable.mapType) {
-            LinkedHashSet<BType> anydataOrErrorSet = new LinkedHashSet<>();
-            anydataOrErrorSet.add(symTable.anydataType);
-            anydataOrErrorSet.add(symTable.errorType);
-            detailType = new BMapType(TypeTags.MAP, BUnionType.create(null, anydataOrErrorSet), null);
+            detailType = new BMapType(TypeTags.MAP, symTable.anydataOrErrorUnionType, null);
         }
         checkExpr(errorConstructorExpr.detailsExpr, env, detailType);
         resultType = expType;

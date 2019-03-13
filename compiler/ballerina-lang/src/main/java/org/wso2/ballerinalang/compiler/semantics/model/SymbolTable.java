@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -122,6 +123,7 @@ public class SymbolTable {
     public final BType semanticError;
 
     public BErrorType errorType;
+    public BUnionType anydataOrErrorUnionType;
 
     public BPackageSymbol builtInPackageSymbol;
     public BPackageSymbol utilsPackageSymbol;
@@ -185,6 +187,11 @@ public class SymbolTable {
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
         defineType(this.errorType, errorSymbol);
+
+        LinkedHashSet<BType> anydataOrErrorSet = new LinkedHashSet<>();
+        anydataOrErrorSet.add(this.anydataType);
+        anydataOrErrorSet.add(this.errorType);
+        this.anydataOrErrorUnionType = BUnionType.create(null, anydataOrErrorSet);
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();

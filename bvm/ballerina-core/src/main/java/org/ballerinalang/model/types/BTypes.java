@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.model.types;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
  *
@@ -44,6 +47,8 @@ public class BTypes {
     public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, typeString, typeMap, null);
     public static BType typeAnyService = new BServiceType(null, TypeConstants.SERVICE, null, 0);
+    public static BType typeAnydataOrErrorUnion =
+            new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
 
     private BTypes() {
     }

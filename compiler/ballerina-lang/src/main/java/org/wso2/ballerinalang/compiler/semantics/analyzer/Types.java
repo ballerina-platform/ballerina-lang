@@ -226,7 +226,7 @@ public class Types {
 
         switch (type.tag) {
             case TypeTags.MAP:
-                return isAnydata(((BMapType) type).constraint, unresolvedTypes);
+                return isPureType(((BMapType) type).constraint, unresolvedTypes);
             case TypeTags.RECORD:
                 if (unresolvedTypes.contains(type)) {
                     return true;
@@ -236,14 +236,14 @@ public class Types {
                 List<BType> fieldTypes = recordType.fields.stream()
                                                           .map(field -> field.type)
                                                           .collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE:
-                return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
+                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
-                return isAnydata(((BArrayType) type).eType, unresolvedTypes);
+                return isPureType(((BArrayType) type).eType, unresolvedTypes);
             case TypeTags.FINITE:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
                                                                           .map(val -> val.type).collect(
@@ -256,6 +256,45 @@ public class Types {
 
     private boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    private boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (isAnydata(type, unresolvedTypes) || type.tag == TypeTags.ERROR) {
+            return true;
+        }
+
+        switch (type.tag) {
+            case TypeTags.MAP:
+                return isPureType(((BMapType) type).constraint, unresolvedTypes);
+            case TypeTags.RECORD:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes = recordType.fields.stream()
+                        .map(field -> field.type)
+                        .collect(Collectors.toList());
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
+            case TypeTags.UNION:
+                return isPureType(((BUnionType) type).getMemberTypes(), unresolvedTypes);
+            case TypeTags.TUPLE:
+                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
+            case TypeTags.ARRAY:
+                return isPureType(((BArrayType) type).eType, unresolvedTypes);
+            case TypeTags.FINITE:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                        .map(val -> val.type).collect(
+                                Collectors.toSet());
+                return isPureType(valSpaceTypes, unresolvedTypes);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
 
     public boolean isLikeAnydataOrNotNil(BType type) {

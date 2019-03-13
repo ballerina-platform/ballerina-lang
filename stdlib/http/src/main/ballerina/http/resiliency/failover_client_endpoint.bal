@@ -408,10 +408,7 @@ function populateGenericFailoverActionError (error?[] failoverActionErr, error h
     failoverActionErr[index] = httpActionErr;
     string lastErrorMsg = <string> httpActionErr.detail().message;
     string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    // TODO: fix
-    anydata|error failoverErrors =
-        failoverActionErr.length() > 0 ? failoverActionErr[0] : check anydata[].convert(failoverActionErr);
-    map<anydata|error> errorDetail = { message : failoverMessage, failoverErrors : failoverErrors };
+    map<anydata> errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, errorDetail);
     return actionError;
 }
@@ -434,10 +431,7 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
                                 + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    // TODO: fix
-    anydata|error failoverErrors =
-        failoverActionErr.length() > 0 ? failoverActionErr[0] : check anydata[].convert(failoverActionErr);
-    map<anydata|error> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverErrors };
+    map<anydata> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, finalErrorDetail);
     return actionError;
 }
