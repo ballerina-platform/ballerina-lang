@@ -155,15 +155,15 @@ public class ArrayTest {
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2,
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 89, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 3,
-                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 92, 1);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 94, 5);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 4,
-                                  format(errMsgFormat, "error", "error?"), 100, 1);
+                                  format(errMsgFormat, "error", "error?"), 103, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "int|float", "int|float?"),
-                                  115, 1);
+                                  118, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6,
-                                  format(errMsgFormat, "error", "error?"), 141, 1);
+                                  format(errMsgFormat, "error", "error?"), 144, 1);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
-                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 149, 9);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 152, 9);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")

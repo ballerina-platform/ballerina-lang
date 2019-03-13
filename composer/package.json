@@ -26,7 +26,7 @@
   "devDependencies": {
     "@babel/core": "^7.1.5",
     "@storybook/addon-actions": "^4.0.7",
-    "@storybook/addon-info": "^4.0.4",
+    "@storybook/addon-info": "^5.0.1",
     "@storybook/addon-storyshots": "^4.0.7",
     "@storybook/react": "^4.0.4",
     "@types/jest": "^23.3.5",
@@ -56,7 +56,7 @@
     "less-plugin-rewrite-import": "^0.1.1",
     "node-sass": "^4.7.2",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
-    "react-test-renderer": "16.2.0",
+    "react-test-renderer": "16.8.4",
     "rimraf": "^2.6.2",
     "sass-loader": "^7.1.0",
     "source-map-loader": "^0.2.4",

@@ -330,6 +330,8 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY = "keyFile";
     public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
     public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
+    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeout";
+    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeout";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
