@@ -28,7 +28,7 @@ under the License.
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>bbg-tests</artifactId>
+    <artifactId>bbg-data-tests</artifactId>
 
     <dependencies>
         <dependency>
