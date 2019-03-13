@@ -1075,22 +1075,22 @@
             <dependency>
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-api</artifactId>
-                <version>${orbit.version.axiom}</version>
+                <version>${axiom.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-impl</artifactId>
-                <version>${orbit.version.axiom}</version>
+                <version>${axiom.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-dom</artifactId>
-                <version>${orbit.version.axiom}</version>
+                <version>${axiom.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-c14n</artifactId>
-                <version>${c14n.axiom.orbit.version}</version>
+                <version>${axiom.version}</version>
             </dependency>
             <dependency>
                 <groupId>jaxen</groupId>
@@ -1111,11 +1111,6 @@
                 <groupId>org.wso2.staxon</groupId>
                 <artifactId>staxon-core</artifactId>
                 <version>${staxon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.james</groupId>
-                <artifactId>apache-mime4j-core</artifactId>
-                <version>${mime4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.net.sf.saxon</groupId>
@@ -1308,11 +1303,6 @@
                 <groupId>com.googlecode.lambdaj</groupId>
                 <artifactId>lambdaj</artifactId>
                 <version>${lambdaj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>${guice.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -2020,12 +2010,11 @@
                             <phase>validate</phase>
                             <configuration>
                                 <configLocation>
-                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/checkstyle.xml
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
                                 </configLocation>
                                 <suppressionsLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/v1.1/checkstyle/suppressions.xml
                                 </suppressionsLocation>
-                                <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -2287,7 +2276,7 @@
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.2.8</carbon.kernel.version>
-        <transport.http.version>6.0.270</transport.http.version>
+        <transport.http.version>6.0.274</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.8</carbon.config.version>
@@ -2299,8 +2288,7 @@
         <jackson.version>2.9.8</jackson.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
-        <orbit.version.axiom>1.2.22</orbit.version.axiom>
-        <c14n.axiom.orbit.version>1.2.11-wso2v11</c14n.axiom.orbit.version>
+        <axiom.version>1.2.22</axiom.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>
@@ -2325,7 +2313,6 @@
         <maven.plugin.annotation.version>3.4</maven.plugin.annotation.version>
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
         <airline.version>0.7</airline.version>
-        <guice.version>4.1.0</guice.version>
         <io.swagger.version>1.5.22</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
@@ -2362,7 +2349,7 @@
         <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
         <maven.docck.plugin.version>1.1</maven.docck.plugin.version>
         <maven.enforcer.plugin.version>1.4.1</maven.enforcer.plugin.version>
-        <maven.failsafe.plugin.version>2.19.1</maven.failsafe.plugin.version>
+        <maven.failsafe.plugin.version>2.22.1</maven.failsafe.plugin.version>
         <maven.spotbugsplugin.version>3.1.1</maven.spotbugsplugin.version>
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
@@ -2381,8 +2368,8 @@
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
-        <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
-        <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
+        <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
+        <apache.source.release.assembly.descriptor.version>1.0.6</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.1.6</awaitility.version>
 
         <!-- gRPC support for microservice -->
@@ -2407,7 +2394,7 @@
         <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.86</andes.client.version>
+        <andes.client.version>3.2.87</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.55</file.transport.version>

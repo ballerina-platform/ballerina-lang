@@ -74,6 +74,7 @@ function testXmlIteration() {
     xml xmlElement = xml `<book>The Lost World</book>`;
     xml xmlComment = xml `<!--I am a comment-->`;
     xml xmlPI = xml `<?target data?>`;
+    xml xmlCharacters = xml `Hello, world!`;
 
     anydata[] arr = [];
     int index = 0;
@@ -88,15 +89,35 @@ function testXmlIteration() {
     arr = [];
     index = 0;
 
-    xml xmlSequence = xmlElement + xmlComment + xmlPI;
+    xml xmlSequence = xmlElement + xmlComment + xmlPI + xmlCharacters;
     foreach xml|string item in xmlSequence {
         arr[index] = item;
         index += 1;
     }
-    test:assertEquals(arr.length(), 3, msg = "expected iteration to result in three elements");
+    test:assertEquals(arr.length(), 16, msg = "expected iteration to result in three elements");
     test:assertEquals(arr[0], xmlElement, msg = "expected iteration to produce the same element");
     test:assertEquals(arr[1], xmlComment, msg = "expected iteration to produce the same element");
     test:assertEquals(arr[2], xmlPI, msg = "expected iteration to produce the same element");
+    test:assertEquals(arr[3], "H", msg = "expected iteration to produce the same element");
+    test:assertEquals(arr[4], "e", msg = "expected iteration to produce the same element");
+    test:assertEquals(arr[5], "l", msg = "expected iteration to produce the same element");
+    test:assertEquals(arr[6], "l", msg = "expected iteration to produce the same element");
+
+    arr = [];
+    index = 0;
+
+    foreach xml|string item in xmlCharacters {
+        arr[index] = item;
+        index += 1;
+    }
+
+    test:assertEquals(arr.length(), 13, msg = "expected iteration to result in 13 elements");
+    string[] stringArray = <string[]> string[].convert(arr);
+    string actualContent = "";
+    foreach string s in stringArray {
+        actualContent += s;
+    }
+    test:assertEquals(actualContent, "Hello, world!", msg = "expected iteration over all code points");
 }
 
 // A single XML item, such as an element, is represented by a sequence consisting of just that item.

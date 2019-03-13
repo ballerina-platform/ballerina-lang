@@ -1,36 +1,4 @@
-apply from: "$rootDir/gradle/javaProject.gradle"
-
-configurations {
-    baloCreat
-    baloImplementation {
-        transitive false
-    }
-}
-
-dependencies {
-    baloCreat project(':lib-creator')
-    annotationProcessor project(':ballerina-lang')
-}
-
-compileJava {
-    def generatedSources = "$buildDir/generated-from-annot"
-    def generatedOutputDir = file("$generatedSources")
-    def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
-    options.compilerArgs += ["-AnativeEntityProviderClass=StandardNativeElementProvider",
-                             "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
-                             "-s", "$generatedSources"]
-
-    doFirst {
-        generatedOutputDir.exists() || generatedOutputDir.mkdirs()
-    }
-}
-
-
-task createBalHome(type: org.gradle.api.tasks.Copy) {
-    from configurations.baloImplementation
-    into "$buildDir/lib"
-
-}
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 task createBalo(type: JavaExec) {
     def balFiles = file("src/main/ballerina/")
@@ -51,12 +19,4 @@ task createBalo(type: JavaExec) {
 
 artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
     builtBy('createBalo')
-}
-
-build {
-    dependsOn createBalo
-}
-
-test {
-    systemProperty "ballerina.home", "$buildDir"
 }

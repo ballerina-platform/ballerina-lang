@@ -10,13 +10,13 @@ any glbVarAny = 88343;
 
 float glbVarFloatChange = 99.0;
 
-float glbVarFloat1 = varpkg:glbVarFloat;
+float glbVarFloat1 = varpkg:getGlbVarFloat();
 
 float glbVarFunc = functInv();
 
 int glbVarPkgFunc = varpkg:getIntValue();
 
-string serviceVarString = varpkg:glbVarString;
+string serviceVarString = varpkg:getGlbVarString();
 
 listener http:MockListener globalVarEP = new(9090);
 
@@ -30,9 +30,9 @@ service GlobalVar on globalVarEP {
         path:"/defined"
     }
     resource function accessGlobalVarFromOtherPkg (http:Caller conn, http:Request req) {
-        int pkgInt = varpkg:glbVarInt;
-        string pkgString = varpkg:glbVarString;
-        float pkgFloat = varpkg:glbVarFloat;
+        int pkgInt = varpkg:getGlbVarInt();
+        string pkgString = varpkg:getGlbVarString();
+        float pkgFloat = varpkg:getGlbVarFloat();
         json responseJson = {"glbVarInt":pkgInt, "glbVarString":pkgString, "glbVarFloat":pkgFloat};
 
         http:Response res = new;
@@ -92,7 +92,7 @@ service GlobalVar on globalVarEP {
     resource function changeGlobalVarInDiffPkg (http:Caller conn, http:Request req) {
 
         http:Response res = new;
-        varpkg:glbVarFloatChange = 345432.454;
+        varpkg:setGlbVarFloatChange(345432.454);
         _ = conn -> respond(res);
     }
 }
@@ -106,7 +106,7 @@ service GlobalVarSecond on globalVarEP{
     }
     resource function getChangedGlobalVarAtResourceLevel (http:Caller conn, http:Request req) {
         http:Response res = new;
-        float changeVarFloat = varpkg:glbVarFloatChange;
+        float changeVarFloat = varpkg:getGlbVarFloatChange();
         json responseJson = {"changeVarFloat":changeVarFloat};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);

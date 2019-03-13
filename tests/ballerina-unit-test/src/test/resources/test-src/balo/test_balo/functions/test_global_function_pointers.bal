@@ -11,19 +11,23 @@ function test0Reverse (string x, int y) returns (string) {
 }
 
 function test1() returns (string) {
-    return foo:glf1.call("test",1);
+    function (string a, int b) returns string f = foo:getGlf1();
+    return f.call("test",1);
 }
 
 function test2() returns (string){
-    return foo:glf2.call("test2", true);
+    function (string a, boolean b) returns string f = foo:getGlf2();
+    return f.call("test2", true);
 }
 
 function test3() returns (string, string, string) {
-    foo:glf3 = test0;
-    string x = foo:glf3.call("test",3);
+    foo:setGlf3(test0);
+    function (string, int) returns string f = foo:getGlf3();
+    string x = f.call("test",3);
     string y = test0("test",3);
-    foo:glf3 = test0Reverse;
-    string z = foo:glf3.call("test",3);
+    foo:setGlf3(test0Reverse);
+    f = foo:getGlf3();
+    string z = f.call("test",3);
     return (x, y, z);
 }
 
@@ -38,7 +42,8 @@ function test5() returns (string){
 }
 function test6() returns (string) {
     function (string a, boolean b) returns (string) glf1 = bar;
-    foo:glf2 = glf1;
-    return foo:glf2.call("test6", true);
+    foo:setGlf2(glf1);
+    function (string a, boolean b) returns string f = foo:getGlf2();
+    return f.call("test6", true);
 }
 

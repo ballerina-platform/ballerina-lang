@@ -119,11 +119,13 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
@@ -1408,8 +1410,12 @@ public class HttpUtil {
         sslConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
         sslConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
-        List<Value> ciphersValueList = Arrays
-                .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        sslConfiguration
+                .setSslSessionTimeOut((int) secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+
+        sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
+
+        List<Value> ciphersValueList = Arrays.asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
         if (ciphersValueList.size() > 0) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
@@ -1623,6 +1629,10 @@ public class HttpUtil {
         }
         String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
+        listenerConfiguration
+                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+        listenerConfiguration
+                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
         if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
             throw new BallerinaException(
                     "Truststore location or trustCertificates must be provided to enable Mutual SSL");
