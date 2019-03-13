@@ -28,9 +28,9 @@ const ARRAY = "ARRAY";
 # Retrieves the specified configuration value as a string.
 #
 # + key - The configuration to be retrieved
-# + defaultVal - The default value to be use in case there is no mapping for the provided key
+# + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsString(@sensitive string key, string defaultVal = "") returns string {
+public function getAsString(@sensitive string key, string defaultValue = "") returns string {
     if (contains(key)) {
         var value = get(key, STRING);
 
@@ -43,15 +43,15 @@ public function getAsString(@sensitive string key, string defaultVal = "") retur
     }
 
     string envVar = lookupEnvVar(key);
-    return envVar == "" ? defaultVal : envVar;
+    return envVar == "" ? defaultValue : envVar;
 }
 
 # Retrieves the specified configuration value as an int.
 #
 # + key - The configuration to be retrieved
-# + defaultVal - The default value to be use in case there is no mapping for the provided key
+# + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsInt(@sensitive string key, int defaultVal = 0) returns int {
+public function getAsInt(@sensitive string key, int defaultValue = 0) returns int {
     if (contains(key)) {
         var value = get(key, INT);
 
@@ -65,7 +65,7 @@ public function getAsInt(@sensitive string key, int defaultVal = 0) returns int 
 
     string strVal = lookupEnvVar(key);
     if (strVal == "") {
-        return defaultVal;
+        return defaultValue;
     }
 
     var envVar = int.convert(strVal);
@@ -79,9 +79,9 @@ public function getAsInt(@sensitive string key, int defaultVal = 0) returns int 
 # Retrieves the specified configuration value as a float.
 #
 # + key - The configuration to be retrieved
-# + defaultVal - The default value to be use in case there is no mapping for the provided key
+# + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsFloat(@sensitive string key, float defaultVal = 0.0) returns float {
+public function getAsFloat(@sensitive string key, float defaultValue = 0.0) returns float {
     if (contains(key)) {
         var value = get(key, FLOAT);
 
@@ -95,7 +95,7 @@ public function getAsFloat(@sensitive string key, float defaultVal = 0.0) return
 
     string strVal = lookupEnvVar(key);
     if (strVal == "") {
-        return defaultVal;
+        return defaultValue;
     }
 
     var envVar = float.convert(strVal);
@@ -109,9 +109,9 @@ public function getAsFloat(@sensitive string key, float defaultVal = 0.0) return
 # Retrieves the specified configuration value as a boolean.
 #
 # + key - The configuration to be retrieved
-# + defaultVal - The default value to be use in case there is no mapping for the provided key
+# + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsBoolean(@sensitive string key, boolean defaultVal = false) returns boolean {
+public function getAsBoolean(@sensitive string key, boolean defaultValue = false) returns boolean {
     if (contains(key)) {
         var value = get(key, BOOLEAN);
 
@@ -125,7 +125,7 @@ public function getAsBoolean(@sensitive string key, boolean defaultVal = false) 
 
     string strVal = lookupEnvVar(key);
     if (strVal == "") {
-        return defaultVal;
+        return defaultValue;
     }
 
     return boolean.convert(strVal);

@@ -496,11 +496,11 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                    defaultVal = hubConfiguration.topicRegistrationRequired ?: true);
+                                    defaultValue = hubConfiguration.topicRegistrationRequired ?: true);
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", defaultVal = hubConfiguration["publicUrl"] ?: "");
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", defaultValue = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
     hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
     if (hubPersistenceStoreImpl is HubPersistenceStore) {

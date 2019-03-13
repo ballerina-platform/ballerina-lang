@@ -86,7 +86,7 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
     RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
     boolean remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                     defaultVal = remotePublish.enabled ?: false);
+                                     defaultValue = remotePublish.enabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {
