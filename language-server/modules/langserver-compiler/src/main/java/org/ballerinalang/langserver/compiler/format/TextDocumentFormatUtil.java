@@ -100,7 +100,6 @@ public class TextDocumentFormatUtil {
 
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false);
-//        context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
