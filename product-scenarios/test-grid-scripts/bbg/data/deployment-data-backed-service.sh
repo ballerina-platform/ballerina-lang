@@ -81,6 +81,7 @@ function retrieve_and_write_properties_to_data_bucket() {
     deployment_props["ExternalIP"]=${external_ip}
     deployment_props["NodePort"]=${node_port}
     write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
+    local is_debug_enabled=${infra_config["isDebugEnabled"]}
     if [ "${is_debug_enabled}" = "true" ]; then
         echo "ExternalIP: ${external_ip}"
         echo "NodePort: ${node_port}"
