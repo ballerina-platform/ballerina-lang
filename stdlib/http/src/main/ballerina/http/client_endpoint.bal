@@ -387,7 +387,7 @@ function initialize(string serviceUrl, ClientEndpointConfig config) returns Clie
     var cbConfig = config.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         if (url.hasSuffix("/")) {
-            int lastIndex = url.length() -1;
+            int lastIndex = url.length() - 1;
             url = url.substring(0, lastIndex);
         }
     } else {
@@ -441,7 +441,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
-        boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
+        boolean[] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
             var redirectClient = createRedirectClient(uri, configuration);
@@ -460,7 +460,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         time:Time circuitStartTime = time:currentTime();
-        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
+        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis / cbConfig.rollingWindow.bucketSizeMillis);
         Bucket?[] bucketArray = [];
         int bucketIndex = 0;
         while (bucketIndex < numberOfBuckets) {
@@ -469,19 +469,19 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
-                                                            failureThreshold:cbConfig.failureThreshold,
-                                                            resetTimeMillis:cbConfig.resetTimeMillis,
-                                                            statusCodes:statusCodes,
-                                                            noOfBuckets:numberOfBuckets,
-                                                            rollingWindow:cbConfig.rollingWindow
-                                                        };
+            failureThreshold: cbConfig.failureThreshold,
+            resetTimeMillis: cbConfig.resetTimeMillis,
+            statusCodes: statusCodes,
+            noOfBuckets: numberOfBuckets,
+            rollingWindow: cbConfig.rollingWindow
+        };
         CircuitHealth circuitHealth = {
-                                        startTime:circuitStartTime,
-                                        lastRequestTime:circuitStartTime,
-                                        lastErrorTime:circuitStartTime,
-                                        lastForcedOpenTime:circuitStartTime,
-                                        totalBuckets: bucketArray
-                                      };
+            startTime: circuitStartTime,
+            lastRequestTime: circuitStartTime,
+            lastErrorTime: circuitStartTime,
+            lastForcedOpenTime: circuitStartTime,
+            totalBuckets: bucketArray
+        };
         return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
         //remove following once we can ignore
@@ -511,7 +511,7 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             } else {
                 return httpCachingClient;
             }
-        } else{
+        } else {
             var httpSecureClient = createHttpSecureClient(url, configuration);
             if (httpSecureClient is Client) {
                 return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
@@ -530,6 +530,6 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
 }
 
 function createClient(string url, ClientEndpointConfig config) returns Client|error {
-    HttpClient simpleClient =  new(url, config);
+    HttpClient simpleClient = new(url, config);
     return simpleClient;
 }

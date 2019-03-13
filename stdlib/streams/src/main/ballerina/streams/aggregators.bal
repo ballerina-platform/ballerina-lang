@@ -25,7 +25,8 @@ public type Aggregator abstract object {
 };
 
 public type Sum object {
-
+    *Aggregator;
+    *Snapshotable;
     public int iSum = 0;
     public float fSum = 0.0;
 
@@ -66,6 +67,24 @@ public type Sum object {
         Sum sumAggregator = new();
         return sumAggregator;
     }
+
+    public function saveState() returns map<any> {
+        return {
+            "iSum": self.iSum,
+            "fSum": self.fSum
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any iSum = state["iSum"];
+        if (iSum is int) {
+            self.iSum = iSum;
+        }
+        any fSum = state["fSum"];
+        if (fSum is float) {
+            self.fSum = fSum;
+        }
+    }
 };
 
 public function sum() returns Aggregator {
@@ -74,7 +93,8 @@ public function sum() returns Aggregator {
 }
 
 public type Average object {
-
+    *Aggregator;
+    *Snapshotable;
     public int count = 0;
     public float sum = 0.0;
 
@@ -118,6 +138,24 @@ public type Average object {
         Average avgAggregator = new();
         return avgAggregator;
     }
+
+    public function saveState() returns map<any> {
+        return {
+            "count": self.count,
+            "sum": self.sum
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any c = state["count"];
+        if (c is int) {
+            self.count = c;
+        }
+        any s = state["sum"];
+        if (s is float) {
+            self.sum = s;
+        }
+    }
 };
 
 public function avg() returns Aggregator {
@@ -126,7 +164,8 @@ public function avg() returns Aggregator {
 }
 
 public type Count object {
-
+    *Aggregator;
+    *Snapshotable;
     public int count = 0;
 
     public function __init() {
@@ -148,6 +187,19 @@ public type Count object {
         Count countAggregator = new();
         return countAggregator;
     }
+
+    public function saveState() returns map<any> {
+        return {
+            "count": self.count
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any c = state["count"];
+        if (c is int) {
+            self.count = c;
+        }
+    }
 };
 
 public function count() returns Aggregator {
@@ -156,7 +208,8 @@ public function count() returns Aggregator {
 }
 
 public type DistinctCount object {
-
+    *Aggregator;
+    *Snapshotable;
     public map<int> distinctValues = {};
 
     public function __init() {
@@ -187,6 +240,19 @@ public type DistinctCount object {
         DistinctCount distinctCountAggregator = new();
         return distinctCountAggregator;
     }
+
+    public function saveState() returns map<any> {
+        return {
+            "distinctValues": self.distinctValues
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any distinctValues = state["distinctValues"];
+        if (distinctValues is map<int>) {
+            self.distinctValues = distinctValues;
+        }
+    }
 };
 
 public function distinctCount() returns Aggregator {
@@ -196,7 +262,8 @@ public function distinctCount() returns Aggregator {
 
 
 public type Max object {
-
+    *Aggregator;
+    *Snapshotable;
     public LinkedList iMaxQueue = new;
     public LinkedList fMaxQueue = new;
     public int? iMax = ();
@@ -291,6 +358,38 @@ public type Max object {
         Max maxAggregator = new();
         return maxAggregator;
     }
+
+    public function saveState() returns map<any> {
+        any[] iMaxQ = self.iMaxQueue.asArray();
+        any[] fMaxQ = self.fMaxQueue.asArray();
+        return {
+            "iMaxQ": iMaxQ,
+            "fMaxQ": fMaxQ,
+            "iMax": self.iMax,
+            "fMax": self.fMax
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any iMaxQ = state["iMaxQ"];
+        if (iMaxQ is any[]) {
+            self.iMaxQueue = new;
+            self.iMaxQueue.addAll(iMaxQ);
+        }
+        any fMaxQ = state["fMaxQ"];
+        if (fMaxQ is any[]) {
+            self.fMaxQueue = new;
+            self.fMaxQueue.addAll(fMaxQ);
+        }
+        any iMax = state["iMax"];
+        if (iMax is int) {
+            self.iMax = iMax;
+        }
+        any fMax = state["fMax"];
+        if (fMax is float) {
+            self.fMax = fMax;
+        }
+    }
 };
 
 public function max() returns Aggregator {
@@ -300,7 +399,8 @@ public function max() returns Aggregator {
 
 
 public type Min object {
-
+    *Aggregator;
+    *Snapshotable;
     public LinkedList iMinQueue = new;
     public LinkedList fMinQueue = new;
     public int? iMin = ();
@@ -393,6 +493,38 @@ public type Min object {
         Min minAggregator = new();
         return minAggregator;
     }
+
+    public function saveState() returns map<any> {
+        any[] iMinQ = self.iMinQueue.asArray();
+        any[] fMinQ = self.fMinQueue.asArray();
+        return {
+            "iMinQ": iMinQ,
+            "fMinQ": fMinQ,
+            "iMin": self.iMin,
+            "fMin": self.fMin
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any iMinQ = state["iMinQ"];
+        if (iMinQ is any[]) {
+            self.iMinQueue = new;
+            self.iMinQueue.addAll(iMinQ);
+        }
+        any fMinQ = state["fMinQ"];
+        if (fMinQ is any[]) {
+            self.fMinQueue = new;
+            self.fMinQueue.addAll(fMinQ);
+        }
+        any iMin = state["iMin"];
+        if (iMin is int) {
+            self.iMin = iMin;
+        }
+        any fMin = state["fMin"];
+        if (fMin is float) {
+            self.fMin = fMin;
+        }
+    }
 };
 
 public function min() returns Aggregator {
@@ -401,9 +533,9 @@ public function min() returns Aggregator {
 }
 
 
-
 public type StdDev object {
-
+    *Aggregator;
+    *Snapshotable;
     public float mean = 0.0;
     public float stdDeviation = 0.0;
     public float sumValue = 0.0;
@@ -473,6 +605,34 @@ public type StdDev object {
         StdDev stdDevAggregator = new();
         return stdDevAggregator;
     }
+
+    public function saveState() returns map<any> {
+        return {
+            "mean": self.mean,
+            "stdDeviation": self.stdDeviation,
+            "sumValue": self.sumValue,
+            "count": self.count
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any mean = state["mean"];
+        if (mean is float) {
+            self.mean = mean;
+        }
+        any stdDeviation = state["stdDeviation"];
+        if (stdDeviation is float) {
+            self.stdDeviation = stdDeviation;
+        }
+        any sumValue = state["sumValue"];
+        if (sumValue is float) {
+            self.sumValue = sumValue;
+        }
+        any c = state["count"];
+        if (c is int) {
+            self.count = c;
+        }
+    }
 };
 
 public function stdDev() returns Aggregator {
@@ -481,7 +641,8 @@ public function stdDev() returns Aggregator {
 }
 
 public type MaxForever object {
-
+    *Aggregator;
+    *Snapshotable;
     public int? iMax = ();
     public float? fMax = ();
 
@@ -524,6 +685,24 @@ public type MaxForever object {
         MaxForever maxForeverAggregator = new();
         return maxForeverAggregator;
     }
+
+    public function saveState() returns map<any> {
+        return {
+            "iMax": self.iMax,
+            "fMax": self.fMax
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any iMax = state["iMax"];
+        if (iMax is int) {
+            self.iMax = iMax;
+        }
+        any fMax = state["fMax"];
+        if (fMax is float) {
+            self.fMax = fMax;
+        }
+    }
 };
 
 public function maxForever() returns Aggregator {
@@ -532,7 +711,8 @@ public function maxForever() returns Aggregator {
 }
 
 public type MinForever object {
-
+    *Aggregator;
+    *Snapshotable;
     public int? iMin = ();
     public float? fMin = ();
 
@@ -574,6 +754,24 @@ public type MinForever object {
     public function copy() returns Aggregator {
         MinForever minForeverAggregator = new();
         return minForeverAggregator;
+    }
+
+    public function saveState() returns map<any> {
+        return {
+            "iMin": self.iMin,
+            "fMin": self.fMin
+        };
+    }
+
+    public function restoreState(map<any> state) {
+        any iMin = state["iMin"];
+        if (iMin is int) {
+            self.iMin = iMin;
+        }
+        any fMin = state["fMin"];
+        if (fMin is float) {
+            self.fMin = fMin;
+        }
     }
 };
 

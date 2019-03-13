@@ -20,7 +20,9 @@ configurations {
     ballerinaZip {
         transitive false
     }
+    docerina
     bin
+    balSource
 }
 
 dependencies {
@@ -43,11 +45,12 @@ dependencies {
     dist project(':ballerina-packerina');
     dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator');
-    dist project(':docerina');
+    docerina project(':docerina-gradle-plugin');
 
     toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
     tools project(':language-server:language-server-stdio-launcher');
     tools project(':language-server:language-server-core');
+    balSource project(path: ':ballerina', configuration: 'source');
     distBal project(path: ':ballerina', configuration: 'balo');
     dist project(path: ':ballerina', configuration: 'jar');
     bin project(path: ':ballerina', configuration: 'bin');
@@ -103,6 +106,37 @@ CopySpec examplesSpec = copySpec {
     into(basePath + '/examples')
 }
 
+task extractLibs(type: Copy) {
+    def path = "$buildDir/ballerina";
+    from configurations.balSource.files
+    into path
+}
+
+task generateDocs(type: JavaExec) {
+    dependsOn extractLibs
+    inputs.dir("$buildDir/ballerina/");
+    outputs.dir("$buildDir/api-docs")
+
+    systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
+    systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
+
+    classpath = configurations.docerina
+    main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
+
+    def libs = "$buildDir/ballerina/"
+    args("$libs", "$buildDir/api-docs")
+}
+
+CopySpec apiDocsSpec = copySpec {
+    from generateDocs.outputs.files
+    into("$basePath/docs")
+}
+
+task createApiDocsZip(type: Zip) {
+    from generateDocs.outputs.files
+    archiveName "ballerina-api-docs-${project.version}.zip"
+}
+
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
@@ -112,6 +146,7 @@ task createZip(type: Zip) {
     with copyToolsBin
     with copyBallerinaZipSpec
     with examplesSpec
+    with apiDocsSpec
 }
 
 build {
