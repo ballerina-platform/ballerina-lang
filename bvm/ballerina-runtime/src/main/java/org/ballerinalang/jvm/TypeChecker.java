@@ -552,7 +552,8 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, BType sourceType) {
         // All the value types are immutable
-        if (sourceType.getTag() < TypeTags.JSON_TAG || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
+                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 

@@ -49,9 +49,13 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
 }
 
 function generateCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeFloat) {
+    if (sourceType is bir:BTypeInt) {
+        // do nothing
+    } else if (sourceType is bir:BTypeFloat) {
         mv.visitInsn(D2L);
-    } else if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    } else if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
@@ -60,9 +64,13 @@ function generateCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeInt) {
+    if (sourceType is bir:BTypeFloat) {
+        // do nothing
+    } else if (sourceType is bir:BTypeInt) {
         mv.visitInsn(L2D);
-    } else if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    } else if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'float'", sourceType));
@@ -71,7 +79,11 @@ function generateCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    if (sourceType is bir:BTypeString) {
+        // do nothing
+    } else if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
@@ -80,7 +92,11 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    if (sourceType is bir:BTypeBoolean) {
+        // do nothing
+    } else if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToBoolean", io:sprintf("(L%s;)Z", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'boolean'", sourceType));
@@ -89,7 +105,11 @@ function generateCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    if (sourceType is bir:BTypeByte) {
+        // do nothing
+    } else if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)B", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));
@@ -113,7 +133,7 @@ function generateCastToAny(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToAnyData(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeAny) {
+    if (sourceType is bir:BTypeAny || sourceType is bir:BUnionType) {
         checkCast(mv, "anydata");
     } else {
         // if value types, then ad box instruction
@@ -122,7 +142,9 @@ function generateCastToAnyData(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToUnionType(jvm:MethodVisitor mv, bir:BType sourceType, bir:BUnionType targetType) {
-    if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         // TODO: add JSON
         checkCast(mv, targetType);
     } else {
@@ -136,7 +158,9 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     checkCast(mv, targetType);
 
     // cast to the specific java class
-    if (sourceType is bir:BTypeAny || sourceType is bir:BTypeAnyData) {
+    if (sourceType is bir:BTypeAny ||
+            sourceType is bir:BTypeAnyData ||
+            sourceType is bir:BUnionType) {
         mv.visitTypeInsn(CHECKCAST, targetClass);
     }
 }
