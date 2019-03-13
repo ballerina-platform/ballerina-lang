@@ -78,8 +78,8 @@ public class PullModuleExecutor implements LSCommandExecutor {
                 return;
             }
             // Execute `ballerina pull` command
-            String ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME).resolve("bin").resolve("ballerina").toString();
-            ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", moduleName);
+            String ballerina = Paths.get(CommonUtil.getBallerinaHome()).resolve("bin").resolve("ballerina").toString();
+            ProcessBuilder processBuilder = new ProcessBuilder(ballerina, "pull", moduleName);
             LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
             DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);

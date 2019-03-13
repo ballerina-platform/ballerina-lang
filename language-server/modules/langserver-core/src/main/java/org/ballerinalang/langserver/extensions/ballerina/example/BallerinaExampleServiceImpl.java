@@ -60,7 +60,7 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
         return CompletableFuture.supplyAsync(() -> {
             BallerinaExampleListResponse response = new BallerinaExampleListResponse();
             Gson gson = new Gson();
-            Path bbeJSONPath = Paths.get(CommonUtil.BALLERINA_HOME).resolve(EXAMPLES_DIR).resolve(BBE_DEF_JSON);
+            Path bbeJSONPath = Paths.get(CommonUtil.getBallerinaHome()).resolve(EXAMPLES_DIR).resolve(BBE_DEF_JSON);
             try {
                 InputStreamReader fileReader = new InputStreamReader(
                         new FileInputStream(bbeJSONPath.toFile()), StandardCharsets.UTF_8);

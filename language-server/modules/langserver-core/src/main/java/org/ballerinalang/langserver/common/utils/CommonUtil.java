@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
+import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -142,7 +143,7 @@ public class CommonUtil {
 
     public static final boolean LS_DEBUG_ENABLED;
 
-    public static final String BALLERINA_HOME;
+    private static String ballerinaHome;
 
     public static final String PLAIN_TEXT_MARKUP_KIND = "plaintext";
 
@@ -151,10 +152,24 @@ public class CommonUtil {
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
         LS_DEBUG_ENABLED = debugLogStr != null && Boolean.parseBoolean(debugLogStr);
-        BALLERINA_HOME = System.getProperty("ballerina.home");
+        ballerinaHome = System.getProperty("ballerina.home");
+        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+            String configHome = newConfig.getHome();
+            ballerinaHome = (configHome != null && !configHome.isEmpty()) ? newConfig.getHome()
+                    : System.getProperty("ballerina.home");
+        });
     }
 
     private CommonUtil() {
+    }
+
+    /**
+     * Returns ballerina home.
+     *
+     * @return {@link String} ballerina home
+     */
+    public static String getBallerinaHome() {
+        return ballerinaHome;
     }
 
     /**
