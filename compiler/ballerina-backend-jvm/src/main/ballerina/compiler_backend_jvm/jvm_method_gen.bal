@@ -368,7 +368,7 @@ function getMethodDesc(bir:Function func) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
     while (i < func.argsCount) {
-        desc = desc + getTypeDesc(func.typeValue.paramTypes[i]);
+        desc = desc + getArgTypeSignature(func.typeValue.paramTypes[i]);
         i += 1;
     }
     string returnType = generateReturnType(func.typeValue.retType);
@@ -377,7 +377,7 @@ function getMethodDesc(bir:Function func) returns string {
     return desc;
 }
 
-function getTypeDesc(bir:BType bType) returns string {
+function getArgTypeSignature(bir:BType bType) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeFloat) {
@@ -390,17 +390,14 @@ function getTypeDesc(bir:BType bType) returns string {
         return "B";
     } else if (bType is bir:BTypeNil) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BArrayType ||
-                bType is bir:BTupleType) {
+    } else if (bType is bir:BArrayType || bType is bir:BTupleType) {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAny ||
-                bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType ||
-                bType is bir:BMapType || 
-                bType is bir:BRecordType) {
+    } else if (bType is bir:BTypeAny || bType is bir:BTypeAnyData || bType is bir:BUnionType) {
         return io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
+        return io:sprintf("L%s;", MAP_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
