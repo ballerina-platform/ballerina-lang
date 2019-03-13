@@ -99,7 +99,7 @@ function generate_random_name() {
 function wait_for_pod_readiness() {
     local timeout=300
     local interval=20
-    bash ${utils_parent_path}/wait_for_pod_ready.sh ${timeout} ${interval}
+    bash ${utils_parent_path}/wait-for-pod-ready.sh ${timeout} ${interval}
 
     # Temporary sleep to check whether app eventually becomes ready..
     # Ideally there should have been a kubernetes readiness probe
