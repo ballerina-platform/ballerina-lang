@@ -32,7 +32,7 @@ function setup_deployment() {
     retrieve_and_write_properties_to_data_bucket
     local is_debug_enabled=${infra_config["isDebugEnabled"]}
     if [ "${is_debug_enabled}" = "true" ]; then
-        print_debug_info
+        print_kubernetes_debug_info
     fi
 }
 
@@ -43,13 +43,11 @@ function clone_bbg_and_set_bal_path() {
     bal_path=${bbg_repo_name}/guide/data_backed_service/employee_db_service.bal
 }
 
-function print_debug_info() {
+function print_kubernetes_debug_info() {
     cat ${bal_path}
     kubectl get pods
     kubectl get svc ballerina-guides-employee-database-service -o=json
     kubectl get nodes --output wide
-    echo "ExternalIP: ${external_ip}"
-    echo "NodePort: ${node_port}"
 }
 
 function deploy_mysql_resources() {
@@ -83,6 +81,10 @@ function retrieve_and_write_properties_to_data_bucket() {
     deployment_props["ExternalIP"]=${external_ip}
     deployment_props["NodePort"]=${node_port}
     write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
+    if [ "${is_debug_enabled}" = "true" ]; then
+        echo "ExternalIP: ${external_ip}"
+        echo "NodePort: ${node_port}"
+    fi
 }
 
 setup_deployment
