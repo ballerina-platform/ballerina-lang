@@ -37,6 +37,12 @@ public type Time record {
     TimeZone zone;
     !...;
 };
+
+public type TimeError record {
+    string message;
+    !...;
+};
+
 # Returns ISO 8601 string representation of the given time.
 #
 # + time - The Time record to be converted to string
@@ -48,7 +54,7 @@ public extern function toString(Time time) returns string;
 # + time - The Time record to be formatted
 # + timeFormat - The format which is used to format the time represented by this object
 # + return - The formatted string of the given time
-public extern function format(Time time, string|TimeFormat timeFormat) returns string;
+public extern function format(Time time, string|TimeFormat timeFormat) returns string|error;
 
 # Returns the year representation of the given time.
 #
@@ -148,7 +154,7 @@ public extern function subtractDuration(Time time, int years, int months, int da
 # + time - The Time record of which the time-zone to be changed
 # + zoneId - The new time-zone id
 # + return - Time object containing time and zone information after the conversion
-public extern function toTimeZone(Time time, string zoneId) returns Time;
+public extern function toTimeZone(Time time, string zoneId) returns Time|error;
 
 # Returns the current time value with the system default time-zone.
 #
@@ -172,11 +178,11 @@ public extern function nanoTime() returns int;
 # + zoneId - The zone id of the required time-zone.If empty the system local time-zone will be used
 # + return - Time object containing time and zone information
 public extern function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
-                                  string zoneId) returns Time;
+                                  string zoneId) returns Time|error;
 
 # Returns the time for the given string representation based on the given format string.
 #
 # + data - The time text to parse
 # + timeFormat - The format which is used to parse the given text
 # + return - Time object containing time and zone information
-public extern function parse(string data, string|TimeFormat timeFormat) returns Time;
+public extern function parse(string data, string|TimeFormat timeFormat) returns Time|error;

@@ -28,11 +28,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
  *
  * @since 0.970
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "time",
-                   functionName = "nanoTime",
-                   returnType = { @ReturnType(type = TypeKind.INT) },
-                   isPublic = true)
+@BallerinaFunction(
+        orgName = "ballerina",
+        packageName = "time",
+        functionName = "nanoTime",
+        returnType = {
+                @ReturnType(type = TypeKind.INT)
+        },
+        isPublic = true
+)
 public class NanoTime extends AbstractTimeFunction {
 
     @Override

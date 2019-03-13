@@ -34,8 +34,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "getWeekday",
-        args = {@Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        args = {
+                @Argument(name = "time", type = TypeKind.RECORD)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRING)
+        },
         isPublic = true
 )
 public class WeekDay extends AbstractTimeFunction {

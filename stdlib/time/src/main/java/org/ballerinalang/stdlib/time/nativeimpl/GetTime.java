@@ -39,11 +39,15 @@ import java.util.Arrays;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "getTime",
-        args = {@Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.INT),
+        args = {
+                @Argument(name = "time", type = TypeKind.RECORD)
+        },
+        returnType = {
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.INT)},
+                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.INT)
+        },
         isPublic = true
 )
 public class GetTime extends AbstractTimeFunction {

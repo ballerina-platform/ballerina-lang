@@ -41,8 +41,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "seconds", type = TypeKind.INT),
                 @Argument(name = "milliseconds", type = TypeKind.INT),
                 @Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
-                                  structPackage = "ballerina/time")},
+        returnType = {
+                @ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time")
+        },
         isPublic = true
 )
 public class AddDuration extends AbstractTimeFunction {

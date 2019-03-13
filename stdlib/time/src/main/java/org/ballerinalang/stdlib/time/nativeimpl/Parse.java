@@ -36,6 +36,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * Get the Time for the given string.
  *
@@ -46,7 +48,10 @@ import java.time.temporal.TemporalAccessor;
         functionName = "parse",
         args = {@Argument(name = "timestamp", type = TypeKind.STRING),
                 @Argument(name = "format", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time")},
+        returnType = {
+                @ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time"),
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
+        },
         isPublic = true
 )
 public class Parse extends AbstractTimeFunction {
@@ -56,14 +61,16 @@ public class Parse extends AbstractTimeFunction {
         String dateString = context.getStringArgument(0);
         BString pattern = (BString) context.getNullableRefArgument(0);
 
-        TemporalAccessor parsedDateTime;
-        switch (pattern.stringValue()) {
-            case "RFC_1123":
+        try {
+            TemporalAccessor parsedDateTime;
+            if ("RFC_1123".equals(pattern.stringValue())) {
                 parsedDateTime = DateTimeFormatter.RFC_1123_DATE_TIME.parse(dateString);
                 context.setReturnValues(getTimeStruct(parsedDateTime, context, dateString, pattern.stringValue()));
-                break;
-            default:
+            } else {
                 context.setReturnValues(parseTime(context, dateString, pattern.stringValue()));
+            }
+        } catch (BallerinaException e) {
+            context.setReturnValues(TimeUtils.getTimeError(context, e.getMessage()));
         }
     }
 

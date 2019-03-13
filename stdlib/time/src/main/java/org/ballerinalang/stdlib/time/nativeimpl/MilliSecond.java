@@ -34,8 +34,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "getMilliSecond",
-        args = {@Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        args = {
+                @Argument(name = "time", type = TypeKind.RECORD)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.INT)
+        },
         isPublic = true
 )
 public class MilliSecond extends AbstractTimeFunction {

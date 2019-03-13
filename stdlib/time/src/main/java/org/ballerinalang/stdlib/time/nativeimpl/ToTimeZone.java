@@ -24,6 +24,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Change the timezone associated with the given time.
@@ -35,8 +39,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "toTimeZone",
         args = {@Argument(name = "zoneId", type = TypeKind.STRING),
                 @Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
-                                  structPackage = "ballerina/time")},
+        returnType = {
+                @ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time"),
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
+        },
         isPublic = true
 )
 public class ToTimeZone extends AbstractTimeFunction {
@@ -45,6 +51,10 @@ public class ToTimeZone extends AbstractTimeFunction {
     public void execute(Context context) {
         BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         String zoneId = context.getStringArgument(0);
-        context.setReturnValues(changeTimezone(context, timeStruct, zoneId));
+        try {
+            context.setReturnValues(changeTimezone(context, timeStruct, zoneId));
+        } catch (BallerinaException e) {
+            context.setReturnValues(TimeUtils.getTimeError(context, e.getMessage()));
+        }
     }
 }
