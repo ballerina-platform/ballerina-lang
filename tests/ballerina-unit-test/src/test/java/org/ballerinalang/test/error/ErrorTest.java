@@ -197,7 +197,7 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
-                                  "incompatible types: expected 'reason one', found 'string'", 31, 31);
+                                  "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")

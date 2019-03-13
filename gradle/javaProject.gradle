@@ -38,3 +38,7 @@ spotbugsMain {
 spotbugsTest {
     it.enabled = false
 }
+
+test {
+    systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
+}
