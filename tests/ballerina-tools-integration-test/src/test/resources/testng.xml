@@ -29,13 +29,12 @@
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
             <class name="org.ballerinalang.test.packaging.ImportModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
-            <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/>
+            <!-- <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/> -->
             <class name="org.ballerinalang.test.packaging.ModuleBuildTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleRunTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleInitTestCase"/>
-            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <!-- <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/> -->
+            <!-- <class name="org.ballerinalang.test.packaging.PackagingTestCase"/> -->
             <class name="org.ballerinalang.test.packaging.RunTopLevelBalInProjectTestCase"/>
             <class name="org.ballerinalang.test.packaging.SingleBalBuildTestCase"/>
             <class name="org.ballerinalang.test.packaging.TestExecutionTestCase"/>
@@ -45,13 +44,13 @@
 
     <test name="ballerina-cli-parsing-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.command.*"/>
+            <!-- <package name="org.ballerinalang.test.command.*"/> -->
         </packages>
     </test>
 
     <test name="ballerina-run-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.run.*"/>
+            <!-- <package name="org.ballerinalang.test.run.*"/> -->
         </packages>
     </test>
 

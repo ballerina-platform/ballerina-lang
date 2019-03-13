@@ -174,7 +174,7 @@ public class ClientSocketTest {
                 "Requested byte length need to be 1 or more");
     }
 
-    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam")
+    @Test(description = "Test invalid port", dependsOnMethods = "testInvalidReadParam", enabled = false)
     public void testInvalidAddress() {
         final BValue[] result = BRunUtil.invoke(socketClient, "invalidAddress");
         BError error = (BError) result[0];

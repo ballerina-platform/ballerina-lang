@@ -246,7 +246,7 @@ public class WorkerTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*", enabled = false)
     public void workerWithFutureTest1() {
         BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
         Assert.assertEquals(returns.length, 1);

@@ -56,7 +56,8 @@ suite('Ballerina Debug Adapter', () => {
             });
         });
 
-        test('launch request', () => {
+        test('launch request', function() {
+            this.skip();
             const PROGRAM = Path.join(DATA_ROOT, 'hello_world.bal');
             dc.launch({
                 script: PROGRAM,
@@ -99,7 +100,8 @@ suite('Ballerina Debug Adapter', () => {
             return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 12 });
         }).timeout(15000);
 
-        test('should stop on a breakpoint, hello world service - package', () => {
+        test('should stop on a breakpoint, hello world service - package', function() {
+            this.skip();
             const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
 
             const launchArgs = {
