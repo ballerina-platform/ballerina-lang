@@ -25,10 +25,10 @@ readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 readonly input_dir=$1
 readonly output_dir=$2
 readonly work_dir=$(pwd)
-
-# Read infrastructure.properties content into an associative array
 declare -A infra_config
 read_property_file "${input_dir}/infrastructure.properties" infra_config
+
+cat ${input_dir}/infrastructure.properties
 
 readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
 readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
