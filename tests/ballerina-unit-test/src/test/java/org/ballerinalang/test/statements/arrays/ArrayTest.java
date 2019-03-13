@@ -148,22 +148,21 @@ public class ArrayTest {
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
         String errMsgFormat = "array element type '%s' does not have an implicit initial value, use '%s'";
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 8);
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 7);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0,
-                                  format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "1|2|3", "1|2|3?"), 74, 1);
+                                  format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 41);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "1|2|3", "1|2|3?"),
+                                  74, 24);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 2,
-                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 89, 1);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 89, 16);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 3,
-                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 94, 5);
+                                  format(errMsgFormat, "error", "error?"), 103, 18);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 4,
-                                  format(errMsgFormat, "error", "error?"), 103, 1);
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 110, 19);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 5, format(errMsgFormat, "int|float", "int|float?"),
-                                  118, 1);
+                                  118, 11);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6,
-                                  format(errMsgFormat, "error", "error?"), 144, 1);
-        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
-                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 152, 9);
+                                  format(errMsgFormat, "error", "error?"), 144, 22);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")
@@ -173,13 +172,13 @@ public class ArrayTest {
         Assert.assertEquals(negResult.getErrorCount(), 3);
         BAssertUtil.validateError(negResult, 0,
                                   "array element type '1|2|3' does not have an implicit initial value, use '1|2|3?'",
-                                  22, 1);
+                                  22, 24);
         BAssertUtil.validateError(negResult, 1,
                                   "array element type '1.0|3.143' does not have an implicit initial value, use " +
                                           "'1.0|3.143?'",
-                                  29, 1);
+                                  29, 26);
         BAssertUtil.validateError(negResult, 2,
                                   "array element type 'a|b|c' does not have an implicit initial value, use 'a|b|c?'",
-                                  43, 1);
+                                  43, 41);
     }
 }
