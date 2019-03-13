@@ -31,11 +31,12 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.given;
@@ -50,9 +51,9 @@ public class PackagingTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
     private String moduleName = "test";
+    private String datePushed;
     private String orgName = "integrationtests";
     private Map<String, String> envVariables;
-    private static PrintStream outStream = System.out;
 
     @BeforeClass()
     public void setUp() throws IOException {
@@ -77,6 +78,10 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
+
+        // Get date and time of the module pushed.
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
+        datePushed = dtf.format(LocalDateTime.now());
 
         // First try to push with the --no-build flag
         String firstMsg = "error: Couldn't locate the module artifact to be pushed. Run 'ballerina push' " +
@@ -134,13 +139,14 @@ public class PackagingTestCase extends BaseTest {
         String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
                 balServer.getServerHome());
 
-        envVariables.putIfAbsent("BALLERINA_CLI_WIDTH", "200");
-
-        outStream.println(actualMsg);
-
         // Check if the search results contains the following.
-        Assert.assertTrue(actualMsg.contains(orgName + "/" + moduleName));
-        Assert.assertTrue(actualMsg.contains("Prints \"hello world\" to command line output"));
+        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
+        Assert.assertTrue(actualMsg.contains("NAME"));
+        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
+        Assert.assertTrue(actualMsg.contains("DATE"));
+        Assert.assertTrue(actualMsg.contains("VERSION"));
+        Assert.assertTrue(actualMsg.contains("Prints \"hello world\""));
+        Assert.assertTrue(actualMsg.contains(datePushed));
         Assert.assertTrue(actualMsg.contains("0.0.1"));
     }
 
