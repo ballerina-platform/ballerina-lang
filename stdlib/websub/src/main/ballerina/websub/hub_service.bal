@@ -31,7 +31,7 @@ service hubService =
     basePath: BASE_PATH,
     authConfig: {
         authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultVal = false)
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false)
         },
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }

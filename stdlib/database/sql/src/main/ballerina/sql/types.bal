@@ -54,16 +54,16 @@ import ballerina/config;
 #                       Default value of this field can be set through the configuration API with the key
 #                       "b7a.sql.validation.time.out"
 public type PoolOptions record {
-    string connectionInitSql = config:getAsString("b7a.sql.connection.init.sql", defaultVal = "");
-    string dataSourceClassName = config:getAsString("b7a.sql.datasource.class.name", defaultVal = "");
-    boolean autoCommit = config:getAsBoolean("b7a.sql.connection.auto.commit", defaultVal = true);
-    boolean isXA = config:getAsBoolean("b7a.sql.xa.enabled", defaultVal = false);
-    int maximumPoolSize = config:getAsInt("b7a.sql.max.pool.size", defaultVal = 15);
-    int connectionTimeout = config:getAsInt("b7a.sql.connection.time.out", defaultVal = 30000);
-    int idleTimeout =  config:getAsInt("b7a.sql.connection.idle.time.out", defaultVal = 600000);
-    int minimumIdle = config:getAsInt("b7a.sql.connection.min.idle.count", defaultVal = 15);
-    int maxLifetime = config:getAsInt("b7a.sql.connection.max.life.time", defaultVal = 1800000);
-    int validationTimeout = config:getAsInt("b7a.sql.validation.time.out", defaultVal = 5000);
+    string connectionInitSql = config:getAsString("b7a.sql.connection.init.sql", defaultValue = "");
+    string dataSourceClassName = config:getAsString("b7a.sql.datasource.class.name", defaultValue = "");
+    boolean autoCommit = config:getAsBoolean("b7a.sql.connection.auto.commit", defaultValue = true);
+    boolean isXA = config:getAsBoolean("b7a.sql.xa.enabled", defaultValue = false);
+    int maximumPoolSize = config:getAsInt("b7a.sql.max.pool.size", defaultValue = 15);
+    int connectionTimeout = config:getAsInt("b7a.sql.connection.time.out", defaultValue = 30000);
+    int idleTimeout =  config:getAsInt("b7a.sql.connection.idle.time.out", defaultValue = 600000);
+    int minimumIdle = config:getAsInt("b7a.sql.connection.min.idle.count", defaultValue = 15);
+    int maxLifetime = config:getAsInt("b7a.sql.connection.max.life.time", defaultValue = 1800000);
+    int validationTimeout = config:getAsInt("b7a.sql.validation.time.out", defaultValue = 5000);
     !...;
 };
 

@@ -1,3 +1,4 @@
+
 // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -23,10 +24,10 @@ import ballerina/config;
 # + waitTimeinMillis - Maximum amount of time, the client should wait for an idle connection before it sends an error when the pool is exhausted
 # + maxActiveStreamsPerConnection - Maximum active streams per connection. This only applies to HTTP/2.
 public type PoolConfiguration record {
-    int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", default = -1);
-    int maxIdleConnections = config:getAsInt("b7a.http.pool.maxIdleConnections", default = 1000);
-    int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 60000);
-    int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 50);
+    int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", defaultValue = -1);
+    int maxIdleConnections = config:getAsInt("b7a.http.pool.maxIdleConnections", defaultValue = 1000);
+    int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", defaultValue = 60000);
+    int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", defaultValue = 50);
     !...;
 };
 
