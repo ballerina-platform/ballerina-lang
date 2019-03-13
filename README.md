@@ -41,6 +41,8 @@ You can use one of the following options to try out Ballerina.
 
 You can download the Ballerina distribution at http://ballerina.io.
 
+>**Tip:** You can use several [tools and IDEs](https://ballerina.io/learn/tools-ides/) to create, document, and test Ballerina code.
+
 ### Install from source
 
 Alternatively, you can install Ballerina from the source using the following instructions.

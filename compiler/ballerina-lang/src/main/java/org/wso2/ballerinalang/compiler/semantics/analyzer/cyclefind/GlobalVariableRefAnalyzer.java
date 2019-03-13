@@ -29,7 +29,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
@@ -324,7 +326,7 @@ public class GlobalVariableRefAnalyzer {
         BSymbol firstNodeSymbol = firstGlobalVar.get();
         Optional<BLangNode> firstNode = pkgNode.topLevelNodes.stream()
                 .filter(t -> (t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
-                        && getVarOrFuncSymbol(t) == firstNodeSymbol)
+                        && getSymbol(t) == firstNodeSymbol)
                 .map(t -> (BLangNode) t)
                 .findAny();
 
@@ -348,22 +350,30 @@ public class GlobalVariableRefAnalyzer {
 
     private BLangIdentifier getNodeName(BSymbol symbol) {
         for (TopLevelNode node : pkgNode.topLevelNodes) {
-            if (getVarOrFuncSymbol(node) == symbol) {
+            if (getSymbol(node) == symbol) {
                 if (node.getKind() == NodeKind.VARIABLE) {
                     return ((BLangSimpleVariable) node).name;
                 } else if (node.getKind() == NodeKind.FUNCTION) {
                     return ((BLangFunction) node).name;
+                } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+                    if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                        return ((BLangTypeDefinition) node).name;
+                    }
                 }
             }
         }
         throw new IllegalArgumentException("Cannot find topLevelNode: " + symbol);
     }
 
-    private BSymbol getVarOrFuncSymbol(Node node) {
+    private BSymbol getSymbol(Node node) {
         if (node.getKind() == NodeKind.VARIABLE) {
             return ((BLangVariable) node).symbol;
         } else if (node.getKind() == NodeKind.FUNCTION) {
             return ((BLangFunction) node).symbol;
+        } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+            if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                return ((BLangObjectTypeNode) ((BLangTypeDefinition) node).typeNode).symbol;
+            }
         }
         return null;
     }
