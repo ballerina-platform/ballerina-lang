@@ -14,15 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testAssertionWithUnassignableTypes() {
+function testCastWithUnassignableTypes() {
     Def def = { name: "Em", id: 123.4 };
     Abc abc = <Abc> def;
 }
 
-function testAssertionForCurrentlyUnsupportedTypes() {
+function testCastForCurrentlyUnsupportedTypes() {
     future<int> f1 = start testFutureFunc();
     any a = f1;
     future<int> f2 = <future<int>> a;
+}
+
+function testInvalidCastToFiniteType() {
+    boolean b = true;
+    FooInt f = <FooInt> b;
+}
+
+function testInvalidCastFromFiniteType() {
+    FooInt f = "foo";
+    xml x = <xml> f;
 }
 
 type Abc record {
@@ -43,3 +53,5 @@ type Employee record {
 function testFutureFunc() returns int {
     return 1;
 }
+
+type FooInt "foo"|int;

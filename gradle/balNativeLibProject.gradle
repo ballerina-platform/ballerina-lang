@@ -1,5 +1,11 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
+configurations {
+    balSource {
+        transitive false
+    }
+}
+
 task createBalo(type: JavaExec) {
     def balFiles = file("src/main/ballerina/")
     dependsOn createBalHome
@@ -20,3 +26,5 @@ task createBalo(type: JavaExec) {
 artifacts.add('baloImplementation', file("$buildDir/generated-balo/")) {
     builtBy('createBalo')
 }
+
+artifacts.add('balSource', file("src/main/ballerina/"))

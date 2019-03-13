@@ -65,12 +65,6 @@ dependencies {
 
 description = 'Ballerina - Unit Test Module'
 
-sourceSets {
-    test {
-        output.resourcesDir = "build/classes/java/test"
-    }
-}
-
 test {
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
