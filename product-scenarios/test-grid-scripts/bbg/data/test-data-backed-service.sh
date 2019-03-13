@@ -20,8 +20,8 @@ readonly test_data_grand_parent_path=$(dirname ${test_data_parent_path})
 readonly test_data_great_grand_parent_path=$(dirname ${test_data_grand_parent_path})
 readonly test_data_great_great_grant_parent_path=$(dirname ${test_data_great_grand_parent_path})
 
-. ${test_data_great_grand_parent_path}/usage.sh
-. ${test_data_great_grand_parent_path}/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${test_data_great_grand_parent_path}/util/usage.sh
+. ${test_data_great_grand_parent_path}/util/setup_test_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function print_debug_info() {
     echo "Host And Port: ${external_ip}:${node_port}"

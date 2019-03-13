@@ -19,8 +19,8 @@ readonly deployment_data_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pw
 readonly deployment_data_grand_parent_path=$(dirname ${deployment_data_parent_path})
 readonly deployment_data_great_grand_parent_path=$(dirname ${deployment_data_grand_parent_path})
 
-. ${deployment_data_great_grand_parent_path}/usage.sh
-. ${deployment_data_great_grand_parent_path}/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${deployment_data_great_grand_parent_path}/util/usage.sh
+. ${deployment_data_great_grand_parent_path}/util/setup_deployment_env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
     cat ${INPUT_DIR}/infrastructure.properties
