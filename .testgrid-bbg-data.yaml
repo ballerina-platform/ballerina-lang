@@ -23,16 +23,6 @@ infrastructureConfig:
         file: bbg/common-cleanup.sh
         type: SHELL
         phase: DESTROY
-scenarioConfigs:
-- testType: TESTNG
-  remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
-  remoteBranch: "ballerina-scenarios"
-  name: "ballerinaScenarios"
-  description: "ballerina-scenarios"
-  file: product-scenarios/test-grid-scripts/bbg/data/test-data-backed-service.sh
-  inputParameters:
-    BallerinaVersion: "0.990.3"
-    isDebugEnabled: "true"
 deploymentConfig:
   deploymentPatterns:
     - name: 'data-backed-service'
@@ -47,3 +37,13 @@ deploymentConfig:
           inputParameters:
             BallerinaVersion: "0.990.3"
             isDebugEnabled: "true"
+scenarioConfigs:
+- testType: TESTNG
+  remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+  remoteBranch: "ballerina-scenarios-cleaned"
+  name: "ballerinaScenarios"
+  description: "ballerina-scenarios"
+  file: product-scenarios/test-grid-scripts/bbg/data/test-data-backed-service.sh
+  inputParameters:
+    BallerinaVersion: "0.990.3"
+    isDebugEnabled: "true"
