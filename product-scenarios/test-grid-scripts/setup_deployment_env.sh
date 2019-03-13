@@ -30,10 +30,8 @@ read_property_file "${input_dir}/infrastructure.properties" infra_config
 
 cat ${input_dir}/infrastructure.properties
 
-#readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
-#readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
-readonly docker_user="ballerinascenarios"
-readonly docker_password="balscenJkics789316"
+readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
+readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
 
 # Update kube config to point to the existing cluster
 aws eks update-kubeconfig --name ${cluster_name}
