@@ -20,7 +20,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
