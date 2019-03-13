@@ -294,7 +294,7 @@ public class XMLAttributesTest {
     @Test
     public void testXMLAttributesToAny() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testXMLAttributesToAny");
-        Assert.assertTrue(returns[0] instanceof BXMLAttributes);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", " +
                 "\"{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", " +
@@ -347,5 +347,18 @@ public class XMLAttributesTest {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromLiteral");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "5");
+    }
+
+    @Test(description = "Test getting a xml attributes as a map using xmlElement@ syntax")
+    public void testGetAttributeMap() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeMap");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{" +
+                "\"{http://sample.com/wso2/c1}p1\":\"http://wso2.com/\", " +
+                "\"{http://sample.com/wso2/c1}p2\":\"http://sample.com/wso2/a1/\", " +
+                "\"{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", " +
+                "\"{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", " +
+                "\"{http://sample.com/wso2/c1}ns3\":\"http://sample.com/wso2/d1\", " +
+                "\"{http://wso2.com/}foo\":\"bar\"}");
     }
 }

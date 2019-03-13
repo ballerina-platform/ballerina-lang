@@ -2681,7 +2681,38 @@ public class Desugar extends BLangNodeVisitor {
             ((BLangXMLQName) xmlAttributeAccessExpr.indexExpr).isUsedInXML = true;
         }
 
-        result = xmlAttributeAccessExpr;
+        xmlAttributeAccessExpr.desugared = true;
+
+        // When XmlAttributeAccess expression is not a LHS target of a assignment and not a part of a index access
+        // it will be converted to a 'map<string>.convert(xmlRef@)'
+        if (xmlAttributeAccessExpr.lhsVar || xmlAttributeAccessExpr.indexExpr != null) {
+            result = xmlAttributeAccessExpr;
+        } else {
+            result = rewriteExpr(createXmlAttrToMapStrConvertInvocation(xmlAttributeAccessExpr));
+        }
+    }
+
+    private BLangInvocation createXmlAttrToMapStrConvertInvocation(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        DiagnosticPos pos = xmlAttributeAccessExpr.pos;
+
+        BLangTypedescExpr mapStringTypeDescExpr = new BLangTypedescExpr();
+        mapStringTypeDescExpr.resolvedType = symTable.mapStringType;
+        mapStringTypeDescExpr.type = symTable.typeDesc;
+        mapStringTypeDescExpr.pos = pos;
+
+        BSymbol convSymbol = symResolver.resolveConversionOperator(symTable.xmlAttributesType, symTable.mapStringType);
+
+        BLangInvocation convertExpr = (BLangInvocation) TreeBuilder.createInvocationNode();
+        convertExpr.pos = pos;
+        convertExpr.name = ASTBuilderUtil.createIdentifier(pos, "convert");
+        convertExpr.builtinMethodInvocation = true;
+        convertExpr.builtInMethod = BLangBuiltInMethod.CONVERT;
+        convertExpr.expr = mapStringTypeDescExpr;
+        convertExpr.symbol = convSymbol;
+        convertExpr.type = symTable.mapStringType;
+        convertExpr.originalType = symTable.mapStringType;
+        convertExpr.requiredArgs.add(xmlAttributeAccessExpr);
+        return convertExpr;
     }
 
     // Generated expressions. Following expressions are not part of the original syntax

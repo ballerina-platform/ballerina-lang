@@ -78,33 +78,29 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'xml'", 33,
                 53);
 
-        // assigning attributes-map to a map
-        BAssertUtil.validateError(negativeResult, index++,
-                "incompatible types: expected 'map', found 'xml-attributes'", 48, 19);
-
         // namespace conflict with package import
-        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 52, 5);
+        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 47, 5);
 
         // get attributes from non-xml
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 57, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 52, 16);
 
         // update attributes map
         BAssertUtil.validateError(negativeResult, index++,
-                "xml attributes cannot be updated as a collection. update attributes one at a time", 62, 5);
+                "xml attributes cannot be updated as a collection. update attributes one at a time", 57, 5);
 
         // update qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 67, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 62, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 75, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined module 'ns0'", 70, 19);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
-                79, 5);
+                74, 5);
 
         // XML elements with mismatching start and end tags
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
-                                  83, 19);
+                                  78, 19);
     }
 
     @Test

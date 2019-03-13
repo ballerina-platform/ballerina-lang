@@ -274,3 +274,9 @@ function testGetAttributeFromLiteral() returns (string) {
     
     return x@[ns0:id];
 }
+
+function testGetAttributeMap() returns (map<string>?) {
+    var x1 = xml `<child xmlns:p1="http://wso2.com/" xmlns:p2="http://sample.com/wso2/a1/" p1:foo="bar"/>`;
+    map<string> s = x1@;
+    return s;
+}
