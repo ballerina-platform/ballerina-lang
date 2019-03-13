@@ -280,3 +280,18 @@ function testGetAttributeMap() returns (map<string>?) {
     map<string> s = x1@;
     return s;
 }
+
+function takeInAMap(map<string> input) returns map<string> {
+    input["tracer"] = "1";
+    return input;
+}
+
+function passXmlAttrToFunction() returns map<string> {
+    var x1 = xml `<child foo="bar"/>`;
+    return takeInAMap(x1@);
+}
+
+function mapOperationsOnXmlAttribute() returns (int, string[]) {
+    var x1 = xml `<child foo="bar"/>`;
+    return (x1@.length(), x1@.keys());
+}

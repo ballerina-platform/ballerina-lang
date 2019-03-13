@@ -361,4 +361,27 @@ public class XMLAttributesTest {
                 "\"{http://sample.com/wso2/c1}ns3\":\"http://sample.com/wso2/d1\", " +
                 "\"{http://wso2.com/}foo\":\"bar\"}");
     }
+
+    @Test(description = "Test pass xml attributes as a argument to a function")
+    public void testPassXmlAttributeAsAMap() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "passXmlAttrToFunction");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"" +
+                "{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", \"" +
+                "{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", \"" +
+                "{http://sample.com/wso2/c1}ns3\":\"http://sample.com/wso2/d1\", \"" +
+                "{http://sample.com/wso2/c1}foo\":\"bar\", \"" +
+                "tracer\":\"1\"}");
+    }
+
+    @Test(description = "Test map operations on xml@ value")
+    public void testMapOperations() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "mapOperationsOnXmlAttribute");
+        Assert.assertEquals(returns[0].stringValue(), "4");
+        Assert.assertEquals(returns[1].stringValue(), "[\"" +
+                "{http://sample.com/wso2/c1}ns0\", \"" +
+                "{http://sample.com/wso2/c1}ns1\", \"" +
+                "{http://sample.com/wso2/c1}ns3\", \"" +
+                "{http://sample.com/wso2/c1}foo\"]");
+    }
 }
