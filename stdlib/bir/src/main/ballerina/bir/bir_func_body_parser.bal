@@ -78,12 +78,6 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
-        } else if (kindTag == INS_TYPE_ASSERT) {
-            kind = INS_KIND_TYPE_ASSERT;
-            var lhsOp = self.parseVarRef();
-            var rhsOp = self.parseVarRef();
-            TypeAssert typeAssert = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
-            return typeAssert;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
             var bType = self.typeParser.parseType();
@@ -192,27 +186,27 @@ public type FuncBodyParser object {
     }
 
     public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
-        BinaryOpInstructionKind kind = BINARY_ADD;
+        BinaryOpInstructionKind kind = "ADD";
         if (kindTag == INS_ADD){
-            kind = BINARY_ADD;
+            kind = "ADD";
         } else if (kindTag == INS_SUB){
-            kind = BINARY_SUB;
+            kind = "SUB";
         } else if (kindTag == INS_MUL){
-            kind = BINARY_MUL;
+            kind = "MUL";
         } else if (kindTag == INS_DIV){
-            kind = BINARY_DIV;
+            kind = "DIV";
         } else if (kindTag == INS_EQUAL){
-            kind = BINARY_EQUAL;
+            kind = "EQUAL";
         } else if (kindTag == INS_NOT_EQUAL){
-            kind = BINARY_NOT_EQUAL;
+            kind = "NOT_EQUAL";
         } else if (kindTag == INS_GREATER_THAN){
-            kind = BINARY_GREATER_THAN;
+            kind = "GREATER_THAN";
         } else if (kindTag == INS_GREATER_EQUAL){
-            kind = BINARY_GREATER_EQUAL;
+            kind = "GREATER_EQUAL";
         } else if (kindTag == INS_LESS_THAN){
-            kind = BINARY_LESS_THAN;
+            kind = "LESS_THAN";
         } else if (kindTag == INS_LESS_EQUAL){
-            kind = BINARY_LESS_EQUAL;
+            kind = "LESS_EQUAL";
         } else {
             error err = error("instrucion kind " + kindTag + " not impl.");
             panic err;
