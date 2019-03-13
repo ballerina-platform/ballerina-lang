@@ -52,10 +52,9 @@ function print_debug_info() {
 }
 
 function deploy_mysql_resources() {
-    docker build -t ballerinascenarios/mysql-ballerina:1.0 data-backed-service/resources/
-    docker login --username=ballerinascenarios --password=ballerina75389
-    docker push ballerinascenarios/mysql-ballerina:1.0
-    sed -i "s/mysql-ballerina/ballerinascenarios\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
+    build_docker_image mysql-ballerina 1.0 data-backed-service/resources/
+    push_image_to_docker_registry mysql-ballerina 1.0
+    sed -i "s/mysql-ballerina/${docker_user}\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
     kubectl create -f data-backed-service/resources/kubernetes/
 }
 
@@ -63,9 +62,9 @@ function replace_variables_in_bal_file() {
     sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
     sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
     sed -i "s:<path_to_JDBC_jar>:"${work_dir}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
-    sed -i "s:<USERNAME>:ballerinascenarios:g" ${bal_path}
-    sed -i "s:<PASSWORD>:ballerina75389:g" ${bal_path}
-    sed -i "s:ballerina.guides.io:ballerinascenarios:g" ${bal_path}
+    sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
+    sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
+    sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
 }
 
 function build_and_deploy_guide() {

@@ -66,6 +66,9 @@ function install_ballerina() {
     readonly ballerina_home=${utils_parent_path}/ballerina-${ballerina_version}
 }
 
+# Downloads and extracts the MySQL connector
+#
+# $1 - Download location
 function download_and_extract_mysql_connector() {
     local download_location=$1
     wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
@@ -75,16 +78,17 @@ function download_and_extract_mysql_connector() {
     ls ${download_location}/mysql-connector-java-5.1.47
 }
 
-# Generate a random namespace name
+# Generates a random namespace name
 function generate_random_namespace() {
     echo "kubernetes-namespace"-$(generate_random_name)
 }
 
-# Generate a random database name
+# Generates a random name
 function generate_random_database_name() {
     echo "test-database"-$(generate_random_name)
 }
 
+# Generates a random database name
 function generate_random_name() {
     local new_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
     echo ${new_uuid}
@@ -104,8 +108,13 @@ function wait_for_pod_readiness() {
     sleep 120s
 }
 
+# Builds run tests of the provided BBG section profile and copies the surefire reports to teh output directory
+#
 # $1 - BBG section directory name
 # $2 - Associative array of system property-value pairs
+# $3 - System properties associative array
+# $4 - Input directory
+# $5 - Output directory
 function run_bbg_section_tests() {
     local maven_profile=$1
     local bbg_section=$2
@@ -123,8 +132,24 @@ function run_bbg_section_tests() {
     cp -r ${utils_grand_parent_path}/bbg/${bbg_section}/target ${__output_dir}/scenarios/${bbg_section}/
 }
 
+# Clones the given BBG.
+#
 # $1 - BBG repository name
 function clone_bbg() {
     local bbg_repo=$1
     git clone https://github.com/ballerina-guides/${bbg_repo} --branch testgrid-onboarding
+}
+
+function push_image_to_docker_registry() {
+    local image=$1
+    local tag=$2
+    docker login --username=${docker_user} --password=${docker_password}
+    docker push ${docker_user}/${image}:${tag}
+}
+
+function build_docker_image() {
+    local image=$1
+    local tag=$2
+    local image_location=$3
+    docker build -t ${docker_user}/${image}:${tag} ${image_location}
 }
