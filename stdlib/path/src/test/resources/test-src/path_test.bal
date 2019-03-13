@@ -21,11 +21,11 @@ function testGetAbsolutePath(string path) returns string|error {
 }
 
 function testGetPathSeparator() returns string {
-    return path:PATH_SEPARATOR;
+    return path:getPathSeparator();
 }
 
 function testGetPathListSeparator() returns string {
-    return path:PATH_LIST_SEPARATOR;
+    return path:getPathListSeparator();
 }
 
 function testIsAbsolutePath(string path) returns boolean|error {
@@ -42,4 +42,8 @@ function testGetParent(string path) returns string|error {
 
 function testNormalizePath(string path) returns string|error {
     return path:normalize(path);
+}
+
+function testSplitPath(string path) returns string[]|error {
+    return path:split(path);
 }

@@ -18,16 +18,30 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/system;
 
-public final boolean IS_WINDOWS = system:getEnv("OS") != "" ;
-public final string PATH_SEPARATOR = IS_WINDOWS ? "" : "/";
-public final byte PATH_SEPARATOR_UTF8 = IS_WINDOWS ? 92 : 47;
-public final string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
+boolean IS_WINDOWS = system:getEnv("OS") != "" ;
+string PATH_SEPARATOR = IS_WINDOWS ? "" : "/";
+byte PATH_SEPARATOR_UTF8 = IS_WINDOWS ? 92 : 47;
+string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
 
 # Retrieves the absolute path from the provided location.
 #
 # + path - String value of file path.
-# + return - Returns the absolute path reference or an error if the path cannot be derived
+# + return - The absolute path reference or an error if the path cannot be derived
 public extern function absolute(string path) returns string|error;
+
+# Returns path separator of underline operating system.
+#
+# + return - String value of path separator
+public function getPathSeparator() returns string {
+    return PATH_SEPARATOR;
+}
+
+# Returns path list separator of underline operating system.
+#
+# + return - String value of path list separator
+public function getPathListSeparator() returns string {
+    return PATH_LIST_SEPARATOR;
+}
 
 # Reports whether the path is absolute.
 # A path is absolute if it is independent of the current directory.
@@ -194,6 +208,30 @@ public function normalize(string path) returns string|error {
     return parse(normalizedPath);
 }
 
+# Splits a list of paths joined by the OS-specific Path Separator.
+#
+# + path - String value of file path.
+# + return - String array of part components
+public function split(string path) returns string[]|error {
+    int[] offsetIndexes = getOffsetIndexes(path);
+    int count = offsetIndexes.length();
+
+    string[] parts = [];
+    int i = 0;
+    while (i < count) {
+        int begin = offsetIndexes[i];
+        int length;
+        if (i == (count - 1)) {
+            length = path.length() - begin;
+            parts[i] = check parse(path.substring(begin, path.length()));
+        } else {
+            length = offsetIndexes[i + 1] - begin - 1;
+            parts[i] = check parse(path.substring(begin, offsetIndexes[i + 1] - 1));
+        }
+        i = i + 1;
+    }
+    return parts;
+}
 
 # Parses the give path and remove redundent slashes.
 #

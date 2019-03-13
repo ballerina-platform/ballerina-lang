@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,6 +187,25 @@ public class PathTest {
         log.info("{ballerina/path}:normalize(). Input: " + input + " | Return: " + filename.stringValue());
         String expectedValue = Paths.get(input).normalize() != null ? Paths.get(input).normalize().toString() : "";
         assertEquals(filename.stringValue(), expectedValue);
+    }
+
+    @Test(description = "Test split path function for posix paths", dataProvider = "posix_paths")
+    public void testPosixSplitPath(String path) {
+        validateSplitPath(path);
+    }
+
+    @Test(description = "Test split path function for windows paths", dataProvider = "windows_paths")
+    public void testWindowsSplitPath(String path) {
+        validateSplitPath(path);
+    }
+
+    private void validateSplitPath(String input) {
+        BValue[] args = {new BString(input)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testSplitPath", args);
+        BValueArray parts = (BValueArray) returns[0];
+        log.info("{ballerina/path}:split(). Input: " + input + " | Return: " + parts.stringValue());
+        int expectedSize = Paths.get(input) != null ? Paths.get(input).getNameCount() : 0;
+        assertEquals(parts.size(), expectedSize);
     }
 
     @DataProvider(name = "posix_paths")
