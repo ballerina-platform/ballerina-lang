@@ -32,7 +32,7 @@ function run_tests() {
     local node_port=${deployment_config["NodePort"]}
 
     local is_debug_enabled=${deployment_config["isDebugEnabled"]}
-    if [ ${is_debug_enabled} -eq "true" ]; then
+    if [ "${is_debug_enabled}" = "true" ]; then
         print_debug_info
     fi
 

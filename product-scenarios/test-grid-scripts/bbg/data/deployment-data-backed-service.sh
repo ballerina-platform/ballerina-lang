@@ -31,7 +31,7 @@ function setup_deployment() {
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
     local is_debug_enabled=${infra_config["isDebugEnabled"]}
-    if [ ${is_debug_enabled} -eq "true" ]; then
+    if [ "${is_debug_enabled}" = "true" ]; then
         print_debug_info
     fi
 }
