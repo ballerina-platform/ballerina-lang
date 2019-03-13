@@ -88,7 +88,14 @@ public type GlobalPoolConfigContainer object {
 // __init functions of database clients pass poolConfig member of this instance
 // to the extern client creation logic in order to access the internal map
 // of connection pools.
-public final GlobalPoolConfigContainer globalPoolConfigContainer = new;
+final GlobalPoolConfigContainer globalPoolConfigContainer = new;
+
+# Retrieves the `final` `GlobalPoolConfigContainer` object.
+#
+# + return - The `final` `GlobalPoolConfigContainer` object
+public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer {
+    return globalPoolConfigContainer;
+}
 
 # The SQL Datatype of the parameter.
 #

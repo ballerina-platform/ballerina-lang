@@ -33,6 +33,7 @@
             <class name="org.ballerinalang.test.packaging.ModuleBuildTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleRunTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleInitTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.RunTopLevelBalInProjectTestCase"/>

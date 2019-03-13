@@ -114,7 +114,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
         res.getCapabilities().setCompletionProvider(completionOptions);
-        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
+        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Incremental);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(true);
