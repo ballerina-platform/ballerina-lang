@@ -289,8 +289,8 @@ Separate both statements and top level definitions by zero or one blank lines (o
         return value;
     }
   ```
-* There should be only a single space after `+`, `-` and `return`.
-* param identifier and description
+* There should be only one space after `+`, `-` and `return`.
+* Param identifier and description should begin with a single space.
 
   ```ballerina
   # Get Value.
