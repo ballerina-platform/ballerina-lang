@@ -154,3 +154,14 @@ FandF[]|FTUnion[] unionOfArrays = [2.4];
 (anydata|error)[] anyOrErrorList = [];
 
 anydata[] anyDataArray = [];
+
+function complexArrays() {
+    (int|string, float)[][] a = [];
+
+    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+
+    (int|float)[][] f = [[23, 45], [123, 43, 68]];
+
+    (boolean|float)[][] c = [];
+    (boolean|float)[][] d = c;
+}

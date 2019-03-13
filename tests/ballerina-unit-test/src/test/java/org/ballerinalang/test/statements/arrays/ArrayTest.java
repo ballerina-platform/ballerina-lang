@@ -148,7 +148,7 @@ public class ArrayTest {
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
         String errMsgFormat = "array element type '%s' does not have an implicit initial value, use '%s'";
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 7);
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 14);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0,
                                   format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 41);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "1|2|3", "1|2|3?"),
@@ -163,6 +163,24 @@ public class ArrayTest {
                                   118, 11);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 6,
                                   format(errMsgFormat, "error", "error?"), 144, 22);
+
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 7,
+                                  format(errMsgFormat, "(int|string,float)[]", "(int|string,float)[]?"), 159, 33);
+
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 8,
+                                  format(errMsgFormat, "(int|string,float)[]", "(int|string,float)[]?"), 161, 33);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 9,
+                                  format(errMsgFormat, "(int|string,float)", "(int|string,float)?"), 161, 34);
+
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 10,
+                                  format(errMsgFormat, "int|float[]", "int|float[]?"), 163, 25);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 11,
+                                  format(errMsgFormat, "int|float", "int|float?"), 163, 26);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 12,
+                                  format(errMsgFormat, "int|float", "int|float?"), 163, 36);
+
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 13,
+                                  format(errMsgFormat, "boolean|float[]", "boolean|float[]?"), 165, 29);
     }
 
     @Test(description = "Test arrays of types without implicit initial values")
