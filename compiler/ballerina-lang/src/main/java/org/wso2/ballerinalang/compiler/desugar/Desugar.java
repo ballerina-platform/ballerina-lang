@@ -2107,17 +2107,19 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        if (varRefExpr.lhsVar || !types.isValueType(genVarRefExpr.type)) {
+        if (varRefExpr.lhsVar ||
+                (!types.isValueType(genVarRefExpr.type) && !types.isValueType(genVarRefExpr.symbol.type))) {
             result = genVarRefExpr;
             return;
         }
 
-        // If the the variable is not used in lhs, and if the current type
+        // If the the variable is not used in lhs, and if the current type or original type
         // is a value type, then add a conversion if required. This is done
-        // to unbox a narrowed type.
+        // to unbox or box a narrowed type.
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
-        result = addConversionExprIfRequired(genVarRefExpr, targetType);
+        BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
+        result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
     }
 
     @Override
@@ -2201,9 +2203,6 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TUPLE) {
-            if (indexAccessExpr.indexExpr.type.tag == TypeTags.FINITE) {
-                indexAccessExpr.indexExpr = addConversionExprIfRequired(indexAccessExpr.indexExpr, symTable.intType);
-            }
             targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
@@ -2934,7 +2933,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        typeTestExpr.expr = rewriteExpr(typeTestExpr.expr);
+        BLangExpression expr = typeTestExpr.expr;
+        if (types.isValueType(expr.type)) {
+            addConversionExprIfRequired(expr, symTable.anyType);
+        }
+        typeTestExpr.expr = rewriteExpr(expr);
         result = typeTestExpr;
     }
 

@@ -1988,10 +1988,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
-        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
+                !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
-                    typeTestExpr.typeNode.type);
+                       typeTestExpr.typeNode.type);
         }
+    }
+
+    private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
+        BType expressionType = expression.type;
+        switch (expressionType.tag) {
+            case TypeTags.UNION:
+                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+                break;
+            case TypeTags.FINITE:
+                if (types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+        }
+
+        switch (testType.tag) {
+            case TypeTags.UNION:
+                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType) !=
+                        symTable.semanticError;
+            case TypeTags.FINITE:
+                return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
+                        symTable.semanticError;
+        }
+        return false;
     }
 
     // private methods
