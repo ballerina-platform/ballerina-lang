@@ -326,12 +326,6 @@ function testSetChildren() returns (xml, boolean, boolean, xml) {
 }
 
 function testSetChildrenDefaultNamespace() returns (xml, boolean, boolean, xml, string) {
-// todo: verify with Supun and haitha
-// citizen="${attributeValue}" inside the element and x1@["{http://sample.com/wso2/c1}foo1"] = "bar1";
-// where given url is the default namespace for x1, the issue is we consider the url as 'xmlns' keyword
-// at the moment we will have to support either one from the above to, as they colide.
-// I prefer not to consider url as xmlns.
-
     xmlns "http://sample.com/test";
 
     var x1 = xml `<name xmlns="http://sample.com/test"><fname>supun</fname><lname>setunga</lname></name>`;

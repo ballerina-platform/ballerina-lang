@@ -31,7 +31,7 @@ public function main() {
     xml x3 = xml `<ns0:newBook>
                     <name>Sherlock Holmes</name>
                     <author>${title} Arthur Conan Doyle</author>
-                    <!--Price: \$${ 40 / 5 + 4 }-->
+                    <!--Price: $${ 40 / 5 + 4 }-->
                   </ns0:newBook>`;
     io:println(x3);
 }
