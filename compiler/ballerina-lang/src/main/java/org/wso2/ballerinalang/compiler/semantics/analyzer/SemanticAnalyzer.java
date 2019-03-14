@@ -1661,11 +1661,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
                 // only support "_" in static match
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
-                if (varName != Names.IGNORE) {
-                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                if (varName == Names.IGNORE) {
+                    expression.type = symTable.noType;
+                    return expression.type;
                 }
-                expression.type = symTable.noType;
-                return expression.type;
+                BType exprType = typeChecker.checkExpr(expression, env);
+                if (exprType.tag == TypeTags.SEMANTIC_ERROR ||
+                        ((BLangSimpleVarRef) expression).symbol.getKind() != SymbolKind.CONSTANT) {
+                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                    expression.type = symTable.noType;
+                    return expression.type;
+                }
+                return exprType;
             default:
                 dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                 expression.type = symTable.errorType;

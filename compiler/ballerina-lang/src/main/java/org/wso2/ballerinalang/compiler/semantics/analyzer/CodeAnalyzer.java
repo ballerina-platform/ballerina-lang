@@ -26,12 +26,14 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -581,7 +583,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
         BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
-        if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (finalPattern.literal.type.tag == TypeTags.NONE) {
             finalPattern.isLastPattern = true;
         }
 
@@ -633,57 +635,117 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      *
      * @param precedingPattern pattern taken to compare similarity.
      * @param pattern          the pattern that the precedingPattern is checked for similarity.
-     * @return true if both patterns are similar..
+     * @return true if both patterns are similar.
      */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
-        if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return true;
+        if (precedingPattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If preceding pattern is a binary expression, check both sides of binary expression with current pattern.
+            BLangBinaryExpr precedingBinaryExpr = (BLangBinaryExpr) precedingPattern;
+            BLangExpression precedingLhsExpr = precedingBinaryExpr.lhsExpr;
+            BLangExpression precedingRhsExpr = precedingBinaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingLhsExpr, pattern) ||
+                    checkLiteralSimilarity(precedingRhsExpr, pattern);
         }
 
-        if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
-            BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
-            Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
-                    .stream()
-                    .collect(Collectors.toMap(
-                            keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
-                            BLangRecordKeyValue::getValue
-                    ));
-
-            for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
-                BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
-                String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
-                if (!recordLiteral.containsKey(key)) {
-                    return false;
-                }
-                if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
-                    return false;
-                }
-            }
-            return true;
+        if (pattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If current pattern is a binary expression, check both sides of binary expression with preceding pattern.
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) pattern;
+            BLangExpression lhsExpr = binaryExpr.lhsExpr;
+            BLangExpression rhsExpr = binaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingPattern, lhsExpr) ||
+                    checkLiteralSimilarity(precedingPattern, rhsExpr);
         }
 
-        if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
-            BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
-            BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
-            if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+        switch (precedingPattern.type.tag) {
+            case TypeTags.MAP:
+                if (pattern.type.tag == TypeTags.MAP) {
+                    BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
+                    Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
+                                    BLangRecordKeyValue::getValue
+                            ));
+
+                    for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
+                        BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
+                        String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
+                        if (!recordLiteral.containsKey(key)) {
+                            return false;
+                        }
+                        if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
                 return false;
-            }
-            return IntStream.range(0, precedingTupleLiteral.expressions.size())
-                    .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
-                            tupleLiteral.expressions.get(i)));
+            case TypeTags.TUPLE:
+                if (pattern.type.tag == TypeTags.TUPLE) {
+                    BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
+                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
+                    if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+                        return false;
+                    }
+                    return IntStream.range(0, precedingTupleLiteral.expressions.size())
+                            .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
+                                    tupleLiteral.expressions.get(i)));
+                }
+                return false;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+                if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    // preceding pattern is a constant.
+                    BConstantSymbol precedingPatternSym =
+                            (BConstantSymbol) ((BLangSimpleVarRef) precedingPattern).symbol;
+                    if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (pattern.type.tag != TypeTags.NONE) {
+                            // pattern is a constant reference.
+                            BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
+                            return precedingPatternSym.literalValue.equals(patternSym.literalValue);
+                        }
+                        // pattern is '_'.
+                        return false;
+                    }
+                    // pattern is a literal.
+                    BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                            (BLangLiteral) pattern;
+                    return (precedingPatternSym.literalValue.equals(literal.value));
+                }
+
+                if (types.isValueType(pattern.type)) {
+                    // preceding pattern is a literal.
+                    BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
+                            (BLangLiteral) precedingPattern;
+
+                    if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (pattern.type.tag != TypeTags.NONE) {
+                            // pattern is a constant reference.
+                            BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
+                            return patternSym.literalValue.equals(precedingLiteral.value);
+                        }
+                        // pattern is '_'.
+                        return false;
+                    }
+                    // pattern is a literal.
+                    BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                            (BLangLiteral) pattern;
+                    return (precedingLiteral.value.equals(literal.value));
+                }
+                return false;
+            case TypeTags.NONE:
+                // preceding pattern is '_'. Hence will match all patterns that follow.
+                return true;
+            default:
+                return false;
         }
-
-        if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
-            BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                    (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) : (BLangLiteral) pattern;
-
-            BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                    (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
-                    (BLangLiteral) precedingPattern;
-
-            return (precedingLiteral.value.equals(literal.value));
-        }
-        return false;
     }
 
     /**
@@ -881,6 +943,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (literal.getKind() == NodeKind.LITERAL || literal.getKind() == NodeKind.NUMERIC_LITERAL) {
                     return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
                 }
+                if (literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                        ((BLangSimpleVarRef) literal).symbol.getKind() == SymbolKind.CONSTANT) {
+                    BConstantSymbol constSymbol = (BConstantSymbol) ((BLangSimpleVarRef) literal).symbol;
+                    return types.isAssignableToFiniteType(matchType,
+                            (BLangLiteral) ((BFiniteType) constSymbol.type).valueSpace.iterator().next());
+                }
                 break;
         }
         return false;
@@ -990,9 +1058,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!Symbols.isPublic(varNode.symbol)) {
-            if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
-            }
             return;
         }
 
@@ -1010,10 +1075,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
                 NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
-        }
-
-        if (varNode.expr == null && ownerSymTag == SymTag.PACKAGE) {
-            this.dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
         }
     }
 
@@ -1927,10 +1988,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
-        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
+                !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
-                    typeTestExpr.typeNode.type);
+                       typeTestExpr.typeNode.type);
         }
+    }
+
+    private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
+        BType expressionType = expression.type;
+        switch (expressionType.tag) {
+            case TypeTags.UNION:
+                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+                break;
+            case TypeTags.FINITE:
+                if (types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+        }
+
+        switch (testType.tag) {
+            case TypeTags.UNION:
+                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType) !=
+                        symTable.semanticError;
+            case TypeTags.FINITE:
+                return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
+                        symTable.semanticError;
+        }
+        return false;
     }
 
     // private methods

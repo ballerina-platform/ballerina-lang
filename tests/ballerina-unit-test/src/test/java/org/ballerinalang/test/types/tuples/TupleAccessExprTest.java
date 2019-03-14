@@ -184,11 +184,26 @@ public class TupleAccessExprTest {
         Assert.assertEquals(returns[0].stringValue(), "stringtruestring");
     }
 
+    @Test
+    public void testTupleAccessUsingUnionWithFiniteTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypes");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(description = "Test invalid type inserted to tuple due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
                     "tuple index out of range: index: 4, size: 4.*")
     public void testTupleAccessUsingFiniteTypeNegative() {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingFiniteTypeNegative");
+    }
+
+    @Test(description = "Test invalid tuple access using a dynamic index",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
+                    "tuple index out of range: index: 6, size: 4.*")
+    public void testTupleAccessUsingUnionWithFiniteTypesNegative() {
+        BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypesNegative");
     }
 }

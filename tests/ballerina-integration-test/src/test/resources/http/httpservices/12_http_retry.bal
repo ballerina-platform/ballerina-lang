@@ -64,7 +64,7 @@ service retryDemoService on serviceEndpoint1 {
     }
 }
 
-public int counter = 0;
+int counter = 0;
 
 // This sample service is used to mock connection timeouts and service outages.
 // The service outage is mocked by stopping/starting this service.

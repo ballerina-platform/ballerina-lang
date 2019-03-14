@@ -1,23 +1,83 @@
-public int glbVarInt = 800;
+int glbVarInt = 800;
 
-public string glbVarString = "value";
+public function getGlbVarInt() returns int {
+    return glbVarInt;
+}
 
-public float glbVarFloat = 99.34323;
+string glbVarString = "value";
 
-public any glbVarAny = 88343;
+public function getGlbVarString() returns string {
+    return glbVarString;
+}
 
-public float glbVarFloatChange = 99.0;
+float glbVarFloat = 99.34323;
 
-public float glbVarFloat1 = glbVarFloat;
+public function getGlbVarFloat() returns float {
+    return glbVarFloat;
+}
 
-public json glbVarJson = {};
+any glbVarAny = 88343;
 
-public float glbVarFloatLater = 0.0;
+public function getGlbVarAny() returns any {
+    return glbVarAny;
+}
 
-public byte glbByte = 234;
+float glbVarFloatChange = 99.0;
 
-public byte[] glbByteArray1 = [2,3,4,67,89];
+public function getGlbVarFloatChange() returns float {
+    return glbVarFloatChange;
+}
 
-public byte[] glbByteArray2 = base64 `afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=`;
+public function setGlbVarFloatChange(float value) {
+    glbVarFloatChange = value;
+}
 
-public byte[] glbByteArray3 = base16 `afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df`;
+float glbVarFloat1 = glbVarFloat;
+
+public function getGlbVarFloat1() returns float {
+    return glbVarFloat1;
+}
+
+json glbVarJson = {};
+
+public function getGlbVarJson() returns json {
+    return glbVarJson;
+}
+
+public function setGlbVarJson(json value) {
+    glbVarJson = value;
+}
+
+float glbVarFloatLater = 0.0;
+
+public function getGlbVarFloatLater() returns float {
+    return glbVarFloatLater;
+}
+
+public function setGlbVarFloatLater(float value) {
+    glbVarFloatLater = value;
+}
+
+byte glbByte = 234;
+
+public function getGlbByte() returns byte {
+    return glbByte;
+}
+
+byte[] glbByteArray1 = [2,3,4,67,89];
+
+public function getGlbByteArray1() returns byte[] {
+    return glbByteArray1;
+}
+
+byte[] glbByteArray2 = base64 `afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=`;
+
+public function getGlbByteArray2() returns byte[] {
+    return glbByteArray2;
+}
+
+byte[] glbByteArray3 = base16 `afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df`;
+
+public function getGlbByteArray3() returns byte[] {
+    return glbByteArray3;
+}
