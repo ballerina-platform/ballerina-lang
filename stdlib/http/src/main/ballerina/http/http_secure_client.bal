@@ -548,8 +548,8 @@ function prepareRequest(RefreshRequestConfig config) returns Request {
 
 function getAccessTokenFromResponse(Response response) returns string|error {
     json payload = check response.getJsonPayload();
-    if (payload.statusCode == OK_200) {
-        updateTokenCache(payload);
+    if (response.statusCode == OK_200) {
+        check updateTokenCache(payload);
         return payload.access_token.toString();
     } else {
         error err = error(HTTP_ERROR_CODE,
@@ -561,16 +561,17 @@ function getAccessTokenFromResponse(Response response) returns string|error {
 # Update token cache with the received json payload of the response.
 #
 # + responsePayload - Payload of the response
-function updateTokenCache(json responsePayload) {
+function updateTokenCache(json responsePayload) returns ()|error {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
-    int expiresIn = <int>responsePayload.expires_in;
-    if (responsePayload.refresh_token.toString() != EMPTY_STRING) {
+    int expiresIn = check int.convert(responsePayload.expires_in);
+    if (!(responsePayload["refresh_token"] is ())) {
         string refreshToken = responsePayload.refresh_token.toString();
         tokenCache.refreshToken = refreshToken;
     }
     tokenCache.accessToken = accessToken;
     tokenCache.expiryTime = issueTime + expiresIn * 1000;
+    return ();
 }
 
 # Check whether retry is required for the response. This returns true if the scheme is OAuth and the response status
