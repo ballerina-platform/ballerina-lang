@@ -16,6 +16,7 @@
 package org.wso2.transport.http.netty.contractimpl.sender.channel.pool;
 
 
+import io.netty.channel.EventLoopGroup;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -30,13 +31,26 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     private static final Logger LOG = LoggerFactory.getLogger(PoolableTargetChannelFactoryPerSrcHndlr.class);
 
     private final GenericObjectPool genericObjectPool;
+    private final EventLoopGroup clientEventGroup;
+    private final Class eventLoopClass;
+    private final PoolableTargetChannelFactory channelFactory;
 
-    PoolableTargetChannelFactoryPerSrcHndlr(GenericObjectPool genericObjectPool) {
+    PoolableTargetChannelFactoryPerSrcHndlr(GenericObjectPool genericObjectPool,
+                                            PoolableTargetChannelFactory channelFactory,
+                                            EventLoopGroup clientEventGroup,
+                                            Class eventLoopClass) {
         this.genericObjectPool = genericObjectPool;
+        this.channelFactory = channelFactory;
+        this.clientEventGroup = clientEventGroup;
+        this.eventLoopClass = eventLoopClass;
     }
 
     @Override
     public Object makeObject() throws Exception {
+        //When borrowObject() creates a new channel, it should be created with the given eventloop class and group since
+        //with http/2, eventloop of the channel cannot be changed later. This does not affect http/1.1.
+        channelFactory.setEventLoopClass(eventLoopClass);
+        channelFactory.setEventLoopGroup(clientEventGroup);
         TargetChannel targetChannel = (TargetChannel) this.genericObjectPool.borrowObject();
         LOG.debug("Created channel: {}", targetChannel);
         return targetChannel;

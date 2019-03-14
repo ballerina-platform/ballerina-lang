@@ -120,8 +120,27 @@ public class TestUtil {
         return httpServer;
     }
 
+    public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer, int bossGroupSize,
+                                             int workerGroupsize) {
+        HttpServer httpServer = new HttpServer(port, channelInitializer, bossGroupSize, workerGroupsize);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ServerThread serverThread = new ServerThread(latch, httpServer);
+        try {
+            serverThread.start();
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Thread Interrupted while sleeping ", e);
+        }
+        return httpServer;
+    }
+
     public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer) {
         HttpsServer httpServer = new HttpsServer(port, channelInitializer);
+        return getHttpsServer(httpServer);
+    }
+
+    private static HttpsServer getHttpsServer(HttpsServer httpServer) {
         CountDownLatch latch = new CountDownLatch(1);
         ServerThread serverThread = new ServerThread(latch, httpServer);
         try {
@@ -131,6 +150,12 @@ public class TestUtil {
             LOG.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
+    }
+
+    public static HttpsServer startHttpsServer(int port, ChannelInitializer channelInitializer, int bossGroupSize,
+                                               int workerGroupSize, String httpVersion) {
+        HttpsServer httpServer = new HttpsServer(port, channelInitializer, bossGroupSize, workerGroupSize, httpVersion);
+        return getHttpsServer(httpServer);
     }
 
     public static String getContent(HttpURLConnection urlConn) throws IOException {

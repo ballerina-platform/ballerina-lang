@@ -44,12 +44,24 @@ public class MessageGenerator {
 
     public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
         HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
-                new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-                "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+            new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+            "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT);
+    }
+
+    public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload, int port, String scheme) {
+        HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
+            new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+            scheme + TestUtil.TEST_HOST + ":" + port));
+        return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, port);
+    }
+
+    private static HttpCarbonMessage getHttpCarbonMessage(HttpMethod httpMethod, String payload,
+                                                          HttpCarbonMessage httpCarbonMessage, int port) {
         httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
         httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
-        httpCarbonMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
-        httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT);
+        httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
+        httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + port);
         if (payload != null) {
             ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
             httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));

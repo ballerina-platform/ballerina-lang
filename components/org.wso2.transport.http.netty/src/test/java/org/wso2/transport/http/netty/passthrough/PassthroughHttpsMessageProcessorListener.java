@@ -28,6 +28,7 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -45,10 +46,22 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private SenderConfiguration senderConfiguration;
     private static final String testValue = "Test Message";
+    private boolean shareConnectionPool;
+    private ConnectionManager connectionManager;
 
     PassthroughHttpsMessageProcessorListener(SenderConfiguration senderConfiguration) {
         this.httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         this.senderConfiguration = senderConfiguration;
+    }
+
+    public PassthroughHttpsMessageProcessorListener(SenderConfiguration senderConfiguration,
+                                                    boolean shareConnectionPool) {
+        this.httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+        this.senderConfiguration = senderConfiguration;
+        this.shareConnectionPool = shareConnectionPool;
+        if (shareConnectionPool) {
+            connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration());
+        }
     }
 
     @Override
@@ -57,8 +70,13 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
             HttpCarbonMessage outboundRequest = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, testValue, "");
             outboundRequest.setProperty(Constants.SRC_HANDLER, httpRequestMessage.getProperty(Constants.SRC_HANDLER));
             try {
-                clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+                if (shareConnectionPool && connectionManager != null) {
+                    clientConnector = httpWsConnectorFactory
+                        .createHttpClientConnector(new HashMap<>(), senderConfiguration, connectionManager);
+                } else {
+                    clientConnector = httpWsConnectorFactory
+                        .createHttpClientConnector(new HashMap<>(), senderConfiguration);
+                }
                 HttpResponseFuture future = clientConnector.send(outboundRequest);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
@@ -71,6 +89,7 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
                             }
                         });
                     }
+
                     // Did not implement onError since this is a test case.
                     @Override
                     public void onError(Throwable throwable) {
@@ -86,4 +105,3 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
     public void onError(Throwable throwable) {
     }
 }
-
