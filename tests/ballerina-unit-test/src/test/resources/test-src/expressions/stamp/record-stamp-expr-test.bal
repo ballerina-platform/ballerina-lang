@@ -21,13 +21,13 @@ type Student record {|
     string school;
 |};
 
-type Employee record {|
+type Employee record {
     string name;
     string status;
     string batch;
 };
 
-type Person record {
+type Person record {|
     string name;
     string status;
     string batch;
@@ -288,7 +288,7 @@ function stampAnyRecordToRecord() returns OpenEmployee|error {
 
 //--------------------------------- Nil type related scenarios ---------------------------------------------
 
-type ExtendedEmployeeWithNilMap record {|
+type ExtendedEmployeeWithNilMap record {
     string name;
     string status;
     string batch;
@@ -345,7 +345,7 @@ function stampRecordWithNilValuesV2() returns Employee {
     return e;
 }
 
-type ComplexPerson record {
+type ComplexPerson record {|
     string name = "";
     int age = 0;
     ComplexPerson? parent = ();

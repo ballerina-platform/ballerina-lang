@@ -74,9 +74,9 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "unreachable code", 510, 9);
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 523, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 525, 5);
-        BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 553, 12);
-        BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 578, 5);
-        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 579, 5);
-        BAssertUtil.validateError(result, i, "uninitialized field 's'", 589, 14);
+        BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 552, 12);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 577, 5);
+        BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 578, 5);
+        BAssertUtil.validateError(result, i, "uninitialized field 's'", 588, 14);
     }
 }

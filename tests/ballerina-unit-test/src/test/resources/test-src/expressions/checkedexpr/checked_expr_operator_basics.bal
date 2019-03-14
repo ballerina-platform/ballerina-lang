@@ -73,11 +73,11 @@ function testSafeAssignOpInAssignmentStatement6 () returns (boolean | error) {
     return statusFailure;
 }
 
-type Person record {|
+type Person record {
     string name;
 };
 
-public type MyErrorData record {
+public type MyErrorData record {|
 |};
 
 type MyError error<string, MyErrorData>;

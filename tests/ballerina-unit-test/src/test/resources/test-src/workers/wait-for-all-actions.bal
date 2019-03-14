@@ -268,7 +268,7 @@ function waitTest25() returns map<anydata> {
     future<int> f1 = start add_1(5, 2);
     future<string> f2 = start concat("foo");
 
-    record { int id = 0; string name = "default"; !...;} anonRec = wait {id: f1, name : f2};
+    record {| int id = 0; string name = "default"; |} anonRec = wait {id: f1, name : f2};
     map<anydata> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;

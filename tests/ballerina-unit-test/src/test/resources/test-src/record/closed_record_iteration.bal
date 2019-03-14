@@ -9,12 +9,12 @@ type ClosedAddress record {|
     string city = "";
 |};
 
-type Address record {|
+type Address record {
     string street = "";
     string city = "";
 };
 
-type ClosedFoo record {
+type ClosedFoo record {|
     string a = "";
     string b = "";
     string c = "";

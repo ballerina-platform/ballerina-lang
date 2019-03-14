@@ -16,14 +16,14 @@
 
 import ballerina/io;
 
-type Student record {|
+type Student record {
     string name = "";
     int age = 0;
     Grades grades = {};
     string...;
 };
 
-type Grades record {
+type Grades record {|
     int maths = 0;
     int physics = 0;
     int chemistry = 0;

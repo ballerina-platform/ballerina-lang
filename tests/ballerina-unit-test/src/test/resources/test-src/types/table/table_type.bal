@@ -19,7 +19,7 @@ import ballerina/h2;
 import ballerina/io;
 import ballerina/time;
 
-type ResultPrimitive record {|
+type ResultPrimitive record {
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;
@@ -43,7 +43,7 @@ type ResultSetTestAlias record {
     int DT2INT_TYPE;
 };
 
-type ResultClosed record {
+type ResultClosed record {|
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;

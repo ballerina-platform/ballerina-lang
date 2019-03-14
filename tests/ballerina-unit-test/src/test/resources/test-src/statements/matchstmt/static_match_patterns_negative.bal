@@ -84,7 +84,7 @@ type Rec1 record {|
     int | float a;
 |};
 
-type Rec2 record {|
+type Rec2 record {
     int | float a;
 };
 
@@ -96,7 +96,7 @@ type Rec4 record {
     int | float | boolean a;
 };
 
-type Rec5 record {
+type Rec5 record {|
     int | float | boolean a;
 |};
 

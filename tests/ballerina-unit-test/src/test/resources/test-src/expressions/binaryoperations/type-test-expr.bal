@@ -210,11 +210,11 @@ function testNestedRecordTypes() returns (boolean, boolean) {
     return (x is X, x is Y);
 }
 
-type A3 record {|
+type A3 record {
     int x = 0;
 };
 
-type B3 record {
+type B3 record {|
     int x = 0;
 |};
 

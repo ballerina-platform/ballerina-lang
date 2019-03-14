@@ -18,9 +18,9 @@ public type BClosedPerson record {|
     string name = "anonymous";
     int age = 0;
     ClosedAddress adr = {city:"", country:""};
-};
+|};
 
-public type BClosedManager record {
+public type BClosedManager record {|
     *BClosedEmployee;
     string dept = "";
 |};

@@ -1,27 +1,24 @@
-type Department record {
+type Department record {|
     string dptName = "";
     Person[] employees = [];
-	!...;
-};
+|};
 
-type Person record {
+type Person record {|
     string name = "default first name";
     string lname = "";
     map<any> adrs = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
-	!...;
-};
+|};
 
-type Family record {
+type Family record {|
     string spouse = "";
     int noOfChildren = 0;
     string[] children = [];
-	!...;
-};
+|};
 
-type Employee record {
+type Employee record {|
     string name = "default first name";
     string lname = "";
     map<any> address = {};
@@ -29,8 +26,7 @@ type Employee record {
     Family family = {};
     Person? parent = ();
     string designation = "";
-	!...;
-};
+|};
 
 function testStructOfStruct () returns (string) {
 
@@ -104,13 +100,12 @@ function testNestedStructInit () returns (Person) {
     return p1;
 }
 
-type NegativeValTest record {
+type NegativeValTest record {|
     int negativeInt = -9;
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
     float negativeSpaceFloat = -24.99;
-	!...;
-};
+|};
 
 function getStructNegativeValues () returns (int, int, float, float) {
     NegativeValTest tmp = {};

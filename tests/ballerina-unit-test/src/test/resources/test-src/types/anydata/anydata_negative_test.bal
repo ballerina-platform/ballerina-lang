@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {|
+type Foo record {
     int ra = 0;
     any...;
 };
@@ -23,7 +23,7 @@ type Bar object {
     int oa = 0;
 };
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;

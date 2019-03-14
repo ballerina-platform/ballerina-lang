@@ -23,7 +23,7 @@ type ErrorDetails record {
    string message;
 };
 
-type Employee record {|
+type Employee record {
     string name;
     int id;
 };
@@ -38,7 +38,7 @@ type Person record {
     string name;
 };
 
-type TableEmployee record {
+type TableEmployee record {|
     int id;
     string name;
 |};

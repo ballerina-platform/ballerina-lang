@@ -57,12 +57,12 @@ type StructWithoutDefaults record {|
     byte[] blb = [];
 |};
 
-type T1 record {|
+type T1 record {
     int x = 0;
     int y = 0;
 };
 
-type T2 record {
+type T2 record {|
     int x = 0;
     int y = 0;
     int z = 0;

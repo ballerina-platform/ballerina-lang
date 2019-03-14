@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type OpenFoo record {|
+public type OpenFoo record {
     string name = "";
     int age?;
     OpenBar...;
@@ -42,6 +42,6 @@ public type OpenBar record {
     float x = 0.0;
 };
 
-public type ClosedBar record {
+public type ClosedBar record {|
     float x = 0.0;
 |};

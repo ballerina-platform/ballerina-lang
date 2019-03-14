@@ -17,9 +17,9 @@
 type Age record {|
     int age;
     string format;
-};
+|};
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
 |};

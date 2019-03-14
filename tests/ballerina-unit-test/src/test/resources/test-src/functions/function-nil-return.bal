@@ -194,7 +194,7 @@ function testNilableXMLArray() returns xml[]? {
 
 // Complex types
 
-type OpenPerson record {|
+type OpenPerson record {
     string name;
     int age;
 };
@@ -205,7 +205,7 @@ function testNilableOpenRecord() returns OpenPerson? {
 function testNilableOpenRecordArray() returns OpenPerson[]? {
 }
 
-type ClosedPerson record {
+type ClosedPerson record {|
     string name;
     int age;
 |};

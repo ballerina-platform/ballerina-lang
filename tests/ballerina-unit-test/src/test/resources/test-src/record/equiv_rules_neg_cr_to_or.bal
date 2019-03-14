@@ -18,7 +18,7 @@ type Person1 record {|
     string name;
 |};
 
-type AnotherPerson record {|
+type AnotherPerson record {
     string name;
     int age;
 };
@@ -28,7 +28,7 @@ function testMissingRequiredField1() {
     AnotherPerson ap = p;
 }
 
-type Person2 record {
+type Person2 record {|
     string name;
     int age?;
 |};

@@ -252,7 +252,7 @@ type Person record {|
     string address = "";
 |};
 
-type Employee record {|
+type Employee record {
     string name;
     int age;
 };
@@ -343,7 +343,7 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
     return check trap <map<Employee>>testMap;
 }
 
-type Student record {
+type Student record {|
     int index;
     int age;
 |};
@@ -518,14 +518,14 @@ function testMapConstrainedEquivalentMapInsert () returns (string?, int?) {
     return (emp["jack"].name, emp["jack"].age);
 }
 
-type Transaction record {|
+type Transaction record {
     string transactionId;
     string coordinationType;
     map<Participant> participants?;
     Protocol[] coordinatorProtocols?;
 };
 
-type Participant record {
+type Participant record {|
     string participantId;
     Protocol[] participantProtocols;
 |};

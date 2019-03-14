@@ -1,7 +1,7 @@
 type RecordName1 record {|
     int a = 0;
     string s;
-};
+|};
 
 public type RecordName2 record {
     int a = 0;
@@ -24,7 +24,7 @@ type RecordName5 record {
     } sdd;
 };
 
-public type RecordName6 record {
+public type RecordName6 record {|
     int a = 0;
     string s;
 |};

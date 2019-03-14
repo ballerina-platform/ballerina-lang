@@ -65,7 +65,7 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
 
 }
 
-public type ParamAny record {|
+public type ParamAny record {
     any value;
 };
 
@@ -104,7 +104,7 @@ function testRecordLiteralAssignment() returns string {
     }
 }
 
-type Foo record {
+type Foo record {|
     string s;
     int i = 0;
 |};

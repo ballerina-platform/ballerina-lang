@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type firstRec record {|
+type firstRec record {
     int id = 1;
     string name = "default";
 };
@@ -30,7 +30,7 @@ type thirdRec record {
     int f4?;
 };
 
-type sealedRec record {
+type sealedRec record {|
     int id = 0;
     string name = "default";
 |};

@@ -27,11 +27,11 @@ function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
     }
 }
 
-type Student record {|
+type Student record {
     int score = 0;
 };
 
-public type CircuitBreakerInferredConfig record {
+public type CircuitBreakerInferredConfig record {|
     float failureThreshold = 0.0;
     int resetTimeMillis = 0;
     boolean[] statusCodes = [];

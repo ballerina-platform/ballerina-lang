@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Age record {|
+type Age record {
     int age;
     string format;
 };
 
-type ClosedAge record {
+type ClosedAge record {|
     int age;
     string format;
 |};

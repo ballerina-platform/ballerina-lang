@@ -184,10 +184,6 @@ fieldDescriptor
     |   typeReference
     ;
 
-//recordFieldDefinitionList
-//    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
-//    ;
-
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY

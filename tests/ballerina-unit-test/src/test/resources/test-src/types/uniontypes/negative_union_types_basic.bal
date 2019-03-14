@@ -18,19 +18,19 @@ public type ClosedFoo record {|
     string var1;
 |};
 
-public type OpenFoo record {|
+public type OpenFoo record {
     string var1;
 };
 
-public type ClosedBar record {
+public type ClosedBar record {|
     string var1 = "";
 |};
 
-public type OpenBar record {|
+public type OpenBar record {
     string var1 = "";
 };
 
-public type Bar2 record {
+public type Bar2 record {|
     int var1;
 |};
 

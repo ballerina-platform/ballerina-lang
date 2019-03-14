@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {|
+type Person record {
     string name;
     int age;
 };
@@ -24,7 +24,7 @@ type PersonObj object {
     int age = 0;
 };
 
-type Student record {
+type Student record {|
     *PersonObj;
     string school;
 |};
@@ -51,24 +51,24 @@ type Foo3 record {|
     *xml;
 |};
 
-type Person1 record {|
+type Person1 record {
     string name;
     int age;
 };
 
-type Student1 record {
+type Student1 record {|
     *Person1;
     string name;
 |};
 
 type Gender "male"|"female";
 
-type Person2 record {|
+type Person2 record {
     string name;
     Gender gender;
 };
 
-type Student2 record {
+type Student2 record {|
     *Person2;
     string school;
 |};

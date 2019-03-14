@@ -5,13 +5,12 @@ type Person record {|
     int age = 25;
 |};
 
-type Employee record {
+type Employee record {|
     // Referencing the `Person` record
     *Person;
     string company?;
     string designation;
-    !...;
-};
+|};
 
 type Manager record {
     Employee[] team?;

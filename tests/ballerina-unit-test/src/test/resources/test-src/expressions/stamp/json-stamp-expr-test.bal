@@ -21,13 +21,13 @@ type Student record {|
     string school;
 |};
 
-type Employee record {|
+type Employee record {
     string name;
     string status;
     string batch;
 };
 
-type Person record {
+type Person record {|
     string name;
     string status;
     string batch;

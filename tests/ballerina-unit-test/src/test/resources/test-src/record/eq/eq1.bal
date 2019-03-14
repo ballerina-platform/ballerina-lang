@@ -1,4 +1,4 @@
-public type person record {|
+public type person record {
     int age = 0;
     string name = "";
     string address = "";
@@ -7,7 +7,7 @@ public type person record {|
     int id = 0;
 };
 
-public type closedPerson record {
+public type closedPerson record {|
     int age = 0;
     string name = "";
     string address = "";
@@ -16,7 +16,7 @@ public type closedPerson record {
     int id = 0;
 |};
 
-public type employee record {|
+public type employee record {
     int age = 0;
     string name = "";
     string address = "";
@@ -25,7 +25,7 @@ public type employee record {|
     int id = 0;
 };
 
-public type closedEmployee record {
+public type closedEmployee record {|
     int age = 0;
     string name = "";
     string address = "";

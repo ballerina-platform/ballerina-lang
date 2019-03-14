@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {|
+type Foo record {
     int a = 0;
 };
 
-type ClosedFoo record {
+type ClosedFoo record {|
     int ca = 0;
 |};
 

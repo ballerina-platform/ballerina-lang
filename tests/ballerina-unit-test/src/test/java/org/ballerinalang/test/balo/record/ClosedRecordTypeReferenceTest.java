@@ -59,20 +59,20 @@ public class ClosedRecordTypeReferenceTest {
         int index = 0;
         assertEquals(negative.getErrorCount(), 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'PersonObj' is not a record", 28, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 36, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'FiniteT' is not a record", 43, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'int' is not a record", 48, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'float' is not a record", 49, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'boolean' is not a record", 50, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'string' is not a record", 51, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'byte' is not a record", 52, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'json' is not a record", 53, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'xml' is not a record", 54, 6);
-        BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 64, 6);
-        BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 83, 18);
-        BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 88, 6);
-        BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 93, 6);
-        BAssertUtil.validateError(negative, index, "unknown type 'Data'", 99, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 35, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'FiniteT' is not a record", 41, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'int' is not a record", 45, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'float' is not a record", 46, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'boolean' is not a record", 47, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'string' is not a record", 48, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'byte' is not a record", 49, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'json' is not a record", 50, 6);
+        BAssertUtil.validateError(negative, index++, "incompatible types: 'xml' is not a record", 51, 6);
+        BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 60, 6);
+        BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 77, 18);
+        BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 82, 6);
+        BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 86, 6);
+        BAssertUtil.validateError(negative, index, "unknown type 'Data'", 91, 6);
     }
 
     @Test(description = "Test case for type referencing all value-typed fields")

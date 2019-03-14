@@ -766,7 +766,7 @@ function testJsonToMapConstrained1() returns map<any>|error {
     return check map<string>.convert(j);
 }
 
-type T1 record {|
+type T1 record {
     int x = 0;
     int y = 0;
 };
@@ -798,7 +798,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
     return m;
 }
 
-type T2 record {
+type T2 record {|
     int x = 0;
     int y = 0;
     int z = 0;

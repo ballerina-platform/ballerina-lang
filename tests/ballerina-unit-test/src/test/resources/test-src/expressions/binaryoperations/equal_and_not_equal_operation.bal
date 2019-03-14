@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type OpenEmployee record {|
+type OpenEmployee record {
     string|json name = "";
     int id = 0;
 };
@@ -23,12 +23,12 @@ type OpenPerson record {
     string name;
 };
 
-type ClosedEmployee record {
+type ClosedEmployee record {|
     string name = "";
     int id = 0;
 |};
 
-type OpenEmployeeTwo record {|
+type OpenEmployeeTwo record {
     string name;
     int...;
 };
@@ -43,7 +43,7 @@ type OpenRecordWithOptionalFieldTwo record {
     int two?;
 };
 
-type ClosedRecordWithOptionalFieldOne record {
+type ClosedRecordWithOptionalFieldOne record {|
     string name;
     int one?;
 |};
