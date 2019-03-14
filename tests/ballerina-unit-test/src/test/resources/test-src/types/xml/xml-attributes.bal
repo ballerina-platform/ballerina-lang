@@ -296,9 +296,13 @@ function passXmlAttrToFunction() returns map<string>? {
     return takeInAMap(x1@);
 }
 
-function mapOperationsOnXmlAttribute() returns (int?, string[]?) {
+function mapOperationsOnXmlAttribute() returns (int?, string[]?, boolean) {
     var x1 = xml `<child foo="bar"/>`;
-    return (x1@.length(), x1@.keys());
+    boolean isMap = false;
+    if (x1@ is map<string>) {
+        isMap = true;
+    }
+    return (x1@.length(), x1@.keys(), isMap);
 }
 
 function nonSingletonXmlAttributeAccess() returns boolean {

@@ -383,6 +383,7 @@ public class XMLAttributesTest {
                 "{http://sample.com/wso2/c1}ns1\", \"" +
                 "{http://sample.com/wso2/c1}ns3\", \"" +
                 "{http://sample.com/wso2/c1}foo\"]");
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test(description = "Test xml@ return nil when xml is non singleton xml item")
