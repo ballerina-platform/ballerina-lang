@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.path.nativeimpl;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
@@ -34,7 +35,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -208,12 +211,34 @@ public class PathTest {
         assertEquals(parts.size(), expectedSize);
     }
 
+    @Test(description = "Test build path function for posix paths", dataProvider = "file_parts")
+    public void testBuildPath(String... parts) {
+        validateBuildPath(parts);
+    }
+
+    private void validateBuildPath(String[] parts) {
+        BValueArray valueArray = new BValueArray(BTypes.typeString);
+        int i = 0;
+        for (String part: parts) {
+            valueArray.add(i++, part);
+        }
+        BValue[] args = {valueArray};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testBuildPath", args);
+        BString resultPath = (BString) returns[0];
+        log.info("{ballerina/path}:build(). Input: " + Arrays.asList(parts) + " | Return: " + resultPath);
+        Path expectedPath = Paths.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
+        String expectedValue =  expectedPath != null ? expectedPath.toString() : "";
+        assertEquals(resultPath.stringValue(), expectedValue);
+    }
+
     @DataProvider(name = "posix_paths")
     public Object[] getPosixPaths() {
         return new Object[] {
                 "/A/B/C",
                 "/foo/..",
                 ".",
+                "..",
+                "../../",
                 "foo/",
                 "foo/bar/",
                 "/AAA/////BBB/",
@@ -224,7 +249,10 @@ public class PathTest {
                 "foo/../bar",
                 "../foo/bar",
                 "./foo/bar/../",
-                "../../foo/../bar/zoo"
+                "../../foo/../bar/zoo",
+                "abc/../../././../def",
+                "abc/def/../../..",
+                "abc/def/../../../ghi/jkl/../../../mno"
         };
     }
 
@@ -241,6 +269,27 @@ public class PathTest {
                 ".",
                 "C:\\\\\\\\",
                 "\\..\\A\\B"
+        };
+    }
+
+    @DataProvider(name = "file_parts")
+    public Object[][] getFileParts() {
+        return new Object[][] {
+                {"", ""},
+                {"/"},
+                {"a"},
+                {"A", "B", "C"},
+                {"a", ""},
+                {"", "b"},
+                {"/", "a"},
+                {"/", "a/b"},
+                {"/", ""},
+                {"//", "a"},
+                {"/a", "b"},
+                {"a/", "b"},
+                {"a/", ""},
+                {"/", "a", "b"},
+                {"C:\\", "test", "data\\eat"}
         };
     }
 }

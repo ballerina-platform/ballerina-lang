@@ -233,6 +233,18 @@ public function split(string path) returns string[]|error {
     return parts;
 }
 
+# Joins any number of path elements into a single path
+#
+# + parts - String values of file path parts.
+# + return - String value of file path.
+public function build(string... parts) returns string|error {
+    if (IS_WINDOWS) {
+        return check buildWindowsPath(...parts);
+    } else {
+        return check buildUnixPath(...parts);
+    }
+}
+
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value

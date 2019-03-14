@@ -47,3 +47,7 @@ function testNormalizePath(string path) returns string|error {
 function testSplitPath(string path) returns string[]|error {
     return path:split(path);
 }
+
+function testBuildPath(string[] paths) returns string|error {
+    return path:build(...paths);
+}
