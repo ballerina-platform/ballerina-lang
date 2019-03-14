@@ -234,9 +234,16 @@ function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive 
 function buildSubscriptionChangeRequest(@sensitive string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
     http:Request request = new;
+
+    string callback = subscriptionChangeRequest.callback;
+    var encodedCallback = http:encode(callback, "UTF-8");
+    if (encodedCallback is string) {
+        callback = encodedCallback;
+    }
+
     string body = HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + subscriptionChangeRequest.topic
-        + "&" + HUB_CALLBACK + "=" + subscriptionChangeRequest.callback;
+        + "&" + HUB_CALLBACK + "=" + callback;
     if (mode == MODE_SUBSCRIBE) {
         if (subscriptionChangeRequest.secret.trim() != "") {
             body = body + "&" + HUB_SECRET + "=" + subscriptionChangeRequest.secret;

@@ -1,9 +1,13 @@
 
 import globalvar.pkg.efg;
 
-public int sample = 200;
+int sample = 200;
 
 
 function test() {
-	int value = efg:successful;
+	int value = efg:getSuccessful();
+}
+
+public function getSample() returns int {
+	return sample;
 }

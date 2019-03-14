@@ -27,7 +27,9 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
     const body = `
         <div class='api-container'>
             <div class='message'></div>
-            <div class='api-visualizer' id='api-visualizer'></div>
+            <div class='api-visualizer' id='api-visualizer'>
+                <i class="fw fw-loader fw-spin fw-3x root-loader"></i>
+            </div>
         </div>
     `;
     const bodyCss = "api-designer";

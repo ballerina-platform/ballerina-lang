@@ -67,7 +67,7 @@ public class BPacket {
         return from(typeName, null).put(JsonSerializerConst.NULL_OBJ, null);
     }
 
-    BMap<String, BValue> toBMap() {
+    public BMap<String, BValue> toBMap() {
         return map;
     }
 

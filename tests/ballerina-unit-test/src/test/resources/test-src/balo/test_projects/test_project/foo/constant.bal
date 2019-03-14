@@ -5,7 +5,11 @@ public const string constAddress = "Colombo";
 
 public type AB "A"|"B";
 
-public AB A = "A";
+AB A = "A";
+
+public function getA() returns AB {
+    return A;
+}
 
 
 public type CD C|D;

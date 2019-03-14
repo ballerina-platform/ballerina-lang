@@ -259,12 +259,32 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string'.*")
+    public void testFiniteTypeToValueTypeCastNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeToValueTypeCastNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml'.*")
+    public void testFiniteTypeToRefTypeCastNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'FooBarOne'.*")
+    public void testValueTypeToFiniteTypeCastNegative() {
+        BRunUtil.invoke(result, "testValueTypeToFiniteTypeCastNegative");
+    }
+
     @Test
     public void testCastNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
-        validateError(resultNegative, errIndex, "type cast not yet supported for type 'future<int>'", 25, 22);
+        validateError(resultNegative, errIndex++, "type cast not yet supported for type 'future<int>'", 25, 22);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'int|foo'", 30, 16);
+        validateError(resultNegative, errIndex, "incompatible types: 'int|foo' cannot be cast to 'xml'", 35, 13);
     }
 
     @DataProvider
@@ -296,7 +316,10 @@ public class TypeCastExpressionsTest {
                 {"testBroaderObjectCast"},
                 {"testCastOnPotentialConversion"},
                 {"testSimpleTypeToUnionCastPositive"},
-                {"testDirectlyUnmatchedUnionToUnionCastPositive"}
+                {"testDirectlyUnmatchedUnionToUnionCastPositive"},
+                {"testFiniteTypeToValueTypeCastPositive"},
+                {"testFiniteTypeToRefTypeCastPositive"},
+                {"testValueTypeToFiniteTypeCastPositive"}
         };
     }
 
