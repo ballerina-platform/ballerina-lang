@@ -148,22 +148,4 @@ function testFrozenContainerShapeAndTypeBroken() {
                     msg = "expected value's type to match shape after freezing");
     test:assertTrue(!(result is error),
                     msg = "expected to be able to add a frozen value that conforms to shape");
-
-    map<map<string>|float> a5 = { one: { a: "a", bc: "b c" }, two: 1.0 };
-    map<string|boolean> a6 = { three: "3", four: "4" };
-    any a7 = a6;
-    result = trap insertMemberToMap(a5, "three", a7);
-    test:assertTrue(result is error,
-                    msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a7 is map<string>|float),
-                    msg = "expected value's type to not be of same type or sub type");
-
-    _ = a7.freeze();
-    result = trap insertMemberToMap(a5, "three", a7);
-    test:assertTrue(a7 is map<string>|float,
-                    msg = "expected value's type to match shape after freezing");
-    // test:assertTrue(!(result is error),
-    //                 msg = "expected to be able to add a frozen value that conforms to shape");
-    test:assertTrue((result is error),
-                    msg = "expected to not be able to add a frozen value that conforms to shape");
 }
