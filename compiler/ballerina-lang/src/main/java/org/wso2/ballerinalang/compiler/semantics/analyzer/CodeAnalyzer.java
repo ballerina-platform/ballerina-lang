@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -152,7 +153,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -582,7 +582,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
         BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
-        if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (finalPattern.literal.type.tag == TypeTags.NONE) {
             finalPattern.isLastPattern = true;
         }
 
@@ -634,57 +634,117 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      *
      * @param precedingPattern pattern taken to compare similarity.
      * @param pattern          the pattern that the precedingPattern is checked for similarity.
-     * @return true if both patterns are similar..
+     * @return true if both patterns are similar.
      */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
-        if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return true;
+        if (precedingPattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If preceding pattern is a binary expression, check both sides of binary expression with current pattern.
+            BLangBinaryExpr precedingBinaryExpr = (BLangBinaryExpr) precedingPattern;
+            BLangExpression precedingLhsExpr = precedingBinaryExpr.lhsExpr;
+            BLangExpression precedingRhsExpr = precedingBinaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingLhsExpr, pattern) ||
+                    checkLiteralSimilarity(precedingRhsExpr, pattern);
         }
 
-        if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
-            BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
-            Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
-                    .stream()
-                    .collect(Collectors.toMap(
-                            keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
-                            BLangRecordKeyValue::getValue
-                    ));
-
-            for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
-                BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
-                String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
-                if (!recordLiteral.containsKey(key)) {
-                    return false;
-                }
-                if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
-                    return false;
-                }
-            }
-            return true;
+        if (pattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If current pattern is a binary expression, check both sides of binary expression with preceding pattern.
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) pattern;
+            BLangExpression lhsExpr = binaryExpr.lhsExpr;
+            BLangExpression rhsExpr = binaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingPattern, lhsExpr) ||
+                    checkLiteralSimilarity(precedingPattern, rhsExpr);
         }
 
-        if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
-            BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
-            BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
-            if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+        switch (precedingPattern.type.tag) {
+            case TypeTags.MAP:
+                if (pattern.type.tag == TypeTags.MAP) {
+                    BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
+                    Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
+                                    BLangRecordKeyValue::getValue
+                            ));
+
+                    for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
+                        BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
+                        String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
+                        if (!recordLiteral.containsKey(key)) {
+                            return false;
+                        }
+                        if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
                 return false;
-            }
-            return IntStream.range(0, precedingTupleLiteral.expressions.size())
-                    .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
-                            tupleLiteral.expressions.get(i)));
+            case TypeTags.TUPLE:
+                if (pattern.type.tag == TypeTags.TUPLE) {
+                    BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
+                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
+                    if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+                        return false;
+                    }
+                    return IntStream.range(0, precedingTupleLiteral.expressions.size())
+                            .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
+                                    tupleLiteral.expressions.get(i)));
+                }
+                return false;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+                if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    // preceding pattern is a constant.
+                    BConstantSymbol precedingPatternSym =
+                            (BConstantSymbol) ((BLangSimpleVarRef) precedingPattern).symbol;
+                    if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (pattern.type.tag != TypeTags.NONE) {
+                            // pattern is a constant reference.
+                            BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
+                            return precedingPatternSym.literalValue.equals(patternSym.literalValue);
+                        }
+                        // pattern is '_'.
+                        return false;
+                    }
+                    // pattern is a literal.
+                    BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                            (BLangLiteral) pattern;
+                    return (precedingPatternSym.literalValue.equals(literal.value));
+                }
+
+                if (types.isValueType(pattern.type)) {
+                    // preceding pattern is a literal.
+                    BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
+                            (BLangLiteral) precedingPattern;
+
+                    if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (pattern.type.tag != TypeTags.NONE) {
+                            // pattern is a constant reference.
+                            BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
+                            return patternSym.literalValue.equals(precedingLiteral.value);
+                        }
+                        // pattern is '_'.
+                        return false;
+                    }
+                    // pattern is a literal.
+                    BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
+                            (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) :
+                            (BLangLiteral) pattern;
+                    return (precedingLiteral.value.equals(literal.value));
+                }
+                return false;
+            case TypeTags.NONE:
+                // preceding pattern is '_'. Hence will match all patterns that follow.
+                return true;
+            default:
+                return false;
         }
-
-        if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
-            BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                    (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) : (BLangLiteral) pattern;
-
-            BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                    (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
-                    (BLangLiteral) precedingPattern;
-
-            return (precedingLiteral.value.equals(literal.value));
-        }
-        return false;
     }
 
     /**
@@ -882,6 +942,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (literal.getKind() == NodeKind.LITERAL || literal.getKind() == NodeKind.NUMERIC_LITERAL) {
                     return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
                 }
+                if (literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                        ((BLangSimpleVarRef) literal).symbol.getKind() == SymbolKind.CONSTANT) {
+                    BConstantSymbol constSymbol = (BConstantSymbol) ((BLangSimpleVarRef) literal).symbol;
+                    return types.isAssignableToFiniteType(matchType,
+                            (BLangLiteral) ((BFiniteType) constSymbol.type).valueSpace.iterator().next());
+                }
                 break;
         }
         return false;
@@ -982,8 +1048,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-        analyzeArrayVariableImplicitInitialValue(varNode);
-
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1011,46 +1075,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
-        BLangType varTypeNode = varNode.typeNode;
-        if (varTypeNode == null || varTypeNode.type == null) {
+    private void analyzeArrayElementImplicitInitialValue(BType type, DiagnosticPos pos) {
+        if (type == null || type.tag != TypeTags.ARRAY) {
             return;
         }
-        // Variable is a array def, elements must have implicit initial value.
-        if (varTypeNode.type.tag == TypeTags.ARRAY) {
-            analyzeArrayElemImplicitInitialValue(varTypeNode, varNode.pos);
-        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            // Specific handling for T[]|?, typeNode is a BLangArrayType
-            analyzeArrayElemImplicitInitialValue(varNode);
-        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-            // Check each member of the union.
-            for (BLangType memberTypeNode : ((BLangUnionTypeNode) varTypeNode).memberTypeNodes) {
-                analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
-            }
-        }
-    }
 
-    private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
-        BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
-        if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
-            BType eType = arrayPart.elemtype.type;
-            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
-        }
-    }
-
-    private void analyzeArrayElemImplicitInitialValue(BLangType typeNode, DiagnosticPos pos) {
-        if (typeNode.type.tag != TypeTags.ARRAY) {
-            return;
-        }
-        BArrayType arrayType = (BArrayType) typeNode.type;
+        BArrayType arrayType = (BArrayType) type;
 
         if (arrayType.state != BArrayState.UNSEALED) {
             return;
         }
 
         if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BType eType = ((BLangArrayType) typeNode).elemtype.type;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, arrayType.eType,
+                            getNilableType(arrayType.eType));
         }
     }
 
@@ -1348,6 +1386,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
+        analyzeArrayElementImplicitInitialValue(arrayLiteral.type, arrayLiteral.pos);
         analyzeExprs(arrayLiteral.exprs);
     }
 

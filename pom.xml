@@ -1001,12 +1001,6 @@
                 <artifactId>lib-creator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
@@ -1016,27 +1010,6 @@
                 <groupId>org.wso2.transport.http</groupId>
                 <artifactId>org.wso2.transport.http.netty</artifactId>
                 <version>${transport.http.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.messaging</groupId>
-                <artifactId>org.wso2.carbon.messaging</artifactId>
-                <version>${carbon.messaging.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.deployment</groupId>
-                <artifactId>org.wso2.carbon.deployment.engine</artifactId>
-                <version>${carbon.deployment.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.config</groupId>
-                <artifactId>org.wso2.carbon.config</artifactId>
-                <version>${carbon.config.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.secvault</groupId>
@@ -2258,11 +2231,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-        <carbon.kernel.version>5.2.8</carbon.kernel.version>
         <transport.http.version>6.0.274</transport.http.version>
-        <carbon.messaging.version>2.3.7</carbon.messaging.version>
-        <carbon.deployment.version>5.0.0</carbon.deployment.version>
-        <carbon.config.version>2.1.8</carbon.config.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2281,7 +2250,7 @@
         <jacoco.agent.version>0.8.1</jacoco.agent.version>
         <mockito.version>1.10.19</mockito.version>
         <javassist.version>3.24.1-GA</javassist.version>
-        <netty.version>4.1.19.Final</netty.version>
+        <netty.version>4.1.34.Final</netty.version>
         <jzlib.version>1.1.3</jzlib.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
@@ -2313,7 +2282,7 @@
         <jackson-core.version>2.9.8</jackson-core.version>
         <mimepull.version>1.9.11</mimepull.version>
         <broker.version>0.970.5</broker.version>
-        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
+        <netty-tcnative-boringssl-static.version>2.0.22.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
