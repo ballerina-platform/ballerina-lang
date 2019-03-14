@@ -149,3 +149,8 @@ function testInvalidMapInsertions() {
     DataType dt = "hello world!";
     m.datatype = dt;
 }
+
+function testErrorAsAnydata() {
+    error e = error("test err");
+    anydata ad = e;
+}
