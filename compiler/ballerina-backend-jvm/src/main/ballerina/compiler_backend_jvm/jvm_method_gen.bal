@@ -7,7 +7,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     // generate method desc
     string desc = getMethodDesc(func);
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, (), ());
     mv.visitCode();
 
     // generate method body
@@ -264,7 +264,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeByte) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "B");
-        } else if (bType is bir:BMapType) {
+        } else if (bType is bir:BMapType ||
+                    bType is bir:BRecordType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
@@ -284,9 +285,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType ||
-                    bType is bir:BObjectType ||
-                    bType is bir:BRecordType) {
+                    bType is bir:BUnionType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -353,8 +352,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType ||
-                bType is bir:BTypeAnyData) {
+                bType is bir:BTupleType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -450,7 +448,7 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
 }
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
@@ -593,7 +591,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         var currentFunc = untaint func;
         var frameName = cleanupFunctionName(currentFunc.name.value) + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, (), OBJECT_VALUE, ());
         generateDefaultConstructor(cw);
 
         int k = 0;
@@ -659,7 +657,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 }
 
 function generateDefaultConstructor(jvm:ClassWriter cw) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", (), ());
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
     mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);

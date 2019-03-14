@@ -26,7 +26,7 @@ public type ObjectGenerator object {
 
     function createClass(bir:BObjectType objectType, string className) returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, ());
 
         bir:BObjectField[] fields = objectType.fields;
         self.createFields(cw, fields);
@@ -47,7 +47,7 @@ public type ObjectGenerator object {
     }
 
     function createInit(jvm:ClassWriter cw) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), null, null);
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
         mv.visitCode();
 
         // load super
@@ -65,7 +65,7 @@ public type ObjectGenerator object {
     function createCallMethod(jvm:ClassWriter cw) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
                 io:sprintf("(L%s;[L%s;)L%s;", STRING_VALUE, OBJECT, OBJECT),
-                null, null);
+                (), ());
         mv.visitCode();
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ARETURN);
@@ -75,7 +75,7 @@ public type ObjectGenerator object {
 
     function createGetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), null, null);
+                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 2;
@@ -103,7 +103,7 @@ public type ObjectGenerator object {
     function createSetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT),
-                null, null);
+                (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 3;

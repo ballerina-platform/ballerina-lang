@@ -82,10 +82,8 @@ public type BirEmitter object {
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
-            if (b is BasicBlock) {
-                self.emitBasicBlock(b, "\t");
-                println();// empty line
-            }
+            self.emitBasicBlock(b, "\t");
+            println();// empty line
         }
         println("}");
     }

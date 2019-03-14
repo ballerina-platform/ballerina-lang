@@ -29,7 +29,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
     generateDefaultConstructor(cw);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -76,7 +76,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
     generateDefaultConstructor(cw);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);

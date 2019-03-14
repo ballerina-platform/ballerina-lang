@@ -138,7 +138,7 @@ public type TypeParser object {
     function parseObjectAttachedFunctions() returns BAttachedFunction[] {
         int size = self.reader.readInt32();
         int c = 0;
-        BAttachedFunction[] attachedFunctions = [];
+        BAttachedFunction?[] attachedFunctions = [];
         while c < size {
             var funcName = self.reader.readStringCpRef();
             var visibility = parseVisibility(self.reader);
@@ -151,18 +151,32 @@ public type TypeParser object {
             attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
             c = c + 1;
         }
-        return attachedFunctions;
+
+        var result = BAttachedFunction[].stamp(attachedFunctions);
+        if (result is BAttachedFunction[]) {
+            return result;
+        } else {
+            BAttachedFunction[0] emptyAttachedFunctions = [];
+            return emptyAttachedFunctions;
+        }
     }
 
     function parseObjectFields() returns BObjectField[] {
         int size = self.reader.readInt32();
         int c = 0;
-        BObjectField[] fields = [];
+        BObjectField?[] fields = [];
         while c < size {
             fields[c] = self.parseObjectField();
             c = c + 1;
         }
-        return fields;
+
+        var result = BObjectField[].stamp(fields);
+        if (result is BObjectField[]) {
+            return result;
+        } else {
+            BObjectField[0] emptyFields = [];
+            return emptyFields;
+        }
     }
 
     function parseObjectField() returns BObjectField {

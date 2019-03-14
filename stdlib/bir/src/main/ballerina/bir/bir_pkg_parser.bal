@@ -34,7 +34,7 @@ public type PackageParser object {
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
 
-        VariableDcl[] dcls = [];
+        VariableDcl?[] dcls = [];
         map<VariableDcl> localVarMap = {};
         int i = 0;
         while (i < numLocalVars) {
@@ -43,21 +43,24 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
 
-        BasicBlock?[] basicBlocks = [];
-        var numBB = self.reader.readInt32();
-        i = 0;
-        while (i < numBB) {
-            basicBlocks[i] = bodyParser.parseBB();
-            i += 1;
+        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
+        BasicBlock[] basicBlocks = self.getBasicBlocks(bodyParser);
+
+        VariableDcl[] varDcls;
+        var varDclsResult = VariableDcl[].stamp(dcls);
+        if (varDclsResult is VariableDcl[]) {
+            varDcls = varDclsResult;
+        } else {
+            VariableDcl[0] emptyVarDcls = [];
+            varDcls = emptyVarDcls;
         }
 
         return {
             name: { value: name },
             isDeclaration: isDeclaration,
             visibility: visibility,
-            localVars: dcls,
+            localVars: varDcls,
             basicBlocks: basicBlocks,
             argsCount: argsCount,
             typeValue: sig
@@ -94,6 +97,25 @@ public type PackageParser object {
         } else {
             error err = error("error while parsing args");
             panic err;
+            
+        }
+    }
+
+    function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock[] {
+        BasicBlock?[] basicBlocks = [];
+        var numBB = self.reader.readInt32();
+        int i = 0;
+        while (i < numBB) {
+            basicBlocks[i] = bodyParser.parseBB();
+            i += 1;
+        }
+        
+        var result = BasicBlock[].stamp(basicBlocks);
+        if (result is BasicBlock[]) {
+            return result;
+        } else {
+            BasicBlock[0] emtyBBs = [];
+            return emtyBBs;
         }
     }
 
@@ -112,13 +134,20 @@ public type PackageParser object {
 
     function parseTypeDefs() returns TypeDef[] {
         int numTypeDefs = self.reader.readInt32();
-        TypeDef[] typeDefs = [];
+        TypeDef?[] typeDefs = [];
         int i = 0;
         while i < numTypeDefs {
             typeDefs[i] = self.parseTypeDef();
             i = i + 1;
         }
-        return typeDefs;
+
+        var result = TypeDef[].stamp(typeDefs);
+        if (result is TypeDef[]) {
+            return result;
+        } else {
+            TypeDef[0] emptyTypeDefs = [];
+            return emptyTypeDefs;
+        }
     }
 
     function parseTypeDef() returns TypeDef {
@@ -128,7 +157,7 @@ public type PackageParser object {
     }
 
     function parseGlobalVars() returns GlobalVariableDcl[] {       
-        GlobalVariableDcl[] globalVars = []; 
+        GlobalVariableDcl?[] globalVars = []; 
         int numGlobalVars = self.reader.readInt32();        
         int i = 0;
         while i < numGlobalVars {
@@ -141,7 +170,13 @@ public type PackageParser object {
             self.globalVarMap[name] = dcl;
             i = i + 1;
         }
-        return globalVars;
+        var result = GlobalVariableDcl[].stamp(globalVars);
+        if (result is GlobalVariableDcl[]) {
+            return result;
+        } else {
+            GlobalVariableDcl[0] emptyGlobalVars = [];
+            return emptyGlobalVars; 
+        }
     }
 
     public function parseSig(string sig) returns BInvokableType {

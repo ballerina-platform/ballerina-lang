@@ -25,9 +25,9 @@ public type TypeDef record {
 
 public type Function record {
     int argsCount = 0;
-    BasicBlock?[] basicBlocks = [];
+    BasicBlock[] basicBlocks;
     boolean isDeclaration = false;
-    VariableDcl?[] localVars = [];
+    VariableDcl[] localVars;
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
@@ -35,7 +35,7 @@ public type Function record {
 
 public type BasicBlock record {
     Name id = {};
-    Instruction[] instructions = [];
+    Instruction[] instructions?;
     Terminator terminator = {kind:"RETURN"};
 };
 

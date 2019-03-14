@@ -1,17 +1,17 @@
 import ballerina/io;
 
 public function serialize(BType bType) returns string {
-    if (bType == "()"){
+    if (bType is BTypeNil){
         return "()";
-    } else if (bType == "int"){
+    } else if (bType is BTypeInt){
         return "int";
-    } else if (bType == "byte"){
+    } else if (bType is BTypeByte){
         return "byte";
-    } else if (bType == "boolean"){
+    } else if (bType is BTypeBoolean){
         return "boolean";
-    } else if (bType == "float"){
+    } else if (bType is BTypeFloat){
         return "float";
-    } else if (bType == "string"){
+    } else if (bType is BTypeString){
         return "string";
     } else if (bType is BUnionType) {
         return serializeTypes(bType.members, "|");
@@ -23,7 +23,7 @@ public function serialize(BType bType) returns string {
         return "object {" + serializeFields(bType.fields) + serializeAttachedFunc(bType.attachedFunctions) + "}";
     }
 
-    error err = error("Unsupported type serializtion ");
+    error err = error(io:sprintf("Unsupported serialization for type '%s'", bType));
     panic err;
 }
 
