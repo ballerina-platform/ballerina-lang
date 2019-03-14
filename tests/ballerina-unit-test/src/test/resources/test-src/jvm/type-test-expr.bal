@@ -59,3 +59,44 @@ function testNilType() returns (string) {
         return "any";
     }
 }
+
+type A1 record {
+    int x = 0;
+};
+
+type B1 record {
+    int x = 0;
+    string y = "";
+};
+
+function testSimpleRecordTypes_1() returns string {
+    A1 a1 = {};
+    any a = a1;
+     if (a is A1) {
+        return "a is A1";
+    } else if (a is B1) {
+        return "a is B1";
+    }
+
+    return "n/a";
+}
+
+function testSimpleRecordTypes_2() returns (boolean, boolean) {
+    B1 b = {};
+    any a = b;
+    return (a is A1, a is B1);
+}
+
+type A2 record {
+    int x = 0;
+};
+
+type B2 record {
+    int x = 0;
+};
+
+function testSimpleRecordTypes_3() returns (boolean, boolean) {
+    B2 b = {};
+    any a = b;
+    return (a is A2, a is B2);
+}

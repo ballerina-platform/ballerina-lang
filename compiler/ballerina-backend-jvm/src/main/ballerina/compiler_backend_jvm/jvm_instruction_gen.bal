@@ -443,22 +443,20 @@ type InstructionGenerator object {
     }
 
     function generateCastIns(bir:TypeCast typeCastIns) {
+        // load source value
         int sourceIndex = self.getJVMIndexOfVarRef(typeCastIns.rhsOp.variableDcl);
-        bir:BType sourceType = typeCastIns.rhsOp.variableDcl.typeValue;
-        self.generateLocalVarLoad(sourceType, sourceIndex);
+        self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
 
         generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
 
         int targetIndex = self.getJVMIndexOfVarRef(typeCastIns.lhsOp.variableDcl);
-        bir:BType targetType = typeCastIns.lhsOp.variableDcl.typeValue;
-        self.generateLocalVarStore(targetType, targetIndex);
+        self.generateVarStore(typeCastIns.lhsOp.variableDcl);
     }
 
     function generateTypeTestIns(bir:TypeTest typeTestIns) {
         // load source value
         int sourceIndex = self.getJVMIndexOfVarRef(typeTestIns.rhsOp.variableDcl);
-        bir:BType sourceType = typeTestIns.rhsOp.variableDcl.typeValue;
-        self.generateLocalVarLoad(sourceType, sourceIndex);
+        self.generateVarLoad(typeTestIns.rhsOp.variableDcl);
 
         // load targetType
         loadType(self.mv, typeTestIns.typeValue);
@@ -467,8 +465,7 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
 
         int targetIndex = self.getJVMIndexOfVarRef(typeTestIns.lhsOp.variableDcl);
-        bir:BType targetType = typeTestIns.lhsOp.variableDcl.typeValue;
-        self.generateLocalVarStore(targetType, targetIndex);
+        self.generateVarStore(typeTestIns.lhsOp.variableDcl);
     }
 };
 

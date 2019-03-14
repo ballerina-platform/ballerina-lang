@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.jvm;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -82,5 +83,33 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "nil");
+    }
+
+    @Test
+    public void testSimpleRecordTypes_1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "a is A1");
+    }
+
+    @Test
+    public void testSimpleRecordTypes_2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_2");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testSimpleRecordTypes_3() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_3");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 }
