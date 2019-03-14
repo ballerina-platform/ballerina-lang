@@ -345,25 +345,59 @@ public type BasicAuthConfig record {
 
 # OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
 #
-# + accessToken - Access token for OAuth2 authentication
-# + refreshToken - Refresh token for OAuth2 authentication
-# + refreshUrl - Refresh token URL for OAuth2 authentication
-# + consumerKey - Consumer key for OAuth2 authentication
-# + consumerSecret - Consumer secret for OAuth2 authentication
-# + tokenUrl - Token URL for OAuth2 authentication
-# + clientId - Clietnt ID for OAuth2 authentication
-# + clientSecret - Client secret for OAuth2 authentication
-# + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
-# + scopes - Scope of the access request
+# + grantType - OAuth2 grant type
+# + config - Configurations for given grant type
 public type OAuth2AuthConfig record {
-    string accessToken = "";
-    string refreshToken = "";
-    string refreshUrl = "";
-    string consumerKey = "";
-    string consumerSecret = "";
-    string tokenUrl = "";
-    string clientId = "";
-    string clientSecret = "";
+    OAuth2GrantType grantType;
+    ClientCredentialsGrantTypeConfig|PasswordGrantTypeConfig config;
+    !...;
+};
+
+# ClientCredentialsGrantTypeConfig record can be used to configue OAuth2 client credentials grant type
+#
+# + tokenUrl - Token URL for authorization server
+# + clientId - Clietnt ID for client credentials grant authentication
+# + clientSecret - Client secret for client credentials grant authentication
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+public type ClientCredentialsGrantTypeConfig record {
+    string tokenUrl;
+    string clientId;
+    string clientSecret;
+    string[] scopes = [];
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    !...;
+};
+
+# PasswordGrantTypeConfig record can be used to configue OAuth2 password grant type
+#
+# + tokenUrl - Token URL for authorization server
+# + username - Username for password grant authentication
+# + password - Password for password grant authentication
+# + clientId - Clietnt ID for password grant authentication
+# + clientSecret - Client secret for password grant authentication
+# + scopes - Scope of the access request
+# + refreshTokenConfig - Configurations for refreshing the access token
+# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+public type PasswordGrantTypeConfig record {
+    string tokenUrl;
+    string username;
+    string password;
+    string clientId;
+    string clientSecret;
+    string[] scopes = [];
+    RefreshTokenConfig? refreshTokenConfig = ();
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    !...;
+};
+
+# RefreshTokenConfig record can be used to pass the configurations for refreshing the access token
+#
+# + refreshUrl - Refresh token URL for refresh token server
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+public type RefreshTokenConfig record {
+    string refreshUrl;
     string[] scopes = [];
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
