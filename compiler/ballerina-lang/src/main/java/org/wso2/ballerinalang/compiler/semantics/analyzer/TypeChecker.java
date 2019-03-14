@@ -1659,7 +1659,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = exprType;
             }
         } else {
-            exprType = checkExpr(unaryExpr.expr, env);
+            exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
+                    checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
