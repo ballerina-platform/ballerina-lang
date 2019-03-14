@@ -2309,12 +2309,7 @@ public class Types {
             case TypeTags.ANY:
                 return true;
             case TypeTags.ARRAY:
-                BArrayType arrayType = (BArrayType) type;
-                if (arrayType.state == BArrayState.UNSEALED) {
-                    // Empty array is the implicit initial value for arrays.
-                    return true;
-                }
-                return hasImplicitInitialValue(arrayType.eType);
+                return hasImplicitInitialValue(((BArrayType) type).eType);
             case TypeTags.FINITE:
                 return analyzeFiniteType((BFiniteType) type);
             case TypeTags.OBJECT:
