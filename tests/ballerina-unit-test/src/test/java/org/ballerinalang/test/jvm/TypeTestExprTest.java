@@ -85,7 +85,7 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns[0].stringValue(), "nil");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSimpleRecordTypes_1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_1");
         Assert.assertEquals(returns.length, 1);
@@ -93,7 +93,7 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns[0].stringValue(), "a is A1");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSimpleRecordTypes_2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_2");
         Assert.assertEquals(returns.length, 2);
@@ -103,7 +103,7 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSimpleRecordTypes_3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_3");
         Assert.assertEquals(returns.length, 2);

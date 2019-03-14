@@ -61,16 +61,16 @@ function testNilType() returns (string) {
 }
 
 type A1 record {
-    int x = 0;
+    int x;
 };
 
 type B1 record {
-    int x = 0;
-    string y = "";
+    int x;
+    string y;
 };
 
 function testSimpleRecordTypes_1() returns string {
-    A1 a1 = {};
+    A1 a1 = {x:0};
     any a = a1;
      if (a is A1) {
         return "a is A1";
@@ -82,21 +82,21 @@ function testSimpleRecordTypes_1() returns string {
 }
 
 function testSimpleRecordTypes_2() returns (boolean, boolean) {
-    B1 b = {};
+    B1 b = {x:0, y:""};
     any a = b;
     return (a is A1, a is B1);
 }
 
 type A2 record {
-    int x = 0;
+    int x;
 };
 
 type B2 record {
-    int x = 0;
+    int x;
 };
 
 function testSimpleRecordTypes_3() returns (boolean, boolean) {
-    B2 b = {};
+    B2 b = {x:0};
     any a = b;
     return (a is A2, a is B2);
 }

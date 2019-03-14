@@ -1,4 +1,5 @@
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
+
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
@@ -9,6 +10,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string desc = getMethodDesc(func);
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, null, null);
     mv.visitCode();
+
+    if (isModuleInitFunction(module, func)) {
+        generateUserDefinedTypes(mv, module.typeDefs);
+    }
 
     // generate method body
     int k = 1;
@@ -462,15 +467,14 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
     if (hasInitFunction(pkg)) {
+        string initFuncName = cleanupFunctionName(getModuleInitfuncName(pkg));
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, mainClass, "__init_", "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;",
-                            false);
+        mv.visitMethodInsn(INVOKESTATIC, mainClass, initFuncName, 
+                "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
         mv.visitInsn(POP);
     }
-
-    generateUserDefinedTypes(mv, pkg.typeDefs);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
 
@@ -521,11 +525,22 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
 function hasInitFunction(bir:Package pkg) returns boolean {
     foreach var func in pkg.functions {
-        if (func.name.value == "..<init>") {
+        if (isModuleInitFunction(pkg, func)) {
             return true;
         }
     }
     return false;
+}
+
+function isModuleInitFunction(bir:Package module, bir:Function func) returns boolean {
+    string moduleInit = getModuleInitfuncName(module);
+    return func.name.value == moduleInit;
+}
+
+function getModuleInitfuncName(bir:Package module) returns string {
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+    return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
 }
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
