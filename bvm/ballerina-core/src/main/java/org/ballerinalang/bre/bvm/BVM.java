@@ -2267,7 +2267,7 @@ public class BVM {
                                                                    RuntimeErrors.TYPE_CAST_ERROR, "()",
                                                                    expectedType)));
                     handleError(ctx);
-                } else if (checkIsType(bRefTypeValue.getType(), expectedType, new ArrayList<>())) {
+                } else if (checkIsType(bRefTypeValue, expectedType)) {
                     switch (expectedType.getTag()) {
                         case TypeTags.STRING_TAG:
                             sf.stringRegs[j] = bRefTypeValue.stringValue();
@@ -4927,6 +4927,10 @@ public class BVM {
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.SERVICE_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return ((BFiniteType) sourceType).valueSpace.stream()
+                            .allMatch(bValue -> checkIsType(bValue, targetType));
+                }
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -5047,6 +5051,9 @@ public class BVM {
         if (sourceType.getTag() == TypeTags.UNION_TAG) {
             return ((BUnionType) sourceType).getMemberTypes().stream()
                     .allMatch(type -> checkIsType(type, targetType, unresolvedTypes));
+        } else if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return ((BFiniteType) sourceType).valueSpace.stream()
+                    .allMatch(bValue -> checkIsType(bValue, targetType));
         }
         return targetType.getMemberTypes().stream()
                 .anyMatch(type -> checkIsType(sourceType, type, unresolvedTypes));

@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.entity;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -31,12 +33,8 @@ import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test entity body content, with and without charset param.
@@ -230,8 +228,8 @@ public class EntityBodyWithCharsetTest {
     @Test
     public void jsonTest() {
         String path = "/test/jsonTest";
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header("content-type", "application/json"));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add("content-type", "application/json");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, "{\"test\":\"菜鸟驿站\"}");
         HttpCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
         Assert.assertNotNull(response, "Response message not found");
