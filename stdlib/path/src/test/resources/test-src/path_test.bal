@@ -51,3 +51,7 @@ function testSplitPath(string path) returns string[]|error {
 function testBuildPath(string[] paths) returns string|error {
     return path:build(...paths);
 }
+
+function testPathExtension(string path) returns string|error {
+    return path:extension(path);
+}

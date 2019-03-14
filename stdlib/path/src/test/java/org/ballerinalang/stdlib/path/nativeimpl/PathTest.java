@@ -211,7 +211,7 @@ public class PathTest {
         assertEquals(parts.size(), expectedSize);
     }
 
-    @Test(description = "Test build path function for posix paths", dataProvider = "file_parts")
+    @Test(description = "Test build path function for paths", dataProvider = "file_parts")
     public void testBuildPath(String... parts) {
         validateBuildPath(parts);
     }
@@ -229,6 +229,19 @@ public class PathTest {
         Path expectedPath = Paths.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
         String expectedValue =  expectedPath != null ? expectedPath.toString() : "";
         assertEquals(resultPath.stringValue(), expectedValue);
+    }
+
+    @Test(description = "Test extension path function for posix paths", dataProvider = "ext_parts")
+    public void testPathExtension(String path, String expected) {
+        validateFileExtension(path, expected);
+    }
+
+    private void validateFileExtension(String input, String expected) {
+        BValue[] args = {new BString(input)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testPathExtension", args);
+        BString extension = (BString) returns[0];
+        log.info("{ballerina/path}:extension(). Input: " + input + " | Return: " + extension.stringValue());
+        assertEquals(extension.stringValue(), expected);
     }
 
     @DataProvider(name = "posix_paths")
@@ -290,6 +303,19 @@ public class PathTest {
                 {"a/", ""},
                 {"/", "a", "b"},
                 {"C:\\", "test", "data\\eat"}
+        };
+    }
+
+    @DataProvider(name = "ext_parts")
+    public Object[] getExtensionsSet() {
+        return new Object[][] {
+                {"path.bal", "bal"},
+                {"path.pb.bal", "bal"},
+                {"a.pb.bal/b", ""},
+                {"a.toml/b.bal", "bal"},
+                {"a.pb.bal/", "bal"},
+                {"\\..\\A\\B.foo", "foo"},
+                {"C:\\foo\\..\\bar", "\\bar"}
         };
     }
 }

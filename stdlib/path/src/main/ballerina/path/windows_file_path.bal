@@ -14,6 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// ReservedNames lists reserved Windows names.
+// https://docs.microsoft.com/en-us/windows/desktop/fileio/naming-a-file for details.
+string[] WINDOWS_RESERVED_WORDS = ["CON", "PRN", "AUX", "NUL",
+	"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+	"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"];
+
+function isWindowsReservedName(string path) returns boolean {
+    if (path.length() == 0) {
+        return false;
+    }
+    foreach string word in WINDOWS_RESERVED_WORDS {
+        if (word.equalsIgnoreCase(path)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function buildWindowsPath(string... parts) returns string|error {
     int count = parts.length();
     if (count <= 0) {

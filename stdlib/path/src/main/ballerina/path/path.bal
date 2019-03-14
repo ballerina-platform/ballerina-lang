@@ -245,6 +245,45 @@ public function build(string... parts) returns string|error {
     }
 }
 
+# Reports whether the filename is reserved.
+# Reserved words only exist in windows.
+#
+# + name - filename
+# + return - true, if path is Windows reserved name.
+public function isReservedName(string name) returns boolean {
+    if (IS_WINDOWS) {
+        return isWindowsReservedName(name);
+    }
+    // unix system doesn't have any reserved names.
+    return false;
+}
+
+# Retrieves the extension of the file from the provided location.
+# The extension is the suffix beginning at the final dot in the final element of path.
+# it is empty if there is no dot.
+#
+# + path - String value of file path.
+# + return - Returns the extension of the file. Empty string if no extension.
+public function extension(string path) returns string|error {
+    string filepath = check parse(path);
+    int count = filepath.length();
+    if (count == 0) {
+        return "";
+    }
+    int i = count - 1;
+    while (i >= 0) {
+        string char = check charAt(filepath, i);
+        if (char == PATH_SEPARATOR) {
+            break;
+        }
+        if (char == ".") {
+            return filepath.substring(i + 1, count);
+        }
+        i = i - 1;
+    }
+    return "";
+}
+
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value
