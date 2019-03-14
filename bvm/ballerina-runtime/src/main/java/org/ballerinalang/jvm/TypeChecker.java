@@ -42,10 +42,13 @@ import org.ballerinalang.jvm.values.RefValue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Responsible for performing runtime type checking.
@@ -208,8 +211,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ANYDATA_TAG:
-                // TODO
-                return false;
+                return isAnydata(sourceType);
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -804,6 +806,48 @@ public class TypeChecker {
 
     private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
         return new BLangRuntimeException("'" + getType(sourceVal) + "' cannot be cast to '" + targetType + "'");
+    }
+
+    private static boolean isAnydata(BType type) {
+        return isAnydata(type, new HashSet<>());
+    }
+
+    private static boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() <= TypeTags.ANYDATA_TAG) {
+            return true;
+        }
+
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes =
+                        recordType.getFields().values().stream().map(BField::getFieldType).collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+            case TypeTags.UNION_TAG:
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
+            case TypeTags.TUPLE_TAG:
+                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+            case TypeTags.ARRAY_TAG:
+                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                        .map(value -> getType(value))
+                        .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes, unresolvedTypes);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
     /**

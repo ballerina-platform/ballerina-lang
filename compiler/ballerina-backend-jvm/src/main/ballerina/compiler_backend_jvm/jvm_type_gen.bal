@@ -97,6 +97,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
             io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
             false);
+
     return;
 }
 

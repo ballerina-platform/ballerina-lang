@@ -540,7 +540,11 @@ function isModuleInitFunction(bir:Package module, bir:Function func) returns boo
 function getModuleInitfuncName(bir:Package module) returns string {
     string orgName = module.org.value;
     string moduleName = module.name.value;
-    return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
+    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
+        return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
+    } else {
+        return "..<init>";
+    }
 }
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {

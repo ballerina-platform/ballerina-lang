@@ -40,9 +40,8 @@ public class CompileResult {
     private int errorCount = 0;
     private int warnCount = 0;
 
-    private byte[] compiledJarFile;
-
     private String entryClassName;
+    private Class<?> entryClass;
 
     public CompileResult() {
         diagnostics = new ArrayList<>();
@@ -114,19 +113,19 @@ public class CompileResult {
         return builder.toString();
     }
 
-    public byte[] getCompiledJarFile() {
-        return compiledJarFile;
-    }
-
-    public void setCompiledJarFile(byte[] compiledJarFile) {
-        this.compiledJarFile = compiledJarFile;
-    }
-
     public String getEntryClassName() {
         return entryClassName;
     }
 
     public void setEntryClassName(String entryClassName) {
         this.entryClassName = entryClassName;
+    }
+
+    public void setEntryClass(Class<?> clazz) {
+        this.entryClass = clazz;
+    }
+
+    public Class<?> getEntryClass() {
+        return this.entryClass;
     }
 }

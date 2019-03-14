@@ -28,9 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases to cover some basic types related tests on JBallerina.
+ * Test cases for testing functionality of type test expressions on JBallerina.
  *
- * @since 0.955.0
+ * @since 0.995.0
  */
 public class TypeTestExprTest {
 
@@ -85,7 +85,7 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns[0].stringValue(), "nil");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSimpleRecordTypes_1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_1");
         Assert.assertEquals(returns.length, 1);
@@ -93,7 +93,7 @@ public class TypeTestExprTest {
         Assert.assertEquals(returns[0].stringValue(), "a is A1");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSimpleRecordTypes_2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_2");
         Assert.assertEquals(returns.length, 2);
@@ -103,7 +103,7 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSimpleRecordTypes_3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_3");
         Assert.assertEquals(returns.length, 2);

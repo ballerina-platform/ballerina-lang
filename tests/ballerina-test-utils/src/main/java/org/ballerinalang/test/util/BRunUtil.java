@@ -33,7 +33,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -52,8 +51,6 @@ import java.util.List;
  * @since 0.94
  */
 public class BRunUtil {
-
-    private static final JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader();
 
     /**
      * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
@@ -232,11 +229,8 @@ public class BRunUtil {
      * @return return values of the function
      */
     private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, BValue[] args) {
-        byte[] jarContent = compileResult.getCompiledJarFile();
-        classLoader.setClassContent(jarContent);
-        Class clazz = classLoader.loadClass(compileResult.getEntryClassName());
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
-        return invoke(clazz, function, functionName, args);
+        return invoke(compileResult.getEntryClass(), function, functionName, args);
     }
 
     /**
@@ -248,16 +242,16 @@ public class BRunUtil {
      * @param bvmArgs input arguments to be used with function invocation
      * @return return the result from function invocation
      */
-    private static BValue[] invoke(Class clazz, BIRNode.BIRFunction function, String functionName, BValue[] bvmArgs) {
+    private static BValue[] invoke(Class<?> clazz, BIRNode.BIRFunction function, String functionName, BValue[] bvmArgs) {
         List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
-        Class[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
+        Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmParamTypes.size() + 1];
         jvmParamTypes[0] = Strand.class;
         jvmArgs[0] = new Strand();
 
         for (int i = 0; i < bvmParamTypes.size(); i++) {
             org.wso2.ballerinalang.compiler.semantics.model.types.BType type = bvmParamTypes.get(i);
-            Class typeClazz;
+            Class<?> typeClazz;
             Object argument;
             switch (type.tag) {
                 case TypeTags.INT_TAG:
