@@ -4,7 +4,7 @@
 
 ### If Statement
 
-* It's recommended to have condition enclosing parentheses all the time.
+* Condition in If statement should have enclosing parentheses all the time.
 * There shouldn't be any spaces between condition expression and parentheses.
 * Statements in if block, each should block-indent on its own line.
 
@@ -44,7 +44,7 @@
     ```
 #### Empty Block
 
-* It's not recommended to have empty `if`, `else if` and `else` blocks.
+* There shouldn't be any empty `if`, `else if` and `else` blocks.
 * But if there are empty `if`, `else` and `else if` blocks
   - There should be a single space before opening brace.
   - There should be a empty line between opening and closing brace.
@@ -63,15 +63,13 @@
       
   }
   ```
-* Above guidelines for empty blocks are valid even if only a `if` block is available.
+  Above guidelines for empty blocks are valid even if only a `if` block is available.
   ```ballerina
   if (inProperSallaryRange) {
   
   }
   ```
 ## Match Statement
-
-* Each pattern clauses within a match statement, each should be block-indented on its own line.
 * Closing brace of a match statement should indent and align with the start position of the match statement.
 
   ```ballerina
@@ -91,10 +89,10 @@
 
 ### Match Patterns Clause
 
-* All pattern clauses should be block-indented on its own line.
+* Each pattern clause should be block-indented on its own line.
 * There should be a single space before and after `=>`.
-* If a pattern clause only contains one statement it is recommended to place the statement on the same line as the 
-  pattern clause.
+* If a pattern clause only contains one statement it should be placed on the same line as the 
+  pattern clause without any curly braces enclosing it.
 
   ```ballerina
   function foo(string | int | boolean a) returns string {
@@ -141,7 +139,7 @@
   ```
 ## Transaction Statement
 
-* Each clause such as `onretry`, `committed`, `aborted` must be start on the same line 
+* Each optional clause(`onretry`, `committed` and `aborted`) should start on the same line 
   as the closing brace of the previous clause.
 * If blocks are empty there should be an empty line between braces. 
   

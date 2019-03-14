@@ -5,8 +5,6 @@ To avoid these arguments we decide to come up with a opinionated guide for Balle
 Users can follow their own formatting but we recommend to use this formatting guide as all the IDE tools 
 will support only this format. Also following this guide will form a standard style across all developers.
 
-## Formatting Conventions
-
 ### Indentation and Line Length
 * Use four spaces, not tabs.
 * No indentation for top level definitions. 
