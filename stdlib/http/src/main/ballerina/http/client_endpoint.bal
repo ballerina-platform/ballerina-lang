@@ -349,18 +349,18 @@ public type BasicAuthConfig record {
 # + config - Configurations for given grant type
 public type OAuth2AuthConfig record {
     OAuth2GrantType grantType;
-    ClientCredentialsGrantTypeConfig|PasswordGrantTypeConfig config;
+    ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
     !...;
 };
 
-# ClientCredentialsGrantTypeConfig record can be used to configue OAuth2 client credentials grant type
+# ClientCredentialsGrantConfig record can be used to configue OAuth2 client credentials grant type
 #
 # + tokenUrl - Token URL for authorization server
 # + clientId - Clietnt ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
-public type ClientCredentialsGrantTypeConfig record {
+public type ClientCredentialsGrantConfig record {
     string tokenUrl;
     string clientId;
     string clientSecret;
@@ -369,7 +369,7 @@ public type ClientCredentialsGrantTypeConfig record {
     !...;
 };
 
-# PasswordGrantTypeConfig record can be used to configue OAuth2 password grant type
+# PasswordGrantConfig record can be used to configue OAuth2 password grant type
 #
 # + tokenUrl - Token URL for authorization server
 # + username - Username for password grant authentication
@@ -377,27 +377,58 @@ public type ClientCredentialsGrantTypeConfig record {
 # + clientId - Clietnt ID for password grant authentication
 # + clientSecret - Client secret for password grant authentication
 # + scopes - Scope of the access request
-# + refreshTokenConfig - Configurations for refreshing the access token
+# + refreshConfig - Configurations for refreshing the access token
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
-public type PasswordGrantTypeConfig record {
+public type PasswordGrantConfig record {
     string tokenUrl;
     string username;
     string password;
     string clientId;
     string clientSecret;
     string[] scopes = [];
-    RefreshTokenConfig? refreshTokenConfig = ();
+    RefreshConfig? refreshConfig = ();
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
 
-# RefreshTokenConfig record can be used to pass the configurations for refreshing the access token
+# DirectTokenConfig record can be used to configue access token directly.
+#
+# + accessToken - Access token received by authorization server
+# + refreshConfig - Configurations for refreshing the access token
+# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+public type DirectTokenConfig record {
+    string accessToken;
+    DirectTokenRefreshConfig? refreshConfig = ();
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    !...;
+};
+
+# RefreshConfig record can be used to pass the configurations for refreshing the access token at password grant type.
 #
 # + refreshUrl - Refresh token URL for refresh token server
 # + scopes - Scope of the access request
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
-public type RefreshTokenConfig record {
+public type RefreshConfig record {
     string refreshUrl;
+    string[] scopes = [];
+    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
+    !...;
+};
+
+# DirectTokenRefreshConfig record can be used to pass the configurations for refreshing the access token at
+# direct token grant type.
+#
+# + refreshUrl - Refresh token URL for refresh token server
+# + refreshToken - Refresh token fro refresh token server
+# + clientId - Clietnt ID for authentication with authorization server
+# + clientSecret - Client secret for authentication with authorization server
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+public type DirectTokenRefreshConfig record {
+    string refreshUrl;
+    string refreshToken;
+    string clientId;
+    string clientSecret;
     string[] scopes = [];
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;

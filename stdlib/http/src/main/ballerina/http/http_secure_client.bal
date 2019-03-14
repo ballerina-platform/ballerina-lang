@@ -32,13 +32,16 @@ public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 public const POST_BODY_BEARER = "POST_BODY_BEARER";
 
 # Specifies type of the the OAuth2 grant type
-public type OAuth2GrantType CLIENT_CREDENTIALS_GRANT|PASSWORD_GRANT;
+public type OAuth2GrantType CLIENT_CREDENTIALS_GRANT|PASSWORD_GRANT|DIRECT_TOKEN;
 
 # Indicates OAuth2 client credentials grant type
 public const CLIENT_CREDENTIALS_GRANT = "CLIENT_CREDENTIALS_GRANT";
 
 # Indicates OAuth2 password grant type
 public const PASSWORD_GRANT = "PASSWORD_GRANT";
+
+# Indicates direct token as a grant type where this is considered as custom way of providing access tokens by user
+public const DIRECT_TOKEN = "DIRECT_TOKEN";
 
 public const AUTH_HEADER_STATUS = "AUTH_HEADER_STATUS";
 
@@ -75,10 +78,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function post(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->post(path, req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->post(path, req);
         }
         return res;
@@ -93,10 +97,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function head(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->head(path, message = req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->head(path, message = req);
         }
         return res;
@@ -111,10 +116,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function put(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->put(path, req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->put(path, req);
         }
         return res;
@@ -130,10 +136,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->execute(httpVerb, path, req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->execute(httpVerb, path, req);
         }
         return res;
@@ -148,10 +155,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function patch(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->patch(path, req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->patch(path, req);
         }
         return res;
@@ -166,10 +174,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function delete(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->delete(path, req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->delete(path, req);
         }
         return res;
@@ -184,10 +193,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function get(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->get(path, message = req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->get(path, message = req);
         }
         return res;
@@ -202,10 +212,11 @@ public type HttpSecureClient client object {
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function options(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         Response res = check self.httpClient->options(path, message = req);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(req, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(req, self.config);
             return self.httpClient->options(path, message = req);
         }
         return res;
@@ -218,10 +229,11 @@ public type HttpSecureClient client object {
     # + request - An HTTP inbound request message
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
     public remote function forward(string path, Request request) returns Response|error {
-        check generateSecureRequest(request, self.config);
+        boolean retryRequired = check generateSecureRequest(request, self.config);
         Response res = check self.httpClient->forward(path, request);
-        boolean retryRequired = check generateSecureRequestIfRetryRequired(request, res, self.config);
+        retryRequired = isRetryRequired(retryRequired, res, self.config);
         if (retryRequired) {
+            check updateRequest(request, self.config);
             return self.httpClient->forward(path, request);
         }
         return res;
@@ -237,7 +249,7 @@ public type HttpSecureClient client object {
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
         Request req = <Request>message;
-        check generateSecureRequest(req, self.config);
+        boolean retryRequired = check generateSecureRequest(req, self.config);
         return self.httpClient->submit(httpVerb, path, req);
     }
 
@@ -308,12 +320,13 @@ CachedTokenConfig tokenCache = {
     expiryTime: 0
 };
 
-# Prepare HTTP request with the required headers for authentication based on the scheme.
+# Prepare HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
+# retry is required if the response will be 401.
 #
 # + req - An HTTP outbound request message
 # + config - Client endpoint configurations
-# + return - The Error occured during HTTP client invocation
-function generateSecureRequest(Request req, ClientEndpointConfig config) returns ()|error {
+# + return - Whether retry is required for 401 response or `error` if error occured during HTTP client invocation
+function generateSecureRequest(Request req, ClientEndpointConfig config) returns boolean|error {
     var auth = config.auth;
     if (auth is AuthConfig) {
         var authConfig = auth["config"];
@@ -333,7 +346,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 var grantType = authConfig.grantType;
                 var grantTypeConfig = authConfig.config;
                 if (grantType is PASSWORD_GRANT) {
-                    if (grantTypeConfig is PasswordGrantTypeConfig) {
+                    if (grantTypeConfig is PasswordGrantConfig) {
                         string cachedAccessToken = tokenCache.accessToken;
                         if (cachedAccessToken == EMPTY_STRING) {
                             string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
@@ -341,7 +354,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         } else {
                             if (isValidAccessToken()) {
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
-                                // TODO: discuss how to validate only the 401 scenario where we get the access token from the cache
+                                return true;
                             } else {
                                 // TODO: introduce locking mechanism to limit the refreshing
                                 string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
@@ -353,13 +366,23 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         { message: "Invalid config is provided for the password grant type" });
                         return e;
                     }
-                } else {
-                    // Within this code block, the grant type is CLIENT_CREDENTIALS_GRANT_TYPE
-                    if (grantTypeConfig is ClientCredentialsGrantTypeConfig) {
+                } else if (grantType is CLIENT_CREDENTIALS_GRANT) {
+                    if (grantTypeConfig is ClientCredentialsGrantConfig) {
                         // TODO: implement the logic
                     } else {
                         error e = error(HTTP_ERROR_CODE,
                         { message: "Invalid config is provided for the password grant type" });
+                        return e;
+                    }
+                } else {
+                    // Within this code block, the grant type is DIRECT_TOKEN
+                    if (grantTypeConfig is DirectTokenConfig) {
+                        string accessToken = grantTypeConfig.accessToken;
+                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                        return true;
+                    } else {
+                        error e = error(HTTP_ERROR_CODE,
+                        { message: "Invalid config is provided for the direct token mode" });
                         return e;
                     }
                 }
@@ -414,7 +437,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             return err;
         }
     }
-    return ();
+    return false;
 }
 
 # Check the validity of the access token which is in the cache.
@@ -430,95 +453,108 @@ function isValidAccessToken() returns boolean {
     return false;
 }
 
+type RefreshRequestConfig record {
+    string payload;
+    string clientId;
+    string clientSecret;
+    string[] scopes;
+    CredentialBearer credentialBearer;
+    !...;
+};
+
 # Request an access token from authorization server using the provided configurations.
 #
 # + config - Passwordd grant type configuration
 # + return - Access token received or `error` if error occured during HTTP client invocation
-function getAccessTokenFromAuthorizationRequest(PasswordGrantTypeConfig config) returns string|error {
-    Client authorizationClient;
-    string tokenUrl = config.tokenUrl;
-    string username = config.username;
-    string password = config.password;
-    string clientId = config.clientId;
-    string clientSecret = config.clientSecret;
-    string[] scopes = config.scopes;
-    CredentialBearer credentialBearer = config.credentialBearer;
+function getAccessTokenFromAuthorizationRequest(PasswordGrantConfig config) returns string|error {
+    Client authorizationClient = check createClient(config.tokenUrl, {});
+    RefreshRequestConfig requestConfig = {
+        payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        scopes: config.scopes,
+        credentialBearer: config.credentialBearer
+    };
+    Request authorizationRequest = prepareRequest(requestConfig);
+    Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
+    return getAccessTokenFromResponse(authorizationResponse);
+}
 
-    authorizationClient = check createClient(tokenUrl, {});
-    Request authorizationRequest = new;
-    string textPayload = "grant_type=password&username=" + username + "&password=" + password;
+# Request an access token from authorization server using the provided refresh configurations.
+#
+# + config - Password grant type configuration or direct token configuration
+# + return - Access token received or `error` if error occured during HTTP client invocation
+function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig config) returns string|error {
+    Client refreshClient;
+    RefreshRequestConfig requestConfig;
+    if (config is PasswordGrantConfig) {
+        RefreshConfig? refreshConfig = config.refreshConfig;
+        if (refreshConfig is RefreshConfig) {
+            refreshClient = check createClient(refreshConfig.refreshUrl, {});
+            requestConfig = {
+                payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
+                clientId: config.clientId,
+                clientSecret: config.clientSecret,
+                scopes: refreshConfig.scopes,
+                credentialBearer: refreshConfig.credentialBearer
+             };
+        } else {
+            error e = error(HTTP_ERROR_CODE,
+            { message: "Failed to refresh access token since RefreshTokenConfig is not provided" });
+            return e;
+        }
+    } else {
+        DirectTokenRefreshConfig? refreshConfig = config.refreshConfig;
+        if (refreshConfig is DirectTokenRefreshConfig) {
+            refreshClient = check createClient(refreshConfig.refreshUrl, {});
+            requestConfig = {
+                payload: "grant_type=refresh_token&refresh_token=" + refreshConfig.refreshToken,
+                clientId: refreshConfig.clientId,
+                clientSecret: refreshConfig.clientSecret,
+                scopes: refreshConfig.scopes,
+                credentialBearer: refreshConfig.credentialBearer
+            };
+        } else {
+            error e = error(HTTP_ERROR_CODE,
+            { message: "Failed to refresh access token since RefreshTokenConfig is not provided" });
+            return e;
+        }
+    }
+    Request refreshRequest = prepareRequest(requestConfig);
+    Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
+    return getAccessTokenFromResponse(refreshResponse);
+}
+
+function prepareRequest(RefreshRequestConfig config) returns Request {
+    Request req = new;
+    string textPayload = config.payload;
     string scopeString = EMPTY_STRING;
-    foreach var requestScope in scopes {
+    foreach var requestScope in config.scopes {
         scopeString = scopeString + WHITE_SPACE + requestScope;
     }
     if (scopeString != EMPTY_STRING) {
         textPayload = textPayload + "&scope=" + scopeString.trim();
     }
-    if (credentialBearer == AUTH_HEADER_BEARER) {
-        string clientIdSecret = clientId + ":" + clientSecret;
-        authorizationRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
+    if (config.credentialBearer == AUTH_HEADER_BEARER) {
+        string clientIdSecret = config.clientId + ":" + config.clientSecret;
+        req.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
                 encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
     } else {
-        textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+        textPayload = textPayload + "&client_id=" + config.clientId + "&client_secret=" + config.clientSecret;
     }
-    authorizationRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
-    Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
-    json authorizationResponsePayload = check authorizationResponse.getJsonPayload();
-    if (authorizationResponse.statusCode == OK_200) {
-        updateTokenCache(authorizationResponsePayload);
-        return authorizationResponsePayload.access_token.toString();
-    } else {
-        error e = error(HTTP_ERROR_CODE,
-        { message: "Failed to retrieve access token from the given credentials" });
-        return e;
-    }
+    req.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+    return req;
 }
 
-# Request an access token from authorization server using the provided refresh configurations.
-#
-# + config - Password grant type configuration
-# + return - Access token received or `error` if error occured during HTTP client invocation
-function getAccessTokenFromRefreshToken(PasswordGrantTypeConfig config) returns string|error {
-    Client refreshTokenClient;
-    RefreshTokenConfig? refreshTokenConfig = config.refreshTokenConfig;
-    if (refreshTokenConfig is ()) {
-        error e = error(HTTP_ERROR_CODE,
-        { message: "Failed to refresh access token since RefreshTokenConfig is not provided" });
-        return e;
+function getAccessTokenFromResponse(Response response) returns string|error {
+    json payload = check response.getJsonPayload();
+    if (payload.statusCode == OK_200) {
+        updateTokenCache(payload);
+        return payload.access_token.toString();
     } else {
-        string clientId = config.clientId;
-        string clientSecret = config.clientSecret;
-        string refreshToken = tokenCache.refreshToken;
-        string refreshUrl = refreshTokenConfig.refreshUrl;
-        refreshTokenClient = check createClient(refreshUrl, {});
-        Request refreshTokenRequest = new;
-        string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
-        string scopeString = EMPTY_STRING;
-        foreach var requestScope in refreshTokenConfig.scopes {
-            scopeString = scopeString + WHITE_SPACE + requestScope;
-        }
-        if (scopeString != EMPTY_STRING) {
-            textPayload = textPayload + "&scope=" + scopeString.trim();
-        }
-        if (refreshTokenConfig.credentialBearer == AUTH_HEADER_BEARER) {
-            string clientIdSecret = clientId + ":" + clientSecret;
-            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
-                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
-        } else {
-            textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
-        }
-        refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
-        Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
-
-        json refreshTokenResponsePayload = check refreshTokenResponse.getJsonPayload();
-        if (refreshTokenResponsePayload.statusCode == OK_200) {
-            updateTokenCache(refreshTokenResponsePayload);
-            return refreshTokenResponsePayload.access_token.toString();
-        } else {
-            error err = error(HTTP_ERROR_CODE,
-                { message: "Failed to refresh the access token from the given refresh configurations" });
-            return err;
-        }
+        error err = error(HTTP_ERROR_CODE,
+        { message: "Failed to retrieve access token from the response" });
+        return err;
     }
 }
 
@@ -538,28 +574,46 @@ function updateTokenCache(json responsePayload) {
 }
 
 # Check whether retry is required for the response. This returns true if the scheme is OAuth and the response status
-# is 401 only. That implies user has given a expired access token and the client should update it with the given
-# refresh url.
+# is 401 only. That implies user has given a expired access token or the retrieved access token from cahce is expired
+# and the client should update it with the given refresh configurations.
 #
-# + req - Request object
-# + res - Response object
+# + retryRequired - Status of retry required
+# + res - Request object
 # + config - Client endpoint configurations
 # + return - Whether the client should retry or not
-function generateSecureRequestIfRetryRequired(Request req, Response res, ClientEndpointConfig config) returns boolean|error {
-    if (res.statusCode == UNAUTHORIZED_401) {
+function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConfig config) returns boolean {
+    if (retryRequired && res.statusCode == UNAUTHORIZED_401) {
         var auth = config.auth;
         if (auth is AuthConfig) {
             var authConfig = auth.config;
             if (auth.scheme == OAUTH2 && authConfig is OAuth2AuthConfig) {
                 var grantType = authConfig.grantType;
                 var grantTypeConfig = authConfig.config;
-                if (grantType is PASSWORD_GRANT && grantTypeConfig is PasswordGrantTypeConfig) {
-                    string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
-                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                if ((grantType is PASSWORD_GRANT || grantType is DIRECT_TOKEN) &&
+                    (grantTypeConfig is PasswordGrantConfig || grantTypeConfig is DirectTokenConfig)) {
                     return true;
                 }
             }
         }
     }
     return false;
+}
+
+# Update the request with new access token for the retry request.
+#
+# + config - Client endpoint configurations
+# + return - `error` if error occured during HTTP client invocation
+function updateRequest(Request req, ClientEndpointConfig config) returns ()|error {
+    var auth = config.auth;
+    if (auth is AuthConfig) {
+        var authConfig = auth.config;
+        if (authConfig is OAuth2AuthConfig) {
+            var grantTypeConfig = authConfig.config;
+            if (grantTypeConfig is PasswordGrantConfig || grantTypeConfig is DirectTokenConfig) {
+                string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+            }
+        }
+    }
+    return ();
 }
