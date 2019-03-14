@@ -656,10 +656,10 @@ function testFiniteTypeInTuplePoisoning() returns (State, State) {
 }
 
 public const APPLE = "apple";
-public const ORRANGE = "orrange";
+public const ORANGE = "orange";
 public const GRAPE = "grape";
 
-type Fruit APPLE | ORRANGE | GRAPE;
+type Fruit APPLE | ORANGE | GRAPE;
 
 function testFiniteType_1() returns string {
     any a = APPLE;
@@ -677,6 +677,60 @@ function testFiniteType_2() returns string {
     }
 
     return "a is not an Apple";
+}
+
+function testFiniteTypeAsBroaderType_1() returns boolean {
+    any a = GRAPE;
+    return a is string;
+}
+
+type FRUIT_OR_COUNT "apple"|2|"grape"|10;
+
+function testFiniteTypeAsBroaderType_2() returns (boolean, boolean) {
+    FRUIT_OR_COUNT fc1 = GRAPE;
+    FRUIT_OR_COUNT fc2 = 10;
+
+    return (fc1 is string, fc2 is int);
+}
+
+type FooBarOneBoolean "foo"|"bar"|1|boolean;
+type FooBarBaz "foo"|"bar"|"baz";
+type IntTwo int|2.0;
+
+function testFiniteTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+    FooBarOneBoolean f1 = "foo";
+    FooBarOneBoolean f2 = 1;
+
+    return (f1 is FooBarBaz, f2 is IntTwo);
+}
+
+function testFiniteTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+    FooBarOneBoolean f1 = "foo";
+    FooBarOneBoolean f2 = 1;
+
+    return (f1 is IntTwo, f2 is FooBarBaz);
+}
+
+function testIntersectingUnionTrue() returns (boolean, boolean) {
+    string|int|typedesc x = 1;
+    return (x is int|boolean, x is json);
+}
+
+function testIntersectingUnionFalse() returns (boolean, boolean) {
+    string|int|typedesc x = int;
+    return (x is int|boolean, x is anydata);
+}
+
+function testValueTypeAsFiniteTypeTrue() returns (boolean, boolean) {
+    string s = "orange";
+    float f = 2.0;
+    return (s is Fruit, f is IntTwo);
+}
+
+function testValueTypeAsFiniteTypeFalse() returns (boolean, boolean) {
+    string s = "mango";
+    float f = 12.0;
+    return (s is Fruit, f is IntTwo);
 }
 
 const ERR_REASON = "error reason";

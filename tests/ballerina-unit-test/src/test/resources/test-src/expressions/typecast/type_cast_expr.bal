@@ -648,8 +648,8 @@ function testSimpleTypeToUnionCastPositive() returns boolean {
 
 function testDirectlyUnmatchedUnionToUnionCastPositive() returns boolean {
     string s = "hello world";
-    string|int v1 = s;
-    string|boolean v2 = <string|boolean> v1;
+    string|typedesc v1 = s;
+    json|table<Lead> v2 = <json|table<Lead>> v1;
     boolean castSuccessful = s == v2;
 
     Lead lead = { name: "Em", id: 2000, rating: 10.0 };
@@ -705,6 +705,67 @@ public type EmbeddedModeConfig record {
     *InMemoryModeConfig;
     !...;
 };
+
+type FooBar "foo"|"bar";
+type FooBarOne "foo"|"bar"|1;
+type FooBarOneTwoTrue "foo"|"bar"|1|2.0|boolean;
+
+function testFiniteTypeToValueTypeCastPositive() returns boolean {
+    FooBar f = "foo";
+    string s = <string> f;
+    boolean castSuccessful = f == s;
+
+    FooBarOne f2 = 1;
+    int i = <int> f2;
+    castSuccessful = castSuccessful && f2 == i;
+
+    FooBarOneTwoTrue f3 = true;
+    boolean b = <boolean> f3;
+    return castSuccessful && f3 == b;
+}
+
+function testFiniteTypeToValueTypeCastNegative() {
+    FooBarOne f2 = 1;
+    string i = <string> f2;
+}
+
+function testFiniteTypeToRefTypeCastPositive() returns boolean {
+    FooBar f = "bar";
+    string|int s = <string|int> f;
+    boolean castSuccessful = f == s;
+
+    FooBarOne f2 = "foo";
+    any i = <any> f2;
+    castSuccessful = castSuccessful && f2 === i;
+
+    FooBarOneTwoTrue f3 = true;
+    json b = <json> f3;
+    return castSuccessful && f3 == b;
+}
+
+function testFiniteTypeToRefTypeCastNegative() {
+    FooBarOne f2 = 1;
+    string|xml i = <string|xml> f2;
+}
+
+function testValueTypeToFiniteTypeCastPositive() returns boolean {
+    string a = "bar";
+    FooBar b = <FooBar> a;
+    boolean castSuccessful = a == b;
+
+    int c = 1;
+    FooBarOne d = <FooBarOne> c;
+    castSuccessful = castSuccessful && c == d;
+
+    float f = 2.0;
+    FooBarOneTwoTrue g = <FooBarOneTwoTrue> f;
+    return castSuccessful && f == g;
+}
+
+function testValueTypeToFiniteTypeCastNegative() {
+    int a = 2;
+    FooBarOne d = <FooBarOne> a;
+}
 
 function testFunc(string s, int i) returns string {
     return string.convert(i) + s;

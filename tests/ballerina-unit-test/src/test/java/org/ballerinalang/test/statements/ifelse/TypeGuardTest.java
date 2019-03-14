@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -409,6 +410,88 @@ public class TypeGuardTest {
     public void testUpdatingTypeNarrowedGlobalVar() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedGlobalVar");
         Assert.assertEquals(returns[0].stringValue(), "string: hello");
+    }
+
+    @Test(dataProvider = "finiteTypeAsBroaderTypesFunctions")
+    public void testFiniteTypeAsBroaderTypes(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
+    public void testFiniteTypeAsBroaderTypesAndFiniteType(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "typeNarrowingForIntersectingUnions")
+    public void testTypeNarrowingForIntersectingUnions(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "valueTypesAsFiniteTypesFunctions")
+    public void testValueTypesAsFiniteTypesFunctions(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsBroaderTypeInStructureNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderTypeInStructureNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeReassignmentToBroaderType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeReassignmentToBroaderType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "finiteTypeAsBroaderTypesFunctions")
+    public Object[][] finiteTypeAsBroaderTypesFunctions() {
+        return new Object[][]{
+                {"testFiniteTypeAsBroaderTypes_1"},
+                {"testFiniteTypeAsBroaderTypes_2"},
+                {"testFiniteTypeAsBroaderTypes_3"},
+                {"testFiniteTypeAsBroaderTypes_4"}
+        };
+    }
+
+    @DataProvider(name = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
+    public Object[][] finiteTypeAsBroaderTypesAndFiniteTypeFunctions() {
+        return new Object[][]{
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_1"},
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
+                {"testFiniteTypeAsBroaderTypesAndFiniteType_4"},
+                {"testFiniteTypeAsComplexFiniteTypes_1"},
+                {"testFiniteTypeAsComplexFiniteTypes_2"},
+                {"testFiniteTypeAsComplexFiniteTypes_3"},
+                {"testFiniteTypeAsComplexFiniteTypes_4"},
+                {"testFiniteTypeAsComplexFiniteTypes_5"},
+                {"testFiniteTypeAsComplexFiniteTypes_6"},
+                {"testFiniteTypeAsComplexFiniteTypes_7"},
+                {"testFiniteTypeAsBroaderTypeInStructurePositive"}
+        };
+    }
+
+    @DataProvider(name = "typeNarrowingForIntersectingUnions")
+    public Object[][] typeNarrowingForIntersectingUnions() {
+        return new Object[][]{
+                {"testTypeNarrowingForIntersectingDirectUnion_1"},
+                {"testTypeNarrowingForIntersectingDirectUnion_2"},
+                {"testTypeNarrowingForIntersectingAssignableUnion_1"},
+                {"testTypeNarrowingForIntersectingAssignableUnion_2"}
+        };
+    }
+
+    @DataProvider(name = "valueTypesAsFiniteTypesFunctions")
+    public Object[][] valueTypesAsFiniteTypesFunctions() {
+        return new Object[][]{
+                {"testTypeNarrowingForValueTypeAsFiniteType_1"},
+                {"testTypeNarrowingForValueTypeAsFiniteType_2"}
+        };
     }
 
     @Test

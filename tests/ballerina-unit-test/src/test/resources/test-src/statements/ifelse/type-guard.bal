@@ -568,6 +568,280 @@ public function testUpdatingTypeNarrowedGlobalVar() returns string {
     }
 }
 
+type FooBarOneTwoTrue "foo"|"bar"|1|2.0|true;
+type FooBar "foo"|"bar";
+type OneTwo 1|2.0;
+
+function testFiniteTypeAsBroaderTypes_1() returns boolean {
+    FooBarOneTwoTrue f = "foo";
+    boolean equals = finiteTypeAsBroaderTypesHelper(f) == "string: foo";
+
+    f = "bar";
+    return equals && finiteTypeAsBroaderTypesHelper(f) == "string: bar";
+}
+
+function testFiniteTypeAsBroaderTypes_2() returns boolean {
+    FooBarOneTwoTrue f = 1;
+    return finiteTypeAsBroaderTypesHelper(f) == "int: 1";
+}
+
+function testFiniteTypeAsBroaderTypes_3() returns boolean {
+    FooBarOneTwoTrue f = 2.0;
+    return finiteTypeAsBroaderTypesHelper(f) == "float: 2.0";
+}
+
+function testFiniteTypeAsBroaderTypes_4() returns boolean {
+    FooBarOneTwoTrue f = true;
+    return finiteTypeAsBroaderTypesHelper(f) == "boolean: true";
+}
+
+function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
+    if (f is string) {
+        match f {
+            "foo" => return "string: foo";
+            "bar" => return "string: bar";
+        }
+        return "expected foo or bar!";
+    } else {
+        if (f is int|float) {
+            int|float ot = f;
+            if (ot is int) {
+                int i = ot;
+                return string `int: ${i}`;
+            } else {
+                float fl = ot;
+                return string `float: ${fl}`;
+            }
+        } else {
+            boolean b = f;
+            return string `boolean: ${b}`;
+        }
+    }
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_1() returns boolean {
+    FooBarOneTwoTrue f = "foo";
+    boolean equals = finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: foo";
+
+    f = "bar";
+    return equals && finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "string: bar";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_2() returns boolean {
+    FooBarOneTwoTrue f = 1;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "int: 1";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_3() returns boolean {
+    FooBarOneTwoTrue f = 2.0;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "float: 2.0";
+}
+
+function testFiniteTypeAsBroaderTypesAndFiniteType_4() returns boolean {
+    FooBarOneTwoTrue f = true;
+    return finiteTypeAsBroaderTypesAndFiniteTypeHelper(f) == "boolean: true";
+}
+
+function finiteTypeAsBroaderTypesAndFiniteTypeHelper(FooBarOneTwoTrue f) returns string {
+    if (f is string) {
+        FooBar fb = f;
+        match fb {
+            "foo" => return "string: foo";
+            "bar" => return "string: bar";
+        }
+        return "expected foo or bar!";
+    } else {
+        if (f is OneTwo) {
+            OneTwo ot = f;
+            if (ot is int) {
+                int i = ot;
+                return string `int: ${i}`;
+            } else {
+                float fl = ot;
+                return string `float: ${fl}`;
+            }
+        } else {
+            boolean b = f;
+            return string `boolean: ${b}`;
+        }
+    }
+}
+
+type FooBarOneTwoBoolean "foo"|"bar"|1|2.0|boolean;
+type FooBarBaz "foo"|"bar"|"baz";
+type FooBarInt "foo"|"bar"|int;
+
+function testFiniteTypeAsComplexFiniteTypes_1() returns boolean {
+    FooBarOneTwoBoolean f = "foo";
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "FooBarBaz" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_2() returns boolean {
+    FooBarOneTwoBoolean f = 2.0;
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "OneTwo" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_3() returns boolean {
+    FooBarOneTwoBoolean f = true;
+    (string, FooBarBaz|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperOne(f);
+    return s == "boolean" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_4() returns boolean {
+    FooBarOneTwoBoolean f = "bar";
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "FooBarInt" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_5() returns boolean {
+    FooBarOneTwoBoolean f = 1;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "FooBarInt" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_6() returns boolean {
+    FooBarOneTwoBoolean f = 2.0;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "OneTwo" && f == v;
+}
+
+function testFiniteTypeAsComplexFiniteTypes_7() returns boolean {
+    FooBarOneTwoBoolean f = false;
+    (string, FooBarInt|OneTwo|boolean) (s, v) = finiteTypeAsComplexFiniteTypesHelperTwo(f);
+    return s == "boolean" && f == v;
+}
+
+function finiteTypeAsComplexFiniteTypesHelperOne(FooBarOneTwoBoolean f) returns (string, FooBarBaz|OneTwo|boolean) {
+    if (f is FooBarBaz) {
+        FooBarBaz x = f;
+        return ("FooBarBaz", x);
+    } else {
+        if (f is OneTwo) {
+            OneTwo x = f;
+            return ("OneTwo", x);
+        } else {
+            boolean x = f;
+            return ("boolean", x);
+        }
+    }
+}
+
+function finiteTypeAsComplexFiniteTypesHelperTwo(FooBarOneTwoBoolean f) returns (string, FooBarInt|OneTwo|boolean) {
+    if (f is FooBarInt) {
+        FooBarInt x = f;
+        return ("FooBarInt", x);
+    } else {
+        if (f is OneTwo) {
+            OneTwo x = f;
+            return ("OneTwo", x);
+        } else {
+            boolean x = f;
+            return ("boolean", x);
+        }
+    }
+}
+
+function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
+    string s = "hello world";
+    string|typedesc st = s;
+    if (st is string|boolean) {
+        string s2 = st;
+        return s2 == s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
+    xml x = xml `Hello World`;
+    string|xml st = x;
+    if (st is string|boolean) {
+        return true;
+    } else {
+        xml t2 = st;
+        return t2 == x;
+    }
+}
+
+function testTypeNarrowingForIntersectingAssignableUnion_1() returns boolean {
+    string s = "hello world";
+    string|typedesc st = s;
+    if (st is json|xml) {
+        string s2 = st;
+        return s2 == s;
+    }
+    return false;
+}
+
+function testTypeNarrowingForIntersectingAssignableUnion_2() returns boolean {
+    record{} t = { name: "Maryam" };
+    string|record{} st = t;
+    if (st is json|xml) {
+        return false;
+    } else {
+        record{} t2 = st;
+        return t2 == t;
+    }
+}
+
+function testTypeNarrowingForValueTypeAsFiniteType_1() returns boolean {
+    string s = "bar";
+    if (s is FooBar) {
+        FooBar f = s;
+        return f == s;
+    } else {
+        string s2 = s;
+        return false;
+    }
+}
+
+function testTypeNarrowingForValueTypeAsFiniteType_2() returns boolean {
+    float f = 11.0;
+    if (f is FooBarOneTwoBoolean) {
+        FooBarOneTwoBoolean f2 = f;
+        return true;
+    } else {
+        float f3 = f;
+        return f == f3;
+    }
+}
+
+const FIVE = 5.0;
+type FooBarTen "foo"|"bar"|10;
+type FloatFive FIVE;
+type IntTen 10;
+
+function testFiniteTypeAsBroaderTypeInStructurePositive() returns boolean {
+    FooBarTen f = "bar";
+    (FooBarTen, FloatFive, boolean) g = (f, FIVE, true);
+    any a = g;
+    if (a is (string|int|xml, float, boolean)) {
+        return a === g;
+    }
+    return false;
+}
+
+function testFiniteTypeAsBroaderTypeInStructureNegative() returns boolean {
+    FooBarTen f = "bar";
+    (string|float|int, FloatFive, boolean) g = (f, FIVE, true);
+    any a = g;
+    if (a is (string|int|xml, float, boolean)) {
+        return true;
+    }
+    return false;
+}
+
+function testFiniteTypeReassignmentToBroaderType() returns boolean {
+    int i = 10;
+    if (i is FooBarTen) {
+        IntTen j = i; // assignment should not fail
+        int k = i;
+        return i == k;
+    }
+    return false;
+}
+
 string reason = "error reason";
 map<anydata> detail = { code: 11, detail: "detail message" };
 

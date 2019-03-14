@@ -100,7 +100,7 @@ service circuitbreaker on new http:Listener(9090) {
     }
 }
 
-public int counter = 1;
+int counter = 1;
 
 // This sample service is used to mock connection timeouts and service outages.
 // Mock a service outage by stopping/starting this service.
