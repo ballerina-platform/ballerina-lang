@@ -88,7 +88,7 @@
                                     <include>io.swagger.parser.v3:swagger-parser-v3</include>
                                     <include>javax.validation:validation-api</include>
                                     <include>com.google.code.gson:gson</include>
-                                    <include>org.ballerinalang:ballerina-to-openapi</include>
+                                    <include>org.ballerinalang:ballerina-to-openapi-generator</include>
                                 </includes>
                             </artifactSet>
                             <filters>

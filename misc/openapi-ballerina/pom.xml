@@ -37,8 +37,8 @@
     </properties>
 
     <modules>
-        <module>modules/openapi-to-ballerina-generator</module>
         <module>modules/ballerina-to-openapi-generator</module>
+        <module>modules/openapi-to-ballerina-generator</module>
         <module>modules/ballerina-client-generator</module>
     </modules>
 </project>
