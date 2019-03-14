@@ -21,6 +21,10 @@ under the License.
 
 <suite name="ballerina-test-suite">
 
+    <!--<listeners>-->
+        <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
+    <!--</listeners>-->
+
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
