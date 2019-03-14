@@ -556,11 +556,14 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
             if (cachedResponse.hasHeader(DATE)) {
                 string[] dateHeader = cachedResponse.getHeaders(DATE);
 
+                var tExpiresHeader = time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123);
+                var tDateHeader = time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123);
+
                 if (dateHeader.length() == 1) {
-                    // TODO: See if time parsing errors need to be handled
-                    int freshnessLifetime = (time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123).time
-                            - time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123).time) / 1000;
-                    return freshnessLifetime;
+                    if (tExpiresHeader is time:Time && tDateHeader is time:Time) {
+                        int freshnessLifetime = (tExpiresHeader.time - tDateHeader.time) /1000;
+                        return freshnessLifetime;
+                    }
                 }
             }
         }
@@ -750,14 +753,21 @@ function getDateValue(Response inboundResponse) returns int {
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");
         time:Time currentT = time:currentTime();
-        inboundResponse.setHeader(DATE, time:format(currentT, time:TIME_FORMAT_RFC_1123));
+        var timeStr = time:format(currentT, time:TIME_FORMAT_RFC_1123);
+        if (timeStr is string) {
+            inboundResponse.setHeader(DATE, timeStr);
+        }
         return currentT.time;
     }
 
     string dateHeader = inboundResponse.getHeader(DATE);
     // TODO: May need to handle invalid date headers
-    time:Time dateHeaderTime = time:parse(dateHeader, time:TIME_FORMAT_RFC_1123);
-    return dateHeaderTime.time;
+    var dateHeaderTime = time:parse(dateHeader, time:TIME_FORMAT_RFC_1123);
+    if (dateHeaderTime is time:Time) {
+        return dateHeaderTime.time;
+    } else {
+        return 0;
+    }
 }
 
 function getWarningAgent() returns string {

@@ -316,8 +316,10 @@ public function Response.setETag(json|xml|string|byte[] payload) {
 
 public function Response.setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
-    self.setHeader(LAST_MODIFIED, lastModified);
+    var lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
+    if (lastModified is string) {
+        self.setHeader(LAST_MODIFIED, lastModified);
+    }
 }
 
 public function Response.setJsonPayload(json payload, string contentType = "application/json") {
