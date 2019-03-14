@@ -199,3 +199,13 @@ function testHexComplexExpression() returns decimal {
     decimal d3 = (-1 * <decimal>0x1A2F.1C2p-2 + d1) / d2;
     return d3;
 }
+
+// Test positively signed literal assignment
+function testPositivelySignedLiteralAssignment() returns (decimal, decimal, decimal, decimal) {
+    decimal d1 = +12.23;
+    decimal d2 = + 0.0;
+    decimal d3 = +0X1A2F.1C2p-2;
+    decimal d4 = -12.23;
+    decimal d5 = d1 + d4;
+    return (d1, d2, d3, d5);
+}

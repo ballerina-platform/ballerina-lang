@@ -358,4 +358,25 @@ public class BDecimalValueTest {
         Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("381.1061220240414588528678304239401",
                         MathContext.DECIMAL128)) == 0, "Invalid decimal value returned.");
     }
+
+    @Test(description = "Test positively signed literal assignment")
+    public void testPositivelySignedLiteralAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testPositivelySignedLiteralAssignment");
+        Assert.assertEquals(returns.length, 4);
+        for (int i = 0; i < 4; i++) {
+            Assert.assertSame(returns[i].getClass(), BDecimal.class);
+        }
+        BDecimal value1 = (BDecimal) returns[0];
+        BDecimal value2 = (BDecimal) returns[1];
+        BDecimal value3 = (BDecimal) returns[2];
+        BDecimal value4 = (BDecimal) returns[3];
+        Assert.assertTrue(value1.decimalValue().compareTo(new BigDecimal("12.23", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(value2.decimalValue().compareTo(new BigDecimal("0.0", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(value3.decimalValue().compareTo(new BigDecimal("1675.77746582031250",
+                        MathContext.DECIMAL128)) == 0, "Invalid decimal value returned.");
+        Assert.assertTrue(value4.decimalValue().compareTo(new BigDecimal("+0.00", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+    }
 }
