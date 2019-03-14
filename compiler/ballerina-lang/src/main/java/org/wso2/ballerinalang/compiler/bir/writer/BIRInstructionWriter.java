@@ -150,7 +150,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeInt(cp.addCPEntry(new StringCPEntry((String) birConstantLoad.value)));
                 break;
             case TypeTags.FLOAT:
-                buf.writeInt(cp.addCPEntry(new FloatCPEntry((double) birConstantLoad.value)));
+                buf.writeInt(cp.addCPEntry(new FloatCPEntry(Double.parseDouble((String) birConstantLoad.value))));
                 break;
             case TypeTags.NIL:
                 break;
