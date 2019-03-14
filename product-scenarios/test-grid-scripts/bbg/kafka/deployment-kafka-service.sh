@@ -22,11 +22,21 @@ readonly deployment_kafka_great_grand_parent_path=$(dirname ${deployment_kafka_g
 . ${deployment_kafka_great_grand_parent_path}/util/usage.sh
 . ${deployment_kafka_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
+
+function clone_bbg_and_set_bal_path() {
+    local bbg_repo_name="messaging-with-kafka"
+    git clone https://github.com/ballerina-guides/${bbg_repo_name} --branch testgrid-onboarding
+    bal_path_admin=${bbg_repo_name}/guide/product_admin_portal/product_admin_portal.bal
+    bal_path_inventory=${bbg_repo_name}/guide/inventory_control_system/inventory_control_system.bal
+}
+
 function setup_deployment() {
     cat ${INPUT_DIR}/infrastructure.properties
     clone_bbg_and_set_bal_path
-    deploy_mysql_resources
-    replace_variables_in_bal_file
+    download_and_install_kafka_connector
+    deploy_kafka_resources
+    replace_variables_in_bal_file $bal_path_admin
+    replace_variables_in_bal_file $bal_path_inventory
     build_and_deploy_guide
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
@@ -37,24 +47,29 @@ function setup_deployment() {
 }
 
 ## Functions
-function clone_bbg_and_set_bal_path() {
-    local bbg_repo_name="messaging-with-kafka"
-    git clone https://github.com/ballerina-guides/${bbg_repo_name} --branch testgrid-onboarding
-    bal_path_admin=${bbg_repo_name}/guide/product_admin_portal/product_admin_portal.bal
-    bal_path_inventory=${bbg_repo_name}/guide/inventory_control_system/inventory_control_system.bal
+function download_and_install_kafka_connector() {
+    KAFKA_CONNECTOR_VERSION=0.980.2
+    KAFKA_CONNECTOR_DISTRIBUTION=wso2-kafka-${KAFKA_CONNECTOR_VERSION}
+    wget https://github.com/wso2-ballerina/module-kafka/releases/download/v${KAFKA_CONNECTOR_VERSION}/${KAFKA_CONNECTOR_DISTRIBUTION}.zip
+    unzip ${KAFKA_CONNECTOR_DISTRIBUTION}.zip -d ${KAFKA_CONNECTOR_DISTRIBUTION}
+
+    cp ${KAFKA_CONNECTOR_DISTRIBUTION}/dependencies/wso2-kafka-module-${KAFKA_CONNECTOR_VERSION}.jar ${ballerina_home}/bre/lib
+    cp -R ${KAFKA_CONNECTOR_DISTRIBUTION}/balo/wso2 ${ballerina_home}/lib/repo
 }
 
-function deploy_mysql_resources() {
-    build_docker_image mysql-ballerina 1.0 data-backed-service/resources/
-    push_image_to_docker_registry mysql-ballerina 1.0
-    sed -i "s/mysql-ballerina/${docker_user}\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
-    kubectl create -f data-backed-service/resources/kubernetes/
+function deploy_kafka_resources() {
+    # Create Kafka Zookeeper and Kafka Server in the same docker image from Spotify/Kafka
+    docker login --username=${docker_user} --password=${docker_password}
+    docker run -p 2181:2181 -p 9092:9092 --env ADVERTISED_HOST=`docker-machine ip \`docker-machine active\`` --env ADVERTISED_PORT=9092 spotify/kafka
+
+    sed -i "s/spotify\/kafka/${docker_user}\/spotify\/kafka/" messaging-with-kafka/resources/kubernetes/kafka-deployment.yaml
+    kubectl create -f messaging-with-kafka/resources/kubernetes/
 }
 
 function replace_variables_in_bal_file() {
-    sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
-    sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
-    sed -i "s:<path_to_JDBC_jar>:"${work_dir}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
+    local bal_path=$1
+    sed -i "s/\"localhost/\"kafka-service/" ${bal_path}
+    sed -i "s:<path_to_kafka_connector_jars>:"${work_dir}/messaging-with-kafka/":g" ${bal_path}
     sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
     sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
     sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
@@ -62,15 +77,15 @@ function replace_variables_in_bal_file() {
 
 function build_and_deploy_guide() {
     download_and_extract_mysql_connector ${work_dir}
-    cd data-backed-service/guide
-    ${ballerina_home}/bin/ballerina build data_backed_service --skiptests
+    cd messaging-with-kafka/guide
+    ${ballerina_home}/bin/ballerina build messaging-with-kafka --skiptests
     cd ../..
-    kubectl apply -f ${work_dir}/data-backed-service/guide/target/kubernetes/data_backed_service
+    kubectl apply -f ${work_dir}/messaging-with-kafka/guide/target/kubernetes/messaging-with-kafka
 }
 
 function retrieve_and_write_properties_to_data_bucket() {
     local external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
-    local node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
+    local node_port=$(kubectl get svc ballerina-guides-product-admin-portal -o=jsonpath='{.spec.ports[0].nodePort}')
     declare -A deployment_props
     deployment_props["ExternalIP"]=${external_ip}
     deployment_props["NodePort"]=${node_port}
@@ -83,9 +98,10 @@ function retrieve_and_write_properties_to_data_bucket() {
 }
 
 function print_kubernetes_debug_info() {
-    cat ${bal_path}
+    cat ${bal_path_admin}
+    cat ${bal_path_inventory}
     kubectl get pods
-    kubectl get svc ballerina-guides-employee-database-service -o=json
+    kubectl get svc ballerina-guides-product-admin-portal -o=json
     kubectl get nodes --output wide
 }
 

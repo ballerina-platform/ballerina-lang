@@ -37,8 +37,8 @@ function run_tests() {
     fi
 
     declare -A sys_prop_array
-    sys_prop_array["data.backed.service.host"]=${external_ip}
-    sys_prop_array["data.backed.service.port"]=${node_port}
+    sys_prop_array["messaging.with.kafka.service.host"]=${external_ip}
+    sys_prop_array["messaging.with.kafka.service.port"]=${node_port}
 
     # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
     run_bbg_section_tests bbg-kafka kafka sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
