@@ -80,7 +80,7 @@ function testRestParam() returns map<any> {
     OpenRecord openRecord = {var1: "var1", var2: false, var3: 12, var4: "text"};
     string var1;
     boolean var2;
-    map<anydata> rest = {};
+    map<anydata|error> rest = {};
     {var1, var2, ...rest} = openRecord;
     return rest;
 }
@@ -197,7 +197,7 @@ type ObjectRestRecord record {
 
 function testRestParameterType() returns (boolean, boolean) {
     string name;
-    map<anydata> other1 = {};
+    map<anydata|error> other1 = {};
     map<any> other2 = {};
 
     IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
@@ -209,7 +209,7 @@ function testRestParameterType() returns (boolean, boolean) {
     any a1 = other1;
     any a2 = other2;
 
-    return (a1 is map<anydata>, a2 is map<anydata>);
+    return (a1 is map<anydata|error>, a2 is map<anydata>);
 }
 
 // TODO: Uncomment below tests once record literal is supported with var ref

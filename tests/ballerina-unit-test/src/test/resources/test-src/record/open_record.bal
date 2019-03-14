@@ -166,15 +166,15 @@ function testAdditionOfARestField() returns Person {
     return p;
 }
 
-function testAnydataRestFieldRHSAccess() returns anydata {
+function testAnydataOrErrorRestFieldRHSAccess() returns anydata|error {
     Person p = {};
-    anydata name = p.firstName;
+    anydata|error name = p.firstName;
     return name;
 }
 
-function testAnydataRestFieldRHSIndexAccess() returns anydata {
+function testAnydataOrErrorRestFieldRHSIndexAccess() returns anydata|error {
     Person p = {};
-    anydata name = p["firstName"];
+    anydata|error name = p["firstName"];
     return name;
 }
 

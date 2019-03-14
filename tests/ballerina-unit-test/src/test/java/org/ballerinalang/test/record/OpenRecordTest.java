@@ -193,13 +193,13 @@ public class OpenRecordTest {
     @Test(description = "Test non-existent anydata rest field RHS access",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*cannot find key 'firstName'.*")
-    public void testAnydataRestFieldRHSAccess() {
-        BRunUtil.invoke(compileResult, "testAnydataRestFieldRHSAccess");
+    public void testAnydataOrErrorRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testAnydataOrErrorRestFieldRHSAccess");
     }
 
     @Test(description = "Test non-existent anydata rest field RHS index-based access")
-    public void testAnydataRestFieldRHSIndexAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAnydataRestFieldRHSIndexAccess");
+    public void testAnydataOrErrorRestFieldRHSIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnydataOrErrorRestFieldRHSIndexAccess");
         Assert.assertNull(returns[0]);
     }
 

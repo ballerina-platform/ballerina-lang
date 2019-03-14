@@ -3793,38 +3793,12 @@ public class BVM {
     }
 
     private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
-        if (isAnydata(type, unresolvedTypes) || type.getTag() == TypeTags.ERROR_TAG) {
-            return true;
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
         }
 
-        switch (type.getTag()) {
-            case TypeTags.MAP_TAG:
-                return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
-            case TypeTags.RECORD_TYPE_TAG:
-                if (unresolvedTypes.contains(type)) {
-                    return true;
-                }
-                unresolvedTypes.add(type);
-                BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes = recordType.getFields().values().stream()
-                        .map(BField::getFieldType)
-                        .collect(Collectors.toList());
-                return isPureType(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
-            case TypeTags.UNION_TAG:
-                return isPureType(((BUnionType) type).getMemberTypes(), unresolvedTypes);
-            case TypeTags.TUPLE_TAG:
-                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
-            case TypeTags.ARRAY_TAG:
-                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
-            case TypeTags.FINITE_TYPE_TAG:
-                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(BValue::getType)
-                        .collect(Collectors.toSet());
-                return isPureType(valSpaceTypes, unresolvedTypes);
-            default:
-                return false;
-        }
+        return isAnydata(type, unresolvedTypes) || type.getTag() == TypeTags.ERROR_TAG;
     }
 
     private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {

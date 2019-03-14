@@ -983,9 +983,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type =
-                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordVarType) ?
-                            symTable.anyType : symTable.anydataType, null);
+            ((BLangVariable) recordVar.restParam).type = getRestParamType(recordVarType);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
@@ -1360,9 +1358,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                        new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
-                                symTable.anyType : symTable.anydataType, null),
+                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
                         ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
             }
         }
@@ -1419,10 +1415,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (lhsVarRef.restParam != null) {
-            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
-                            symTable.anyType : symTable.anydataType, null),
-                    ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
+            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
+                            ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
         //Check whether this is an readonly field.
@@ -1431,11 +1425,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkConstantAssignment(lhsVarRef);
     }
 
+    private BMapType getRestParamType(BRecordType recordType)  {
+        return new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordType) ?
+                BUnionType.create(null,
+                                  new LinkedHashSet<BType>() {{
+                                      add(symTable.anyType);
+                                      add(symTable.errorType); }}) :
+                symTable.anydataOrErrorUnionType, null);
+    }
+
     private boolean recordHasAnyTypeField(BRecordType recordType) {
         boolean hasAnyTypedField = recordType.fields.stream()
                 .map(field -> field.type)
-                .anyMatch(fieldType -> !types.isAnydata(fieldType));
-        return hasAnyTypedField || !types.isAnydata(recordType.restFieldType);
+                .anyMatch(fieldType -> !types.isPureType(fieldType));
+        return hasAnyTypedField || !types.isPureType(recordType.restFieldType);
     }
 
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef varRef, BType rhsType,

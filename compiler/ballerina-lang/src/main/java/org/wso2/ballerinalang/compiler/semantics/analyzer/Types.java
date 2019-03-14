@@ -266,39 +266,17 @@ public class Types {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
+    boolean isPureType(BType type) {
+        return isPureType(type, new HashSet<>());
+    }
+
     private boolean isPureType(BType type, Set<BType> unresolvedTypes) {
-        if (isAnydata(type, unresolvedTypes) || type.tag == TypeTags.ERROR) {
-            return true;
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
         }
 
-        switch (type.tag) {
-            case TypeTags.MAP:
-                return isPureType(((BMapType) type).constraint, unresolvedTypes);
-            case TypeTags.RECORD:
-                if (unresolvedTypes.contains(type)) {
-                    return true;
-                }
-                unresolvedTypes.add(type);
-                BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes = recordType.fields.stream()
-                        .map(field -> field.type)
-                        .collect(Collectors.toList());
-                return isPureType(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
-            case TypeTags.UNION:
-                return isPureType(((BUnionType) type).getMemberTypes(), unresolvedTypes);
-            case TypeTags.TUPLE:
-                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
-            case TypeTags.ARRAY:
-                return isPureType(((BArrayType) type).eType, unresolvedTypes);
-            case TypeTags.FINITE:
-                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(val -> val.type).collect(
-                                Collectors.toSet());
-                return isPureType(valSpaceTypes, unresolvedTypes);
-            default:
-                return false;
-        }
+        return isAnydata(type, unresolvedTypes) || type.tag == TypeTags.ERROR;
     }
 
     private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {

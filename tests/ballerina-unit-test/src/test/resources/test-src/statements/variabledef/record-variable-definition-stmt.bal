@@ -290,7 +290,7 @@ function testIgnoreVariable() returns (string, int) {
     return (name, age);
 }
 
-function testRecordVariableWithOnlyRestParam() returns map<anydata> {
+function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
     PersonWithAge p = { name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE" };
     PersonWithAge { ...rest } = p;
     return rest;
@@ -342,6 +342,6 @@ function testRestParameterType() returns (boolean, boolean, boolean, boolean, bo
     any a5 = other5;
     any a6 = other6;
 
-    return (a1 is map<anydata>, a2 is map<int>, a3 is map<any>, a4 is map<Object>, a5 is map<any>,
-                                                                    a5 is map<anydata>, a6 is map<anydata>);
+    return (a1 is map<anydata|error>, a2 is map<int>, a3 is map<any>, a4 is map<Object>, a5 is map<any>,
+                                                                    a5 is map<anydata>, a6 is map<anydata|error>);
 }
