@@ -27,6 +27,7 @@ import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2NoMoreStreamIdsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -146,7 +147,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     http2ClientChannel.getChannel().eventLoop().execute(() -> {
                         try {
                             writeOutboundRequest(ctx, httpContent);
-                        } catch (Http2Exception ex) {
+                        }
+                        catch (Http2NoMoreStreamIdsException ex) {
+                            //Remove connection from the pool
+                            http2ClientChannel.removeFromConnectionPool();
+                            LOG.warn("Channel is removed from the connection pool : ", ex.getMessage(), ex);
+                            outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
+                        }
+                        catch (Http2Exception ex) {
                             LOG.error("Failed to send the request : " + ex.getMessage(), ex);
                             outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                         }
