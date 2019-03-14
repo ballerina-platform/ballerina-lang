@@ -51,7 +51,8 @@ public type Filter object {
 # Creates a `Filter` object and return it.
 # + nextProcPointer - The function pointer to the `process` function of the next processor.
 # + conditionFunc - The function pointer to the condition evaluator. This is a function which returns true or false
-# based on the boolean expression given in the where clause.
+#                   based on the boolean expression given in the where clause.
+# + return - Returns a `Filter` object.
 public function createFilter(function (StreamEvent?[]) nextProcPointer,
                              function (map<anydata> o) returns boolean conditionFunc) returns Filter {
     Filter filter = new(nextProcPointer, conditionFunc);

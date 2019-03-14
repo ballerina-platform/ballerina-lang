@@ -238,6 +238,7 @@ public type StreamJoinProcessor object {
 # + joinType - Type of the join being performed ("JOIN"|"LEFTOUTERJOIN"|"RIGHTOUTERJOIN"|"FULLOUTERJOIN")
 # + confitionFunc - A lambda function which contains the joining condition and return true if the condition satifies
 #                   the condition.
+# + return - Returns a `StreamJoinProcessor` object.
 public function createStreamJoinProcessor(function (StreamEvent?[]) nextProcessor, JoinType joinType,
                                           (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)?
                                           conditionFunc = ())

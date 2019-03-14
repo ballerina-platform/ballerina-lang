@@ -50,6 +50,7 @@ public type OrderBy object {
 #            sorted by the first field, if there are elements of same value, the second field is used and so on.
 # + sortFieldMetadata - sortTypes of the fields (`streams:ASCENDING` or `streams:DESCENDING`). First element is the
 #                       sort type of the first element of `fields` and so on.
+# + return - Returns a `OrderBy` object.
 public function createOrderBy(function (StreamEvent?[]) nextProcessorPointer,
                               (function (map<anydata>) returns anydata)?[] fields, string[] sortFieldMetadata)
                     returns OrderBy {

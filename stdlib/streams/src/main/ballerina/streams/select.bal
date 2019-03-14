@@ -95,6 +95,9 @@ public type Select object {
     }
 
     # Creates a unique key for each group with the given values in the group by clause.
+    # + groupbyFunctionArray - Function pointer array to the lambda function which returns each group by field.
+    # + e - Stream Event object being grouped.
+    # + return - Returns a unique groupby key by which the event `e` is grouped.
     public function getGroupByKey(((function (StreamEvent o) returns anydata)?[])? groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
@@ -119,6 +122,7 @@ public type Select object {
 #                      in the group by clause.
 # + selectFunc - The function pointer to a lambda function that creates the `data` field of the output stream event.
 # + scopeName - A unique id to identify the forever block if there are multiple forever blocks.
+# + return - Returns a `Select` object.
 public function createSelect(function (StreamEvent?[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
                              ((function (StreamEvent o) returns anydata)?[])? groupbyFuncArray,

@@ -51,6 +51,7 @@ public type OutputProcess object {
 
 # Creates and return a `OutputProcess` object.
 # + outputFunc - The function pointer to a lambda function created out of the statements in the streaming action
+# + return - Returns a ` OutputProcess` object.
 public function createOutputProcess(function (map<anydata>[]) outputFunc) returns OutputProcess {
     OutputProcess outputProcess = new(outputFunc);
     return outputProcess;
