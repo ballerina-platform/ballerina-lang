@@ -162,7 +162,7 @@ type InstructionEmitter object {
             println(" ");
             self.opEmitter.emitOp(ins.detailsOp);
             println(";");
-        } else if (ins is TypeCast) { // TypeAssert will also come here
+        } else if (ins is TypeCast) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");

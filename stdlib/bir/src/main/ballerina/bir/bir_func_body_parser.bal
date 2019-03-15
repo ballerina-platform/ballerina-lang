@@ -83,12 +83,6 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
-        } else if (kindTag == INS_TYPE_ASSERT) {
-            kind = INS_KIND_TYPE_ASSERT;
-            var lhsOp = self.parseVarRef();
-            var rhsOp = self.parseVarRef();
-            TypeAssert typeAssert = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
-            return typeAssert;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
             var bType = self.typeParser.parseType();
