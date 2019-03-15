@@ -1,3 +1,5 @@
+import com.sun.org.apache.bcel.internal.util.ClassPath
+
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 configurations {
@@ -85,6 +87,8 @@ CopySpec copyResourceSpec = copySpec {
 }
 
 task generateIndex(type: JavaExec) {
+    outputs.dir("$buildDir/lib/tools/lang-server/resources")
+    outputs.cacheIf { true }
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
 }
