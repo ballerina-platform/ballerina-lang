@@ -92,6 +92,7 @@ public class LSIndexImpl implements LSIndex {
     public boolean saveIndexDump(Path path) {
         try {
             Script.process(connection, path.toString(), "", "");
+            return true;
         } catch (SQLException e) {
             logger.error("Error in Creating Index DB Dump.");
         }

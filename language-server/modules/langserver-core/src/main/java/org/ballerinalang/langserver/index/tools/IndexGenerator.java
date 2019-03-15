@@ -100,7 +100,10 @@ public class IndexGenerator {
         ClassLoader classLoader = indexGenerator.getClass().getClassLoader();
         File file = new File(Objects.requireNonNull(classLoader.getResource("")).getFile());
         String saveDumpPath = file.getAbsolutePath().replaceAll("classes.*", "");
-        lsIndex.saveIndexDump(Paths.get(saveDumpPath + "lib/tools/lang-server/resources/lang-server-index.sql"));
+        logger.info("Index Dump Path: " + saveDumpPath);
+        boolean status = lsIndex.saveIndexDump(Paths.get(saveDumpPath
+                + "lib/tools/lang-server/resources/lang-server-index.sql"));
+        logger.info("Index Dumped Status: " + status);
     }
 
     private void insertBLangPackages(List<BLangPackageContent> pkgContentList, LSIndexImpl lsIndex) {
