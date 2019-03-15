@@ -20,10 +20,12 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -44,6 +46,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -72,6 +75,7 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class BCompileUtil {
 
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+    private static final String MODULE_INIT_SUFFIX = "__init_";
 
     /**
      * Compile and return the semantic errors. Error scenarios cannot use this method.
@@ -389,7 +393,6 @@ public class BCompileUtil {
         return comResult;
     }
 
-
     private static CompileResult compileOnJBallerina(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
@@ -409,11 +412,29 @@ public class BCompileUtil {
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName);
-        compileResult.setCompiledJarFile(compiledJar);
-        compileResult.setEntryClassName(FileUtils.cleanupFileExtension(packageName));
+        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
+        String entryClassName = FileUtils.cleanupFileExtension(packageName);
+        Class<?> clazz = classLoader.loadClass(entryClassName);
+
+        // invoke the init function
+        String funcName;
+        PackageID pkgID = bLangPackage.packageID;
+        if (!pkgID.name.value.equalsIgnoreCase(".")) {
+            funcName = pkgID.orgName.value + "/" + pkgID.name.value + ":" + pkgID.version.value + MODULE_INIT_SUFFIX;
+        } else {
+            funcName = MODULE_INIT_SUFFIX;
+        }
+
+        try {
+            Method method = clazz.getDeclaredMethod(funcName, Strand.class);
+            method.invoke(null, new Strand());
+        } catch (Exception e) {
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        }
+
+        compileResult.setEntryClass(clazz);
         return compileResult;
     }
-
 
     /**
      * Compile and return the compiled package node.

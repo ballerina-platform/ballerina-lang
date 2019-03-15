@@ -38,7 +38,7 @@ import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 
 /**
- * Native class for the bir:getBIRModuleBinary function
+ * Native class for the bir:getBIRModuleBinary function.
  *
  * @since 0.995.0
  */

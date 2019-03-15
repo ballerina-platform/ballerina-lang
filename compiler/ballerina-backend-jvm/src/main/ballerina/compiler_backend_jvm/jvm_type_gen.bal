@@ -51,6 +51,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typ
     foreach var typeDef in typeDefs {
         fieldName = getTypeFieldName(typeDef.name.value);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
             mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
@@ -98,6 +99,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
             io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
             false);
+
     return;
 }
 
@@ -548,4 +550,33 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
 
     // initialize the function type using the param types array and the return type
     mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
+}
+
+function getTypeDesc(bir:BType bType) returns string {
+    if (bType is bir:BTypeInt) {
+        return "J";
+    } else if (bType is bir:BTypeFloat) {
+        return "D";
+    } else if (bType is bir:BTypeString) {
+        return io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeBoolean) {
+        return "Z";
+    } else if (bType is bir:BTypeByte) {
+        return "B";
+    } else if (bType is bir:BTypeNil) {
+        return io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BArrayType || bType is bir:BTupleType) {
+        return io:sprintf("L%s;", ARRAY_VALUE );
+    } else if (bType is bir:BErrorType) {
+        return io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BTypeAny ||
+               bType is bir:BTypeAnyData ||
+               bType is bir:BUnionType ||
+               bType is bir:BMapType ||
+               bType is bir:BRecordType) {
+        return io:sprintf("L%s;", OBJECT);
+    } else {
+        error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
+        panic err;
+    }
 }

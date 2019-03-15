@@ -102,16 +102,18 @@ public abstract class BIRNode {
         public BType type;
         public Name name;
         public VarKind kind;
+        public VarScope scope;
 
-        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarKind kind) {
+        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope, VarKind kind) {
             super(pos);
             this.type = type;
             this.name = name;
+            this.scope = scope;
             this.kind = kind;
         }
 
-        public BIRVariableDcl(BType type, Name name, VarKind kind) {
-            this(null, type, name, kind);
+        public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
+            this(null, type, name, scope, kind);
         }
 
         @Override
@@ -134,8 +136,9 @@ public abstract class BIRNode {
          */
         public Visibility visibility;
 
-        public BIRGlobalVariableDcl(DiagnosticPos pos, Visibility visibility, BType type, Name name, VarKind kind) {
-            super(pos, type, name, kind);
+        public BIRGlobalVariableDcl(DiagnosticPos pos, Visibility visibility, BType type,
+                                    Name name, VarScope scope, VarKind kind) {
+            super(pos, type, name, scope, kind);
             this.visibility = visibility;
         }
 

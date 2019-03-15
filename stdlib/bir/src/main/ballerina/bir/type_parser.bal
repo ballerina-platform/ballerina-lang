@@ -51,23 +51,23 @@ public type TypeParser object {
     public function parseType() returns BType {
         var typeTag = self.reader.readInt8();
         if (typeTag == self.TYPE_TAG_ANY){
-            return "any";
+            return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){
-            return "anydata";
+            return TYPE_ANYDATA;
         } else if (typeTag == self.TYPE_TAG_NONE ){
-            return "none";
+            return TYPE_NONE;
         } else if (typeTag == self.TYPE_TAG_NIL ){
-            return "()";
+            return TYPE_NIL;
         } else if (typeTag == self.TYPE_TAG_INT){
-            return "int";
+            return TYPE_INT;
         } else if (typeTag == self.TYPE_TAG_BYTE){
-            return "byte";
+            return TYPE_BYTE;
         } else if (typeTag == self.TYPE_TAG_FLOAT){
-            return "float";
+            return TYPE_FLOAT;
         } else if (typeTag == self.TYPE_TAG_STRING){
-            return "string";
+            return TYPE_STRING;
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
-            return "boolean";
+            return TYPE_BOOLEAN;
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
