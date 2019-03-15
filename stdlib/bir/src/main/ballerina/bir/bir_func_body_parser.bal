@@ -27,6 +27,13 @@ public type FuncBodyParser object {
             terminator: self.parseTerminator() };
     }
 
+    public function parseEE() returns ErrorEntry {
+        return { fromBlockId: { value: self.reader.readStringCpRef() },
+                 fromIp:  self.reader.readInt32(),
+                 toBlockId: { value: self.reader.readStringCpRef() },
+                 toIp: self.reader.readInt32() };
+    }
+
     public function parseInstruction() returns Instruction {
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;

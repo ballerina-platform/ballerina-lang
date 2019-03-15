@@ -30,6 +30,7 @@ public type TypeDef record {
 public type Function record {
     int argsCount = 0;
     BasicBlock[] basicBlocks = [];
+    ErrorEntry[] errorEntries = [];
     boolean isDeclaration = false;
     VariableDcl[] localVars = [];
     Name name = {};
@@ -41,6 +42,13 @@ public type BasicBlock record {
     Name id = {};
     Instruction[] instructions = [];
     Terminator terminator = {kind:"RETURN"};
+};
+
+public type ErrorEntry record {
+    Name fromBlockId;
+    int fromIp;
+    Name toBlockId;
+    int toIp;
 };
 
 public type Name record {

@@ -47,6 +47,9 @@ public type MethodVisitor object {
     public extern function visitEnd();
 
     public extern function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels);
+
+    public extern function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
+                            string exceptionType);
 };
 
 
