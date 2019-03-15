@@ -48,7 +48,7 @@ public class LSIndexImpl implements LSIndex {
             this.connection = DriverManager.getConnection(connectionURL);
             this.daoFactory = new DAOFactory(this.connection);
         } catch (ClassNotFoundException | SQLException e) {
-            logger.error("Error in Creating new Index DB Connection.");
+            logger.error("Error in Creating new Index DB Connection.\n" + e.getMessage());
         }
     }
 
