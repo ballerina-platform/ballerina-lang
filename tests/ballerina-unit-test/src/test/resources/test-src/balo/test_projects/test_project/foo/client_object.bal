@@ -24,4 +24,8 @@ public type DummyEndpoint client object {
     }
 };
 
-public DummyEndpoint dyEP = new;
+DummyEndpoint dyEP = new;
+
+public function getDummyEndpoint() returns DummyEndpoint {
+    return dyEP;
+}

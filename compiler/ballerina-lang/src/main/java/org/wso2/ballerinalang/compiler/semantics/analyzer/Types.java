@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -116,6 +117,8 @@ public class Types {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
+    private Names names;
+    private int finiteTypeCount = 0;
 
     private Stack<BType> typeStack;
 
@@ -135,6 +138,7 @@ public class Types {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeStack = new Stack<>();
+        this.names = Names.getInstance(context);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -204,6 +208,10 @@ public class Types {
 
     boolean isBasicNumericType(BType type) {
         return type.tag < TypeTags.STRING;
+    }
+
+    boolean finiteTypeContainsNumericTypeValues(BFiniteType finiteType) {
+        return finiteType.valueSpace.stream().anyMatch(valueExpr -> isBasicNumericType(valueExpr.type));
     }
 
     private boolean containsNumericType(BType type) {
@@ -534,15 +542,13 @@ public class Types {
             return true;
         }
 
+        if (source.tag == TypeTags.FINITE) {
+            return isFiniteTypeAssignable((BFiniteType) source, target, unresolvedTypes);
+        }
+
         if ((target.tag == TypeTags.UNION || source.tag == TypeTags.UNION) &&
                 isAssignableToUnionType(source, target, unresolvedTypes)) {
             return true;
-        }
-
-        // Check whether the source is a proper sub set of the target.
-        if (source.tag == TypeTags.FINITE && target.tag == TypeTags.FINITE) {
-            return ((BFiniteType) source).valueSpace.stream()
-                    .allMatch(expression -> isAssignableToFiniteType(target, (BLangLiteral) expression));
         }
 
         if (target.tag == TypeTags.JSON) {
@@ -866,6 +872,38 @@ public class Types {
         if ((expType.tag == TypeTags.UNION || expType.tag == TypeTags.FINITE) && isValueType(actualType)) {
             symbol = symResolver.resolveImplicitCastOp(actualType, symTable.anyType);
         }
+
+        if (symbol != symTable.notFoundSymbol) {
+            return symbol;
+        }
+
+        if (isValueType(expType) &&
+                (actualType.tag == TypeTags.FINITE ||
+                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
+                                 .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, expType))))) {
+            int code;
+            switch (expType.tag) {
+                case TypeTags.INT:
+                    code = InstructionCodes.ANY2I;
+                    break;
+                case TypeTags.BYTE:
+                    code = InstructionCodes.ANY2BI;
+                    break;
+                case TypeTags.FLOAT:
+                    code = InstructionCodes.ANY2F;
+                    break;
+                case TypeTags.STRING:
+                    code = InstructionCodes.ANY2S;
+                    break;
+                case TypeTags.BOOLEAN:
+                    code = InstructionCodes.ANY2B;
+                    break;
+                default:
+                    // for decimal or nil, no cast is required
+                    return symbol;
+            }
+            symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
+        }
         return symbol;
     }
 
@@ -915,13 +953,16 @@ public class Types {
         }
 
         if (isAssignable(sourceType, targetType)) {
-            if (isValueType(sourceType)) {
+            if (isValueType(sourceType) || isValueType(targetType)) {
                 return getImplicitCastOpSymbol(sourceType, targetType);
             }
             return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
         }
 
         if (isAssignable(targetType, sourceType)) {
+            if (isValueType(sourceType)) {
+                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+            }
             return symResolver.createTypeCastSymbol(sourceType, targetType);
         }
 
@@ -932,27 +973,46 @@ public class Types {
             }
         }
 
-        if (sourceType.tag == TypeTags.UNION) {
-            if (((BUnionType) sourceType).getMemberTypes().stream()
-                    .anyMatch(memType -> isAssignable(memType, targetType))) {
-                // string|int v1 = "hello world";
-                // string|boolean v2 = <string|boolean> v1;
-                return symResolver.createTypeCastSymbol(sourceType, targetType);
-            }
+        boolean validTypeCast = false;
 
-            if (targetType.tag == TypeTags.UNION) {
-                if (((BUnionType) targetType).getMemberTypes().stream()
-                        .anyMatch(targetMemType -> ((BUnionType) sourceType).getMemberTypes().stream()
-                                .anyMatch(sourceMemType -> isAssignable(targetMemType, sourceMemType)))) {
-                    // Where `BarRecord` is a subtype of `FooRecord`.
-                    // BarRecord b1 = { ... };
-                    // FooRecord|string v1 = b1;
-                    // BarRecord|int v2 = <BarRecord|int> v1;
-                    return symResolver.createTypeCastSymbol(sourceType, targetType);
-                }
+        if (sourceType.tag == TypeTags.UNION) {
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) sourceType, targetType)
+                    != symTable.semanticError) {
+                // string|typedesc v1 = "hello world";
+                // json|table<Foo> v2 = <json|table<Foo>> v1;
+                validTypeCast = true;
             }
         }
 
+        if (targetType.tag == TypeTags.UNION) {
+            if (getTypeForUnionTypeMembersAssignableToType((BUnionType) targetType, sourceType)
+                    != symTable.semanticError) {
+                // string|int v1 = "hello world";
+                // string|boolean v2 = <string|boolean> v1;
+                validTypeCast = true;
+            }
+        }
+
+        if (sourceType.tag == TypeTags.FINITE) {
+            if (getTypeForFiniteTypeValuesAssignableToType((BFiniteType) sourceType, targetType)
+                    != symTable.semanticError) {
+                validTypeCast = true;
+            }
+        }
+
+        if (targetType.tag == TypeTags.FINITE) {
+            if (getTypeForFiniteTypeValuesAssignableToType((BFiniteType) targetType, sourceType)
+                    != symTable.semanticError) {
+                validTypeCast = true;
+            }
+        }
+
+        if (validTypeCast) {
+            if (isValueType(sourceType)) {
+                setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+            }
+            return symResolver.createTypeCastSymbol(sourceType, targetType);
+        }
         return symTable.notFoundSymbol;
     }
 
@@ -1601,14 +1661,29 @@ public class Types {
             targetTypes.add(target);
         }
 
-        boolean notAssignable = sourceTypes
-                .stream()
-                .map(s -> targetTypes
-                        .stream()
-                        .anyMatch(t -> isAssignable(s, t, unresolvedTypes)))
-                .anyMatch(assignable -> !assignable);
+        return sourceTypes.stream()
+                .allMatch(s -> (targetTypes.stream()
+                                        .anyMatch(t -> isAssignable(s, t, unresolvedTypes))) ||
+                        (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes)));
+    }
 
-        return !notAssignable;
+    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, List<TypePair> unresolvedTypes) {
+        if (targetType.tag == TypeTags.FINITE) {
+            return finiteType.valueSpace.stream()
+                    .allMatch(expression -> isAssignableToFiniteType(targetType, (BLangLiteral) expression));
+        }
+
+        if (targetType.tag == TypeTags.UNION) {
+            List<BType> unionMemberTypes = getAllTypes(targetType);
+            return finiteType.valueSpace.stream()
+                    .allMatch(valueExpr ->  unionMemberTypes.stream()
+                            .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
+                                    isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
+                                    isAssignable(valueExpr.type, targetType, unresolvedTypes)));
+        }
+
+        return finiteType.valueSpace.stream()
+                .allMatch(expression -> isAssignable(expression.type, targetType, unresolvedTypes));
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
@@ -1699,6 +1774,105 @@ public class Types {
 
     boolean isByteLiteralValue(Long longObject) {
         return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
+    }
+
+    /**
+     * Method to retrieve a type representing all the values in the value space of a finite type that are assignable to
+     * the target type.
+     *
+     * @param finiteType the finite type
+     * @param targetType the target type
+     * @return           a new finite type if at least one value in the value space of the specified finiteType is
+     *                      assignable to targetType (the same if all are assignable), else semanticError
+     */
+    BType getTypeForFiniteTypeValuesAssignableToType(BFiniteType finiteType, BType targetType) {
+        // finiteType - type Foo "foo";
+        // targetType - type FooBar "foo"|"bar";
+        if (isAssignable(finiteType, targetType)) {
+            return finiteType;
+        }
+
+        // Identify all the values from the value space of the finite type that are assignable to the target type.
+        // e.g., finiteType - type Foo "foo"|1 ;
+        Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
+                .filter(
+                        // case I: targetType - string ("foo" is assignable to string)
+                        expr -> isAssignable(expr.type, targetType) ||
+                        // type FooVal "foo";
+                        // case II:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
+                        (targetType.tag == TypeTags.UNION &&
+                                 ((BUnionType) targetType).getMemberTypes().stream()
+                                         .filter(memType -> memType.tag == TypeTags.FINITE)
+                                         .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
+                                                                                            (BLangLiteral) expr))))
+                .collect(Collectors.toSet());
+
+        if (matchingValues.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        // Create a new finite type representing the assignable values.
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
+                                                                names.fromString("$anonType$" + finiteTypeCount++),
+                                                                finiteType.tsymbol.pkgID, null,
+                                                                finiteType.tsymbol.owner);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
+        finiteTypeSymbol.type = intersectingFiniteType;
+        return intersectingFiniteType;
+    }
+
+    /**
+     * Method to retrieve a type representing all the member types of a union type that are assignable to
+     * the target type.
+     *
+     * @param unionType  the union type
+     * @param targetType the target type
+     * @return           a single type or a new union type if at least one member type of the union type is
+     *                      assignable to targetType, else semanticError
+     */
+    BType getTypeForUnionTypeMembersAssignableToType(BUnionType unionType, BType targetType) {
+        List<BType> intersection = new LinkedList<>();
+
+        // type FooOne "foo"|1;
+        // type FooBar "foo"|"bar";
+        // unionType - boolean|FooOne, targetType - boolean|FooBar
+        unionType.getMemberTypes().forEach(memType -> {
+            if (memType.tag == TypeTags.FINITE) {
+                // since "foo" of FooOne is assignable to FooBar, a new finite type of only "foo" would be returned
+                BType finiteTypeWithMatches = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) memType,
+                                                                                         targetType);
+                if (finiteTypeWithMatches != symTable.semanticError) {
+                    intersection.add(finiteTypeWithMatches);
+                }
+            } else {
+                // boolean is assignable to boolean, thus boolean is added as a member type
+                if (isAssignable(memType, targetType)) {
+                    intersection.add(memType);
+                }
+            }
+        });
+
+        if (intersection.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        if (intersection.size() > 1 && intersection.stream().filter(type -> type.tag == TypeTags.FINITE).count() > 1) {
+            // merge > 1 finite types into one finite type
+            Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+            intersection.forEach(bType -> {
+                if (bType.tag == TypeTags.FINITE) {
+                    intersection.remove(bType);
+                    valueSpace.addAll(((BFiniteType) bType).valueSpace);
+                }
+            });
+            intersection.add(new BFiniteType(null, valueSpace));
+        }
+
+        if (intersection.size() == 1) {
+            return intersection.get(0);
+        } else {
+            return BUnionType.create(null, new LinkedHashSet<>(intersection));
+        }
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
@@ -1993,17 +2167,34 @@ public class Types {
     }
 
     public BType getRemainingType(BType originalType, BType typeToRemove) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
+        switch (originalType.tag) {
+            case TypeTags.UNION:
+                return getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove));
+            case TypeTags.FINITE:
+                return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
+            default:
+                return originalType;
         }
-
-        List<BType> removeTypes = getAllTypes(typeToRemove);
-        return getRemainingType(originalType, removeTypes);
     }
 
-    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+    private BType getRemainingType(BUnionType originalType, List<BType> removeTypes) {
         List<BType> remainingTypes = getAllTypes(originalType);
         removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isAssignable(type, removeType)));
+
+        List<BType> finiteTypesToRemove = new ArrayList<>();
+        List<BType> finiteTypesToAdd = new ArrayList<>();
+        for (BType remainingType : remainingTypes) {
+            if (remainingType.tag == TypeTags.FINITE) {
+                BFiniteType finiteType = (BFiniteType) remainingType;
+                finiteTypesToRemove.add(finiteType);
+                BType remainingTypeWithMatchesRemoved = getRemainingType(finiteType, removeTypes);
+                if (remainingTypeWithMatchesRemoved != symTable.semanticError) {
+                    finiteTypesToAdd.add(remainingTypeWithMatchesRemoved);
+                }
+            }
+        }
+        remainingTypes.removeAll(finiteTypesToRemove);
+        remainingTypes.addAll(finiteTypesToAdd);
 
         if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);
@@ -2014,6 +2205,37 @@ public class Types {
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
+    }
+
+    private BType getRemainingType(BFiniteType originalType, List<BType> removeTypes) {
+        Set<BLangExpression> remainingValueSpace = new LinkedHashSet<>();
+
+        for (BLangExpression valueExpr : originalType.valueSpace) {
+            boolean matchExists = false;
+            for (BType remType : removeTypes) {
+                if (isAssignable(valueExpr.type, remType) ||
+                        isAssignableToFiniteType(remType, (BLangLiteral) valueExpr)) {
+                    matchExists = true;
+                    break;
+                }
+            }
+
+            if (!matchExists) {
+                remainingValueSpace.add(valueExpr);
+            }
+        }
+
+        if (remainingValueSpace.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
+                                                                names.fromString("$anonType$" + finiteTypeCount++),
+                                                                originalType.tsymbol.pkgID, null,
+                                                                originalType.tsymbol.owner);
+        BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
+        finiteTypeSymbol.type = intersectingFiniteType;
+        return intersectingFiniteType;
     }
 
     public BType getSafeType(BType type, boolean liftError) {
@@ -2095,16 +2317,11 @@ public class Types {
 
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
-        if (type.getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.NIL)) {
+        if (type.isNullable()) {
             return true;
         }
 
-        // Value space contains nil.
-        if (type.getMemberTypes().stream().anyMatch(BType::isNullable)) {
-            return true;
-        }
-
-        // All members are of same type and has the implicit initial value as a member.
+        // All members are of same type.
         Iterator<BType> iterator = type.iterator();
         BType firstMember;
         for (firstMember = iterator.next(); iterator.hasNext(); ) {
@@ -2113,7 +2330,7 @@ public class Types {
             }
         }
         // Control reaching this point means there is only one type in the union.
-        return hasImplicitInitialValue(firstMember);
+        return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
     }
 
     private boolean analyzeObjectType(BObjectType type) {

@@ -43,8 +43,6 @@ import org.ballerinalang.stdlib.utils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.util.Lists;
-import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -56,8 +54,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
@@ -327,8 +323,8 @@ public class RequestNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/getJsonPayload";
         String jsonString = "{\"" + key + "\":\"" + value + "\"}";
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         HTTPTestRequest inRequestMsg =
                 MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, jsonString);
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
@@ -380,8 +376,8 @@ public class RequestNativeFunctionSuccessTest {
     public void testServiceGetTextPayload() {
         String value = "ballerina";
         String path = "/hello/GetTextPayload";
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
         HTTPTestRequest inRequestMsg =
                 MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, value);
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
@@ -433,8 +429,8 @@ public class RequestNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/GetXmlPayload";
         String bxmlItemString = "<name>ballerina</name>";
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_XML));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_XML);
         HTTPTestRequest inRequestMsg =
                 MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, bxmlItemString);
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
@@ -472,8 +468,8 @@ public class RequestNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/GetByteChannel";
         String jsonString = "{\"" + key + "\":\"" + value + "\"}";
-        List<Header> headers = new ArrayList<>();
-        headers.add(new Header("Content-Type", APPLICATION_JSON));
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add("Content-Type", APPLICATION_JSON);
         HTTPTestRequest inRequestMsg =
                 MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, jsonString);
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
@@ -716,8 +712,9 @@ public class RequestNativeFunctionSuccessTest {
         CompileResult service = BServiceUtil.setupProgramFile(this,
                 "test-src/services/nativeimpl/request/get_request_as_string_and_json.bal");
         String payload = "{ \"foo\" : \"bar\"}";
-        Header header = new Header(HttpHeaderNames.CONTENT_TYPE.toString(), MimeConstants.APPLICATION_JSON);
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", Lists.of(header), payload);
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), MimeConstants.APPLICATION_JSON);
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", headers, payload);
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "bar");
     }
