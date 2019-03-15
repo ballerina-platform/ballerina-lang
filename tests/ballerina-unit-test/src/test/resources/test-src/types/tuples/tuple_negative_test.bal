@@ -71,16 +71,24 @@ function testInvalidInsertionToTuple() {
     string|boolean x = tuple[index]; // incompatible types: expected 'string|boolean', found 'string|boolean|int'
 }
 
+const SIX = 6;
+
 type FiniteOne "S1"|"S2";
 type FiniteTwo 3|4|5;
 type FiniteThree 0|1|2|"S1";
+type FiniteFour FiniteThree|"S2";
+type FiniteFive FiniteTwo|SIX;
 
 function testInvalidInsertionToTupleUsingFiniteType() {
     (string, boolean, int) tuple = ("str", true, 10);
     FiniteOne f1 = "S1";
     FiniteTwo f2 = 3;
     FiniteThree f3 = 2;
-    var x = tuple[f1]; // invalid tuple index expression: value space 'S1|S2' out of range
-    var y = tuple[f2]; // invalid tuple index expression: value space '3|4|5' out of range
-    var z = tuple[f3]; // invalid tuple index expression: value space '0|1|2|S1' out of range
+    FiniteFour f4 = 0;
+    FiniteFive f5 = 3;
+    var a = tuple[f1]; // incompatible types: expected 'int', found 'S1|S2'
+    var b = tuple[f2]; // invalid tuple index expression: value space '3|4|5' out of range
+    var c = tuple[f3]; // incompatible types: expected 'int', found '0|1|2|S1'
+    var d = tuple[f4]; // incompatible types: expected 'int', found '0|1|2|S1|S2'
+    var e = tuple[f5]; // invalid tuple index expression: value space '3|4|5|6' out of range
 }

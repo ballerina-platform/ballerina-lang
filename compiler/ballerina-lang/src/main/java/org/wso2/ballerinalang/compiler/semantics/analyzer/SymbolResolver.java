@@ -569,9 +569,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                     return createTypeCastSymbol(sourceType, targetType);
                 case TypeTags.UNION:
                     if (((BUnionType) sourceType).getMemberTypes().stream()
-                            .anyMatch(memType -> types.isBasicNumericType(memType))) {
+                            .anyMatch(memType -> types.isBasicNumericType(memType) ||
+                                    (memType.tag == TypeTags.FINITE &&
+                                            types.finiteTypeContainsNumericTypeValues((BFiniteType) memType)))) {
                         return createTypeCastSymbol(sourceType, targetType);
                     }
+                    break;
+                case TypeTags.FINITE:
+                    if (types.finiteTypeContainsNumericTypeValues((BFiniteType) sourceType)) {
+                        return createTypeCastSymbol(sourceType, targetType);
+                    }
+                    break;
             }
         }
         return symTable.notFoundSymbol;

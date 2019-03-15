@@ -42,6 +42,11 @@ public class BFiniteType extends BType implements FiniteType {
         valueSpace = new LinkedHashSet<>();
     }
 
+    public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {
+        super(TypeTags.FINITE, tsymbol);
+        this.valueSpace = valueSpace;
+    }
+
     @Override
     public Set<BLangExpression> getValueSpace() {
         return valueSpace;
