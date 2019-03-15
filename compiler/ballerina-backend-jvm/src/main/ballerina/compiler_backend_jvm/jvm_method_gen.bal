@@ -1,7 +1,8 @@
-function generateMethod(bir:Function func, jvm:ClassWriter cw, string className) {
-    int lambdaIndex = 0;
+function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
+    string currentPackageName = getPackageName(module.org.value, module.name.value);
+
     BalToJVMIndexMap indexMap = new;
-    string funcName = untaint func.name.value;
+    string funcName = cleanupFunctionName(untaint func.name.value);
     int returnVarRefIndex = -1;
 
     // generate method desc
@@ -79,7 +80,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
         i = i + 1;
     }
 
-    TerminatorGenerator termGen = new(mv, indexMap, labelGen);
+    TerminatorGenerator termGen = new(mv, indexMap, labelGen, module);
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -111,7 +112,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
         int m = 0;
         while (m < bb.instructions.length()) {
             bir:Instruction inst = bb.instructions[m];
-            InstructionGenerator instGen = new(mv, indexMap);
+            InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
@@ -135,7 +136,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
                     instGen.generateArrayValueLoad(inst);
                 }
             } else {
-                error err = error( "JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
             }
             m += 1;
@@ -152,7 +153,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
-            termGen.genCallTerm(terminator, funcName, className);
+            // termGen.genCallTerm(terminator, funcName);
+            termGen.genAsyncCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -201,7 +203,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", MAP_VALUE));
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType is bir:BArrayType) {
+        } else if (bType is bir:BArrayType ||
+                    bType is bir:BTupleType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", ARRAY_VALUE));
             mv.visitVarInsn(ASTORE, index);
@@ -266,7 +269,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
-        } else if (bType is bir:BArrayType) {
+        } else if (bType is bir:BArrayType || 
+                    bType is bir:BTupleType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", ARRAY_VALUE));
@@ -326,7 +330,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, string className)
 }
 
 function generateLambdaMethod(bir:Call callIns, jvm:ClassWriter cw, string className, string lambdaName) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, "lambda$stamp$0", "([Ljava/lang/Object;)Ljava/lang/Object;", null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, lambdaName, 
+                                "([Ljava/lang/Object;)Ljava/lang/Object;", null, null);
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
 
@@ -378,7 +383,9 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
-                bType is bir:BRecordType) {
+                bType is bir:BRecordType ||
+                bType is bir:BTupleType ||
+                bType is bir:BTypeAnyData) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -392,7 +399,7 @@ function getMethodDesc(bir:BType[] paramTypes, bir:BType retType) returns string
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
     while (i < paramTypes.length()) {
-        desc = desc + getTypeDesc(paramTypes[i]);
+        desc = desc + getArgTypeSignature(paramTypes[i]);
         i += 1;
     }
     string returnType = generateReturnType(retType);
@@ -401,7 +408,7 @@ function getMethodDesc(bir:BType[] paramTypes, bir:BType retType) returns string
     return desc;
 }
 
-function getTypeDesc(bir:BType bType) returns string {
+function getArgTypeSignature(bir:BType bType) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeFloat) {
@@ -414,16 +421,14 @@ function getTypeDesc(bir:BType bType) returns string {
         return "B";
     } else if (bType is bir:BTypeNil) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
-        return io:sprintf("L%s;", MAP_VALUE);
-    } else if (bType is bir:BArrayType) {
-        return io:sprintf("L%s;", ARRAY_VALUE);
+    } else if (bType is bir:BArrayType || bType is bir:BTupleType) {
+        return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAny ||
-                bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAny || bType is bir:BTypeAnyData || bType is bir:BUnionType) {
         return io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
+        return io:sprintf("L%s;", MAP_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -445,9 +450,11 @@ function generateReturnType(bir:BType? bType) returns string {
         return ")B";
     } else if (bType is bir:BTypeNil) {
         return ")V";
-    } else if (bType is bir:BArrayType) {
+    } else if (bType is bir:BArrayType ||
+                bType is bir:BTupleType) {
         return io:sprintf(")L%s;", ARRAY_VALUE);
-    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
+    } else if (bType is bir:BMapType || 
+                bType is bir:BRecordType) {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BErrorType) {
         return io:sprintf(")L%s;", ERROR_VALUE);
@@ -476,7 +483,18 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 
-    // todo : generate the global var init class and other crt0 loading
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
+    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
+
+    if (hasInitFunction(pkg)) {
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, mainClass, "__init_", "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;",
+                            false);
+        mv.visitInsn(POP);
+    }
+
     generateUserDefinedTypes(mv, pkg.typeDefs);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
@@ -504,9 +522,6 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     // invoke the user's main method
-    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
-
     mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);
 
     if (!isVoidFunction) {
@@ -591,6 +606,15 @@ function generateObjectCast(bir:BType targetType, jvm:MethodVisitor mv) {
     }
 }
 
+function hasInitFunction(bir:Package pkg) returns boolean {
+    foreach var func in pkg.functions {
+        if (func.name.value == "..<init>") {
+            return true;
+        }
+    }
+    return false;
+}
+
 function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array
     mv.visitVarInsn(ALOAD, 0);
@@ -660,7 +684,7 @@ type BalToJVMIndexMap object {
 function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     foreach var func in pkg.functions {
         var currentFunc = untaint func;
-        var frameName = currentFunc.name.value + "Frame";
+        var frameName = cleanupFunctionName(currentFunc.name.value) + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
         generateDefaultConstructor(cw);
@@ -695,7 +719,8 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
             } else if (bType is bir:BRecordType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
                 fv.visitEnd();
-            } else if (bType is bir:BArrayType) {
+            } else if (bType is bir:BArrayType ||
+                        bType is bir:BTupleType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", ARRAY_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BErrorType) {
@@ -734,4 +759,8 @@ function generateDefaultConstructor(jvm:ClassWriter cw) {
     mv.visitInsn(RETURN);
     mv.visitMaxs(1, 1);
     mv.visitEnd();
+}
+
+function cleanupFunctionName(string functionName) returns string {
+    return functionName.replaceFirst("..<", "__").replaceFirst(">", "_");
 }

@@ -22,20 +22,24 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
- * Code generation for a ballerina function pointer.
+ * Code generation for invoke dynamic instruction.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
         functionName = "visitInvokeDynamicInsn",
+        receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR, structPackage = JVM_PKG_PATH),
         args = {
                 @Argument(name = "className", type = STRING),
                 @Argument(name = "lambdaName", type = STRING),
@@ -50,7 +54,7 @@ public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
         String lambdaName = context.getStringArgument(1);
 
 
-        //Function<Object[], Object> - create a dynamic lambda invocation with object[] param and returns []
+        //Function<Object[], Object> - create a dynamic lambda invocation with object[] param and returns object
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
         mv.visitInvokeDynamicInsn("apply", "()Ljava/util/function/Function;",
                 new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",

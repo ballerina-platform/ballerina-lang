@@ -1,5 +1,5 @@
 public type ConstPool record {
-    PackageId[] packages = [];
+    ModuleID[] packages = [];
     string[] strings = [];
     int[] ints = [];
     float[] floats = [];
@@ -34,7 +34,7 @@ public type ConstPoolParser object {
         } else if (cpType == 4){
             self.parseString();
         } else if (cpType == 5){
-            self.parsePackageId();
+            self.parseModuleID();
         } else {
             error err = error("cp type " + cpType + " not supported.:");
             panic err;
@@ -53,10 +53,10 @@ public type ConstPoolParser object {
         self.cp.strings[self.i] = self.reader.readString();
     }
 
-    function parsePackageId() {
-        PackageId id = { org: self.cp.strings[self.reader.readInt32()],
+    function parseModuleID() {
+        ModuleID id = { org: self.cp.strings[self.reader.readInt32()],
             name: self.cp.strings[self.reader.readInt32()],
-            varstionVallue: self.cp.strings[self.reader.readInt32()] };
+            modVersion: self.cp.strings[self.reader.readInt32()] };
         self.cp.packages[self.i] = id;
     }
 

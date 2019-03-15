@@ -283,4 +283,77 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * A type assert expression.
+     * <p>
+     * e.g., int a = assert(int) b;
+     *
+     * @since 0.995.0
+     */
+    public static class TypeAssert extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public TypeAssert(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_ASSERT);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A is like instruction.
+     * <p>
+     * e.g., a isLike b
+     *
+     * @since 0.980.0
+     */
+    public static class IsLike extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public IsLike(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.IS_LIKE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A type test instruction.
+     * <p>
+     * e.g., a is int
+     *
+     * @since 0.980.0
+     */
+    public static class TypeTest extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public TypeTest(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_TEST);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

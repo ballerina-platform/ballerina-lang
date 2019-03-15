@@ -22,10 +22,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
+/**
+ * Simple scheduler for JBallerina.
+ */
 public class Scheduler {
 
 
-    public static Strand schedule(Function function, Object[] params) {
+    public static Strand schedule(Object[] params, Function function) {
         Strand strand = new Strand();
         // find the return type based on type
         ExecutorService executorService = Executors.newSingleThreadExecutor();
