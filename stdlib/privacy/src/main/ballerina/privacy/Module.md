@@ -43,7 +43,7 @@ public function main(string pii) returns error? {
         // Create a storage that uses a H2 database to persist personally identifiable information (PII).
         privacy:H2PiiStore piiStore = new(testDB, TABLE_NAME, ID_CLOUMN, PII_COLUMN);
 
-        // Store PII information in the storage and take a pseudonymized identifier (UUID) representing stored data.
+        // Store PII information in the storage and take a pseudonymized identifier (UUID) representing the stored data.
         var pseudonymizedPii = privacy:pseudonymize(piiStore, pii);
         if (pseudonymizedPii is string) {
             io:println("Pseudonymized identifier: " + pseudonymizedPii);
