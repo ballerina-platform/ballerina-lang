@@ -23,13 +23,7 @@ public type FuncBodyParser object {
             i += 1;
         }
 
-        var ins = Instruction[].stamp(instructions);
-        if (ins is Instruction[]) {
-            return { id: { value: id }, instructions: ins, terminator: self.parseTerminator() };
-        } else {
-            error err = error("error while parsing instructions");
-            panic err;
-        }
+        return { id: { value: id }, instructions: instructions, terminator: self.parseTerminator() };
     }
 
     public function parseInstruction() returns Instruction {
@@ -189,6 +183,7 @@ public type FuncBodyParser object {
         var kind = parseVarKind(self.reader);
         var varScope = parseVarScope(self.reader);
         var varName = self.reader.readStringCpRef();
+
         var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName);
         return {typeValue : decl.typeValue, variableDcl : decl};
     }
@@ -235,20 +230,19 @@ public type FuncBodyParser object {
 
 function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName) returns VariableDcl {
     if (varScope == VAR_SCOPE_GLOBAL) {
-        var posibalDcl = globalVarMap[varName];
-        if (posibalDcl is VariableDcl) {
-            return posibalDcl;
+        var possibleDcl = globalVarMap[varName];
+        if (possibleDcl is VariableDcl) {
+            return possibleDcl;
         } else {
             error err = error("global var missing " + varName);
             panic err;
         }
     }
-    var posibalDcl = localVarMap[varName];
-    if (posibalDcl is VariableDcl) {
-        return posibalDcl;
+    var possibleDcl = localVarMap[varName];
+    if (possibleDcl is VariableDcl) {
+        return possibleDcl;
     } else {
         error err = error("local var missing " + varName);
         panic err;
     }
 }
-

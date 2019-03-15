@@ -116,7 +116,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         // generate instructions
         int m = 0;
         while (m < bb.instructions.length()) {
-            bir:Instruction inst = bb.instructions[m];
+            bir:Instruction? inst = bb.instructions[m];
             InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);

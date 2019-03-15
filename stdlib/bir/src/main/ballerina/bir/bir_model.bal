@@ -31,16 +31,19 @@ public type Function record {
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
+    !...;
 };
 
 public type BasicBlock record {
     Name id = {};
-    Instruction[] instructions?;
+    Instruction?[] instructions = [];
     Terminator terminator = {kind:"RETURN"};
+    !...;
 };
 
 public type Name record {
     string value = "";
+    !...;
 };
 
 public const BINARY_ADD = "ADD";

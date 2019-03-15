@@ -109,7 +109,7 @@ public type PackageParser object {
             basicBlocks[i] = bodyParser.parseBB();
             i += 1;
         }
-        
+
         var result = BasicBlock[].stamp(basicBlocks);
         if (result is BasicBlock[]) {
             return result;

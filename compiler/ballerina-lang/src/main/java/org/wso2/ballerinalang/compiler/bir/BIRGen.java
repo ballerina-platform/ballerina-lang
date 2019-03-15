@@ -163,7 +163,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.functions.add(birFunc);
         this.env.enclFunc = birFunc;
 
-        if (astFunc.symbol.retType.tag != TypeTags.NIL) {
+        if (astFunc.symbol.retType != null && astFunc.symbol.retType.tag != TypeTags.NIL) {
             // Special %0 location for storing return values
             BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.pos, astFunc.symbol.retType,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);

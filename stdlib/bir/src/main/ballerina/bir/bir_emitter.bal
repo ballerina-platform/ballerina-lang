@@ -90,8 +90,10 @@ public type BirEmitter object {
 
     function emitBasicBlock(BasicBlock bBasicBlock, string tabs) {
         println(tabs, bBasicBlock.id.value, " {");
-        foreach var i in bBasicBlock.instructions {
-            self.insEmitter.emitIns(i, tabs = tabs + "\t");
+        foreach var ins in bBasicBlock.instructions {
+            if (ins is Instruction) {
+                self.insEmitter.emitIns(ins, tabs = tabs + "\t");
+            }
         }
         self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs + "\t");
         println(tabs, "}");
