@@ -62,7 +62,7 @@ function write_to_properties_file() {
 function install_ballerina() {
     local ballerina_version=$1
     wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-${ballerina_version}.zip --quiet
-    unzip ballerina-${ballerina_version}.zip -d ${utils_parent_path}
+    unzip -q ballerina-${ballerina_version}.zip -d ${utils_parent_path}
     ${utils_parent_path}/ballerina-${ballerina_version}/bin/ballerina version
     readonly ballerina_home=${utils_parent_path}/ballerina-${ballerina_version}
 }
@@ -75,8 +75,6 @@ function download_and_extract_mysql_connector() {
     wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
     tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ${download_location}
-
-    ls ${download_location}/mysql-connector-java-5.1.47
 }
 
 # Generates a random namespace name
