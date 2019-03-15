@@ -20,6 +20,7 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -34,6 +35,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.lang.reflect.InvocationTargetException;
@@ -297,6 +299,18 @@ public class BRunUtil {
             case TypeTags.STRING_TAG:
                 result = new BString((String) jvmResult);
                 break;
+            case TypeTags.ARRAY_TAG:
+                if (((BArrayType) bvmReturnType).getElementType().tag == TypeTags.INT_TAG) {
+                    int size = ((ArrayValue) jvmResult).size();
+                    long[] ints = new long[size];
+                    for (int i = 0; i < size; i++) {
+                        ints[i] = ((ArrayValue) jvmResult).getInt(i);
+                    }
+                    result = new BValueArray(ints);
+                    break;
+                }
+                throw new RuntimeException("Function invocation result for type '" + bvmReturnType + "' " +
+                        "is not supported");
             default:
                 throw new RuntimeException("Function invocation result for type '" + bvmReturnType + "' " +
                         "is not supported");
