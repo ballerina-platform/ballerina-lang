@@ -32,7 +32,7 @@
         </groups>
 
         <classes>
-            <class name="org.ballerinalang.test.service.http.HttpBaseTest"/>
+            <!--<class name="org.ballerinalang.test.service.http.HttpBaseTest"/>-->
             <class name="org.ballerinalang.test.service.http.configuration.AcceptEncodingHeaderTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpHeaderTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
@@ -86,7 +86,7 @@
 
     <test name="ballerina-http2-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.service.http2.Http2BaseTest"/>
+            <!--<class name="org.ballerinalang.test.service.http2.Http2BaseTest"/>-->
             <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ToHttp1FallbackTestCase"/>
             <class name="org.ballerinalang.test.service.http2.RedirectTestCase"/>
@@ -100,7 +100,7 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
+            <!--<class name="org.ballerinalang.test.auth.AuthBaseTest"/>-->
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceAuthDisableTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
@@ -118,7 +118,7 @@
 
     <test name="ballerina-filter-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.filter.FilterTestCommons"/>
+            <!--<class name="org.ballerinalang.test.filter.FilterTestCommons"/>-->
             <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
             <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
             <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
@@ -139,7 +139,7 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
+            <!--<class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>-->
             <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>
@@ -172,7 +172,7 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>-->
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
@@ -205,7 +205,7 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
@@ -218,7 +218,7 @@
 
     <test name="ballerina-security-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
+            <!--<class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>-->
         </classes>
     </test>
 
