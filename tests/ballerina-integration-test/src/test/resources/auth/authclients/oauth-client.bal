@@ -20,11 +20,16 @@ http:Client clientEP1 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         config: {
-            refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
-            clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-            clientSecret: "9205371918321623741",
-            refreshUrl: "https://localhost:9095/foo/token",
-            credentialBearer: http:POST_BODY_BEARER
+            grantType: http:DIRECT_TOKEN,
+            config: {
+                refreshConfig: {
+                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741",
+                    refreshUrl: "https://localhost:9095/foo/token",
+                    credentialBearer: http:POST_BODY_BEARER
+                }
+            }
         }
     }
 });
@@ -33,11 +38,16 @@ http:Client clientEP2 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         config: {
-            refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
-            clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-            clientSecret: "9205371918321623741",
-            refreshUrl: "https://localhost:9095/foo/token",
-            credentialBearer: http:AUTH_HEADER_BEARER
+            grantType: http:DIRECT_TOKEN,
+            config: {
+                refreshConfig: {
+                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741",
+                    refreshUrl: "https://localhost:9095/foo/token",
+                    credentialBearer: http:AUTH_HEADER_BEARER
+                }
+            }
         }
     }
 });
@@ -46,10 +56,15 @@ http:Client clientEP3 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         config: {
-            refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
-            clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-            clientSecret: "9205371918321623741",
-            refreshUrl: "https://localhost:9095/foo/token"
+            grantType: http:DIRECT_TOKEN,
+            config: {
+                refreshConfig: {
+                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741",
+                    refreshUrl: "https://localhost:9095/foo/token"
+                }
+            }
         }
     }
 });
@@ -57,12 +72,17 @@ http:Client clientEP3 = new("https://localhost:9095/foo", config = {
 http:Client clientEP4 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
-        config : {
-            refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
-            clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-            clientSecret: "9205371918321623741",
-            refreshUrl: "https://localhost:9095/foo/token",
-            scopes: ["token-scope1", "token-scope2"]
+        config: {
+            grantType: http:DIRECT_TOKEN,
+            config: {
+                refreshConfig: {
+                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741",
+                    refreshUrl: "https://localhost:9095/foo/token",
+                    scopes: ["token-scope1", "token-scope2"]
+                }
+            }
         }
     }
 });
@@ -71,14 +91,18 @@ http:Client clientEP5 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         config: {
-            refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
-            clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-            clientSecret: "9205371918321623741",
-            refreshUrl: "https://localhost:9095/foo/token",
-            credentialBearer: http:POST_BODY_BEARER,
-            scopes: ["token-scope1", "token-scope2"]
+            grantType: http:DIRECT_TOKEN,
+            config: {
+                refreshConfig: {
+                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741",
+                    refreshUrl: "https://localhost:9095/foo/token",
+                    credentialBearer: http:POST_BODY_BEARER,
+                    scopes: ["token-scope1", "token-scope2"]
+                }
+            }
         }
-
     }
 });
 
