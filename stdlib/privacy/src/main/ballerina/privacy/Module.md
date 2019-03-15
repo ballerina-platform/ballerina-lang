@@ -9,7 +9,8 @@ A pseudonymized identifier will be issued by the `pseudonymize` function
  for a provided PII. The actual PII value will be stored in the selected
  pluggable `PII Store`. The issued identifier can be used to represent
  the particular PII in other locations. The `depseudonymize` function
- can be used to get the actual PII value, give the pseudonymized
+ can be used to obtain the actual PII value and give the pseudonymized
+`` 
  identifier. PII can be deleted from the storage using the `delete`
  function.
 
