@@ -85,9 +85,8 @@ public class TestExhaustedStreamIdForClient {
             HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration, connectionManager);
     }
 
-    @Test(description =
-              "Test that once the stream ids are exhausted for a connection, the next request issued by the same " +
-                  "client should not fail")
+    @Test(description = "Once the stream ids are exhausted for a connection, the next request issued by the same " +
+        "client should not fail")
     public void testExhaustedStreamId() throws Http2Exception {
         String testValue = "Test Message";
 
