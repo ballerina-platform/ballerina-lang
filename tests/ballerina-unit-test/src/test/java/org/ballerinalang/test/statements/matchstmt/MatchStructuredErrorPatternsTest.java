@@ -149,7 +149,7 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 32, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 47, 30);
+                "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 47, 28);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 58, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 63, 13);
