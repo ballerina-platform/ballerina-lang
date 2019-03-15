@@ -99,7 +99,7 @@ public class IndexGenerator {
         indexGenerator.insertBLangPackages(bPackageSymbolDTOs, lsIndex);
         ClassLoader classLoader = indexGenerator.getClass().getClassLoader();
         File file = new File(Objects.requireNonNull(classLoader.getResource("")).getFile());
-        String saveDumpPath = file.getAbsolutePath().replace("classes", "");
+        String saveDumpPath = file.getAbsolutePath().replaceAll("classes.*", "");
         lsIndex.saveIndexDump(Paths.get(saveDumpPath + "lib/tools/lang-server/resources/lang-server-index.sql"));
     }
 

@@ -20,6 +20,7 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
+    implementation 'org.slf4j:slf4j-jdk14:1.7.22'
     testCompile 'org.testng:testng:6.13.1'
 }
 

@@ -85,6 +85,7 @@ CopySpec copyResourceSpec = copySpec {
 }
 
 task generateIndex(type: JavaExec) {
+    systemProperty("ballerina.home", "$buildDir")
     outputs.dir("$buildDir/lib/tools/lang-server/resources")
     outputs.cacheIf { true }
     classpath = sourceSets.main.runtimeClasspath
@@ -102,12 +103,10 @@ artifacts {
 
 build {
     dependsOn createZip
-    // Enable when the path issue fixed
-//    dependsOn generateIndex
+    dependsOn generateIndex
 }
 
 test {
-    exclude '**/*'
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "experimental", "true"
     useTestNG() {
