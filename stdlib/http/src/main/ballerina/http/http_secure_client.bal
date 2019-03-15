@@ -459,7 +459,7 @@ function isValidAccessToken() returns boolean {
     return false;
 }
 
-type RefreshRequestConfig record {
+type RequestConfig record {
     string payload;
     string clientId;
     string clientSecret;
@@ -474,7 +474,7 @@ type RefreshRequestConfig record {
 # + return - Access token received or `error` if error occured during HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(PasswordGrantConfig config) returns string|error {
     Client authorizationClient = check createClient(config.tokenUrl, {});
-    RefreshRequestConfig requestConfig = {
+    RequestConfig requestConfig = {
         payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
         clientId: config.clientId,
         clientSecret: config.clientSecret,
@@ -492,7 +492,7 @@ function getAccessTokenFromAuthorizationRequest(PasswordGrantConfig config) retu
 # + return - Access token received or `error` if error occured during HTTP client invocation
 function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig config) returns string|error {
     Client refreshClient;
-    RefreshRequestConfig requestConfig;
+    RequestConfig requestConfig;
     if (config is PasswordGrantConfig) {
         RefreshConfig? refreshConfig = config.refreshConfig;
         if (refreshConfig is RefreshConfig) {
@@ -531,7 +531,7 @@ function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig co
     return getAccessTokenFromResponse(refreshResponse);
 }
 
-function prepareRequest(RefreshRequestConfig config) returns Request {
+function prepareRequest(RequestConfig config) returns Request {
     Request req = new;
     string textPayload = config.payload;
     string scopeString = EMPTY_STRING;
