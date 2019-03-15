@@ -64,4 +64,10 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testStringWithArgs", new BValue[]{new BString("World")});
         Assert.assertEquals((result[0]).stringValue(), "HelloWorld");
     }
+
+    @Test
+    public void getGlobalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getGlobalVar");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
 }

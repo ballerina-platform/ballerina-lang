@@ -35,14 +35,11 @@ public class CompileResult {
     private List<Diagnostic> diagnostics;
     private PackageNode pkgNode;
     private ProgramFile progFile;
-    //Used for stateful function invocation.
+    // Used for stateful function invocation.
     private WorkerExecutionContext context;
     private int errorCount = 0;
     private int warnCount = 0;
-
-    private byte[] compiledJarFile;
-
-    private String entryClassName;
+    private Class<?> entryClass;
 
     public CompileResult() {
         diagnostics = new ArrayList<>();
@@ -63,8 +60,8 @@ public class CompileResult {
     }
 
     public Diagnostic[] getDiagnostics() {
-        diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
-                thenComparingInt(d -> d.getPosition().getStartLine()));
+        diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName())
+                .thenComparingInt(d -> d.getPosition().getStartLine()));
         return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
     }
 
@@ -99,7 +96,7 @@ public class CompileResult {
     public void setContext(WorkerExecutionContext context) {
         this.context = context;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -114,19 +111,11 @@ public class CompileResult {
         return builder.toString();
     }
 
-    public byte[] getCompiledJarFile() {
-        return compiledJarFile;
+    public void setEntryClass(Class<?> clazz) {
+        this.entryClass = clazz;
     }
 
-    public void setCompiledJarFile(byte[] compiledJarFile) {
-        this.compiledJarFile = compiledJarFile;
-    }
-
-    public String getEntryClassName() {
-        return entryClassName;
-    }
-
-    public void setEntryClassName(String entryClassName) {
-        this.entryClassName = entryClassName;
+    public Class<?> getEntryClass() {
+        return this.entryClass;
     }
 }
