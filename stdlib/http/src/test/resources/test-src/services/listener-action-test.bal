@@ -14,7 +14,7 @@ service echo on echoEP {
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(self.serviceLevelStringVar);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
         self.serviceLevelStringVar = "done";
     }
 }

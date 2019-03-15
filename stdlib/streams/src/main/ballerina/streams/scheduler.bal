@@ -46,17 +46,17 @@ public type Scheduler object {
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
-                    _ = self.timer.stop();
+                    var e1 = self.timer.stop();
                     self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
-                    _ = self.timer.attach(schedulerService, attachment = self);
-                    _ = self.timer.start();
+                    var e2 = self.timer.attach(schedulerService, attachment = self);
+                    var e3 = self.timer.start();
                 }
             }
         }
     }
 
     public function wrapperFunc() {
-        _ = self.sendTimerEvents();
+        checkpanic self.sendTimerEvents();
     }
 
     public function sendTimerEvents() returns error? {
@@ -74,7 +74,7 @@ public type Scheduler object {
             currentTime = time:currentTime().time;
         }
 
-        _ = self.timer.stop();
+        var e = self.timer.stop();
         self.timer = new({ interval: 1 });
 
         first = self.toNotifyQueue.getFirst();
@@ -85,8 +85,8 @@ public type Scheduler object {
                 _ = self.wrapperFunc();
             } else {
                 self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1 });
-                _ = self.timer.attach(schedulerService, attachment = self);
-                _ = self.timer.start();
+                var e1 = self.timer.attach(schedulerService, attachment = self);
+                var e2 = self.timer.start();
             }
         } else {
             lock {
@@ -94,8 +94,8 @@ public type Scheduler object {
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
                     self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
-                    _ = self.timer.attach(schedulerService, attachment = self);
-                    _ = self.timer.start();
+                    var e1 = self.timer.attach(schedulerService, attachment = self);
+                    var e2 = self.timer.start();
                 }
             }
         }
@@ -105,6 +105,6 @@ public type Scheduler object {
 
 service schedulerService = service {
     resource function onTrigger(Scheduler scheduler) {
-        _ = scheduler.sendTimerEvents();
+        var e = scheduler.sendTimerEvents();
     }
 };

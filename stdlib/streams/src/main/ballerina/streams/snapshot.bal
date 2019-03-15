@@ -306,8 +306,8 @@ function startPersisting() {
             initialDelay: persistanceIntervalInMillis
         }
     );
-    _ = persistScheduler.attach(persistanceSchedulerService);
-    _ = persistScheduler.start();
+    checkpanic persistScheduler.attach(persistanceSchedulerService);
+    checkpanic persistScheduler.start();
 }
 
 # Scheduler service for persisting states.
