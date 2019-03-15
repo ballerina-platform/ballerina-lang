@@ -163,7 +163,7 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?,
             binary_type = rs.binary_type;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_type, long_type, float_type, double_type,
     boolean_type, string_type,
     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type);
@@ -188,7 +188,7 @@ function testMappingToNillableTypeFieldsBlob() returns byte[]? {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return blob_type;
 }
 
@@ -228,7 +228,7 @@ function testMappingDatesToNillableTimeType() returns (int, int, int, int, int, 
     sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampStruct };
     sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: datetimeStruct };
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
@@ -245,7 +245,7 @@ function testMappingDatesToNillableTimeType() returns (int, int, int, int, int, 
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
     datetimeInserted, datetimeRetrieved);
 }
@@ -270,7 +270,7 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
     int timestamp = -1;
     int datetime = -1;
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
@@ -288,7 +288,7 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
@@ -312,7 +312,7 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
     sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampin };
     sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: timestampin };
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
@@ -330,7 +330,7 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
@@ -391,7 +391,7 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
     real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type, time_type, datetime_type,
     timestamp_type);
@@ -418,7 +418,7 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return blob_type;
 }
 
@@ -453,7 +453,7 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -488,7 +488,7 @@ function testMapArrayToNillableTypeWithNillableElementType() returns (
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -522,7 +522,7 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -557,7 +557,7 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() return
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -592,7 +592,7 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -627,7 +627,7 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -662,7 +662,7 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
@@ -697,6 +697,6 @@ function testMapNillElementsOnlyArray()
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
