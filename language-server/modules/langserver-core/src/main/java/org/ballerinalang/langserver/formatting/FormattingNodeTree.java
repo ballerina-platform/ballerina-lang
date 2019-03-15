@@ -1430,21 +1430,6 @@ public class FormattingNodeTree {
             // Preserve the new lines and characters available in node's whitespaces.
             this.preserveHeight(ws, indentWithParentIndentation);
 
-            // Get the node's index if it is in a list of statements of parent array.
-            int functionIndex = this.findIndex(node);
-
-//            // Update whitespaces for function/public keyword.
-//            JsonObject functionKeywordWs = ws.get(0).getAsJsonObject();
-//            if (this.noHeightAvailable(functionKeywordWs.get(FormattingConstants.WS).getAsString())) {
-//
-//            } else if (this.noNewLine(functionKeywordWs
-//                    .get(FormattingConstants.WS).getAsString().charAt(0) + "") && functionIndex != 0) {
-//                // TODO: revisit logic.
-//                functionKeywordWs
-//                        .addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-//                                functionKeywordWs.get(FormattingConstants.WS).getAsString());
-//            }
-
             boolean differentFirstKeyword = false;
             for (JsonElement wsItem : ws) {
                 JsonObject currentWS = wsItem.getAsJsonObject();

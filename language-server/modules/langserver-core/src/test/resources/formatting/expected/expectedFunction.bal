@@ -1,4 +1,6 @@
-import ballerina/io;
+function name0() {
+
+}
 
 type Person record {
     string name;
