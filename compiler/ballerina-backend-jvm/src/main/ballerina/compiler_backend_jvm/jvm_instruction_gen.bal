@@ -444,18 +444,13 @@ type InstructionGenerator object {
 
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
-        int sourceIndex = self.getJVMIndexOfVarRef(typeCastIns.rhsOp.variableDcl);
         self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
-
         generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
-
-        int targetIndex = self.getJVMIndexOfVarRef(typeCastIns.lhsOp.variableDcl);
         self.generateVarStore(typeCastIns.lhsOp.variableDcl);
     }
 
     function generateTypeTestIns(bir:TypeTest typeTestIns) {
         // load source value
-        int sourceIndex = self.getJVMIndexOfVarRef(typeTestIns.rhsOp.variableDcl);
         self.generateVarLoad(typeTestIns.rhsOp.variableDcl);
 
         // load targetType
@@ -463,8 +458,6 @@ type InstructionGenerator object {
 
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
-
-        int targetIndex = self.getJVMIndexOfVarRef(typeTestIns.lhsOp.variableDcl);
         self.generateVarStore(typeTestIns.lhsOp.variableDcl);
     }
 };

@@ -46,7 +46,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -76,7 +75,7 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class BCompileUtil {
 
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-    private static final JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader();
+    private static final String MODULE_INIT_SUFFIX = "__init_";
 
     /**
      * Compile and return the semantic errors. Error scenarios cannot use this method.
@@ -394,7 +393,6 @@ public class BCompileUtil {
         return comResult;
     }
 
-
     private static CompileResult compileOnJBallerina(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
@@ -414,12 +412,19 @@ public class BCompileUtil {
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName);
-        compileResult.setEntryClassName(FileUtils.cleanupFileExtension(packageName));
-        classLoader.setClassContent(compiledJar);
-        Class<?> clazz = classLoader.loadClass(compileResult.getEntryClassName());
+        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
+        String entryClassName = FileUtils.cleanupFileExtension(packageName);
+        Class<?> clazz = classLoader.loadClass(entryClassName);
 
         // invoke the init function
-        String funcName = "__init_";
+        String funcName;
+        if (!packageName.equalsIgnoreCase(".")) {
+            funcName = bLangPackage.packageID.orgName.value + "/" + bLangPackage.packageID.name.value + ":" +
+                    bLangPackage.packageID.version.value + MODULE_INIT_SUFFIX;
+        } else {
+            funcName = MODULE_INIT_SUFFIX;
+        }
+
         try {
             Method method = clazz.getDeclaredMethod(funcName, Strand.class);
             method.invoke(null, new Strand());
@@ -430,7 +435,6 @@ public class BCompileUtil {
         compileResult.setEntryClass(clazz);
         return compileResult;
     }
-
 
     /**
      * Compile and return the compiled package node.
