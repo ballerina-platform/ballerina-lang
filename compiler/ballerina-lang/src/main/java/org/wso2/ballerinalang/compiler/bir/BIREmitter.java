@@ -86,8 +86,20 @@ public class BIREmitter extends BIRVisitor {
         birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
         sb.append("\n");
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
-        sb.deleteCharAt(sb.lastIndexOf("\n"));
+        if (!birFunction.errorTable.isEmpty()) {
+            sb.append("\tError Table \n\t\tfromBB\t|fromIp\t|toBB\t|toIp\n");
+            birFunction.errorTable.forEach(entry -> {
+                entry.accept(this);
+            });
+        }
+       // sb.deleteCharAt(sb.lastIndexOf("\n"));
         sb.append("}\n\n");
+    }
+
+    public void visit(BIRNode.BIRErrorEntry errorEntry) {
+        sb.append("\t\t").append(errorEntry.fromBlockId).append("\t|").append(errorEntry.fromIp)
+          .append("\t|").append(errorEntry.toBlockId).append("\t|").append(errorEntry.toIp);
+        sb.append("\n");
     }
 
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {

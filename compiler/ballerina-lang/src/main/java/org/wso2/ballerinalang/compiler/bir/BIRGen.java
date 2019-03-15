@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -79,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -762,6 +764,15 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.Panic(panicNode.pos, InstructionKind.PANIC, this.env.targetOperand));
     }
 
+    public void visit(BLangTrapExpr trapExpr) {
+        int fromIp = this.env.enclBB.instructions.size();
+        Name fromBlockId = this.env.enclBB.id;
+        trapExpr.expr.accept(this);
+        int toIp = this.env.enclBB.instructions.size();
+        Name toBlockId = this.env.enclBB.id;
+        this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(fromBlockId, fromIp, toBlockId, toIp));
+    }
+    
     // private methods
 
     private Visibility getVisibility(BSymbol symbol) {

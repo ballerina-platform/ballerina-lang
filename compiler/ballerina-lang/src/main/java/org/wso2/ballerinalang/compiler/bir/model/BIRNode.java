@@ -194,6 +194,11 @@ public abstract class BIRNode {
          */
         public List<BIRBasicBlock> basicBlocks;
 
+        /**
+         * List of error entries in this function.
+         */
+        public List<BIRErrorEntry> errorTable;
+
         public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
             super(pos);
             this.name = name;
@@ -201,6 +206,7 @@ public abstract class BIRNode {
             this.type = type;
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
+            this.errorTable = new ArrayList<>();
         }
 
         @Override
@@ -263,6 +269,32 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
 
+        }
+    }
+
+    /**
+     * An error entry in a basic block error table.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRErrorEntry extends BIRNode {
+
+        public Name fromBlockId;
+        public int fromIp;
+        public Name toBlockId;
+        public int toIp;
+
+        public BIRErrorEntry(Name fromBlockId, int fromIp, Name toBlockId, int toIp) {
+            super(null);
+            this.fromBlockId = fromBlockId;
+            this.fromIp = fromIp;
+            this.toBlockId = toBlockId;
+            this.toIp = toIp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }

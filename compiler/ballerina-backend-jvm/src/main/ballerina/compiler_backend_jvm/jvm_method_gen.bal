@@ -59,7 +59,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     // mv.visitInsn(IADD);
     // mv.visitFieldInsn(PUTSTATIC, className, "i", "I");
 
-    // process basic blocks
+    // process basic blocks and errors
     int j = 0;
     bir:BasicBlock[] basicBlocks = func.basicBlocks;
 
@@ -96,6 +96,13 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
 
+    bir:ErrorEntry[] errorEntries = func.errorEntries;
+    bir:ErrorEntry? currentEE = ();
+    boolean isInTryBlock = false;
+    int genTrapCount = 0;
+    if (errorEntries.length() > genTrapCount) {
+        currentEE = errorEntries[genTrapCount];
+    }
 
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = basicBlocks[j];
@@ -109,8 +116,36 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
         // generate instructions
         int m = 0;
         while (m < bb.instructions.length()) {
+     
             bir:Instruction inst = bb.instructions[m];
             InstructionGenerator instGen = new(mv, indexMap);
+            if (currentEE is  bir:ErrorEntry) {
+                if (isInTryBlock) {
+                    if (currentEE.toBlockId.value == currentBBName && currentEE.toIp == m) {
+                        io:print("codegen catch: ");
+                        io:println(currentEE);
+                        genTrapCount = genTrapCount + 1;
+                        isInTryBlock = false;
+                        if (errorEntries.length() > genTrapCount) {
+                            currentEE = errorEntries[genTrapCount];
+                        }
+                        io:println(inst);
+                    }
+                } else {
+                    if (currentEE.fromBlockId.value == currentBBName && currentEE.fromIp == m) {
+                        io:print("codegen try: ");
+                        io:println(currentEE);
+                        jvm:Label startLable = labelGen.getLabel(funcName + currentEE.fromBlockId.value + 
+                                                                 currentEE.fromIp);
+                        jvm:Label endLable = labelGen.getLabel(funcName + currentEE.toBlockId.value + currentEE.toIp);
+                        jvm:Label handlerLable = labelGen.getLabel(funcName + currentEE.toBlockId.value + 
+                                                                    currentEE.toIp + "h");
+                        mv.visitTryCatchBlock(startLable, endLable, handlerLable, ERROR_VALUE);
+                        mv.visitLabel(startLable);
+                        isInTryBlock = true;
+                    }
+                }
+            }
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
@@ -324,7 +359,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw) {
 
 
     termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(0, 0);
+    mv.visitMaxs(-1, -1);
     mv.visitEnd();
 }
 
