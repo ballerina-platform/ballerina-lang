@@ -19,6 +19,6 @@ service<http:Service> HelloServiceMock bind helloEP {
         http:Response res = new;
         json j = {"Hello":"World"};
         res.setJsonPayload(j);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
