@@ -1,5 +1,3 @@
-import com.sun.org.apache.bcel.internal.util.ClassPath
-
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 configurations {
