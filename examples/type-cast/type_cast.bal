@@ -16,7 +16,7 @@ type Department record {
 };
 
 public function main() {
-    // Define an `Employee` and cast it to a `Person` typed variable.
+    // Define an `Employee` value and cast it to a `Person`.
     Employee employee = { name: "Jane Doe", age: 25, empNo: 1 };
     Person person = <Person> employee;
     io:println("Person Name: ", person.name);
@@ -34,14 +34,15 @@ public function main() {
     int i = <int> value;
     io:println("Integer Value: ", i);
 
-    // Use the type cast expression with `value` to cast it to `float`.
+    // Use the type cast expression with `value`, which currently holds
+    // an `int` value, to cast it to `float`.
     // A numeric conversion would happen from `int` to `float`.
     float f = <float> value;
     io:println("Converted Float Value: ", f);
 
     // Casting to a union type would also work similarly.
     // If `value` belongs to the union type, the resultant value would
-    // be `value` itself. Else, if applicable a numeric conversion will
+    // be `value` itself. Else, if applicable, a numeric conversion will
     // be attempted.
     // A numeric conversion would happen from `int` to `float` here.
     float|boolean u = <float|boolean> value;
@@ -51,6 +52,6 @@ public function main() {
     value = employee;
     // Casting a value to an incorrect type (the value does not belong
     // to the type and numeric conversion is not possible) would result
-    // in abrupt completion with a panic.
+    // in an abrupt completion with a panic.
     Department department = <Department> value;
 }
