@@ -1,6 +1,6 @@
 ## Module overview
 
-Privacy module acts as the foundation of making Ballerina programming
+The privacy module acts as the foundation in making the Ballerina a privacy-aware programming
  language privacy aware. The module provides required utility functions
  that allow pseudonymization, depseudonymization and deletion of
  personally identifiable information (PII).
