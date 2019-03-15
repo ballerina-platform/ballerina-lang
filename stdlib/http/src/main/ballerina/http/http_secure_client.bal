@@ -368,7 +368,19 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                     }
                 } else if (grantType is CLIENT_CREDENTIALS_GRANT) {
                     if (grantTypeConfig is ClientCredentialsGrantConfig) {
-                        // TODO: implement the logic
+                        string cachedAccessToken = tokenCache.accessToken;
+                        if (cachedAccessToken == EMPTY_STRING) {
+                            string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
+                            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                        } else {
+                            if (isValidAccessToken()) {
+                                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
+                                return true;
+                            } else {
+                                string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
+                                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                            }
+                        }
                     } else {
                         error e = error(HTTP_ERROR_CODE,
                         { message: "Invalid config is provided for the password grant type" });
@@ -384,7 +396,6 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         } else {
                             string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                            return false;
                         }
                     } else {
                         error e = error(HTTP_ERROR_CODE,
@@ -470,17 +481,30 @@ type RequestConfig record {
 
 # Request an access token from authorization server using the provided configurations.
 #
-# + config - Passwordd grant type configuration
+# + config - Grant type configuration
 # + return - Access token received or `error` if error occured during HTTP client invocation
-function getAccessTokenFromAuthorizationRequest(PasswordGrantConfig config) returns string|error {
-    Client authorizationClient = check createClient(config.tokenUrl, {});
-    RequestConfig requestConfig = {
-        payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-        scopes: config["scopes"],
-        credentialBearer: config.credentialBearer
-    };
+function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config) returns string|error {
+    Client authorizationClient;
+    RequestConfig requestConfig;
+    if (config is ClientCredentialsGrantConfig) {
+        authorizationClient = check createClient(config.tokenUrl, {});
+        requestConfig = {
+            payload: "grant_type=client_credentials",
+            clientId: config.clientId,
+            clientSecret: config.clientSecret,
+            scopes: config["scopes"],
+            credentialBearer: config.credentialBearer
+        };
+    } else {
+        authorizationClient = check createClient(config.tokenUrl, {});
+        requestConfig = {
+            payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
+            clientId: config.clientId,
+            clientSecret: config.clientSecret,
+            scopes: config["scopes"],
+            credentialBearer: config.credentialBearer
+        };
+    }
     Request authorizationRequest = prepareRequest(requestConfig);
     Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
     return getAccessTokenFromResponse(authorizationResponse);
@@ -503,7 +527,7 @@ function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig co
                 clientSecret: config.clientSecret,
                 scopes: refreshConfig["scopes"],
                 credentialBearer: refreshConfig.credentialBearer
-             };
+            };
         } else {
             error e = error(HTTP_ERROR_CODE,
             { message: "Failed to refresh access token since RefreshTokenConfig is not provided" });
@@ -619,7 +643,10 @@ function updateRequest(Request req, ClientEndpointConfig config) returns ()|erro
         var authConfig = auth.config;
         if (authConfig is OAuth2AuthConfig) {
             var grantTypeConfig = authConfig.config;
-            if (grantTypeConfig is PasswordGrantConfig || grantTypeConfig is DirectTokenConfig) {
+            if (grantTypeConfig is ClientCredentialsGrantConfig) {
+                string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+            } else {
                 string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
             }
