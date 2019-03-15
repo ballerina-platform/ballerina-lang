@@ -29,7 +29,6 @@ under the License.
     </parent>
 
     <artifactId>bbg-kafka</artifactId>
-sla
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
