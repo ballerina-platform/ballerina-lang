@@ -85,7 +85,7 @@ service PrometheusReporter on prometheusListener {
         }
         http:Response res = new;
         res.setPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
