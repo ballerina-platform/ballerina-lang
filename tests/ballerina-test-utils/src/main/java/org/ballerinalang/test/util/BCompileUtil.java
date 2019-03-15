@@ -403,14 +403,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
-        CompileResult compileResult = null;
-        try {
-            compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
-        }catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
         if (compileResult.getErrorCount() > 0) {
             return compileResult;
         }
