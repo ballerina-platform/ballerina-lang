@@ -34,6 +34,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -75,7 +76,6 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class BCompileUtil {
 
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-    private static final String MODULE_INIT_SUFFIX = "__init_";
 
     /**
      * Compile and return the semantic errors. Error scenarios cannot use this method.
@@ -417,14 +417,7 @@ public class BCompileUtil {
         Class<?> clazz = classLoader.loadClass(entryClassName);
 
         // invoke the init function
-        String funcName;
-        PackageID pkgID = bLangPackage.packageID;
-        if (!pkgID.name.value.equalsIgnoreCase(".")) {
-            funcName = pkgID.orgName.value + "/" + pkgID.name.value + ":" + pkgID.version.value + MODULE_INIT_SUFFIX;
-        } else {
-            funcName = MODULE_INIT_SUFFIX;
-        }
-
+        String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
             Method method = clazz.getDeclaredMethod(funcName, Strand.class);
             method.invoke(null, new Strand());
@@ -434,6 +427,10 @@ public class BCompileUtil {
 
         compileResult.setEntryClass(clazz);
         return compileResult;
+    }
+
+    private static String cleanupFunctionName(BLangFunction function) {
+        return function.name.value.replaceAll("[.:/<>]", "_");
     }
 
     /**
