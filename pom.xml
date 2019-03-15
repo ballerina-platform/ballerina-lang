@@ -2264,7 +2264,7 @@
         <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
         <maven.plugin.annotation.version>3.4</maven.plugin.annotation.version>
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
-        <airline.version>0.7</airline.version>
+        <airline.version>0.8</airline.version>
         <io.swagger.version>1.5.22</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
