@@ -1,4 +1,5 @@
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
+
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
@@ -9,6 +10,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string desc = getMethodDesc(func);
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, (), ());
     mv.visitCode();
+
+    if (isModuleInitFunction(module, func)) {
+        generateUserDefinedTypes(mv, module.typeDefs);
+    }
 
     // generate method body
     int k = 1;
@@ -116,7 +121,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
-                instGen.generateMoveIns(inst);
+                if (inst.kind == "TYPE_CAST") {
+                    instGen.generateCastIns(inst);
+                } else {
+                    instGen.generateMoveIns(inst);
+                }
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
             } else if (inst is bir:NewArray) {
@@ -135,6 +144,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 } else if (inst.kind == "ARRAY_LOAD") {
                     instGen.generateArrayValueLoad(inst);
                 }
+            } else if (inst is bir:TypeTest) {
+                instGen.generateTypeTestIns(inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -454,15 +465,14 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
     if (hasInitFunction(pkg)) {
+        string initFuncName = cleanupFunctionName(getModuleInitfuncName(pkg));
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, mainClass, "__init_", "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;",
-                            false);
+        mv.visitMethodInsn(INVOKESTATIC, mainClass, initFuncName, 
+                "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
         mv.visitInsn(POP);
     }
-
-    generateUserDefinedTypes(mv, pkg.typeDefs);
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
 
@@ -484,7 +494,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     // load and cast param values
     int paramIndex = 0;
     foreach var paramType in paramTypes {
-        generateCast(paramIndex, paramType, mv);
+        generateParamCast(paramIndex, paramType, mv);
         paramIndex += 1;
     }
 
@@ -513,14 +523,29 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
 function hasInitFunction(bir:Package pkg) returns boolean {
     foreach var func in pkg.functions {
-        if (func.name.value == "..<init>") {
+        if (isModuleInitFunction(pkg, func)) {
             return true;
         }
     }
     return false;
 }
 
-function generateCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
+function isModuleInitFunction(bir:Package module, bir:Function func) returns boolean {
+    string moduleInit = getModuleInitfuncName(module);
+    return func.name.value == moduleInit;
+}
+
+function getModuleInitfuncName(bir:Package module) returns string {
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+    if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
+        return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
+    } else {
+        return "..<init>";
+    }
+}
+
+function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array
     mv.visitVarInsn(ALOAD, 0);
 

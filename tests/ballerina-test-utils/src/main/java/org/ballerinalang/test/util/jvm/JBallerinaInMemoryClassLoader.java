@@ -41,13 +41,12 @@ public class JBallerinaInMemoryClassLoader {
 
     private byte[] jarBinaryContent = null;
 
-    public void setClassContent(byte[] data) {
-
+    public JBallerinaInMemoryClassLoader(byte[] data) {
         jarBinaryContent = new byte[data.length];
         System.arraycopy(data, 0, jarBinaryContent, 0, data.length);
     }
 
-    public Class loadClass(String className) {
+    public Class<?> loadClass(String className) {
 
         final Map<String, byte[]> map = new HashMap<>();
         try (JarInputStream is = new JarInputStream(new ByteArrayInputStream(jarBinaryContent))) {

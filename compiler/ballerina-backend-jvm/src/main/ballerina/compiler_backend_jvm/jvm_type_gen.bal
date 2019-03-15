@@ -49,6 +49,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typ
     foreach var typeDef in typeDefs {
         fieldName = getTypeFieldName(typeDef.name.value);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
             mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
@@ -96,6 +97,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
             io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
             false);
+
     return;
 }
 

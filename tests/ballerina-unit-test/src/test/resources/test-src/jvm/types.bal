@@ -17,3 +17,9 @@ function testStringWithArgs(string s) returns string {
    string s1 = "Hello" + s;
    return s1;
 }
+
+int globalVar = 7;
+
+function getGlobalVar() returns int {
+    return globalVar;
+}
