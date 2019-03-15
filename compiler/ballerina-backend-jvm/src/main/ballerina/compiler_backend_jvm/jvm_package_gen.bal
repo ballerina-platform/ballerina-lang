@@ -44,18 +44,20 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // populate global variable to class name mapping and generate them
     foreach var globalVar in module.globalVars {
-        fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
-        generatePackageVariable(globalVar, cw);
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+            generatePackageVariable(globalVar, cw);
+        }
     }
 
     // populate function to class name mapping
     foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
+        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
     }
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw, module);
+        generateMethod(getFunction(func), cw, module);
     }
 
     cw.visitEnd();
@@ -91,13 +93,15 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // populate global variable to class name mapping and generate them
     foreach var globalVar in module.globalVars {
-        fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
-        generatePackageVariable(globalVar, cw);
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+            generatePackageVariable(globalVar, cw);
+        }
     }
 
     // populate function to class name mapping
     foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
+        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
     }
 
     bir:Function? mainFunc = getMainFunc(module.functions);
@@ -108,7 +112,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw, module);
+        generateMethod(getFunction(func), cw, module);
     }
 
     cw.visitEnd();

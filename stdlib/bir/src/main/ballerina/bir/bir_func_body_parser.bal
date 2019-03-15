@@ -163,16 +163,9 @@ public type FuncBodyParser object {
                 lhsOp = self.parseVarRef();
             }
 
-            var result = VarRef[].stamp(args);
-            if (result is VarRef[]) {
-                BasicBlock thenBB = self.parseBBRef();
-                Call call = {args:result, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
-                return call;
-            } else {
-                error err = error("error while parsing args");
-                panic err;
-            }
-
+            BasicBlock thenBB = self.parseBBRef();
+            Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            return call;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;

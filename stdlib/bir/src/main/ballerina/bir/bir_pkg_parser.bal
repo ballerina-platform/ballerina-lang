@@ -45,22 +45,13 @@ public type PackageParser object {
         }
 
         FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
-        BasicBlock[] basicBlocks = self.getBasicBlocks(bodyParser);
-
-        VariableDcl[] varDcls;
-        var varDclsResult = VariableDcl[].stamp(dcls);
-        if (varDclsResult is VariableDcl[]) {
-            varDcls = varDclsResult;
-        } else {
-            VariableDcl[0] emptyVarDcls = [];
-            varDcls = emptyVarDcls;
-        }
+        BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
 
         return {
             name: { value: name },
             isDeclaration: isDeclaration,
             visibility: visibility,
-            localVars: varDcls,
+            localVars: dcls,
             basicBlocks: basicBlocks,
             argsCount: argsCount,
             typeValue: sig
@@ -70,8 +61,8 @@ public type PackageParser object {
     public function parsePackage() returns Package {
         ModuleID pkgId = self.reader.readModuleIDCpRef();
         ImportModule[] importModules = self.parseImportMods();
-        TypeDef[] typeDefs = self.parseTypeDefs();
-        GlobalVariableDcl[] globalVars = self.parseGlobalVars();
+        TypeDef?[] typeDefs = self.parseTypeDefs();
+        GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
         var numFuncs = self.reader.readInt32();
         Function?[] funcs = [];
         int i = 0;
@@ -85,23 +76,17 @@ public type PackageParser object {
 //                                    versionValue: {value: pkgId.modVersion}});
 //       emitter.emitPackage();
 
-        var result = Function[].stamp(funcs);
-        if (result is Function[]) {
-            return { importModules : importModules, 
-                     typeDefs : typeDefs, 
-                     globalVars : globalVars, 
-                     functions : result,
-                     name : { value: pkgId.name }, 
-                     org : { value: pkgId.org }, 
-                     versionValue : { value: pkgId.modVersion } };
-        } else {
-            error err = error("error while parsing args");
-            panic err;
-            
-        }
+
+        return { importModules : importModules, 
+                    typeDefs : typeDefs, 
+                    globalVars : globalVars, 
+                    functions : funcs,
+                    name : { value: pkgId.name }, 
+                    org : { value: pkgId.org }, 
+                    versionValue : { value: pkgId.modVersion } };
     }
 
-    function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock[] {
+    function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock?[] {
         BasicBlock?[] basicBlocks = [];
         var numBB = self.reader.readInt32();
         int i = 0;
@@ -110,13 +95,7 @@ public type PackageParser object {
             i += 1;
         }
 
-        var result = BasicBlock[].stamp(basicBlocks);
-        if (result is BasicBlock[]) {
-            return result;
-        } else {
-            BasicBlock[0] emtyBBs = [];
-            return emtyBBs;
-        }
+        return basicBlocks;
     }
 
     function parseImportMods() returns ImportModule[] {
@@ -132,7 +111,7 @@ public type PackageParser object {
         return importModules;
     }
 
-    function parseTypeDefs() returns TypeDef[] {
+    function parseTypeDefs() returns TypeDef?[] {
         int numTypeDefs = self.reader.readInt32();
         TypeDef?[] typeDefs = [];
         int i = 0;
@@ -141,13 +120,7 @@ public type PackageParser object {
             i = i + 1;
         }
 
-        var result = TypeDef[].stamp(typeDefs);
-        if (result is TypeDef[]) {
-            return result;
-        } else {
-            TypeDef[0] emptyTypeDefs = [];
-            return emptyTypeDefs;
-        }
+        return typeDefs;
     }
 
     function parseTypeDef() returns TypeDef {
@@ -156,7 +129,7 @@ public type PackageParser object {
         return { name:{ value: name}, visibility: visibility, typeValue: self.typeParser.parseType()};
     }
 
-    function parseGlobalVars() returns GlobalVariableDcl[] {       
+    function parseGlobalVars() returns GlobalVariableDcl?[] {       
         GlobalVariableDcl?[] globalVars = []; 
         int numGlobalVars = self.reader.readInt32();        
         int i = 0;
@@ -170,13 +143,7 @@ public type PackageParser object {
             self.globalVarMap[name] = dcl;
             i = i + 1;
         }
-        var result = GlobalVariableDcl[].stamp(globalVars);
-        if (result is GlobalVariableDcl[]) {
-            return result;
-        } else {
-            GlobalVariableDcl[0] emptyGlobalVars = [];
-            return emptyGlobalVars; 
-        }
+        return globalVars;
     }
 
     public function parseSig(string sig) returns BInvokableType {

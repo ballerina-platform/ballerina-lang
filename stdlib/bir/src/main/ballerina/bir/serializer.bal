@@ -40,19 +40,23 @@ function serializeTypes(BType[] bTypes, string delimiter) returns string {
     return result;
 }
 
-function serializeFields(BObjectField[] fields) returns string {
+function serializeFields(BObjectField?[] fields) returns string {
     var result = "";
     var delimiter = "; ";
     foreach var field in fields {
-        result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
+        if (field is BObjectField) {
+            result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
+        }
     }
     return result;
 }
 
-function serializeAttachedFunc(BAttachedFunction[] functions) returns string {
+function serializeAttachedFunc(BAttachedFunction?[] functions) returns string {
     var result = "";
     foreach var func in functions {
-        result = result + serialize(func.funcType) + " " + func.name.value + "; ";
+        if (func is BAttachedFunction) {
+            result = result + serialize(func.funcType) + " " + func.name.value + "; ";
+        }
     }
     return result;
 }
