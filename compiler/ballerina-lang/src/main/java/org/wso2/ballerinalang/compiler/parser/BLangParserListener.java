@@ -2226,6 +2226,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createCheckPanickedExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitNameReference(BallerinaParser.NameReferenceContext ctx) {
         if (isInErrorState) {
             return;
