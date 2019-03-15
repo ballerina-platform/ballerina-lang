@@ -104,7 +104,8 @@ artifacts {
 
 build {
     dependsOn createZip
-    dependsOn generateIndex
+    // Enable when the path issue fixed
+//    dependsOn generateIndex
 }
 
 test {
