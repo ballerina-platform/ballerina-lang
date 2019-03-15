@@ -42,6 +42,7 @@ public class LSIndexImpl implements LSIndex {
 
     public LSIndexImpl(String indexPath) {
         String connectionURL = "jdbc:h2:mem:test\\;INIT=RUNSCRIPT FROM '" + indexPath.replace("\\", "\\\\") + "'";
+        logger.info("Connection URL: " + connectionURL);
         try {
             Class.forName(DRIVER);
             this.connection = DriverManager.getConnection(connectionURL);
