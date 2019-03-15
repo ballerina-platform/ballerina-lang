@@ -364,7 +364,7 @@ public type ClientCredentialsGrantConfig record {
     string tokenUrl;
     string clientId;
     string clientSecret;
-    string[] scopes = [];
+    string[] scopes?;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
@@ -385,8 +385,8 @@ public type PasswordGrantConfig record {
     string password;
     string clientId;
     string clientSecret;
-    string[] scopes = [];
-    RefreshConfig? refreshConfig = ();
+    string[] scopes?;
+    RefreshConfig refreshConfig?;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
@@ -397,8 +397,8 @@ public type PasswordGrantConfig record {
 # + refreshConfig - Configurations for refreshing the access token
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type DirectTokenConfig record {
-    string accessToken;
-    DirectTokenRefreshConfig? refreshConfig = ();
+    string accessToken?;
+    DirectTokenRefreshConfig refreshConfig?;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
@@ -410,7 +410,7 @@ public type DirectTokenConfig record {
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type RefreshConfig record {
     string refreshUrl;
-    string[] scopes = [];
+    string[] scopes?;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
@@ -429,7 +429,7 @@ public type DirectTokenRefreshConfig record {
     string refreshToken;
     string clientId;
     string clientSecret;
-    string[] scopes = [];
+    string[] scopes?;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };

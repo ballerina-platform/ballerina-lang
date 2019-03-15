@@ -377,9 +377,15 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 } else {
                     // Within this code block, the grant type is DIRECT_TOKEN
                     if (grantTypeConfig is DirectTokenConfig) {
-                        string accessToken = grantTypeConfig.accessToken;
-                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                        return true;
+                        var directAccessToken = grantTypeConfig["accessToken"];
+                        if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
+                            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + directAccessToken);
+                            return true;
+                        } else {
+                            string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
+                            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                            return false;
+                        }
                     } else {
                         error e = error(HTTP_ERROR_CODE,
                         { message: "Invalid config is provided for the direct token mode" });
@@ -457,7 +463,7 @@ type RefreshRequestConfig record {
     string payload;
     string clientId;
     string clientSecret;
-    string[] scopes;
+    string[]? scopes;
     CredentialBearer credentialBearer;
     !...;
 };
@@ -472,7 +478,7 @@ function getAccessTokenFromAuthorizationRequest(PasswordGrantConfig config) retu
         payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
         clientId: config.clientId,
         clientSecret: config.clientSecret,
-        scopes: config.scopes,
+        scopes: config["scopes"],
         credentialBearer: config.credentialBearer
     };
     Request authorizationRequest = prepareRequest(requestConfig);
@@ -495,7 +501,7 @@ function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig co
                 payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
                 clientId: config.clientId,
                 clientSecret: config.clientSecret,
-                scopes: refreshConfig.scopes,
+                scopes: refreshConfig["scopes"],
                 credentialBearer: refreshConfig.credentialBearer
              };
         } else {
@@ -511,7 +517,7 @@ function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig co
                 payload: "grant_type=refresh_token&refresh_token=" + refreshConfig.refreshToken,
                 clientId: refreshConfig.clientId,
                 clientSecret: refreshConfig.clientSecret,
-                scopes: refreshConfig.scopes,
+                scopes: refreshConfig["scopes"],
                 credentialBearer: refreshConfig.credentialBearer
             };
         } else {
@@ -529,8 +535,11 @@ function prepareRequest(RefreshRequestConfig config) returns Request {
     Request req = new;
     string textPayload = config.payload;
     string scopeString = EMPTY_STRING;
-    foreach var requestScope in config.scopes {
-        scopeString = scopeString + WHITE_SPACE + requestScope;
+    string[]? scopes = config.scopes;
+    if (scopes is string[]) {
+        foreach var requestScope in scopes {
+            scopeString = scopeString + WHITE_SPACE + requestScope;
+        }
     }
     if (scopeString != EMPTY_STRING) {
         textPayload = textPayload + "&scope=" + scopeString.trim();
