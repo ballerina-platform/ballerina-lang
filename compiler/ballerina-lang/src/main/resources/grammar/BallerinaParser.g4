@@ -417,7 +417,16 @@ tupleBindingPattern
     ;
 
 recordBindingPattern
+    :   openRecordBindingPattern
+    |   closedRecordBindingPattern
+    ;
+
+openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordBindingPattern
+    :   LEFT_BRACE PIPE fieldBindingPattern (COMMA fieldBindingPattern)* PIPE RIGHT_BRACE
     ;
 
 entryBindingPattern
@@ -431,7 +440,6 @@ fieldBindingPattern
 
 restBindingPattern
     :   ELLIPSIS Identifier
-    |   sealedLiteral
     ;
 
 bindingRefPattern
