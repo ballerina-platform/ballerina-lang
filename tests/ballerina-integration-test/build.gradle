@@ -49,4 +49,11 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
 }
 
+test {
+    exclude '*/**'
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
 description = 'Ballerina - Integration Test'
