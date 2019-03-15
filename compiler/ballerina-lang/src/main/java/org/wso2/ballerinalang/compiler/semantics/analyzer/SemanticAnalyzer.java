@@ -1006,7 +1006,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (possibleTypes.size() > 1) {
                     LinkedHashSet<BType> detailType = new LinkedHashSet<>();
                     for (BErrorType possibleErrType : possibleTypes) {
-                        detailType.add(possibleErrType.detailType);
+                        detailType.add(possibleErrType.detailType == symTable.mapType ?
+                                               symTable.pureTypeConstrainedMap : possibleErrType.detailType);
                     }
                     errorType = new BErrorType(null, symTable.stringType,
                             detailType.size() > 1 ? BUnionType.create(null, detailType) :
@@ -1039,7 +1040,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return true;
         }
-        errorVariable.detail.type = errorType.detailType;
+        errorVariable.detail.type = errorType.detailType == symTable.mapType ?
+                symTable.pureTypeConstrainedMap : errorType.detailType;
         if (errorVariable.detail.getKind() == NodeKind.VARIABLE) {
             BLangSimpleVariable detailVariable = (BLangSimpleVariable) errorVariable.detail;
             if (Names.IGNORE == names.fromIdNode(detailVariable.name)) {
@@ -1431,7 +1433,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                   new LinkedHashSet<BType>() {{
                                       add(symTable.anyType);
                                       add(symTable.errorType); }}) :
-                symTable.anydataOrErrorUnionType, null);
+                symTable.pureType, null);
     }
 
     private boolean recordHasAnyTypeField(BRecordType recordType) {
@@ -1494,7 +1496,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(varRef.detail, env);
             checkRecordVarRefEquivalency(
-                    pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType, rhsPos);
+                    pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType == symTable.mapType ?
+                            symTable.pureTypeConstrainedMap : ((BErrorType) rhsType).detailType, rhsPos);
             return;
         }
 
@@ -1504,8 +1507,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         setTypeOfVarReferenceInAssignment(varRef.detail);
         // TODO: Once detail var is frozen, do the is like check instead of is Assignable
-        if (!types.isAssignable(rhsErrorType.detailType, varRef.detail.type)) {
-            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, rhsErrorType.detailType);
+        BType detailType = rhsErrorType.detailType == symTable.mapType ?
+                symTable.pureTypeConstrainedMap : rhsErrorType.detailType;
+        if (!types.isAssignable(detailType, varRef.detail.type)) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, detailType);
         }
     }
 

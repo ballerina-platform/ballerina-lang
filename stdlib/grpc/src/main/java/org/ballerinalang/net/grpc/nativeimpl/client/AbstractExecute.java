@@ -64,7 +64,7 @@ abstract class AbstractExecute implements NativeCallableUnit {
     void notifyErrorReply(Context context, String errorMessage) {
         BErrorType errType = BTypes.typeError;
         String reason = "{ballerina/grpc}" + INTERNAL.name();
-        BMap<String, BValue> refData = new BMap<>(errType.detailsType);
+        BMap<String, BValue> refData = new BMap<>(errType.getDetailType());
         refData.put("message", new BString(errorMessage));
         context.setReturnValues(new BError(BTypes.typeError, reason, refData));
     }

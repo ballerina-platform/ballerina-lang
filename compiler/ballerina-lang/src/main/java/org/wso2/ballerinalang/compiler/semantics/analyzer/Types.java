@@ -612,7 +612,11 @@ public class Types {
         if (target == symTable.errorType) {
             return true;
         }
-        return isAssignable(source.reasonType, target.reasonType) && isAssignable(source.detailType, target.detailType);
+        return isAssignable(source.reasonType, target.reasonType) &&
+                isAssignable(source.detailType == symTable.mapType ?
+                                     symTable.pureTypeConstrainedMap : source.detailType,
+                             target.detailType == symTable.mapType ?
+                                     symTable.pureTypeConstrainedMap : target.detailType);
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
@@ -1529,7 +1533,19 @@ public class Types {
                 return false;
             }
             BErrorType source = (BErrorType) s;
-            return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
+
+            if (!isSameType(source.reasonType, t.reasonType)) {
+                return false;
+            }
+
+            if (source.detailType == t.detailType) {
+                return true;
+            }
+
+            return isSameType(source.detailType == symTable.mapType ?
+                                      symTable.pureTypeConstrainedMap : source.detailType,
+                              t.detailType == symTable.mapType ?
+                                      symTable.pureTypeConstrainedMap : t.detailType);
         }
 
         @Override

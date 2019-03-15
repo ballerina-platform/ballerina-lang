@@ -91,7 +91,7 @@ service echo on testEP {
         if (jsonPayload is json) {
             _ = caller->respond(untaint jsonPayload);
         } else {
-            _ = caller->respond(untaint string.convert(jsonPayload.detail().message));
+            _ = caller->respond(untaint <string> jsonPayload.detail().message);
         }
     }
 }

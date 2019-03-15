@@ -28,18 +28,18 @@ import org.ballerinalang.model.values.BValue;
 public class BErrorType extends BType {
 
     public BType reasonType;
-    public BType detailsType;
+    private BType detailType;
 
-    BErrorType(String typeName, BType reasonType, BType detailsType, String pkgPath) {
+    BErrorType(String typeName, BType reasonType, BType detailType, String pkgPath) {
         super(typeName, pkgPath, BError.class);
         this.reasonType = reasonType;
-        this.detailsType = detailsType;
+        this.detailType = detailType;
     }
 
-    public BErrorType(BType reasonType, BType detailsType) {
+    public BErrorType(BType reasonType, BType detailType) {
         super(TypeConstants.ERROR, null, BError.class);
         this.reasonType = reasonType;
-        this.detailsType = detailsType;
+        this.detailType = detailType;
     }
 
     @Override
@@ -64,10 +64,18 @@ public class BErrorType extends BType {
         }
 
         BErrorType other = (BErrorType) obj;
-        if (reasonType == other.reasonType && detailsType == other.detailsType) {
+        if (reasonType == other.reasonType && detailType == other.detailType) {
             return true;
         }
 
-        return reasonType.equals(other.reasonType) && detailsType.equals(other.detailsType);
+        return reasonType.equals(other.reasonType) && getDetailType().equals(other.getDetailType());
+    }
+
+    public BType getDetailType() {
+        if (this.detailType == BTypes.typeMap) {
+            this.detailType = new BMapType(BTypes.typePureType);
+        }
+
+        return this.detailType;
     }
 }

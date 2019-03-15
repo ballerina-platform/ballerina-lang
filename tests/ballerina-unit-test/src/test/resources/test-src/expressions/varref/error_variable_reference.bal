@@ -119,13 +119,13 @@ function testErrorInTuple() returns (int, string, string, any, boolean) {
     return (intVar, stringVar, errorVar.reason(), errorVar2.detail().message, fooVar.fatal);
 }
 
-function testErrorInTupleWithDestructure() returns (int, string, string, map<any>, boolean) {
+function testErrorInTupleWithDestructure() returns (int, string, string, map<anydata|error>, boolean) {
     (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", { message: "Something Wrong2" }), true));
 
     int intVar;
     string stringVar;
     string reasonVar;
-    map<any> detailVar;
+    map<anydata|error> detailVar;
     boolean booleanVar;
 
     (intVar, stringVar, (error (reasonVar, detailVar), booleanVar)) = t1;

@@ -4927,7 +4927,7 @@ public class BVM {
         }
 
         return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.detailsType, unresolvedValues);
+                checkIsLikeType(((BError) sourceValue).details, targetType.getDetailType(), unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
@@ -5186,7 +5186,7 @@ public class BVM {
             if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BRecordType targetConstrRecord = (BRecordType) targetConstraint;
                 return !targetConstrRecord.sealed && checkIsType(targetConstrRecord.restFieldType,
-                                                                 BTypes.typeAnydataOrErrorUnion, new ArrayList<>());
+                                                                 BTypes.typePureType, new ArrayList<>());
             }
             return false;
         }

@@ -2114,10 +2114,8 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BType detailType = ((BErrorType) expType).detailType;
-        if (detailType == symTable.mapType) {
-            detailType = new BMapType(TypeTags.MAP, symTable.anydataOrErrorUnionType, null);
-        }
+        BType detailType = ((BErrorType) expType).detailType == symTable.mapType ?
+                symTable.pureTypeConstrainedMap : ((BErrorType) expType).detailType;
         checkExpr(errorConstructorExpr.detailsExpr, env, detailType);
         resultType = expType;
     }
