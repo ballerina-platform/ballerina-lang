@@ -37,7 +37,7 @@ deploymentConfig:
           file: product-scenarios/test-grid-scripts/bbg/data/deployment-data-backed-service.sh
           inputParameters:
             BallerinaVersion: "0.990.3"
-            isDebugEnabled: "true"
+            isDebugEnabled: "false"
 scenarioConfigs:
 - testType: TESTNG
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
@@ -47,4 +47,4 @@ scenarioConfigs:
   file: product-scenarios/test-grid-scripts/bbg/data/test-data-backed-service.sh
   inputParameters:
     BallerinaVersion: "0.990.3"
-    isDebugEnabled: "true"
+    isDebugEnabled: "false"
