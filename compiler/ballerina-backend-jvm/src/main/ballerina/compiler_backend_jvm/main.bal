@@ -9,21 +9,21 @@ public type JarFile record {
     !...;
 };
 
+bir:BIRContext currentBIRContext = new;
+
 public function main(string... args) {
     //do nothing
 }
 
 function generateJarBinary(bir:BIRContext birContext, bir:ModuleID entryModId, string progName) returns JarFile {
-
+    currentBIRContext = birContext;
     bir:Package entryMod = birContext.lookupBIRModule(entryModId);
 
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
     foreach var importModule in entryMod.importModules {
-        bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
-                                    modVersion: importModule.modVersion.value};
-        bir:Package module = birContext.lookupBIRModule(moduleId);
+        bir:Package module = lookupModule(importModule, birContext);
         generateImportedPackage(module, jarEntries);
     }
 
