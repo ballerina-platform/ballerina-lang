@@ -165,3 +165,33 @@ function complexArrays() {
     (boolean|float)[][] c = [];
     (boolean|float)[][] d = c;
 }
+
+function testElementTypesWithoutImplicitInitVal() {
+    FT[] arr;
+    arr = [1, 2];
+}
+
+type BarRec record {
+    FT[] fArr;
+};
+
+function testArrayFieldInRecord() {
+    BarRec rec = {fArr: [1, 2]};
+}
+
+type BarObj object {
+    FT[] fArr;
+
+    function __init() {
+        self.fArr = [1, 2];
+    }
+};
+
+function fnWithArrayParam(FT[] arr) returns FT[] {
+    FT[*] newArr = [arr[0],3];
+    return newArr;
+}
+
+function testArraysAsFuncParams() returns FT[] {
+    return fnWithArrayParam([1, 2]);
+}

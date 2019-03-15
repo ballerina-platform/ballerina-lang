@@ -493,4 +493,29 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForValueTypeAsFiniteType_2"}
         };
     }
+
+    @Test
+    public void testTypeGuardForErrorPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForErrorNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForCustomErrorPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForCustomErrorPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForCustomErrorNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForCustomErrorNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
 }
