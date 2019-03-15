@@ -116,6 +116,9 @@
                                     <exclude>org.wso2.transport.http:org.wso2.transport.http.netty</exclude>
                                     <exclude>org.wso2.eclipse.osgi:org.eclipse.osgi</exclude>
                                     <exclude>org.wso2.eclipse.osgi:org.eclipse.osgi.services</exclude>
+                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    <exclude>org.codehaus.woodstox:woodstox-core-asl</exclude>
+                                    <exclude>org.codehaus.woodstox:stax2-api</exclude>
                                     <exclude>io.netty:netty-common</exclude>
                                     <exclude>io.netty:netty-buffer</exclude>
                                     <exclude>io.netty:netty-transport</exclude>
@@ -135,8 +138,6 @@
                                     <exclude>com.beust:jcommander</exclude>
                                     <exclude>io.netty:netty-codec-http</exclude>
                                     <exclude>io.netty:netty-transport-native-unix-common</exclude>
-
-
                                     <exclude>META-INF/*.SF</exclude>
                                     <exclude>META-INF/*.DSA</exclude>
                                     <exclude>META-INF/*.RSA</exclude>
