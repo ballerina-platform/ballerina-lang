@@ -34,8 +34,8 @@ import java.util.Map;
  */
 public class KafkaServiceTest {
 
-    private static String host = System.getProperty("messaging.with.kafka.service.host");
-    private static String port = System.getProperty("messaging.with.kafka.service.port");
+    private static String host = "localhost";
+    private static String port = "32351";
 
     @Test
     public void testSendingData() throws IOException {
@@ -45,6 +45,6 @@ public class KafkaServiceTest {
         String url = "http://" + host + ":" + port + "/product";
         HttpResponse httpResponse = HttpClientRequest.doPost(url, "{\"Username\":\"Admin\", \"Password\":\"Admin\", \"Product\":\"ABC\", \"Price\":100.00}", headers);
         Assert.assertEquals(httpResponse.getResponseCode(), 200, "Response code mismatching");
-        Assert.assertEquals(httpResponse.getData(), "{\"Status\":\"Data Inserted Successfully\"}");
+        Assert.assertEquals(httpResponse.getData(), "{\"Status\":\"Success\"}");
     }
 }

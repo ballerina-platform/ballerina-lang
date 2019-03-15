@@ -25,7 +25,7 @@ readonly deployment_kafka_great_grand_parent_path=$(dirname ${deployment_kafka_g
 
 function clone_bbg_and_set_bal_path() {
     local bbg_repo_name="messaging-with-kafka"
-    git clone https://github.com/ballerina-guides/${bbg_repo_name} --branch testgrid-onboarding
+    git clone https://github.com/ballerina-guides/${bbg_repo_name} --branch kafka-testgrid
     bal_path_admin=${bbg_repo_name}/guide/product_admin_portal/product_admin_portal.bal
     bal_path_inventory=${bbg_repo_name}/guide/inventory_control_system/inventory_control_system.bal
 }
@@ -50,11 +50,11 @@ function setup_deployment() {
 function download_and_install_kafka_connector() {
     KAFKA_CONNECTOR_VERSION=0.980.2
     KAFKA_CONNECTOR_DISTRIBUTION=wso2-kafka-${KAFKA_CONNECTOR_VERSION}
-    wget https://github.com/wso2-ballerina/module-kafka/releases/download/v${KAFKA_CONNECTOR_VERSION}/${KAFKA_CONNECTOR_DISTRIBUTION}.zip
+    wget https://github.com/wso2-ballerina/module-kafka/releases/download/v${KAFKA_CONNECTOR_VERSION}/${KAFKA_CONNECTOR_DISTRIBUTION}.zip --quiet
     unzip ${KAFKA_CONNECTOR_DISTRIBUTION}.zip -d ${KAFKA_CONNECTOR_DISTRIBUTION}
 
     cp ${KAFKA_CONNECTOR_DISTRIBUTION}/dependencies/wso2-kafka-module-${KAFKA_CONNECTOR_VERSION}.jar ${ballerina_home}/bre/lib
-    cp -R ${KAFKA_CONNECTOR_DISTRIBUTION}/balo/wso2 ${ballerina_home}/lib/repo
+    cp -r ${KAFKA_CONNECTOR_DISTRIBUTION}/balo/wso2 ${ballerina_home}/lib/repo
 }
 
 function deploy_kafka_resources() {
@@ -69,18 +69,17 @@ function deploy_kafka_resources() {
 function replace_variables_in_bal_file() {
     local bal_path=$1
     sed -i "s/\"localhost/\"kafka-service/" ${bal_path}
-    sed -i "s:<path_to_kafka_connector_jars>:"${work_dir}/messaging-with-kafka/":g" ${bal_path}
+    sed -i "s:<path_to_kafka_connector_jars>:${work_dir}/{KAFKA_CONNECTOR_DISTRIBUTION}/dependencies/:g" ${bal_path}
     sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
     sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
     sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
 }
 
 function build_and_deploy_guide() {
-    download_and_extract_mysql_connector ${work_dir}
     cd messaging-with-kafka/guide
-    ${ballerina_home}/bin/ballerina build messaging-with-kafka --skiptests
+    ${ballerina_home}/bin/ballerina build product_admin_portal --skiptests
     cd ../..
-    kubectl apply -f ${work_dir}/messaging-with-kafka/guide/target/kubernetes/messaging-with-kafka
+    kubectl apply -f ${work_dir}/messaging-with-kafka/guide/target/kubernetes/product_admin_portal
 }
 
 function retrieve_and_write_properties_to_data_bucket() {
