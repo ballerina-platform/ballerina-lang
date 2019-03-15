@@ -43,7 +43,39 @@ public const PASSWORD_GRANT = "PASSWORD_GRANT";
 # Indicates direct token as a grant type where this is considered as custom way of providing access tokens by user
 public const DIRECT_TOKEN = "DIRECT_TOKEN";
 
-public const AUTH_HEADER_STATUS = "AUTH_HEADER_STATUS";
+# CachedTokenConfig record is used to store the received values from the authroization/token server, in order to use
+# for the latter requests without requesting tokens again.
+#
+# + accessToken - Access token for authorization server
+# + refreshToken - Refresh token for refresh token server
+# + expiryTime - Expiry time of the access token in milli-seconds
+type CachedTokenConfig record {
+    string accessToken;
+    string refreshToken;
+    int expiryTime;
+};
+
+# RequestConfig record is used to prepare the HTTP request which is to be sent to authorization server.
+#
+# + payload - Payload of the request
+# + clientId - Clietnt ID for client credentials grant authentication
+# + clientSecret - Client secret for client credentials grant authentication
+# + scopes - Scope of the access request
+# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+type RequestConfig record {
+    string payload;
+    string clientId;
+    string clientSecret;
+    string[]? scopes;
+    CredentialBearer credentialBearer;
+    !...;
+};
+
+CachedTokenConfig tokenCache = {
+    accessToken: "",
+    refreshToken: "",
+    expiryTime: 0
+};
 
 # Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication
 # schemes configured in the HTTP client endpoint to secure the HTTP requests.
@@ -308,18 +340,6 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-type CachedTokenConfig record {
-    string accessToken;
-    string refreshToken;
-    int expiryTime;
-};
-
-CachedTokenConfig tokenCache = {
-    accessToken: "",
-    refreshToken: "",
-    expiryTime: 0
-};
-
 # Prepare HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
 # retry is required if the response will be 401.
 #
@@ -470,15 +490,6 @@ function isValidAccessToken() returns boolean {
     return false;
 }
 
-type RequestConfig record {
-    string payload;
-    string clientId;
-    string clientSecret;
-    string[]? scopes;
-    CredentialBearer credentialBearer;
-    !...;
-};
-
 # Request an access token from authorization server using the provided configurations.
 #
 # + config - Grant type configuration
@@ -555,6 +566,10 @@ function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig co
     return getAccessTokenFromResponse(refreshResponse);
 }
 
+# Prepare the request which is to be sent to authorization server by adding relevant headers and payloads.
+#
+# + config - Request configurations record
+# + return - Prepared HTTP request object
 function prepareRequest(RequestConfig config) returns Request {
     Request req = new;
     string textPayload = config.payload;
@@ -579,6 +594,10 @@ function prepareRequest(RequestConfig config) returns Request {
     return req;
 }
 
+# Extract access token from the json payload of given HTTP response and update the token cache.
+#
+# + response - HTTP response object
+# + return - Extracted access token or `error` if error occured during HTTP client invocation
 function getAccessTokenFromResponse(Response response) returns string|error {
     json payload = check response.getJsonPayload();
     if (response.statusCode == OK_200) {

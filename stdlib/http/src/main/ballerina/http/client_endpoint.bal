@@ -393,7 +393,7 @@ public type PasswordGrantConfig record {
 
 # DirectTokenConfig record can be used to configue access token directly.
 #
-# + accessToken - Access token received by authorization server
+# + accessToken - Access token for authorization server
 # + refreshConfig - Configurations for refreshing the access token
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type DirectTokenConfig record {
