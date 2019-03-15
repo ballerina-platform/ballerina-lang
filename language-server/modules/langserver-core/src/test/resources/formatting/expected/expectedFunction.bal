@@ -48,3 +48,19 @@ function name9() returns (Person) {
         name: ""
     };
 }
+
+private function name10() {
+
+}
+
+extern function name11() {
+
+}
+
+public extern function name12() {
+
+}
+
+private extern function name12() {
+
+}
