@@ -35,7 +35,7 @@ final string ID_CLOUMN = "id";
 final string PII_COLUMN = "pii";
 
 public function main(string pii) returns error? {
-    // Create database structure in H2 PII store.
+    // Creates the database structure in the H2 PII store.
     var creationStatus = testDB->update("CREATE TABLE IF NOT EXISTS PII_STORE (ID VARCHAR(300) NOT NULL, PII VARCHAR(300) NOT NULL, PRIMARY KEY (ID))");
     if (creationStatus is sql:UpdateResult) {
         io:println("PII to be persisted: " + pii);
