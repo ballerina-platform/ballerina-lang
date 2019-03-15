@@ -268,7 +268,7 @@ public function extension(string path) returns string|error {
     string filepath = check parse(path);
     int count = filepath.length();
     if (count == 0) {
-        return "";
+        return filepath;
     }
     int i = count - 1;
     while (i >= 0) {
@@ -282,6 +282,78 @@ public function extension(string path) returns string|error {
         i = i - 1;
     }
     return "";
+}
+
+# Returns a relative path that is logically equivalent to target path when joined to base path with an intervening
+# separator.
+# An error is returned if target path can't be made relative to base path.
+#
+# + base - String value of the base file path.
+# + target - String value of the target file path.
+# + return - Returns the extension of the file. Empty string if no extension.
+public function relative(string base, string target) returns string|error {
+    string cleanBase = check normalize(base);
+    string cleanTarget = check normalize(target);
+    if (cleanBase == cleanTarget) {
+        return ".";
+    }
+    string baseRoot;
+    int baseOffset;
+    (baseRoot, baseOffset) = check getRootComponent(cleanBase);
+    string targetRoot;
+    int targetOffset;
+    (targetRoot, targetOffset) = check getRootComponent(cleanTarget);
+    if (baseRoot != targetRoot) {
+        error err = error("{ballerina/path}RELATIVE_PATH_ERROR", { message: "Can't make: " + target + " relative to " +
+            base});
+        return err;
+    }
+    int b0 = baseOffset;
+    int bi = baseOffset;
+    int t0 = targetOffset;
+    int ti = targetOffset;
+    int bl = cleanBase.length();
+    int tl = cleanTarget.length();
+    while (true) {
+        while (bi < bl && !isSlash(check charAt(cleanBase, bi))) {
+            bi = bi + 1;
+        }
+        while (ti < tl && !isSlash(check charAt(cleanTarget, ti))) {
+            ti = ti + 1;
+        }
+        if (cleanBase.substring(b0, bi) != cleanTarget.substring(t0, ti)) {
+            break;
+        }
+        if (bi < bl) {
+           bi = bi + 1;
+        }
+        if (ti < tl) {
+            ti = ti + 1;
+        }
+        b0 = bi;
+        t0 = ti;
+    }
+    if (cleanBase.substring(b0, bi) == "..") {
+        error err = error("{ballerina/path}RELATIVE_PATH_ERROR", { message: "Can't make: " + target + " relative to " +
+            base});
+        return err;
+    }
+    if (b0 != bl) {
+        string remainder = cleanBase.substring(b0, bl);
+        string[] parts = remainder.split(PATH_SEPARATOR);
+        int noSeparators = parts.length() - 1;
+        string relativePath = "..";
+        int i = 0;
+        while (i < noSeparators) {
+            relativePath = relativePath + PATH_SEPARATOR + "..";
+            i = i + 1;
+        }
+        if (t0 != tl) {
+            relativePath = relativePath + PATH_SEPARATOR + cleanTarget.substring(t0, tl);
+        }
+        return relativePath;
+    }
+    return cleanTarget.substring(t0, tl);
 }
 
 # Parses the give path and remove redundent slashes.

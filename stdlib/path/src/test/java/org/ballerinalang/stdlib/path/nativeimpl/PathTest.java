@@ -244,6 +244,29 @@ public class PathTest {
         assertEquals(extension.stringValue(), expected);
     }
 
+    @Test(description = "Test relative path function for posix paths", dataProvider = "relative_tests")
+    public void testPosixRelativePath(String basePath, String targetPath, String expected) {
+        validateRelativePath(basePath, targetPath, expected);
+    }
+
+    private void validateRelativePath(String basePath, String targetPath, String expected) {
+        BValue[] args = {new BString(basePath), new BString(targetPath)};
+        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testRelativePath", args);
+        assertEquals(returns.length, 1);
+        if ("error".equals(expected)) {
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getDetails().stringValue(),
+                    "{\"message\":\"Can't make: " + targetPath + " relative to " + basePath + "\"}");
+        } else {
+            assertTrue(returns[0] instanceof BString);
+            BString relative = (BString) returns[0];
+            log.info("{ballerina/path}:relative(). Input: Base " + basePath + ", Target " + targetPath + " | Return: "
+                    + relative.stringValue());
+            assertEquals(relative.stringValue(), expected);
+        }
+    }
+
     @DataProvider(name = "posix_paths")
     public Object[] getPosixPaths() {
         return new Object[] {
@@ -316,6 +339,52 @@ public class PathTest {
                 {"a.pb.bal/", "bal"},
                 {"\\..\\A\\B.foo", "foo"},
                 {"C:\\foo\\..\\bar", "\\bar"}
+        };
+    }
+
+    @DataProvider(name = "relative_tests")
+    public  Object[][] getRelativeSet() {
+        return new Object[][] {
+                {"a/b", "a/b", "."},
+                {"a/b/.", "a/b", "."},
+                {"a/b", "a/b/.", "."},
+                {"./a/b", "a/b", "."},
+                {"a/b", "./a/b", "."},
+                {"ab/cd", "ab/cde", "../cde"},
+                {"ab/cd", "ab/c", "../c"},
+                {"a/b", "a/b/c/d", "c/d"},
+                {"a/b", "a/b/../c", "../c"},
+                {"a/b/../c", "a/b", "../b"},
+                {"a/b/c", "a/c/d", "../../c/d"},
+                {"a/b", "c/d", "../../c/d"},
+                {"a/b/c/d", "a/b", "../.."},
+                {"a/b/c/d", "a/b/", "../.."},
+                {"a/b/c/d/", "a/b", "../.."},
+                {"a/b/c/d/", "a/b/", "../.."},
+                {"../../a/b", "../../a/b/c/d", "c/d"},
+                {"/a/b", "/a/b", "."},
+                {"/a/b/.", "/a/b", "."},
+                {"/a/b", "/a/b/.", "."},
+                {"/ab/cd", "/ab/cde", "../cde"},
+                {"/ab/cd", "/ab/c", "../c"},
+                {"/a/b", "/a/b/c/d", "c/d"},
+                {"/a/b", "/a/b/../c", "../c"},
+                {"/a/b/../c", "/a/b", "../b"},
+                {"/a/b/c", "/a/c/d", "../../c/d"},
+                {"/a/b", "/c/d", "../../c/d"},
+                {"/a/b/c/d", "/a/b", "../.."},
+                {"/a/b/c/d", "/a/b/", "../.."},
+                {"/a/b/c/d/", "/a/b", "../.."},
+                {"/a/b/c/d/", "/a/b/", "../.."},
+                {"/../../a/b", "/../../a/b/c/d", "c/d"},
+                {".", "a/b", "a/b"},
+                {".", "..", ".."},
+
+                {"..", ".", "error"},
+                {"..", "a", "error"},
+                {"../..", "..", "error"},
+                {"a", "/a", "error"},
+                {"/a", "a", "error"},
         };
     }
 }

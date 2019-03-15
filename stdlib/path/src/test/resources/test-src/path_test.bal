@@ -55,3 +55,7 @@ function testBuildPath(string[] paths) returns string|error {
 function testPathExtension(string path) returns string|error {
     return path:extension(path);
 }
+
+function testRelativePath(string base, string target) returns string|error {
+    return path:relative(base, target);
+}
