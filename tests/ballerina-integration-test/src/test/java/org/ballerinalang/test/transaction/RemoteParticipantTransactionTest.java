@@ -197,7 +197,7 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         assertEquals(response.getData(), target, "payload mismatched");
     }
 
-    @Test
+    @Test(enabled = false)
     public void remoteParticipantSeperateResourceManagerRemoteFail() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "testInfectSeparateRM");
