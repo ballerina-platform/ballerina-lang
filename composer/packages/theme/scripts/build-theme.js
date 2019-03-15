@@ -38,6 +38,11 @@ const generateThemes = () => {
 
     let fileWritePromises = themes.map(theme => {
         const filePath = path.join(themesDir, theme, 'index.less');
+
+        if (!fs.existsSync(filePath)) {
+            return;
+        }
+
         const options = {
             ieCompat: true,
             compress: false,

@@ -1174,7 +1174,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1203,6 +1202,10 @@ public class PackageInfoReader {
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
                 case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.BI2F:
+                case InstructionCodes.D2BI:
+                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1227,11 +1230,6 @@ public class PackageInfoReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
-                case InstructionCodes.REASON:
-                case InstructionCodes.DETAIL:
-                case InstructionCodes.FREEZE:
-                case InstructionCodes.IS_FROZEN:
-                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1323,12 +1321,9 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTHOF:
-                case InstructionCodes.STAMP:
-                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:

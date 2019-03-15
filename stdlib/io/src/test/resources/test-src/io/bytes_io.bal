@@ -32,11 +32,8 @@ function readBytes(int numberOfBytes) returns byte[]|error {
     if (result is (byte[], int)) {
         var (bytes, val) = result;
         return bytes;
-    } else if (result is error) {
-        return result;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return result;
     }
 }
 
@@ -45,11 +42,8 @@ function writeBytes(byte[] content, int startOffset) returns int|error {
     var result = wch.write(content, startOffset);
     if (result is int) {
         return result;
-    } else if (result is error) {
-        return result;
     } else {
-        error e = error("Unidentified type");
-        return e;
+        return result;
     }
 }
 

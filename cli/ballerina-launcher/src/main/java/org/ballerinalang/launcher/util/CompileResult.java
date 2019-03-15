@@ -20,6 +20,7 @@ import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,44 +33,29 @@ import java.util.List;
  */
 public class CompileResult {
 
-    private List<Diagnostic> diagnostics;
     private PackageNode pkgNode;
     private ProgramFile progFile;
     //Used for stateful function invocation.
     private WorkerExecutionContext context;
-    private int errorCount = 0;
-    private int warnCount = 0;
+    private CompileResultDiagnosticListener diagnosticListener;
 
-    public CompileResult() {
-        diagnostics = new ArrayList<Diagnostic>();
-    }
-
-    public void addDiagnostic(Diagnostic diag) {
-        this.diagnostics.add(diag);
-        switch (diag.getKind()) {
-            case ERROR:
-                errorCount++;
-                break;
-            case WARNING:
-                warnCount++;
-                break;
-            default:
-                break;
-        }
+    public CompileResult(CompileResultDiagnosticListener diagnosticListener) {
+        this.diagnosticListener = diagnosticListener;
     }
 
     public Diagnostic[] getDiagnostics() {
+        List<Diagnostic> diagnostics = this.diagnosticListener.getDiagnostics();
         diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
                 thenComparingInt(d -> d.getPosition().getStartLine()));
         return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
     }
 
     public int getErrorCount() {
-        return errorCount;
+        return this.diagnosticListener.errorCount;
     }
 
     public int getWarnCount() {
-        return warnCount;
+        return this.diagnosticListener.warnCount;
     }
 
     public ProgramFile getProgFile() {
@@ -99,7 +85,7 @@ public class CompileResult {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if (this.errorCount == 0) {
+        if (this.diagnosticListener.errorCount == 0) {
             builder.append("Compilation Successful");
         } else {
             builder.append("Compilation Failed:\n");
@@ -109,5 +95,46 @@ public class CompileResult {
         }
         return builder.toString();
     }
-    
+
+    /**
+     * Diagnostic listener implementation for module compilation.
+     *
+     * @since 0.990.4
+     */
+    public static class CompileResultDiagnosticListener implements DiagnosticListener {
+        private List<Diagnostic> diagnostics;
+        private int errorCount = 0;
+        private int warnCount = 0;
+
+        public CompileResultDiagnosticListener() {
+            this.diagnostics = new ArrayList<>();
+        }
+
+        @Override
+        public void received(Diagnostic diagnostic) {
+            this.diagnostics.add(diagnostic);
+            switch (diagnostic.getKind()) {
+                case ERROR:
+                    errorCount++;
+                    break;
+                case WARNING:
+                    warnCount++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public int getErrorCount() {
+            return errorCount;
+        }
+
+        public int getWarnCount() {
+            return warnCount;
+        }
+
+        public List<Diagnostic> getDiagnostics() {
+            return diagnostics;
+        }
+    }
 }

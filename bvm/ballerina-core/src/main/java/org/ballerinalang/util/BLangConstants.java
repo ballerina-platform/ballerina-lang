@@ -28,7 +28,7 @@ import java.math.MathContext;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 26;
+    public static final short VERSION_NUMBER = 27;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
@@ -86,8 +86,6 @@ public class BLangConstants {
                                                                                          MathContext.DECIMAL128);
     public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
                                                                                          MathContext.DECIMAL128);
-
-    public static final String COLON = ":";
 
     public static final String DEFAULT_WORKER_NAME = "default";
 }

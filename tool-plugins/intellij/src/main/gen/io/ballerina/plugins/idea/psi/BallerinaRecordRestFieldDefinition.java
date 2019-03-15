@@ -32,4 +32,7 @@ public interface BallerinaRecordRestFieldDefinition extends BallerinaCompositeEl
   @Nullable
   PsiElement getEllipsis();
 
+  @NotNull
+  PsiElement getSemicolon();
+
 }

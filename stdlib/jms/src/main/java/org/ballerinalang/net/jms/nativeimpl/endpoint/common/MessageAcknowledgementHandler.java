@@ -23,7 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -40,14 +40,14 @@ public class MessageAcknowledgementHandler {
     public static void handle(Context context) {
         Struct consumerConnectorObject = BallerinaAdapter.getReceiverObject(context);
         SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(consumerConnectorObject,
-                                                                             Constants.SESSION_CONNECTOR_OBJECT,
+                                                                             JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                                              SessionConnector.class,
                                                                              context);
         BMap<String, BValue> messageBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
-                                                                Constants.JMS_MESSAGE_OBJECT,
-                                                                Message.class,
-                                                                context);
+                                                           JmsConstants.JMS_MESSAGE_OBJECT,
+                                                           Message.class,
+                                                           context);
         try {
             sessionConnector.handleTransactionBlock(context);
             message.acknowledge();

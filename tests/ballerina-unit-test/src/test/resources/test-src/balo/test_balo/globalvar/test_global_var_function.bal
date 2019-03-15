@@ -1,57 +1,57 @@
 import testorg/foo version v1;
 
 function getGlobalVars() returns (int, string, float, any) {
-    return (foo:glbVarInt, foo:glbVarString, foo:glbVarFloat, foo:glbVarAny);
+    return (foo:getGlbVarInt(), foo:getGlbVarString(), foo:getGlbVarFloat(), foo:getGlbVarAny());
 }
 
 function accessGlobalVar() returns int {
     int value;
-    value = <int>foo:glbVarAny;
-    return (foo:glbVarInt + value);
+    value = <int>foo:getGlbVarAny();
+    return (foo:getGlbVarInt() + value);
 }
 
 function changeGlobalVar(int addVal) returns float {
-    foo:glbVarFloatChange = 77 + <float> addVal;
-    float value = foo:glbVarFloatChange;
+    foo:setGlbVarFloatChange(77 + <float> addVal);
+    float value = foo:getGlbVarFloatChange();
     return value;
 }
 
 function getGlobalFloatVar() returns float {
     _ = changeGlobalVar(3);
-    return foo:glbVarFloatChange;
+    return foo:getGlbVarFloatChange();
 }
 
 function getGlobalVarFloat1() returns float {
-    return foo:glbVarFloat1;
+    return foo:getGlbVarFloat1();
 }
 
 function initializeGlobalVarSeparately() returns (json, float) {
-    foo:glbVarJson = {"name" : "James", "age": 30};
-    foo:glbVarFloatLater = 3432.3423;
-    return (foo:glbVarJson, foo:glbVarFloatLater);
+    foo:setGlbVarJson({"name" : "James", "age": 30});
+    foo:setGlbVarFloatLater(3432.3423);
+    return (foo:getGlbVarJson(), foo:getGlbVarFloatLater());
 }
 
 function getGlobalVarByte() returns byte {
-    return foo:glbByte;
+    return foo:getGlbByte();
 }
 
 function getGlobalVarByteArray1() returns byte[] {
-    return foo:glbByteArray1;
+    return foo:getGlbByteArray1();
 }
 
 function getGlobalVarByteArray2() returns byte[] {
-    return foo:glbByteArray2;
+    return foo:getGlbByteArray2();
 }
 
 function getGlobalVarByteArray3() returns byte[] {
-    return foo:glbByteArray3;
+    return foo:getGlbByteArray3();
 }
 
 
 function getGlobalArrays() returns (int, int, int, int, int, int, int) {
-    int[2][3] x = foo:glbSealed2DArray;
-    int[3][] x1 = foo:glbSealed2DArray2;
-    return (foo:glbArray.length(), foo:glbSealedArray.length(), foo:glbSealedArray2.length(), x.length(),
+    int[2][3] x = foo:getGlbSealed2DArray();
+    int[3][] x1 = foo:getGlbSealed2DArray2();
+    return (foo:getGlbArray().length(), foo:getGlbSealedArray().length(), foo:getGlbSealedArray2().length(), x.length(),
                                                                         x[0].length(), x1.length(), x1[0].length());
 
 }

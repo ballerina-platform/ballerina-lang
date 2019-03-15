@@ -17,20 +17,20 @@
 
 import ballerina/time;
 import ballerina/task;
+import ballerina/io;
 
 public type Scheduler object {
 
     private LinkedList toNotifyQueue;
     private boolean running;
-    private task:Timer? timer;
-    private function (StreamEvent[] streamEvents) processFunc;
+    private task:Scheduler timer;
+    private function (StreamEvent?[] streamEvents) processFunc;
 
-    public function __init(function (StreamEvent[] streamEvents) processFunc) {
+    public function __init(function (StreamEvent?[] streamEvents) processFunc) {
         self.toNotifyQueue = new;
         self.running = false;
-        self.timer = ();
+        self.timer = new({ interval: 1 });
         self.processFunc = processFunc;
-
     }
 
     public function notifyAt(int timestamp) {
@@ -42,19 +42,21 @@ public type Scheduler object {
         if (self.toNotifyQueue.getSize() == 1 && self.running == false) {
             lock {
                 if (self.running == false) {
+                    self.running = true;
                     int timeDiff = timestamp > time:currentTime().time ? timestamp - time:currentTime().time : 0;
                     int timeDelay = timeDiff > 0 ? timeDiff : -1;
 
-                    if (self.timer is task:Timer) {
-                        _ = self.timer.stop();
-                    }
-
-                    self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                        function (error e) {io:println("Error occured", e.reason());}, timeDiff, delay = timeDelay);
+                    _ = self.timer.stop();
+                    self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
+                    _ = self.timer.attach(schedulerService, attachment = self);
                     _ = self.timer.start();
                 }
             }
         }
+    }
+
+    public function wrapperFunc() {
+        _ = self.sendTimerEvents();
     }
 
     public function sendTimerEvents() returns error? {
@@ -64,7 +66,7 @@ public type Scheduler object {
             _ = self.toNotifyQueue.removeFirst();
             map<anydata> data = {};
             StreamEvent timerEvent = new(("timer", data), "TIMER", <int>first);
-            StreamEvent[] timerEventWrapper = [];
+            StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
             self.processFunc.call(timerEventWrapper);
 
@@ -73,26 +75,36 @@ public type Scheduler object {
         }
 
         _ = self.timer.stop();
-        self.timer = ();
+        self.timer = new({ interval: 1 });
 
         first = self.toNotifyQueue.getFirst();
         currentTime = time:currentTime().time;
 
         if (first != ()) {
-            self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                function (error e) {io:println("Error occured", e.reason());}, <int>first - currentTime);
-            _ = self.timer.start();
+            if (<int>first - currentTime <= 0) {
+                _ = self.wrapperFunc();
+            } else {
+                self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1 });
+                _ = self.timer.attach(schedulerService, attachment = self);
+                _ = self.timer.start();
+            }
         } else {
             lock {
                 self.running = false;
                 if (self.toNotifyQueue.getFirst() != ()) {
                     self.running = true;
-                    self.timer = new task:Timer(function () returns error? {return self.sendTimerEvents();},
-                        function (error e) {io:println("Error occured", e.reason());}, 0);
+                    self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
+                    _ = self.timer.attach(schedulerService, attachment = self);
                     _ = self.timer.start();
                 }
             }
         }
         return ();
+    }
+};
+
+service schedulerService = service {
+    resource function onTrigger(Scheduler scheduler) {
+        _ = scheduler.sendTimerEvents();
     }
 };

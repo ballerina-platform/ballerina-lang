@@ -81,10 +81,7 @@ function getTable(string filePath, string encoding, io:Separator fieldSeperator)
             total = total + x.salary;
         }
         return total;
-    } else if (tableResult is error) {
-        return tableResult;
     } else {
-        error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
-        return e;
+        return tableResult;
     }
 }

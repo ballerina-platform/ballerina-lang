@@ -1,4 +1,3 @@
-import ballerina/crypto;
 import ballerina/io;
 
 function contains(string source, string substring) returns (boolean) {
@@ -54,15 +53,15 @@ function trim(string s) returns (string) {
 }
 
 function intValueOf(int i) returns (string) {
-    return <string>(i);
+    return string.convert(i);
 }
 
 function floatValueOf(float f) returns (string) {
-    return <string>(f);
+    return string.convert(f);
 }
 
 function booleanValueOf(boolean b) returns (string) {
-    return <string>(b);
+    return string.convert(b);
 }
 
 function stringValueOf(string s) returns (string) {
@@ -91,33 +90,4 @@ function split(string j, string k) returns (string[]) {
 
 function toByteArray(string l, string m) returns (byte[]) {
     return l.toByteArray(m);
-}
-
-function testEncodeDecode(string content) returns (string|error) {
-    var result = content.base64Encode();
-    return result is string ? result.base64Decode() : result;
-}
-
-function testBase64EncodeString(string contentToBeEncoded) returns (string|error) {
-    return contentToBeEncoded.base64Encode();
-}
-
-function testBase64DecodeString(string contentToBeDecoded) returns (string|error) {
-    return contentToBeDecoded.base64Decode();
-}
-
-function testBase16ToBase64Encoding(string s) returns string {
-    return s.base16ToBase64Encode();
-}
-
-function testBase64ToBase16Encoding(string s) returns string {
-    return s.base64ToBase16Encode();
-}
-
-function testHMACValueFromBase16ToBase64Encoding(string base, string key) returns (string) {
-    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode();
-}
-
-function testHMACValueFromBase64ToBase16Encoding(string base, string key) returns (string) {
-    return crypto:hmac(base, key, crypto:MD5).base16ToBase64Encode().base64ToBase16Encode();
 }

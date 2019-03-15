@@ -1,5 +1,6 @@
 import ballerina/h2;
 import ballerina/io;
+import ballerina/sql;
 
 // Create a client endpoint for the `h2` database. Before running the sample,
 // change the value of the 'path' field 
@@ -9,8 +10,7 @@ h2:Client testDB = new({
         path: "./h2-client",
         name: "testdb",
         username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
+        password: ""
     });
 
 public function main() {
@@ -34,8 +34,7 @@ public function main() {
         io:println("\nConvert the table into json");
         var jsonConversionRet = json.convert(selectRet);
         if (jsonConversionRet is json) {
-            io:print("JSON: ");
-            io:println(io:sprintf("%s", jsonConversionRet));
+            io:println("JSON: ", io:sprintf("%s", jsonConversionRet));
         } else {
             io:println("Error in table to json conversion");
         }
@@ -48,12 +47,18 @@ public function main() {
     io:println("\nThe update operation - Drop student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
+
+    // Stop database client.
+    var stopRet = testDB.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
+    }
 }
 
 // Function to handle return value of the `update` remote function.
-function handleUpdate(int|error returned, string message) {
-    if (returned is int) {
-        io:println(message + " status: " + returned);
+function handleUpdate(sql:UpdateResult|error returned, string message) {
+    if (returned is sql:UpdateResult) {
+        io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + <string>returned.detail().message);
     }

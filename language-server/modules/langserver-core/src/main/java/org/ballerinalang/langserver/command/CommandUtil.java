@@ -333,9 +333,6 @@ public class CommandUtil {
 
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, uri);
-
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, currentBLangPackage.symbol.getName().getValue());
-
         // Run the position calculator for the current package.
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
         currentBLangPackage.accept(positionTreeVisitor);
@@ -391,7 +388,7 @@ public class CommandUtil {
 
         private String argumentV;
 
-        CommandArgument(String argumentK, String argumentV) {
+        public CommandArgument(String argumentK, String argumentV) {
             this.argumentK = argumentK;
             this.argumentV = argumentV;
         }

@@ -29,7 +29,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,8 +46,7 @@ public class AuthnHandlerTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "authprovider", BALLERINA_CONF);
 

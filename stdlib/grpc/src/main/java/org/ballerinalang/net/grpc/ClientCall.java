@@ -73,11 +73,8 @@ public final class ClientCall {
         if (compressor != Codec.Identity.NONE) {
             outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
-        outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
-        if (advertisedEncodings != null) {
-            outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
-        }
+        outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
         outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
@@ -92,10 +89,10 @@ public final class ClientCall {
      */
     public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
-            throw new IllegalStateException(String.valueOf("Client connection us already setup."));
+            throw new IllegalStateException("Client connection us already setup.");
         }
         if (cancelCalled) {
-            throw new IllegalStateException(String.valueOf("Client call was cancelled."));
+            throw new IllegalStateException("Client call was cancelled.");
         }
         Compressor compressor;
         String compressorName = outboundMessage.getHeader("grpc-encoding");

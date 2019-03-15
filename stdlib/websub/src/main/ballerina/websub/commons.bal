@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
@@ -179,13 +180,15 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     return response;
 }
 
-# Function to validate signature for requests received at the callback.
+# Function to build the data source and validate the signature for requests received at the callback.
 #
 # + request - The request received
 # + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, service serviceType) returns error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
+    // Build the data source before responding to the content delivery requests automatically
+    var payload = request.getPayloadAsString();
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -203,19 +206,15 @@ function processWebSubNotification(http:Request request, service serviceType) re
         return;
     }
 
-    string stringPayload = "";
-    var payload = request.getPayloadAsString();
     if (payload is string) {
-        stringPayload = payload;
-    } else if (payload is error) {
+        return validateSignature(xHubSignature, payload, secret);
+    } else {
         string errCause = <string> payload.detail().message;
         map<any> errorDetail = { message : "Error extracting notification payload as string " +
                                         "for signature validation: " + errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
-
-    return validateSignature(xHubSignature, stringPayload, secret);
 }
 
 # Function to validate the signature header included in the notification.
@@ -231,9 +230,11 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string generatedSignature = "";
 
     if (method.equalsIgnoreCase(SHA1)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
+        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
+            secret.toByteArray("UTF-8")));
     } else if (method.equalsIgnoreCase(SHA256)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
+        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
+            secret.toByteArray("UTF-8")));
     } else {
         map<any> errorDetail = { message : "Unsupported signature method: " + method };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
@@ -497,7 +498,7 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                     default = hubConfiguration.topicRegistrationRequired ?: true);
 
-    // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
+    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
     hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
@@ -592,7 +593,7 @@ public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:
             content.contentType = mime:APPLICATION_XML;
         } else if (payload is json) {
             content.contentType = mime:APPLICATION_JSON;
-        } else if (payload is byte[]|io:ReadableByteChannel) {
+        } else {
             content.contentType = mime:APPLICATION_OCTET_STREAM;
         }
     }
@@ -657,7 +658,7 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
             var subscriberServiceAnnotation = trap <SubscriberServiceConfiguration> (annData.value);
             if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {
                 return subscriberServiceAnnotation;
-            } else if (subscriberServiceAnnotation is error) {
+            } else {
                 return;
             }
         }

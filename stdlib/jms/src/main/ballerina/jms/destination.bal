@@ -34,7 +34,8 @@ public type Destination object {
     public string destinationName;
     public string destinationType;
 
-    public function __init(string destName, string destType) {
+    // This object construction is package private as it needs to be created using the session
+    function __init(string destName, string destType) {
         self.destinationName = destName;
         self.destinationType = destType;
     }

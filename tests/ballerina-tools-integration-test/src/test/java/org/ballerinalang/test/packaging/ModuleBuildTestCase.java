@@ -344,7 +344,8 @@ public class ModuleBuildTestCase extends BaseTest {
         FileUtils.deleteDirectory(projectPath.resolve(".ballerina").toFile());
 
         String msg = "error: you are trying to build a module that is not inside a project. Run `ballerina init` " +
-                "from " + projectPath.toString() + " to initialize it as a project and then build the module.";
+                "from " + projectPath.toRealPath().toString() + " to initialize it as a project and then build the " +
+                "module.";
         LogLeecher leecher = new LogLeecher(msg, LeecherType.ERROR);
         balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{leecher},
                 projectPath.toString());

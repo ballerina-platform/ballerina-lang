@@ -37,6 +37,7 @@ public class AbstractObjectTest {
     public void testAbstractObjectNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
         BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
@@ -57,6 +58,8 @@ public class AbstractObjectTest {
                 "can not be declared as private", 80, 5);
         BAssertUtil.validateError(negativeResult, index++, "cannot find function signature for function 'getName' in " +
                 "object 'Bar'", 87, 1);
+        BAssertUtil.validateError(negativeResult, index,
+                "extern function: 'getName' not allowed in abstract object 'Person7'", 93, 5);
     }
 
     @Test
@@ -64,11 +67,12 @@ public class AbstractObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$2'", 4, 77);
+                                  "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$0'", 2, 101);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$1'", 3, 77);
         BAssertUtil.validateError(compileResult, index++,
-                "abstract object '$anonType$3' cannot have a constructor method", 7, 58);
-        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$5'", 9, 81);
+                "abstract object '$anonType$2' cannot have a constructor method", 6, 58);
+        BAssertUtil.validateError(compileResult, index, "cannot initialize abstract object '$anonType$4'", 8, 81);
     }
 
     @Test

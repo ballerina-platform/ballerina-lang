@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
@@ -579,7 +580,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isExpressionAvailable = ctx.expression() != null;
         boolean isListenerVar = ctx.LISTENER() != null;
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), isPublic,
-                isFinal, isDeclaredWithVar, isExpressionAvailable, isListenerVar);
+                                          isFinal, isDeclaredWithVar, isExpressionAvailable, isListenerVar);
     }
 
     @Override
@@ -639,12 +640,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 if (children.get(index + 1).getText().equals("]")) {
                     sizes.add(UNSEALED_ARRAY_INDICATOR);
                     index += 2;
-                } else if (children.get(index + 1) instanceof BallerinaParser.SealedLiteralContext) {
+                } else if (children.get(index + 1).getText().equals(OPEN_SEALED_ARRAY)) {
                     sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
-                    index += 3;
+                    index += 1;
                 } else {
                     sizes.add(Integer.parseInt(children.get(index + 1).getText()));
-                    index += 3;
+                    index += 1;
                 }
                 dimensions++;
             } else {
@@ -902,6 +903,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         this.pkgBuilder.addRecordBindingWS(getWS(ctx));
     }
 
@@ -992,7 +997,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-            this.pkgBuilder.addErrorVariableDefStatment(getCurrentPos(ctx), getWS(ctx), isDeclaredWithVar);
+            this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
@@ -1398,6 +1403,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     ctx.bindingPattern().Identifier().getText(), isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addForeachStatementWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar);
+        }  else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.addForeachStatementWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar);
         } else {
             this.pkgBuilder.addForeachStatementWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
@@ -2351,15 +2359,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
-        } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
+        } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "null");
+        } else if (ctx.emptyTupleLiteral() != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null, "()");
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
-        } else if ((node = ctx.SymbolicStringLiteral()) != null) {
-            String text = node.getText();
-            text = text.substring(1, text.length());
-            text = StringEscapeUtils.unescapeJava(text);
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         }
     }
 
@@ -2784,42 +2789,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitSetAssignmentClause(BallerinaParser.SetAssignmentClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetAssignmentClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startSetClauseNode();
-    }
-
-    @Override
-    public void exitSetClause(BallerinaParser.SetClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endSetClauseNode(getWS(ctx), ctx.getChildCount() / 2);
     }
 
     @Override

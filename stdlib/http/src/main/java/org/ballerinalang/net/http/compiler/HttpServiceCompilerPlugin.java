@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
-import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
@@ -113,9 +112,7 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
                         }
                         for (ExpressionNode expressionNode : valueArray.getExpressions()) {
                             String contentType = expressionNode.toString();
-                            try {
-                                MimeUtil.validateContentType(contentType);
-                            } catch (MimeTypeParseException e) {
+                            if (!MimeUtil.isValidateContentType(contentType)) {
                                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                                    "Invalid Content-Type value for compression: '" + contentType + "'");
                                 return;

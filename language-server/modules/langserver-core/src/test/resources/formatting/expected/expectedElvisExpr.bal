@@ -12,3 +12,21 @@ function testElvisValueTypeNested() returns (int) {
     b = x ?: (y ?: 1300);
     return b;
 }
+
+function testElvisTupleTypePositive() returns (string, int) {
+    (string, int) | () xT = ("Jack", 23);
+    (string, int) dT = ("default", 0);
+    var rT = xT ?: dT;
+    return rT;
+}
+
+function testElvisTupleTypeNegative() returns (string, int) {
+    (string, int) | () xT = ();
+    (string, int) dT = ("default", 0);
+    var rT =
+    xT
+    ?:
+    dT
+    ;
+    return rT;
+}

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -28,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -36,9 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.util.Map;
 
 /**
  * @since 0.94
@@ -122,14 +119,14 @@ public class SymbolEnv {
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
         if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(env.scope.owner);
+            objSymbol.methodScope = new Scope(objSymbol);
         }
         SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
 
-    public static SymbolEnv createDummyEnv(BLangFunction node, Scope scope, SymbolEnv env) {
+    public static SymbolEnv createDummyEnv(BLangNode node, Scope scope, SymbolEnv env) {
         SymbolEnv dummyEnv = createPkgLevelSymbolEnv(node, scope, env);
         return dummyEnv;
     }
@@ -210,7 +207,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createExpressionEnv(BLangExpression node, SymbolEnv env) {
+    public static SymbolEnv createTypeNarrowedEnv(BLangNode node, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
@@ -232,9 +229,11 @@ public class SymbolEnv {
 
     public SymbolEnv createClone() {
         Scope scope = new Scope(this.scope.owner);
-        for (Map.Entry<Name, Scope.ScopeEntry> entry: this.scope.entries.entrySet()) {
-            scope.entries.put(entry.getKey(), entry.getValue());
-        }
+        this.scope.entries.entrySet().stream()
+                // skip the type narrowed symbols when taking the snapshot for closures.
+                .filter(entry -> (entry.getValue().symbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE ||
+                        ((BVarSymbol) entry.getValue().symbol).originalSymbol == null)
+                .forEach(entry -> scope.entries.put(entry.getKey(), entry.getValue()));
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         this.copyTo(symbolEnv);
         symbolEnv.enclEnv = this.enclEnv != null ? this.enclEnv.createClone() : null;

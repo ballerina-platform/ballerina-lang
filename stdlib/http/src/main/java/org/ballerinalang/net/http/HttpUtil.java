@@ -75,6 +75,8 @@ import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -101,9 +103,7 @@ import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALR
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
@@ -115,13 +115,17 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.COLON;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
+import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
@@ -132,6 +136,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
+import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
@@ -141,6 +146,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
@@ -269,7 +276,7 @@ public class HttpUtil {
                 byteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
             }
             if (entityBodyRequired && !byteChannelAlreadySet) {
-                populateEntityBody(context, httpMessageStruct, entity, isRequest);
+                populateEntityBody(context, httpMessageStruct, entity, isRequest, false);
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
@@ -284,35 +291,30 @@ public class HttpUtil {
      * @param context           Represent ballerina context
      * @param httpMessageStruct Represent ballerina request/response
      * @param entity            Represent an entity
-     * @param isRequest         boolean representing whether the message is a request or a response
+     * @param request           boolean representing whether the message is a request or a response
+     * @param streaming         boolean representing whether the entity requires byte channel or message as native data
      */
     public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
-                                          BMap<String, BValue> entity, boolean isRequest) {
+                                          BMap<String, BValue> entity, boolean request, boolean streaming) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
+                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(request));
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
-            MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
+            MultipartDecoder.parseBody(context, entity, contentType,
+                                       new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
-            long contentLength = NO_CONTENT_LENGTH_FOUND;
-            String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-            try {
-                contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
-                if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    //Read one byte to make sure the incoming stream has data
-                    contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
-                }
-            } catch (NumberFormatException e) {
-                throw new BallerinaException("Invalid content length");
-            }
+            long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
-                entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-                        new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+                if (streaming) {
+                    entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                            new EntityBodyChannel(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream())));
+                } else {
+                    entity.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                }
             }
         }
-        httpMessageStruct.put(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
+        httpMessageStruct.put(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
     }
 
@@ -604,6 +606,14 @@ public class HttpUtil {
                                               ProgramFile programFile) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(REQUEST, true);
+
+        if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
+            BMap<String, BValue> mutualSslRecord = BLangConnectorSPIUtil
+                    .createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, MUTUAL_SSL_HANDSHAKE_RECORD);
+            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
+                    new BString((String) inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT)));
+            inboundRequestStruct.put(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
+        }
 
         enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
@@ -1216,13 +1226,7 @@ public class HttpUtil {
         return responseStruct;
     }
 
-    /**
-     * Populates Sender configuration instance with client endpoint configuration.
-     *
-     * @param senderConfiguration  sender configuration instance.
-     * @param clientEndpointConfig client endpoint configuration.
-     */
-    public static void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
+    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
         Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
@@ -1256,11 +1260,12 @@ public class HttpUtil {
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
         long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
-        if (timeoutMillis < 0 || !isInteger(timeoutMillis)) {
-            throw new BallerinaConnectorException("invalid idle timeout: " + timeoutMillis);
+        if (timeoutMillis < 0) {
+            senderConfiguration.setSocketIdleTimeout(0);
+        } else {
+            senderConfiguration.setSocketIdleTimeout(
+                    validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        senderConfiguration.setSocketIdleTimeout((int) timeoutMillis);
-
         String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
                 .getStringValue();
         senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
@@ -1271,35 +1276,52 @@ public class HttpUtil {
         }
         String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
-
-        Struct connectionThrottling = clientEndpointConfig.getStructField(HttpConstants.
-                CONNECTION_THROTTLING_STRUCT_REFERENCE);
-        if (connectionThrottling != null) {
-            long maxActiveConnections = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                        + maxActiveConnections);
-            }
-            senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
-
-            long waitTime = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
-            senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
-
-            long maxActiveStreamsPerConnection = connectionThrottling.
-                    getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
-            if (!isInteger(maxActiveStreamsPerConnection)) {
-                throw new BallerinaConnectorException("invalid maxActiveStreamsPerConnection value: "
-                        + maxActiveStreamsPerConnection);
-            }
-            senderConfiguration.getPoolConfiguration().setHttp2MaxActiveStreamsPerConnection(
-                    maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : (int) maxActiveStreamsPerConnection);
-        }
     }
 
-    private static boolean isInteger(long val) {
-        return (int) val == val;
+    public static ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
+        ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
+        if (poolManager == null) {
+            synchronized (poolStruct) {
+                if (poolStruct.getNativeData(CONNECTION_MANAGER) == null) {
+                    PoolConfiguration userDefinedPool = new PoolConfiguration();
+                    populatePoolingConfig(poolStruct, userDefinedPool);
+                    poolManager = new ConnectionManager(userDefinedPool);
+                    poolStruct.addNativeData(CONNECTION_MANAGER, poolManager);
+                }
+            }
+        }
+        return poolManager;
+    }
+
+    public static void populatePoolingConfig(BMap<String, BValue> poolRecord, PoolConfiguration poolConfiguration) {
+        long maxActiveConnections = ((BInteger) poolRecord
+                .get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS)).intValue();
+        poolConfiguration.setMaxActivePerPool(
+                validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
+
+        long maxIdleConnections = ((BInteger) poolRecord
+                .get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS)).intValue();
+        poolConfiguration.setMaxIdlePerPool(
+                validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
+
+        long waitTime = ((BInteger) poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME)).intValue();
+        poolConfiguration.setMaxWaitTime(waitTime);
+
+        long maxActiveStreamsPerConnection = ((BInteger) poolRecord.
+                get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION)).intValue();
+        poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
+                maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
+                                                                CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
+    }
+
+    private static int validateConfig(long value, String configName) {
+        try {
+            return Math.toIntExact(value);
+        } catch (ArithmeticException e) {
+            log.warn("The value set for the configuration needs to be less than {}. The " + configName +
+                             "value is set to {}", Integer.MAX_VALUE);
+            return Integer.MAX_VALUE;
+        }
     }
 
     /**
@@ -1388,8 +1410,12 @@ public class HttpUtil {
         sslConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
         sslConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
-        List<Value> ciphersValueList = Arrays
-                .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        sslConfiguration
+                .setSslSessionTimeOut((int) secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+
+        sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
+
+        List<Value> ciphersValueList = Arrays.asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
         if (ciphersValueList.size() > 0) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
@@ -1603,6 +1629,10 @@ public class HttpUtil {
         }
         String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
+        listenerConfiguration
+                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+        listenerConfiguration
+                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
         if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
             throw new BallerinaException(
                     "Truststore location or trustCertificates must be provided to enable Mutual SSL");

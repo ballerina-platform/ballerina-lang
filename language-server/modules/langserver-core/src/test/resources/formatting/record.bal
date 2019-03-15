@@ -13,3 +13,11 @@ public type RecordName6 record{int a = 0;string s;!...;};public type RecordName7
 function name1() {
 record {int hd = 0;record {int jd = 0;record {int hyf = 0;} hgt;} hgs;} sdd;
 }
+
+function name2() {
+    json msg = {
+        "response": {
+         "name": "main resource"
+        }
+    };
+}

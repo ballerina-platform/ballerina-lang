@@ -26,6 +26,7 @@ import ballerina/mime;
 # + extraPathInfo - Additional information associated with the URL provided by the client
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
+# + mutualSslHandshake - A record providing mutual ssl handshake results.
 public type Request object {
 
     public string rawPath = "";
@@ -34,6 +35,7 @@ public type Request object {
     public string userAgent = "";
     public string extraPathInfo = "";
     public RequestCacheControl? cacheControl = ();
+    public MutualSslHandshake? mutualSslHandshake = ();
 
     private mime:Entity entity;
     private boolean dirtyRequest;
@@ -352,7 +354,7 @@ public function Request.getFormParams() returns map<string>|error {
                 entryIndex = entryIndex + 1;
             }
         }
-    } else if (formData is error) {
+    } else {
         return formData;
     }
     return parameters;
@@ -411,8 +413,30 @@ public function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel
         self.setBinaryPayload(payload);
     } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if (payload is mime:Entity[]) {
+    } else {
         self.setBodyParts(payload);
     }
 }
 
+# A record for providing mutual ssl handshake results.
+#
+# + status - Status of the handshake.
+public type MutualSslHandshake record {
+    MutualSslStatus status = ();
+    !...;
+};
+
+# Defines the possible values for the mutual ssl status.
+#
+# `passed`: Mutual SSL handshake is succesful.
+# `failed`: Mutual SSL handshake has failed.
+public type MutualSslStatus PASSED | FAILED | ();
+
+# Mutual SSL handshake is succesful.
+public const PASSED = "passed";
+
+# Mutual SSL handshake has failed.
+public const FAILED = "failed";
+
+# Not a mutual ssl connection.
+public const NONE = ();

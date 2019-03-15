@@ -164,18 +164,6 @@ type Baz object {
     }
 };
 
-// client objects requires at least one remote function
-type Bax client object {
-
-    function nonAction1(float f) returns string {
-        return "done";
-    }
-
-    function nonAction2(float f) returns string {
-        return "done";
-    }
-};
-
 type dummy object {
 
     Foo ff = new;

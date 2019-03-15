@@ -32,6 +32,9 @@ import java.util.ArrayList;
  */
 public class BLangRecordLiteralUtil {
 
+    private BLangRecordLiteralUtil() {
+    }
+
     /**
      * Find all the record fields for the matching record literal.
      * 

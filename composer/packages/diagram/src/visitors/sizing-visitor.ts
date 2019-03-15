@@ -1,10 +1,10 @@
 import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
-    Foreach, Function, If, Invocation, Lambda, Literal, Match,
-    MatchStaticPatternClause, ObjectType, Panic, Return, Service,
-    TypeDefinition, UnionTypeNode, UserDefinedType, ValueType, Variable, VariableDef, VisibleEndpoint,
-    Visitor, While, WorkerSend
+    Foreach, Function, Identifier, If, Invocation, Lambda, Literal,
+    Match, MatchStaticPatternClause, ObjectType, Panic, RecordVariable,
+    Return, Service, TupleVariable, TypeDefinition, UnionTypeNode, UserDefinedType, ValueType,
+    Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -200,14 +200,35 @@ export const visitor: Visitor = {
         // make endpoints, which are defined in function, visible
         if (node.VisibleEndpoints && node.body) {
             const varDefStmts = node.body.statements.filter(ASTKindChecker.isVariableDef);
+            const isVariableOfEP = (
+                        variable: Variable | TupleVariable | RecordVariable | Identifier,
+                        targetEP: VisibleEndpoint): boolean => {
+                let foundMatch = false;
+                if (ASTKindChecker.isTupleVariable(variable)) {
+                    const variables = (variable as TupleVariable).variables;
+                    variables.forEach((varToBeChecked) => {
+                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
+                    });
+                } else if (ASTKindChecker.isRecordVariable(variable)) {
+                    const variables = (variable as RecordVariable).variables;
+                    variables.forEach((varToBeChecked) => {
+                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
+                    });
+                } else if (ASTKindChecker.isIdentifier(variable)) {
+                    foundMatch = false;
+                } else if (ASTKindChecker.isVariable(variable)) {
+                    const varToBeChecked = variable as Variable;
+                    const variableTypeNode = varToBeChecked.typeNode as UserDefinedType;
+                    foundMatch = varToBeChecked.name.value === targetEP.name
+                            && variableTypeNode.packageAlias.value === targetEP.pkgAlias
+                            && variableTypeNode.typeName.value === targetEP.typeName;
+                }
+                return foundMatch;
+            };
             node.VisibleEndpoints.forEach((visibleEndpoint) => {
                 const epDef = varDefStmts.find((varDefStmt) => {
                     const varDef = varDefStmt as VariableDef;
-                    const variable = varDef.variable as Variable;
-                    const variableTypeNode = variable.typeNode as UserDefinedType;
-                    return variable.name.value === visibleEndpoint.name
-                        && variableTypeNode.packageAlias.value === visibleEndpoint.pkgAlias
-                        && variableTypeNode.typeName.value === visibleEndpoint.typeName;
+                    return isVariableOfEP(varDef.variable, visibleEndpoint);
                 });
                 if (epDef) {
                     (visibleEndpoint.viewState as EndpointViewState).visible = true;
@@ -216,6 +237,18 @@ export const visitor: Visitor = {
                 }
             });
         }
+    },
+
+    beginVisitIf(node: If) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitWhile(node: While) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+    },
+
+    beginVisitForeach(node: Foreach) {
+        node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
     },
 
     // tslint:disable-next-line:ban-types
@@ -301,9 +334,9 @@ export const visitor: Visitor = {
             // hide empty return stmts in resources
             if (node.resource) {
                 returnViewState.hidden =
-                        returnStmt.noExpressionAvailable
+                    returnStmt.noExpressionAvailable
                     || (ASTKindChecker.isLiteral(returnStmt.expression)
-                    && (returnStmt.expression as Literal).emptyParantheses === true);
+                        && (returnStmt.expression as Literal).emptyParantheses === true);
             }
         });
 
@@ -311,7 +344,7 @@ export const visitor: Visitor = {
         // and doesn't have any return statements
         if (!node.resource && returnStatements.length === 0) {
             const isNilType = (target: ASTNode) => ASTKindChecker.isValueType(target)
-                            && (target as ValueType).typeKind === "nil";
+                && (target as ValueType).typeKind === "nil";
 
             // case one: returns () or no return type declaration
             viewState.implicitReturn.hidden = !(isNilType(node.returnTypeNode)
@@ -329,7 +362,9 @@ export const visitor: Visitor = {
         let height = 0;
         viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
-            if (ASTUtil.isWorker(element)) { return; }
+            if (ASTUtil.isWorker(element) ||
+                ASTKindChecker.isReturn(element)
+            ) { return; }
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)

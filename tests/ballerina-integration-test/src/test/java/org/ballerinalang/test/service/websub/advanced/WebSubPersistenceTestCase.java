@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_JSON;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PATH_SEPARATOR;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL_TWO;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdateWithContent;
@@ -44,6 +44,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
+    private static final int WEBSUB_PORT = 8383;
     private BServerInstance webSubSubscriber;
 
     private static final String PUBLISHER_ONE_BEFORE_CONTENT =
@@ -87,15 +88,15 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(notificationAfterLogLeecherOne);
         webSubSubscriber.addLogLeecher(notificationAfterLogLeecherTwo);
 
-        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{8383});
+        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{WEBSUB_PORT});
     }
 
     @Test
     public void testDiscoveryAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
-        requestUpdateWithContent(PUBLISHER_NOTIFY_URL, PUBLISHER_ONE_BEFORE_CONTENT, CONTENT_TYPE_JSON);
-        requestUpdateWithContent(PUBLISHER_NOTIFY_URL_TWO, PUBLISHER_TWO_BEFORE_CONTENT, CONTENT_TYPE_JSON);
+        requestUpdateWithContent(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, PUBLISHER_ONE_BEFORE_CONTENT);
+        requestUpdateWithContent(PUBLISHER_NOTIFY_URL_TWO, PUBLISHER_TWO_BEFORE_CONTENT);
     }
 
     @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
@@ -109,8 +110,8 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         if (response.getResponseCode() != HttpResponseStatus.ACCEPTED.code()) {
             Assert.fail("hub restart failed!");
         }
-        requestUpdateWithContent(PUBLISHER_NOTIFY_URL, PUBLISHER_ONE_AFTER_CONTENT, CONTENT_TYPE_JSON);
-        requestUpdateWithContent(PUBLISHER_NOTIFY_URL_TWO, PUBLISHER_TWO_AFTER_CONTENT, CONTENT_TYPE_JSON);
+        requestUpdateWithContent(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, PUBLISHER_ONE_AFTER_CONTENT);
+        requestUpdateWithContent(PUBLISHER_NOTIFY_URL_TWO, PUBLISHER_TWO_AFTER_CONTENT);
     }
 
     @Test(dependsOnMethods = "testContentReceiptBeforeRestart")
@@ -118,7 +119,6 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
         notificationAfterLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
         notificationAfterLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
-
 
     @AfterClass
     private void teardown() throws Exception {
