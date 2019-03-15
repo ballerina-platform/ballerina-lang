@@ -377,7 +377,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                                 return true;
                             } else {
                                 // TODO: introduce locking mechanism to limit the refreshing
-                                string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
+                                string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
                             }
                         }
@@ -414,7 +414,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + directAccessToken);
                             return true;
                         } else {
-                            string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
+                            string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
                         }
                     } else {
@@ -518,14 +518,14 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     }
     Request authorizationRequest = prepareRequest(requestConfig);
     Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
-    return getAccessTokenFromResponse(authorizationResponse);
+    return extractAccessTokenFromResponse(authorizationResponse);
 }
 
 # Request an access token from authorization server using the provided refresh configurations.
 #
 # + config - Password grant type configuration or direct token configuration
 # + return - Access token received or `error` if error occured during HTTP client invocation
-function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig config) returns string|error {
+function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config) returns string|error {
     Client refreshClient;
     RequestConfig requestConfig;
     if (config is PasswordGrantConfig) {
@@ -563,7 +563,7 @@ function getAccessTokenFromRefreshToken(PasswordGrantConfig|DirectTokenConfig co
     }
     Request refreshRequest = prepareRequest(requestConfig);
     Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
-    return getAccessTokenFromResponse(refreshResponse);
+    return extractAccessTokenFromResponse(refreshResponse);
 }
 
 # Prepare the request which is to be sent to authorization server by adding relevant headers and payloads.
@@ -598,7 +598,7 @@ function prepareRequest(RequestConfig config) returns Request {
 #
 # + response - HTTP response object
 # + return - Extracted access token or `error` if error occured during HTTP client invocation
-function getAccessTokenFromResponse(Response response) returns string|error {
+function extractAccessTokenFromResponse(Response response) returns string|error {
     json payload = check response.getJsonPayload();
     if (response.statusCode == OK_200) {
         check updateTokenCache(payload);
@@ -666,7 +666,7 @@ function updateRequest(Request req, ClientEndpointConfig config) returns ()|erro
                 string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
             } else {
-                string accessToken = check getAccessTokenFromRefreshToken(grantTypeConfig);
+                string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
             }
         }
