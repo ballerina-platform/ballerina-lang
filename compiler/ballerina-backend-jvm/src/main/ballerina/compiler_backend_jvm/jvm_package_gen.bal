@@ -6,12 +6,18 @@ function lookupFullQualifiedClassName(string key) returns string {
     if (result is string) {
         return result;
     } else {
-        error err = error("cannot find full qualified class for method : " + key);
+        error err = error("cannot find full qualified class for : " + key);
         panic err;
     }
 }
 
 public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries) {
+
+    // generate imported modules recursively
+    foreach var mod in module.importModules {
+        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        generateImportedPackage(importedPkg, pkgEntries);
+    }
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -125,6 +131,12 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
         panic err;
     }
+}
+
+function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
+    bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
+                                modVersion: importModule.modVersion.value};
+    return birContext.lookupBIRModule(moduleId);
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {

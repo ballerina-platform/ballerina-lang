@@ -12,6 +12,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
+        // invoke all init functions
+        generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv, module.typeDefs);
     }
 
@@ -173,7 +175,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         j += 1;
     }
 
-    var frameName = funcName + "Frame";
+    var frameName = currentPackageName + funcName + "Frame";
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, 0);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
@@ -467,7 +469,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
     if (hasInitFunction(pkg)) {
-        string initFuncName = cleanupFunctionName(getModuleInitfuncName(pkg));
+        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
@@ -533,17 +535,35 @@ function hasInitFunction(bir:Package pkg) returns boolean {
 }
 
 function isModuleInitFunction(bir:Package module, bir:Function func) returns boolean {
-    string moduleInit = getModuleInitfuncName(module);
+    string moduleInit = getModuleInitFuncName(module);
     return func.name.value == moduleInit;
 }
 
-function getModuleInitfuncName(bir:Package module) returns string {
+function getModuleInitFuncName(bir:Package module) returns string {
     string orgName = module.org.value;
     string moduleName = module.name.value;
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
         return orgName  + "/" + moduleName + ":" + module.versionValue.value + ".<init>";
     } else {
         return "..<init>";
+    }
+}
+
+function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
+    foreach var mod in pkg.importModules {
+        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        if (hasInitFunction(importedPkg)) {
+            string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
+            string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
+                                                                importedPkg.name.value);
+            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
+            mv.visitInsn(POP);
+        }
+        generateInitFunctionInvocation(importedPkg, mv);
     }
 }
 
@@ -614,11 +634,13 @@ type BalToJVMIndexMap object {
 };
 
 function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
+    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
+
     foreach var func in pkg.functions {
         var currentFunc = untaint func;
-        var frameName = cleanupFunctionName(currentFunc.name.value) + "Frame";
+        var frameClassName = pkgName + cleanupFunctionName(currentFunc.name.value) + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameName, null, OBJECT_VALUE, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT_VALUE, null);
         generateDefaultConstructor(cw);
 
         int k = 0;
@@ -679,7 +701,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         fv.visitEnd();
 
         cw.visitEnd();
-        pkgEntries[frameName + ".class"] = cw.toByteArray();
+        pkgEntries[frameClassName + ".class"] = cw.toByteArray();
     }
 }
 
@@ -694,5 +716,5 @@ function generateDefaultConstructor(jvm:ClassWriter cw) {
 }
 
 function cleanupFunctionName(string functionName) returns string {
-    return functionName.replaceFirst("..<", "__").replaceFirst(">", "_");
+    return functionName.replaceAll("[\\.:/<>]", "_");
 }
