@@ -418,9 +418,9 @@ public class BCompileUtil {
 
         // invoke the init function
         String funcName;
-        if (!packageName.equalsIgnoreCase(".")) {
-            funcName = bLangPackage.packageID.orgName.value + "/" + bLangPackage.packageID.name.value + ":" +
-                    bLangPackage.packageID.version.value + MODULE_INIT_SUFFIX;
+        PackageID pkgID = bLangPackage.packageID;
+        if (!pkgID.name.value.equalsIgnoreCase(".")) {
+            funcName = pkgID.orgName.value + "/" + pkgID.name.value + ":" + pkgID.version.value + MODULE_INIT_SUFFIX;
         } else {
             funcName = MODULE_INIT_SUFFIX;
         }

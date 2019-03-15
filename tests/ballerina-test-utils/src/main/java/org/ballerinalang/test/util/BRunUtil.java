@@ -242,7 +242,8 @@ public class BRunUtil {
      * @param bvmArgs input arguments to be used with function invocation
      * @return return the result from function invocation
      */
-    private static BValue[] invoke(Class<?> clazz, BIRNode.BIRFunction function, String functionName, BValue[] bvmArgs) {
+    private static BValue[] invoke(Class<?> clazz, BIRNode.BIRFunction function, String functionName,
+                                   BValue[] bvmArgs) {
         List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmParamTypes.size() + 1];
