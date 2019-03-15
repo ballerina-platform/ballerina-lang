@@ -56,7 +56,7 @@ public function main(string pii) returns error? {
                 return depseudonymizedPii;
             }
 
-            // Delete the PII by providing the pseudonymized identifier.
+            // Deletes the PII by providing the pseudonymized identifier.
             var deleteStatus = privacy:delete(piiStore, pseudonymizedPii);
             if (deleteStatus is error) {
                 return deleteStatus;
