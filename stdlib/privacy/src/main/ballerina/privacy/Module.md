@@ -40,7 +40,7 @@ public function main(string pii) returns error? {
     if (creationStatus is sql:UpdateResult) {
         io:println("PII to be persisted: " + pii);
 
-        // Create a storage that uses a H2 database to persist personally identifiable information (PII).
+        // Creates a storage that uses an H2 database to persist Personally Identifiable Information (PII).
         privacy:H2PiiStore piiStore = new(testDB, TABLE_NAME, ID_CLOUMN, PII_COLUMN);
 
         // Store PII information in the storage and take a pseudonymized identifier (UUID) representing the stored data.
