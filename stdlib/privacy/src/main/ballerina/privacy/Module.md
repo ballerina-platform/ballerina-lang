@@ -11,7 +11,7 @@ A pseudonymized identifier will be issued by the `pseudonymize` function
  the particular PII in other locations. The `depseudonymize` function
  can be used to obtain the actual PII value and give the pseudonymized
 `` 
- identifier. PII can be deleted from the storage using the `delete`
+ identifier. PII can be deleted from the store using the `delete`
  function.
 
 ## Samples
