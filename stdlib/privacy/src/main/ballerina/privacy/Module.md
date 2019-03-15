@@ -48,7 +48,7 @@ public function main(string pii) returns error? {
         if (pseudonymizedPii is string) {
             io:println("Pseudonymized identifier: " + pseudonymizedPii);
 
-            // Read the PII by providing the pseudonymized identifier.
+            // Reads the PII by providing the pseudonymized identifier.
             var depseudonymizedPii = privacy:depseudonymize(piiStore, pseudonymizedPii);
             if (depseudonymizedPii is string) {
                 io:println("Deseudonymized value: " + depseudonymizedPii);
