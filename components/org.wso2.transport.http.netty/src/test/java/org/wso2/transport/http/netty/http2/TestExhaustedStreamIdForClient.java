@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SERVER_PORT;
  * Test case for exhausted stream id for client.
  */
 public class TestExhaustedStreamIdForClient {
-    private static final Logger LOG = LoggerFactory.getLogger(Http2WithPriorKnowledgeTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestExhaustedStreamIdForClient.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
