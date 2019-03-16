@@ -114,10 +114,10 @@ public type TypeParser object {
                     restFieldType: self.parseType(), fields: self.parseRecordFields() };
     }
 
-    function parseRecordFields() returns BRecordField[] {
+    function parseRecordFields() returns BRecordField?[] {
         int size = self.reader.readInt32();
         int c = 0;
-        BRecordField[] fields = [];
+        BRecordField?[] fields = [];
         while c < size {
             fields[c] = self.parseRecordField();
             c = c + 1;
@@ -135,7 +135,7 @@ public type TypeParser object {
             attachedFunctions:self.parseObjectAttachedFunctions() };
     }
 
-    function parseObjectAttachedFunctions() returns BAttachedFunction[] {
+    function parseObjectAttachedFunctions() returns BAttachedFunction?[] {
         int size = self.reader.readInt32();
         int c = 0;
         BAttachedFunction?[] attachedFunctions = [];
@@ -152,16 +152,10 @@ public type TypeParser object {
             c = c + 1;
         }
 
-        var result = BAttachedFunction[].stamp(attachedFunctions);
-        if (result is BAttachedFunction[]) {
-            return result;
-        } else {
-            BAttachedFunction[0] emptyAttachedFunctions = [];
-            return emptyAttachedFunctions;
-        }
+        return attachedFunctions;
     }
 
-    function parseObjectFields() returns BObjectField[] {
+    function parseObjectFields() returns BObjectField?[] {
         int size = self.reader.readInt32();
         int c = 0;
         BObjectField?[] fields = [];
@@ -170,13 +164,7 @@ public type TypeParser object {
             c = c + 1;
         }
 
-        var result = BObjectField[].stamp(fields);
-        if (result is BObjectField[]) {
-            return result;
-        } else {
-            BObjectField[0] emptyFields = [];
-            return emptyFields;
-        }
+        return fields;
     }
 
     function parseObjectField() returns BObjectField {

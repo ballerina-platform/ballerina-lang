@@ -185,7 +185,7 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 76, 5);
         BAssertUtil.validateError(resultNegative, 8, "unknown type 'Student'", 88, 11);
         BAssertUtil.validateError(resultNegative, 9,
-            "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+            "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns ()'",
                 101, 25);
         BAssertUtil.validateError(resultNegative, 10,
                 "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' column", 123, 11);

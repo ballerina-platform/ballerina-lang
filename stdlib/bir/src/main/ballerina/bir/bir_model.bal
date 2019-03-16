@@ -1,9 +1,9 @@
 
 public type Package record {
     ImportModule[] importModules = [];
-    TypeDef[] typeDefs;
-    GlobalVariableDcl[] globalVars;
-    Function[] functions;
+    TypeDef?[] typeDefs = [];
+    GlobalVariableDcl?[] globalVars;
+    Function?[] functions = [];
     Name name = {};
     Name org = {};
     BType?[] types = [];
@@ -25,9 +25,9 @@ public type TypeDef record {
 
 public type Function record {
     int argsCount = 0;
-    BasicBlock[] basicBlocks;
+    BasicBlock?[] basicBlocks = [];
     boolean isDeclaration = false;
-    VariableDcl[] localVars;
+    VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
@@ -177,14 +177,14 @@ public type BRecordType record {
     Name name = {};
     boolean sealed;
     BType restFieldType;
-    BRecordField[] fields;
+    BRecordField?[] fields = [];
     !...;
 };
 
 public type BObjectType record {
     Name name = {};
-    BObjectField[] fields;
-    BAttachedFunction[] attachedFunctions;
+    BObjectField?[] fields = [];
+    BAttachedFunction?[] attachedFunctions = [];
     !...;
 };
 
@@ -330,7 +330,7 @@ public type BinaryOp record {
 };
 
 public type Call record {
-    VarRef[] args;
+    VarRef?[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
     ModuleID pkgID;
