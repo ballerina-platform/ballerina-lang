@@ -22,14 +22,14 @@ function basicTupleTest () returns (string) {
     int d;
     (c, d) = ("test4", 4);
     addValue(c);
-    addValue(<string> d);
+    addValue(string.convert(d));
     endTest();
 
     // Test 5
     (string,int) f = ("test5",5);
     var (g, h) = f;
     addValue(g);
-    addValue(<string> h);
+    addValue(string.convert(h));
     endTest();
 
     // Test 6

@@ -19,12 +19,14 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Divider, Form } from "semantic-ui-react";
 
 export interface OpenApiAddOperationProps {
     openApiJson: Swagger.OpenAPIObject;
     onAddOperation: (operation: Swagger.OperationObject) => void ;
     resourcePath: string;
+    handleOnClose: (id: number) => void;
+    operationIndex: number;
 }
 
 export interface OpenApiAddOperationState {
@@ -79,7 +81,7 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
 
     public render() {
         const { operationMethods } = this.state;
-        const { onAddOperation } = this.props;
+        const { onAddOperation, handleOnClose, operationIndex } = this.props;
 
         return (
             <Form className="add-operation">
@@ -96,13 +98,23 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
                             />
                         );
                     })}
-                </Form.Group>
-                <Button size="mini" onClick={() => {
+                    <Button size="mini" primary onClick={() => {
                     onAddOperation(this.state.operationObject);
+                    handleOnClose(operationIndex);
                     this.setState({
-                        operationMethods: []
+                        operationMethods: [],
+                        operationObject: {
+                            description: "",
+                            id: "",
+                            method: [],
+                            name: "",
+                            path: this.props.resourcePath,
+                            responses: []
+                        }
                     });
-                }}>Add</Button>
+                }}>Add Method</Button>
+                </Form.Group>
+                <Divider/>
             </Form>
         );
     }

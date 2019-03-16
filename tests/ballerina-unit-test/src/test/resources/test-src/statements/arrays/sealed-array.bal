@@ -22,7 +22,7 @@ function createIntSealedArray() returns int {
 }
 
 function createIntSealedArrayWithLabel() returns int {
-    int[!...] sealedArray = [2, 15, 200, 1500, 5000];
+    int[*] sealedArray = [2, 15, 200, 1500, 5000];
     return sealedArray.length();
 }
 
@@ -39,7 +39,7 @@ function createBoolSealedArray() returns int {
 }
 
 function createBoolSealedArrayWithLabel() returns int {
-    boolean[!...] sealedArray = [true, false, false, true, false];
+    boolean[*] sealedArray = [true, false, false, true, false];
     return sealedArray.length();
 }
 
@@ -56,7 +56,7 @@ function createFloatSealedArray() returns int {
 }
 
 function createFloatSealedArrayWithLabel() returns int {
-    float[!...] sealedArray = [0.0, 15.2, 1100.0, -25.8, -10.0];
+    float[*] sealedArray = [0.0, 15.2, 1100.0, -25.8, -10.0];
     return sealedArray.length();
 }
 
@@ -73,7 +73,7 @@ function createStringSealedArray() returns int {
 }
 
 function createStringSealedArrayWithLabel() returns int {
-    string[!...] sealedArray = ["a", "abc", "12", "-12", "."];
+    string[*] sealedArray = ["a", "abc", "12", "-12", "."];
     return sealedArray.length();
 }
 
@@ -90,7 +90,7 @@ function createAnySealedArray() returns int {
 }
 
 function createAnySealedArrayWithLabel() returns int {
-    any[!...] sealedArray = ["a", true, 12, -12.5, "."];
+    any[*] sealedArray = ["a", true, 12, -12.5, "."];
     return sealedArray.length();
 }
 
@@ -107,7 +107,7 @@ function createRecordSealedArray() returns int {
 }
 
 function createRecordSealedArrayWithLabel() returns int {
-    Person[!...] sealedArray = [{}, {}, {}, {}, {}];
+    Person[*] sealedArray = [{}, {}, {}, {}, {}];
     return sealedArray.length();
 }
 
@@ -121,7 +121,7 @@ function createByteSealedArray() returns int {
 
 function createByteSealedArrayWithLabel() returns int {
     byte a = 7;
-    byte[!...] sealedArray = [a, a, a, a, a];
+    byte[*] sealedArray = [a, a, a, a, a];
     return sealedArray.length();
 }
 
@@ -139,7 +139,7 @@ function createTupleSealedArray() returns int {
 }
 
 function createTupleSealedArrayWithLabel() returns int {
-    (int, boolean)[!...] sealedArray = [(2, true), (3, false), (6, true)];
+    (int, boolean)[*] sealedArray = [(2, true), (3, false), (6, true)];
     return sealedArray.length();
 }
 
@@ -155,7 +155,7 @@ function functionParametersAndReturns() returns (int, int) {
 }
 
 function mockFunction(boolean[3] sealedArray) returns (boolean[3], string[2]) {
-    string[!...] sealedStrArray = ["Sam", "Smith"];
+    string[*] sealedStrArray = ["Sam", "Smith"];
     return (sealedArray, sealedStrArray);
 }
 
@@ -224,7 +224,7 @@ function createJSONSealedArray() returns int {
 }
 
 function createJSONSealedArrayWithLabel() returns int {
-    json[!...] sealedArray = [false, "abc", "12", -12, "."];
+    json[*] sealedArray = [false, "abc", "12", -12, "."];
     return sealedArray.length();
 }
 

@@ -77,7 +77,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -99,7 +99,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -121,7 +121,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -143,7 +143,7 @@ service loadBalancerDemoService on new http:Listener(9313) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (response is error) {
+        } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
             outResponse.setPayload(<string> response.detail().message);
@@ -238,22 +238,22 @@ public type CustomLoadBalancerRule object {
     # + loadBalanceClientsArray - Array of HTTP clients which needs to be load balanced
     # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextClient(http:Client[] loadBalanceClientsArray) returns http:Client|error;
+    public function getNextClient(http:Client?[] loadBalanceClientsArray) returns http:Client|error;
 };
 
-public function CustomLoadBalancerRule.getNextClient(http:Client[] loadBalanceClientsArray)
+public function CustomLoadBalancerRule.getNextClient(http:Client?[] loadBalanceClientsArray)
                                           returns http:Client|error {
-    http:Client httpClient = loadBalanceClientsArray[self.index];
+    http:Client httpClient = <http:Client>loadBalanceClientsArray[self.index];
     if (self.index >= loadBalanceClientsArray.length()) {
         error err = error("Provided index is doesn't match with the targets.");
         return err;
     }
     lock {
         if (self.index == (loadBalanceClientsArray.length() - 1)) {
-            httpClient = loadBalanceClientsArray[self.index];
+            httpClient = <http:Client>loadBalanceClientsArray[self.index];
             self.index = 0;
         } else {
-            httpClient = loadBalanceClientsArray[self.index];
+            httpClient = <http:Client>loadBalanceClientsArray[self.index];
             self.index += 1;
         }
     }

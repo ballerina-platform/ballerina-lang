@@ -33,19 +33,19 @@ public class ObjectEquivalencyNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 7);
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: 'employee01' cannot be explicitly typed as 'person01'", 24, 18);
+                "incompatible types: 'employee01' cannot be cast to 'person01'", 24, 18);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: 'employee02' cannot be explicitly typed as 'person02'", 51, 18);
+                "incompatible types: 'employee02' cannot be cast to 'person02'", 51, 18);
         BAssertUtil.validateError(compileResult, 2,
-                "incompatible types: 'employee04' cannot be explicitly typed as 'person04'", 108, 18);
+                "incompatible types: 'employee04' cannot be cast to 'person04'", 108, 18);
         BAssertUtil.validateError(compileResult, 3,
-                "incompatible types: 'employee05' cannot be explicitly typed as 'person05'", 145, 18);
+                "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
         BAssertUtil.validateError(compileResult, 4,
-                "incompatible types: 'employee06' cannot be explicitly typed as 'person06'", 175, 18);
+                "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
         BAssertUtil.validateError(compileResult, 5,
-                "incompatible types: 'employee08' cannot be explicitly typed as 'person08'", 306, 18);
+                "incompatible types: 'employee08' cannot be cast to 'person08'", 306, 18);
         BAssertUtil.validateError(compileResult, 6,
-                "incompatible types: 'employee09' cannot be explicitly typed as 'person09'", 375, 18);
+                "incompatible types: 'employee09' cannot be cast to 'person09'", 375, 18);
     }
 
     @Test(description = "Test equivalence of objects that are in the same package from a third package")
@@ -54,8 +54,8 @@ public class ObjectEquivalencyNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: 'org.foo.bar:userBar' cannot be explicitly typed as 'org.foo:userFoo'", 11, 23);
+                "incompatible types: 'org.foo.bar:userBar' cannot be cast to 'org.foo:userFoo'", 11, 23);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: 'org.foo.bar:BarObj' cannot be explicitly typed as 'org.foo:FooObj'", 17, 25);
+                "incompatible types: 'org.foo.bar:BarObj' cannot be cast to 'org.foo:FooObj'", 17, 25);
     }
 }

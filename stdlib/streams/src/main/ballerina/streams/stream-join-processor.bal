@@ -16,7 +16,7 @@
 
 public type StreamJoinProcessor object {
     private (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? onConditionFunc;
-    private function (StreamEvent[]) nextProcessor;
+    private function (StreamEvent?[]) nextProcessor;
     public Window? lhsWindow;
     public Window? rhsWindow;
     public string? lhsStream;
@@ -25,7 +25,7 @@ public type StreamJoinProcessor object {
     public JoinType joinType;
     public int lockField = 0;
 
-    public function __init(function (StreamEvent[]) nextProcessor, JoinType joinType,
+    public function __init(function (StreamEvent?[]) nextProcessor, JoinType joinType,
                            (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? onConditionFunc) {
         self.nextProcessor = nextProcessor;
         self.joinType = joinType;
@@ -37,13 +37,14 @@ public type StreamJoinProcessor object {
         self.unidirectionalStream = ();
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    public function process(StreamEvent?[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
-        StreamEvent[] outputEvents = [];
+        StreamEvent?[] outputEvents = [];
         lock {
             self.lockField += 1;
             int i = 0;
-            foreach var event in streamEvents {
+            foreach var evt in streamEvents {
+                StreamEvent event = <StreamEvent> evt;
                 string originStream = event.data.keys()[0].split("\\.")[0];
                 // resolve trigger according to join direction
                 boolean triggerJoin = false;
@@ -212,7 +213,7 @@ public type StreamJoinProcessor object {
     }
 };
 
-public function createStreamJoinProcessor(function (StreamEvent[]) nextProcessor, JoinType joinType,
+public function createStreamJoinProcessor(function (StreamEvent?[]) nextProcessor, JoinType joinType,
                                           (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)?
                                           conditionFunc = ())
                     returns StreamJoinProcessor {

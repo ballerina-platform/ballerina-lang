@@ -1,6 +1,6 @@
 import testorg/foo version v1;
 
-foo:Architect pp;
+foo:Architect pp = new(1, "John");
 
 public function testObjectWithInterface () returns (int, string) {
     foo:Architect p;

@@ -114,10 +114,10 @@ public type TypeParser object {
                     restFieldType: self.parseType(), fields: self.parseRecordFields() };
     }
 
-    function parseRecordFields() returns BRecordField[] {
+    function parseRecordFields() returns BRecordField?[] {
         int size = self.reader.readInt32();
         int c = 0;
-        BRecordField[] fields = [];
+        BRecordField?[] fields = [];
         while c < size {
             fields[c] = self.parseRecordField();
             c = c + 1;
@@ -135,10 +135,10 @@ public type TypeParser object {
             attachedFunctions:self.parseObjectAttachedFunctions() };
     }
 
-    function parseObjectAttachedFunctions() returns BAttachedFunction[] {
+    function parseObjectAttachedFunctions() returns BAttachedFunction?[] {
         int size = self.reader.readInt32();
         int c = 0;
-        BAttachedFunction[] attachedFunctions = [];
+        BAttachedFunction?[] attachedFunctions = [];
         while c < size {
             var funcName = self.reader.readStringCpRef();
             var visibility = parseVisibility(self.reader);
@@ -151,17 +151,19 @@ public type TypeParser object {
             attachedFunctions[c] = {name:{value:funcName},visibility:visibility,funcType:self.parseInvokableType()};
             c = c + 1;
         }
+
         return attachedFunctions;
     }
 
-    function parseObjectFields() returns BObjectField[] {
+    function parseObjectFields() returns BObjectField?[] {
         int size = self.reader.readInt32();
         int c = 0;
-        BObjectField[] fields = [];
+        BObjectField?[] fields = [];
         while c < size {
             fields[c] = self.parseObjectField();
             c = c + 1;
         }
+
         return fields;
     }
 

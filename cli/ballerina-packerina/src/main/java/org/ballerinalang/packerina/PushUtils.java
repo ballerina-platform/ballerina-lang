@@ -23,7 +23,6 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -64,14 +63,15 @@ import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
 public class PushUtils {
 
     private static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
-    private static final PrintStream SYS_ERR = System.err;
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static PrintStream outStream = System.out;
+
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
     private static Settings settings;
 
+    private static final PrintStream SYS_ERR = System.err;
+    private static PrintStream outStream = System.out;
     /**
      * Push/Uploads modules to the central repository.
      *
@@ -162,12 +162,11 @@ public class PushUtils {
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.executeFunction("packaging_push/packaging_push.balx", BLangConstants.MAIN_FUNCTION_NAME,
-                                     accessToken, mdFileContent, description, homepageURL, repositoryURL, apiDocURL,
-                                     authors, keywords, license, resourcePath, pkgPathFromPrjtDir.toString(), msg,
-                                     ballerinaVersion, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                                     proxy.getPassword(), baloVersionOfPkg);
-
+            executor.executeFunction("packaging_push/packaging_push.balx", accessToken, mdFileContent,
+                                     description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                                     resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion,
+                                     proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                                     baloVersionOfPkg);
         } else {
             if (!installToRepo.equals("home")) {
                 throw createLauncherException("Unknown repository provided to push the module");
@@ -300,6 +299,12 @@ public class PushUtils {
      */
     private static String getAccessTokenOfCLI() {
         settings = TomlParserUtils.readSettings();
+        // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
+        // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
+        String tokenAsEnvVar = System.getenv(ProjectDirConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
+        if (tokenAsEnvVar != null) {
+            return tokenAsEnvVar;
+        }
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }

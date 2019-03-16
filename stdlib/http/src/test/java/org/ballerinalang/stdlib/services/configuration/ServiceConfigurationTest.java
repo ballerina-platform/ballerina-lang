@@ -30,7 +30,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -53,8 +52,7 @@ public class ServiceConfigurationTest {
 
     @Test(description = "Test for configuring a service")
     public void testConfiguringAService() throws IOException {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "service-config.conf").toString(), null);
 

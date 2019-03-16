@@ -66,7 +66,7 @@ public function main() {
     table<Employee> employeeTable = createTableAndAddData();
     io:println("Writing the table to " + targetFileName);
     foreach var entry in employeeTable {
-        string[] rec = [entry.id, entry.name, <string>entry.salary];
+        string[] rec = [entry.id, entry.name, string.convert(entry.salary)];
         writeDataToCSVChannel(wCsvChannel2, rec);
     }
     closeWritableCSVChannel(wCsvChannel2);

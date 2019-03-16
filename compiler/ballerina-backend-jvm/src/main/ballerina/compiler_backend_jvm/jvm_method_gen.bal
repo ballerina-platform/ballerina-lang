@@ -4,11 +4,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(untaint func.name.value);
+
     int returnVarRefIndex = -1;
 
     // generate method desc
     string desc = getMethodDesc(func);
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, (), ());
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
@@ -29,9 +30,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                                  kind: "ARG" };
     _ = indexMap.getIndex(stranVar);
 
-    bir:VariableDcl[] localVars = func.localVars;
+    bir:VariableDcl?[] localVars = func.localVars;
     while (k < localVars.length()) {
-        bir:VariableDcl localVar = localVars[k];
+        bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
         if(localVar.kind != "ARG"){
             bir:BType bType = localVar.typeValue;
@@ -57,7 +58,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitLabel(varinitLable);
 
     if (!isVoidFunc) {
-        returnVarRefIndex = indexMap.getIndex(localVars[0]);
+        bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+        returnVarRefIndex = indexMap.getIndex(varDcl);
         bir:BType returnType = func.typeValue.retType;
         genDefaultValue(mv, returnType, returnVarRefIndex);
     }
@@ -70,14 +72,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     // process basic blocks
     int j = 0;
-    bir:BasicBlock[] basicBlocks = func.basicBlocks;
+    bir:BasicBlock?[] basicBlocks = func.basicBlocks;
 
     jvm:Label[] lables = [];
     int[] states = [];
 
     int i = 0;
     while (i < basicBlocks.length()) {
-        bir:BasicBlock bb = basicBlocks[i];
+        bir:BasicBlock bb = getBasicBlock(basicBlocks[i]);
         if(i == 0){
             lables[i] = labelGen.getLabel(funcName + bb.id.value);
         } else {
@@ -104,10 +106,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:Label yieldLable = labelGen.getLabel(funcName + "yield");
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
-
-
     while (j < basicBlocks.length()) {
-        bir:BasicBlock bb = basicBlocks[j];
+        bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         //io:println("Basic Block Is : ", bb.id.value);
         string currentBBName = io:sprintf("%s", bb.id.value);
 
@@ -118,7 +118,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         // generate instructions
         int m = 0;
         while (m < bb.instructions.length()) {
-            bir:Instruction inst = bb.instructions[m];
+            bir:Instruction? inst = bb.instructions[m];
             InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
@@ -191,10 +191,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     k = 0;
     while (k < localVars.length()) {
-        bir:VariableDcl localVar = localVars[k];
+        bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
         bir:BType bType = localVar.typeValue;
         mv.visitInsn(DUP);
+
         if (bType is bir:BTypeInt) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "J");
             mv.visitVarInsn(LSTORE, index);
@@ -255,12 +256,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     k = 0;
     while (k < localVars.length()) {
-        bir:VariableDcl localVar = localVars[k];
+        bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
         mv.visitInsn(DUP);
 
         bir:BType bType = localVar.typeValue;
-
         if (bType is bir:BTypeInt) {
             mv.visitVarInsn(LLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "J");
@@ -277,7 +277,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeByte) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "B");
-        } else if (bType is bir:BMapType) {
+        } else if (bType is bir:BMapType ||
+                    bType is bir:BRecordType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", MAP_VALUE));
@@ -297,9 +298,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType ||
-                    bType is bir:BObjectType ||
-                    bType is bir:BRecordType) {
+                    bType is bir:BUnionType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -366,8 +365,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType ||
-                bType is bir:BTypeAnyData) {
+                bType is bir:BTupleType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -450,10 +448,10 @@ function generateReturnType(bir:BType? bType) returns string {
     }
 }
 
-function getMainFunc(bir:Function[] funcs) returns bir:Function? {
+function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     bir:Function? userMainFunc = ();
     foreach var func in funcs {
-        if (func.name.value == "main") {
+        if (func is bir:Function && func.name.value == "main") {
             userMainFunc = untaint func;
             break;
         }
@@ -463,7 +461,7 @@ function getMainFunc(bir:Function[] funcs) returns bir:Function? {
 }
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
@@ -474,8 +472,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, mainClass, initFuncName, 
-                "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
-        mv.visitInsn(POP);
+                "(Lorg/ballerinalang/jvm/Strand;)V", false);
     }
 
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
@@ -527,7 +524,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
 function hasInitFunction(bir:Package pkg) returns boolean {
     foreach var func in pkg.functions {
-        if (isModuleInitFunction(pkg, func)) {
+        if (func is bir:Function && isModuleInitFunction(pkg, func)) {
             return true;
         }
     }
@@ -637,16 +634,16 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     foreach var func in pkg.functions {
-        var currentFunc = untaint func;
+        var currentFunc = getFunction(untaint func);
         var frameClassName = pkgName + cleanupFunctionName(currentFunc.name.value) + "Frame";
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT_VALUE, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT_VALUE, ());
         generateDefaultConstructor(cw);
 
         int k = 0;
-        bir:VariableDcl[] localVars = func.localVars;
+        bir:VariableDcl?[] localVars = currentFunc.localVars;
         while (k < localVars.length()) {
-            bir:VariableDcl localVar = localVars[k];
+            bir:VariableDcl localVar = getVariableDcl(localVars[k]);
             bir:BType bType = localVar.typeValue;
             var fieldName = localVar.name.value.replace("%","_");
             if (bType is bir:BTypeInt) {
@@ -706,7 +703,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 }
 
 function generateDefaultConstructor(jvm:ClassWriter cw) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", (), ());
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
     mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
@@ -717,4 +714,58 @@ function generateDefaultConstructor(jvm:ClassWriter cw) {
 
 function cleanupFunctionName(string functionName) returns string {
     return functionName.replaceAll("[\\.:/<>]", "_");
+}
+
+function getVariableDcl(bir:VariableDcl? localVar) returns bir:VariableDcl {
+    if (localVar is bir:VariableDcl) {
+        return localVar;
+    } else {
+        error err = error("Invalid variable declarion");
+        panic err;
+    }
+}
+
+function getBasicBlock(bir:BasicBlock? bb) returns bir:BasicBlock {
+    if (bb is bir:BasicBlock) {
+        return bb;
+    } else {
+        error err = error("Invalid basic block");
+        panic err;
+    }
+}
+
+function getFunction(bir:Function? bfunction) returns bir:Function {
+    if (bfunction is bir:Function) {
+        return bfunction;
+    } else {
+        error err = error("Invalid function");
+        panic err;
+    }
+}
+
+function getTypeDef(bir:TypeDef? typeDef) returns bir:TypeDef {
+    if (typeDef is bir:TypeDef) {
+        return typeDef;
+    } else {
+        error err = error("Invalid type definition");
+        panic err;
+    }
+}
+
+function getObjectField(bir:BObjectField? objectField) returns bir:BObjectField {
+    if (objectField is bir:BObjectField) {
+        return objectField;
+    } else {
+        error err = error("Invalid object field");
+        panic err;
+    }
+}
+
+function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField {
+    if (recordField is bir:BRecordField) {
+        return recordField;
+    } else {
+        error err = error("Invalid record field");
+        panic err;
+    }
 }

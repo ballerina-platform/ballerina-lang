@@ -1,7 +1,7 @@
 function testImplicitCastInvocation() returns (string) {
 
     int input = 7;
-    string output = modifyInt(<string>input);
+    string output = modifyInt(string.convert(input));
     return output;
 }
 

@@ -26,6 +26,7 @@ import ballerina/mime;
 # + extraPathInfo - Additional information associated with the URL provided by the client
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
+# + mutualSslHandshake - A record providing mutual ssl handshake results.
 public type Request object {
 
     public string rawPath = "";
@@ -353,7 +354,7 @@ public function Request.getFormParams() returns map<string>|error {
                 entryIndex = entryIndex + 1;
             }
         }
-    } else if (formData is error) {
+    } else {
         return formData;
     }
     return parameters;
@@ -412,7 +413,7 @@ public function Request.setPayload(string|xml|json|byte[]|io:ReadableByteChannel
         self.setBinaryPayload(payload);
     } else if (payload is io:ReadableByteChannel) {
         self.setByteChannel(payload);
-    } else if (payload is mime:Entity[]) {
+    } else {
         self.setBodyParts(payload);
     }
 }

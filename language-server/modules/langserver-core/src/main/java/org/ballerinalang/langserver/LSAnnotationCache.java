@@ -144,6 +144,9 @@ public class LSAnnotationCache {
             case FUNCTION:
                 annotationMap = functionAnnotations;
                 break;
+            case LISTENER:
+                annotationMap = listenerAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;
@@ -207,6 +210,6 @@ public class LSAnnotationCache {
     private boolean isPackageProcessed(PackageID packageID) {
         return processedPackages
                 .stream()
-                .noneMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
+                .anyMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
     }
 }

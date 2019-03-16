@@ -936,16 +936,17 @@ public class FormattingSourceGen {
             }
         }
 
-        if ("Return".equals(kind)
-                && node.has("expression")
-                && node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
-            if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
-                node.addProperty("noExpressionAvailable", true);
-            }
+        if ("Return".equals(kind) && node.has("expression")) {
+            if (node.getAsJsonObject("expression").get("kind").getAsString().equals("Literal")) {
+                if (node.getAsJsonObject("expression").get("value").getAsString().equals("()")) {
+                    node.addProperty("noExpressionAvailable", true);
+                }
 
-            if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
-                node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
+                if (node.getAsJsonObject("expression").get("value").getAsString().equals("null")) {
+                    node.getAsJsonObject("expression").addProperty("emptyParantheses", true);
+                }
             }
+            node.getAsJsonObject("expression").addProperty("isExpression", "true");
         }
 
         if ("Documentation".equals(kind)) {
@@ -1208,6 +1209,10 @@ public class FormattingSourceGen {
             node.addProperty("compoundOperator",
                     node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
+
+        if ("Assignment".equals(kind) && node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty("isExpression", true);
+        }
     }
 
     private static void literalWSAssignForTemplates(int currentWs, int nextWs,
@@ -1246,7 +1251,7 @@ public class FormattingSourceGen {
 
     private static void stringTemplateSourceFromWS(int currentWs, int nextWs, JsonArray literals, JsonArray ws,
                                                    int i) {
-        if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("{{")) {
+        if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("${")) {
             literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(currentWs));
             literals.get(i).getAsJsonObject().addProperty("value",
                     ws.get(currentWs).getAsJsonObject().get("text").getAsString());
@@ -1254,9 +1259,9 @@ public class FormattingSourceGen {
             ws.remove(currentWs);
             literals.get(i).getAsJsonObject().addProperty("startTemplateLiteral", true);
 
-        } else if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("}}")) {
+        } else if (ws.get(currentWs).getAsJsonObject().get("text").getAsString().contains("}")) {
             literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(currentWs));
-            if (ws.get(nextWs).getAsJsonObject().get("text").getAsString().contains("{{")) {
+            if (ws.get(nextWs).getAsJsonObject().get("text").getAsString().contains("${")) {
                 literals.get(i).getAsJsonObject().get("ws").getAsJsonArray().add(ws.get(nextWs));
                 literals.get(i).getAsJsonObject().addProperty("value",
                         ws.get(nextWs).getAsJsonObject().get("text").getAsString());

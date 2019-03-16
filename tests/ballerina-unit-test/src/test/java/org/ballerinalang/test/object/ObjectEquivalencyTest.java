@@ -112,13 +112,6 @@ public class ObjectEquivalencyTest {
         Assert.assertEquals(returns[2].stringValue(), "ENG2CMB");
     }
 
-    @Test(description = "Test struct equivalency with function type which has structs")
-    public void testStructEquivalencyWithFunctionType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithFunctionType");
-        Assert.assertEquals(returns[0].stringValue(), "anyStruct{\"s\":\"sss\"}");
-        Assert.assertEquals(returns[1].stringValue(), "someStruct{\"s\":\"sss\"}");
-    }
-    
     @Test(description = "Test tuple equivalency with object equivalency ")
     public void testTupleMatchWithObjectEquivalency() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
@@ -127,8 +120,8 @@ public class ObjectEquivalencyTest {
 
     @Test(description = "Test object equivalency negative",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'eq2:FooObj', found 'eq:BarObj'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'eq:BarObj' cannot be cast to 'eq2:FooObj'\"\\}.*")
     public void testObjectEqViewFromThirdPackageNegative() {
         BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
     }

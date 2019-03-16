@@ -32,7 +32,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 /**
  * Extern function ballerina.crypto:hmacSha384.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",

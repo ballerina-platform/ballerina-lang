@@ -1,11 +1,10 @@
 
-// import { getCodePoint } from "@ballerina/font";
 import { ASTNode } from "@ballerina/ast-model";
-import { getCodePoint } from "@ballerina/font";
 import classNames from "classnames";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+import { getCodePoint } from "../../utils";
 import { SimpleBBox } from "../../view-model/index";
 import { SourceLinkedLabel } from "./source-linked-label";
 

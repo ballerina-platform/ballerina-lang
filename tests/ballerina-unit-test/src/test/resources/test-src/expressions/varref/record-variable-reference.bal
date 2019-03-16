@@ -80,7 +80,7 @@ function testRestParam() returns map<any> {
     OpenRecord openRecord = {var1: "var1", var2: false, var3: 12, var4: "text"};
     string var1;
     boolean var2;
-    map<any> rest = {};
+    map<anydata> rest = {};
     {var1, var2, ...rest} = openRecord;
     return rest;
 }
@@ -169,6 +169,47 @@ function testFieldAndIndexBasedVarRefs() returns (anydata, anydata) {
     map<anydata> m = {};
     {name: m.var1, yearAndAge: (m["var2"], _)} = ch3;
     return (m.var1, m.var2);
+}
+
+type Object object {
+    private int field;
+
+    public function __init() {
+        self.field = 12;
+    }
+
+    public function getField() returns int {
+        return self.field;
+    }
+};
+
+type IntRestRecord record {
+    string name;
+    boolean married;
+    int...;
+};
+
+type ObjectRestRecord record {
+    string name;
+    boolean married;
+    Object...;
+};
+
+function testRestParameterType() returns (boolean, boolean) {
+    string name;
+    map<anydata> other1 = {};
+    map<any> other2 = {};
+
+    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    { name, ...other1 } = rec1;
+
+    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
+    { name, ...other2 } = rec2;
+
+    any a1 = other1;
+    any a2 = other2;
+
+    return (a1 is map<anydata>, a2 is map<anydata>);
 }
 
 // TODO: Uncomment below tests once record literal is supported with var ref
