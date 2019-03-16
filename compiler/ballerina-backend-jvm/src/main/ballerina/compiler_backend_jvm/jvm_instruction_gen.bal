@@ -441,25 +441,31 @@ type InstructionGenerator object {
             }
         }
     }
+
+    function generateCastIns(bir:TypeCast typeCastIns) {
+        // load source value
+        self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
+        generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        self.generateVarStore(typeCastIns.lhsOp.variableDcl);
+    }
+
+    function generateTypeTestIns(bir:TypeTest typeTestIns) {
+        // load source value
+        self.generateVarLoad(typeTestIns.rhsOp.variableDcl);
+
+        // load targetType
+        loadType(self.mv, typeTestIns.typeValue);
+
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
+                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
+        self.generateVarStore(typeTestIns.lhsOp.variableDcl);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    } else {
-        return;
-    }
+    generateCast(mv, bType, "any");
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-    } else if (bType is bir:BTypeString) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    } else if (bType is bir:BMapType) {
-        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-    } else {
-        return;
-    }
+    generateCast(mv, "any", bType);
 }

@@ -20,26 +20,29 @@ package org.ballerinalang.test.util;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.jvm.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,8 +51,6 @@ import java.util.List;
  * @since 0.94
  */
 public class BRunUtil {
-
-    private static final JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader();
 
     /**
      * Invoke a ballerina function with state. Need to use compileAndSetup method in BCompileUtil to use this.
@@ -228,11 +229,8 @@ public class BRunUtil {
      * @return return values of the function
      */
     private static BValue[] invokeOnJBallerina(CompileResult compileResult, String functionName, BValue[] args) {
-        byte[] jarContent = compileResult.getCompiledJarFile();
-        classLoader.setClassContent(jarContent);
-        Class clazz = classLoader.loadClass(compileResult.getEntryClassName());
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
-        return invoke(clazz, function, functionName, args);
+        return invoke(compileResult.getEntryClass(), function, functionName, args);
     }
 
     /**
@@ -244,16 +242,17 @@ public class BRunUtil {
      * @param bvmArgs input arguments to be used with function invocation
      * @return return the result from function invocation
      */
-    private static BValue[] invoke(Class clazz, BIRNode.BIRFunction function, String functionName, BValue[] bvmArgs) {
+    private static BValue[] invoke(Class<?> clazz, BIRNode.BIRFunction function, String functionName,
+                                   BValue[] bvmArgs) {
         List<org.wso2.ballerinalang.compiler.semantics.model.types.BType> bvmParamTypes = function.type.paramTypes;
-        Class[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
+        Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmParamTypes.size() + 1];
         jvmParamTypes[0] = Strand.class;
         jvmArgs[0] = new Strand();
 
         for (int i = 0; i < bvmParamTypes.size(); i++) {
             org.wso2.ballerinalang.compiler.semantics.model.types.BType type = bvmParamTypes.get(i);
-            Class typeClazz;
+            Class<?> typeClazz;
             Object argument;
             switch (type.tag) {
                 case TypeTags.INT_TAG:
@@ -285,39 +284,59 @@ public class BRunUtil {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
 
-        org.wso2.ballerinalang.compiler.semantics.model.types.BType bvmReturnType = function.type.getReturnType();
-        BValue[] bvmResult = new BValue[1];
+        BValue result = getBVMValue(jvmResult);
+        return new BValue[] { result };
+    }
 
-        BValue result;
-        switch (bvmReturnType.tag) {
-            case TypeTags.INT_TAG:
-                result = new BInteger((long) jvmResult);
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                result = new BBoolean((boolean) jvmResult);
-                break;
-            case TypeTags.STRING_TAG:
-                result = new BString((String) jvmResult);
-                break;
-            case TypeTags.ARRAY_TAG:
-                if (((BArrayType) bvmReturnType).getElementType().tag == TypeTags.INT_TAG) {
-                    int size = ((ArrayValue) jvmResult).size();
-                    long[] ints = new long[size];
-                    for (int i = 0; i < size; i++) {
-                        ints[i] = ((ArrayValue) jvmResult).getInt(i);
-                    }
-                    result = new BValueArray(ints);
-                    break;
+    private static BRefType<?> getBVMValue(Object value) {
+        org.ballerinalang.jvm.types.BType type = TypeChecker.getType(value);
+        switch (type.getTag()) {
+            case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
+                return new BInteger((long) value);
+            case org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG:
+                return new BBoolean((boolean) value);
+            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+                return new BString((String) value);
+            case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+                ArrayValue jvmTuple = ((ArrayValue) value);
+                BRefType<?>[] tupleValues = new BRefType<?>[jvmTuple.size()];
+                for (int i = 0; i < jvmTuple.size(); i++) {
+                    tupleValues[i] = getBVMValue(jvmTuple.getRefValue(i));
                 }
-                throw new RuntimeException("Function invocation result for type '" + bvmReturnType + "' " +
-                        "is not supported");
+                return new BValueArray(tupleValues, getBVMType(jvmTuple.getType()));
             default:
-                throw new RuntimeException("Function invocation result for type '" + bvmReturnType + "' " +
-                        "is not supported");
+                throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
+    }
 
-        bvmResult[0] = result;
-        return bvmResult;
+    private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType) {
+        switch (jvmType.getTag()) {
+            case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
+                return BTypes.typeInt;
+            case org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG:
+                return BTypes.typeFloat;
+            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+                return BTypes.typeString;
+            case org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG:
+                return BTypes.typeBoolean;
+            case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
+                org.ballerinalang.jvm.types.BTupleType tupleType = (org.ballerinalang.jvm.types.BTupleType) jvmType;
+                List<BType> memberTypes = new ArrayList<>();
+                for (org.ballerinalang.jvm.types.BType type : tupleType.getTupleTypes()) {
+                    memberTypes.add(getBVMType(type));
+                }
+                return new BTupleType(memberTypes);
+            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+                org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) jvmType;
+                return new BArrayType(getBVMType(arrayType.getElementType()));
+            case org.ballerinalang.jvm.types.TypeTags.ANY_TAG:
+                return BTypes.typeAny;
+            case org.ballerinalang.jvm.types.TypeTags.ANYDATA_TAG:
+                return BTypes.typeAnydata;
+            default:
+                throw new RuntimeException("Unsupported jvm type: " + jvmType + "' ");
+        }
     }
 
     private static BIRNode.BIRFunction getInvokedFunction(CompileResult compileResult, String functionName) {

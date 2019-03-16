@@ -68,6 +68,12 @@ public class TypesTest {
     @Test
     public void testArray() {
         BValue[] result = BRunUtil.invoke(compileResult, "testArray", new BValue[]{new BString("World")});
-        Assert.assertEquals((result[0]).stringValue(), "HelloWorld");
+        Assert.assertEquals((result[0]).stringValue(), "3");
+    }
+
+    @Test
+    public void getGlobalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getGlobalVar");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
     }
 }

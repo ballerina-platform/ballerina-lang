@@ -18,12 +18,33 @@ function testStringWithArgs(string s) returns string {
    return s1;
 }
 
-function testArray(string str) returns int[] {
-    //string[] s1 = [str];
+int globalVar = 7;
+
+function getGlobalVar() returns int {
+    return globalVar;
+}
+
+function testArray(string str) returns int {
     int[] a = [];
     int[] b = [1, 2, 3, 4, 5, 6, 7, 8];
-    int[5] e = [1, 2, 3, 4, 5];
+    string[3] e = ["c", "d", "e"];
     int[][] iarray = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
+    Grades[] gs = arrayFunc(e);
     a[0] = b[2];
-    return a;
+    return a[0];
+}
+
+public type Grades record {
+   string name;
+   int physics;
+   int chemistry?;
+};
+
+function arrayFunc(string[] strs) returns Grades[] {
+    Grades g = {name: strs[0], physics: 75, chemistry: 65};
+    Grades g1 = {name: strs[1], physics: 75, chemistry: 65};
+    Grades g2 = {name: strs[2], physics: 75, chemistry: 65};
+
+    Grades[] grds = [g,g1,g2];
+    return grds;
 }
