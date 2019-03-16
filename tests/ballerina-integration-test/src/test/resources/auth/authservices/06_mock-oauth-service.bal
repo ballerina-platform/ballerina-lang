@@ -14,52 +14,312 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
+import ballerina/system;
 
-listener http:Listener tokenlistener = new(9095, config = {
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
+// Values that the grant_type parameter can hold.
+const GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
+const GRANT_TYPE_PASSWORD = "password";
+const GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
+
+// The following constants are unique for the mock oauth2 server.
+const string USERNAME = "johndoe";
+const string PASSWORD = "A3ddj3w";
+const string CLIENT_ID = "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68";
+const string CLIENT_SECRET = "9205371918321623741";
+
+string refreshTokenString = CLIENT_ID + CLIENT_SECRET + system:uuid();
+string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toByteArray("UTF-8")));
+
+string[] accessTokenStore = [];
+
+// Mock OAuth2 server which is capable of issue access tokens with related to the grant type and also refresh the
+// already issued access tokens. This keeps the set of issued access tokens for the validation purpose of api endpoint.
+listener http:Listener oauth2Server = new(9196, config = {
+        secureSocket: {
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            }
+        }
+    });
+
+service oauth2 on oauth2Server {
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/token/authorize"
+    }
+    // This issues access token with reference to the received grant type.
+    // For client_credentials grant type, the new access token will the MD5 hash of client_id + client_secret + scopes.
+    // For password grant type, the new access token will the MD5 hash of client_id + client_secret + username +
+    // password + scopes.
+    resource function authorize(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        // Get Authorization header which should contains base64 encoded client_id and client_secret with colon
+        // delimiter in most of the cases.
+        var authorizationHeader = trap req.getHeader("Authorization");
+        if (authorizationHeader is string) {
+            string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
+            string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+            if (authorizationHeader == expectedAuthorizationHeader) {
+                var payload = req.getTextPayload();
+                if (payload is string) {
+                    string[] params = payload.split("&");
+                    string grantType = "";
+                    string scopes = "";
+                    string username = "";
+                    string password = "";
+                    foreach string param in params {
+                        if (param.contains("grant_type")) {
+                            grantType = param.split("=")[1];
+                        } else if (param.contains("scope")) {
+                            scopes = param.split("=")[1];
+                        } else if (param.contains("username")) {
+                            username = param.split("=")[1];
+                        } else if (param.contains("password")) {
+                            password = param.split("=")[1];
+                        }
+                    }
+                    res = prepareResponse(res, grantType, scopes, username, password);
+                    _ = caller->respond(res);
+                } else {
+                    // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                    res.statusCode = http:BAD_REQUEST_400;
+                    json errMsg = { "error": "invalid_request" };
+                    res.setPayload(errMsg);
+                    _ = caller->respond(res);
+                }
+            } else {
+                // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                res.statusCode = http:UNAUTHORIZED_401;
+                json errMsg = { "error": "invalid_client" };
+                io:println(errMsg);
+                res.setPayload(errMsg);
+                _ = caller->respond(res);
+            }
+        } else {
+            // No Authorization header presents with base64 encoded client_id and client_secret with colon delimiter.
+            // So, the client_id and client_secret should be in the text payload of the request.
+            var payload = req.getTextPayload();
+            if (payload is string) {
+                if (payload.contains("client_id") && payload.contains("client_secret")) {
+                    string[] params = payload.split("&");
+                    string grantType = "";
+                    string scopes = "";
+                    string username = "";
+                    string password = "";
+                    string clientId = "";
+                    string clientSecret = "";
+                    foreach string param in params {
+                        if (param.contains("grant_type")) {
+                            grantType = param.split("=")[1];
+                        } else if (param.contains("scope")) {
+                            scopes = param.split("=")[1];
+                        } else if (param.contains("username")) {
+                            username = param.split("=")[1];
+                        } else if (param.contains("password")) {
+                            password = param.split("=")[1];
+                        } else if (param.contains("client_id")) {
+                            clientId = param.split("=")[1];
+                        } else if (param.contains("client_secret")) {
+                            clientSecret = param.split("=")[1];
+                        }
+                    }
+
+                    if (clientId == CLIENT_ID && clientSecret == CLIENT_SECRET) {
+                        res = prepareResponse(res, grantType, scopes, username, password);
+                        _ = caller->respond(res);
+                    } else {
+                        // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                        res.statusCode = http:UNAUTHORIZED_401;
+                        json errMsg = { "error": "invalid_client" };
+                        res.setPayload(errMsg);
+                        _ = caller->respond(res);
+                    }
+                } else {
+                    // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                    res.statusCode = http:UNAUTHORIZED_401;
+                    json errMsg = { "error": "invalid_client" };
+                    res.setPayload(errMsg);
+                    _ = caller->respond(res);
+                }
+            } else {
+                // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                res.statusCode = http:UNAUTHORIZED_401;
+                json errMsg = { "error": "invalid_client" };
+                res.setPayload(errMsg);
+                _ = caller->respond(res);
+            }
         }
     }
-});
-
-service foo on tokenlistener {
 
     @http:ResourceConfig {
-        methods: ["GET"]
+        methods: ["POST"],
+        path: "token/refresh"
     }
-    resource function bar(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
-    }
+    // This refresh the access token but does not issue a new refresh token. The new access
+    // token will the MD5 hash of client_id + client_secret + refresh_token + scopes.
+    resource function refresh(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        var authorizationHeader = trap req.getHeader("Authorization");
+        if (authorizationHeader is string) {
+            string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
+            string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+            if (authorizationHeader == expectedAuthorizationHeader) {
+                var payload = req.getTextPayload();
+                if (payload is string) {
+                    string[] params = payload.split("&");
+                    string grantType = "";
+                    string refreshToken = "";
+                    string scopes = "";
+                    foreach string param in params {
+                        if (param.contains("grant_type")) {
+                            grantType = param.split("=")[1];
+                        } else if (param.contains("refresh_token")) {
+                            refreshToken = param.split("=")[1];
+                        } else if (param.contains("scope")) {
+                            scopes = param.split("=")[1];
+                        }
+                    }
 
-    @http:ResourceConfig {
-        methods: ["POST"]
-    }
-    resource function token(http:Caller caller, http:Request req) {
-        // Mock token refresh resource
-        var payload = req.getTextPayload();
-        if (payload is string) {
-            boolean clientIdInBody = payload.contains("client_id");
-            string authHeader;
-            var reqHeader = trap req.getHeader("Authorization");
-            if (reqHeader is error) {
-                authHeader = "";
+                    if (grantType == GRANT_TYPE_REFRESH_TOKEN) {
+                        if (refreshToken == refreshTokenHash) {
+                            string input = CLIENT_ID + CLIENT_SECRET + refreshToken + scopes;
+                            string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                            addToAccessTokenStore(accessToken);
+                            json response = {
+                                "access_token": accessToken,
+                                "token_type": "example",
+                                "expires_in": 3600,
+                                "example_parameter": "example_value"
+                            };
+                            res.setPayload(response);
+                            _ = caller->respond(res);
+                        } else {
+                            // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                            res.statusCode = http:BAD_REQUEST_400;
+                            json errMsg = { "error": "invalid_grant" };
+                            res.setPayload(errMsg);
+                            _ = caller->respond(res);
+                        }
+                    } else {
+                        // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                        res.statusCode = http:BAD_REQUEST_400;
+                        json errMsg = { "error": "invalid_grant" };
+                        res.setPayload(errMsg);
+                        _ = caller->respond(res);
+                    }
+                } else {
+                    // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                    res.statusCode = http:BAD_REQUEST_400;
+                    json errMsg = { "error": "invalid_request" };
+                    res.setPayload(errMsg);
+                    _ = caller->respond(res);
+                }
             } else {
-                authHeader = req.getHeader("Authorization");
+                // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                res.statusCode = http:UNAUTHORIZED_401;
+                json errMsg = { "error": "invalid_client" };
+                res.setPayload(errMsg);
+                _ = caller->respond(res);
             }
-            boolean tokenScope = false;
-            if (payload.contains("&scope=token-scope1 token-scope2")) {
-                tokenScope = true;
-            }
-            json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "", tokenScope: tokenScope };
-            io:println(status);
-            json resp = { access_token: "acces-token" };
-            _ = caller->respond(resp);
         } else {
-            panic payload;
+            // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:UNAUTHORIZED_401;
+            json errMsg = { "error": "invalid_client" };
+            res.setPayload(errMsg);
+            _ = caller->respond(res);
+        }
+    }
+}
+
+function prepareResponse(http:Response res, string grantType, string scopes, string username, string password)
+             returns http:Response {
+    if (grantType == GRANT_TYPE_CLIENT_CREDENTIALS) {
+        string input = CLIENT_ID + CLIENT_SECRET + scopes;
+        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+        addToAccessTokenStore(accessToken);
+        json response = {
+            "access_token": accessToken,
+            "token_type": "example",
+            "expires_in": 3600,
+            "example_parameter": "example_value"
+        };
+        res.setPayload(response);
+    } else if (grantType == GRANT_TYPE_PASSWORD) {
+        string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
+        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+        addToAccessTokenStore(accessToken);
+        json response = {
+            "access_token": accessToken,
+            "token_type": "example",
+            "expires_in": 3600,
+            "refresh_token": refreshTokenHash,
+            "example_parameter": "example_value"
+        };
+        res.setPayload(response);
+    } else {
+        // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+        res.statusCode = http:BAD_REQUEST_400;
+        json errMsg = { "error": "invalid_grant" };
+        res.setPayload(errMsg);
+    }
+    return res;
+}
+
+function addToAccessTokenStore(string accessToken) {
+    int index = accessTokenStore.length();
+    accessTokenStore[index] = accessToken;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// API endpoint which is responsible for process the request after validating the access token in Authorization header.
+// The token should be listed in accessTokenStore, which keeps the issued tokens by mock OAuth2 server.
+listener http:Listener apiEndpoint = new(9095, config = {
+        secureSocket: {
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            }
+        }
+    });
+
+service foo on apiEndpoint {
+
+    resource function bar(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        var authorizationHeader = trap req.getHeader("Authorization");
+        if (authorizationHeader is string) {
+            string accessToken = authorizationHeader.split(" ")[1];
+            boolean tokenAvailable = false;
+            foreach string token in accessTokenStore {
+                if (token == accessToken) {
+                    tokenAvailable = true;
+                }
+            }
+            if (tokenAvailable) {
+                json payload = { "success": "access granted" };
+                io:println(payload);
+                res.setPayload(payload);
+                _ = caller->respond(res);
+            } else {
+                res.statusCode = http:UNAUTHORIZED_401;
+                json payload = { "error": "access denied" };
+                io:println(payload);
+                res.setPayload(payload);
+                _ = caller->respond(res);
+            }
+        } else {
+            res.statusCode = http:UNAUTHORIZED_401;
+            json payload = { "error": "authorization header not provided" };
+            io:println(payload);
+            res.setPayload(payload);
+            _ = caller->respond(res);
         }
     }
 }
