@@ -1448,8 +1448,8 @@ public class FormattingNodeTree {
                                     (node.has("deprecatedAttachments") &&
                                             node.getAsJsonArray("deprecatedAttachments").size() > 0))
                                     ? (FormattingConstants.NEW_LINE + indentation)
-                                    : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                    indentation);
+                                    : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                    + indentation);
 
                             currentWS.addProperty(FormattingConstants.WS, whiteSpace);
                         }
@@ -5466,26 +5466,6 @@ public class FormattingNodeTree {
 
     private boolean noNewLine(String text) {
         return !text.contains("\n");
-    }
-
-    private int findIndex(JsonObject node) {
-        int index = -1;
-        JsonObject parent = node.getAsJsonObject("parent");
-
-        for (Map.Entry<String, JsonElement> entry : parent.entrySet()) {
-            if (entry.getValue().isJsonArray() && !entry.getKey().equals(FormattingConstants.WS)) {
-                for (int i = 0; i < entry.getValue().getAsJsonArray().size(); i++) {
-                    JsonElement element = entry.getValue().getAsJsonArray().get(i);
-                    if (element.isJsonObject() && element.getAsJsonObject().has("id")
-                            && element.getAsJsonObject().get("id").getAsString()
-                            .equals(node.get("id").getAsString())) {
-                        index = i;
-                    }
-                }
-            }
-        }
-
-        return index;
     }
 
     private void skipFormatting(JsonObject node, boolean doSkip) {

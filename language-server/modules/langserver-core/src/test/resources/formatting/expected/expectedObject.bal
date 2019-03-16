@@ -18,11 +18,15 @@ type ObjectName3 object {
     string h;
 
     function __init() {
-        s = "";
+        self.s = "";
     }
 
     public function testS() {
-        a = 1;
+        self.a = 1;
+    }
+
+    public function testd() returns int {
+        return self.a;
     }
 
     function sd();
