@@ -21,13 +21,13 @@ readonly test_data_great_grand_parent_path=$(dirname ${test_data_grand_parent_pa
 readonly test_data_great_great_grant_parent_path=$(dirname ${test_data_great_grand_parent_path})
 
 . ${test_data_great_grand_parent_path}/util/usage.sh
-. ${test_data_great_grand_parent_path}/util/setup-test-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${test_data_great_grand_parent_path}/util/setup-test-env.sh ${input_dir} ${output_dir}
 
-function print_debug_info() {
+print_debug_info() {
     echo "Host And Port: ${external_ip}:${node_port}"
 }
 
-function run_tests() {
+run_tests() {
     local external_ip=${deployment_config["ExternalIP"]}
     local node_port=${deployment_config["NodePort"]}
 
@@ -41,7 +41,7 @@ function run_tests() {
     sys_prop_array["data.backed.service.port"]=${node_port}
 
     # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
-    run_bbg_section_tests bbg-data data sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
+    run_bbg_section_tests bbg-data data sys_prop_array ${input_dir} ${output_dir}
 }
 
 run_tests
