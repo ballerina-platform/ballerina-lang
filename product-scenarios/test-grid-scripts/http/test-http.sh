@@ -18,8 +18,8 @@ readonly test_http_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 readonly test_http_grand_parent_path=$(dirname ${test_http_parent_path})
 readonly test_http_great_grand_parent_path=$(dirname ${test_http_grand_parent_path})
 
-. ${test_http_great_grand_parent_path}/util/usage.sh
-. ${test_http_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${test_http_grand_parent_path}/util/usage.sh
+. ${test_http_grand_parent_path}/util/setup-test-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function print_debug_info() {
     echo "Host And Port: ${external_ip}:${node_port}"
