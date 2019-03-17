@@ -14,116 +14,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -o xtrace
+readonly test_http_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly test_http_grand_parent_path=$(dirname ${test_http_parent_path})
+readonly test_http_great_grand_parent_path=$(dirname ${test_http_grand_parent_path})
 
-WORK_DIR=`pwd`
-TEST_SCRIPT=test.sh
+. ${test_http_great_grand_parent_path}/util/usage.sh
+. ${test_http_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
-function usage()
-{
-    echo "
-    Usage bash test.sh --input-dir /workspace/data-bucket/in --output-dir /workspace/data-bucket/out
-    Following are the expected input parameters. all of these are optional
-    --input-dir       | -i    : input directory for test.sh
-    --output-dir      | -o    : output directory for test.sh
-    "
+function print_debug_info() {
+    echo "Host And Port: ${external_ip}:${node_port}"
 }
 
-# Process inputs
-# ex. bash test.sh --input-dir <path-to-input-dir> --output-dir <path-to-output-dir>
-optspec=":hiom-:"
-while getopts "$optspec" optchar; do
-    case "${optchar}" in
-        -)
-            case "${OPTARG}" in
-                input-dir)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    INPUT_DIR=$val
-                    ;;
-                output-dir)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    OUTPUT_DIR=$val
-                    ;;
-                mvn-opts)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    MAVEN_OPTS=$val
-                    ;;
-                *)
-                    usage
-                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
-                        echo "Unknown option --${OPTARG}" >&2
-                    fi
-                    ;;
-            esac;;
-        h)
-            usage
-            exit 2
-            ;;
-        o)
-            OUTPUT_DIR=$val
-            ;;
-        m)
-            MVN_OPTS=$val
-            ;;
-        i)
-            INPUT_DIR=$val
-            ;;
-        *)
-            usage
-            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
-                echo "Non-option argument: '-${OPTARG}'" >&2
-            fi
-            ;;
-    esac
-done
+function run_tests() {
+    local external_ip=${deployment_config["ExternalIP"]}
+    local node_port=${deployment_config["NodePort"]}
+    local lb_host=${deployment_config["LB_INGRESS_HOST"]}
 
-echo "working Directory : ${WORK_DIR}"
-echo "input directory : ${INPUT_DIR}"
-echo "output directory : ${OUTPUT_DIR}"
+    local is_debug_enabled=${deployment_config["isDebugEnabled"]}
+    if [ "${is_debug_enabled}" = "true" ]; then
+        print_debug_info
+    fi
 
-export DATA_BUCKET_LOCATION=${INPUT_DIR}
+    declare -A sys_prop_array
+    sys_prop_array["http.service.host"]=${external_ip}
+    sys_prop_array["http.service.port"]=${node_port}
+    sys_prop_array["http.lb.host"]=${lb_host}
 
-#=============== Execute Scenarios ===============================================
-# YOUR TEST EXECUTION LOGIC GOES HERE
-# A sample execution for maven-based testng/junit tests is shown below.
-# For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
+    # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
+    local maven_profile=http
+    local test_section=http
+    local -n properties_array=sys_prop_array
+    local sys_prop_str=""
+    bash --version
+    for x in "${!properties_array[@]}"; do sys_prop_str+="-D$x=${properties_array[$x]} " ; done
 
-IFS='=' read -r -a array <<< "$(head -n 1 $INPUT_DIR/deployment.properties)"
-LB_INGRESS_HOST=${array[1]};
-unset IFS
+    mvn clean install -f ${utils_great_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${INPUT_DIR} ${sys_prop_str} -P ${maven_profile}
 
-cat $INPUT_DIR/deployment.properties
+    mkdir -p ${OUTPUT_DIR}/scenarios
 
-curl http://$LB_INGRESS_HOST/cb -v
+    cp -r ${utils_great_grand_parent_path}/${test_section}/target ${OUTPUT_DIR}/scenarios/${test_section}/
+}
 
-
-if [ -z ${JMETER_HOME} ]
-then
-  echo 'JMETER_HOME env variable not found. Setting up jmeter manually.'
-  wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-4.0.tgz
-  tar -xzf apache-jmeter-4.0.tgz
-  export JMETER_HOME=$(pwd)/apache-jmeter-4.0
-  JMETER_HOME=$(pwd)/apache-jmeter-4.0
-else
-  echo JMETER_HOME env variable found at: ${JMETER_HOME}
-fi
-
-echo Final Jmeter home: $JMETER_HOME
-
-mkdir scenario2
-
-bash ${JMETER_HOME}/bin/jmeter -t scenarios/2/ballerina-CB.jmx -n  -l ./scenario2/ballerina-CB.jtl -Jhost=${LB_INGRESS_HOST}
-
-cat ./scenario1/ballerina-SELECT.jtl
-
-cp -r scenario1 ${OUTPUT_DIR}
-
-ls ${OUTPUT_DIR}/*
-
-#=============== Copy Surefire Reports ===========================================
-# SUREFIRE REPORTS MUST NEED TO BE COPIED TO OUTPUT_DIR.
-# You need to preserve the folder structure in order to identify executed scenarios.
-echo "Copying surefire-reports to ${OUTPUT_DIR}"
-
-mkdir -p ${OUTPUT_DIR}
-find ./* -name "surefire-reports" -exec cp --parents -r {} ${OUTPUT_DIR} \;
+run_tests

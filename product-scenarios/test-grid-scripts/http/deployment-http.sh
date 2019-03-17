@@ -1,145 +1,71 @@
 #!/bin/bash
-
-# Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+# Copyright (c) 2019, WSO2 Inc. (http://wso2.org) All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
+# WSO2 Inc. licenses this file to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.
 # You may obtain a copy of the License at
 #
 # http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
-set -o xtrace
+readonly deployment_http_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+readonly deployment_http_grand_parent_path=$(dirname ${deployment_http_parent_path})
+readonly deployment_http_great_grand_parent_path=$(dirname ${deployment_http_grand_parent_path})
 
-WORK_DIR=`pwd`
+. ${deployment_http_great_grand_parent_path}/util/usage.sh
+. ${deployment_http_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
-function usage()
-{
-    echo "
-    Usage bash deployment-http.sh --input-dir /workspace/data-bucket/in --output-dir /workspace/data-bucket/out
-    Following are the expected input parameters. all of these are optional
-    --input-dir       | -i    : input directory for test.sh
-    --output-dir      | -o    : output directory for test.sh
-    "
+function setup_deployment() {
+    bal_path=${deployment_http_great_grand_parent_path}/http/src/test/resources/source_files
+    /circuit_breaker/http_circuit_breaker-frontend.bal
+    build_and_deploy_guide
+    wait_for_pod_readiness
+    retrieve_and_write_properties_to_data_bucket
+    local is_debug_enabled=${infra_config["isDebugEnabled"]}
+    if [ "${is_debug_enabled}" = "true" ]; then
+        print_kubernetes_debug_info
+    fi
 }
 
-# Process inputs
-# ex. bash test.sh --input-dir <path-to-input-dir> --output-dir <path-to-output-dir>
-optspec=":hio-:"
-while getopts "$optspec" optchar; do
-    case "${optchar}" in
-        -)
-            case "${OPTARG}" in
-                input-dir)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    INPUT_DIR=$val
-                    ;;
-                output-dir)
-                    val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    OUTPUT_DIR=$val
-                    ;;
-            esac;;
-        h)
-            usage
-            exit 2
-            ;;
-        o)
-            OUTPUT_DIR=$val
-            ;;
-        i)
-            INPUT_DIR=$val
-            ;;
-        *)
-            usage
-            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
-                echo "Non-option argument: '-${OPTARG}'" >&2
-            fi
-            ;;
-    esac
-done
+## Functions
+function print_kubernetes_debug_info() {
+    cat ${bal_path}
+    kubectl get pods
+    kubectl get svc circuit-breaker-frontend-service -o=json
+    kubectl get svc circuit-breaker-backend-service -o=json
+    kubectl get nodes --output wide
+}
 
-echo "working Directory : ${WORK_DIR}"
-echo "input directory : ${INPUT_DIR}"
-echo "output directory : ${OUTPUT_DIR}"
+function replace_variables_in_bal_file() {
+    sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
+    sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
+    sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
+}
 
-export DATA_BUCKET_LOCATION=${INPUT_DIR}
+function build_and_deploy_guide() {
+    cd ${deployment_http_great_grand_parent_path}/http/src/test/resources/
+    ${ballerina_home}/bin/ballerina init
+    ${ballerina_home}/bin/ballerina build source_files --skiptests
+    kubectl apply -f target/kubernetes/source_files
+    cd
+}
 
-#=============== Run deployment configuration ===============================================
-# YOUR TEST EXECUTION LOGIC GOES HERE
-# A sample execution for maven-based testng/junit tests is shown below.
-# For maven, we add -fae (fail-at-end), and a system property to reduce jar download log verbosity.
-#IFS='=' read -r -a array <<< "$(head -n 1 infrastructure.properties)"
+function retrieve_and_write_properties_to_data_bucket() {
+    local lb_ingress_host=$(kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+    declare -A deployment_props
+    deployment_props["LB_INGRESS_HOST"]=${lb_ingress_host}
+    write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
+    local is_debug_enabled=${infra_config["isDebugEnabled"]}
+    if [ "${is_debug_enabled}" = "true" ]; then
+        echo "LB_INGRESS_HOST: ${lb_ingress_host}"
+    fi
+}
 
-cat $INPUT_DIR/infrastructure.properties
-
-pwd
-ls
-
-# Read configuration into an associative array
-declare -A CONFIG
-# IFS is the 'internal field separator'. In this case, your file uses '='
-IFS="="
-while read -r key value
-do
-     CONFIG[$key]=$value
-done < $INPUT_DIR/infrastructure.properties
-unset IFS
-
-ClusterName=${CONFIG[ClusterName]};
-
-wget https://product-dist.ballerina.io/downloads/0.990.2/ballerina-linux-installer-x64-0.990.2.deb
-sudo dpkg -i ballerina-linux-installer-x64-0.990.2.deb
-
-ballerina version
-
-cd product-scenarios/scenarios/
-
-ballerina init
-
-ballerina build 2/
-
-whoami
-echo $HOME
-
-echo "current context"
-kubectl config current-context
-echo "all available contexts"
-kubectl config get-contexts
-echo "view kubectl configurations"
-kubectl config view
-
-kubectl apply -f target/kubernetes/2
-
-TIMEOUT=300
-INTERVAL=20
-bash '../../product-scenarios/wait_for_pod_ready.sh' ${TIMEOUT} ${INTERVAL}
-
-READY_STATUS=$?
-
-echo "Ready Staus: ${READY_STATUS}"
-if [ ${READY_STATUS} -ne 0 ]; then
-    exit 1;
-fi
-echo "All pods ready!"
-
-# Temporary sleep to check whether app eventually becomes ready..
-# Ideally there should have been a kubernetes readiness probe
-# which would make sure the "Ready" status would actually mean
-# the pod is ready to accept requests (app is ready) so the above
-# readiness script would suffice
-sleep 120s
-
-kubectl get svc
-
-kubectl get pods
-
-kubectl get svc circuit-breaker-frontend-service -o=json
-
-lb_ingress_host=$(kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-
-echo "LB_INGRESS_HOST=$lb_ingress_host" >> $OUTPUT_DIR/deployment.properties
+setup_deployment

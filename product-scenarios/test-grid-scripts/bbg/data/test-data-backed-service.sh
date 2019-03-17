@@ -24,12 +24,11 @@ readonly test_data_great_great_grant_parent_path=$(dirname ${test_data_great_gra
 . ${test_data_great_grand_parent_path}/util/setup-test-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function print_debug_info() {
-    echo "Host And Port: ${external_ip}:${node_port}"
+    echo "Host : ${lb_ingress_host}"
 }
 
 function run_tests() {
-    local external_ip=${deployment_config["ExternalIP"]}
-    local node_port=${deployment_config["NodePort"]}
+    local external_ip=${deployment_config["lb_ingress_host"]}
 
     local is_debug_enabled=${deployment_config["isDebugEnabled"]}
     if [ "${is_debug_enabled}" = "true" ]; then
@@ -37,8 +36,7 @@ function run_tests() {
     fi
 
     declare -A sys_prop_array
-    sys_prop_array["data.backed.service.host"]=${external_ip}
-    sys_prop_array["data.backed.service.port"]=${node_port}
+    sys_prop_array["http.cb.service.host"]=${lb_ingress_host}
 
     # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
     run_bbg_section_tests bbg-data data sys_prop_array ${INPUT_DIR} ${OUTPUT_DIR}
