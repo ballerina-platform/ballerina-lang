@@ -16,7 +16,6 @@ import ballerinax/kubernetes;
 
 @kubernetes:Deployment {
     image: "scenarios.ballerina.io/circuit_breaker_backend_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.3",
     name: "circuit-breaker-backend-service"
 }
 listener http:Listener mockServiceListener = new(8080);
