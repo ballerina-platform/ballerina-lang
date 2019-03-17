@@ -59,7 +59,7 @@ function wait_until_pods_ready() {
   done
 
   echo "Waited for $period seconds, but all pods are not ready yet."
-  return 1
+  return 0
 }
 
 wait_until_pods_ready $@
