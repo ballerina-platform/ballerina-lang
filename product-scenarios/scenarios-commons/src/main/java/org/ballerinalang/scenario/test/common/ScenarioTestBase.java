@@ -144,7 +144,7 @@ public class ScenarioTestBase {
     }
 
     protected String getServiceURL(String path) {
-        return serviceURL + (path.startsWith("/") ? "" : "/") + path;
+        return "http://" + serviceURL + (path.startsWith("/") ? "" : "/") + path;
     }
 
     public static String getServiceURL() {
