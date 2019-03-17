@@ -50,10 +50,10 @@ function replace_variables_in_bal_file() {
 }
 
 function build_and_deploy_guide() {
-    cd ${deployment_http_great_grand_parent_path}/http/src/test/resources/source_files
+    cd ${deployment_http_great_grand_parent_path}/http/src/test/resources/sources
     ${ballerina_home}/bin/ballerina init
-    ${ballerina_home}/bin/ballerina build circuit_breaker --skiptests
-    kubectl apply -f target/kubernetes/circuit_breaker
+    ${ballerina_home}/bin/ballerina build circuit-breaker --skiptests
+    kubectl apply -f target/kubernetes/circuit-breaker
     cd
 }
 

@@ -28,7 +28,7 @@ public class ScenarioConstants {
      */
     public static final String REGEX_EXPONENT = "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
 
-    public static final String SOURCE_FILES = "source_files";
+    public static final String SOURCE_FILES = "sources";
 
     public static final String K8S_CLUSTER_URL = "ClusterUrl";
     public static final String LB_INGRESS_HOST = "LB_INGRESS_HOST";
