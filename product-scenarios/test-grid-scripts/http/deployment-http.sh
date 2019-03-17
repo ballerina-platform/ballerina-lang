@@ -23,7 +23,7 @@ readonly deployment_http_great_grand_parent_path=$(dirname ${deployment_http_gra
 . ${deployment_http_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
-    bal_path=${deployment_http_great_grand_parent_path}/http/src/test/resources/sources/circuit_breaker/http_circuit_breaker-frontend.bal
+    bal_path=${deployment_http_great_grand_parent_path}/http/src/test/resources/sources/circuit-breaker/http_circuit_breaker-frontend.bal
     build_and_deploy_guide
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
