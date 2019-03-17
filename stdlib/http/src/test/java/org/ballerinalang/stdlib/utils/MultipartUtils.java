@@ -19,7 +19,9 @@
 package org.ballerinalang.stdlib.utils;
 
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -43,13 +45,10 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.mime.FileUploadContentHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -191,11 +190,11 @@ public class MultipartUtils {
      * @return HTTPTestRequest with nested parts as the entity body
      */
     public static HTTPTestRequest createNestedPartRequest(String path) {
-        List<Header> headers = new ArrayList<>();
+        HttpHeaders headers = new DefaultHttpHeaders();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         String multipartMixedBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
-                multipartDataBoundary));
+        headers.add(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
+                multipartDataBoundary);
         String multipartBodyWithNestedParts = "--" + multipartDataBoundary + "\r\n" +
                 "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +

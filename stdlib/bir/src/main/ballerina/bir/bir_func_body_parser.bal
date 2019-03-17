@@ -16,15 +16,14 @@ public type FuncBodyParser object {
     public function parseBB() returns BasicBlock {
         var id = self.reader.readStringCpRef();
         var numInstruction = self.reader.readInt32() - 1;
-        Instruction[] instructions = [];
+        Instruction?[] instructions = [];
         int i = 0;
         while (i < numInstruction) {
             instructions[i] = self.parseInstruction();
             i += 1;
         }
-        return { id: { value: id },
-            instructions: instructions,
-            terminator: self.parseTerminator() };
+
+        return { id: { value: id }, instructions: instructions, terminator: self.parseTerminator() };
     }
 
     public function parseEE() returns ErrorEntry {
@@ -85,12 +84,6 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
-        } else if (kindTag == INS_TYPE_ASSERT) {
-            kind = INS_KIND_TYPE_ASSERT;
-            var lhsOp = self.parseVarRef();
-            var rhsOp = self.parseVarRef();
-            TypeAssert typeAssert = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
-            return typeAssert;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
             var bType = self.typeParser.parseType();
@@ -168,7 +161,7 @@ public type FuncBodyParser object {
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
-            VarRef[] args = [];
+            VarRef?[] args = [];
             int i = 0;
             while (i < argsCount) {
                 args[i] = self.parseVarRef();
@@ -179,10 +172,10 @@ public type FuncBodyParser object {
             if (hasLhs){
                 lhsOp = self.parseVarRef();
             }
+
             BasicBlock thenBB = self.parseBBRef();
             Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
-
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
@@ -193,8 +186,9 @@ public type FuncBodyParser object {
         var kind = parseVarKind(self.reader);
         var varScope = parseVarScope(self.reader);
         var varName = self.reader.readStringCpRef();
+
         var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName);
-        return new VarRef(decl.typeValue, decl);
+        return {typeValue : decl.typeValue, variableDcl : decl};
     }
 
     public function parseBBRef() returns BasicBlock {
@@ -239,20 +233,19 @@ public type FuncBodyParser object {
 
 function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName) returns VariableDcl {
     if (varScope == VAR_SCOPE_GLOBAL) {
-        var posibalDcl = globalVarMap[varName];
-        if (posibalDcl is VariableDcl) {
-            return posibalDcl;
+        var possibleDcl = globalVarMap[varName];
+        if (possibleDcl is VariableDcl) {
+            return possibleDcl;
         } else {
             error err = error("global var missing " + varName);
             panic err;
         }
     }
-    var posibalDcl = localVarMap[varName];
-    if (posibalDcl is VariableDcl) {
-        return posibalDcl;
+    var possibleDcl = localVarMap[varName];
+    if (possibleDcl is VariableDcl) {
+        return possibleDcl;
     } else {
         error err = error("local var missing " + varName);
         panic err;
     }
 }
-

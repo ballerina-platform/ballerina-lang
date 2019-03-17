@@ -1,7 +1,8 @@
 public type ObjectGenerator object {
 
-    public function generateValueClasses(bir:TypeDef[] typeDefs, map<byte[]> jarEntries) {
-        foreach var typeDef in typeDefs {
+    public function generateValueClasses(bir:TypeDef?[] typeDefs, map<byte[]> jarEntries) {
+        foreach var optionalTypeDef in typeDefs {
+            bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
             bir:BType bType = typeDef.typeValue;
             if (bType is bir:BObjectType) {
                 string className = typeDef.name.value;
@@ -26,9 +27,9 @@ public type ObjectGenerator object {
 
     function createClass(bir:BObjectType objectType, string className) returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, ());
 
-        bir:BObjectField[] fields = objectType.fields;
+        bir:BObjectField?[] fields = objectType.fields;
         self.createFields(cw, fields);
 
         self.createInit(cw);
@@ -39,15 +40,17 @@ public type ObjectGenerator object {
         return cw.toByteArray();
     }
 
-    function createFields(jvm:ClassWriter cw, bir:BObjectField[] fields) {
+    function createFields(jvm:ClassWriter cw, bir:BObjectField?[] fields) {
         foreach var field in fields {
-            jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
-            fv.visitEnd();
+            if (field is bir:BObjectField) {
+                jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
+                fv.visitEnd();
+            }
         }
     }
 
     function createInit(jvm:ClassWriter cw) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), null, null);
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
         mv.visitCode();
 
         // load super
@@ -65,7 +68,7 @@ public type ObjectGenerator object {
     function createCallMethod(jvm:ClassWriter cw) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call",
                 io:sprintf("(L%s;[L%s;)L%s;", STRING_VALUE, OBJECT, OBJECT),
-                null, null);
+                (), ());
         mv.visitCode();
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ARETURN);
@@ -73,9 +76,9 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    function createGetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields, string className) {
+    function createGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), null, null);
+                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 2;
@@ -85,7 +88,8 @@ public type ObjectGenerator object {
                 defaultCaseLabel);
 
         int i = 0;
-        foreach var field in fields {
+        foreach var optionalField in fields {
+            bir:BObjectField field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
@@ -100,10 +104,10 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    function createSetMethod(jvm:ClassWriter cw, bir:BObjectField[] fields, string className) {
+    function createSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT),
-                null, null);
+                (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 3;
@@ -114,7 +118,8 @@ public type ObjectGenerator object {
 
         // case body
         int i = 0;
-        foreach var field in fields {
+        foreach var optionalField in fields {
+            bir:BObjectField field = getObjectField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
@@ -130,7 +135,7 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    function createLabelsforSwitch(jvm:MethodVisitor mv, int fieldNameRegIndex, bir:BObjectField[] fields, 
+    function createLabelsforSwitch(jvm:MethodVisitor mv, int fieldNameRegIndex, bir:BObjectField?[] fields, 
             jvm:Label defaultCaseLabel) returns jvm:Label[] {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(DUP);
@@ -143,7 +148,7 @@ public type ObjectGenerator object {
         int[] hashCodes = [];
         foreach var field in fields {
             labels[i] = new jvm:Label();
-            hashCodes[i] = field.name.value.hashCode();
+            hashCodes[i] = getObjectField(field).name.value.hashCode();
             i += 1;
         }
         mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels);
@@ -160,14 +165,14 @@ public type ObjectGenerator object {
         mv.visitInsn(ATHROW);
     }
 
-    function createLabelsForEqualCheck(jvm:MethodVisitor mv, int fieldNameRegIndex, bir:BObjectField[] fields,
+    function createLabelsForEqualCheck(jvm:MethodVisitor mv, int fieldNameRegIndex, bir:BObjectField?[] fields,
             jvm:Label[] labels, jvm:Label defaultCaseLabel) returns jvm:Label[] {
         jvm:Label[] targetLabels = [];
         int i = 0;
         foreach var field in fields {
             mv.visitLabel(labels[i]);
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitLdcInsn(field.name.value);
+            mv.visitLdcInsn(getObjectField(field).name.value);
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                     io:sprintf("(L%s;)Z", OBJECT), false);
             jvm:Label targetLabel = new jvm:Label();

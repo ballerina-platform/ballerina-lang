@@ -151,14 +151,12 @@ public class AnonymousObjectTest {
     @Test(description = "Negative test to test un-defaultable anon object")
     public void testUndefaultableAnonObject() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_un_defaultable_anon.bal");
-        Assert.assertEquals(result.getErrorCount(), 4);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0,
                 "no implementation found for the function 'test' of non-abstract object '$anonType$1'", 3, 54);
         BAssertUtil.validateError(result, 1,
-                "no implementation found for the function 'test' of non-abstract object '$anonType$2'", 4, 54);
+                "no implementation found for the function 'test' of non-abstract object '$anonType$3'", 7, 58);
         BAssertUtil.validateError(result, 2,
                 "no implementation found for the function 'test' of non-abstract object '$anonType$4'", 8, 58);
-        BAssertUtil.validateError(result, 3,
-                "no implementation found for the function 'test' of non-abstract object '$anonType$5'", 9, 58);
     }
 }

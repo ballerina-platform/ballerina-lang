@@ -172,7 +172,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "Failed to parse json string: unrecognized token 'some' at line: 1 column: 6");
+        Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 
     @Test(description = "Convert complex json object in to xml")

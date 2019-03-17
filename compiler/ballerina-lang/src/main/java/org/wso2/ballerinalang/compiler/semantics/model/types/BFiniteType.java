@@ -43,6 +43,11 @@ public class BFiniteType extends BType implements FiniteType {
         valueSpace = new LinkedHashSet<>();
     }
 
+    public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {
+        super(TypeTags.FINITE, tsymbol);
+        this.valueSpace = valueSpace;
+    }
+
     @Override
     public Set<BLangExpression> getValueSpace() {
         return valueSpace;
@@ -57,7 +62,6 @@ public class BFiniteType extends BType implements FiniteType {
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
     }
-
 
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
@@ -74,5 +78,10 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public String getDesc() {
         return TypeDescriptor.SIG_FINITE + getQualifiedTypeName() + ";";
+    }
+
+    @Override
+    public boolean isNullable() {
+        return this.valueSpace.stream().anyMatch(v -> v.type.tag == TypeTags.NIL);
     }
 }

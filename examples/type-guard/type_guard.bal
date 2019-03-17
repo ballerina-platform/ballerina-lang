@@ -59,7 +59,7 @@ function print(string?|KeyNotFoundError result) {
     } else if (result is ()) {
         // The type of the variable `result` will be `()` or `nil`
         io:println("value is ()");
-    } else if (result is KeyNotFoundError) {
+    } else {
         // The type of the variable `result` will be `KeyNotFoundError`
         io:println(result.reason());
     }

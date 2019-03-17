@@ -46,9 +46,11 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<List<Either<SymbolInformation, DocumentSymbol>>> SYMBOL_LIST_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+    public static final LSContext.Key<String> CURRENT_PKG_NAME_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<PackageID> CURRENT_PACKAGE_ID_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<String> SOURCE_ROOT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<LSContext> OPERATION_META_CONTEXT_KEY
             = new LSContext.Key<>();

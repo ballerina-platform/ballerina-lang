@@ -74,11 +74,11 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
             String allFieldFiller = String.join("," + CommonUtil.LINE_SEPARATOR, memberTypesSnippets.values());
             String anyFieldFiller = UtilSymbolKeys.ANY_KEYWORD_KEY + " => ${1:" + defaultType + "}";
             
-            memberTypesSnippets.entrySet().forEach(entry -> {
+            memberTypesSnippets.forEach((key, value) -> {
                 CompletionItem memberItem = new CompletionItem();
-                memberItem.setLabel(matchSnippet + entry.getKey());
+                memberItem.setLabel(matchSnippet + key);
                 memberItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-                memberItem.setInsertText(entry.getValue());
+                memberItem.setInsertText(value);
                 memberItem.setKind(CompletionItemKind.Snippet);
                 memberItem.setInsertTextFormat(InsertTextFormat.Snippet);
                 memberItem.setSortText(Priority.PRIORITY130.toString());

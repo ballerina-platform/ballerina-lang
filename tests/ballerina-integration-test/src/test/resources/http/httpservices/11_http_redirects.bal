@@ -64,7 +64,7 @@ service testRedirect on serviceEndpoint3 {
         if (response is http:Response) {
             finalResponse.setPayload(response.resolvedRequestedURI);
             _ = caller->respond(finalResponse);
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -83,7 +83,7 @@ service testRedirect on serviceEndpoint3 {
             }
             value = value + ":" + response.resolvedRequestedURI;
             _ = caller->respond(untaint value);
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -100,10 +100,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -120,10 +120,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -140,10 +140,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else  {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -160,10 +160,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -180,10 +180,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -200,10 +200,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -222,7 +222,7 @@ service testRedirect on serviceEndpoint3 {
             }
             value = value + ":" + response.resolvedRequestedURI;
             _ = caller->respond(untaint value);
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -239,10 +239,10 @@ service testRedirect on serviceEndpoint3 {
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
                 _ = caller->respond(untaint value);
-            } else if (value is error) {
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }

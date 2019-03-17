@@ -42,14 +42,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.CodeSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,7 +55,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -132,44 +127,53 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
+     * @param sourceRoot  root path of the modules
+     * @param packageName name of the module to compile
+     * @return Semantic errors
+     */
+    public static CompileResult compile(String sourceRoot, String packageName) {
+        Path rootPath = Paths.get(sourceRoot);
+        Path packagePath = Paths.get(packageName);
+        return getCompileResult(packageName, rootPath, packagePath);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
      * @param obj this is to find the original callers location.
      * @param sourceRoot  root path of the modules
      * @param packageName name of the module to compile
      * @return Semantic errors
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
-        try {
-            String effectiveSource;
-            CodeSource codeSource = obj.getClass().getProtectionDomain().getCodeSource();
-            URL location = codeSource.getLocation();
-            URI locationUri = location.toURI();
-            Path pathLocation = Paths.get(locationUri);
-            String filePath = concatFileName(sourceRoot, pathLocation);
-            Path rootPath = Paths.get(filePath);
-            Path packagePath = Paths.get(packageName);
-            if (Files.isDirectory(packagePath)) {
-                String[] pkgParts = packageName.split("\\/");
-                List<Name> pkgNameComps = Arrays.stream(pkgParts)
-                        .map(part -> {
-                            if (part.equals("")) {
-                                return Names.EMPTY;
-                            } else if (part.equals("_")) {
-                                return Names.EMPTY;
-                            }
-                            return new Name(part);
-                        })
-                        .collect(Collectors.toList());
-                // TODO: orgName is anon, fix it.
-                PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
-                effectiveSource = pkgId.getName().getValue();
-                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
-            } else {
-                effectiveSource = packageName;
-                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
-                        new FileSystemProjectDirectory(rootPath));
-            }
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        String filePath = concatFileName(sourceRoot, resourceDir);
+        Path rootPath = Paths.get(filePath);
+        Path packagePath = Paths.get(packageName);
+        return getCompileResult(packageName, rootPath, packagePath);
+    }
+
+    private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath) {
+        String effectiveSource;
+        if (Files.isDirectory(packagePath)) {
+            String[] pkgParts = packageName.split("\\/");
+            List<Name> pkgNameComps = Arrays.stream(pkgParts)
+                    .map(part -> {
+                        if (part.equals("")) {
+                            return Names.EMPTY;
+                        } else if (part.equals("_")) {
+                            return Names.EMPTY;
+                        }
+                        return new Name(part);
+                    })
+                    .collect(Collectors.toList());
+            // TODO: orgName is anon, fix it.
+            PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
+            effectiveSource = pkgId.getName().getValue();
+            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
+        } else {
+            effectiveSource = packageName;
+            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+                           new FileSystemProjectDirectory(rootPath));
         }
     }
 
@@ -285,13 +289,16 @@ public class BCompileUtil {
      * Compile with tests and return the semantic errors.
      *
      * @param context       Compiler Context
+     * @param listener      the diagnostic log common to a project
      * @param packageName   name of the module to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
-    public static CompileResult compileWithTests(CompilerContext context, String packageName,
+    public static CompileResult compileWithTests(CompilerContext context,
+                                                 CompileResult.CompileResultDiagnosticListener listener,
+                                                 String packageName,
                                                  CompilerPhase compilerPhase) {
-        return compile(context, packageName, compilerPhase, true);
+        return compile(context, listener, packageName, compilerPhase, true);
     }
 
     /**
@@ -328,11 +335,9 @@ public class BCompileUtil {
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -348,10 +353,17 @@ public class BCompileUtil {
 
     private static CompileResult compile(CompilerContext context, String packageName,
                                          CompilerPhase compilerPhase, boolean withTests) {
-        CompileResult comResult = new CompileResult();
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        return compile(context, listener, packageName, compilerPhase, withTests);
+    }
+
+    private static CompileResult compile(CompilerContext context,
+                                         CompileResult.CompileResultDiagnosticListener listener,
+                                         String packageName,
+                                         CompilerPhase compilerPhase,
+                                         boolean withTests) {
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -397,10 +409,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
 
         // compile
@@ -412,21 +421,19 @@ public class BCompileUtil {
      * Compile and run a ballerina file.
      *
      * @param sourceFilePath Path to the ballerina file.
-     * @param functionName   The name of the function to run
      */
-    public static void run(String sourceFilePath, String functionName) {
+    public static void run(String sourceFilePath) {
         // TODO: improve. How to get the output
         CompileResult result = compile(sourceFilePath);
         ProgramFile programFile = result.getProgFile();
 
         // If there is no main or service entry point, throw an error
-        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()
-                && !programFile.isServiceEPAvailable()) {
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable() || !MAIN_FUNCTION_NAME.equals(functionName)) {
-            LauncherUtils.runMain(programFile, functionName, new String[0], false);
+        if (programFile.isMainEPAvailable()) {
+            LauncherUtils.runMain(programFile, new String[0]);
         } else {
             LauncherUtils.runServices(programFile);
         }
@@ -494,11 +501,9 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
+        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
+        CompileResult comResult = new CompileResult(listener);
 
         // compile
         Compiler compiler = Compiler.getInstance(context);

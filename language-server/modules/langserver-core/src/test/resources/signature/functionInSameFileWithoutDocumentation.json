@@ -1,0 +1,36 @@
+{
+  "position": {
+    "line": 1,
+    "character": 16
+  },
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "getGreeting(int year, string message)",
+          "parameters": [
+            {
+              "label": "year",
+              "documentation": {
+                "right": {
+                  "kind": "markdown"
+                }
+              }
+            },
+            {
+              "label": "message",
+              "documentation": {
+                "right": {
+                  "kind": "markdown"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

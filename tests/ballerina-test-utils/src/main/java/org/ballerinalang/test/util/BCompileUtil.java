@@ -34,6 +34,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -65,7 +66,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -75,7 +75,6 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class BCompileUtil {
 
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-    private static final String MODULE_INIT_SUFFIX = "__init_";
 
     /**
      * Compile and return the semantic errors. Error scenarios cannot use this method.
@@ -405,7 +404,6 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
-
         if (compileResult.getErrorCount() > 0) {
             return compileResult;
         }
@@ -417,14 +415,7 @@ public class BCompileUtil {
         Class<?> clazz = classLoader.loadClass(entryClassName);
 
         // invoke the init function
-        String funcName;
-        PackageID pkgID = bLangPackage.packageID;
-        if (!pkgID.name.value.equalsIgnoreCase(".")) {
-            funcName = pkgID.orgName.value + "/" + pkgID.name.value + ":" + pkgID.version.value + MODULE_INIT_SUFFIX;
-        } else {
-            funcName = MODULE_INIT_SUFFIX;
-        }
-
+        String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
             Method method = clazz.getDeclaredMethod(funcName, Strand.class);
             method.invoke(null, new Strand());
@@ -434,6 +425,10 @@ public class BCompileUtil {
 
         compileResult.setEntryClass(clazz);
         return compileResult;
+    }
+
+    private static String cleanupFunctionName(BLangFunction function) {
+        return function.name.value.replaceAll("[.:/<>]", "_");
     }
 
     /**
@@ -476,13 +471,12 @@ public class BCompileUtil {
         ProgramFile programFile = result.getProgFile();
 
         // If there is no main or service entry point, throw an error
-        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()
-                && !programFile.isServiceEPAvailable()) {
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable() || !MAIN_FUNCTION_NAME.equals(functionName)) {
-            LauncherUtils.runMain(programFile, functionName, new String[0], false);
+        if (programFile.isMainEPAvailable()) {
+            LauncherUtils.runMain(programFile, new String[0]);
         } else {
             LauncherUtils.runServices(programFile);
         }

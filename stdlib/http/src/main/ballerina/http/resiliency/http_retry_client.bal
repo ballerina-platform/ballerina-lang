@@ -291,7 +291,7 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
             } else {
                 return backendResponse;
             }
-        } else if (backendResponse is error) {
+        } else {
             (interval, currentRetryCount) =
                             calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
             httpConnectorErr = backendResponse;

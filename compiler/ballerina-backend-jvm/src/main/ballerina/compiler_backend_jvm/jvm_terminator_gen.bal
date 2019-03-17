@@ -78,7 +78,7 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, 0);
         foreach var arg in callIns.args {
 
-            int argIndex = self.getJVMIndexOfVarRef(arg.variableDcl);
+            int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
 
             bir:BType bType = arg.typeValue;
 

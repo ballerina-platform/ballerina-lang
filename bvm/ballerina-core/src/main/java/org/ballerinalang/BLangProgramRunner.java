@@ -57,9 +57,10 @@ public class BLangProgramRunner {
         new Thread(new RecoveryTask(programFile)).start();
     }
 
-    public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
+    public static BValue[] runMainFunc(ProgramFile programFile, String[] args) {
         BValue[] entryFuncResult;
-        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()) {
+        boolean mainRunSuccessful = false;
+        if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
         PackageInfo entryPkgInfo = programFile.getEntryPackage();
@@ -69,12 +70,13 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
+        FunctionInfo functionInfo = getMainFunctionInfo(entryPkgInfo);
         try {
             entryFuncResult = BVMExecutor.executeEntryFunction(programFile, functionInfo,
-                    extractEntryFuncArgs(functionInfo, args));
+                                                               extractEntryFuncArgs(functionInfo, args));
+            mainRunSuccessful = true;
         } finally {
-            if (!programFile.isServiceEPAvailable()) {
+            if (!mainRunSuccessful || !programFile.isServiceEPAvailable()) {
                 if (debugger.isDebugEnabled()) {
                     debugger.notifyExit();
                 }
@@ -92,19 +94,13 @@ public class BLangProgramRunner {
         }
     }
 
-    public static FunctionInfo getEntryFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
-        String errorMsg = "'" + functionName + "' function not found in '"
-                            + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
+    public static FunctionInfo getMainFunctionInfo(PackageInfo entryPkgInfo) {
+        String errorMsg = "'main' function not found in '" + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
-        FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);
+        FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
         if (functionInfo == null) {
             throw new BLangUsageException(errorMsg);
         }
-
-        if (!functionInfo.isPublic()) {
-            throw new BLangUsageException("non public function '" + functionName + "' not allowed as entry function");
-        }
-
         return functionInfo;
     }
 }

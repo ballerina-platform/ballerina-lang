@@ -42,9 +42,6 @@ function startHoppingWindowTest() returns (Teacher[]) {
     Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
     Teacher t2 = { name: "Raja", age: 45, status: "single", school: "Hindu College" };
     Teacher t3 = { name: "Naveen", age: 35, status: "single", school: "Hindu College" };
-    Teacher t4 = { name: "Amal", age: 50, status: "married", school: "Hindu College" };
-    Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
 
     testHoppingWindow();
 
@@ -52,18 +49,14 @@ function startHoppingWindowTest() returns (Teacher[]) {
 
     inputStreamHoppingWindow.publish(t1);
     inputStreamHoppingWindow.publish(t2);
-    runtime:sleep(600);
+    runtime:sleep(1000);
     inputStreamHoppingWindow.publish(t3);
-    runtime:sleep(1100);
-    inputStreamHoppingWindow.publish(t4);
-    inputStreamHoppingWindow.publish(t5);
-    inputStreamHoppingWindow.publish(t6);
 
     int count = 0;
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 5 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -74,7 +67,7 @@ function startHoppingWindowTest() returns (Teacher[]) {
 function testHoppingWindow() {
 
     forever {
-        from inputStreamHoppingWindow window hopping(1000, 500)
+        from inputStreamHoppingWindow window hopping(1000, 800)
         select inputStreamHoppingWindow.name, inputStreamHoppingWindow.age, inputStreamHoppingWindow.status,
         inputStreamHoppingWindow.school, count() as count
         => (Person [] emp) {
