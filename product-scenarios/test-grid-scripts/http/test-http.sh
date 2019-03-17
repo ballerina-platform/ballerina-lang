@@ -22,12 +22,10 @@ readonly test_http_great_grand_parent_path=$(dirname ${test_http_grand_parent_pa
 . ${test_http_grand_parent_path}/util/setup-test-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function print_debug_info() {
-    echo "Host And Port: ${external_ip}:${node_port}"
+    echo "Host And Port: ${lb_host}"
 }
 
 function run_tests() {
-    local external_ip=${deployment_config["ExternalIP"]}
-    local node_port=${deployment_config["NodePort"]}
     local lb_host=${deployment_config["LB_INGRESS_HOST"]}
 
     local is_debug_enabled=${deployment_config["isDebugEnabled"]}
@@ -36,8 +34,6 @@ function run_tests() {
     fi
 
     declare -A sys_prop_array
-    sys_prop_array["http.service.host"]=${external_ip}
-    sys_prop_array["http.service.port"]=${node_port}
     sys_prop_array["http.lb.host"]=${lb_host}
 
     # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
