@@ -2226,7 +2226,7 @@
 
 
         <testng.version>6.14.3</testng.version>
-        <commons.io.version>2.5</commons.io.version>
+        <commons.io.version>2.6</commons.io.version>
         <handlebars.version>4.1.2</handlebars.version>
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
@@ -2262,7 +2262,7 @@
         <maven.wagon.ssh.version>3.3.2</maven.wagon.ssh.version>
         <lambdaj.version>2.3.3</lambdaj.version>
         <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
-        <maven.plugin.annotation.version>3.4</maven.plugin.annotation.version>
+        <maven.plugin.annotation.version>3.6.0</maven.plugin.annotation.version>
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
         <airline.version>0.7</airline.version>
         <io.swagger.version>1.5.22</io.swagger.version>
@@ -2313,7 +2313,7 @@
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
         <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
         <maven.scm.plugin.version>1.9.4</maven.scm.plugin.version>
-        <maven.site.plugin.version>3.5</maven.site.plugin.version>
+        <maven.site.plugin.version>3.7.1</maven.site.plugin.version>
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
@@ -2338,9 +2338,9 @@
         <open.tracing.version>0.31.0</open.tracing.version>
         <jaeger.version>0.27.0</jaeger.version>
         <libthrift.version>0.12.0</libthrift.version>
-        <okhttp.version>3.13.1</okhttp.version>
+        <okhttp.version>3.14.0</okhttp.version>
         <okio.version>1.13.0</okio.version>
-        <hdrhistogram.version>2.1.10</hdrhistogram.version>
+        <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
