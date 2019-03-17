@@ -31,10 +31,10 @@ const string PASSWORD = "A3ddj3w";
 const string CLIENT_ID = "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68";
 const string CLIENT_SECRET = "9205371918321623741";
 
-string refreshTokenString = CLIENT_ID + CLIENT_SECRET + system:uuid();
+string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
 string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toByteArray("UTF-8")));
 
-string[] accessTokenStore = [];
+string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 
 // Mock OAuth2 server which is capable of issue access tokens with related to the grant type and also refresh the
 // already issued access tokens. This keeps the set of issued access tokens for the validation purpose of api endpoint.
@@ -159,7 +159,7 @@ service oauth2 on oauth2Server {
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: "token/refresh"
+        path: "/token/refresh"
     }
     // This refresh the access token but does not issue a new refresh token. The new access
     // token will the MD5 hash of client_id + client_secret + refresh_token + scopes.
@@ -181,6 +181,11 @@ service oauth2 on oauth2Server {
                             grantType = param.split("=")[1];
                         } else if (param.contains("refresh_token")) {
                             refreshToken = param.split("=")[1];
+                            // If refresh token contains `=` symbol, we need to concat all the parts of the value since
+                            // string split break all those into separate parts.
+                            if (param.hasSuffix("==")) {
+                                refreshToken += "==";
+                            }
                         } else if (param.contains("scope")) {
                             scopes = param.split("=")[1];
                         }
@@ -203,6 +208,7 @@ service oauth2 on oauth2Server {
                             // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                             res.statusCode = http:BAD_REQUEST_400;
                             json errMsg = { "error": "invalid_grant" };
+                            io:println(errMsg);
                             res.setPayload(errMsg);
                             _ = caller->respond(res);
                         }
@@ -251,17 +257,25 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         };
         res.setPayload(response);
     } else if (grantType == GRANT_TYPE_PASSWORD) {
-        string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
-        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
-        addToAccessTokenStore(accessToken);
-        json response = {
-            "access_token": accessToken,
-            "token_type": "example",
-            "expires_in": 3600,
-            "refresh_token": refreshTokenHash,
-            "example_parameter": "example_value"
-        };
-        res.setPayload(response);
+        if (username == USERNAME && password == PASSWORD) {
+            string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
+            string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+            addToAccessTokenStore(accessToken);
+            json response = {
+                "access_token": accessToken,
+                "token_type": "example",
+                "expires_in": 3600,
+                "refresh_token": refreshTokenHash,
+                "example_parameter": "example_value"
+            };
+            res.setPayload(response);
+        } else {
+            // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:UNAUTHORIZED_401;
+            json errMsg = { "error": "unauthorized_client" };
+            io:println(errMsg);
+            res.setPayload(errMsg);
+        }
     } else {
         // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:BAD_REQUEST_400;
@@ -303,20 +317,20 @@ service foo on apiEndpoint {
                 }
             }
             if (tokenAvailable) {
-                json payload = { "success": "access granted" };
+                json payload = { "success": "access_granted" };
                 io:println(payload);
                 res.setPayload(payload);
                 _ = caller->respond(res);
             } else {
                 res.statusCode = http:UNAUTHORIZED_401;
-                json payload = { "error": "access denied" };
+                json payload = { "error": "access_denied" };
                 io:println(payload);
                 res.setPayload(payload);
                 _ = caller->respond(res);
             }
         } else {
             res.statusCode = http:UNAUTHORIZED_401;
-            json payload = { "error": "authorization header not provided" };
+            json payload = { "error": "authorization_header_not_provided" };
             io:println(payload);
             res.setPayload(payload);
             _ = caller->respond(res);
