@@ -19,29 +19,33 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-. ${parent_path}/utils.sh
+setup_deployment_env() {
+    local parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+    . ${parent_path}/utils.sh
 
-readonly input_dir=$1
-readonly output_dir=$2
-readonly work_dir=$(pwd)
-declare -A infra_config
-read_property_file "${input_dir}/infrastructure.properties" infra_config
+    local dep_input_dir=$1
+    local dep_output_dir=$2
+    local work_dir=$(pwd)
+    declare -A infra_config
+    read_property_file "${dep_input_dir}/infrastructure.properties" infra_config
 
-readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
-readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
+    declare readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
+    declare readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
 
-# Update kube config to point to the existing cluster
-aws eks update-kubeconfig --name ${cluster_name}
-# Create a custom random namespace
-custom_namespace=$(generate_random_namespace)
-kubectl create namespace ${custom_namespace}
-# Enforce the created namespace for future kubectl usages
-kubectl config set-context $(kubectl config current-context) --namespace=${custom_namespace}
+    # Update kube config to point to the existing cluster
+    aws eks update-kubeconfig --name ${cluster_name}
+    # Create a custom random namespace
+    custom_namespace=$(generate_random_namespace)
+    kubectl create namespace ${custom_namespace}
+    # Enforce the created namespace for future kubectl usages
+    kubectl config set-context $(kubectl config current-context) --namespace=${custom_namespace}
 
-ballerina_version=${infra_config["BallerinaVersion"]}
-# Install ballerina
-install_ballerina ${ballerina_version}
+    local ballerina_version=${infra_config["BallerinaVersion"]}
+    # Install ballerina
+    install_ballerina ${ballerina_version}
 
-# Store namespace to be cleaned up at the end
-echo "NamespacesToCleanup=${custom_namespace}" >> ${output_dir}/infrastructure-cleanup.properties
+    # Store namespace to be cleaned up at the end
+    echo "NamespacesToCleanup=${custom_namespace}" >> ${dep_output_dir}/infrastructure-cleanup.properties
+}
+
+setup_deployment_env

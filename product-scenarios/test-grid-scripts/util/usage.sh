@@ -36,11 +36,11 @@ while getopts "$optspec" optchar; do
             case "${OPTARG}" in
                 input-dir)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    INPUT_DIR=$val
+                    input_dir=$val
                     ;;
                 output-dir)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    OUTPUT_DIR=$val
+                    output_dir=$val
                     ;;
                 *)
                     usage
@@ -54,10 +54,10 @@ while getopts "$optspec" optchar; do
             exit 2
             ;;
         o)
-            OUTPUT_DIR=$val
+            output_dir=$val
             ;;
         i)
-            INPUT_DIR=$val
+            input_dir=$val
             ;;
         *)
             usage
@@ -69,7 +69,7 @@ while getopts "$optspec" optchar; do
 done
 
 echo "working Directory : ${HOME}"
-echo "input directory : ${INPUT_DIR}"
-echo "output directory : ${OUTPUT_DIR}"
+echo "input directory : ${input_dir}"
+echo "output directory : ${output_dir}"
 
-export DATA_BUCKET_LOCATION=${INPUT_DIR}
+export DATA_BUCKET_LOCATION=${input_dir}
