@@ -20,15 +20,15 @@ readonly deployment_data_grand_parent_path=$(dirname ${deployment_data_parent_pa
 readonly deployment_data_great_grand_parent_path=$(dirname ${deployment_data_grand_parent_path})
 
 . ${deployment_data_great_grand_parent_path}/util/usage.sh
-. ${deployment_data_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${deployment_data_great_grand_parent_path}/util/setup-deployment-env.sh ${input_dir} ${output_dir}
 
-function setup_deployment() {
+setup_deployment() {
     clone_bbg_and_set_bal_path
     deploy_mysql_resources
     replace_variables_in_bal_file
     build_and_deploy_guide
     wait_for_pod_readiness
-    retrieve_and_write_properties_to_data_bucket
+    write_properties_to_data_bucket
     local is_debug_enabled=${infra_config["isDebugEnabled"]}
     if [ "${is_debug_enabled}" = "true" ]; then
         print_kubernetes_debug_info
@@ -36,27 +36,27 @@ function setup_deployment() {
 }
 
 ## Functions
-function clone_bbg_and_set_bal_path() {
+clone_bbg_and_set_bal_path() {
     local bbg_repo_name="data-backed-service"
     clone_bbg ${bbg_repo_name}
     bal_path=${bbg_repo_name}/guide/data_backed_service/employee_db_service.bal
 }
 
-function print_kubernetes_debug_info() {
+print_kubernetes_debug_info() {
     cat ${bal_path}
     kubectl get pods
     kubectl get svc ballerina-guides-employee-database-service -o=json
     kubectl get nodes --output wide
 }
 
-function deploy_mysql_resources() {
+deploy_mysql_resources() {
     build_docker_image mysql-ballerina 1.0 data-backed-service/resources/
     push_image_to_docker_registry mysql-ballerina 1.0
     sed -i "s/mysql-ballerina/${docker_user}\/mysql-ballerina/" data-backed-service/resources/kubernetes/mysql-deployment.yaml
     kubectl create -f data-backed-service/resources/kubernetes/
 }
 
-function replace_variables_in_bal_file() {
+replace_variables_in_bal_file() {
     sed -i "s/default = \"localhost\"/default = \"mysql-service\"/" ${bal_path}
     sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
     sed -i "s:<path_to_JDBC_jar>:"${work_dir}/mysql-connector-java-5.1.47/mysql-connector-java-5.1.47.jar":g" ${bal_path}
@@ -65,7 +65,7 @@ function replace_variables_in_bal_file() {
     sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
 }
 
-function build_and_deploy_guide() {
+build_and_deploy_guide() {
     download_and_extract_mysql_connector ${work_dir}
     cd data-backed-service/guide
     ${ballerina_home}/bin/ballerina build data_backed_service --skiptests
@@ -73,13 +73,13 @@ function build_and_deploy_guide() {
     kubectl apply -f ${work_dir}/data-backed-service/guide/target/kubernetes/data_backed_service
 }
 
-function retrieve_and_write_properties_to_data_bucket() {
+write_properties_to_data_bucket() {
     local external_ip=$(kubectl get nodes -o=jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
     local node_port=$(kubectl get svc ballerina-guides-employee-database-service -o=jsonpath='{.spec.ports[0].nodePort}')
     declare -A deployment_props
     deployment_props["ExternalIP"]=${external_ip}
     deployment_props["NodePort"]=${node_port}
-    write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
+    write_to_properties_file ${output_dir}/deployment.properties deployment_props
     local is_debug_enabled=${infra_config["isDebugEnabled"]}
     if [ "${is_debug_enabled}" = "true" ]; then
         echo "ExternalIP: ${external_ip}"
