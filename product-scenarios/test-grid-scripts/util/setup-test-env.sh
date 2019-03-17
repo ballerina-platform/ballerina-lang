@@ -31,4 +31,4 @@ setup_test_env() {
     read_property_file "${test_input_dir}/deployment.properties" deployment_config
 }
 
-setup_test_env
+setup_test_env $1 $2

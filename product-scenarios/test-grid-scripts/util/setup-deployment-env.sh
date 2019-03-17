@@ -48,4 +48,4 @@ setup_deployment_env() {
     echo "NamespacesToCleanup=${custom_namespace}" >> ${dep_output_dir}/infrastructure-cleanup.properties
 }
 
-setup_deployment_env
+setup_deployment_env $1 $2
