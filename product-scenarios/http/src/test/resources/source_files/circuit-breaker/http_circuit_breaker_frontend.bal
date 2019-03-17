@@ -17,8 +17,12 @@ import ballerinax/kubernetes;
 
 @kubernetes:Deployment {
     image: "scenarios.ballerina.io/circuit_breaker_service:v1.0",
-    baseImage: "ballerina/ballerina:0.990.3",
-    name: "circuit_breaker_frontend_service"
+    baseImage: "ballerina/ballerina:<BALLERINA_VERSION>",
+    name: "circuit_breaker_frontend_service",
+    username:"<USERNAME>",
+    password:"<PASSWORD>",
+    push:true,
+    imagePullPolicy:"Always"
 }
 listener http:Listener httpListener = new(9090);
 

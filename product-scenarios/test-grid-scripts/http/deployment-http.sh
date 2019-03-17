@@ -19,12 +19,11 @@ readonly deployment_http_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pw
 readonly deployment_http_grand_parent_path=$(dirname ${deployment_http_parent_path})
 readonly deployment_http_great_grand_parent_path=$(dirname ${deployment_http_grand_parent_path})
 
-. ${deployment_http_great_grand_parent_path}/util/usage.sh
-. ${deployment_http_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${deployment_http_grand_parent_path}/util/usage.sh
+. ${deployment_http_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
 
 function setup_deployment() {
-    bal_path=${deployment_http_great_grand_parent_path}/http/src/test/resources/source_files
-    /circuit_breaker/http_circuit_breaker-frontend.bal
+    bal_path=${deployment_http_great_grand_parent_path}/http/src/test/resources/source_files/circuit_breaker/http_circuit_breaker-frontend.bal
     build_and_deploy_guide
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
@@ -44,16 +43,17 @@ function print_kubernetes_debug_info() {
 }
 
 function replace_variables_in_bal_file() {
+    sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
     sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
     sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
     sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
 }
 
 function build_and_deploy_guide() {
-    cd ${deployment_http_great_grand_parent_path}/http/src/test/resources/
+    cd ${deployment_http_great_grand_parent_path}/http/src/test/resources/source_files
     ${ballerina_home}/bin/ballerina init
-    ${ballerina_home}/bin/ballerina build source_files --skiptests
-    kubectl apply -f target/kubernetes/source_files
+    ${ballerina_home}/bin/ballerina build circuit_breaker --skiptests
+    kubectl apply -f target/kubernetes/circuit_breaker
     cd
 }
 
