@@ -37,5 +37,20 @@ public interface CompilerInput {
      * @return the source code binary encoded
      */
     byte[] getCode();
-    
+
+    /**
+     * Set the MD5Hash for the source Input.
+     *
+     * @param md5Hash   hash value for the source input
+     */
+    default void setHashValue(String md5Hash) {}
+
+    /**
+     * Get the hash value of the source input.
+     *
+     * @return the hash value of the source input
+     */
+    default String getHashValue() {
+        return "";
+    }
 }

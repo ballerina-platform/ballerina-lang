@@ -27,6 +27,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -46,6 +48,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class is responsible for parsing Ballerina source files.
@@ -60,6 +65,7 @@ public class Parser {
     private CompilerContext context;
     private BLangDiagnosticLog dlog;
     private PackageCache pkgCache;
+    private HashMap<String, CUnitCacheItem> cUnitCache;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -78,6 +84,7 @@ public class Parser {
         this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
+        this.cUnitCache = new HashMap<>();
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -110,6 +117,15 @@ public class Parser {
             BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
             String entryName = sourceEntry.getEntryName();
 
+            // Check compilation unit cache for existing compilation unit and returns
+            CUnitCacheItem cUnitCacheItem = cUnitCache.get(entryName);
+            if (cUnitCacheItem != null && cUnitCacheItem.getMd5Hash().equals(sourceEntry.getHashValue())) {
+                // Add current cUnit's diagnostics to the global diagnostics list
+                cUnitCacheItem.diagnostics
+                        .forEach(diagnostic -> context.get(DiagnosticListener.class).received(diagnostic));
+                return cUnitCacheItem.getCompilationUnitNode();
+            }
+
             BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
             compUnit.setName(sourceEntry.getEntryName());
             compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
@@ -124,6 +140,17 @@ public class Parser {
             parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
+
+            // Update the compilation unit cache
+            DiagnosticListener diagnosticListener = context.get(DiagnosticListener.class);
+            if (diagnosticListener != null) {
+                List<Diagnostic> diagnostics = diagnosticListener.getDiagnostics().stream()
+                        .filter(diagnostic -> diagnostic.getSource().getCompilationUnitName().equals(entryName))
+                        .collect(Collectors.toList());
+                CUnitCacheItem cacheItem = new CUnitCacheItem(sourceEntry.getHashValue(), diagnostics, compUnit);
+                this.cUnitCache.put(entryName, cacheItem);
+            }
+
             return compUnit;
         } catch (IOException e) {
             throw new RuntimeException("error reading module: " + e.getMessage(), e);
@@ -153,5 +180,32 @@ public class Parser {
             ((BallerinaParserErrorStrategy) customErrorStrategy).setDiagnosticSrc(diagnosticSrc);
         }
         return customErrorStrategy;
+    }
+
+    /**
+     * Represents Compilation caching item.
+     */
+    public class CUnitCacheItem {
+        private String md5Hash;
+        private List<Diagnostic> diagnostics;
+        private CompilationUnitNode compilationUnitNode;
+
+        CUnitCacheItem(String md5Hash, List<Diagnostic> diagnostics, CompilationUnitNode compilationUnitNode) {
+            this.md5Hash = md5Hash;
+            this.diagnostics = diagnostics;
+            this.compilationUnitNode = compilationUnitNode;
+        }
+
+        String getMd5Hash() {
+            return md5Hash;
+        }
+
+        public List<Diagnostic> getDiagnostics() {
+            return this.diagnostics;
+        }
+
+        CompilationUnitNode getCompilationUnitNode() {
+            return compilationUnitNode;
+        }
     }
 }
