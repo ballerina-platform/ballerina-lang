@@ -19,7 +19,6 @@
 
 <suite name="Ballerina-Scenario-Test-Suite">
     <listeners>
-        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
         <!-- TestLoggingListener : Test listener to log test execution events -->
         <listener class-name="org.ballerinalang.scenario.test.common.testng.listeners.TestLoggingListener"/>
     </listeners>

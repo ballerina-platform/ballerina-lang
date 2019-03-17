@@ -34,7 +34,7 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test
-    public void testParseSemicolonMissingSerivce() {
+    public void testParseSemicolonMissingService() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-service-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token 'return'", 10, 7);
     }
@@ -72,8 +72,8 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 30);
-        BAssertUtil.validateError(result, 1, "invalid token ';'", 3, 6);
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting {'[', '?', '|', Identifier}", 1, 30);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting '='", 2, 7);
     }
 
     /**

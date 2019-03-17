@@ -88,7 +88,7 @@ public class FilterUtils {
         } else if (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
             String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
-            String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
+            String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
             Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
             PackageID pkgId = getPackageIDForBType(bType);
             String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();

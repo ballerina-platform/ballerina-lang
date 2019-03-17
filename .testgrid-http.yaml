@@ -10,34 +10,40 @@ infrastructureConfig:
     - OracleJDK-8
   provisioners:
   - name: ballerina-deployment
-    remoteRepository: "git@github.com:VijithaEkanayake/aws-ballerina.git"
-    remoteBranch: "master"
+    remoteRepository: "git@github.com:ballerina-platform/aws-ballerina.git"
+    remoteBranch: "use-existing-cluster"
     description: creates infrastructure for ballerina scenario tests
     scripts:
-      - name: ballerina-deployment
-        description: Creates Kubernetes infrastructure for Ballerina installed instance.
-        type: SHELL
-        phase: CREATE
-        file: http-integration/provision-infrastructure.sh
-      - name: destroy
-        file: http-integration/destroy-cluster.sh
-        type: SHELL
-        phase: DESTROY
+    - name: ballerina-deployment
+      description: Creates Kubernetes infrastructure for a database and ballerina installed instance.
+      type: SHELL
+      phase: CREATE
+      file: bbg/common_infra.sh
+    - name: destroy
+      file: bbg/common-cleanup.sh
+      type: SHELL
+      phase: DESTROY
 scenarioConfigs:
-- testType: JMETER
+- testType: TESTNG
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
   remoteBranch: "ballerina-scenarios"
   name: "ballerinaScenarios"
   description: "ballerina-scenarios"
-  file: product-scenarios/test-http.sh
+  file: product-scenarios/test-grid-scripts/http/test-http.sh
+  inputParameters:
+    BallerinaVersion: "0.990.3"
+    isDebugEnabled: "true"
 deploymentConfig:
   deploymentPatterns:
-    - name: 'scenario-tests'
-      description: 'HTTP resiliency scenarios deployment'
-      remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
-      remoteBranch: "ballerina-scenarios"
-      dir: .
-      scripts:
-        - name: 'default'
-          type: SHELL
-          file: product-scenarios/deployment-http.sh
+  - name: 'scenario-tests'
+    description: 'dummy'
+    remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
+    remoteBranch: "ballerina-scenarios"
+    dir: .
+    scripts:
+    - name: 'default'
+      type: SHELL
+      file: product-scenarios/test-grid-scripts/http/deployment-http.sh
+      inputParameters:
+        BallerinaVersion: "0.990.3"
+        isDebugEnabled: "true"
