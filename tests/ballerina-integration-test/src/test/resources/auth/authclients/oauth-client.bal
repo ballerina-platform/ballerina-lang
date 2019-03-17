@@ -16,106 +16,188 @@
 
 import ballerina/http;
 
-http:Client clientEP1 = new("https://localhost:9095/foo", config = {
-    auth: {
-        scheme: http:OAUTH2,
-        config: {
-            grantType: http:DIRECT_TOKEN,
+http:Client clientEP1 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
             config: {
-                refreshConfig: {
-                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                grantType: http:CLIENT_CREDENTIALS_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741"
+                }
+            }
+        }
+    });
+
+http:Client clientEP2 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
+            config: {
+                grantType: http:CLIENT_CREDENTIALS_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
                     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
                     clientSecret: "9205371918321623741",
-                    refreshUrl: "https://localhost:9095/foo/token",
+                    scopes: ["token-scope1", "token-scope2"]
+                }
+            }
+        }
+    });
+
+http:Client clientEP3 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
+            config: {
+                grantType: http:CLIENT_CREDENTIALS_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
+                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                    clientSecret: "9205371918321623741",
+                    scopes: ["token-scope1", "token-scope2"],
                     credentialBearer: http:POST_BODY_BEARER
                 }
             }
         }
-    }
-});
+    });
 
-http:Client clientEP2 = new("https://localhost:9095/foo", config = {
-    auth: {
-        scheme: http:OAUTH2,
-        config: {
-            grantType: http:DIRECT_TOKEN,
+http:Client clientEP4 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
             config: {
-                refreshConfig: {
-                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
-                    clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-                    clientSecret: "9205371918321623741",
-                    refreshUrl: "https://localhost:9095/foo/token",
-                    credentialBearer: http:AUTH_HEADER_BEARER
+                grantType: http:CLIENT_CREDENTIALS_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
+                    clientId: "invalid_client_id",
+                    clientSecret: "invalid_client_secret"
                 }
             }
         }
-    }
-});
+    });
 
-http:Client clientEP3 = new("https://localhost:9095/foo", config = {
-    auth: {
-        scheme: http:OAUTH2,
-        config: {
-            grantType: http:DIRECT_TOKEN,
+http:Client clientEP5 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
             config: {
-                refreshConfig: {
-                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                grantType: http:PASSWORD_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
+                    username: "johndoe",
+                    password: "A3ddj3w",
                     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
-                    clientSecret: "9205371918321623741",
-                    refreshUrl: "https://localhost:9095/foo/token"
+                    clientSecret: "9205371918321623741"
                 }
             }
         }
-    }
-});
+    });
 
-http:Client clientEP4 = new("https://localhost:9095/foo", config = {
-    auth: {
-        scheme: http:OAUTH2,
-        config: {
-            grantType: http:DIRECT_TOKEN,
+http:Client clientEP6 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
             config: {
-                refreshConfig: {
-                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                grantType: http:PASSWORD_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
+                    username: "johndoe",
+                    password: "A3ddj3w",
                     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
                     clientSecret: "9205371918321623741",
-                    refreshUrl: "https://localhost:9095/foo/token",
-                    scopes: ["token-scope1", "token-scope2"]
+                    refreshConfig: {
+                        refreshUrl: "https://localhost:9196/oauth2/token/refresh"
+                    }
                 }
             }
         }
-    }
-});
+    });
 
-http:Client clientEP5 = new("https://localhost:9095/foo", config = {
-    auth: {
-        scheme: http:OAUTH2,
-        config: {
-            grantType: http:DIRECT_TOKEN,
+http:Client clientEP7 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
             config: {
-                refreshConfig: {
-                    refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
+                grantType: http:PASSWORD_GRANT,
+                config: {
+                    tokenUrl: "https://localhost:9196/oauth2/token/authorize",
+                    username: "invalid_username",
+                    password: "invalid_password",
                     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
                     clientSecret: "9205371918321623741",
-                    refreshUrl: "https://localhost:9095/foo/token",
-                    credentialBearer: http:POST_BODY_BEARER,
-                    scopes: ["token-scope1", "token-scope2"]
+                    refreshConfig: {
+                        refreshUrl: "https://localhost:9196/oauth2/token/refresh"
+                    }
                 }
             }
         }
-    }
-});
+    });
 
-public function main(string arg) {
-    if (arg == "POST_BODY_BEARER") {
-        var resp = clientEP1->get("/bar");
-    } else if (arg == "AUTH_HEADER_BEARER") {
-        var resp = clientEP2->get("/bar");
-    } else if (arg == "NO_CONFIG") {
-        var resp = clientEP3->get("/bar");
-    } else if (arg == "SCOPE") {
-        var resp = clientEP4->get("/bar");
-    } else if (arg == "SCOPE_POST_BODY_BEARER") {
-        var resp = clientEP5->get("/bar");
+http:Client clientEP8 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
+            config: {
+                grantType: http:DIRECT_TOKEN,
+                config: {
+                    accessToken: "2YotnFZFEjr1zCsicMWpAA"
+                }
+            }
+        }
+    });
+
+http:Client clientEP9 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
+            config: {
+                grantType: http:DIRECT_TOKEN,
+                config: {
+                    accessToken: "invalid_access_token",
+                    refreshConfig: {
+                        refreshUrl: "https://localhost:9196/oauth2/token/refresh",
+                        refreshToken: "XlfBs91yquexJqDaKEMzVg==",
+                        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                        clientSecret: "9205371918321623741"
+                    }
+                }
+            }
+        }
+    });
+
+http:Client clientEP10 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
+            config: {
+                grantType: http:DIRECT_TOKEN,
+                config: {
+                    accessToken: "invalid_access_token",
+                    refreshConfig: {
+                        refreshUrl: "https://localhost:9196/oauth2/token/refresh",
+                        refreshToken: "invalid_refresh_token",
+                        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                        clientSecret: "9205371918321623741"
+                    }
+                }
+            }
+        }
+    });
+
+public function main(string... args) {
+    http:Request req = new;
+    if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE") {
+        var resp = clientEP1->post("/foo/bar", req);
+    } else if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_SCOPES") {
+        var resp = clientEP2->post("/foo/bar", req);
+    } else if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_SCOPES_AND_POST_BODY_BEARER") {
+        var resp = clientEP3->post("/foo/bar", req);
+    } else if (args[0] == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS") {
+        var resp = clientEP4->post("/foo/bar", req);
+    } else if (args[0] == "PASSWORD_GRANT_TYPE") {
+        var resp = clientEP5->post("/foo/bar", req);
+    } else if (args[0] == "PASSWORD_GRANT_TYPE_WITH_REFRESH_CONFIG") {
+        var resp = clientEP6->post("/foo/bar", req);
+    } else if (args[0] == "PASSWORD_GRANT_TYPE_WITH_REFRESH_CONFIG_AND_INVALID_USERNAME_PASSWORD") {
+        var resp = clientEP7->post("/foo/bar", req);
+    } else if (args[0] == "DIRECT_TOKEN") {
+        var resp = clientEP8->post("/foo/bar", req);
+    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN") {
+        var resp = clientEP9->post("/foo/bar", req);
+    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_INVALID_REFRESH_TOKEN") {
+        var resp = clientEP10->post("/foo/bar", req);
     }
 }
