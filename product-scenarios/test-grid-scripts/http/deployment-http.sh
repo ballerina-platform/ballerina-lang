@@ -38,8 +38,7 @@ function setup_deployment() {
 function print_kubernetes_debug_info() {
     cat ${bal_path}
     kubectl get pods
-    kubectl get svc circuit-breaker-frontend-service -o=json
-    kubectl get svc circuit-breaker-backend-service -o=json
+    kubectl get svc circuit_breaker_service -o=json
     kubectl get nodes --output wide
 }
 
@@ -60,7 +59,7 @@ function build_and_deploy_guide() {
 }
 
 function retrieve_and_write_properties_to_data_bucket() {
-    local lb_ingress_host=$(kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+    local lb_ingress_host=$(kubectl get svc circuit_breaker_service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
     declare -A deployment_props
     deployment_props["LB_INGRESS_HOST"]=${lb_ingress_host}
     write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
