@@ -86,6 +86,16 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
+        <profile>
+            <id>bbg-http</id>
+            <modules>
+                <module>scenarios-commons</module>
+                <module>bbg/http</module>
+            </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
     </profiles>
 
     <properties>
