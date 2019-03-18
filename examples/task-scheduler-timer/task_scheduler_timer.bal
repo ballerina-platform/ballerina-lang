@@ -13,7 +13,7 @@ public function main() {
     // Interval in which the timer should trigger.
     int interval = 1000;
 
-    // Initialize the timer scheduler using the interval value.
+    // Initializes the timer scheduler using the interval value.
     // The delay will be equal to the interval as we do not provide an initial delay here.
     task:Scheduler timer = new({ interval: interval });
 
