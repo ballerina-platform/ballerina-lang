@@ -188,7 +188,7 @@ function testRecordBindingPatternWithClosedRestParam() {
     string var2;
     float var3;
 
-    { field1: var1, field2: var2, field3: var3, !... } = cBindingPattern;
+    {| field1: var1, field2: var2, field3: var3 |} = cBindingPattern;
 
     test:assertEquals(var1, 15, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
