@@ -19,7 +19,8 @@ import ballerinax/kubernetes;
     name: "circuit-breaker-backend-service",
     username:"<USERNAME>",
     password:"<PASSWORD>",
-    push:true
+    push:true,
+    imagePullPolicy:"Always"
 }
 listener http:Listener mockServiceListener = new(30300);
 

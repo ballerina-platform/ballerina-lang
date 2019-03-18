@@ -46,6 +46,7 @@ function print_kubernetes_debug_info() {
 function replace_variables_in_bal_file() {
     sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
     sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
+    sed -i "s:scenarios.ballerina.io:${docker_user}:g" ${bal_path}
 }
 
 function build_and_deploy_guide() {
