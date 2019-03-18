@@ -5,9 +5,10 @@ task npmBuild(type: Exec) {
 
     PatternSet patternSet = new PatternSet();
 	patternSet.exclude("**/node_modules/**");
-    patternSet.exclude("$buildDir/packages/**/lib/**");
-    patternSet.exclude("$buildDir/packages/**/build/**");
-    FileTree src = files('$buildDir').asFileTree;
+    patternSet.exclude("**/packages/**/build/**");
+    patternSet.exclude("**/packages/**/lib/**");
+
+    FileTree src = files('.').asFileTree;
     inputs.files(src.matching(patternSet))
 
     outputs.dir("$buildDir/packages/distribution/build")

@@ -46,3 +46,46 @@ function testArrayWithNilElement() returns string {
     string?[] ar = ["abc", "d", (), "s"];
     return io:sprintf("%s", ar);
 }
+
+type Foo 1|2|3;
+
+function testElementTypesWithoutImplicitInitVal() returns Foo[] {
+    Foo[] arr;
+    Foo[*] arr2 = [1, 2];
+    arr = arr2;
+    return arr;
+}
+
+type BarRec record {
+    Foo[] fArr;
+};
+
+function testArrayFieldInRecord() returns BarRec {
+    Foo[*] arr = [1, 2];
+    BarRec rec = {fArr: arr};
+    return rec;
+}
+
+type BarObj object {
+    Foo[] fArr;
+
+    function __init() {
+        Foo[*] arr = [1, 2];
+        self.fArr = arr;
+    }
+};
+
+function testArrayFieldInObject() returns BarObj {
+    BarObj obj = new;
+    return obj;
+}
+
+function fnWithArrayParam(Foo[] arr) returns Foo[] {
+    Foo[*] newArr = [arr[0],3];
+    return newArr;
+}
+
+function testArraysAsFuncParams() returns Foo[] {
+    Foo[*] arr = [1, 2];
+    return fnWithArrayParam(arr);
+}
