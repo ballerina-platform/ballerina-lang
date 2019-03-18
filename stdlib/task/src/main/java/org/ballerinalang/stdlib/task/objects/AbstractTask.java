@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 import org.quartz.JobDataMap;
