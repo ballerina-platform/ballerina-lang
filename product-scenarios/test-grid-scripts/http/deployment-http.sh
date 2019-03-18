@@ -60,7 +60,7 @@ function build_and_deploy_guide() {
 
 function retrieve_and_write_properties_to_data_bucket() {
     kubectl get svc
-    local lb_ingress_host=$(kubectl get svc circuit_breaker_service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+    local lb_ingress_host=$(kubectl get svc circuit-breaker-frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
     declare -A deployment_props
     deployment_props["LB_INGRESS_HOST"]=${lb_ingress_host}
     write_to_properties_file ${OUTPUT_DIR}/deployment.properties deployment_props
