@@ -61,8 +61,7 @@ public class BByteValueTest {
     public void testByteValueSpace() {
         BValue[] returns = BRunUtil.invoke(result, "testByteValueSpace", new BValue[]{});
         BByte byteValue = (BByte) returns[0];
-        Assert.assertEquals(byteValue.stringValue(), Integer.toString(Byte.toUnsignedInt((byte) 234)),
-                "Invalid byte value returned.");
+        Assert.assertEquals(byteValue.byteValue(), 234, "Invalid byte value returned.");
     }
 
     @Test(description = "Test byte default value")
@@ -355,8 +354,7 @@ public class BByteValueTest {
 
 
     private void invokeBitwiseAndTestFunction(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseAndOperator", args);
         Assert.assertEquals(returns.length, 5);
         BByte bByte = (BByte) returns[0];
@@ -400,8 +398,7 @@ public class BByteValueTest {
     }
 
     private void testBitwiseOrTestFunction(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseOrOperator", args);
         Assert.assertEquals(returns.length, 5);
         BByte bByte = (BByte) returns[0];
@@ -446,8 +443,7 @@ public class BByteValueTest {
 
 
     private void testBitwiseXorTestFunction(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseXorOperator", args);
         Assert.assertEquals(returns.length, 5);
         BByte bByte = (BByte) returns[0];
@@ -484,8 +480,7 @@ public class BByteValueTest {
     }
 
     private void invokeRightShiftOperatorTestFunction1(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseRightShiftOperator1", args);
         Assert.assertEquals(returns.length, 3);
         BByte bByte1 = (BByte) returns[0];
@@ -498,8 +493,7 @@ public class BByteValueTest {
     }
 
     private void invokeRightShiftOperatorTestFunction2(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseRightShiftOperator2", args);
         Assert.assertEquals(returns.length, 3);
         BInteger bInteger1 = (BInteger) returns[0];
@@ -527,7 +521,7 @@ public class BByteValueTest {
     }
 
     private void invokeUnsignedRightShiftOperatorTestFunction(byte a, long i, long j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BInteger(i), new BInteger(j)};
+        BValue[] args = {new BByte(a), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOperator", args);
         Assert.assertEquals(returns.length, 2);
         BInteger bInteger1 = (BInteger) returns[0];
@@ -558,8 +552,7 @@ public class BByteValueTest {
     }
 
     private void invokeLeftShiftOperatorTestFunction1(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseLeftShiftOperator1", args);
         Assert.assertEquals(returns.length, 3);
         BByte bByte1 = (BByte) returns[0];
@@ -572,8 +565,7 @@ public class BByteValueTest {
     }
 
     private void invokeLeftShiftOperatorTestFunction2(byte a, byte b, int i, int j) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)), new BInteger(i),
-                new BInteger(j)};
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseLeftShiftOperator2", args);
         Assert.assertEquals(returns.length, 3);
         BInteger bInteger1 = (BInteger) returns[0];
@@ -620,7 +612,7 @@ public class BByteValueTest {
 
 
     private void invokeBitwiseComplementOperatorFunction(byte a, int b) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BInteger(b)};
+        BValue[] args = {new BByte(a), new BInteger(b)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseNotOperator", args);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BByte.class);
@@ -745,8 +737,7 @@ public class BByteValueTest {
 
     private void invokeBitwisePrecedenceTestFunctionForByte(byte a, byte b, byte c, String functionName,
                                                             byte expected) {
-        BValue[] args = {new BByte(Byte.toUnsignedLong(a)), new BByte(Byte.toUnsignedLong(b)),
-                new BByte(Byte.toUnsignedLong(c))};
+        BValue[] args = {new BByte(a), new BByte(b), new BByte(c)};
         BValue[] returns = BRunUtil.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BByte.class);

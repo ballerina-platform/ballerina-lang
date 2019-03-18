@@ -439,7 +439,7 @@ public class BValueArray extends BNewArray implements Serializable {
             } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
                 return new BBoolean(getBoolean(index) == 1);
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                return new BByte(Byte.toUnsignedLong(getByte(index)));
+                return new BByte(getByte(index));
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
                 return new BFloat(getFloat(index));
             } else if (elementType.getTag() == TypeTags.STRING_TAG) {
@@ -621,7 +621,7 @@ public class BValueArray extends BNewArray implements Serializable {
 
         if (elementType == BTypes.typeByte) {
             for (int i = 0; i < this.size(); i++) {
-                refValues[i] = new BByte(Byte.toUnsignedLong(byteValues[i]));
+                refValues[i] = new BByte(byteValues[i]);
             }
             byteValues = null;
         }

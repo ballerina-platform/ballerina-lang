@@ -38,6 +38,10 @@ public final class BByte extends BValueType implements BRefType<Long> {
         this.value = value;
     }
 
+    public BByte(byte value) {
+        this.value = Byte.toUnsignedLong(value);
+    }
+
     private BType type = BTypes.typeByte;
 
     @Override

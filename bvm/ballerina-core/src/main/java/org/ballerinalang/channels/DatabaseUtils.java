@@ -281,7 +281,7 @@ public class DatabaseUtils {
             case TypeTags.STRING_TAG:
                 return new BString(resultSet.getString(2));
             case TypeTags.BYTE_TAG:
-                return new BByte(Byte.toUnsignedLong(resultSet.getByte(2)));
+                return new BByte(resultSet.getByte(2));
             case TypeTags.FLOAT_TAG:
                 return new BFloat(resultSet.getDouble(2));
             case TypeTags.BOOLEAN_TAG:

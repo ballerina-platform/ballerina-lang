@@ -53,7 +53,7 @@ public class ListUtils {
                 return i == 0 ? new BBoolean(false) : new BBoolean(true);
             case TypeTags.BYTE_TAG:
                 BValueArray bByteArray = (BValueArray) array;
-                return new BByte(Byte.toUnsignedLong(bByteArray.getByte(index)));
+                return new BByte(bByteArray.getByte(index));
             case TypeTags.FLOAT_TAG:
                 BValueArray bFloatArray = (BValueArray) array;
                 return new BFloat(bFloatArray.getFloat(index));
