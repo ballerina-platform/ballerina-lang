@@ -144,6 +144,11 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
                                          "(Ljava/lang/String;)Ljava/lang/String;", false);
             self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        } else if (bType is bir:BTypeFloat) {
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+
+            self.mv.visitInsn(DADD);
+            self.generateVarStore(binaryIns.lhsOp.variableDcl);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -152,20 +157,47 @@ type InstructionGenerator object {
     }
 
     function generateSubIns(bir:BinaryOp binaryIns) {
+        bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
-        self.mv.visitInsn(LSUB);
+        if (bType is bir:BTypeInt) {
+            self.mv.visitInsn(LSUB);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitInsn(DSUB);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            panic err;
+        }
         self.generateVarStore(binaryIns.lhsOp.variableDcl);
     }
 
     function generateDivIns(bir:BinaryOp binaryIns) {
+        bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
-        self.mv.visitInsn(LDIV);
+        if (bType is bir:BTypeInt) {
+            self.mv.visitInsn(LDIV);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitInsn(DDIV);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            panic err;
+        }
         self.generateVarStore(binaryIns.lhsOp.variableDcl);
     }
 
     function generateMulIns(bir:BinaryOp binaryIns) {
+        bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
-        self.mv.visitInsn(LMUL);
+        if (bType is bir:BTypeInt) {
+            self.mv.visitInsn(LMUL);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitInsn(DMUL);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            panic err;
+        }
         self.generateVarStore(binaryIns.lhsOp.variableDcl);
     }
 

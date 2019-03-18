@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -267,6 +268,10 @@ public class BRunUtil {
                     typeClazz = String.class;
                     argument = bvmArgs[i].stringValue();
                     break;
+                case TypeTags.FLOAT_TAG:
+                    typeClazz = double.class;
+                    argument = ((BFloat) bvmArgs[i]).floatValue();
+                    break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
             }
@@ -293,6 +298,8 @@ public class BRunUtil {
         switch (type.getTag()) {
             case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
                 return new BInteger((long) value);
+            case org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG:
+                return new BFloat((double) value);
             case org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG:
                 return new BBoolean((boolean) value);
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
