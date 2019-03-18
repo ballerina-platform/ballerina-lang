@@ -154,7 +154,7 @@ public class BuilderUtils {
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
-        if(dumpBIR){
+        if (dumpBIR) {
             JVMCodeGen.emitBIRText(bLangPackage.symbol.bir);
         }
         byte[] jarContent = JVMCodeGen.generateJarBinary(bLangPackage, context, packagePath);

@@ -19,9 +19,6 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,8 +26,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import static org.ballerinalang.model.types.TypeKind.ARRAY;
-import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
@@ -41,7 +36,8 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
  * Native class for jvm try catch byte code creation.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jvm",
+        orgName = "ballerina",
+        packageName = "jvm",
         functionName = "visitTryCatchBlock",
         receiver = @Receiver(type = OBJECT, structType = METHOD_VISITOR, structPackage = JVM_PKG_PATH),
         args = {
