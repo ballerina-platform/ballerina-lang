@@ -41,9 +41,9 @@ deploymentConfig:
       remoteBranch: "ballerina-scenarios-cleaned"
       dir: .
       scripts:
-      - name: 'default'
-        type: SHELL
-        file: product-scenarios/test-grid-scripts/bbg/http/deployment-http.sh
-        inputParameters:
-          BallerinaVersion: "0.990.3"
-          isDebugEnabled: "true"
+        - name: 'default'
+          type: SHELL
+          file: product-scenarios/test-grid-scripts/bbg/http/deployment-http.sh
+          inputParameters:
+            BallerinaVersion: "0.990.3"
+            isDebugEnabled: "true"
