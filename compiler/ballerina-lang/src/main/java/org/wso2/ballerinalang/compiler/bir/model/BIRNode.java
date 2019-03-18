@@ -276,7 +276,7 @@ public abstract class BIRNode {
     }
 
     /**
-     * An error entry in a basic block error table.
+     * An error entry in the error table.
      *
      * @since 0.995.0
      */
