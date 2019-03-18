@@ -157,6 +157,8 @@ public type LengthWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] eventsList = toSnapshottableEvents(self.linkedList.asArray());
         return {
@@ -164,6 +166,8 @@ public type LengthWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var eventsList = state["eventsList"];
         if (eventsList is SnapshottableStreamEvent?[]) {
@@ -174,6 +178,11 @@ public type LengthWindow object {
     }
 };
 
+# The `length` function creates a `LengthWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function length(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     LengthWindow lengthWindow1 = new(nextProcessPointer, windowParameters);
@@ -320,6 +329,8 @@ public type TimeWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
         return {
@@ -328,6 +339,8 @@ public type TimeWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -342,6 +355,11 @@ public type TimeWindow object {
     }
 };
 
+# The `time` function creates a `TimeWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function time(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
@@ -483,6 +501,8 @@ public type LengthBatchWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -495,6 +515,8 @@ public type LengthBatchWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -514,6 +536,11 @@ public type LengthBatchWindow object {
     }
 };
 
+# The `lengthBatch` function creates a `LengthBatchWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function lengthBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     LengthBatchWindow lengthBatchWindow = new(nextProcessPointer, windowParameters);
@@ -662,6 +689,8 @@ public type TimeBatchWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -675,6 +704,8 @@ public type TimeBatchWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -698,6 +729,11 @@ public type TimeBatchWindow object {
     }
 };
 
+# The `timeBatch` function creates a `TimeBatchWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeBatchWindow timeBatchWindow = new(nextProcessPointer, windowParameters);
@@ -844,6 +880,8 @@ public type ExternalTimeWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
         return {
@@ -853,6 +891,8 @@ public type ExternalTimeWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -880,6 +920,11 @@ public type ExternalTimeWindow object {
     }
 };
 
+# The `externalTime` function creates a `ExternalTimeWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function externalTime(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
 
@@ -1132,6 +1177,8 @@ public type ExternalTimeBatchWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventChunk.asArray());
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
@@ -1151,6 +1198,8 @@ public type ExternalTimeBatchWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -1356,6 +1405,11 @@ public type ExternalTimeBatchWindow object {
     }
 };
 
+# The `externalTimeBatch` function creates a `ExternalTimeBatchWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function externalTimeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, windowParameters);
@@ -1523,6 +1577,8 @@ public type TimeLengthWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         return {
@@ -1531,6 +1587,8 @@ public type TimeLengthWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -1545,6 +1603,11 @@ public type TimeLengthWindow object {
     }
 };
 
+# The `timeLength` function creates a `TimeLengthWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, windowParameters);
@@ -1719,6 +1782,8 @@ public type UniqueLengthWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         map<SnapshottableStreamEvent> uMap = {};
@@ -1732,6 +1797,8 @@ public type UniqueLengthWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -1753,6 +1820,11 @@ public type UniqueLengthWindow object {
     }
 };
 
+# The `uniqueLength` function creates a `UniqueLengthWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function uniqueLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, windowParameters);
@@ -1902,6 +1974,8 @@ public type DelayWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] delayedEventsList = toSnapshottableEvents(self.delayedEventQueue.asArray());
         return {
@@ -1910,6 +1984,8 @@ public type DelayWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var delayedEventsList = state["delayedEventsList"];
         if (delayedEventsList is SnapshottableStreamEvent?[]) {
@@ -1924,6 +2000,11 @@ public type DelayWindow object {
     }
 };
 
+# The `delay` function creates a `DelayWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function delay(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     DelayWindow delayWindow1 = new(nextProcessPointer, windowParameters);
@@ -2117,6 +2198,8 @@ public type SortWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] sortEventsList = toSnapshottableEvents(self.sortedWindow.asArray());
         return {
@@ -2124,6 +2207,8 @@ public type SortWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var sortEventsList = state["sortEventsList"];
         if (sortEventsList is SnapshottableStreamEvent?[]) {
@@ -2134,6 +2219,11 @@ public type SortWindow object {
     }
 };
 
+# The `sort` function creates a `SortWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function sort(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
@@ -2280,6 +2370,8 @@ public type TimeAccumulatingWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -2292,6 +2384,8 @@ public type TimeAccumulatingWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -2311,6 +2405,11 @@ public type TimeAccumulatingWindow object {
     }
 };
 
+# The `timeAccum` function creates a `TimeAccumulatingWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeAccum(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     TimeAccumulatingWindow timeAccumulatingWindow1 = new(nextProcessPointer, windowParameters);
@@ -2474,6 +2573,8 @@ public type HoppingWindow object {
         return events;
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] currentEventsList = toSnapshottableEvents(self.currentEventQueue.asArray());
         StreamEvent? resetStreamEvt = self.resetEvent;
@@ -2486,6 +2587,8 @@ public type HoppingWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var currentEventsList = state["currentEventsList"];
         if (currentEventsList is SnapshottableStreamEvent?[]) {
@@ -2505,6 +2608,11 @@ public type HoppingWindow object {
     }
 };
 
+# The `hopping` function creates a `HoppingWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function hopping(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
     HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
@@ -2706,6 +2814,8 @@ public type TimeOrderWindow object {
         }
     }
 
+    # Return current state to be saved as a map of `any` typed values.
+    # + return - A map of `any` typed values.
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventQueue.asArray());
         return {
@@ -2714,6 +2824,8 @@ public type TimeOrderWindow object {
         };
     }
 
+    # Restores the saved state which is passed as a map of `any` typed values.
+    # + state - A map of typed `any` values. This map contains the values to be restored from the persisted data.
     public function restoreState(map<any> state) {
         var expiredEventsList = state["expiredEventsList"];
         if (expiredEventsList is SnapshottableStreamEvent?[]) {
@@ -2728,6 +2840,11 @@ public type TimeOrderWindow object {
     }
 };
 
+# The `timeOrder` function creates a `TimeOrderWindow` object and returns it.
+# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+#                       they appear in the argument list.
+# + nextProcessPointer - The function pointer to the `process` function of the next processor.
+# + return - Returns the created window.
 public function timeOrder(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
                     returns Window {
 
