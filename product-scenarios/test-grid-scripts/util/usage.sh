@@ -1,6 +1,19 @@
 #!/bin/bash
-
-set -o xtrace
+# Copyright (c) 2019, WSO2 Inc. (http://wso2.org) All Rights Reserved.
+#
+# WSO2 Inc. licenses this file to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
 readonly WORK_DIR=`pwd`
 
@@ -23,11 +36,11 @@ while getopts "$optspec" optchar; do
             case "${OPTARG}" in
                 input-dir)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    INPUT_DIR=$val
+                    input_dir=$val
                     ;;
                 output-dir)
                     val="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
-                    OUTPUT_DIR=$val
+                    output_dir=$val
                     ;;
                 *)
                     usage
@@ -41,10 +54,10 @@ while getopts "$optspec" optchar; do
             exit 2
             ;;
         o)
-            OUTPUT_DIR=$val
+            output_dir=$val
             ;;
         i)
-            INPUT_DIR=$val
+            input_dir=$val
             ;;
         *)
             usage
@@ -56,7 +69,7 @@ while getopts "$optspec" optchar; do
 done
 
 echo "working Directory : ${HOME}"
-echo "input directory : ${INPUT_DIR}"
-echo "output directory : ${OUTPUT_DIR}"
+echo "input directory : ${input_dir}"
+echo "output directory : ${output_dir}"
 
-export DATA_BUCKET_LOCATION=${INPUT_DIR}
+export DATA_BUCKET_LOCATION=${input_dir}

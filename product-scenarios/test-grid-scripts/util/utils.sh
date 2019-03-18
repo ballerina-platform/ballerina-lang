@@ -28,7 +28,7 @@ readonly cluster_name="ballerina-testgrid-cluster-v2"
 # How to call
 # declare -A somearray
 # read_property_file testplan-props.properties somearray
-function read_property_file() {
+read_property_file() {
     local testplan_properties=$1
     # Read configuration into an associative array
     # IFS is the 'internal field separator'. In this case, your file uses '='
@@ -45,7 +45,7 @@ function read_property_file() {
 #
 # $1 - file path
 # $2 - associative array of key value pairs
-function write_to_properties_file() {
+write_to_properties_file() {
     local properties_file_path=$1
     local -n properties_array=$2
 
@@ -59,10 +59,10 @@ function write_to_properties_file() {
 # Install the provided Ballerina version
 #
 # $1 - Ballerina version
-function install_ballerina() {
+install_ballerina() {
     local ballerina_version=$1
     wget https://product-dist.ballerina.io/downloads/${ballerina_version}/ballerina-${ballerina_version}.zip --quiet
-    unzip ballerina-${ballerina_version}.zip -d ${utils_parent_path}
+    unzip -q ballerina-${ballerina_version}.zip -d ${utils_parent_path}
     ${utils_parent_path}/ballerina-${ballerina_version}/bin/ballerina version
     readonly ballerina_home=${utils_parent_path}/ballerina-${ballerina_version}
 }
@@ -70,33 +70,31 @@ function install_ballerina() {
 # Downloads and extracts the MySQL connector
 #
 # $1 - Download location
-function download_and_extract_mysql_connector() {
+download_and_extract_mysql_connector() {
     local download_location=$1
     wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.47.tar.gz --quiet
 
     tar -xzf mysql-connector-java-5.1.47.tar.gz --directory ${download_location}
-
-    ls ${download_location}/mysql-connector-java-5.1.47
 }
 
 # Generates a random namespace name
-function generate_random_namespace() {
+generate_random_namespace() {
     echo "kubernetes-namespace"-$(generate_random_name)
 }
 
 # Generates a random name
-function generate_random_database_name() {
+generate_random_database_name() {
     echo "test-database"-$(generate_random_name)
 }
 
 # Generates a random database name
-function generate_random_name() {
+generate_random_name() {
     local new_uuid=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 8 | head -n 1)
     echo ${new_uuid}
 }
 
 # Wait for pod readiness
-function wait_for_pod_readiness() {
+wait_for_pod_readiness() {
     local timeout=300
     local interval=20
     bash ${utils_parent_path}/wait-for-pod-ready.sh ${timeout} ${interval}
@@ -111,12 +109,12 @@ function wait_for_pod_readiness() {
 
 # Builds run tests of the provided BBG section profile and copies the surefire reports to teh output directory
 #
-# $1 - BBG section directory name
+# $1 - Maven profile to be run
 # $2 - Associative array of system property-value pairs
 # $3 - System properties associative array
 # $4 - Input directory
 # $5 - Output directory
-function run_bbg_section_tests() {
+run_bbg_section_tests() {
     local maven_profile=$1
     local bbg_section=$2
     local -n properties_array=$3
@@ -136,19 +134,19 @@ function run_bbg_section_tests() {
 # Clones the given BBG.
 #
 # $1 - BBG repository name
-function clone_bbg() {
+clone_bbg() {
     local bbg_repo=$1
     git clone https://github.com/ballerina-guides/${bbg_repo} --branch testgrid-onboarding
 }
 
-function push_image_to_docker_registry() {
+push_image_to_docker_registry() {
     local image=$1
     local tag=$2
     docker login --username=${docker_user} --password=${docker_password}
     docker push ${docker_user}/${image}:${tag}
 }
 
-function build_docker_image() {
+build_docker_image() {
     local image=$1
     local tag=$2
     local image_location=$3

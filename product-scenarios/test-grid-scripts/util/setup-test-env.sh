@@ -19,12 +19,16 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-readonly parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-. ${parent_path}/utils.sh
+setup_test_env() {
+    local parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+    . ${parent_path}/utils.sh
 
-readonly input_dir=$1
-readonly output_dir=$2
+    local test_input_dir=$1
+    local test_output_dir=$2
 
-# Read deployment.properties content into an associative array
-declare -A deployment_config
-read_property_file "${input_dir}/deployment.properties" deployment_config
+    # Read deployment.properties content into an associative array
+    declare -g -A deployment_config
+    read_property_file "${test_input_dir}/deployment.properties" deployment_config
+}
+
+setup_test_env $1 $2

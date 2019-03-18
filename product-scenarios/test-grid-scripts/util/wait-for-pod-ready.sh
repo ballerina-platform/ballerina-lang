@@ -15,11 +15,11 @@
 # specific language governing permissions and limitations
 # under the License.
 
-function pod_ready() {
+pod_ready() {
   [[ "$(kubectl get pods "$1" -o 'jsonpath={.status.conditions[?(@.type=="Ready")].status}')" == 'True' ]]
 }
 
-function pods_ready() {
+pods_ready() {
   local pod
 
   [[ "$#" == 0 ]] && return 0
@@ -34,7 +34,7 @@ function pods_ready() {
   return 0
 }
 
-function wait_until_pods_ready() {
+wait_until_pods_ready() {
   local period interval i pods
 
   if [[ $# != 2 ]]; then

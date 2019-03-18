@@ -35,7 +35,6 @@ under the License.
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-scenario-test-commons</artifactId>
             <scope>test</scope>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
