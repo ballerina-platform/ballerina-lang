@@ -50,7 +50,11 @@ service onlineStoreService on new http:Listener(9090) {
         //or type. And subsequent invocations of register() will simply retrieve the stored metrics instance
         //for the provided name and tags fields, and use that instance for the subsequent operations on the
         //counter instance.
-        _ = registeredGaugeWithTags.register();
+        error? result = registeredGaugeWithTags.register();
+        if (result is error) {
+            log:printError("Error in registering gauge", err = result);
+        }
+
         //Set the value of the gauge with the new value.
         registeredGaugeWithTags.increment();
         float value = registeredGaugeWithTags.getValue();

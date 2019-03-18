@@ -7,7 +7,7 @@ string msg = "hey";
 @test:Config
 function testText() {
     http:WebSocketClient wsClient = new("ws://localhost:9090/proxy/ws", config = {callbackService:callback});
-    _ = wsClient->pushText(msg);
+    checkpanic wsClient->pushText(msg);
     string wsReply = <- serviceReply;
     test:assertEquals(wsReply, msg, msg = "Received message should be equal to the expected message");
 }

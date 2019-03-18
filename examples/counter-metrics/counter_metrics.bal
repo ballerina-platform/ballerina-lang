@@ -37,7 +37,10 @@ service onlineStoreService on new http:Listener(9090) {
         //or type. Subsequent invocations of register() will simply retrieve the stored metrics instance
         //for the provided name and tags fields, and use that instance for the subsequent operations on the
         //counter instance.
-        _ = registeredCounter.register();
+        error? result = registeredCounter.register();
+        if (result is error) {
+            log:printError("Error in registering counter", err = result);
+        }
 
         //Increase the amount of the registered counter instance by amount 10.
         registeredCounter.increment(amount = 10);

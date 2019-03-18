@@ -23,7 +23,11 @@ service HelloWorld on new grpc:Listener(9090) {
         }
 
         // Once all the messages are sent, the server notifies the caller with a `complete` message.
-        _ = caller->complete();
+        error? result = caller->complete();
+        if (result is error) {
+            log:printError("Error in sending completed notification to caller",
+                err = result);
+        }
     }
 
 }
