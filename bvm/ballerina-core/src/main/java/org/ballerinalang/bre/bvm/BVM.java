@@ -1087,13 +1087,11 @@ public class BVM {
 
     private static int expandLongRegs(StackFrame sf, BFunctionPointer fp) {
         int longIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0 ||
-                fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
             if (sf.longRegs == null) {
                 sf.longRegs = new long[0];
             }
-            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) +
-                    fp.getAdditionalIndexCount(BTypes.typeByte.getTag())];
+            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
             System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
             longIndex = sf.longRegs.length;
             sf.longRegs = newLongRegs;
@@ -1182,8 +1180,10 @@ public class BVM {
                     break;
                 }
                 case TypeTags.BYTE_TAG: {
+                    // 'byte' values are stored in long registry and treated similar to 'int' values.
+                    // Hence, modifying the int index for byte as well.
                     fp.addClosureVar(new BClosure(new BByte(sf.longRegs[index]), BTypes.typeByte),
-                            TypeTags.BYTE_TAG);
+                            TypeTags.INT_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
