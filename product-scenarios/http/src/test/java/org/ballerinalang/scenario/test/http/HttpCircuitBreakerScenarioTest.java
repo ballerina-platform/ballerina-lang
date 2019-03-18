@@ -18,20 +18,14 @@
 
 package org.ballerinalang.scenario.test.http;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.scenario.test.common.ScenarioTestBase;
 import org.ballerinalang.scenario.test.common.http.HttpClientRequest;
 import org.ballerinalang.scenario.test.common.http.HttpResponse;
-import org.ballerinalang.scenario.test.common.http.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Test cases for the resiliency scenarios.
@@ -42,9 +36,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
     private static final int SC_INTERNAL_SERVER_ERROR = 500;
     private static final String SUCCESS_HELLO_MESSAGE = "Hello World!!!";
     private static final String UPSTREAM_UNAVAILABLE_MESSAGE = "Upstream service unavailable.";
-    private static final String IDLE_TIMEOUT_MESSAGE = "Idle timeout triggered before initiating inbound response";
-    private static final String REQUEST_PAYLOAD_STRING = "{\"Name\":\"Ballerina\"}";
-    private static final String TYPICAL_CB_SERVICE_PATH = "cb" + File.separator + "typical";
+    private static final String INTERNAL_ERROR_MESSAGE = "Internal error occurred while processing the request";
 
     @BeforeTest(alwaysRun = true)
     public void start() throws Exception {
@@ -53,7 +45,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
 
     @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
     public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
-        verifyResponses(9306, TYPICAL_CB_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9306, "/cb", responseCode, messasge);
     }
 
     @DataProvider(name = "responseDataProvider")
@@ -61,19 +53,14 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
         return new Object[][]{
                 new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
                 new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
-                new Object[]{SC_INTERNAL_SERVER_ERROR, IDLE_TIMEOUT_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
                 new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
-                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
-                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
-                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE}
         };
     }
 
     private void verifyResponses(int port, String path, int responseCode, String expectedMessage) throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(getServiceURL(path)
-                , REQUEST_PAYLOAD_STRING, headers);
+        HttpResponse response = HttpClientRequest.doGet(getServiceURL(path));
         Assert.assertEquals(response.getResponseCode(), responseCode, "Response code mismatched");
         Assert.assertTrue(response.getData().contains(expectedMessage), "Message content mismatched");
     }
