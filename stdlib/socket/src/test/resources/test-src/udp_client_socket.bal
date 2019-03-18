@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/socket;
 
 function echo(string msg) returns string {
-    socket:UdpClient socketClient = new({});
+    socket:UdpClient socketClient = new;
     byte[] c1 = msg.toByteArray("utf-8");
     var sendResult = socketClient->sendTo(c1, { host: "localhost", port: 48826 });
     if (sendResult is int) {
@@ -44,7 +44,7 @@ function echo(string msg) returns string {
 }
 
 function contentReceive() returns string {
-    socket:UdpClient socketClient = new({ localAddress: { port: 48827 } });
+    socket:UdpClient socketClient = new(localAddress = { port: 48827 });
     string returnStr = "";
     var result = socketClient->receiveFrom();
     if (result is (byte[], int, socket:Address)) {
@@ -63,7 +63,7 @@ function contentReceive() returns string {
 }
 
 function contentReceiveWithLength() returns string {
-    socket:UdpClient socketClient = new({ localAddress: { host: "localhost", port: 48828 } });
+    socket:UdpClient socketClient = new(localAddress = { host: "localhost", port: 48828 });
     string returnStr = "";
     var result = socketClient->receiveFrom(length = 56);
     if (result is (byte[], int, socket:Address)) {

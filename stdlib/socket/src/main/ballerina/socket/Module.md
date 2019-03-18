@@ -110,7 +110,7 @@ import ballerina/io;
 import ballerina/socket;
 
 public function main() {
-    socket:UdpClient socketClient = new({});
+    socket:UdpClient socketClient = new;
     string msg = "Hello from UDP client";
     byte[] c1 = msg.toByteArray("utf-8");
     var sendResult =

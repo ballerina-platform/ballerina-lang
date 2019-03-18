@@ -21,37 +21,39 @@
 # + id - a unique identifier to identify each client
 public type UdpClient client object {
 
-    private UdpClientConfig config;
+    private Address localAddress;
     public int localPort = 0;
-    public string? localAddress = ();
+    public string? interface = ();
     public int id = 0;
 
-    public function __init(UdpClientConfig? clientConfig) {
-        if (clientConfig is UdpClientConfig) {
-            self.config = clientConfig;
-            var initResult = self.initEndpoint(clientConfig);
-            if (initResult is error) {
-                panic initResult;
-            }
+    # Initialize the UDP client based on provided configuration.
+    #
+    # + localAddress - Locally binding interface and port
+    public function __init(Address? localAddress = ()) {
+        var initResult = self.initEndpoint(localAddress);
+        if (initResult is error) {
+            panic initResult;
         }
-        return ();
+        if (localAddress is Address) {
+            self.localAddress = localAddress;
+        }
     }
 
-    extern function initEndpoint(UdpClientConfig clientConfig) returns error?;
+    extern function initEndpoint(Address? localAddress) returns error?;
 
     # Send given data to the specified remote client.
     #
-    # + content - - the content that wish to send to the client socket
-    # + address - - the address of the remote client socket
-    # + return - - number of bytes got written or an error if encounters an error while writing
+    # + content - the content that wish to send to the client socket
+    # + address - the address of the remote client socket
+    # + return - number of bytes got written or an error if encounters an error while writing
     public remote extern function sendTo(byte[] content, Address address) returns int|error;
 
     # Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
     # are received from the client. Else, return the data available in the OS buffer or wait until data receive.
     # If the request length is lesser than the data in the buffer, then the rest will be discarded.
     #
-    # + length - - Positive integer. Represents the number of bytes which should be read
-    # + return - - Content as a byte array, the number of bytes read and the address of the sender
+    # + length - Positive integer. Represents the number of bytes which should be read
+    # + return - Content as a byte array, the number of bytes read and the address of the sender
     # or an error if encounters an error while reading
     public remote extern function receiveFrom(int length = -100) returns (byte[], int, Address)|error;
 
@@ -68,13 +70,5 @@ public type UdpClient client object {
 public type Address record {
     string host?;
     int port;
-    !...;
-};
-
-# Configuration for UDP socket client endpoint.
-#
-# + localAddress - The address information this UDP socket bind locally
-public type UdpClientConfig record {
-    Address? localAddress = ();
     !...;
 };

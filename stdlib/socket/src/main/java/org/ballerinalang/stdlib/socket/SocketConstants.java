@@ -36,7 +36,6 @@ public class SocketConstants {
     public static final String CONFIG_FIELD_INTERFACE = "interface";
     public static final String CONFIG_FIELD_HOST = "host";
     public static final String CONFIG_FIELD_PORT = "port";
-    public static final String CONFIG_FIELD_LOCAL_ADDRESS = "localAddress";
     public static final String LISTENER_CONFIG = "config";
     public static final String CLIENT_CONFIG = "config";
 

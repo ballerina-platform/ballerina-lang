@@ -77,9 +77,7 @@ public class InitEndpoint implements NativeCallableUnit {
             socketChannel.socket().setReuseAddress(true);
             clientEndpoint.addNativeData(SOCKET_KEY, socketChannel);
             clientEndpoint.addNativeData(IS_CLIENT, true);
-            BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getNullableRefArgument(1);
-            BMap<String, BValue> localAddress = (BMap<String, BValue>) endpointConfig
-                    .get(SocketConstants.CONFIG_FIELD_LOCAL_ADDRESS);
+            BMap<String, BValue> localAddress = (BMap<String, BValue>) context.getNullableRefArgument(1);
             if (localAddress != null) {
                 BString host = (BString) localAddress.get(SocketConstants.CONFIG_FIELD_HOST);
                 BInteger port = (BInteger) localAddress.get(SocketConstants.CONFIG_FIELD_PORT);

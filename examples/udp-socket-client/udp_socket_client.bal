@@ -6,9 +6,9 @@ public function main() {
     // Create a new socket client.
     // Optionally, you can provide port that this socket need to bind or
     // both interface and port as follows.
-    // socket:UdpClient client = new({ localAddress: { port: 48828 } });
-    // socket:UdpClient client = new({ localAddress: { host: "localhost", port: 48828 } });
-    socket:UdpClient socketClient = new({});
+    // socket:UdpClient client = new(localAddress = { port: 48828 });
+    // socket:UdpClient client = new(localAddress = { host: "localhost", port: 48828 });
+    socket:UdpClient socketClient = new;
     string msg = "Hello from UDP client";
     byte[] c1 = msg.toByteArray("utf-8");
     // Send data to remote host.
@@ -36,7 +36,7 @@ public function main() {
         if (str is string) {
             io:println("Received: ", untaint str);
         } else {
-            io:println(str.detail().message);
+            io:println("Error: ", str.detail().message);
         }
     } else {
         io:println("An error occured while receiving the data ",
