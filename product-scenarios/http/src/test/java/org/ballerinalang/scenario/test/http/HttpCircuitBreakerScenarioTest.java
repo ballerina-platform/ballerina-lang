@@ -46,7 +46,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
 
     @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
     public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
-        verifyResponses(9306, "/cb", responseCode, messasge);
+        verifyResponses(9306, "cb", responseCode, messasge);
     }
 
     @DataProvider(name = "responseDataProvider")
