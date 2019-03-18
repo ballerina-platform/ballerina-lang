@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -484,6 +485,8 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
         BXMLSequence value;
         int cursor = 0;
+        IterMode iterMode = IterMode.SEQUENCE;
+        BXMLCodePointIterator codePointIterator;
 
         BXMLSequenceIterator(BXMLSequence bxmlSequence) {
             value = bxmlSequence;
@@ -491,16 +494,33 @@ public final class BXMLSequence extends BXML<BValueArray> {
 
         @Override
         public BValue getNext() {
-            if (hasNext()) {
-                return value.sequence.getRefValue(cursor++);
+            if (iterMode == IterMode.CODE_POINT) {
+                if (codePointIterator.hasNext()) {
+                    return codePointIterator.getNext();
+                } else {
+                    iterMode = IterMode.SEQUENCE;
+                    codePointIterator = null;
+                }
             }
-            return null;
+            BRefType<?> curVal = value.sequence.getRefValue(cursor++);
+            if (curVal.getType().getTag() == TypeTags.XML_TAG
+                    && ((BXMLItem) curVal).getNodeType() == XMLNodeType.TEXT) {
+                iterMode = IterMode.CODE_POINT;
+                codePointIterator = BXMLCodePointIterator.from((curVal.stringValue()));
+                return codePointIterator.getNext();
+            }
+            return curVal;
         }
 
         @Override
         public boolean hasNext() {
-            return cursor < value.sequence.size();
+            boolean hasMoreXmlItems = cursor < value.sequence.size();
+            return iterMode == IterMode.SEQUENCE ? hasMoreXmlItems : (codePointIterator.hasNext() || hasMoreXmlItems);
         }
+    }
+
+    enum IterMode {
+        SEQUENCE, CODE_POINT
     }
 
     @Override

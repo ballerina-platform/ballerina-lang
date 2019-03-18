@@ -26,6 +26,9 @@ import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Service versioning dispatching related negative test cases.
  */
@@ -33,13 +36,15 @@ public class VersioningNegativeTest {
 
     private static final String MOCK_ENDPOINT_NAME = "passthruEP";
     private static final String PKG_NAME = "pqr.stv";
+    private String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+    private Path sourceRoot = Paths.get(resourceRoot, "test-src", "services", "dispatching", "versioning");
 
     @Test(description = "Test dispatching with invalid version segments",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*Invalid versioning pattern.*")
     public void testInvalidVersionSegmentsNegative() {
         CompileResult result = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase1", PKG_NAME);
+                .setupProgramFile(sourceRoot.resolve("negativecase1").toString(), PKG_NAME);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/hello1/v2.4/bar/go", "GET");
         Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
     }
@@ -49,7 +54,7 @@ public class VersioningNegativeTest {
           expectedExceptionsMessageRegExp = ".*Invalid versioning pattern.*")
     public void testWithMinorVersionTemplateNegative() {
         CompileResult result = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase2", PKG_NAME);
+                .setupProgramFile(sourceRoot.resolve("negativecase2").toString(), PKG_NAME);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/hello6/v1.4/go", "GET");
         Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
     }
@@ -60,7 +65,7 @@ public class VersioningNegativeTest {
                   "'/echo/v2/bar'.*")
     public void testRegisteringTwoServicedsWithSameBasePath() {
         CompileResult result = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase3", PKG_NAME);
+                .setupProgramFile(sourceRoot.resolve("negativecase3").toString(), PKG_NAME);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/echo/v2.4/bar", "GET");
         Services.invokeNew(result, PKG_NAME, MOCK_ENDPOINT_NAME, cMsg);
     }

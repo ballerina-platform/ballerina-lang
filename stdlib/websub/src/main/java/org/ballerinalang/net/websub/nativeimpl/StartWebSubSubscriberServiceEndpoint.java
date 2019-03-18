@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
-import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
+import org.ballerinalang.net.websub.BallerinaWebSubConnectorListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -63,7 +63,7 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
                                                                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
         serverConnectorFuture.setHttpConnectorListener(
-                new BallerinaWebSubConnectionListener(webSubServicesRegistry, serviceEndpoint
+                new BallerinaWebSubConnectorListener(webSubServicesRegistry, serviceEndpoint
                         .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG), context));
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
 

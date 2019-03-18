@@ -293,7 +293,11 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 
     http:Request request = new;
 
-    string queryParams = HUB_MODE + "=" + mode
+    var decodedCallback = http:decode(callback, "UTF-8");
+    string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
+
+    string queryParams = (callbackToCheck.contains("?") ? "&" : "?")
+        + HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
         + "&" + HUB_CHALLENGE + "=" + challenge;
 
@@ -301,7 +305,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
+    var subscriberResponse = callbackEp->get(untaint queryParams, message = request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();
