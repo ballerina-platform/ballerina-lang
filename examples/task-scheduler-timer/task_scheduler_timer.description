@@ -3,5 +3,5 @@
 // function, and the listener can be started using `start()` function.
 // Attaching service must contain `onTrigger()` resource function. A parameter
 // can be passed into the service using the defaultable parameter `attachment`
-// through the `attach()` function, which is passed to the `onTrigger()`
+// through the `attach()` function, which then can be used inside `onTrigger()`
 // function. Listener can be stopped by calling `stop()` function.
