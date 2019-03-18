@@ -23,7 +23,7 @@ public type ABC object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
+    public function __attach(service s, string? name = ()) returns error? {
         return ();
     }
 };

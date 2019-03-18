@@ -62,11 +62,11 @@ public type TopicSubscriber object {
     # + serviceType - Type descriptor of the service
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    extern function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error?;
+    extern function registerListener(service serviceType, TopicSubscriberCaller actions, string? name) returns error?;
 
     extern function createSubscriber(Session? session, string messageSelector, string|Destination dest);
 

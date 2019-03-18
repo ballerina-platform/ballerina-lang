@@ -35,7 +35,7 @@ public type Listener object {
         self.init(port, sseEpConfig =  config);
     }
 
-    public function __attach(service s, map<any> data) returns error? {
+    public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
         self.registerWebSubSubscriberServiceEndpoint(s);
         return;
