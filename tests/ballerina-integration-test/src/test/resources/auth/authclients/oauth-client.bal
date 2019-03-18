@@ -159,6 +159,26 @@ http:Client clientEP9 = new("https://localhost:9095", config = {
                 grantType: http:DIRECT_TOKEN,
                 config: {
                     accessToken: "invalid_access_token",
+                    retryRequest: false,
+                    refreshConfig: {
+                        refreshUrl: "https://localhost:9196/oauth2/token/refresh",
+                        refreshToken: "XlfBs91yquexJqDaKEMzVg==",
+                        clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68",
+                        clientSecret: "9205371918321623741",
+                        scopes: ["token-scope1", "token-scope2"]
+                    }
+                }
+            }
+        }
+    });
+
+http:Client clientEP10 = new("https://localhost:9095", config = {
+        auth: {
+            scheme: http:OAUTH2,
+            config: {
+                grantType: http:DIRECT_TOKEN,
+                config: {
+                    accessToken: "invalid_access_token",
                     refreshConfig: {
                         refreshUrl: "https://localhost:9196/oauth2/token/refresh",
                         refreshToken: "invalid_refresh_token",
@@ -189,7 +209,9 @@ public function main(string... args) {
         var resp = clientEP7->post("/foo/bar", req);
     } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN") {
         var resp = clientEP8->post("/foo/bar", req);
-    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_INVALID_REFRESH_TOKEN") {
+    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_RETRY_REQUEST_FALSE") {
         var resp = clientEP9->post("/foo/bar", req);
+    } else if (args[0] == "DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_INVALID_REFRESH_TOKEN") {
+        var resp = clientEP10->post("/foo/bar", req);
     }
 }

@@ -118,6 +118,17 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
+    @Test(description = "Test direct token mode with invalid access token but retry request is set as false")
+    public void testDirectTokenWithInvalidAccessTokenAndRetryRequestFalse() throws Exception {
+        final String serverResponse = "{\"error\":\"access_denied\"}";
+        LogLeecher serverLeecher = new LogLeecher(serverResponse);
+        serverInstance.addLogLeecher(serverLeecher);
+        ballerinaClient = new BMainInstance(balServer);
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_RETRY_REQUEST_FALSE"});
+        serverLeecher.waitForText(20000);
+    }
+
     @Test(description = "Test direct token mode with invalid access token and invalid refresh token")
     public void testDirectTokenWithInvalidAccessTokenAndInvalidRefreshToken() throws Exception {
         final String serverResponse = "{\"error\":\"invalid_grant\"}";

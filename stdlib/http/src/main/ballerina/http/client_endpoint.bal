@@ -359,12 +359,14 @@ public type OAuth2AuthConfig record {
 # + clientId - Clietnt ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
+# + retryRequest - Retry the request if the initial request gets a 401 response
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type ClientCredentialsGrantConfig record {
     string tokenUrl;
     string clientId;
     string clientSecret;
     string[] scopes?;
+    boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
@@ -378,6 +380,7 @@ public type ClientCredentialsGrantConfig record {
 # + clientSecret - Client secret for password grant authentication
 # + scopes - Scope of the access request
 # + refreshConfig - Configurations for refreshing the access token
+# + retryRequest - Retry the request if the initial request gets a 401 response
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type PasswordGrantConfig record {
     string tokenUrl;
@@ -387,6 +390,7 @@ public type PasswordGrantConfig record {
     string clientSecret;
     string[] scopes?;
     RefreshConfig refreshConfig?;
+    boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };
@@ -395,10 +399,12 @@ public type PasswordGrantConfig record {
 #
 # + accessToken - Access token for authorization server
 # + refreshConfig - Configurations for refreshing the access token
+# + retryRequest - Retry the request if the initial request gets a 401 response
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type DirectTokenConfig record {
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
+    boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
 };

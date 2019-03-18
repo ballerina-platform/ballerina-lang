@@ -374,7 +374,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         } else {
                             if (isValidAccessToken()) {
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
-                                return true;
+                                return grantTypeConfig.retryRequest;
                             } else {
                                 // TODO: introduce locking mechanism to limit the refreshing
                                 string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
@@ -395,7 +395,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         } else {
                             if (isValidAccessToken()) {
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
-                                return true;
+                                return grantTypeConfig.retryRequest;
                             } else {
                                 string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
@@ -412,7 +412,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         var directAccessToken = grantTypeConfig["accessToken"];
                         if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + directAccessToken);
-                            return true;
+                            return grantTypeConfig.retryRequest;
                         } else {
                             string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
