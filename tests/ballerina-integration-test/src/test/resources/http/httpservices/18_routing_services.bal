@@ -29,20 +29,20 @@ service contentBasedRouting on serviceEP {
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = conn -> respond(untaint result);
+                checkpanic conn->respond(untaint result);
             } else  {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
-                _ = conn -> respond(clientResponse);
+                checkpanic conn->respond(clientResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = conn -> respond(untaint result);
+                checkpanic conn->respond(untaint result);
             } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
-                _ = conn -> respond(clientResponse);
+                checkpanic conn->respond(clientResponse);
             }
         }
     }
@@ -64,20 +64,20 @@ service headerBasedRouting on serviceEP {
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = caller->respond(untaint result);
+                checkpanic caller->respond(untaint result);
             } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
-                _ = caller->respond(clientResponse);
+                checkpanic caller->respond(clientResponse);
             }
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                _ = caller->respond(untaint result);
+                checkpanic caller->respond(untaint result);
             } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
-                _ = caller->respond(clientResponse);
+                checkpanic caller->respond(clientResponse);
             }
         }
     }
@@ -93,7 +93,7 @@ service nasdaqStocksQuote on serviceEP {
         json payload = {"exchange":"nasdaq", "name":"IBM", "value":"127.50"};
         http:Response res = new;
         res.setJsonPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -107,7 +107,7 @@ service nyseStockQuote2 on serviceEP {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         http:Response res = new;
         res.setJsonPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

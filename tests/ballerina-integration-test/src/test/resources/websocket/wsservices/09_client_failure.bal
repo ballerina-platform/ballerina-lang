@@ -31,6 +31,6 @@ service clientFailure on new http:WebSocketListener(9091) {
 }
 service erroHandlingService = @http:WebSocketServiceConfig {} service {
     resource function onError(http:WebSocketClient caller, error err) {
-        _ = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message, timeoutInSecs = 0);
+        checkpanic serverCaller->close(statusCode = 1011, reason = <string>err.detail().message, timeoutInSecs = 0);
     }
 };

@@ -27,7 +27,7 @@ service echo2 on echoEP2 {
     resource function echo2(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -42,7 +42,7 @@ service echoOne1 on echoEP2, echoHttpEP {
     resource function echoAbc(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -58,6 +58,6 @@ service echoDummy1 on echoDummyEP {
     resource function echoDummy1(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
