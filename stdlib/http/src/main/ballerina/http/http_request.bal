@@ -26,6 +26,7 @@ import ballerina/mime;
 # + extraPathInfo - Additional information associated with the URL provided by the client
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
+# + mutualSslHandshake - A record providing mutual ssl handshake results.
 public type Request object {
 
     public string rawPath = "";

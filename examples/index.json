@@ -177,10 +177,6 @@
             {
                 "name": "String Template Literal",
                 "url": "string-template"
-            },
-            {
-                "name": "Symbolic String Literal",
-                "url": "symbolic-string-literal"
             }
         ]
     },
@@ -470,12 +466,20 @@
                 "url": "strings"
             },
             {
-                "name": "Task Timer",
-                "url": "task-timer"
+                "name": "Task Scheduler Appointment",
+                "url": "task-scheduler-appointment"
             },
             {
-                "name": "Task Appointment",
-                "url": "task-appointment"
+                "name": "Task Scheduler Timer",
+                "url": "task-scheduler-timer"
+            },
+            {
+                "name": "Task Service Appointment",
+                "url": "task-service-appointment"
+            },
+            {
+                "name": "Task Service Timer",
+                "url": "task-service-timer"
             }
         ]
     },

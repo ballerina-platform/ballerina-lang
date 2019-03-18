@@ -70,3 +70,74 @@ function unreachableCode() returns string {
 
     return "Fail"; // unreachable
 }
+
+const CONST_1 = "B";
+const CONST_2 = "B";
+
+function invalidConstPatterns(any a) returns string {
+    match a {
+        CONST_1 => return "B";
+        CONST_2 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+
+    match a {
+        "B" => return "B";
+        CONST_2 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+
+    match a {
+        CONST_2 => return "B";
+        "B" => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+
+    match a {
+        _ => return "Default";
+        CONST_1 => return "B"; // unreachable pattern: preceding patterns are too general or the pattern ordering is not correct
+    }
+    return "Default";
+}
+
+function testUnreachableUnionStaticPatterns() returns string {
+    any a = 10;
+    match a {
+        15 => return "1";
+        10 => return "2";
+        10|11 => return "3"; // unreachable
+    }
+
+    match a {
+        10|11 => return "1";
+        15 => return "2";
+        11 => return "3"; // unreachable
+    }
+
+    match a {
+        10|11 => return "1";
+        15 => return "2";
+        12|11 => return "3"; // unreachable
+    }
+
+    match a {
+        10|11|"Ballerina" => return "1";
+        15 => return "2";
+        12 => return "3";
+        "Ballerina" => return "4"; // unreachable
+    }
+
+    match a {
+        10|11|"Ballerina" => return "1";
+        15 => return "2";
+        "Ballerina"|"Lang" => return "4"; // unreachable
+        12|11 => return "3"; // unreachable
+    }
+
+    match a {
+        "Ballerina"|true|("Ballerina", true) => return "1";
+        { x: "Ballerina", y: true }|("Bal", "Lang") => return "2";
+        { x: "Ballerina", y: false } => return "3";
+        false|("Ballerina", true) => return "4"; // unreachable
+        12|{ x: "Ballerina", y: true } => return "3"; // unreachable
+    }
+
+    return "4";
+}
