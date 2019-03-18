@@ -45,24 +45,14 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test client credentials grant type with scopes")
-    public void testClientCredentialsGrantTypeWithScopes() throws Exception {
-        final String serverResponse = "{\"success\":\"access_granted\"}";
-        LogLeecher serverLeecher = new LogLeecher(serverResponse);
-        serverInstance.addLogLeecher(serverLeecher);
-        ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_SCOPES"});
-        serverLeecher.waitForText(20000);
-    }
-
-    @Test(description = "Test client credentials grant type with scopes and post body bearer")
-    public void testClientCredentialsGrantTypeWithScopesAndPostBodyBearer() throws Exception {
+    @Test(description = "Test client credentials grant type with post body bearer")
+    public void testClientCredentialsGrantTypeWithPostBodyBearer() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_SCOPES_AND_POST_BODY_BEARER"});
+                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER"});
         serverLeecher.waitForText(20000);
     }
 
@@ -97,14 +87,14 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test password grant type with refresh config and invalid username password")
-    public void testPasswordGrantTypeWithRefreshConfigAndInvalidUsernamePassword() throws Exception {
+    @Test(description = "Test password grant type with invalid username password")
+    public void testPasswordGrantTypeWithInvalidUsernamePassword() throws Exception {
         final String serverResponse = "{\"error\":\"unauthorized_client\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"PASSWORD_GRANT_TYPE_WITH_REFRESH_CONFIG_AND_INVALID_USERNAME_PASSWORD"});
+                new String[]{"PASSWORD_GRANT_TYPE_WITH_INVALID_USERNAME_PASSWORD"});
         serverLeecher.waitForText(20000);
     }
 
