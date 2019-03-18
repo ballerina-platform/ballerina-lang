@@ -108,7 +108,7 @@ function testOptionalFailedHelper2(int i, string status) returns string {
             var result = trap testOptionalFailedHelper1(i, a);
             if (result is string) {
                 a = result;
-            } else if (result is TrxError) {
+            } else {
                 a += <string>result.reason();
             }
         }
@@ -187,7 +187,7 @@ function testTransactionStmtWithRetryOffHelper2(int i, string status) returns st
     transaction with retries = 0 {
         a = a + " inTrx";
         var result = trap testTransactionStmtWithRetryOffHelper1(i);
-        if (result is TrxError) {
+        if (result is error) {
             a += <string>result.reason();
         }
         a = a + " endTrx";
