@@ -23,7 +23,7 @@ import { Accordion, AccordionTitleProps, Button, Divider } from "semantic-ui-rea
 
 import { ExpandMode, OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
-import InlineEdit from "../components/utils/inline-edit";
+import InlineEdit from "../components/utils/inline-edit/inline-edit";
 
 import OpenApiParameterList from "../parameter/parameter-list";
 import OpenApiResponseList from "../response/response-list";
@@ -56,13 +56,17 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
 
     public componentWillReceiveProps(nextProps: OpenApiOperationProp) {
         const { pathItem, expandMode } = nextProps;
-        const activeOperations: number[] = [];
+        let activeOperations: number[] = this.state.activeOpIndex;
 
         if (expandMode.isEdit) {
             return;
         }
 
-        if (expandMode.type === "operations" || expandMode.type === "all") {
+        if (expandMode.type === "collapse" || expandMode.type === "resources") {
+            activeOperations = [];
+        }
+
+        if (expandMode.type === "operations") {
             Object.keys(pathItem).sort().map((openApiOperation, index) => {
                 activeOperations.push(index);
             });
@@ -98,9 +102,10 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                     key: "operation.summary",
                                                     path
                                                 }}
-                                                text={pathItem[openApiOperation].summary}
+                                                editableObject={pathItem[openApiOperation].summary ?
+                                                    pathItem[openApiOperation].summary : ""}
                                                 placeholderText="Add a summary"
-                                                onInlineValueChange={appContext.onInlineValueChange}
+                                                onValueChange={appContext.onInlineValueChange}
                                             />
                                         );
                                     }}
@@ -117,9 +122,10 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                     key: "operation.description",
                                                     path
                                                 }}
-                                                text={pathItem[openApiOperation].description}
+                                                editableObject={pathItem[openApiOperation].description ?
+                                                    pathItem[openApiOperation].description : ""}
                                                 placeholderText="Add a description"
-                                                onInlineValueChange={appContext.onInlineValueChange}
+                                                onValueChange={appContext.onInlineValueChange}
                                             />
                                         );
                                     }}

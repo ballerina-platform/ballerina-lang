@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -244,6 +246,30 @@ public class TypeNarrower extends BLangNodeVisitor {
                 return type;
             } else if (types.isAssignable(currentType, type)) {
                 return currentType;
+            } else if (currentType.tag == TypeTags.FINITE) {
+                BType intersectionType = types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) currentType,
+                                                                                          type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.FINITE) {
+                BType intersectionType = types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) type,
+                                                                                          currentType);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (currentType.tag == TypeTags.UNION) {
+                BType intersectionType = types.getTypeForUnionTypeMembersAssignableToType((BUnionType) currentType,
+                                                                                          type);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
+            } else if (type.tag == TypeTags.UNION) {
+                BType intersectionType = types.getTypeForUnionTypeMembersAssignableToType((BUnionType) type,
+                                                                                          currentType);
+                if (intersectionType != symTable.semanticError) {
+                    return intersectionType;
+                }
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));

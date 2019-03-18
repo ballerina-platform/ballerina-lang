@@ -15,4 +15,4 @@
 // under the License.
 
 # Constant for the auth error code
-public final string AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
+public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
