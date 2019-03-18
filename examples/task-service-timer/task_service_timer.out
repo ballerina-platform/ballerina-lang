@@ -1,7 +1,6 @@
-// `onTrigger()` function is triggered every second, but with initial 3 seconds
-// delay.
+// The `onTrigger()` function is triggered every second but with an initial delay of 3 seconds.
 # To start the service, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run task_service_timer.bal
 Initiating service(s) in 'task_service_timer.bal'
 INFO  [] - Cleaning up...
