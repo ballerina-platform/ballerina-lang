@@ -239,6 +239,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -3454,12 +3455,29 @@ public class CodeGenerator extends BLangNodeVisitor {
      * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
-    private Operand[] calcClosureOperands(BLangLambdaFunction function, int funcRefCPIndex, RegIndex nextIndex,
+    private Operand[] calcClosureOperands(BLangLambdaFunction lambdaFunction, int funcRefCPIndex, RegIndex nextIndex,
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        for (BVarSymbol symbol : function.resolvedClosureMaps) {
+        // Order the closures variable in order
+        Set<BVarSymbol> closureMapSymbols = new LinkedHashSet<>();
+
+        // First add all the parameter closure maps
+        if (!lambdaFunction.function.paramClosureMap.isEmpty()) {
+            // Check if the levels of the parameters are same. If same add them to the closure var map.
+            TreeMap<Integer, BVarSymbol> paramClosureMap = lambdaFunction.function.paramClosureMap;
+
+            lambdaFunction.paramClosureMap.forEach((integer, bVarSymbol) -> {
+                if (paramClosureMap.containsKey(integer)) {
+                    closureMapSymbols.add(bVarSymbol);
+                }
+            });
+            // Then add the block symbol maps
+           closureMapSymbols.addAll(lambdaFunction.enclMapSymbols.values());
+        }
+
+        for (BVarSymbol symbol : closureMapSymbols) {
             Operand index = new Operand(symbol.varIndex.value);
             closureOperandList.add(index);
         }

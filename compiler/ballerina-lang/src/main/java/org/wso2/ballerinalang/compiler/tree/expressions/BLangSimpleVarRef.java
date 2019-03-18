@@ -71,6 +71,8 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
      */
     public static class BLangLocalVarRef extends BLangSimpleVarRef {
 
+        public boolean closureDesugared = false;
+
         public BLangLocalVarRef(BVarSymbol varSymbol) {
             this.symbol = varSymbol;
             this.varSymbol = varSymbol;

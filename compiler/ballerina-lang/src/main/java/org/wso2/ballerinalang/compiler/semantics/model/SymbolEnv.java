@@ -37,9 +37,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 /**
  * @since 0.94
  */
@@ -65,11 +62,11 @@ public class SymbolEnv {
 
     public SymbolEnv enclEnv;
 
-    public ExposedClosureHolder exposedClosureHolder;
-
     public boolean logErrors;
 
     public int envCount;
+
+    public int relativeEnvCount;
 
     public SymbolEnv(BLangNode node, Scope scope) {
         this.scope = scope;
@@ -78,7 +75,6 @@ public class SymbolEnv {
         this.enclAnnotation = null;
         this.enclService = null;
         this.enclInvokable = null;
-        this.exposedClosureHolder = null;
         this.forkJoin = null;
         this.enclEnv = null;
         this.enclVarSym = null;
@@ -91,7 +87,6 @@ public class SymbolEnv {
         target.enclAnnotation = this.enclAnnotation;
         target.enclService = this.enclService;
         target.enclInvokable = this.enclInvokable;
-        target.exposedClosureHolder = this.exposedClosureHolder;
         target.forkJoin = this.forkJoin;
         target.enclVarSym = this.enclVarSym;
         target.logErrors = this.logErrors;
@@ -119,6 +114,7 @@ public class SymbolEnv {
     public static SymbolEnv createFunctionEnv(BLangFunction node, Scope scope, SymbolEnv env) {
         SymbolEnv funcEnv = createPkgLevelSymbolEnv(node, scope, env);
         funcEnv.envCount = env.envCount + 1;
+        funcEnv.relativeEnvCount = 0;
         funcEnv.enclInvokable = node;
         return funcEnv;
     }
@@ -194,6 +190,7 @@ public class SymbolEnv {
         SymbolEnv symbolEnv = new SymbolEnv(block, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
         return symbolEnv;
     }
 
@@ -276,13 +273,5 @@ public class SymbolEnv {
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
-    }
-
-    /**
-     * Holder which keeps a track of closures that are exposed.
-     */
-    public static class ExposedClosureHolder {
-        public BVarSymbol mapSymbol;
-        public Set<BVarSymbol> closuresExposed =  new LinkedHashSet<>();
     }
 }

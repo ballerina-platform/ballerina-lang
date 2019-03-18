@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -30,9 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -47,9 +44,6 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     public BType funcType;
     public IdentifierNode functionName;
     public BLangInvokableNode function;
-    public Map<BVarSymbol, Integer> resolvedClosures = new LinkedHashMap<>();
-    public SymbolEnv.ExposedClosureHolder exposedClosureHolder = new SymbolEnv.ExposedClosureHolder();
-    public int enclEnvCount;
     public SymbolEnv cachedEnv;
 
     @Override

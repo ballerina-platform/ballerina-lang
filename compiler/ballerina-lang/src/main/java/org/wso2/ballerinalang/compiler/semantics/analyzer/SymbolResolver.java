@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -691,30 +690,24 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag symbol tag
      * @return closure symbol wrapper along with the resolved count
      */
-    public ClosureSymbolWrapper lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
+    BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
-                addClosuresExposed(env, entry.symbol);
-                return new ClosureSymbolWrapper(entry.symbol, env.envCount);
+                return entry.symbol;
             }
             if ((entry.symbol.tag & expSymTag) == expSymTag) {
-                addClosuresExposed(env, entry.symbol);
-                return new ClosureSymbolWrapper(entry.symbol, env.envCount);
+                return entry.symbol;
             }
             entry = entry.next;
         }
 
         if (env.enclEnv == null || env.enclEnv.node == null) {
-            return new ClosureSymbolWrapper(symTable.notFoundSymbol, 0);
+            return symTable.notFoundSymbol;
         }
 
         return lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
-    }
-
-    private void addClosuresExposed(SymbolEnv env, BSymbol closureVarSymbol) {
-        env.exposedClosureHolder.closuresExposed.add((BVarSymbol) closureVarSymbol);
     }
 
     /**

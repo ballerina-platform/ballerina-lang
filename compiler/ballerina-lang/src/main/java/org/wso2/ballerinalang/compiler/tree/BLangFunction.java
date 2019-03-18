@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -30,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
+import java.util.TreeMap;
 
 /**
  * @since 0.94
@@ -47,16 +46,10 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public boolean interfaceFunction;
     // TODO need to remove this variable after fixing streaming desugar for closure variables
-    public Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+//    public Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
 
-    // Needed for closures
-    public Map<BVarSymbol, Integer> resolvedClosures = new LinkedHashMap<>();
-    public Map<Integer, BVarSymbol> closureParamMaps = new LinkedHashMap<>();
-    public Stack<MapsLinkedWithClosures> paramMapSymbols = new Stack<>();
-    public Stack<MapsLinkedWithClosures> blockSymbols = new Stack<>();
-    public SymbolEnv.ExposedClosureHolder exposedClosureHolder = new SymbolEnv.ExposedClosureHolder();
-    public int enclEnvCount;
-
+    public TreeMap<Integer, BVarSymbol> paramClosureMap = new TreeMap<>();
+    public BVarSymbol mapSymbol;
     public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 
     public BInvokableSymbol originalFuncSymbol;
@@ -84,18 +77,5 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     @Override
     public String toString() {
         return "BLangFunction: " + super.toString();
-    }
-
-    /**
-     * Holder which keeps a track of closures that are exposed.
-     */
-    public static class MapsLinkedWithClosures {
-        public BVarSymbol mapSymbol;
-        public Set<BVarSymbol> closuresLinked =  new LinkedHashSet<>();
-
-        public MapsLinkedWithClosures(BVarSymbol mapSymbol, Set<BVarSymbol> closuresLinked) {
-            this.mapSymbol = mapSymbol;
-            this.closuresLinked = closuresLinked;
-        }
     }
 }
