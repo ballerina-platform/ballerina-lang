@@ -64,7 +64,7 @@ public class ConstantNegativeTest {
                 offset += 2, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", offset += 6, 5);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'string'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 offset += 11, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 offset += 9, 12);
