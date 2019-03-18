@@ -21,8 +21,6 @@ package org.ballerinalang.scenario.test.http;
 import org.ballerinalang.scenario.test.common.ScenarioTestBase;
 import org.ballerinalang.scenario.test.common.http.HttpClientRequest;
 import org.ballerinalang.scenario.test.common.http.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -34,7 +32,6 @@ import org.testng.annotations.Test;
  */
 public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpCircuitBreakerScenarioTest.class);
     private static String host = System.getProperty("http.lb.host");
     private static final int SC_OK = 200;
     private static final int SC_INTERNAL_SERVER_ERROR = 500;
@@ -66,7 +63,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
     private void verifyResponses(int port, String path, int responseCode, String expectedMessage) throws Exception {
         HttpResponse response = HttpClientRequest.doGet("http://" + host + (path.startsWith("/")
                 ? "" : "/") + path);
-        LOG.info("Service URL : " + getServiceURL(path));
+        System.out.println("Service URL : " + getServiceURL(path));
         Thread.sleep(60000);
         Assert.assertEquals(response.getResponseCode(), responseCode, "Response code mismatched");
         Assert.assertTrue(response.getData().contains(expectedMessage), "Message content mismatched");
