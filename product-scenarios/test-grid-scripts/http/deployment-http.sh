@@ -38,7 +38,8 @@ function setup_deployment() {
 function print_kubernetes_debug_info() {
     cat ${bal_path}
     kubectl get pods
-    kubectl get svc circuit_breaker_service -o=json
+    kubectl get svc
+    kubectl get svc circuit-breaker-frontend-service -o=json
     kubectl get nodes --output wide
 }
 
