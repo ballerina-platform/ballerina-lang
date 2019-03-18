@@ -2770,6 +2770,56 @@ public class FormattingNodeTree {
 
             if (node.has(FormattingConstants.WS)) {
                 JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+                boolean isSealed = node.has("sealed") && node.get("sealed").getAsBoolean();
+                String indentation = this.getIndentation(formatConfig, false);
+
+                this.preserveHeight(ws, indentation);
+
+                boolean firstPipeVisited = false;
+                for (JsonElement wsItem : ws) {
+                    JsonObject currentWS = wsItem.getAsJsonObject();
+                    if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                        String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                        if (text.equals("record")) {
+                            if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                                currentWS.addProperty(FormattingConstants.WS,
+                                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT)
+                                                .getAsInt()) + indentation);
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                            }
+                        } else if (text.equals("{")) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else if (text.equals("|")) {
+                            if (firstPipeVisited) {
+                                if (fields.size() <= 0) {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
+                                            indentation + FormattingConstants.NEW_LINE + indentation);
+                                } else {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
+                                            + indentation);
+                                }
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                                firstPipeVisited = true;
+                            }
+                        } else if (text.equals("...")) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        } else if (text.equals("}")) {
+                            if (isSealed) {
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            } else {
+                                if (fields.size() <= 0) {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
+                                            indentation + FormattingConstants.NEW_LINE + indentation);
+                                } else {
+                                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
+                                            + indentation);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // Update the restField whitespace.
                 if (node.has("restFieldType") &&
@@ -2780,32 +2830,8 @@ public class FormattingNodeTree {
                             formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), true,
                             formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(), false);
                     restFieldType.add(FormattingConstants.FORMATTING_CONFIG, restFieldTypeFormatConfig);
-
-                    // Update the ... symbol whitespace.
-                    JsonObject restWS = ws.get(0).getAsJsonObject();
-                    if (this.noHeightAvailable(restWS.get(FormattingConstants.WS).getAsString())) {
-                        restWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
                 }
 
-                // Update the whitespaces for sealed type.
-                if (node.has("sealed") &&
-                        node.get("sealed").getAsBoolean()) {
-                    String indentation = this.getIndentation(formatConfig, true);
-                    this.preserveHeight(ws, indentation);
-
-                    // Update the ! symbol whitespace.
-                    JsonObject sealedWS = ws.get(0).getAsJsonObject();
-                    if (this.noHeightAvailable(sealedWS.get(FormattingConstants.WS).getAsString())) {
-                        sealedWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE + indentation);
-                    }
-
-                    // Update the ... symbol whitespace.
-                    JsonObject restWS = ws.get(1).getAsJsonObject();
-                    if (this.noHeightAvailable(restWS.get(FormattingConstants.WS).getAsString())) {
-                        restWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-                }
             }
         }
     }
@@ -4597,7 +4623,6 @@ public class FormattingNodeTree {
                         || firstKeyword.equals("listener")
                         || firstKeyword.equals("abstract")
                         || firstKeyword.equals("channel")
-                        || firstKeyword.equals("record")
                         || firstKeyword.equals("object")) {
                     hasFirstKeyword = true;
                 }
@@ -4616,7 +4641,6 @@ public class FormattingNodeTree {
                                 || text.equals("listener")
                                 || text.equals("abstract")
                                 || text.equals("channel")
-                                || text.equals("record")
                                 || text.equals("object")) {
                             if (updatedFirstKeyword) {
                                 currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -4673,7 +4697,7 @@ public class FormattingNodeTree {
                         // Update type node whitespace.
                         typeFormatConfig = this.getFormattingConfig(1,
                                 0,
-                                this.getWhiteSpaceCount(indentation), true,
+                                this.getWhiteSpaceCount(indentation), false,
                                 this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
                                         .getAsBoolean() ? indentWithParentIndentation : indentation),
                                 formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
