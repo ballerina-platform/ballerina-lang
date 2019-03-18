@@ -56,4 +56,18 @@ public class BErrorType extends BType {
     public int getTag() {
         return TypeTags.ERROR_TAG;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+            return false;
+        }
+
+        BErrorType other = (BErrorType) obj;
+        if (reasonType == other.reasonType && detailsType == other.detailsType) {
+            return true;
+        }
+
+        return reasonType.equals(other.reasonType) && detailsType.equals(other.detailsType);
+    }
 }
