@@ -6,6 +6,16 @@ codecov:
 ignore:
   - "compiler/ballerina-lang/src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4"                # ignore ANTLR4 generated sources
 
+coverage:
+  status:
+    project:
+      default: off
+      integration:
+        flags: integrationtests
+      unittests:
+        target: 50%
+        flags: unittests
+
 flags:
   integrationtests:
     paths:
