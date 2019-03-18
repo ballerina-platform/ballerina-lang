@@ -69,8 +69,16 @@ public function createTimer(int interval, int delay, int recurrences) {
     };
     task:Scheduler timer = new(timerConfiguration);
     
-    _ = timer.attach(timerService);
-    _ = timer.start();
+    var result  = timer.attach(timerService);
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
+    result = timer.start();
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
 }
 
 service timerService = service {
