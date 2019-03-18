@@ -1430,72 +1430,78 @@ public class FormattingNodeTree {
             // Preserve the new lines and characters available in node's whitespaces.
             this.preserveHeight(ws, indentWithParentIndentation);
 
-            // Get the node's index if it is in a list of statements of parent array.
-            int functionIndex = this.findIndex(node);
+            boolean differentFirstKeyword = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (text.equals("public") || text.equals("private") || text.equals("remote")
+                        || text.equals("extern") || text.equals("worker") || text.equals("resource")) {
+                    if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                        if (differentFirstKeyword) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else {
+                            // If annotation or documentation attachments exists add only one new line.
+                            // Else add given number of new lines.
+                            String whiteSpace = ((node.has("annotationAttachments") &&
+                                    node.getAsJsonArray("annotationAttachments").size() > 0) ||
+                                    node.has("markdownDocumentationAttachment") ||
+                                    (node.has("deprecatedAttachments") &&
+                                            node.getAsJsonArray("deprecatedAttachments").size() > 0))
+                                    ? (FormattingConstants.NEW_LINE + indentation)
+                                    : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                    + indentation);
 
-            // Update whitespaces for function/public keyword.
-            JsonObject functionKeywordWs = ws.get(0).getAsJsonObject();
-            if (this.noHeightAvailable(functionKeywordWs.get(FormattingConstants.WS).getAsString())) {
-                // If function is a lambda and not a worker, add spaces.
-                if (isLambda && !isWorker) {
-                    functionKeywordWs.addProperty(FormattingConstants.WS,
-                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                } else {
-                    // If annotation or documentation attachments exists add only one new line.
-                    // Else add given number of new lines.
-                    String whiteSpace = ((node.has("annotationAttachments") &&
-                            node.getAsJsonArray("annotationAttachments").size() > 0) ||
-                            node.has("markdownDocumentationAttachment") ||
-                            (node.has("deprecatedAttachments") &&
-                                    node.getAsJsonArray("deprecatedAttachments").size() > 0))
-                            ? (FormattingConstants.NEW_LINE + indentation)
-                            : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                            indentation);
-
-                    functionKeywordWs.addProperty(FormattingConstants.WS, whiteSpace);
+                            currentWS.addProperty(FormattingConstants.WS, whiteSpace);
+                        }
+                    }
+                    differentFirstKeyword = true;
                 }
-            } else if (this.noNewLine(functionKeywordWs
-                    .get(FormattingConstants.WS).getAsString().charAt(0) + "") && functionIndex != 0) {
-                // TODO: revisit logic.
-                functionKeywordWs
-                        .addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                functionKeywordWs.get(FormattingConstants.WS).getAsString());
             }
 
             for (int i = 0; i < ws.size(); i++) {
                 JsonObject functionWS = ws.get(i).getAsJsonObject();
                 if (this.noHeightAvailable(functionWS.get(FormattingConstants.WS).getAsString())) {
                     String wsText = functionWS.get(FormattingConstants.TEXT).getAsString();
-                    if (wsText.equals("(")) {
+
+                    if (wsText.equals("function")) {
+                        // If function is a lambda and not a worker, add spaces.
+                        if (isLambda && !isWorker) {
+                            functionWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else if (differentFirstKeyword) {
+                            functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else {
+                            // If annotation or documentation attachments exists add only one new line.
+                            // Else add given number of new lines.
+                            String whiteSpace = ((node.has("annotationAttachments") &&
+                                    node.getAsJsonArray("annotationAttachments").size() > 0) ||
+                                    node.has("markdownDocumentationAttachment") ||
+                                    (node.has("deprecatedAttachments") &&
+                                            node.getAsJsonArray("deprecatedAttachments").size() > 0))
+                                    ? (FormattingConstants.NEW_LINE + indentation)
+                                    : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                    + indentation);
+
+                            functionWS.addProperty(FormattingConstants.WS, whiteSpace);
+                        }
+                    } else if (wsText.equals("(")) {
                         if (!isLambda) {
                             functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
-                    }
-
-                    if (wsText.equals(",")) {
+                    } else if (wsText.equals(",")) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    if (wsText.equals("=>")) {
+                    } else if (wsText.equals("=>")) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    if (wsText.equals(")")) {
+                    } else if (wsText.equals(")")) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update whitespace for returns keyword.
-                    if (wsText.equals("returns")) {
+                    } else if (wsText.equals("returns")) {
+                        // Update whitespace for returns keyword.
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update whitespaces for the opening brace.
-                    if (wsText.equals("{")) {
+                    } else if (wsText.equals("{")) {
+                        // Update whitespaces for the opening brace.
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update whitespaces for closing brace of the function.
-                    if (wsText.equals("}")) {
+                    } else if (wsText.equals("}")) {
+                        // Update whitespaces for closing brace of the function.
                         if (node.has(FormattingConstants.BODY)
                                 && node.getAsJsonObject(FormattingConstants.BODY)
                                 .getAsJsonArray(FormattingConstants.STATEMENTS).size() <= 0
@@ -5460,26 +5466,6 @@ public class FormattingNodeTree {
 
     private boolean noNewLine(String text) {
         return !text.contains("\n");
-    }
-
-    private int findIndex(JsonObject node) {
-        int index = -1;
-        JsonObject parent = node.getAsJsonObject("parent");
-
-        for (Map.Entry<String, JsonElement> entry : parent.entrySet()) {
-            if (entry.getValue().isJsonArray() && !entry.getKey().equals(FormattingConstants.WS)) {
-                for (int i = 0; i < entry.getValue().getAsJsonArray().size(); i++) {
-                    JsonElement element = entry.getValue().getAsJsonArray().get(i);
-                    if (element.isJsonObject() && element.getAsJsonObject().has("id")
-                            && element.getAsJsonObject().get("id").getAsString()
-                            .equals(node.get("id").getAsString())) {
-                        index = i;
-                    }
-                }
-            }
-        }
-
-        return index;
     }
 
     private void skipFormatting(JsonObject node, boolean doSkip) {
