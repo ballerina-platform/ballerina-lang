@@ -46,7 +46,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
 
     @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
     public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
-        verifyResponses(9306, "/cb", responseCode, messasge);
+        verifyResponses(9306, "cb", responseCode, messasge);
     }
 
     @DataProvider(name = "responseDataProvider")
@@ -64,7 +64,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
         HttpResponse response = HttpClientRequest.doGet("http://" + host + (path.startsWith("/")
                 ? "" : "/") + path);
         System.out.println("Service URL : " + getServiceURL(path));
-        Thread.sleep(60000);
+        Thread.sleep(10000);
         Assert.assertEquals(response.getResponseCode(), responseCode, "Response code mismatched");
         Assert.assertTrue(response.getData().contains(expectedMessage), "Message content mismatched");
     }

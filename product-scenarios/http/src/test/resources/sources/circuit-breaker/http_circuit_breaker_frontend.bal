@@ -21,7 +21,7 @@ import ballerinax/kubernetes;
 }
 listener http:Listener httpListener = new(9090);
 
-http:Client backendClientEP = new("http://localhost:8080", config = {
+http:Client backendClientEP = new("http://localhost:30300", config = {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis: 100000,
