@@ -24,6 +24,7 @@ readonly deployment_http_great_grand_parent_path=$(dirname ${deployment_http_gra
 
 function setup_deployment() {
     bal_path=${deployment_http_great_grand_parent_path}/http/src/test/resources/sources/circuit-breaker/http_circuit_breaker_frontend.bal
+    replace_variables_in_bal_file
     build_and_deploy_guide
     wait_for_pod_readiness
     retrieve_and_write_properties_to_data_bucket
@@ -43,10 +44,8 @@ function print_kubernetes_debug_info() {
 }
 
 function replace_variables_in_bal_file() {
-    sed -i "s/<BALLERINA_VERSION>/${infra_config["BallerinaVersion"]}/" ${bal_path}
     sed -i "s:<USERNAME>:${docker_user}:g" ${bal_path}
     sed -i "s:<PASSWORD>:${docker_password}:g" ${bal_path}
-    sed -i "s:ballerina.guides.io:${docker_user}:g" ${bal_path}
 }
 
 function build_and_deploy_guide() {
