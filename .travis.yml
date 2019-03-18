@@ -22,7 +22,6 @@ git:
 matrix:
   include:
     - env: BUILD_TYPE=MAVEN
-    - env: BUILD_TYPE=GRADLE
   fast_finish: true
 
 services:
