@@ -125,6 +125,7 @@
                 <include>org.ballerinalang:ballerina-task:jar</include>
                 <include>org.ballerinalang:ballerina-time:jar</include>
                 <include>org.ballerinalang:ballerina-transactions:jar</include>
+                <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
 
@@ -139,7 +140,6 @@
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.transport.http:org.wso2.transport.http.netty</include>
-                <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>org.apache.ws.commons.axiom:axiom-api</include>
                 <include>org.apache.ws.commons.axiom:axiom-impl</include>
@@ -148,7 +148,6 @@
                 <include>jaxen:jaxen</include>
                 <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
                 <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
-                <include>org.apache.james:apache-mime4j-core</include>
                 <include>info.picocli:picocli</include>
                 <include>org.slf4j:slf4j-api</include>
                 <include>org.slf4j:slf4j-jdk14</include>
@@ -170,7 +169,6 @@
                 <include>commons-logging:commons-logging</include>
                 <include>org.wso2.staxon:staxon-core</include>
                 <include>org.apache.commons:commons-lang3</include>
-                <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
                 <include>com.zaxxer:HikariCP</include>
                 <include>javax.transaction:javax.transaction-api</include>
                 <include>org.quartz-scheduler:quartz</include>

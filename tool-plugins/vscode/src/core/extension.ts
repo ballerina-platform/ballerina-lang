@@ -33,7 +33,7 @@ import { exec, execSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { log, getOutputChannel } from '../utils/index';
+import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 export class BallerinaExtension {
 
@@ -65,32 +65,33 @@ export class BallerinaExtension {
 
             // Check if ballerina home is set.
             if (this.hasBallerinaHomeSetting()) {
-                log("Ballerina home is configured in settings.");
+                info("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getBallerinaHome();
                 // Lets check if ballerina home is valid.
                 if (!this.isValidBallerinaHome(this.ballerinaHome)) {
-                    log("Configured Ballerina home is not valid.");
+                    info("Configured Ballerina home is not valid.");
                     // Ballerina home in setting is invalid show message and quit.
                     // Prompt to correct the home. // TODO add auto ditection.
                     this.showMessageInvalidBallerinaHome();
                     return Promise.resolve();
                 }
             } else {
-                log("Auto detecting Ballerina home.");
+                info("Auto detecting Ballerina home.");
                 // If ballerina home is not set try to auto ditect ballerina home.
                 // TODO If possible try to update the setting page.
                 this.ballerinaHome = this.autoDitectBallerinaHome();
                 if (!this.ballerinaHome) {
                     this.showMessageInstallBallerina();
-                    log("Unable to auto detect Ballerina home.");
+                    info("Unable to auto detect Ballerina home.");
                     return Promise.resolve();
                 }
             }
-            log("Using " + this.ballerinaHome + " as the Ballerina home.");
+            info("Using " + this.ballerinaHome + " as the Ballerina home.");
             // Validate the ballerina version.
             const pluginVersion = this.extention.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
+                info(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
                 // if Home is found load Language Server.
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
@@ -104,7 +105,7 @@ export class BallerinaExtension {
                 // Following was put in to handle server startup failiers.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                        log("Couldn't establish language server connection.");
+                        info("Couldn't establish language server connection.");
                         this.showPluginActivationError();
                     }
                 });
@@ -116,11 +117,11 @@ export class BallerinaExtension {
                     this.context!.subscriptions.push(disposable);
                 });
             }).catch(e => {
-                log(`Error when checking ballerina version. Got ${e}`);
+                info(`Error when checking ballerina version. Got ${e}`);
             });
 
         } catch (ex) {
-            log("Error while activating plugin: " + (ex.message ? ex.message : ex));
+            info("Error while activating plugin: " + (ex.message ? ex.message : ex));
             // If any failure occurs while intializing show an error messege
             this.showPluginActivationError();
             return Promise.resolve();

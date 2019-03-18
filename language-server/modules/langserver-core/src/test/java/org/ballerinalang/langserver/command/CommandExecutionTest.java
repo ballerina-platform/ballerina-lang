@@ -231,7 +231,7 @@ public class CommandExecutionTest {
             JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_TEST);
             JsonElement resultElm = responseJson.get("result");
             String content = resultElm.getAsJsonObject().get("edit").getAsJsonObject()
-                    .getAsJsonArray("documentChanges").get(0).getAsJsonObject().getAsJsonArray("edits").get(0)
+                    .getAsJsonArray("documentChanges").get(1).getAsJsonObject().getAsJsonArray("edits").get(0)
                     .getAsJsonObject().get("newText").getAsString();
 
             // Need to write all text-edits into the test file

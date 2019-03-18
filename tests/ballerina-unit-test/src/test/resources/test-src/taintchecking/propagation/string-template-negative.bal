@@ -1,6 +1,6 @@
 public function main (string... args) {
     string name = args[0];
-    string template = string `Hello {{name}}!!!`;
+    string template = string `Hello ${name}!!!`;
     secureFunction(template, template);
 }
 

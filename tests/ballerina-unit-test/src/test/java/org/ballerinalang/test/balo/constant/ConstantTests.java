@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -272,5 +273,10 @@ public class ConstantTests {
     public void testNilWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithType");
         Assert.assertNull(returns[0]);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
     }
 }

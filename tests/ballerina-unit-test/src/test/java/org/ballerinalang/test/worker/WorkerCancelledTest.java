@@ -40,7 +40,7 @@ public class WorkerCancelledTest {
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
 
-    @Test
+    @Test(enabled = false)
     public void workerCancelledBeforeSend() {
         PrintStream defaultOut = System.out;
         try {

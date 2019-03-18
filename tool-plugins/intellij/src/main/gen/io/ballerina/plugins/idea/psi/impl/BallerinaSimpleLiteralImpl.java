@@ -95,10 +95,4 @@ public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl im
     return findChildByType(SUB);
   }
 
-  @Override
-  @Nullable
-  public PsiElement getSymbolicStringLiteral() {
-    return findChildByType(SYMBOLIC_STRING_LITERAL);
-  }
-
 }

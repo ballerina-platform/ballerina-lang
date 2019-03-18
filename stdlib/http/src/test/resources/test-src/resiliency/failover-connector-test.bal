@@ -31,7 +31,7 @@ function testSuccessScenario () returns (http:Response | error) {
     });
 
     http:Response clientResponse = new;
-    http:Client[] httpClients = [createMockClient("http://invalidEP"),
+    http:Client?[] httpClients = [createMockClient("http://invalidEP"),
                                  createMockClient("http://localhost:8080")];
     backendClientEP.failoverInferredConfig.failoverClientsArray = httpClients;
 
@@ -40,7 +40,7 @@ function testSuccessScenario () returns (http:Response | error) {
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             clientResponse = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             // Ignore the error to verify failover scenario
         }
         counter = counter + 1;
@@ -58,7 +58,7 @@ function testFailureScenario () returns (http:Response | error) {
     });
 
     http:Response response = new;
-    http:Client[] httpClients = [createMockClient("http://invalidEP"),
+    http:Client?[] httpClients = [createMockClient("http://invalidEP"),
                                  createMockClient("http://localhost:50000000")];
     backendClientEP.failoverInferredConfig.failoverClientsArray = httpClients;
     while (counter < 1) {
@@ -67,7 +67,7 @@ function testFailureScenario () returns (http:Response | error) {
         if (serviceResponse is http:Response) {
             counter = counter + 1;
             response = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             counter = counter + 1;
             return serviceResponse;
         }

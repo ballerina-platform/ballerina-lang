@@ -54,7 +54,7 @@ public class BLangVMErrors {
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String STRUCT_GENERIC_ERROR = "error";
-    private static final String NULL_REF_EXCEPTION = "NullReferenceException";
+    public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
     public static final String TRANSACTION_ERROR = "TransactionError";
     public static final String ERROR_MESSAGE_FIELD = "message";
@@ -250,7 +250,7 @@ public class BLangVMErrors {
         return sb.toString();
     }
 
-    private static String getErrorMessage(BError error) {
+    public static String getErrorMessage(BError error) {
         // No longer consider nominal error type, just the reason and details.
 
         String errorMsg = "";

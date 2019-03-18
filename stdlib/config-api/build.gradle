@@ -1,0 +1,24 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-launcher')
+
+    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Config API'
+
+task copyGeneratedBalo(type: org.gradle.api.tasks.Copy) {
+    from "$buildDir/generated-balo/repo/ballerina"
+    into "$buildDir/lib/repo/ballerina"
+}
+
+build {
+    dependsOn copyGeneratedBalo
+}

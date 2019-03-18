@@ -28,20 +28,20 @@ type WebSocketConnector object {
     public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame) returns error? {
         string text = "";
         if (data is byte) {
-            text = <string>(<int>data);
+            text = string.convert(int.convert(data));
         } else if (data is int) {
-            text = <string>data;
+            text = string.convert(data);
         } else if (data is float) {
-            text = <string>data;
+            text = string.convert(data);
         } else if (data is boolean) {
-            text = <string>data;
+            text = string.convert(data);
         } else if (data is string) {
             text = data;
         } else if (data is xml) {
             text = string.convert(data);
         } else if (data is byte[]) {
             text = encoding:byteArrayToString(data);
-        } else if (data is json) {
+        } else {
             text = data.toString();
         }
         return self.externPushText(text, finalFrame);

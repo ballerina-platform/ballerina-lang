@@ -194,7 +194,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
+public extern function parseHeader(string headerValue) returns (string, map<any>)|error;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -214,7 +214,7 @@ function buildRequest(RequestMessage message) returns Request {
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;
@@ -236,7 +236,7 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         response.setBodyParts(message);
     }
     return response;

@@ -15,16 +15,13 @@
  */
 package org.ballerinalang.langserver.rename;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +30,9 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test class for Renaming.
@@ -41,100 +40,78 @@ import java.nio.file.Path;
  * @since 0.982.0
  */
 public class RenameTest {
-
-    private Endpoint serviceEndpoint;
-
-    private JsonParser parser = new JsonParser();
-
-    private Path sourcesPath = FileUtils.RES_DIR.resolve("rename");
-
-    private static final Logger log = LoggerFactory.getLogger(RenameTest.class);
+    private Path configRoot;
+    private Path sourceRoot;
+    protected Gson gson = new Gson();
+    protected JsonParser parser = new JsonParser();
+    protected Endpoint serviceEndpoint;
 
     @BeforeClass
-    public void init() {
+    public void init() throws Exception {
+        this.configRoot = FileUtils.RES_DIR.resolve("rename").resolve("expected");
+        this.sourceRoot = FileUtils.RES_DIR.resolve("rename").resolve("sources");
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "rename-data-provider")
-    public void test(String config, String source)
-            throws IOException {
-        String configJsonPath = "rename" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+    @Test(description = "Test Rename", dataProvider = "testDataProvider")
+    public void test(String configPath, String configDir) throws IOException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
+                .resolve(configPath).toString());
+        JsonObject source = configObject.getAsJsonObject("source");
+        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
+        Position position = gson.fromJson(configObject.get("position"), Position.class);
 
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonArray expectedJson = configJsonObject.get("expected").getAsJsonArray();
-
-        TestUtil.openDocument(this.serviceEndpoint, sourcePath);
-        String response = getRenameResponse(configJsonObject, sourcePath);
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
-
-        JsonObject json = parser.parse(response).getAsJsonObject();
-
-        JsonArray responseJson = new JsonArray();
-        JsonArray changes = json.getAsJsonObject("result").getAsJsonArray("documentChanges");
-        for (JsonElement change : changes) {
-            responseJson.addAll(change.getAsJsonObject().getAsJsonArray("edits"));
-        }
-
-        Assert.assertTrue(isSubArray(expectedJson, responseJson), "Test failed for: " + sourcePath.getFileName());
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        String actualStr = TestUtil.getRenameResponse(sourcePath.toString(), position, "renamedVal", serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        JsonObject expected = configObject.getAsJsonObject("result");
+        JsonObject actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result");
+        this.alterExpectedUri(expected);
+        this.alterActualUri(actual);
+        Assert.assertEquals(actual, expected);
     }
 
-    private boolean isSubArray(JsonArray subArray, JsonArray array) {
-        boolean isSubList = true;
-        for (JsonElement exp : subArray) {
-            isSubList = false;
-            for (JsonElement res : array) {
-                if (exp.equals(res)) {
-                    isSubList = true;
-                    break;
-                }
-            }
-            if (!isSubList) {
-                break;
-            }
-        }
-        return isSubList;
-    }
 
-    @DataProvider(name = "rename-data-provider")
-    public Object[][] dataProvider() {
-        log.info("Test textDocument/rename");
-        return new Object[][] {
-                {"renameMultiPackagesObjFunc.json", "renameMultiPackagesObj/main.bal"},
-                {"renameMultiPackagesObjType.json", "renameMultiPackagesObj/main.bal"},
-                {"renameMultiPackagesVar.json", "renameMultiPackagesVar/main.bal"},
-                {"renameService2.json", "renameService2/renameService2.bal"},
-                {"renameResource.json", "renameService/renameService.bal"},
-                {"renameResource2.json", "renameService/renameService.bal"},
-//                {"renameVar.json", "renameVar/renameVar.bal"},
-                {"renameXml.json", "renameXml/renameXml.bal"},
-                {"renameJson.json", "renameService/renameService.bal"},
-                {"renameHttpResponse.json", "renameService/renameService.bal"},
-                {"renameService.json", "renameService/renameService.bal"},
-                {"renameObjectAttribute.json", "renameObjectAttribute/renameObjectAttribute.bal"},
-                {"renameFunction.json", "renameFunction/renameFunction.bal"},
-//                {"renameObjectFunction.json", "renameObject/renameObject.bal"},
-                {"renameObjectInstance.json", "renameObject/renameObject.bal"},
-                {"renameObjectType.json", "renameObject/renameObject.bal"},
-                {"renameArray.json", "renameArray/renameArray.bal"},
-                {"renameSimpleVariable.json", "renameSimpleVariable/renameSimpleVariable.bal"},
-                {"renameMap.json", "renameMap/renameMap.bal"},
-                {"renameWithinTransaction.json", "renameWithinTransaction/renameWithinTransaction.bal"},
-                {"renameWithinWhile.json", "renameWithinWhile/renameWithinWhile.bal"},
+    @DataProvider
+    public Object[][] testDataProvider() throws IOException {
+        return new Object[][]{
+                {"renameFunction1.json", "function"}
         };
     }
 
-    private String getRenameResponse(JsonObject config, Path sourcePath) throws IOException {
-        JsonObject positionObj = config.get("position").getAsJsonObject();
-        String newName = config.get("newName").getAsString();
-        Position position = new Position();
-        position.setLine(positionObj.get("line").getAsInt());
-        position.setCharacter(positionObj.get("character").getAsInt());
-        return TestUtil.getRenameResponse(sourcePath.toString(), position, newName, this.serviceEndpoint);
+    @AfterClass
+    public void shutDownLanguageServer() throws IOException {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    @AfterClass
-    public void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
+    private void alterExpectedUri(JsonObject expected) throws IOException {
+        JsonObject newChanges = new JsonObject();
+        expected.getAsJsonObject("changes").entrySet().forEach(jEntry -> {
+            String[] uriComponents = jEntry.getKey().replace("\"", "").split("/");
+            Path expectedPath = Paths.get(this.sourceRoot.toUri());
+            for (String uriComponent : uriComponents) {
+                expectedPath = expectedPath.resolve(uriComponent);
+            }
+            try {
+                newChanges.add(expectedPath.toFile().getCanonicalPath(), jEntry.getValue());
+            } catch (IOException e) {
+                // Ignore the exception
+            }
+        });
+        expected.add("changes", newChanges);
+    }
+
+    private void alterActualUri(JsonObject actual) throws IOException {
+        JsonObject newChanges = new JsonObject();
+        actual.getAsJsonObject("changes").entrySet().forEach(jEntry -> {
+            String uri = jEntry.getKey().replace("\"", "");
+            try {
+                String canonicalPath = new File(URI.create(uri)).getCanonicalPath();
+                newChanges.add(canonicalPath, jEntry.getValue());
+            } catch (IOException e) {
+                // Ignore exception
+            }
+        });
+        actual.add("changes", newChanges);
     }
 }

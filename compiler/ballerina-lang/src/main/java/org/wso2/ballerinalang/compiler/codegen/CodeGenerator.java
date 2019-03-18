@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -1283,46 +1282,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(iExpr.expr, this.env);
         RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
         switch (iExpr.builtInMethod) {
-            case REASON:
-                emit(InstructionCodes.REASON, iExpr.expr.regIndex, regIndex);
-                break;
-            case DETAIL:
-                emit(InstructionCodes.DETAIL, iExpr.expr.regIndex, regIndex);
-                break;
-            case LENGTH:
-                Operand typeCPIndex = getTypeCPIndex(iExpr.expr.type);
-                emit(InstructionCodes.LENGTH, iExpr.expr.regIndex, typeCPIndex, regIndex);
-                break;
-            case FREEZE:
-                emit(InstructionCodes.FREEZE, iExpr.expr.regIndex, regIndex);
-                break;
-            case IS_FROZEN:
-                emit(InstructionCodes.IS_FROZEN, iExpr.expr.regIndex, regIndex);
-                break;
-            case CLONE:
-                emit(InstructionCodes.CLONE, iExpr.expr.regIndex, regIndex);
-                break;
-            case STAMP:
-                genNode(iExpr.requiredArgs.get(0), this.env);
-                emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
-                break;
-            case CONVERT:
-                int opcode = ((BOperatorSymbol) iExpr.symbol).opcode;
-                BLangExpression expr = iExpr.requiredArgs.get(0);
-                BType castExprType = iExpr.type;
-                RegIndex convExprRegIndex = calcAndGetExprRegIndex(iExpr.regIndex, castExprType.tag);
-                iExpr.regIndex = convExprRegIndex;
-                genNode(expr, this.env);
-                if (opcode == InstructionCodes.CONVERT) {
-                    typeCPIndex = getTypeCPIndex(((BInvokableType) iExpr.symbol.type).paramTypes.get(1));
-                    emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
-                } else {
-                    emit(opcode, expr.regIndex, convExprRegIndex);
-                }
-                break;
-            case ITERATE:
-                emit(InstructionCodes.ITR_NEW, iExpr.expr.regIndex, regIndex);
-                break;
             case NEXT:
                 List<Operand> list = new LinkedList<>();
                 list.add(iExpr.expr.regIndex);
@@ -1331,7 +1290,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 list.add(new Operand(1)); // Todo - Cleanup counts
                 list.add(iExpr.regIndex);
 
-                BType resultType = ((BUnionType) iExpr.type).memberTypes.iterator().next();
+                BType resultType = ((BUnionType) iExpr.type).iterator().next();
                 list.add(getTypeCPIndex(resultType));
 
 
@@ -1409,7 +1368,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             case InstructionCodes.JSON2ARRAY:
             case InstructionCodes.O2JSON:
             case InstructionCodes.CHECKCAST:
-            case InstructionCodes.TYPE_ASSERTION:
+            case InstructionCodes.TYPE_CAST:
                 Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
                 emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
                 break;
@@ -2153,7 +2112,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         literal.pos = constant.pos;
         literal.value = ((BLangLiteral) constant.value).value;
         literal.type = ((BLangLiteral) constant.value).type;
-        literal.typeTag = ((BLangLiteral) constant.value).typeTag;
 
         DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
         constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
@@ -2258,8 +2216,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
-                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
+            if (isDefaultableSimpleVariable(objField)) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
                 objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -2343,10 +2300,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordFieldInfo.fieldType = recordField.type;
 
             // Populate default values
-            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
-                    recordField.expr.type.getKind() != TypeKind.ARRAY)) {
-                DefaultValueAttributeInfo defaultVal
-                        = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
+            if (isDefaultableSimpleVariable(recordField)) {
+                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
                 recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
@@ -2363,6 +2318,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
         typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private boolean isDefaultableSimpleVariable(BLangSimpleVariable variable) {
+        return variable.expr != null && (variable.expr.getKind() == NodeKind.LITERAL ||
+                variable.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                variable.expr.type.getKind() != TypeKind.ARRAY;
     }
 
     private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
@@ -3639,7 +3600,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
-        prefixLiteral.typeTag = TypeTags.STRING;
         prefixLiteral.type = symTable.stringType;
         prefixLiteral.regIndex = regIndex;
         genNode(prefixLiteral, env);

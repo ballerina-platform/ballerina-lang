@@ -16,9 +16,9 @@
 
 
 import ballerina/auth;
+import ballerina/encoding;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/encoding;
 
 # Authentication cache name.
 const string AUTH_CACHE = "basic_auth_cache";
@@ -64,15 +64,15 @@ public function HttpBasicAuthnHandler.handle(Request req) returns (boolean) {
         boolean authenticated = self.authStoreProvider.authenticate(username, password);
         if (authenticated) {
             // set username
-            runtime:getInvocationContext().userPrincipal.username = username;
+            runtime:getInvocationContext().principal.username = username;
             // read scopes and set to the invocation context
             string[] scopes = self.authStoreProvider.getScopes(username);
             if (scopes.length() > 0) {
-                runtime:getInvocationContext().userPrincipal.scopes = scopes;
+                runtime:getInvocationContext().principal.scopes = scopes;
             }
         }
         return authenticated;
-    } else if (credentials is error) {
+    } else {
         log:printError("Error in decoding basic authentication header", err = credentials);
     }
     return false;
