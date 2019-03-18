@@ -75,29 +75,6 @@ public class Appointment extends AbstractTask {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stop() throws SchedulingException {
-        this.stop(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void pause() throws SchedulingException {
-        this.pause(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void resume() throws SchedulingException {
-        this.resume(this.getId());
-    }
-
-    /**
      * Returns the cron expression for this Appointment.
      *
      * @return cron expression for this appointment to trigger.

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.task.objects;
 
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 import org.quartz.JobDataMap;
@@ -141,66 +142,44 @@ public abstract class AbstractTask implements Task {
     }
 
     /**
-     * Stops the scheduled Appointment.
-     *
-     * @param taskId ID of the task which should be stopped.
-     * @throws SchedulingException if failed to stop the task.
+     * {@inheritDoc}
      */
-    public void stop(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.deleteJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                throw new SchedulingException("Cannot cancel the task. ");
+    public void stop() throws SchedulingException {
+        try {
+            this.scheduler.shutdown(true);
+        } catch (SchedulerException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to stop the task." + e.getMessage());
             }
-        } else {
-            throwTaskNotFoundException();
+            throw new SchedulingException("Failed to stop the task.");
         }
     }
 
     /**
-     * Pauses the scheduled Appointment.
-     *
-     * @param taskId ID of the task to be paused.
-     * @throws SchedulingException if failed to pause the task.
+     * {@inheritDoc}
      */
-    public void pause(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.pauseJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot pause the task. " + e.getMessage());
-                }
-                throw new SchedulingException("Cannot pause the task.");
+    public void pause() throws SchedulingException {
+        try {
+            this.scheduler.pauseAll();
+        } catch (SchedulerException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cannot pause the task. " + e.getMessage());
             }
-        } else {
-            throwTaskNotFoundException();
+            throw new SchedulingException("Cannot pause the task.");
         }
     }
 
     /**
-     * Resumes a paused Task.
-     *
-     * @param taskId ID of the task to be resumed.
-     * @throws SchedulingException if failed to resume the task.
+     * {@inheritDoc}
      */
-    public void resume(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.resumeJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot resume the task. " + e.getMessage());
-                }
-                throw new SchedulingException("Cannot resume the task.");
+    public void resume() throws SchedulingException {
+        try {
+            this.scheduler.resumeAll();
+        } catch (SchedulerException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cannot resume the task. " + e.getMessage());
             }
-        } else {
-            throwTaskNotFoundException();
+            throw new SchedulingException("Cannot resume the task.");
         }
-    }
-
-    private void throwTaskNotFoundException() throws SchedulingException {
-        throw new SchedulingException("Task not found");
     }
 }
