@@ -1,18 +1,18 @@
 ## Module overview
 
-This module includes functions to manage Task Listeners and Task Schedulers.
+This module provides functionality to configure and manage Task Listeners and Task Schedulers, which will be executed periodically.
 
 ### Task Listeners
 
 Task `Listener` can be used to create a service listener, which will trigger on specified times. Listener can be configured using listener configurations.
-There are two main types of configurations for a Listener.
+There are two types of configurations for a Listener.
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
-If a task is needed to be run periodically, `TimerConfiguration` can be used. `TimerConfiguration` consists of three fields.
-- `interval` - Timer interval by which the listener should trigger. This should be in Milliseconds.
-- `initialDelay` - This is an optional field to state an initial delay, before the task should trigger. If this is set to `0`, task will run immediately. If the field is not set, interval will be taken as the initial delay as well. This should be given in Milliseconds.
-- `noOfRecurrences` - If there's a requirement to run a particular task only for a number of times, this field can be used. This should be given as an int.
+If a task is needed to be run periodically, `TimerConfiguration` can be used. `TimerConfiguration` consists of three fields, from which two are optional.
+- `interval` - Timer interval by which the listener should trigger. This should be given in Milliseconds.
+- `initialDelay` - [Optional] Initial delay before the task should trigger. If this is set to `0`, task will run immediately. If the field is not set, interval will be taken as the initial delay. This should be given in Milliseconds.
+- `noOfRecurrences` - [Optional] If there's a requirement to run a particular task only for a number of times, this field can be used. This should be given as an int.
 
 The following code snippet creates a listener which have an initial delay of 5000 Milliseconds (5 seconds) and with an interval of 1000 Milliseconds (1 second). Then we can create a service on the listener. The service consists of the resource function onTrigger() which will be executed when the timer goes off.
 
@@ -29,21 +29,15 @@ The following code snippet creates a listener which have an initial delay of 500
     }
 ```
 
-`Listener` can be used to schedule an appointment, like the appointments we see in real world. Listener configuration for an appointment is as follows. configuration has two main fields.
+`Listener` can be used to schedule an appointment, like the appointments we see in real world. Listener configuration has two main fields.
   - `appointmentDetails`
   - `noOfRecurrences`
   
 Appointment details is again a union of `task:AppointmentData` and `string`. `AppointmentDetails` can be given as either a `cronExpression` as a `string`, or an `AppointmentData` record type. `AppointmentData` record includes seven fields to provide the appointment details.
   
-Following code snippet shows how to create an Appointment using `task:Listener`. It will trigger the `onTrigger()` resource by every two seconds.
+Following code snippet shows how to create an Appointment using `task:Listener`. It will trigger the `onTrigger()` resource by every two seconds, starting from the 0<sup>th</sup> seconds of the minute.
 
 ```ballerina
-    task:TimerConfiguration timerConfiguration = {
-            interval: 1000,
-            delay: 5000,
-            noOfRecurrences: 3
-    };
-    
     listener task:Listener appointment = new({
         appointmentDetails: "0/2 * * * * ?"
     });
@@ -56,7 +50,7 @@ Following code snippet shows how to create an Appointment using `task:Listener`.
 
 ### Task Scheduler
 
-A task `Scheduler` can be used to create timers / appointments dynamically. Then a service can be attached to the `Scheduler`. Scheduler can also be created as a timer or an appointment. The configurations are as same as the `Listener`.
+A task `Scheduler` can be used to create timers / appointments dynamically. Service(s) can be attached to the `Scheduler`, so that they can be invoked when the Scheduler goes off. Scheduler can be created as a timer or an appointment. The configurations are as same as the `Listener`.
 
 Code snippet for an example timer `task:Scheduler`. 
 
@@ -88,11 +82,13 @@ service timerService = service {
 };
 ```
 
-`Scheduler` can also be used to create appointments. `Scheduler` has following APIs.
+`Scheduler` can also be used to create appointments, by providing the configuration, `
+
+`Scheduler` has following APIs.
 
 - `start()` - Starts the task scheduler, and run the services attached to it.
 - `stop()` - Stops the task. This will shutdown all the processes scheduled on the scheduler.
-- `pause()` - Pauses the scheduler. This will temporarily halt the task execution.
+- `pause()` - Pauses the scheduler. This will temporarily halts the task execution.
 - `resume()` - Resumes a task, which has been paused.
 - `attach()` - Attaches a service to the scheduler. An optional parameter, `attachment` can be passed to the function, so that it will propagate into the resource.
 - `detach()` - Detaches any attached services from the task.
