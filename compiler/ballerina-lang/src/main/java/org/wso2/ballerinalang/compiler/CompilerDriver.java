@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import java.util.HashSet;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -116,6 +117,11 @@ public class CompilerDriver {
             symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null, null);
         }
 
+    }
+
+    void loadUtilsPackage() {
+        // Load utils package.
+        symbolTable.utilsPackageSymbol = pkgLoader.loadPackageSymbol(UTILS, null, null);
     }
 
     // Private methods

@@ -17,7 +17,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 
-service hello on new http:Listener(9090) {
+service hello on new http:MockListener(9090) {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");

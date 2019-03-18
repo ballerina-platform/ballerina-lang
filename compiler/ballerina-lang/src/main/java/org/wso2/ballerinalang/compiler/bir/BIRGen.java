@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeAssert;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
@@ -82,7 +81,6 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +163,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.functions.add(birFunc);
         this.env.enclFunc = birFunc;
 
-        if (astFunc.symbol.retType.tag != TypeTags.NIL) {
+        if (astFunc.symbol.retType != null && astFunc.symbol.retType.tag != TypeTags.NIL) {
             // Special %0 location for storing return values
             BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.pos, astFunc.symbol.retType,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
@@ -460,12 +458,8 @@ public class BIRGen extends BLangNodeVisitor {
         astTypeConversionExpr.expr.accept(this);
         BIROperand rhsOp = this.env.targetOperand;
 
-        int opcode = astTypeConversionExpr.conversionSymbol.opcode;
-        if (opcode == InstructionCodes.TYPE_ASSERTION) { // TODO find better way to differentiate
-            emit(new TypeAssert(astTypeConversionExpr.pos, toVarRef, rhsOp));
-        } else {
-            emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
-        }
+        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
+
         this.env.targetOperand = toVarRef;
     }
 

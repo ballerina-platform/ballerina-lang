@@ -150,8 +150,8 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BUnionType bUnionType) {
         buff.writeByte(bUnionType.tag);
-        buff.writeInt(bUnionType.memberTypes.size());
-        for (BType memberType : bUnionType.memberTypes) {
+        buff.writeInt(bUnionType.getMemberTypes().size());
+        for (BType memberType : bUnionType.getMemberTypes()) {
             memberType.accept(this);
         }
     }

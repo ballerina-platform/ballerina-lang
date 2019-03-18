@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_JSON;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_INTERNAL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_REMOTE;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PATH_SEPARATOR;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
 
@@ -58,6 +59,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
+    private static final int WEBSUB_PORT = 8181;
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
@@ -66,6 +68,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
     private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription " +
             "change request";
+    private static final String INTENT_VERIFICATION_LOG_THREE = "ballerina: Intent Verification agreed - " +
+            "Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [300]";
 
     private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: " +
             "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
@@ -77,6 +81,11 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private static final String REMOTE_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: " +
             "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
 
+    private static final String INTERNAL_HUB_NOTIFICATION_LOG_THREE = "WebSub Notification Received by Three: " +
+            "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
+    private static final String QUERY_PARAM_LOG = "Query Params: {\"topic\":\"http://one.websub.topic.com\", " +
+            "\"fooVal\":\"barVal\"}";
+
     private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [unsubscribe], Topic [http://one.websub.topic.com]";
     private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - " +
@@ -84,6 +93,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_LOG);
     private LogLeecher explicitIntentVerificationLogLeecher = new LogLeecher(EXPLICIT_INTENT_VERIFICATION_LOG);
+    private LogLeecher intentVerificationLogLeecherThree = new LogLeecher(INTENT_VERIFICATION_LOG_THREE);
 
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG);
@@ -91,10 +101,15 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private LogLeecher internalHubNotificationLogLeecherTwo = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG_TWO);
     private LogLeecher remoteHubNotificationLogLeecherTwo = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG_TWO);
 
+    private LogLeecher internalHubNotificationLogLeecherThree = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG_THREE);
+    private LogLeecher queryParamLogLeecher = new LogLeecher(QUERY_PARAM_LOG);
+
     private LogLeecher unsubscriptionIntentVerificationLogLeecher = new LogLeecher(
             UNSUBSCRIPTION_INTENT_VERIFICATION_LOG);
     private LogLeecher logAbsenceTestLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
+    private LogLeecher internalHubNotificationLogLeecherTwoAfterOneUnsubscription =
+            new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG_TWO);
 
 
     @BeforeClass
@@ -106,27 +121,31 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
                 .getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
+        webSubSubscriber.addLogLeecher(intentVerificationLogLeecherThree);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
         webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherThree);
+        webSubSubscriber.addLogLeecher(queryParamLogLeecher);
         webSubSubscriber.addLogLeecher(unsubscriptionIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{8181});
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test
     public void testSubscriptionAndAutomaticIntentVerification() throws BallerinaTestException {
-        intentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+        intentVerificationLogLeecher.waitForText(2 * LOG_LEECHER_TIMEOUT);
+        intentVerificationLogLeecherThree.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndAutomaticIntentVerification")
     public void testSubscriptionAndExplicitIntentVerification() throws BallerinaTestException {
         explicitIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
@@ -147,6 +166,12 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAuthenticatedContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testContentReceiptForCallbackWithQueryParams() throws BallerinaTestException {
+        internalHubNotificationLogLeecherThree.waitForText(LOG_LEECHER_TIMEOUT);
+        queryParamLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
@@ -170,8 +195,10 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*")
     public void testUnsubscription() throws BallerinaTestException {
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + "skip_subscriber_check", HUB_MODE_INTERNAL,
+                      CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
+        internalHubNotificationLogLeecherTwoAfterOneUnsubscription.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")

@@ -206,7 +206,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -218,7 +218,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonA'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
@@ -242,16 +242,17 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'A', found 'B'");
+                            "incompatible types: 'B' cannot be cast to 'A'");
     }
 
     @Test(description = "Test any to string with errors.")
     public void testAnyToStringWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToStringWithErrors", new BValue[]{});
 
-        // check whether string is null
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "5");
+
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible types: 'int' cannot be cast to 'string'");
     }
 
     @Test(description = "Test any null to string with errors.") //TODO check this
@@ -261,7 +262,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'string', found '()'");
+                            "incompatible types: '()' cannot be cast to 'string'");
     }
 
     @Test(description = "Test any to boolean with errors.")
@@ -269,9 +270,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible types: 'int' cannot be cast to 'boolean'");
     }
 
     @Test(description = "Test any null to boolean with errors.")
@@ -282,7 +284,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'boolean', found '()'");
+                            "incompatible types: '()' cannot be cast to 'boolean'");
     }
 
     @Test(description = "Test any to int with errors.")
@@ -293,7 +295,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'int', found 'string'");
+                            "incompatible types: 'string' cannot be cast to 'int'");
     }
 
     @Test(description = "Test any null to int with errors.")
@@ -304,7 +306,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'int', found '()'");
+                            "incompatible types: '()' cannot be cast to 'int'");
     }
 
     @Test(description = "Test any to float with errors.")
@@ -315,7 +317,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'float', found 'string'");
+                            "incompatible types: 'string' cannot be cast to 'float'");
     }
 
     @Test(description = "Test any null to float with errors.")
@@ -326,7 +328,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'float', found '()'");
+                            "incompatible types: '()' cannot be cast to 'float'");
     }
 
     @Test(description = "Test any to map with errors.")
@@ -337,7 +339,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "assertion error: expected 'map', found 'string'");
+                            "incompatible types: 'string' cannot be cast to 'map'");
     }
 
 }

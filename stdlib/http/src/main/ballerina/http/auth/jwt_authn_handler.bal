@@ -14,9 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-import ballerina/log;
 import ballerina/auth;
+import ballerina/log;
 
 # Representation of JWT Auth handler for HTTP traffic
 #
@@ -49,12 +48,14 @@ public function HttpJwtAuthnHandler.canHandle(Request req) returns (boolean) {
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
         authHeader = headerValue;
-    } else if (headerValue is error) {
+    } else {
+        string reason = headerValue.reason();
         log:printDebug(function() returns string {
-            return "Error in retrieving header " + AUTH_HEADER + ": " + headerValue.reason();
+            return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
         });
         return false;
     }
+
     if (authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
         if (authHeaderComponents.length() == 2) {
@@ -72,7 +73,7 @@ public function HttpJwtAuthnHandler.handle (Request req) returns (boolean) {
     var authenticated = self.jwtAuthenticator.authenticate(jwtToken);
     if (authenticated is boolean) {
         return authenticated;
-    } else if (authenticated is error) {
+    } else {
         log:printError("Error while validating JWT token ", err = authenticated);
     }
     return false;

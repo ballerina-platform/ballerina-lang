@@ -13,15 +13,15 @@ import ballerina/system;
 
 public function main() {
     //Get environment variables.
-    io:println("Envirionment variable: " + system:getEnv("HTTP_PORT")); // Eg. “80”
+    io:println("Envirionment variable: " + system:getEnv("HTTP_PORT")); // E.g. “80”
 
     // Get the user account name.
-    io:println("Username: " + system:getUsername());  //Eg. “john”
+    io:println("Username: " + system:getUsername());  // E.g. “john”
 
     // Get the user home path.
-    io:println("User home: " + system:getUserHome());  //Eg. “/home/john”
+    io:println("User home: " + system:getUserHome());  // E.g. “/home/john”
 
     // Get the current directory path.
-    io:println("Current directory: " + system:getCurrentDirectory());  //Eg. “/home/john/work”
+    io:println("Current directory: " + system:getCurrentDirectory());  // E.g. “/home/john/work”
 }
 ```

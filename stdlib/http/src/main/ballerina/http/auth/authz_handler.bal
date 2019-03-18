@@ -16,9 +16,9 @@
 
 
 import ballerina/cache;
-import ballerina/runtime;
-import ballerina/log;
 import ballerina/io;
+import ballerina/log;
+import ballerina/runtime;
 
 # Representation of Authorization Handler for HTTP
 #
@@ -70,11 +70,11 @@ function HttpAuthzHandler.handle (string username, string serviceName, string re
                                                                                     string[] scopes) returns (boolean) {
     // first, check in the cache. cache key is <username>-<resource>-<http method>-<scopes-separated-by-colon>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
+    string authzCacheKey = runtime:getInvocationContext().principal.userId +
                                                     "-" + serviceName +  "-" + resourceName + "-" + method;
 
-    string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
-    //TODO: Make sure userPrincipal.scopes array is sorted to prevent cache-misses that could happen due to ordering
+    string[] authCtxtScopes = runtime:getInvocationContext().principal.scopes;
+    //TODO: Make sure principal.scopes array is sorted to prevent cache-misses that could happen due to ordering
     if (authCtxtScopes.length() > 0) {
         authzCacheKey += "-";
         foreach var authCtxtScope in authCtxtScopes {
@@ -173,7 +173,7 @@ function matchScopes (string[] scopesOfResource, string[] scopesForRequest) retu
 }
 
 function HttpAuthzHandler.canHandle (Request req) returns (boolean) {
-    if (runtime:getInvocationContext().userPrincipal.username.length() == 0) {
+    if (runtime:getInvocationContext().principal.username.length() == 0) {
         log:printError("Username not set in auth context. Unable to authorize");
         return false;
     }

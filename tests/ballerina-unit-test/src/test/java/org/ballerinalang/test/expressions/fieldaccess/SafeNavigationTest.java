@@ -66,9 +66,9 @@ public class SafeNavigationTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++, "variable 'p' is not initialized", 40, 5);
-        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person[]|error'", 44, 24);
+        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person?[]|error'", 44, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'Person[]|error' does not support indexing", 45, 12);
+                "invalid operation: type 'Person?[]|error' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
                 12);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'other|error?'",
@@ -277,7 +277,7 @@ public class SafeNavigationTest {
     public void testMapNilLiftingOnLHS_4() {
         BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_4");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{foo:null, fname:\"John\"}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{foo:(), fname:\"John\"}}");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -324,24 +324,24 @@ public class SafeNavigationTest {
     public void testUpdatingNullableRecordField_1() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingNullableRecordField_1");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{a:0, fname:\"John\", lname:\"\", info1:null, " +
-                "info2:{address1:null, address2:{street:\"Palm Grove\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{a:0, fname:\"John\", lname:\"\", info1:(), " +
+                "info2:{address1:(), address2:{street:\"Palm Grove\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
     }
 
     @Test
     public void testUpdatingNullableRecordField_2() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingNullableRecordField_2");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{a:0, fname:\"John\", lname:\"\", info1:null, " +
-                "info2:{address1:null, address2:{street:\"\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{a:0, fname:\"John\", lname:\"\", info1:(), " +
+                "info2:{address1:(), address2:{street:\"\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
     }
 
     @Test
     public void testUpdatingNullableObjectField_1() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingNullableObjectField_1");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{a:0, fname:\"John\", lname:\"\", info1:null, " +
-                "info2:{address1:null, address2:{street:\"Palm Grove\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{a:0, fname:\"John\", lname:\"\", info1:(), " +
+                "info2:{address1:(), address2:{street:\"Palm Grove\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},

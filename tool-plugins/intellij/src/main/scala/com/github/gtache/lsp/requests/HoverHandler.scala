@@ -55,7 +55,14 @@ object HoverHandler {
         }
         if (useHtml) "<html>" + result + "</html>" else result
       } else if (hoverContents.isRight) {
-        hoverContents.getRight.getValue //TODO
+        val content = hoverContents.getRight.getValue
+        val result = if (content == null || content.isEmpty) "" else {
+          val options = new MutableDataSet()
+          val parser = Parser.builder(options).build()
+          val renderer = HtmlRenderer.builder(options).build()
+          if (!content.isEmpty) "<html>" + renderer.render(parser.parse(content)) + "</html>" else ""
+        }
+        result
       } else ""
     } else ""
   }

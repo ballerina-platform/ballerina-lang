@@ -29,7 +29,7 @@ const string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
-function testTypicalScenario() returns (http:Response[], error[]) {
+function testTypicalScenario() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -46,7 +46,7 @@ function testTypicalScenario() returns (http:Response[], error[]) {
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
         while (counter < 8) {
             http:Request request = new;
@@ -55,7 +55,7 @@ function testTypicalScenario() returns (http:Response[], error[]) {
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 errs[counter] = serviceResponse;
             }
             counter = counter + 1;
@@ -67,7 +67,7 @@ function testTypicalScenario() returns (http:Response[], error[]) {
     return (responses, errs);
 }
 
-function testTrialRunFailure() returns (http:Response[], error[]) {
+function testTrialRunFailure() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -84,7 +84,7 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
 
         while (counter < 8) {
@@ -94,7 +94,7 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 errs[counter] = serviceResponse;
             }
             counter = counter + 1;
@@ -106,7 +106,7 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
     return (responses, errs);
 }
 
-function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
+function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -123,7 +123,7 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
         while (counter < 8) {
             http:Request request = new;
@@ -132,7 +132,7 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
-            } else if (serviceResponse is error) {
+            } else {
                 errs[counter] = serviceResponse;
             }
             counter = counter + 1;
@@ -140,7 +140,7 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
     return (responses, errs);
 }
 
-function testForceOpenScenario() returns (http:Response[], error[]) {
+function testForceOpenScenario() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -157,7 +157,7 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
     while (counter < 8) {
         http:Request request = new;
@@ -169,7 +169,7 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -177,7 +177,7 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
     return (responses, errs);
 }
 
-function testForceCloseScenario() returns (http:Response[], error[]) {
+function testForceCloseScenario() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -194,7 +194,7 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
 
     while (counter < 8) {
@@ -207,7 +207,7 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -215,7 +215,7 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
     return (responses, errs);
 }
 
-function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error[]) {
+function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -232,7 +232,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
 
     while (counter < 6) {
@@ -242,7 +242,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -250,7 +250,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
     return (responses, errs);
 }
 
-function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error[]) {
+function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error?[]) {
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -267,7 +267,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
     });
 
     http:Response[] responses = [];
-    error[] errs = [];
+    error?[] errs = [];
     int counter = 0;
 
     while (counter < 6) {
@@ -277,7 +277,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
-        } else if (serviceResponse is error) {
+        } else {
             errs[counter] = serviceResponse;
         }
         counter = counter + 1;
@@ -527,7 +527,7 @@ http:Request {
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;

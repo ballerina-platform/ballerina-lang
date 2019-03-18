@@ -275,8 +275,22 @@ function singleMatchStmt() returns string {
 
 function invalidSimpleVariable() returns string {
     any k = 1;
+    string a = "A";
     match k {
         10 => return "A"; // pattern will always be matched
         a => return "A"; // invalid literal for match pattern
     }
+}
+
+const CONST_1 = "A";
+const CONST_2 = "B";
+const CONST_3 = "C";
+
+function invalidConstTypes(CONST_1|CONST_2 a) returns string {
+    match a {
+        CONST_1 => return "A";
+        CONST_2 => return "B";
+        CONST_3 => return "C"; // pattern will not be matched
+    }
+    return "Default";
 }
