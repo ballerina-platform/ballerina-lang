@@ -18,7 +18,7 @@ import ballerinax/kubernetes;
     image: "scenarios.ballerina.io/circuit_breaker_backend_service:v1.0",
     name: "circuit-breaker-backend-service"
 }
-listener http:Listener mockServiceListener = new(8080);
+listener http:Listener mockServiceListener = new(30300);
 
 public int counter = 1;
 

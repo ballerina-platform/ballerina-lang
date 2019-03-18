@@ -64,7 +64,7 @@ public class HttpCircuitBreakerScenarioTest extends ScenarioTestBase {
         HttpResponse response = HttpClientRequest.doGet("http://" + host + (path.startsWith("/")
                 ? "" : "/") + path);
         System.out.println("Service URL : " + getServiceURL(path));
-        Thread.sleep(60000);
+        Thread.sleep(10000);
         Assert.assertEquals(response.getResponseCode(), responseCode, "Response code mismatched");
         Assert.assertTrue(response.getData().contains(expectedMessage), "Message content mismatched");
     }
