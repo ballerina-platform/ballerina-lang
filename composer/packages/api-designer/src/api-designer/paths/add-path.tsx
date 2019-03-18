@@ -22,7 +22,9 @@ import * as React from "react";
 import { Button, Form, Input, Label, Transition } from "semantic-ui-react";
 
 export interface AddOpenApiPathProps {
+    openApiJson: Swagger.OpenAPIObject;
     onAddOpenApiPath: (path: Swagger.PathItemObject, onAdd: (state: boolean) => void) => void;
+    onClose: () => void;
 }
 
 export interface AddOpenApiPathState {
@@ -39,6 +41,7 @@ export interface OpenApiResource {
 export interface OpenApiOperationMethod {
     text: string;
     value: string;
+    checked: boolean;
 }
 
 export interface ShowState {
@@ -66,6 +69,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
         this.clearFields = this.clearFields.bind(this);
         this.onAddPath = this.onAddPath.bind(this);
         this.onShowMessage = this.onShowMessage.bind(this);
+        this.handleOnInputChange = this.handleOnInputChange.bind(this);
 
     }
 
@@ -80,8 +84,9 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
 
         availableMethods.forEach((method) => {
             methodOpts.push({
+                checked: false,
                 text: method,
-                value: method.toLowerCase(),
+                value: method.toLowerCase()
             });
         });
 
@@ -92,22 +97,22 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
 
     public render() {
         const { operationMethods, showState } = this.state;
-        const { onAddOpenApiPath } = this.props;
+        const { onAddOpenApiPath, onClose } = this.props;
 
         return (
             <Form size="mini" className="add-resource">
                 <Form.Field>
-                    <label>Resource Name</label>
+                    <h4>Resource Name</h4>
+                    <Button size="mini" floated="right" className="btn-close" circular onClick={() => {
+                        onClose();
+                    }}>
+                        <i className="fw fw-close"></i>
+                    </Button>
                     <Input label="/"
                         placeholder="Example: users/{userId}"
-                    value={this.state.openApiResourceObj.name}
+                        value={this.state.openApiResourceObj.name}
                         onChange={(e) => {
-                            this.setState({
-                                openApiResourceObj: {
-                                    ...this.state.openApiResourceObj,
-                                    name: e.target.value.replace(/^\//, "").trim()
-                                }
-                            });
+                            this.handleOnInputChange(e.target.value.replace(/^\//, "").trim());
                         }}
                     />
                 </Form.Field>
@@ -119,6 +124,8 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                                 size="mini"
                                 label={method.text}
                                 value={method.value}
+                                defaultChecked={method.checked}
+                                disabled={method.checked}
                                 onChange={(e: React.SyntheticEvent, data: any) => {
                                     if (data.checked) {
                                         this.setState({
@@ -133,7 +140,7 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                         );
                     })}
                 </Form.Group>
-                <Button size="mini" onClick={() => {
+                <Button size="mini" primary onClick={() => {
                     onAddOpenApiPath(this.state.openApiResourceObj, this.onAddPath);
                     this.clearFields();
                 }}>Add Resource</Button>
@@ -151,6 +158,32 @@ class AddOpenApiPath extends React.Component<AddOpenApiPathProps, AddOpenApiPath
                 </Transition>
             </Form>
         );
+    }
+
+    private handleOnInputChange(pathName: string) {
+        const { operationMethods } = this.state;
+        const { openApiJson } = this.props;
+
+        if (openApiJson.paths["/" + pathName]) {
+            operationMethods.map((option: OpenApiOperationMethod) => {
+                if (Object.keys(openApiJson.paths["/" + pathName]).includes(option.value)) {
+                    option.checked = true;
+                }
+            });
+        } else {
+            operationMethods.map((option: OpenApiOperationMethod) => {
+                option.checked = false;
+            });
+        }
+
+        this.setState({
+            openApiResourceObj: {
+                ...this.state.openApiResourceObj,
+                name: pathName
+            },
+            operationMethods,
+        });
+
     }
 
     private onAddPath(state: boolean) {

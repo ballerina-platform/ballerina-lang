@@ -1,0 +1,12 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-core')
+    implementation 'io.opentracing:opentracing-mock:0.31.0'
+    implementation project(':lib-creator')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang')
+    implementation 'com.google.code.gson:gson:2.7'
+}
+
+description = 'Ballerina - Observability - Tracing Test Utils'

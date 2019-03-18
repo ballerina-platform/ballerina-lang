@@ -1,0 +1,7 @@
+// Task scheduler can be used to create timers to trigger periodically. A
+// service can be attached to the task Scheduler object using `attach()`
+// function, and the listener can be started using `start()` function.
+// Attaching service must contain `onTrigger()` resource function. A parameter
+// can be passed into the service using the defaultable parameter `attachment`
+// through the `attach()` function, which is passed to the `onTrigger()`
+// function. Listener can be stopped by calling `stop()` function.

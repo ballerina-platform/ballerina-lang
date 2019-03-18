@@ -21,7 +21,7 @@ function accessInvalidIndexOfSealedArray() returns int {
 }
 
 function accessInvalidIndexOfSealedArrayUsingKeyword() returns string {
-    string[!...] sealedArray = ["1", "2", "3", "4", "5"];
+    string[*] sealedArray = ["1", "2", "3", "4", "5"];
     string result = sealedArray[5];
     return result;
 }
@@ -33,10 +33,10 @@ function initializeInvalidSizedSealedArray() {
 
 function assignValueToInvalidIndex() {
     int[5] sealedArray1;
-    int[!...] sealedArray2 = [1, 2, 3, 4, 5];
+    int[*] sealedArray2 = [1, 2, 3, 4, 5];
     sealedArray1[5] = 12;
     sealedArray2[5] = 12;
-    boolean[!...] x;
+    boolean[*] x;
 }
 
 function arrayAssignments() {
@@ -55,7 +55,7 @@ function functionParametersAndReturns() returns int {
 }
 
 function mockFunction(boolean[4] sealedArray) returns (string[]) {
-    string[!...] sealedStrArray = ["Sam", "Smith"];
+    string[*] sealedStrArray = ["Sam", "Smith"];
     return sealedStrArray;
 }
 
@@ -70,10 +70,8 @@ function unionTestInvalidOrderedMatch(boolean | int[] | float[4] | float[] x) re
         return "matched boolean";
     } else if (x is int[]) {
         return "matched int array";
-    } else if (x is float[]) {
-        return "matched float array";
     } else {
-        return "matched sealed float array size 4";
+        return "matched float array";
     }
 }
 
@@ -84,7 +82,31 @@ function invalidJSONArrays() {
     x3[3] = 12;
     x3[4] = 12;
     json[3] x4 = [1, true, "3"];
-    json[!...] x5 = x4;
+    json[*] x5 = x4;
     json[] x6 = [1, true, "3"];
     json[3] x7 = x6;
+}
+
+const SEVEN = 7;
+
+type FiniteOne "S1"|"S2";
+type FiniteTwo 3|4|5;
+type FiniteThree 0|1|2|"S1";
+type FiniteFour FiniteThree|"S3";
+type FiniteFive FiniteTwo|SEVEN;
+
+function testInvalidArrayAccessByFiniteType() {
+    (string|int)[*] sArray = ["ballerina", 1];
+    string[1] sArrayTwo = ["ballerina"];
+    FiniteOne f1 = "S1";
+    FiniteTwo f2 = 3;
+    FiniteThree f3 = 2;
+    FiniteFour f4 = 0;
+    FiniteFive f5 = 3;
+    var a = sArray[f1]; // incompatible types: expected 'int', found 'S1|S2'
+    var b = sArray[f2]; // invalid array index expression: value space '3|4|5' out of range
+    var c = sArrayTwo[f2]; // invalid array index expression: value space '3|4|5' out of range
+    var d = sArray[f3]; // incompatible types: expected 'int', found '0|1|2|S1'
+    var e = sArray[f4]; // incompatible types: expected 'int', found '0|1|2|S1|S3'
+    var f = sArrayTwo[f5]; // invalid array index expression: value space '3|4|5|7' out of range
 }

@@ -55,5 +55,4 @@ public class BObjectType extends BStructureType implements ObjectType {
     public String toString() {
         return this.tsymbol.toString();
     }
-
 }

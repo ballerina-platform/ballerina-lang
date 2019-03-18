@@ -33,7 +33,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;
-    } else if (result is error) {
+    } else {
         io:println("Connection to the remote host failed : " + result.reason());
         return;
     }
@@ -245,10 +245,9 @@ function getDateCreated(json jsonObj) returns string {
         time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
         string customTimeString = time:format(timeRecord, "yyyy-MM-dd-E");
         return customTimeString;
-    } else if (timeInMillis is error) {
+    } else {
         panic timeInMillis;
     }
-    return "";
 }
 
 # This function invokes the method to search for modules.
@@ -264,7 +263,7 @@ public function main (string... args) {
             if (result is http:Client) {
                 httpEndpoint = result;
                 search(httpEndpoint, args[0], args[1], args[6]);
-            } else if (result is error) {
+            } else {
                 io:println("failed to resolve host : " + host + " with port " + port);
                 return;
             }

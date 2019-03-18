@@ -70,46 +70,52 @@ public class Start implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+        SelectorManager selectorManager;
+        SocketService socketService;
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             SocketChannel channel = (SocketChannel) clientEndpoint.getNativeData(SOCKET_KEY);
             BMap<String, BValue> config = (BMap<String, BValue>) clientEndpoint.getNativeData(CLIENT_CONFIG);
             BInteger port = (BInteger) config.get(SocketConstants.CONFIG_FIELD_PORT);
             BString host = (BString) config.get(SocketConstants.CONFIG_FIELD_HOST);
-            SocketService socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
+            socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
             channel.connect(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
             channel.finishConnect();
             channel.configureBlocking(false);
-            if (socketService.getResources() != null) {
-                // Starting the selector since we have a callback service.
-                SelectorManager selectorManager = SelectorManager.getInstance();
-                selectorManager.start();
-                ChannelRegisterCallback registerCallback = new ChannelRegisterCallback(socketService, callback, context,
-                        OP_READ);
-                selectorManager.registerChannel(registerCallback);
-            } else {
-                context.setReturnValues();
-                callback.notifySuccess();
-            }
+            selectorManager = SelectorManager.getInstance();
+            selectorManager.start();
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initialize the selector"));
             callback.notifySuccess();
+            return;
         } catch (CancelledKeyException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the client socket"));
             callback.notifySuccess();
+            return;
         } catch (AlreadyBoundException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Client socket is already bound to a port"));
             callback.notifySuccess();
+            return;
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
             context.setReturnValues(SocketUtils.createSocketError(context, "Provided address not supported"));
             callback.notifySuccess();
+            return;
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             context.setReturnValues(
                     SocketUtils.createSocketError(context, "Unable to start the client socket: " + e.getMessage()));
             callback.notifySuccess();
+            return;
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the socket client."));
+            callback.notifySuccess();
+            return;
+        }
+        if (socketService != null) {
+            selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, context, OP_READ));
         }
     }
 

@@ -26,6 +26,11 @@ type ResultPrimitive record {
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
+    decimal DECIMAL_TYPE;
+};
+
+type ResultJson record {
+   json STRING_TYPE;
 };
 
 type ResultSetTestAlias record {
@@ -57,7 +62,7 @@ type ResultObject record {
 type ResultMap record {
     int[] INT_ARRAY;
     int[] LONG_ARRAY;
-    float[] FLOAT_ARRAY;
+    decimal[] FLOAT_ARRAY;
     boolean[] BOOLEAN_ARRAY;
     string[] STRING_ARRAY;
 };
@@ -90,8 +95,8 @@ type ResultDatesInt record {
 type ResultSetFloat record {
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
-    float NUMERIC_TYPE;
-    float DECIMAL_TYPE;
+    decimal NUMERIC_TYPE;
+    decimal DECIMAL_TYPE;
 };
 
 type ResultPrimitiveInt record {
@@ -143,7 +148,7 @@ type IntData record {
     int int_type;
 };
 
-function testToJson() returns (json) {
+function testToJson() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -155,11 +160,11 @@ function testToJson() returns (json) {
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
     json retVal = getJsonConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToJsonComplexTypes() returns (json) {
+function testToJsonComplexTypes() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -170,11 +175,11 @@ function testToJsonComplexTypes() returns (json) {
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
     json retVal = getJsonConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToJsonComplexTypesNil() returns (json) {
+function testToJsonComplexTypesNil() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -185,11 +190,11 @@ function testToJsonComplexTypesNil() returns (json) {
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
     json retVal = getJsonConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToXml() returns (xml) {
+function testToXml() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -201,11 +206,11 @@ function testToXml() returns (xml) {
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", ());
     xml retVal = getXMLConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToXmlComplexTypes() returns (xml) {
+function testToXmlComplexTypes() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -217,11 +222,11 @@ function testToXmlComplexTypes() returns (xml) {
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
 
     xml retVal = getXMLConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToXmlComplexTypesNil() returns (xml) {
+function testToXmlComplexTypesNil() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -233,11 +238,11 @@ function testToXmlComplexTypesNil() returns (xml) {
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
 
     xml retVal = getXMLConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToXmlMultipleConsume() returns (xml) {
+function testToXmlMultipleConsume() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -250,11 +255,11 @@ function testToXmlMultipleConsume() returns (xml) {
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     xml retVal = getXMLConversionResult(result);
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function testToXmlWithAdd() returns (xml) {
+function testToXmlWithAdd() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -275,11 +280,11 @@ function testToXmlWithAdd() returns (xml) {
     if (dt3 is table<record{}>) {
         dt3.close();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return result;
 }
 
-function testToJsonMultipleConsume() returns (json) {
+function testToJsonMultipleConsume() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -292,11 +297,11 @@ function testToJsonMultipleConsume() returns (json) {
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     json result = getJsonConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
     return result;
 }
 
-function toXmlComplex() returns (xml) {
+function toXmlComplex() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -305,15 +310,15 @@ function toXmlComplex() returns (xml) {
         poolOptions: { maximumPoolSize: 1 }
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+                    float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array,
+                    string_array from MixTypes where row_id =1", ());
 
     xml convertedVal = getXMLConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
     return convertedVal;
 }
 
-function testToXmlComplexWithStructDef() returns (xml) {
+function testToXmlComplexWithStructDef() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -327,11 +332,11 @@ function testToXmlComplexWithStructDef() returns (xml) {
                     from MixTypes where row_id =1", TestTypeData);
 
     xml convertedVal = getXMLConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
     return convertedVal;
 }
 
-function testToJsonComplex() returns (json) {
+function testToJsonComplex() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -340,16 +345,16 @@ function testToJsonComplex() returns (json) {
         poolOptions: { maximumPoolSize: 1 }
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
-                    float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                    from MixTypes where row_id =1", ());
+        float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array
+        from MixTypes where row_id =1", ());
 
     json convertedVal = getJsonConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
 
     return convertedVal;
 }
 
-function testToJsonComplexWithStructDef() returns (json) {
+function testToJsonComplexWithStructDef() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -362,11 +367,11 @@ function testToJsonComplexWithStructDef() returns (json) {
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", TestTypeData);
     json ret = getJsonConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
     return ret;
 }
 
-function testJsonWithNull() returns (json) {
+function testJsonWithNull() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -377,11 +382,11 @@ function testJsonWithNull() returns (json) {
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
     json convertedVal = getJsonConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
     return convertedVal;
 }
 
-function testXmlWithNull() returns (xml) {
+function testXmlWithNull() returns xml {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -392,7 +397,7 @@ function testXmlWithNull() returns (xml) {
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", ());
     xml ret = getXMLConversionResult(tableOrError);
-    testDB.stop();
+    _ = testDB.stop();
     return ret;
 }
 
@@ -414,12 +419,12 @@ function testToXmlWithinTransaction() returns (string, int) {
             if (result is xml) {
                 resultXml = io:sprintf("%s", result);
                 returnValue = 0;
-            } else if (result is error) {
+            } else {
                 resultXml = "<fail>error</fail>";
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (resultXml, returnValue);
 }
 
@@ -441,16 +446,16 @@ function testToJsonWithinTransaction() returns (string, int) {
             if (j is json) {
                 result = io:sprintf("%s", j);
                 returnValue = 0;
-            } else if (j is error) {
+            } else {
                 result = "<fail>error</fail>";
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (result, returnValue);
 }
 
-function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
+function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string, decimal) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -465,8 +470,9 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
     float d = -1;
     boolean b = false;
     string s = "";
+    decimal dec = -1;
     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
+              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
     if (dtRet is table<ResultPrimitive>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
@@ -477,11 +483,12 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
                 d = rs.DOUBLE_TYPE;
                 b = rs.BOOLEAN_TYPE;
                 s = rs.STRING_TYPE;
+                dec = rs.DECIMAL_TYPE;
             }
         }
     }
-    testDB.stop();
-    return (i, l, f, d, b, s);
+    _ = testDB.stop();
+    return (i, l, f, d, b, s, dec);
 }
 
 function testGetComplexTypes() returns (byte[], string, byte[]) {
@@ -507,12 +514,11 @@ function testGetComplexTypes() returns (byte[], string, byte[]) {
         }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (blobData, clob, binaryData);
 }
 
-function testArrayData() returns (int[], int[], float[], string[],
-            boolean[]) {
+function testArrayData() returns (int[], int[], decimal[], string[], boolean[]) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -525,7 +531,7 @@ function testArrayData() returns (int[], int[], float[], string[],
               string_array from ArrayTypes where row_id = 1", ResultMap);
     int[] int_arr = [];
     int[] long_arr = [];
-    float[] float_arr = [];
+    decimal[] float_arr = [];
     string[] string_arr = [];
     boolean[] boolean_arr = [];
     if (tableOrError is table<ResultMap>) {
@@ -538,12 +544,11 @@ function testArrayData() returns (int[], int[], float[], string[],
             string_arr = rs.STRING_ARRAY;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
 
-function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
-            int) {
+function testArrayDataInsertAndPrint() returns (int, int, int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -553,7 +558,7 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
     });
 
     int[] dataint = [1, 2, 3];
-    float[] datafloat = [33.4, 55.4];
+    decimal[] datafloat = [33.4, 55.4];
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
@@ -573,6 +578,10 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
     var updateRet = testDB->update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
                                 string_array, boolean_array) values (?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
+    int updatedCount = -1;
+    if (updateRet is sql:UpdateResult) {
+        updatedCount = updateRet.updatedRowCount;
+    }
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
     if (dtRet is table<ResultMap>) {
@@ -592,12 +601,11 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
             }
         }
     }
-    testDB.stop();
-    return (updateRet is int ? updateRet : -1, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
+    _ = testDB.stop();
+    return (updatedCount, intArrLen, longArrLen, floatArrLen, boolArrLen, strArrLen);
 }
 
-function testDateTime(int datein, int timein, int timestampin)
-             returns (string, string, string, string) {
+function testDateTime(int datein, int timein, int timestampin) returns (string, string, string, string) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -633,12 +641,11 @@ function testDateTime(int datein, int timein, int timestampin)
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
-            int, int, int) {
+function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -691,13 +698,12 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
     datetimeInserted, datetimeRetrieved);
 }
 
-function testDateTimeInt(int datein, int timein, int timestampin)
-returns (int, int, int, int) {
+function testDateTimeInt(int datein, int timein, int timestampin) returns (int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -735,11 +741,11 @@ returns (int, int, int, int) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (date, time, timestamp, datetime);
 }
 
-function testBlobData() returns (byte[]) {
+function testBlobData() returns byte[] {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -757,12 +763,11 @@ function testBlobData() returns (byte[]) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return blobData;
 }
 
-function testColumnAlias() returns (int, int, float, float, boolean,
-            string, int) {
+function testColumnAlias() returns (int, int, float, float, boolean, string, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -795,11 +800,11 @@ function testColumnAlias() returns (int, int, float, float, boolean,
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (i, l, f, d, b, s, i2);
 }
 
-function testBlobInsert() returns (int) {
+function testBlobInsert() returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -820,9 +825,9 @@ function testBlobInsert() returns (int) {
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 10 };
     sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobData };
     var insertCountRet = testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
-    int insertCount = insertCountRet is int ? insertCountRet : -1;
+    int insertCount = insertCountRet is sql:UpdateResult ? insertCountRet.updatedRowCount : -1;
 
-    testDB.stop();
+    _ = testDB.stop();
     return insertCount;
 }
 
@@ -858,11 +863,11 @@ function testTableAutoClose() returns (int, json) {
         selectRet3.close();
     }
 
-    testDB.stop();
+    _ = testDB.stop();
     return (i, jsonData);
 }
 
-function testTableManualClose() returns (int) {
+function testTableManualClose() returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -882,13 +887,13 @@ function testTableManualClose() returns (int) {
                     break;
                 }
             } else {
-                testDB.stop();
+                _ = testDB.stop();
                 return -1;
             }
         }
         selectRet.close();
     } else {
-        testDB.stop();
+        _ = testDB.stop();
         return -2;
     }
 
@@ -901,20 +906,20 @@ function testTableManualClose() returns (int) {
             if (rs2 is ResultPrimitiveInt) {
                 data = rs2.INT_TYPE;
             } else {
-                testDB.stop();
+                _ = testDB.stop();
                 return -2;
             }
         }
         selectRet2.close();
     } else {
-        testDB.stop();
+        _ = testDB.stop();
         return -3;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return data;
 }
 
-function testCloseConnectionPool(string connectionCountQuery) returns (int) {
+function testCloseConnectionPool(string connectionCountQuery) returns int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -937,7 +942,7 @@ function testCloseConnectionPool(string connectionCountQuery) returns (int) {
     } else {
        retVal = -2;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
@@ -955,10 +960,10 @@ function testTablePrintAndPrintln() {
         io:println(selectRet);
         io:print(selectRet);
         selectRet.close();
-    } else if (selectRet is error) {
+    } else {
         io:print(<string>selectRet.reason());
     }
-    testDB.stop();
+    _ = testDB.stop();
 }
 
 function testMultipleRows() returns (int, int) {
@@ -985,12 +990,11 @@ function testMultipleRows() returns (int, int) {
             i = i + 1;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testMultipleRowsWithoutLoop() returns (int, int, int, int,
-            string, string) {
+function testMultipleRowsWithoutLoop() returns (int, int, int, int, string, string) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1104,12 +1108,11 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
             s2 = s2 + "_" + "NO";
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (i1, i2, i3, i4, s1, s2);
 }
 
-function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
-{
+function testHasNextWithoutConsume() returns (boolean, boolean, boolean) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1136,11 +1139,11 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
         }
         selectRet.close();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (b1, b2, b3);
 }
 
-function testGetFloatTypes() returns (float, float, float, float) {
+function testGetFloatTypes() returns (float, float, decimal, decimal) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1154,8 +1157,8 @@ function testGetFloatTypes() returns (float, float, float, float) {
 
     float f = 0;
     float d = 0;
-    float num = 0;
-    float dec = 0;
+    decimal num = 0;
+    decimal dec = 0;
 
     if (selectRet is table<ResultSetFloat>) {
         while (selectRet.hasNext()) {
@@ -1168,12 +1171,11 @@ function testGetFloatTypes() returns (float, float, float, float) {
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (f, d, num, dec);
 }
 
-function testSignedIntMaxMinValues() returns (int, int, int, string,
-            string, string) {
+function testSignedIntMaxMinValues() returns (int, int, int, string, string, string) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1200,7 +1202,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
     sql:Parameter para4 = { sqlType: sql:TYPE_INTEGER, value: 2147483647 };
     sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: 9223372036854775807 };
     var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
-    maxInsert = updateRet1 is int ? updateRet1 : maxInsert;
+    maxInsert = updateRet1 is sql:UpdateResult ? updateRet1.updatedRowCount : maxInsert;
 
     //Insert signed min
     para1 = { sqlType: sql:TYPE_INTEGER, value: 2 };
@@ -1209,7 +1211,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
     para4 = { sqlType: sql:TYPE_INTEGER, value: -2147483648 };
     para5 = { sqlType: sql:TYPE_BIGINT, value: -9223372036854775808 };
     var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
-    minInsert = updateRet2 is int ? updateRet2 : minInsert;
+    minInsert = updateRet2 is sql:UpdateResult ? updateRet2.updatedRowCount : minInsert;
 
     //Insert null
     para1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
@@ -1218,7 +1220,7 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
     para4 = { sqlType: sql:TYPE_INTEGER, value: () };
     para5 = { sqlType: sql:TYPE_BIGINT, value: () };
     var updateRet3 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
-    nullInsert = updateRet3 is int ? updateRet3 : nullInsert;
+    nullInsert = updateRet3 is sql:UpdateResult ? updateRet3.updatedRowCount : nullInsert;
 
     var dtRet = testDB->select(selectSQL, ());
 
@@ -1250,12 +1252,11 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
 }
 
-function testComplexTypeInsertAndRetrieval() returns (int, int, string,
-            string, string, byte[][]) {
+function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, string, byte[][]) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1282,14 +1283,14 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
     sql:Parameter para3 = { sqlType: sql:TYPE_CLOB, value: text };
     sql:Parameter para4 = { sqlType: sql:TYPE_BINARY, value: content };
     var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4);
-    retDataInsert = updateRet1 is int ? updateRet1 : retDataInsert;
+    retDataInsert = updateRet1 is sql:UpdateResult ? updateRet1.updatedRowCount : retDataInsert;
     //Insert null values
     para1 = { sqlType: sql:TYPE_INTEGER, value: 200 };
     para2 = { sqlType: sql:TYPE_BLOB, value: () };
     para3 = { sqlType: sql:TYPE_CLOB, value: () };
     para4 = { sqlType: sql:TYPE_BINARY, value: () };
     var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4);
-    retNullInsert = updateRet2 is int ? updateRet2 : retNullInsert;
+    retNullInsert = updateRet2 is sql:UpdateResult ? updateRet2.updatedRowCount : retNullInsert;
 
     var selectRet = testDB->select(selectSQL, ());
 
@@ -1320,12 +1321,11 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
 }
 
-function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
-            xml) {
+function testJsonXMLConversionwithDuplicateColumnNames() returns (json, xml) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1341,13 +1341,12 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns (json,
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
     xml x = getXMLConversionResult(selectRet2);
 
-    testDB.stop();
+    _ = testDB.stop();
 
     return (j, x);
 }
 
-function testStructFieldNotMatchingColumnName() returns (int, int, int,
-            int, int) {
+function testStructFieldNotMatchingColumnName() returns (int, int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1386,12 +1385,11 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int,
             }
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (countAll, i1, i2, i3, i4);
 }
 
-function testGetPrimitiveTypesWithForEach() returns (int, int, float,
-            float, boolean, string) {
+function testGetPrimitiveTypesWithForEach() returns (int, int, float, float, boolean, string, decimal) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1401,7 +1399,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     });
 
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-              boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
+              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
 
     int i = -1;
     int l = -1;
@@ -1409,6 +1407,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     float d = -1;
     boolean b = false;
     string s = "";
+    decimal dec = -1;
     if (selectRet is table<ResultPrimitive>) {
         foreach var x in selectRet {
             i = x.INT_TYPE;
@@ -1417,10 +1416,11 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
             d = x.DOUBLE_TYPE;
             b = x.BOOLEAN_TYPE;
             s = x.STRING_TYPE;
+            dec = x.DECIMAL_TYPE;
         }
     }
-    testDB.stop();
-    return (i, l, f, d, b, s);
+    _ = testDB.stop();
+    return (i, l, f, d, b, s, dec);
 }
 
 function testMultipleRowsWithForEach() returns (int, int) {
@@ -1447,7 +1447,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
             i = i +1;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
@@ -1466,12 +1466,12 @@ function testTableAddInvalid() returns string {
         var ret = trap selectRet.add(row);
         if (ret is error) {
             s = <string>ret.detail().message;
-        } else if (ret is ()) {
+        } else {
             s = "nil";
         }
         selectRet.close();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return s;
 }
 
@@ -1490,12 +1490,12 @@ function testTableRemoveInvalid() returns string {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
             s = string.convert(ret);
-        } else if (ret is error) {
+        } else {
             s = <string> ret.detail().message;
         }
         selectRet.close();
     }
-    testDB.stop();
+    _ = testDB.stop();
     return s;
 }
 
@@ -1516,11 +1516,11 @@ function tableGetNextInvalid() returns string {
             retVal = <string> ret.detail().message;
         }
     }
-    testDB.stop();
+    _ = testDB.stop();
     return retVal;
 }
 
-function isDelete(ResultPrimitiveInt p) returns (boolean) {
+function isDelete(ResultPrimitiveInt p) returns boolean {
     return p.INT_TYPE < 2000;
 }
 
@@ -1537,7 +1537,7 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
     json result = getJsonConversionResult(selectRet);
 
     json j = result[1];
-    testDB.stop();
+    _ = testDB.stop();
     return (result, result.length());
 }
 
@@ -1558,7 +1558,7 @@ function testToJsonAndIterate() returns (json, int)|error {
         j[i] = row;
         i += 1;
     }
-    testDB.stop();
+    _ = testDB.stop();
     return (j, j.length());
 }
 
@@ -1574,7 +1574,7 @@ function testToJsonAndSetAsChildElement() returns json {
                   boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
     json j = { status: "SUCCESS", resp: { value: result } };
-    testDB.stop();
+    _ = testDB.stop();
     return j;
 }
 
@@ -1597,7 +1597,7 @@ function testToJsonAndLengthof() returns (int, int) {
     // get the length after accessing
     json j = result[0];
     int afterLen = result.length();
-    testDB.stop();
+    _ = testDB.stop();
     return (beforeLen, afterLen);
 }
 
@@ -1609,10 +1609,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
             // Converting to string to make sure the json is built before returning.
             _ = jsonConversionResult.toString();
             retVal = jsonConversionResult;
-        } else if (jsonConversionResult is error) {
+        } else {
             retVal = {"Error" : <string>jsonConversionResult.detail().message};
         }
-    } else if (tableOrError is error) {
+    } else {
         retVal = {"Error" : <string>tableOrError.detail().message};
     }
     return retVal;
@@ -1626,11 +1626,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);
             retVal = xmlConversionResult;
-        } else if (xmlConversionResult is error) {
+        } else {
             string errorXML = <string>xmlConversionResult.detail().message;
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
-    } else if (tableOrError is error) {
+    } else {
         string errorXML = <string>tableOrError.detail().message;
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
@@ -1649,7 +1649,7 @@ function testSelectQueryWithCursorTable() returns error? {
     table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
     error? e = trap testSelectQueryWithCursorTableHelper(t1);
     t1.close();
-    testDB.stop();
+    _ = testDB.stop();
     return e;
 }
 
@@ -1672,7 +1672,7 @@ function testJoinQueryWithCursorTable() returns error? {
     error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
     t1.close();
     t2.close();
-    testDB.stop();
+    _ = testDB.stop();
     return e;
 }
 
@@ -1707,11 +1707,31 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (i
              }
          }
      }
-     testDB.stop();
+     _ = testDB.stop();
      return (i, l, f, d, b, s);
 }
 
 function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
     table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
     table1.int_type == table2.int_type select table1.int_type as int_type;
+}
+
+function testAssignStringValueToJsonField() returns json {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT string_type from DataTable WHERE row_id = 1", ResultJson);
+    json val = "";
+    if (result is table<ResultJson>) {
+        foreach var rs in result {
+            val = rs.STRING_TYPE;
+        }
+    }
+    _ = testDB.stop();
+    return val;
 }

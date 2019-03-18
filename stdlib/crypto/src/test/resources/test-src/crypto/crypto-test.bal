@@ -139,3 +139,126 @@ function testSignRsaMd5WithInvalidKey(byte[] input) returns byte[]|error {
     crypto:PrivateKey pk = {algorithm:"RSA"};
     return crypto:signRsaMd5(input, pk);
 }
+
+function testEncryptAesEcb(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5") returns byte[]|error {
+    return crypto:encryptAesEcb(input, key, padding = padding);
+}
+
+function testDecryptAesEcb(byte[] input, byte[] key, crypto:AesPadding padding = "PKCS5") returns byte[]|error {
+    return crypto:decryptAesEcb(input, key, padding = padding);
+}
+
+function testEncryptAesCbc(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5") returns byte[]|error {
+    return crypto:encryptAesCbc(input, key, iv, padding = padding);
+}
+
+function testDecryptAesCbc(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5") returns byte[]|error {
+    return crypto:decryptAesCbc(input, key, iv, padding = padding);
+}
+
+function testEncryptAesGcm(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5",
+int? tagSize = 128) returns byte[]|error {
+    return crypto:encryptAesGcm(input, key, iv, padding = padding, tagSize = tagSize);
+}
+
+function testDecryptAesGcm(byte[] input, byte[] key, byte[] iv, crypto:AesPadding padding = "PKCS5",
+int? tagSize = 128) returns byte[]|error {
+    return crypto:decryptAesGcm(input, key, iv, padding = padding, tagSize = tagSize);
+}
+
+function testEncryptRsaEcb(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (), string path,
+string keyStorePassword, string keyAlias) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:encryptRsaEcb(input, pk, padding = padding);
+}
+
+function testDecryptRsaEcb(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (), string path,
+string keyStorePassword, string keyAlias, string keyPassword) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                         keyPassword = keyPassword);
+    return crypto:decryptRsaEcb(input, pk, padding = padding);
+}
+
+function testEncryptRsaEcbWithPrivateKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (),
+string path, string keyStorePassword, string keyAlias, string keyPassword) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PrivateKey pk = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                         keyPassword = keyPassword);
+    return crypto:encryptRsaEcb(input, pk, padding = padding);
+}
+
+function testDecryptRsaEcbWithPublicKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = (),
+string path, string keyStorePassword, string keyAlias) returns byte[]|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:decryptRsaEcb(input, pk, padding = padding);
+}
+
+function testEncryptRsaEcbWithInvalidKey(byte[] input, crypto:RsaPadding padding = "PKCS1", byte[]? iv = ()) returns byte[]|error {
+    crypto:PrivateKey pk = {algorithm:"RSA"};
+    return crypto:encryptRsaEcb(input, pk, padding = padding);
+}
+
+function testVerifyRsaSha1(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha1Signature(input, signature, pk);
+}
+
+function testVerifyRsaSha256(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha256Signature(input, signature, pk);
+}
+
+function testVerifyRsaSha384(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha384Signature(input, signature, pk);
+}
+
+function testVerifyRsaSha512(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaSha512Signature(input, signature, pk);
+}
+
+function testVerifyRsaMd5(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)
+returns boolean|error {
+    crypto:KeyStore keyStore = {
+        path: path,
+        password: keyStorePassword
+    };
+    crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
+    return crypto:verifyRsaMd5Signature(input, signature, pk);
+}

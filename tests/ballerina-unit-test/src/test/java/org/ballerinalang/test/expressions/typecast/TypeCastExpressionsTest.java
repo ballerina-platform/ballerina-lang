@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,9 +37,9 @@ import java.util.List;
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
 
 /**
- * Class to test type assertion expressions.
+ * Class to test type cast expressions.
  *
- * @since 0.985.0
+ * @since 0.994.0
  */
 public class TypeCastExpressionsTest {
 
@@ -48,8 +48,8 @@ public class TypeCastExpressionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/typeassertion/type_assertion_expr.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/typeassertion/type_assertion_expr_negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr.bal");
+        resultNegative = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr_negative.bal");
     }
 
     @Test(dataProvider = "positiveTests")
@@ -81,7 +81,7 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string\\|int\\[2\\]' cannot be cast to 'string\\[2\\]'\"\\}.*")
+                    "types: 'string\\|int\\|null\\[2\\]' cannot be cast to 'string\\[2\\]'\"\\}.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
@@ -125,8 +125,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'error', found 'MyError'.*",
-            enabled = false)
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'error'.*")
     public void testErrorCastNegative() {
         BRunUtil.invoke(result, "testErrorCastNegative");
     }
@@ -181,6 +180,20 @@ public class TypeCastExpressionsTest {
                     "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|EmployeeObject>'\"\\}.*")
     public void testOutOfOrderUnionConstraintCastNegative() {
         BRunUtil.invoke(result, "testOutOfOrderUnionConstraintCastNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'int' cannot be cast to 'string\\|boolean'\"\\}.*")
+    public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
+        BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'string' cannot be cast to 'Lead\\|int'\"\\}.*")
+    public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
+        BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -245,12 +258,32 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string'.*")
+    public void testFiniteTypeToValueTypeCastNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeToValueTypeCastNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml'.*")
+    public void testFiniteTypeToRefTypeCastNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'FooBarOne'.*")
+    public void testValueTypeToFiniteTypeCastNegative() {
+        BRunUtil.invoke(result, "testValueTypeToFiniteTypeCastNegative");
+    }
+
     @Test
     public void testCastNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
-        validateError(resultNegative, errIndex, "type cast not yet supported for type 'future<int>'", 25, 22);
+        validateError(resultNegative, errIndex++, "type cast not yet supported for type 'future<int>'", 25, 22);
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'int|foo'", 30, 16);
+        validateError(resultNegative, errIndex, "incompatible types: 'int|foo' cannot be cast to 'xml'", 35, 13);
     }
 
     @DataProvider
@@ -269,7 +302,7 @@ public class TypeCastExpressionsTest {
                 {"testRecordCastPositive"},
                 {"testTableCastPositive"},
                 {"testXmlCastPositive"},
-//                {"testErrorCastPositive"},
+                {"testErrorCastPositive"},
                 {"testFunctionCastPositive"},
 //                {"testFutureCastPositive"},
                 {"testObjectCastPositive"},
@@ -281,7 +314,11 @@ public class TypeCastExpressionsTest {
                 {"testCastToNumericType"},
                 {"testBroaderObjectCast"},
                 {"testCastOnPotentialConversion"},
-                {"testSimpleTypeToUnionCastPositive"}
+                {"testSimpleTypeToUnionCastPositive"},
+                {"testDirectlyUnmatchedUnionToUnionCastPositive"},
+                {"testFiniteTypeToValueTypeCastPositive"},
+                {"testFiniteTypeToRefTypeCastPositive"},
+                {"testValueTypeToFiniteTypeCastPositive"}
         };
     }
 
