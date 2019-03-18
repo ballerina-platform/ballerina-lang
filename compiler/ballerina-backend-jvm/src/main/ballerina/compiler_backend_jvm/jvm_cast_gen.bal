@@ -37,6 +37,8 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
         targetTypeClass = MAP_VALUE;
     } else if (targetType is bir:BObjectType) {
         targetTypeClass = OBJECT_VALUE;
+    } else if (targetType is bir:BErrorType) {
+        targetTypeClass = ERROR_VALUE;
     } else if (targetType is bir:BInvokableType) {
         error err = error(io:sprintf("Casting is not supported from '%s' to '%s'", sourceType, targetType));
         panic err;

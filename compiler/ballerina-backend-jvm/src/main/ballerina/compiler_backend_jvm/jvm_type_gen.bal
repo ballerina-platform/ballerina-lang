@@ -395,6 +395,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BMapType) {
         loadMapType(mv, bType);
         return;
+    } else if (bType is bir:BErrorType) {
+        loadErrorType(mv, bType);
+        return;
     } else if (bType is bir:BUnionType) {
         loadUnionType(mv, bType);
         return;
@@ -451,6 +454,23 @@ function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given error type
+# to the top of the stack.
+#
+# + bType - error type to load
+function loadErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType) {
+    // Create an new error type
+    mv.visitTypeInsn(NEW, ERROR_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load reason and details type
+    loadType(mv, errorType.reasonType);
+    loadType(mv, errorType.detailType);
+    
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE, BTYPE), false);
 }
 
 # Generate code to load an instance of the given union type

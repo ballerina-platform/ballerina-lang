@@ -70,7 +70,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     // mv.visitInsn(IADD);
     // mv.visitFieldInsn(PUTSTATIC, className, "i", "I");
 
-    // process basic blocks and errors
+    // process basic blocks
     int j = 0;
     bir:BasicBlock?[] basicBlocks = func.basicBlocks;
 
@@ -360,7 +360,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
 
     termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(-1, -1);
+    mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
@@ -611,6 +611,8 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BErrorType) {
+        mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||

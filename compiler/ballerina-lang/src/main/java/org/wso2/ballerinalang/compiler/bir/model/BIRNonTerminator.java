@@ -334,7 +334,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         }
     }
 
-    /*
+    /**
      * A panic statement.
      * <p>
      * panic error
