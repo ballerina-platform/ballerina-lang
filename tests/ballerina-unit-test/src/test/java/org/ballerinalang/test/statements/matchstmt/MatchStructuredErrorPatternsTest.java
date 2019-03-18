@@ -125,9 +125,7 @@ public class MatchStructuredErrorPatternsTest {
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getString(++i), msg + "a record : true");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1Something Wrong");
-        Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1");
+        Assert.assertEquals(results.getString(++i), "Default");
         Assert.assertEquals(results.getString(++i), msg + "an error : Error Code 1Something Wrong");
     }
 
