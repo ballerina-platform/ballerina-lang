@@ -28,7 +28,7 @@ setup_test_env() {
 
     # Read deployment.properties content into an associative array
     declare -g -A deployment_config
-    read_property_file "${test_input_dir}/deployment.properties" deployment_config
+    read_property_file "${input_dir}/deployment.properties" deployment_config
 }
 
-setup_test_env $1 $2
+setup_test_env

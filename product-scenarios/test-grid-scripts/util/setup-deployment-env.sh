@@ -23,11 +23,9 @@ setup_deployment_env() {
     local parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
     . ${parent_path}/utils.sh
 
-    local dep_input_dir=$1
-    local dep_output_dir=$2
     work_dir=$(pwd)
     declare -g -A infra_config
-    read_property_file "${dep_input_dir}/infrastructure.properties" infra_config
+    read_property_file "${${input_dir}/infrastructure.properties" infra_config
 
     readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
     readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
@@ -45,7 +43,7 @@ setup_deployment_env() {
     install_ballerina ${ballerina_version}
 
     # Store namespace to be cleaned up at the end
-    echo "NamespacesToCleanup=${custom_namespace}" >> ${dep_output_dir}/infrastructure-cleanup.properties
+    echo "NamespacesToCleanup=${custom_namespace}" >> ${input_dir}/infrastructure-cleanup.properties
 }
 
-setup_deployment_env $1 $2
+setup_deployment_env
