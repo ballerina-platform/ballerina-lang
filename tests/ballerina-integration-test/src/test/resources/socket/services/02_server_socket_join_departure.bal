@@ -23,8 +23,10 @@ int joinee = 0;
 
 service echoServer on server {
     resource function onConnect(socket:Caller caller) {
-        joinee = joinee + 1;
-        io:println("Join: ", joinee);
+        lock {
+            joinee = joinee + 1;
+            io:println("Join: ", joinee);
+        }
     }
 
     resource function onReadReady(socket:Caller caller) {

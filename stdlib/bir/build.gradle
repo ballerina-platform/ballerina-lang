@@ -12,13 +12,12 @@ dependencies {
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
-    implementation project(':ballerina-builtin')
-    implementation project(':ballerina-internal')
-    implementation project(':ballerina-io')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-llvm')
-    implementation project(':ballerina-encoding')
+    implementation project(':ballerina-core')
 
+    testCompile 'io.netty:netty-transport:4.1.34.Final'
+    testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-launcher')
 }
 
 description = 'Ballerina - BIR Model'
