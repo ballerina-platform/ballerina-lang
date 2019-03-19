@@ -31,8 +31,8 @@
             </run>
         </groups>
 
-        <classes>
-            <class name="org.ballerinalang.scenario.test.http.HttpCircuitBreakerScenarioTest" />
-        </classes>
+        <packages>
+            <package name="org.ballerinalang.scenario.test.http.*" />
+        </packages>
     </test>
 </suite>
