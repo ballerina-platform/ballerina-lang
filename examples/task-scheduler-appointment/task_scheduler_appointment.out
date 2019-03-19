@@ -1,4 +1,4 @@
-// This example demonstrates an Appointment which is used to send a reminder
+// This example demonstrates an Appointment, which is used to send a reminder
 // every 2 seconds up to 5 reminders. When the reminder count reaches 5,
 // the task scheduler will stop running.
 # To start the service, navigate to the directory that contains the
