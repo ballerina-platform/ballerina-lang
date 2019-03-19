@@ -20,7 +20,7 @@ readonly deployment_http_grand_parent_path=$(dirname ${deployment_http_parent_pa
 readonly deployment_http_great_grand_parent_path=$(dirname ${deployment_http_grand_parent_path})
 
 . ${deployment_http_great_grand_parent_path}/util/usage.sh
-. ${deployment_http_great_grand_parent_path}/util/setup-deployment-env.sh ${INPUT_DIR} ${OUTPUT_DIR}
+. ${deployment_http_great_grand_parent_path}/util/setup-deployment-env.sh
 
 function setup_deployment() {
     clone_bbg_and_set_bal_path
