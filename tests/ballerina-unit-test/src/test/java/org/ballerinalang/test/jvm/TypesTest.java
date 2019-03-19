@@ -76,4 +76,23 @@ public class TypesTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "getGlobalVar");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
     }
+
+    @Test
+    public void testTuple() {
+        //Todo: revisit when tuple access and var type supported
+        BValue[] result = BRunUtil.invoke(compileResult, "tupleTest");
+        Assert.assertEquals((result[0]).stringValue(), "10");
+    }
+
+    @Test
+    public void testRecords() {
+        BValue[] result = BRunUtil.invoke(compileResult, "recordsTest");
+        Assert.assertEquals((result[0]).stringValue(), "JBallerina");
+    }
+
+    @Test
+    public void testUnions() {
+        BValue[] result = BRunUtil.invoke(compileResult, "unionTest");
+        Assert.assertEquals((result[0]).stringValue(), "10.5");
+    }
 }

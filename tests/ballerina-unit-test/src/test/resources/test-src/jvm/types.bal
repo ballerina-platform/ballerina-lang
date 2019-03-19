@@ -38,6 +38,7 @@ public type Grades record {
    string name;
    int physics;
    int chemistry?;
+   !...;
 };
 
 function arrayFunc(string[] strs) returns Grades[] {
@@ -47,4 +48,62 @@ function arrayFunc(string[] strs) returns Grades[] {
 
     Grades[] grds = [g,g1,g2];
     return grds;
+}
+
+function tupleTest() returns int {
+   (int, string) a = (10, "John");
+
+   // int aint;
+   // string astr;
+   // (aint, astr) = a;
+
+   // var (aint1, astr1) = a;
+
+   (int, int) ret = divideBy((500,20));
+   // var (_, r1) = ret;
+
+   return 10;
+}
+
+function divideBy((int,int) d) returns (int, int) {
+   //  int q = d[0] / d[1];
+   // int r = d[0] % d[1];
+    return (100, 200);
+}
+
+function recordsTest() returns string {
+   Grades g = {name: "Jbal", physics: 75, chemistry: 65};
+   Grades gOptional = {name: "Jbal", physics: 75};
+
+   g.physics = 100;
+
+   record {
+        string city;
+        string country;
+        string...;
+    } adr = { city: "London", country: "UK" };
+
+    adr.street = "baker";
+
+   return acceptRecord(g).name;
+}
+
+function acceptRecord(Grades g) returns Grades {
+   g.name = "JBallerina";
+   return g;
+}
+
+function unionTest() returns string|int|float {
+   int|string uni = 10;
+   uni = "abc";
+
+   return acceptUnion(uni);
+}
+
+function acceptUnion(int|string unionParam) returns int|string|float {
+   int|string|float  bigUnion =  unionParam;
+   bigUnion = 800;
+   bigUnion = "union";
+   bigUnion = 10.5;
+   return bigUnion;
 }
