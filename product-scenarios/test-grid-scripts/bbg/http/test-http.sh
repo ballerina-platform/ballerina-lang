@@ -17,6 +17,7 @@
 readonly test_http_parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 readonly test_http_grand_parent_path=$(dirname ${test_http_parent_path})
 readonly test_http_great_grand_parent_path=$(dirname ${test_http_grand_parent_path})
+readonly test_http_great_great_grand_parent_path=$(dirname ${test_http_great_grand_parent_path})
 
 . ${test_http_great_grand_parent_path}/util/usage.sh
 . ${test_http_great_grand_parent_path}/util/setup-test-env.sh
@@ -39,19 +40,7 @@ function run_tests() {
     sys_prop_array["http.service.port"]=${node_port}
 
     # Builds and run tests of the given BBG section and copies resulting surefire reports to output directory
-    local maven_profile=bbg-http
-    local test_section=http
-    local -n properties_array=sys_prop_array
-    local sys_prop_str=""
-    bash --version
-    for x in "${!properties_array[@]}"; do sys_prop_str+="-D$x=${properties_array[$x]} " ; done
-
-    mvn clean install -f ${utils_great_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${input_dir}
-    ${sys_prop_str} -P ${maven_profile}
-
-    mkdir -p ${output_dir}/scenarios
-
-    cp -r ${utils_great_grand_parent_path}/${test_section}/target ${output_dir}/scenarios/${test_section}/
+    run_bbg_section_tests bbg-http http sys_prop_array ${input_dir} ${output_dir}
 }
 
 run_tests
