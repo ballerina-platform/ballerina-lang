@@ -62,7 +62,7 @@ service helloContinue on new http:Listener(9090) {
             while (i < bodyParts.length()) {
                 mime:Entity part = bodyParts[i];
                 mime:ContentDisposition contentDisposition = part.getContentDisposition();
-                var result = part.getBodyAsString();
+                var result = part.getText();
                 if (result is string) {
                     replyMsg += " Key:" + contentDisposition.name + " Value: " + result;
                 } else {
