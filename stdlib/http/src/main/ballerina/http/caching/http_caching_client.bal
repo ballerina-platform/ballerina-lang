@@ -556,10 +556,9 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
             if (cachedResponse.hasHeader(DATE)) {
                 string[] dateHeader = cachedResponse.getHeaders(DATE);
 
-                var tExpiresHeader = time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123);
-                var tDateHeader = time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123);
-
                 if (dateHeader.length() == 1) {
+                    var tExpiresHeader = time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123);
+                    var tDateHeader = time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123);
                     if (tExpiresHeader is time:Time && tDateHeader is time:Time) {
                         int freshnessLifetime = (tExpiresHeader.time - tDateHeader.time) /1000;
                         return freshnessLifetime;

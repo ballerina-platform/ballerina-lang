@@ -319,6 +319,10 @@ public function Response.setLastModified() {
     var lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
     if (lastModified is string) {
         self.setHeader(LAST_MODIFIED, lastModified);
+    } else {
+        //This error is unlikely as the format is a constant and time is
+        //the current time which  does not returns an error.
+        panic lastModified;
     }
 }
 

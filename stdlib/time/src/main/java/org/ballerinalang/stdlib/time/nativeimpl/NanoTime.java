@@ -18,10 +18,8 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the system time value in nano seconds.
@@ -29,13 +27,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "time",
-        functionName = "nanoTime",
-        returnType = {
-                @ReturnType(type = TypeKind.INT)
-        },
-        isPublic = true
+        orgName = "ballerina", packageName = "time",
+        functionName = "nanoTime"
 )
 public class NanoTime extends AbstractTimeFunction {
 

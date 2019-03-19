@@ -18,16 +18,11 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Create a time from the given time components.
@@ -36,22 +31,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "createTime",
-        args = {
-                @Argument(name = "years", type = TypeKind.INT),
-                @Argument(name = "months", type = TypeKind.INT),
-                @Argument(name = "days", type = TypeKind.INT),
-                @Argument(name = "hours", type = TypeKind.INT),
-                @Argument(name = "minutes", type = TypeKind.INT),
-                @Argument(name = "seconds", type = TypeKind.INT),
-                @Argument(name = "milliseconds", type = TypeKind.INT),
-                @Argument(name = "zoneID", type = TypeKind.STRING)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time"),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
-        },
-        isPublic = true
+        functionName = "createTime"
 )
 public class CreateTime extends AbstractTimeFunction {
 

@@ -19,19 +19,14 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Convert a Time to string in the given format.
@@ -40,16 +35,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "format",
-        args = {
-                @Argument(name = "pattern", type = TypeKind.UNION),
-                @Argument(name = "time", type = TypeKind.RECORD)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
-        },
-        isPublic = true
+        functionName = "format"
 )
 public class Format extends AbstractTimeFunction {
 

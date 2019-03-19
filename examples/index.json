@@ -442,7 +442,7 @@
         "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Date Time",
+                "name": "Time",
                 "url": "time"
             },
             {

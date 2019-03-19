@@ -19,13 +19,10 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -36,8 +33,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-
 /**
  * Get the Time for the given string.
  *
@@ -45,14 +40,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "parse",
-        args = {@Argument(name = "timestamp", type = TypeKind.STRING),
-                @Argument(name = "format", type = TypeKind.UNION)},
-        returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time"),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
-        },
-        isPublic = true
+        functionName = "parse"
 )
 public class Parse extends AbstractTimeFunction {
 

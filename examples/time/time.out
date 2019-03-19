@@ -15,8 +15,8 @@ Second: 53
 Millisecond: 165
 Weekday: TUESDAY
 Date: 2018:12:4
-Time:21:11:53:165
+Time: 21:11:53:165
 After adding a duration: 2020-01-04T21:11:54.165+05:30
 After subtracting a duration: 2017-11-04T21:11:52.165+05:30
 Before converting the time zone: 2017-03-28T23:42:45.554-05:00
-After converting the time zone:2017-03-29T10:12:45.554+05:30
+After converting the time zone: 2017-03-29T10:12:45.554+05:30
