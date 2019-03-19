@@ -21,7 +21,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "yargs": "^12.0.2"
+    "yargs": "^13.2.2"
   },
   "devDependencies": {
     "@types/node": "^10.12.9",

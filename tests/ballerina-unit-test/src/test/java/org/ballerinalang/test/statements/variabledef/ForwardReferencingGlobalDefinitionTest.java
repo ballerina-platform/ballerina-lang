@@ -92,4 +92,12 @@ public class ForwardReferencingGlobalDefinitionTest {
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
                 "getPersonInner, getfromFuncA]'", 22, 1);
     }
+
+    @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
+    public void globalDefinitionsListenerDef() {
+        CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
+                "test-src/statements/variabledef/globalcycle", "viaservice");
+        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
+        BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 22, 1);
+    }
 }
