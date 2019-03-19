@@ -23,9 +23,6 @@ setup_test_env() {
     local parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
     . ${parent_path}/utils.sh
 
-    local test_input_dir=$1
-    local test_output_dir=$2
-
     # Read deployment.properties content into an associative array
     declare -g -A deployment_config
     read_property_file "${input_dir}/deployment.properties" deployment_config
