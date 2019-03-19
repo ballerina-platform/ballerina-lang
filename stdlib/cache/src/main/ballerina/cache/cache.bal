@@ -85,7 +85,7 @@ public type Cache object {
         }
         var timerStartResult = cacheCleanupTimer.start();
         if (timerStartResult is error) {
-            error e = error("Failed to start cache cleanup scheduler.", { message : timerStartResult.detail().message });
+            error e = error("Failed to start the cache cleanup task.", { message : timerStartResult.detail().message });
             panic e;
         }
     }
