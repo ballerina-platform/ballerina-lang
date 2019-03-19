@@ -483,12 +483,16 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
     return false;
 }
 
-# Check the validity of the access token which is in the cache.
+# Check the validity of the access token which is in the cache. If expiry time is 0, that means no expiry time is
+# returned at the authorization request which implies that the token is valid forever.
 #
 # + return - Whether the access token is valid or not
 function isValidAccessToken() returns boolean {
     // TODO: introduce clock-skew
     int expiryTime = tokenCache.expiryTime;
+    if (expiryTime == 0) {
+        return true;
+    }
     int currentSystemTime = time:currentTime().time;
     if (currentSystemTime > expiryTime) {
         return true;
@@ -647,13 +651,15 @@ function extractAccessTokenFromResponse(Response response) returns string|error 
 function updateTokenCache(json responsePayload) returns ()|error {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
-    int expiresIn = check int.convert(responsePayload.expires_in);
+    tokenCache.accessToken = accessToken;
+    if (responsePayload["expires_in"] is int) {
+        int expiresIn = check int.convert(responsePayload.expires_in);
+        tokenCache.expiryTime = issueTime + expiresIn * 1000;
+    }
     if (responsePayload["refresh_token"] is string) {
         string refreshToken = responsePayload.refresh_token.toString();
         tokenCache.refreshToken = refreshToken;
     }
-    tokenCache.accessToken = accessToken;
-    tokenCache.expiryTime = issueTime + expiresIn * 1000;
     return ();
 }
 
