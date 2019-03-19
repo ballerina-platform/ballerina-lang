@@ -57,7 +57,7 @@ function replace_variables_in_bal_file() {
 
 function build_and_deploy_guide() {
     cd pass-through-messaging/guide
-    ballerina init
+    ${ballerina_home}/bin/ballerina init
     ${ballerina_home}/bin/ballerina build passthrough --skiptests
     cd ../..
     kubectl apply -f ${work_dir}/pass-through-messaging/guide/target/kubernetes/passthrough
