@@ -2272,7 +2272,7 @@
         <swagger.v3.parser.version>2.0.9</swagger.v3.parser.version>
         <swagger.v3.models.version>2.0.7</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
-        <com.fasterxml.jackson.core.annotations.version>2.9.1</com.fasterxml.jackson.core.annotations.version>
+        <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.1.1</rs-api.version>
         <msf4j.version>2.6.4</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
