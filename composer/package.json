@@ -39,7 +39,7 @@
     "@types/storybook__react": "^3.0.9",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.4",
-    "copy-webpack-plugin": "^4.6.0",
+    "copy-webpack-plugin": "^5.0.1",
     "clean-css": "^4.2.1",
     "css-loader": "^2.1.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
