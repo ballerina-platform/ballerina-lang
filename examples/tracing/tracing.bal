@@ -48,7 +48,7 @@ service hello on new http:Listener(9234) {
         res.setPayload("Hello, World!");
 
         //Send the response back to the caller.
-        var result = caller->respond(res);
+        result = caller->respond(res);
 
         if (result is error) {
            log:printError("Error sending response", err = result);
