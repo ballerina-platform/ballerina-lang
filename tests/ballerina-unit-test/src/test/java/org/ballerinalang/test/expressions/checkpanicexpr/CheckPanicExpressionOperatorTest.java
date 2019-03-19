@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for `checkpanic` unary expression
+ * Test cases for `checkpanic` unary expression.
  */
 public class CheckPanicExpressionOperatorTest {
 
