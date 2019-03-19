@@ -150,7 +150,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                         } catch (Http2NoMoreStreamIdsException ex) {
                             //Remove connection from the pool
                             http2ClientChannel.removeFromConnectionPool();
-                            LOG.warn("Channel is removed from the connection pool : ", ex.getMessage(), ex);
+                            LOG.warn("Channel is removed from the connection pool : {}", ex.getMessage(), ex);
                             outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                         } catch (Http2Exception ex) {
                             LOG.error("Failed to send the request : " + ex.getMessage(), ex);
