@@ -31,7 +31,7 @@ public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
     }
 
     @Override
-    protected Http2ConnectionHandler getH2BusinessLogicHandler() {
+    protected Http2ConnectionHandler getBusinessLogicHandlerViaBuiler() {
         return new H2ChannelIdHandlerBuilder().build();
     }
 }

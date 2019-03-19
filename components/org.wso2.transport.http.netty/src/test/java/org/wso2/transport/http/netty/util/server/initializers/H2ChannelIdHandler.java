@@ -34,6 +34,8 @@ import io.netty.handler.codec.http2.Http2Flags;
 import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
@@ -41,6 +43,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
  * A simple handler that responds with the connection id.
  */
 public final class H2ChannelIdHandler extends Http2ConnectionHandler implements Http2FrameListener {
+    private static final Logger LOG = LoggerFactory.getLogger(H2ChannelIdHandler.class);
 
     H2ChannelIdHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                        Http2Settings initialSettings) {
@@ -79,8 +82,8 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("Exception occurred in H2ChannelIdHandler :", cause.getMessage());
         super.exceptionCaught(ctx, cause);
-        cause.printStackTrace();
         ctx.close();
     }
 

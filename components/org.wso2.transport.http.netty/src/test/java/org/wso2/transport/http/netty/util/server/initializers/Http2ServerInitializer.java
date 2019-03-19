@@ -31,6 +31,7 @@ import io.netty.handler.codec.http.HttpServerUpgradeHandler.UpgradeCodecFactory;
 import io.netty.handler.codec.http2.CleartextHttp2ServerUpgradeHandler;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
+import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
@@ -47,7 +48,12 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
 
     private final UpgradeCodecFactory upgradeCodecFactory = protocol -> {
         if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-            return new Http2ServerUpgradeCodec(getH2BusinessLogicHandler());
+            if (getBusinessLogicHandlerViaBuiler() != null) {
+                return new Http2ServerUpgradeCodec(getBusinessLogicHandlerViaBuiler());
+            } else {
+                return new Http2ServerUpgradeCodec(Http2FrameCodecBuilder.forServer().build(),
+                                                   getBusinessLogicHandler());
+            }
         } else {
             return null;
         }
@@ -92,7 +98,7 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
 
     protected abstract ChannelHandler getBusinessLogicHandler();
 
-    protected abstract Http2ConnectionHandler getH2BusinessLogicHandler();
+    protected abstract Http2ConnectionHandler getBusinessLogicHandlerViaBuiler();
 
     /**
      * Handler which handles ALPN.

@@ -52,7 +52,7 @@ public class Http2EchoServerInitializer extends Http2ServerInitializer {
     }
 
     @Override
-    protected Http2ConnectionHandler getH2BusinessLogicHandler() {
+    protected Http2ConnectionHandler getBusinessLogicHandlerViaBuiler() {
         return null;
     }
 
