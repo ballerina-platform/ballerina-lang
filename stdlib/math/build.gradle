@@ -6,16 +6,15 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-builtin')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-logging')
-    implementation project(':lib-creator')
     implementation project(':ballerina-runtime-api')
     testCompile 'org.testng:testng:6.13.1'
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
 }
 
 description = 'Ballerina - Math'
+
 test {
     doFirst {
         copy {
