@@ -389,7 +389,33 @@
                 <classifier>ballerina-sources</classifier>
             </dependency>
 
+            <!-- ballerina-jvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-bir -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-bir</artifactId>
@@ -651,19 +677,19 @@
             <!-- ballerina-runtime -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
+                <artifactId>ballerina-runtime-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -872,12 +898,22 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-runtime</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-jvm</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <!--<dependency>-->
@@ -999,6 +1035,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>lib-creator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-test-utils</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1557,6 +1598,11 @@
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1647,7 +1693,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/utils</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1684,11 +1730,12 @@
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1714,7 +1761,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
@@ -1734,7 +1781,7 @@
                 <module>compiler/ballerina-lang</module>
 
                 <module>stdlib/builtin</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1749,6 +1796,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1772,11 +1820,13 @@
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1799,7 +1849,7 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
             </modules>
         </profile>
@@ -1819,7 +1869,7 @@
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/utils</module>
-                <module>stdlib/runtime</module>
+                <module>stdlib/runtime-api</module>
                 <module>stdlib/test-common</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1834,6 +1884,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1856,11 +1907,13 @@
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1888,7 +1941,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-examples-test</module>
@@ -2355,6 +2408,7 @@
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>2.0.0-M24</apache.directory.server.version>
         <bouncycastle.version>1.61</bouncycastle.version>
+        <asm.version>6.2.1</asm.version>
     </properties>
 
 </project>
