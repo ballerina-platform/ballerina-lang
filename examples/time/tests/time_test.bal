@@ -9,8 +9,12 @@ int counter = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+public function mockPrint(any... args) {
+    string str = "";
+    foreach var s in args {
+        str += string.convert(s);
+    }
+    outputs[counter] = str;
     counter += 1;
 }
 
