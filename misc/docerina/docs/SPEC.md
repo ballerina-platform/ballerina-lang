@@ -1,5 +1,29 @@
 ## Ballerina API Doc generator
 
+  * [Background](#background)
+  * [Output formats](#output-formats)
+  * [Documenting Ballerina programs](#documenting-ballerina-programs)
+  * [Doc generation](#doc-generation)
+  * [Documentation Layout](#documentation-layout)
+    + [Project Page](#project-page)
+    + [Module Page](#module-page)
+    + [Construct Page](#construct-page)
+    + [Single Construct Pages](#single-construct-pages)
+      - [Record Page](#record-page)
+      - [Object Page](#object-page)
+      - [Client Page](#client-page)
+      - [Listener Page](#listener-page)
+      - [Function Page](#function-page)
+    + [Multi Construct Pages](#multi-construct-pages)
+      - [Annotations Page](#annotations-page)
+      - [Errors Page](#errors-page)
+      - [Type Definitions Page](#type-definitions-page)
+      - [Constants Page](#constants-page)
+      - [Primitive Page](#primitive-page)
+    + [General Requirements for pages](#general-requirements-for-pages)
+    + [Cross module referencing](#cross-module-referencing)
+    + [How to provide examples in documentation?](#how-to-provide-examples-in-documentation-)
+
 ### Background
 
 Ballerina API Doc Generator will process ballerina source files and generate API documentation for the relevant source. This documentation will act as the specification for that tool. 
