@@ -27,10 +27,18 @@ import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.DefaultHttp2WindowUpdateFrame;
+import io.netty.handler.codec.http2.Http2ConnectionDecoder;
+import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2Flags;
+import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
+import io.netty.handler.codec.http2.Http2Settings;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +52,16 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
     @Override
     protected ChannelHandler getBusinessLogicHandler() {
-        return new Http2SendChannelIDInitializer.SendChannelIDHandler();
+//        return new Http2SendChannelIDInitializer.SendChannelIDHandler();
+        return new H2ChannelIdHandlerBuilder().build();
     }
 
-    private class SendChannelIDHandler extends ChannelDuplexHandler {
+    @Override
+    protected Http2ConnectionHandler getH2BusinessLogicHandler() {
+        return new H2ChannelIdHandlerBuilder().build();
+    }
+
+    /*private class SendChannelIDHandler extends ChannelDuplexHandler {
 
         private final Logger log = LoggerFactory.getLogger(Http2SendChannelIDInitializer.SendChannelIDHandler.class);
 
@@ -65,7 +79,9 @@ public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
             } else if (msg instanceof Http2DataFrame) {
                 onDataRead(ctx, (Http2DataFrame) msg);
             } else {
-                super.channelRead(ctx, msg);
+//                super.channelRead(ctx, msg);
+                ReferenceCountUtil.release(msg);
+//                ctx.fireChannelRead(msg);
             }
         }
 
@@ -99,5 +115,5 @@ public class Http2SendChannelIDInitializer extends Http2ServerInitializer {
             ByteBuf content = Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
             ctx.write(new DefaultHttp2DataFrame(content, true).stream(stream));
         }
-    }
+    }*/
 }

@@ -93,7 +93,7 @@ public class H2ConnectionPoolWithPriorKnowledge {
     }
 
     //TODO:Enable this test once the prior knowledge support is added to the test http/2 server.
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testPriorKnowledgeWithPool() {
         //Since we have only two eventloops, upstream will have two different pools.
         HttpClientConnector client1 = getTestClient(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
