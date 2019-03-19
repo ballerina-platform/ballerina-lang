@@ -18,13 +18,10 @@
 
 package org.wso2.transport.http.netty.util.server.initializers;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -40,9 +37,6 @@ import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.AsciiString;
 
-import static io.netty.buffer.Unpooled.unreleasableBuffer;
-import static io.netty.handler.codec.http2.Http2CodecUtil.connectionPrefaceBuf;
-
 
 /**
  * An initializer class for a Http2 Server.
@@ -50,28 +44,6 @@ import static io.netty.handler.codec.http2.Http2CodecUtil.connectionPrefaceBuf;
 public abstract class Http2ServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private SslContext sslContext;
-
-  /*  private final UpgradeCodecFactory upgradeCodecFactory = protocol -> {
-        if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-            return new Http2ServerUpgradeCodec(
-                Http2FrameCodecBuilder.forServer().build(), getBusinessLogicHandler());
-        } else {
-            return null;
-        }
-    };*/
-
-/*
-    private static final UpgradeCodecFactory upgradeCodecFactory = new UpgradeCodecFactory() {
-        @Override
-        public HttpServerUpgradeHandler.UpgradeCodec newUpgradeCodec(CharSequence protocol) {
-            if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-                return new Http2ServerUpgradeCodec(Http2FrameCodecBuilder.forServer().build(),
-                getBusinessLogicHandler());
-            } else {
-                return null;
-            }
-        }
-    };*/
 
     private final UpgradeCodecFactory upgradeCodecFactory = protocol -> {
         if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
@@ -96,19 +68,13 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
      * @param ch represents the socket channel
      */
     private void configureClearText(SocketChannel ch) {
-       /* final ChannelPipeline p = ch.pipeline();
-        final HttpServerCodec sourceCodec = new HttpServerCodec();
-        p.addLast(new PriorKnowledgeHandler());
-        p.addLast(sourceCodec);
-        p.addLast(new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));*/
-
         final HttpServerCodec sourceCodec = new HttpServerCodec();
         final HttpServerUpgradeHandler upgradeHandler = new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory);
         final CleartextHttp2ServerUpgradeHandler cleartextHttp2ServerUpgradeHandler =
             new CleartextHttp2ServerUpgradeHandler(sourceCodec, upgradeHandler,
                                                    getBusinessLogicHandler());
-        final ChannelPipeline p = ch.pipeline();
-        p.addLast(cleartextHttp2ServerUpgradeHandler);
+        final ChannelPipeline channelPipeline = ch.pipeline();
+        channelPipeline.addLast(cleartextHttp2ServerUpgradeHandler);
     }
 
     /**
@@ -147,7 +113,6 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
-//                ctx.pipeline().addLast(Http2FrameCodecBuilder.forServer().build(), getBusinessLogicHandler());
                 ctx.pipeline().addLast(getBusinessLogicHandler());
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);
@@ -159,46 +124,6 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
             if (ctx != null && ctx.channel().isActive()) {
                 ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
             }
-        }
-    }
-
-    /**
-     * Peek inbound message to determine current connection wants to start HTTP/2 by HTTP upgrade or prior knowledge
-     */
-    private final class PriorKnowledgeHandler extends ChannelInboundHandlerAdapter {
-        private final ByteBuf CONNECTION_PREFACE = unreleasableBuffer(connectionPrefaceBuf());
-
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) {
-            if (msg instanceof ByteBuf) {
-                ByteBuf inputData = (ByteBuf) msg;
-                int prefaceLength = CONNECTION_PREFACE.readableBytes();
-                int bytesRead = Math.min(inputData.readableBytes(), prefaceLength);
-
-                if (!ByteBufUtil.equals(CONNECTION_PREFACE, CONNECTION_PREFACE.readerIndex(),
-                                        inputData, inputData.readerIndex(), bytesRead)) {
-                    ctx.pipeline().remove(this);
-                } else if (bytesRead == prefaceLength) {
-                    // Full h2 preface match, removed source codec, using http2 codec to handle
-                    // following network traffic
-//                safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP_SERVER_CODEC, "HttpServerUpgradeHandler");
-                /*ctx.pipeline()
-                    .remove(httpServerCodec)
-                    .remove(httpServerUpgradeHandler);
-
-                ctx.pipeline().addAfter(ctx.name(), null, http2ServerHandler);*/
-                    ctx.pipeline()
-                        .remove("HttpServerCodec#0");
-                    ctx.pipeline()
-                        .remove("HttpServerUpgradeHandler#0");
-//                    ctx.pipeline().addAfter();
-                    ctx.pipeline().addAfter(ctx.name(), null, getBusinessLogicHandler());
-//                ctx.pipeline().addLast(getBusinessLogicHandler());
-                    ctx.pipeline().remove(this);
-//                ReferenceCountUtil.release(in);
-                }
-            }
-
         }
     }
 }

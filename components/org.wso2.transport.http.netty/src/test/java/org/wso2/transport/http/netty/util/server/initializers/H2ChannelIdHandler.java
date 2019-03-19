@@ -1,16 +1,19 @@
 /*
- * Copyright 2014 The Netty Project
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * The Netty Project licenses this file to you under the Apache License, version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at:
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.transport.http.netty.util.server.initializers;
@@ -31,18 +34,13 @@ import io.netty.handler.codec.http2.Http2Flags;
 import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
-import io.netty.util.CharsetUtil;
 
-import static io.netty.buffer.Unpooled.copiedBuffer;
-import static io.netty.buffer.Unpooled.unreleasableBuffer;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
- * A simple handler that responds with the message "Hello World!".
+ * A simple handler that responds with the connection id.
  */
 public final class H2ChannelIdHandler extends Http2ConnectionHandler implements Http2FrameListener {
-
-    static final ByteBuf RESPONSE_BYTES = unreleasableBuffer(copiedBuffer("Hello World", CharsetUtil.UTF_8));
 
     H2ChannelIdHandler(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                        Http2Settings initialSettings) {
@@ -64,6 +62,10 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
     /**
      * Handles the cleartext HTTP upgrade event. If an upgrade occurred, sends a simple response via HTTP/2 on stream 1
      * (the stream specifically reserved for cleartext HTTP upgrade).
+     *
+     * @param ctx represents the channel handler context
+     * @param evt represent an event
+     * @throws Exception if occurred during user event
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -83,7 +85,10 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
     }
 
     /**
-     * Sends a "Hello World" DATA frame to the client.
+     * Sends DATA frame with the connection id as the payload to the client.
+     *
+     * @param ctx      represents the channel handler context
+     * @param streamId represents the stream id that the response should be sent to
      */
     private void sendResponse(ChannelHandlerContext ctx, int streamId) {
         // Send a frame for the response status
@@ -91,23 +96,15 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
         encoder().writeHeaders(ctx, streamId, headers, 0, false, ctx.newPromise());
         ByteBuf content = Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
         encoder().writeData(ctx, streamId, content, 0, true, ctx.newPromise());
-
-       /* Http2Headers headers = new DefaultHttp2Headers().status(OK.codeAsText());
-        ctx.write(new DefaultHttp2HeadersFrame(headers).stream(stream));
-        ByteBuf content = Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
-        ctx.write(new DefaultHttp2DataFrame(content, true).stream(stream));*/
-
-        // no need to call flush as channelReadComplete(...) will take care of it.
     }
 
     @Override
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream) {
         int processed = data.readableBytes() + padding;
-        data.release();
         if (endOfStream) {
             sendResponse(ctx, streamId);
         }
-        return processed;
+        return processed + padding;
     }
 
     @Override
