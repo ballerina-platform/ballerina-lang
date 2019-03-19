@@ -45,6 +45,17 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
+    @Test(description = "Test client credentials grant type with invalid client credentials")
+    public void testClientCredentialsGrantTypeWithInvalidCredentials() throws Exception {
+        final String serverResponse = "{\"error\":\"invalid_client\"}";
+        LogLeecher serverLeecher = new LogLeecher(serverResponse);
+        serverInstance.addLogLeecher(serverLeecher);
+        ballerinaClient = new BMainInstance(balServer);
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS"});
+        serverLeecher.waitForText(20000);
+    }
+
     @Test(description = "Test client credentials grant type with post body bearer")
     public void testClientCredentialsGrantTypeWithPostBodyBearer() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
@@ -56,14 +67,14 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test client credentials grant type with invalid client credentials")
-    public void testClientCredentialsGrantTypeWithInvalidCredentials() throws Exception {
+    @Test(description = "Test client credentials grant type with post body bearer and invalid credentials")
+    public void testClientCredentialsGrantTypeWithPostBodyBearerAndInvalidCredentials() throws Exception {
         final String serverResponse = "{\"error\":\"invalid_client\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS"});
+                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_INVALID_CREDENTIALS"});
         serverLeecher.waitForText(20000);
     }
 
@@ -95,6 +106,16 @@ public class OAuthConfigTest extends AuthBaseTest {
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
                 new String[]{"PASSWORD_GRANT_TYPE_WITH_INVALID_USERNAME_PASSWORD"});
+        serverLeecher.waitForText(20000);
+    }
+
+    @Test(description = "Test password grant type with no credentials bearer")
+    public void testPasswordGrantTypeWithNoBearer() throws Exception {
+        final String serverResponse = "{\"success\":\"access_granted\"}";
+        LogLeecher serverLeecher = new LogLeecher(serverResponse);
+        serverInstance.addLogLeecher(serverLeecher);
+        ballerinaClient = new BMainInstance(balServer);
+        ballerinaClient.runMain(BAL_FILE, null, new String[]{"PASSWORD_GRANT_TYPE_WITH_NO_BEARER"});
         serverLeecher.waitForText(20000);
     }
 

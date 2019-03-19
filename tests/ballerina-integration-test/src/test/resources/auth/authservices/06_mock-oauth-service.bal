@@ -31,6 +31,11 @@ const string PASSWORD = "A3ddj3w";
 const string CLIENT_ID = "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68";
 const string CLIENT_SECRET = "9205371918321623741";
 
+// The bearer mode of the client id and client secret
+const string HEADER_BEARER = "header";
+const string BODY_BEARER = "body";
+const string NO_BEARER = "none";
+
 string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
 string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toByteArray("UTF-8")));
 
@@ -51,45 +56,55 @@ service oauth2 on oauth2Server {
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: "/token/authorize"
+        path: "/token/authorize/{bearer}"
     }
     // This issues access token with reference to the received grant type.
     // For client_credentials grant type, the new access token will the MD5 hash of client_id + client_secret + scopes.
     // For password grant type, the new access token will the MD5 hash of client_id + client_secret + username +
     // password + scopes.
-    resource function authorize(http:Caller caller, http:Request req) {
+    resource function authorize(http:Caller caller, http:Request req, string bearer) {
         http:Response res = new;
         // Get Authorization header which should contains base64 encoded client_id and client_secret with colon
         // delimiter in most of the cases.
-        var authorizationHeader = trap req.getHeader("Authorization");
-        if (authorizationHeader is string) {
-            string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-            string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
-            if (authorizationHeader == expectedAuthorizationHeader) {
-                var payload = req.getTextPayload();
-                if (payload is string) {
-                    string[] params = payload.split("&");
-                    string grantType = "";
-                    string scopes = "";
-                    string username = "";
-                    string password = "";
-                    foreach string param in params {
-                        if (param.contains("grant_type")) {
-                            grantType = param.split("=")[1];
-                        } else if (param.contains("scope")) {
-                            scopes = param.split("=")[1];
-                        } else if (param.contains("username")) {
-                            username = param.split("=")[1];
-                        } else if (param.contains("password")) {
-                            password = param.split("=")[1];
+        if (bearer == HEADER_BEARER) {
+            var authorizationHeader = trap req.getHeader("Authorization");
+            if (authorizationHeader is string) {
+                string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
+                string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+                if (authorizationHeader == expectedAuthorizationHeader) {
+                    var payload = req.getTextPayload();
+                    if (payload is string) {
+                        string[] params = payload.split("&");
+                        string grantType = "";
+                        string scopes = "";
+                        string username = "";
+                        string password = "";
+                        foreach string param in params {
+                            if (param.contains("grant_type")) {
+                                grantType = param.split("=")[1];
+                            } else if (param.contains("scope")) {
+                                scopes = param.split("=")[1];
+                            } else if (param.contains("username")) {
+                                username = param.split("=")[1];
+                            } else if (param.contains("password")) {
+                                password = param.split("=")[1];
+                            }
                         }
+                        res = prepareResponse(res, grantType, scopes, username, password, bearer);
+                        _ = caller->respond(res);
+                    } else {
+                        // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                        res.statusCode = http:BAD_REQUEST_400;
+                        json errMsg = { "error": "invalid_request" };
+                        io:println(errMsg);
+                        res.setPayload(errMsg);
+                        _ = caller->respond(res);
                     }
-                    res = prepareResponse(res, grantType, scopes, username, password);
-                    _ = caller->respond(res);
                 } else {
-                    // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                    res.statusCode = http:BAD_REQUEST_400;
-                    json errMsg = { "error": "invalid_request" };
+                    // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                    res.statusCode = http:UNAUTHORIZED_401;
+                    json errMsg = { "error": "invalid_client" };
+                    io:println(errMsg);
                     res.setPayload(errMsg);
                     _ = caller->respond(res);
                 }
@@ -101,7 +116,7 @@ service oauth2 on oauth2Server {
                 res.setPayload(errMsg);
                 _ = caller->respond(res);
             }
-        } else {
+        } else if (bearer == BODY_BEARER) {
             // No Authorization header presents with base64 encoded client_id and client_secret with colon delimiter.
             // So, the client_id and client_secret should be in the text payload of the request.
             var payload = req.getTextPayload();
@@ -131,12 +146,13 @@ service oauth2 on oauth2Server {
                     }
 
                     if (clientId == CLIENT_ID && clientSecret == CLIENT_SECRET) {
-                        res = prepareResponse(res, grantType, scopes, username, password);
+                        res = prepareResponse(res, grantType, scopes, username, password, bearer);
                         _ = caller->respond(res);
                     } else {
                         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                         res.statusCode = http:UNAUTHORIZED_401;
                         json errMsg = { "error": "invalid_client" };
+                        io:println(errMsg);
                         res.setPayload(errMsg);
                         _ = caller->respond(res);
                     }
@@ -144,6 +160,7 @@ service oauth2 on oauth2Server {
                     // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                     res.statusCode = http:UNAUTHORIZED_401;
                     json errMsg = { "error": "invalid_client" };
+                    io:println(errMsg);
                     res.setPayload(errMsg);
                     _ = caller->respond(res);
                 }
@@ -151,6 +168,36 @@ service oauth2 on oauth2Server {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:UNAUTHORIZED_401;
                 json errMsg = { "error": "invalid_client" };
+                io:println(errMsg);
+                res.setPayload(errMsg);
+                _ = caller->respond(res);
+            }
+        } else if (bearer == NO_BEARER) {
+            var payload = req.getTextPayload();
+            if (payload is string) {
+                string[] params = payload.split("&");
+                string grantType = "";
+                string scopes = "";
+                string username = "";
+                string password = "";
+                foreach string param in params {
+                    if (param.contains("grant_type")) {
+                        grantType = param.split("=")[1];
+                    } else if (param.contains("scope")) {
+                        scopes = param.split("=")[1];
+                    } else if (param.contains("username")) {
+                        username = param.split("=")[1];
+                    } else if (param.contains("password")) {
+                        password = param.split("=")[1];
+                    }
+                }
+                res = prepareResponse(res, grantType, scopes, username, password, bearer);
+                _ = caller->respond(res);
+            } else {
+                // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                res.statusCode = http:BAD_REQUEST_400;
+                json errMsg = { "error": "invalid_request" };
+                io:println(errMsg);
                 res.setPayload(errMsg);
                 _ = caller->respond(res);
             }
@@ -216,6 +263,7 @@ service oauth2 on oauth2Server {
                         // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                         res.statusCode = http:BAD_REQUEST_400;
                         json errMsg = { "error": "invalid_grant" };
+                        io:println(errMsg);
                         res.setPayload(errMsg);
                         _ = caller->respond(res);
                     }
@@ -223,6 +271,7 @@ service oauth2 on oauth2Server {
                     // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                     res.statusCode = http:BAD_REQUEST_400;
                     json errMsg = { "error": "invalid_request" };
+                    io:println(errMsg);
                     res.setPayload(errMsg);
                     _ = caller->respond(res);
                 }
@@ -230,6 +279,7 @@ service oauth2 on oauth2Server {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:UNAUTHORIZED_401;
                 json errMsg = { "error": "invalid_client" };
+                io:println(errMsg);
                 res.setPayload(errMsg);
                 _ = caller->respond(res);
             }
@@ -237,14 +287,15 @@ service oauth2 on oauth2Server {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
             json errMsg = { "error": "invalid_client" };
+            io:println(errMsg);
             res.setPayload(errMsg);
             _ = caller->respond(res);
         }
     }
 }
 
-function prepareResponse(http:Response res, string grantType, string scopes, string username, string password)
-             returns http:Response {
+function prepareResponse(http:Response res, string grantType, string scopes, string username, string password,
+                         string bearer) returns http:Response {
     if (grantType == GRANT_TYPE_CLIENT_CREDENTIALS) {
         string input = CLIENT_ID + CLIENT_SECRET + scopes;
         string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
@@ -258,17 +309,30 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         res.setPayload(response);
     } else if (grantType == GRANT_TYPE_PASSWORD) {
         if (username == USERNAME && password == PASSWORD) {
-            string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
-            string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
-            addToAccessTokenStore(accessToken);
-            json response = {
-                "access_token": accessToken,
-                "token_type": "example",
-                "expires_in": 3600,
-                "refresh_token": refreshTokenHash,
-                "example_parameter": "example_value"
-            };
-            res.setPayload(response);
+            if (bearer == NO_BEARER) {
+                string input = username + password + scopes;
+                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                addToAccessTokenStore(accessToken);
+                json response = {
+                    "access_token": accessToken,
+                    "token_type": "example",
+                    "expires_in": 3600,
+                    "example_parameter": "example_value"
+                };
+                res.setPayload(response);
+            } else {
+                string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
+                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                addToAccessTokenStore(accessToken);
+                json response = {
+                    "access_token": accessToken,
+                    "token_type": "example",
+                    "expires_in": 3600,
+                    "refresh_token": refreshTokenHash,
+                    "example_parameter": "example_value"
+                };
+                res.setPayload(response);
+            }
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
@@ -280,6 +344,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:BAD_REQUEST_400;
         json errMsg = { "error": "invalid_grant" };
+        io:println(errMsg);
         res.setPayload(errMsg);
     }
     return res;
