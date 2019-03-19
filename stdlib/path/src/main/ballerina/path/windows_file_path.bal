@@ -114,3 +114,29 @@ function getWindowsRoot(string input) returns (string, int)|error {
     }
     return (root, offset);
 }
+
+function getWindowsOffsetIndex(string path) returns int[] {
+    int[] offsetIndexes = [];
+    int index = 0;
+    int count = 0;
+    if (isEmpty(path)) {
+        offsetIndexes[count] = 0;
+        count = count + 1;
+    } else {
+        byte[] pathValues = path.toByteArray("UTF-8");
+        while(index < path.length()) {
+            byte c = pathValues[index];
+            if (c == 47 || c == 92) {
+                index = index + 1;
+            } else {
+                offsetIndexes[count] = index;
+                count = count + 1;
+                index = index + 1;
+                while(index < path.length() && (pathValues[index] != 47 || pathValues[index] != 92)) {
+                    index = index + 1;
+                }
+            }
+        }
+    }
+    return offsetIndexes;
+}

@@ -356,6 +356,17 @@ public function relative(string base, string target) returns string|error {
     return cleanTarget.substring(t0, tl);
 }
 
+# Reports whether all of filename matches the provided pattern, not just a substring.
+# An error is returned if the pattern is malformed.
+#
+# + path - String value of the file path.
+# + pattern - String value of the target file path.
+# + return - True if filename of the path matches with the pattern, else false
+public function matches(string path, string pattern) returns boolean|error {
+    
+    return false;
+}
+
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value
@@ -554,29 +565,11 @@ function isEmpty(string path) returns boolean {
 }
 
 function getOffsetIndexes(string path) returns int[] {
-    int[] offsetIndexes = [];
-    int index = 0;
-    int count = 0;
-    if (isEmpty(path)) {
-        offsetIndexes[count] = 0;
-        count = count + 1;
+    if (IS_WINDOWS) {
+        return getWindowsOffsetIndex(path);
     } else {
-        byte[] pathValues = path.toByteArray("UTF-8");
-        while(index < path.length()) {
-            byte c = pathValues[index];
-            if (c == PATH_SEPARATOR_UTF8) {
-                index = index + 1;
-            } else {
-                offsetIndexes[count] = index;
-                count = count + 1;
-                index = index + 1;
-                while(index < path.length() && pathValues[index] != PATH_SEPARATOR_UTF8) {
-                    index = index + 1;
-                }
-            }
-        }
+        return getUnixOffsetIndex(path);
     }
-    return offsetIndexes;
 }
 
 function charAt(string input, int index) returns string|error {
