@@ -653,6 +653,25 @@ function testNumericConversionFromBasicTypeToUnionType() returns boolean {
     return conversionSuccessful;
 }
 
+type IntOrFoo int|"foo";
+type OneOrString 1|string;
+type OneOrTwo 1.0|2.0;
+
+function testNumericConversionFromFiniteType() returns boolean {
+    IntOrFoo a = 10;
+    float b = <float> a;
+    boolean conversionSuccessful = b == 10.0;
+
+    OneOrString c = 1;
+    decimal d = <decimal> c;
+    decimal e = 1.0;
+    conversionSuccessful = conversionSuccessful && d == e;
+
+    OneOrTwo f = 2.0;
+    int g = <int> f;
+    return conversionSuccessful && g === 2;
+}
+
 function getFloat(float f) returns float {
     return f;
 }

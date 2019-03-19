@@ -41,7 +41,7 @@
     "babel-loader": "^8.0.4",
     "copy-webpack-plugin": "^4.6.0",
     "clean-css": "^4.2.1",
-    "css-loader": "^1.0.0",
+    "css-loader": "^2.1.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "fast-xml-parser": "^3.12.7",
     "glob": "^7.1.3",
