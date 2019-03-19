@@ -1107,7 +1107,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BType fieldType = memberTypes.size() > 1 ?
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
-            fields.add(new BField(names.fromString(fieldName),
+            fields.add(new BField(names.fromString(fieldName), recordVar.pos,
                     new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                             fieldType, recordSymbol)));
         }
@@ -1124,9 +1124,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        //TODO check below field position
         List<BField> fields = recordVar.variableList.stream()
                 .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
-                .map(fieldName -> new BField(names.fromString(fieldName), new BVarSymbol(0,
+                .map(fieldName -> new BField(names.fromString(fieldName), recordVar.pos, new BVarSymbol(0,
                         names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldType, recordSymbol)))
                 .collect(Collectors.toList());
 

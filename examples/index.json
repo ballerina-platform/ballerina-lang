@@ -947,6 +947,10 @@
         "samples": [{
                 "name": "TCP Socket Basic Example",
                 "url": "tcp-socket-listener-client"
+            },
+            {
+                "name": "UDP Client Socket Basic Example",
+                "url": "udp-socket-client"
             }
         ]
     },

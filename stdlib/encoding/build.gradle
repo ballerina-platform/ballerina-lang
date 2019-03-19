@@ -7,8 +7,8 @@ dependencies {
 	implementation project(':ballerina-builtin')
 	implementation project(":ballerina-launcher")
 	baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
-    implementation project(':ballerina-runtime')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    implementation project(':ballerina-runtime-api')
 
     
 

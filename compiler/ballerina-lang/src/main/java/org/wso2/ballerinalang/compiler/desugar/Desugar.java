@@ -367,12 +367,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param env           Symbol environment
      */
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
-        LinkedHashSet<BType> members = new LinkedHashSet<>();
-        members.add(symTable.errorType);
-        members.add(symTable.nilType);
-        final BUnionType returnType = BUnionType.create(null, members);
-        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
-
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true);
         functionSymbol.retType = bLangFunction.returnTypeNode.type;
@@ -4039,7 +4034,8 @@ public class Desugar extends BLangNodeVisitor {
                 BVarSymbol fieldSymbol = new BVarSymbol(Flags.REQUIRED, names.fromString(fieldName),
                         env.enclPkg.symbol.pkgID, fieldType, recordSymbol);
 
-                fields.add(new BField(names.fromString(fieldName), fieldSymbol));
+                //TODO check below field position
+                fields.add(new BField(names.fromString(fieldName), bindingPatternVariable.pos, fieldSymbol));
                 typeDefFields.add(ASTBuilderUtil.createVariable(null, fieldName, fieldType, null, fieldSymbol));
             }
 
@@ -4750,6 +4746,9 @@ public class Desugar extends BLangNodeVisitor {
                         initFunction.type, env.scope.owner, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+
+        // Add return type as nil to the symbol
+        initFunction.symbol.retType = symTable.nilType;
 
         // Set the taint information to the constructed init function
         initFunction.symbol.taintTable = new HashMap<>();
