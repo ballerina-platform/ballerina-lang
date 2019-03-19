@@ -46,11 +46,12 @@ function run_tests() {
     bash --version
     for x in "${!properties_array[@]}"; do sys_prop_str+="-D$x=${properties_array[$x]} " ; done
 
-    mvn clean install -f ${utils_great_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${INPUT_DIR} ${sys_prop_str} -P ${maven_profile}
+    mvn clean install -f ${utils_great_grand_parent_path}/pom.xml -fae -Ddata.bucket.location=${input_dir}
+    ${sys_prop_str} -P ${maven_profile}
 
-    mkdir -p ${OUTPUT_DIR}/scenarios
+    mkdir -p ${output_dir}/scenarios
 
-    cp -r ${utils_great_grand_parent_path}/${test_section}/target ${OUTPUT_DIR}/scenarios/${test_section}/
+    cp -r ${utils_great_grand_parent_path}/${test_section}/target ${output_dir}/scenarios/${test_section}/
 }
 
 run_tests
