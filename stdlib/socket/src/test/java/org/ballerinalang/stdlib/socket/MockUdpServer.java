@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,68 +23,36 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * This server socket will use to mock the backend server.
+ * This UDP server socket will use to mock the backend server.
  */
-public class MockSocketServer implements Runnable {
+public class MockUdpServer implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(MockSocketServer.class);
+    private static final Logger log = LoggerFactory.getLogger(MockUdpServer.class);
 
-    static final int SERVER_PORT = 47826;
-    static final String SERVER_HOST = "localhost";
-    private static final String POISON_PILL = "Bye";
-    private String receivedString;
+    private static final int SERVER_PORT = 48826;
     private boolean execute = true;
     private Selector selector = null;
-
-    private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
-        SocketChannel client = (SocketChannel) key.channel();
-        final int read = client.read(buffer);
-        if (read == -1) {
-            client.close();
-            return;
-        }
-        byte[] readBytes = buffer.array();
-        String deserializeContent = new String(readBytes, StandardCharsets.UTF_8.name()).trim();
-        receivedString = deserializeContent;
-        if (POISON_PILL.equals(deserializeContent)) {
-            client.close();
-            log.info("Not accepting client messages anymore");
-        }
-        buffer.flip();
-        client.write(buffer);
-        buffer.clear();
-    }
-
-    private static void register(Selector selector, ServerSocketChannel serverSocket) throws IOException {
-        SocketChannel client = serverSocket.accept();
-        client.configureBlocking(false);
-        client.register(selector, SelectionKey.OP_READ);
-    }
-
-    String getReceivedString() {
-        return receivedString;
-    }
+    private String receivedString;
 
     @Override
     public void run() {
         try {
             selector = Selector.open();
-            ServerSocketChannel serverSocket = ServerSocketChannel.open();
+            DatagramChannel serverSocket = DatagramChannel.open();
             serverSocket.bind(new InetSocketAddress("localhost", SERVER_PORT));
             serverSocket.configureBlocking(false);
-            serverSocket.register(selector, SelectionKey.OP_ACCEPT);
+            serverSocket.register(selector, SelectionKey.OP_READ);
             ByteBuffer buffer = ByteBuffer.allocate(256);
-
             while (execute) {
                 try {
                     final int select = selector.select();
@@ -96,20 +64,28 @@ public class MockSocketServer implements Runnable {
                     while (iter.hasNext()) {
                         SelectionKey key = iter.next();
                         iter.remove();
-                        if (key.isAcceptable()) {
-                            register(selector, serverSocket);
-                        } else if (key.isReadable()) {
+                        if (key.isReadable()) {
                             answerWithEcho(buffer, key);
                         }
                     }
                 } catch (Throwable e) {
-                    log.error("Error in MockSocketServer loop: " + e.getMessage());
+                    log.error("Error in MockUdpServer loop: " + e.getMessage());
                 }
             }
             serverSocket.close();
         } catch (Throwable e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
+        DatagramChannel channel = (DatagramChannel) key.channel();
+        SocketAddress client = channel.receive(buffer);
+        byte[] readBytes = buffer.array();
+        receivedString = new String(readBytes, StandardCharsets.UTF_8.name()).trim();
+        buffer.flip();
+        channel.send(buffer, client);
+        buffer.clear();
     }
 
     void stop() {
@@ -123,5 +99,9 @@ public class MockSocketServer implements Runnable {
         } catch (IOException e) {
             // Do nothing.
         }
+    }
+
+    String getReceivedString() {
+        return receivedString;
     }
 }
