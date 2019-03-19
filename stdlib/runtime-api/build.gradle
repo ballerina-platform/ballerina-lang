@@ -24,4 +24,4 @@ test {
     systemProperty "ballerina.home", "$buildDir"
 }
 
-description = 'Ballerina - Runtime'
+description = 'Ballerina - Runtime API'

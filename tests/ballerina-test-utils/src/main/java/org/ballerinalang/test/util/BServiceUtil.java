@@ -76,4 +76,17 @@ public class BServiceUtil {
     public static CompileResult setupProgramFile(Object obj, String sourcePath) {
         return setupProgramFile(obj, sourcePath, null);
     }
+
+    /**
+     * Helper method to setup a Ballerina package for test.
+     *
+     * @param sourcePath of the package.
+     * @param pkgPath package path.
+     * @return compileResult of the compilation.
+     */
+    public static CompileResult setupProgramFile(String sourcePath, String pkgPath) {
+        CompileResult compileResult = BCompileUtil.compile(sourcePath, pkgPath);
+        runService(compileResult);
+        return compileResult;
+    }
 }

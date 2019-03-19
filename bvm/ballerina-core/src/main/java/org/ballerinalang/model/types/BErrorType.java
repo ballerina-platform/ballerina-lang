@@ -30,8 +30,8 @@ public class BErrorType extends BType {
     public BType reasonType;
     public BType detailsType;
 
-    BErrorType(String typeName, BType reasonType, BType detailsType) {
-        super(typeName, null, BError.class);
+    BErrorType(String typeName, BType reasonType, BType detailsType, String pkgPath) {
+        super(typeName, pkgPath, BError.class);
         this.reasonType = reasonType;
         this.detailsType = detailsType;
     }

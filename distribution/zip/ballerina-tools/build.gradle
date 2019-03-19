@@ -36,11 +36,13 @@ dependencies {
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-llvm')
+    dist project(':ballerina-jvm')
 
     dist project(':testerina:testerina-core')
     
     dist project(':swagger-ballerina:swagger-to-ballerina-generator')
     dist project(':ballerina-backend-llvm')
+    dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler');
     dist project(':ballerina-packerina');
     dist project(':protobuf-ballerina')
