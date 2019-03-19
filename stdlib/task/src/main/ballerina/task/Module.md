@@ -131,9 +131,7 @@ service timerService on timer {
 
 ### Task Listener - Appointment
 
-In this sample, a task appointment is registered with a CRON expression to run it every 5 seconds. Therefore, the 
-`onTrigger ` function is triggered every 5 seconds.
-The count variable is incremented by the task.
+In this sample, a task appointment is registered with a CRON expression, to run the task every 5 seconds. Therefore, the `onTrigger ` function is triggered every 5 seconds. The count variable is incremented by the task.
 
 
 ```ballerina
