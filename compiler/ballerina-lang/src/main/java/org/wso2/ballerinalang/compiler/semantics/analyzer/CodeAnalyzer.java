@@ -1124,8 +1124,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         analyzeNode(varDefNode.var, env);
-        // validate for endpoints here.
-        validateEndpointDeclaration(varDefNode);
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
@@ -1478,39 +1476,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (invocationExpr.actionInvocation) {
             validateActionInvocation(invocationExpr.pos, invocationExpr);
-        }
-    }
-
-    private void validateEndpointDeclaration(BLangSimpleVariableDef varDefNode) {
-        if (Objects.isNull(varDefNode.var.symbol) || varDefNode.var.symbol.tag != SymTag.ENDPOINT ||
-                Objects.isNull(varDefNode.parent) || Objects
-                .isNull(varDefNode.parent.parent)) {
-            return;
-        }
-        // Check for valid parents nodes. (immediate parent is block node)
-        switch (varDefNode.parent.parent.getKind()) {
-            case RESOURCE:
-            case FUNCTION:
-                break;
-            default:
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                return;
-        }
-        // Check with siblings now.
-        BLangBlockStmt blockStmt = (BLangBlockStmt) varDefNode.parent;
-        for (BLangStatement statement : blockStmt.stmts) {
-            if (statement == varDefNode) {
-                break;
-            }
-            if (statement.getKind() != NodeKind.VARIABLE_DEF) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                break;
-            }
-            BLangSimpleVariableDef def = (BLangSimpleVariableDef) statement;
-            if (def.var.symbol.tag != SymTag.ENDPOINT) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                break;
-            }
         }
     }
 
