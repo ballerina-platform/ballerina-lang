@@ -18,14 +18,14 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -277,6 +277,7 @@ public class SealedArrayTest {
 
     @Test
     public void testNegativeSealedArrays() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 24);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 19, 30);
         BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 25, 33);
@@ -312,6 +313,18 @@ public class SealedArrayTest {
                 resultNegative, i++, "invalid usage of sealed type: can not infer array size", 85, 18);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87, 18);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected 'int', found 'S1|S2'", 106, 20);
+        BAssertUtil.validateError(
+                resultNegative, i++, "invalid array index expression: value space '3|4|5' out of range", 107, 20);
+        BAssertUtil.validateError(
+                resultNegative, i++, "invalid array index expression: value space '3|4|5' out of range", 108, 23);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1'", 109, 20);
+        BAssertUtil.validateError(
+                resultNegative, i++, "incompatible types: expected 'int', found '0|1|2|S1|S3'", 110, 20);
+        BAssertUtil.validateError(
+                resultNegative, i, "invalid array index expression: value space '3|4|5|7' out of range", 111, 23);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",

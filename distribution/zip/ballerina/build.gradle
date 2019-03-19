@@ -14,6 +14,8 @@ configurations {
     jar
     balo
     bin
+    balSource
+    source
 }
 
 dependencies {
@@ -38,7 +40,7 @@ dependencies {
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.270'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
 
     dist 'info.picocli:picocli:3.3.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
@@ -58,16 +60,16 @@ dependencies {
     dist 'com.google.guava:guava:19.0'
     dist 'com.github.jknack:handlebars:4.0.6'
     dist 'jaxen:jaxen:1.1.6'
-    dist 'io.netty:netty-buffer:4.1.19.Final'
-    dist 'io.netty:netty-codec-http2:4.1.19.Final'
-    dist 'io.netty:netty-codec-http:4.1.19.Final'
-    dist 'io.netty:netty-codec:4.1.19.Final'
-    dist 'io.netty:netty-common:4.1.19.Final'
-    dist 'io.netty:netty-handler-proxy:4.1.19.Final'
-    dist 'io.netty:netty-handler:4.1.19.Final'
-    dist 'io.netty:netty-resolver:4.1.19.Final'
-    dist 'io.netty:netty-tcnative-boringssl-static:2.0.7.Final'
-    dist 'io.netty:netty-transport:4.1.19.Final'
+    dist 'io.netty:netty-buffer:4.1.34.Final'
+    dist 'io.netty:netty-codec-http2:4.1.34.Final'
+    dist 'io.netty:netty-codec-http:4.1.34.Final'
+    dist 'io.netty:netty-codec:4.1.34.Final'
+    dist 'io.netty:netty-common:4.1.34.Final'
+    dist 'io.netty:netty-handler-proxy:4.1.34.Final'
+    dist 'io.netty:netty-handler:4.1.34.Final'
+    dist 'io.netty:netty-resolver:4.1.34.Final'
+    dist 'io.netty:netty-tcnative-boringssl-static:2.0.22.Final'
+    dist 'io.netty:netty-transport:4.1.34.Final'
     dist 'org.apache.commons:commons-lang3:3.5'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
@@ -98,7 +100,7 @@ dependencies {
     distBal project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-socket', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-sql', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-streams', configuration: 'baloImplementation')
@@ -108,6 +110,35 @@ dependencies {
     distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
+
+    balSource project(path: ':ballerina-auth', configuration: 'balSource')
+    balSource project(path: ':ballerina-builtin', configuration: 'balSource')
+    balSource project(path: ':ballerina-cache', configuration: 'balSource')
+    balSource project(path: ':ballerina-config-api', configuration: 'balSource')
+    balSource project(path: ':ballerina-crypto', configuration: 'balSource')
+    balSource project(path: ':ballerina-file', configuration: 'balSource')
+    balSource project(path: ':ballerina-grpc', configuration: 'balSource')
+    balSource project(path: ':ballerina-h2', configuration: 'balSource')
+    balSource project(path: ':ballerina-http', configuration: 'balSource')
+    balSource project(path: ':ballerina-internal', configuration: 'balSource')
+    balSource project(path: ':ballerina-io', configuration: 'balSource')
+    balSource project(path: ':ballerina-jms', configuration: 'balSource')
+    balSource project(path: ':ballerina-log-api', configuration: 'balSource')
+    balSource project(path: ':ballerina-math', configuration: 'balSource')
+    balSource project(path: ':ballerina-mime', configuration: 'balSource')
+    balSource project(path: ':ballerina-mysql', configuration: 'balSource')
+    balSource project(path: ':ballerina-observability', configuration: 'balSource')
+    balSource project(path: ':ballerina-reflect', configuration: 'balSource')
+    balSource project(path: ':ballerina-runtime-api', configuration: 'balSource')
+    balSource project(path: ':ballerina-socket', configuration: 'balSource')
+    balSource project(path: ':ballerina-sql', configuration: 'balSource')
+    balSource project(path: ':ballerina-streams', configuration: 'balSource')
+    balSource project(path: ':ballerina-swagger', configuration: 'balSource')
+    balSource project(path: ':ballerina-system', configuration: 'balSource')
+    balSource project(path: ':ballerina-task', configuration: 'balSource')
+    balSource project(path: ':ballerina-time', configuration: 'balSource')
+    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
+    balSource project(path: ':ballerina-websub', configuration: 'balSource')
 
     dist project(':ballerina-auth')
     dist project(':ballerina-builtin')
@@ -132,7 +163,7 @@ dependencies {
     dist project(':ballerina-mysql')
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
-    dist project(':ballerina-runtime')
+    dist project(':ballerina-runtime-api')
     dist project(':ballerina-socket')
     dist project(':ballerina-sql')
     dist project(':ballerina-streaming:siddhi-annotations')
@@ -180,6 +211,7 @@ task createZip(type: Zip) {
 artifacts {
     jar configurations.dist.files
     balo configurations.distBal.files
+    source configurations.balSource.files
     bin file('bin')
 }
 

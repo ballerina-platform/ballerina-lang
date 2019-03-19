@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -64,7 +64,7 @@ public class ConstantNegativeTest {
                 offset += 2, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", offset += 6, 5);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'string'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 offset += 11, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 offset += 9, 12);

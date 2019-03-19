@@ -794,23 +794,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
-        // Invoke the struct default values init function here.
-        if (structSymbol.defaultsValuesInitFunc != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
-            // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[6];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(false);
-            operands[2] = getOperand(1);
-            operands[3] = structRegIndex;
-            // Earlier, init function did not return any value. But now all functions should return a value. So we add
-            // new two operands to indicate the return value of the init function. The first one is the number of
-            // return values and the second one is the type of the return value.
-            operands[4] = getOperand(1);
-            operands[5] = getRegIndex(TypeTags.NIL);
-            emit(InstructionCodes.CALL, operands);
-        }
-
         // Invoke the struct initializer here.
         if (structLiteral.initializer != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);

@@ -25,15 +25,16 @@ dependencies {
     testCompile 'org.testcontainers:mysql:1.7.2'
     testCompile 'mysql:mysql-connector-java:5.1.46'
     testCompile 'org.postgresql:postgresql:42.2.1'
-    testCompile 'io.netty:netty-transport:4.1.21.Final'
+    testCompile 'io.netty:netty-transport:4.1.34.Final'
     testCompile 'io.netty:netty-codec:4.1.21.Final'
-    testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.270'
+    testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-test-utils')
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
@@ -64,12 +65,6 @@ dependencies {
 }
 
 description = 'Ballerina - Unit Test Module'
-
-sourceSets {
-    test {
-        output.resourcesDir = "build/classes/java/test"
-    }
-}
 
 test {
     systemProperty "ballerina.home", "$buildDir"
