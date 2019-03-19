@@ -52,8 +52,8 @@ type ER1 error <string, Foo>;
 type ER2 error <string, map<any>>;
 
 function testBasicErrorMatch4() returns string[] {
-    ER1 er1 = error("Error 1", { fatal: true });
-    ER2 er2 = error("Error 2", { message: "It's fatal" });
+    ER1 er1 = error("Error 1", { fatal: true, message: 1 });
+    ER2 er2 = error("Error 2", { message: "It's fatal", fatal: "fatal string" });
     string[] results = [foo(er1), foo(er2)];
     return results;
 }
@@ -141,7 +141,7 @@ function testBasicErrorMatch7() returns string[] {
     error <string, map<string|boolean>> err3 = error("Error Code 1", { message: "Something Wrong", fatal: true });
     Foo|error fe1 = err1;
     Foo|error fe2 = err2;
-    string[] results = [foo6(f), foo6(fe1), foo6(fe2), foo6(fe1), foo6(fe2)];
+    string[] results = [foo6(f), foo6(fe1), foo6(fe2)];
     return results;
 }
 

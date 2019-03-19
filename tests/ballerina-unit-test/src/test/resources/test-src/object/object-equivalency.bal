@@ -477,64 +477,6 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
     return (result1, result2, result3);
 }
 
-function testStructEquivalencyWithFunctionType () returns (string, string)|error {
-    string s1;
-    string s2;
-    SomeOtherStruct x = new;
-    x.s = "sss";
-    AnyStruct aa = new;
-    s1 = check aa.shout(x);
-    _ = aa.call();
-
-    SomeStruct ss = new;
-    ss.s = "s";
-    AnyStruct aaa = ss;
-    s2 = check aaa.shout(x);
-    _ = aaa.call();
-    return (s1,s2);
-}
-
-type AnyStruct object {
-    function shout (AnotherAnyStruct aa) returns (string|error);
-
-    function call () returns (AnotherAnyStruct);
-};
-
-function AnyStruct.shout (AnotherAnyStruct aa) returns (string|error) {
-    any a = aa;
-    var j = check json.stamp(a);
-    return "anyStruct" + j.toString();
-}
-
-function AnyStruct.call () returns (AnotherAnyStruct) {
-    return new AnotherAnyStruct() ;
-}
-
-type SomeStruct object {
-    public string s = "";
-
-    function shout (SomeOtherStruct aa) returns (string|error);
-
-    function call () returns (SomeOtherStruct);
-};
-
-function SomeStruct.shout (SomeOtherStruct aa) returns (string|error) {
-    return "someStruct" + io:sprintf("%s", aa);
-}
-
-function SomeStruct.call () returns (SomeOtherStruct) {
-    SomeOtherStruct s = new;
-    s.s= "return";
-    return s;
-}
-
-type SomeOtherStruct object {
-    public string s = "";
-};
-
-type AnotherAnyStruct object {
-};
-
 type Foo "a" | "b" | "c";
 
 type Person object {

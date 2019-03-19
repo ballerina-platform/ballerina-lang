@@ -14,7 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type MyError error<string, map<string>>;
+const ERR_REASON = "error reason";
+
+type MyError error<string>;
+type MyErrorTwo error<ERR_REASON, ErrorDetails>;
+
+type ErrorDetails record {
+   string message;
+};
 
 type Employee record {
     string name;
@@ -329,22 +336,28 @@ function testXmlCastNegative() {
     xml x2 = <xml> a;
 }
 
-//function testErrorCastPositive() returns boolean {
-//    error e1 = error("test error");
-//    anydata|error a = e1;
-//    error e2 = <error> a;
-//
-//    MyError e3 = error("test my error");
-//    any|error a2 = e3;
-//    error e4 = <MyError> a2;
-//    return e1 === e2 && e3 === e4;
-//}
-//
-//function testErrorCastNegative() {
-//    MyError e1 = error("test my error");
-//    any|error e2 = e1;
-//    error e3 = <error> e2;
-//}
+function testErrorCastPositive() returns boolean {
+    error e1 = error("test error");
+    anydata|error a = e1;
+    error e2 = <error> a;
+
+    MyError e3 = error("test my error");
+    any|error a2 = e3;
+    error e4 = <MyError> a2;
+
+    MyErrorTwo e5 = error(ERR_REASON, { message: "error message" });
+    a2 = e5;
+    MyErrorTwo e6 = <MyErrorTwo> a2;
+    error e7 = <error> a2;
+
+    return e1 === e2 && e3 === e4 && e5 === e6 && e5 === e7;
+}
+
+function testErrorCastNegative() {
+    error e1 = error("test my error");
+    any|error e2 = e1;
+    MyErrorTwo e3 = <MyErrorTwo> e2;
+}
 
 function testFunctionCastPositive() returns boolean {
     function (string, int) returns string f = testFunc;

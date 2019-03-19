@@ -1653,7 +1653,7 @@ public class BVM {
                         elementType = tupleType.getTupleTypes().get((int) index);
                     }
                 }
-                if (elementType != null && !checkCast(refReg, elementType)) {
+                if (elementType != null && !checkIsType(refReg, elementType)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
@@ -2399,7 +2399,7 @@ public class BVM {
                 j = operands[2];
                 typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
                 bRefTypeValue = sf.refRegs[i];
-                if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
+                if (checkIsType(bRefTypeValue, typeRefCPEntry.getType())) {
                     sf.intRegs[j] = 1;
                 } else {
                     sf.intRegs[j] = 0;
@@ -4706,6 +4706,8 @@ public class BVM {
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues);
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues);
+            case TypeTags.ERROR_TAG:
+                return checkIsLikeErrorType(sourceValue, (BErrorType) targetType, unresolvedValues);
             case TypeTags.ANYDATA_TAG:
                 return checkIsLikeAnydataType(sourceValue, unresolvedValues);
             case TypeTags.FINITE_TYPE_TAG:
@@ -4832,12 +4834,14 @@ public class BVM {
                     return false;
                 }
             }
+            return true;
         } else if (sourceValue.getType().getTag() == TypeTags.MAP_TAG) {
             for (BValue value : ((BMap) sourceValue).values()) {
                 if (!checkIsLikeType(value, targetType, unresolvedValues)) {
                     return false;
                 }
             }
+            return true;
         } else if (sourceValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
             if (unresolvedValues.contains(typeValuePair)) {
@@ -4849,8 +4853,9 @@ public class BVM {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private static boolean checkIsLikeRecordType(BValue sourceValue, BRecordType targetType,
@@ -4902,6 +4907,16 @@ public class BVM {
         return true;
     }
 
+    private static boolean checkIsLikeErrorType(BValue sourceValue, BErrorType targetType,
+                                                List<TypeValuePair> unresolvedValues) {
+        if (sourceValue == null || sourceValue.getType().getTag() != TypeTags.ERROR_TAG) {
+            return false;
+        }
+
+        return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((BError) sourceValue).details, targetType.detailsType, unresolvedValues);
+    }
+
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
         if (isMutable(sourceVal)) {
             BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
@@ -4949,7 +4964,7 @@ public class BVM {
             case TypeTags.TABLE_TAG:
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
-                return true;
+                return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
                 return isAssignable(sourceType, targetType, unresolvedTypes);
@@ -5067,6 +5082,17 @@ public class BVM {
                                      targetType.getConstrainedType(), unresolvedTypes);
     }
 
+    private static boolean checkIsAnyType(BType sourceType) {
+        switch (sourceType.getTag()) {
+            case TypeTags.ERROR_TAG:
+                return false;
+            case TypeTags.UNION_TAG:
+                return ((BUnionType) sourceType).getMemberTypes().stream()
+                        .allMatch(BVM::checkIsAnyType);
+        }
+        return true;
+    }
+
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.ARRAY_TAG) {
             return false;
@@ -5160,7 +5186,8 @@ public class BVM {
         }
 
         // All the value types are immutable
-        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG) {
+        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG ||
+                value.getType().getTag() == TypeTags.ERROR_TAG) { // to be removed once error is frozen
             return false;
         }
 

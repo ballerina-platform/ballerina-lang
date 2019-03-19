@@ -125,8 +125,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: expected 'error', found 'MyError'.*",
-            enabled = false)
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'error'.*")
     public void testErrorCastNegative() {
         BRunUtil.invoke(result, "testErrorCastNegative");
     }
@@ -303,7 +302,7 @@ public class TypeCastExpressionsTest {
                 {"testRecordCastPositive"},
                 {"testTableCastPositive"},
                 {"testXmlCastPositive"},
-//                {"testErrorCastPositive"},
+                {"testErrorCastPositive"},
                 {"testFunctionCastPositive"},
 //                {"testFutureCastPositive"},
                 {"testObjectCastPositive"},
