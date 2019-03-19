@@ -128,7 +128,7 @@ public type WebhookServerForPayload object {
     }
 
     public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.websubListener.__attach(serviceType, name);
+        return self.websubListener.__attach(serviceType, name = name);
     }
 
     public function __start() returns error? {
@@ -166,7 +166,7 @@ public type WebhookServerForHeader object {
     }
 
     public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.websubListener.__attach(serviceType, name);
+        return self.websubListener.__attach(serviceType, name = name);
     }
 
     public function __start() returns error? {
@@ -225,7 +225,7 @@ public type WebhookServerForHeaderAndPayload object {
     }
 
     public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.websubListener.__attach(serviceType, name);
+        return self.websubListener.__attach(serviceType, name = name);
     }
 
     public function __start() returns error? {
