@@ -107,3 +107,33 @@ function acceptUnion(int|string unionParam) returns int|string|float {
    bigUnion = 10.5;
    return bigUnion;
 }
+
+function anyTest() returns any {
+   Grades g = {name: "Jbal", physics: 75, chemistry: 65};
+   any a = g;
+   Grades g2 = <Grades>a;
+
+   int[] ia = [1, 3, 5, 6];
+   any ar = ia;
+   return acceptAny(g2);
+}
+
+function acceptAny(any anyval) returns any {
+   Grades grd = <Grades> anyval;
+   grd.chemistry = 89;
+   return grd;
+}
+
+function anyDataTest() returns anydata {
+   anydata a = 5;
+   int intVal = <int>a;
+   int[] ia = [1, 3, 5, 6];
+   anydata ar = ia;
+   return acceptAnydata(ar);
+}
+
+function acceptAnydata(anydata data) returns anydata {
+   int[] ia = <int[]> data;
+   ia[1] = 1000;
+   return ia[1];
+}

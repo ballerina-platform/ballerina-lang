@@ -95,4 +95,16 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "unionTest");
         Assert.assertEquals((result[0]).stringValue(), "10.5");
     }
+
+    @Test
+    public void testAny() {
+        BValue[] result = BRunUtil.invoke(compileResult, "anyTest");
+        Assert.assertEquals((result[0]).stringValue(), "{\"name\":\"Jbal\", \"physics\":75, \"chemistry\":89}");
+    }
+
+    @Test
+    public void testAnyData() {
+        BValue[] result = BRunUtil.invoke(compileResult, "anyDataTest");
+        Assert.assertEquals((result[0]).stringValue(), "1000");
+    }
 }
