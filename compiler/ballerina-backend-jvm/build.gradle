@@ -39,7 +39,7 @@ task createBalx(type: JavaExec) {
 
 jar {
   from ("$buildDir/generated-balx") {
-      into "META-INF"
+      into "META-INF/ballerina"
   }
   dependsOn createBalx
 }
