@@ -45,6 +45,13 @@ public class GenerateBalx {
     public static void main(String[] args) {
         Path prjctDir = Paths.get(args[0]);
         String sourcePath = args[1];
+        String targetPath;
+        if (args.length > 2) {
+            targetPath = args[2];
+        } else {
+            targetPath = prjctDir.resolve(sourcePath).toString();
+        }
+
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, prjctDir.toString());
@@ -55,8 +62,7 @@ public class GenerateBalx {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(sourcePath);
 
-        Path targetFilePath = prjctDir.resolve(sourcePath);
-        compiler.write(bLangPackage, targetFilePath.toString());
+        compiler.write(bLangPackage, targetPath);
 
         BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
         if (diagnosticLog.errorCount > 0) {

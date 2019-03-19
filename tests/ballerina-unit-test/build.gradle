@@ -31,9 +31,10 @@ dependencies {
     testCompile 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-test-utils')
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')

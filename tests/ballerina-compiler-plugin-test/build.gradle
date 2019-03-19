@@ -7,6 +7,8 @@ dependencies {
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-http')
     implementation project(':ballerina-launcher')
+    implementation project(':ballerina-test-utils')
+
     implementation 'org.testng:testng:6.13.1'
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
 }
