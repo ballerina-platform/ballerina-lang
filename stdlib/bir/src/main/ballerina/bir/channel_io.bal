@@ -4,9 +4,11 @@ import ballerina/encoding;
 // TODO: move to DataChannel native impl
 public type ChannelReader object {
     io:ReadableByteChannel byteChannel;
+    io:ReadableDataChannel dataChannel;
 
     public function __init(io:ReadableByteChannel byteChannel) {
         self.byteChannel = byteChannel;
+        self.dataChannel = new (byteChannel);
     }
 
     public function readBoolean() returns boolean {
@@ -27,6 +29,16 @@ public type ChannelReader object {
 
     public function readInt64() returns int {
         return self.readInt32() << 32 | self.readInt32();
+    }
+
+    //TODO remove these and directly use data channel reader
+    public function readFloat64() returns float {
+        float | error ret = self.dataChannel.readFloat64();
+        if (ret is float) {
+            return ret;
+        } else {
+            panic ret;
+        }
     }
 
 

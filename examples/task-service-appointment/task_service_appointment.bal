@@ -1,10 +1,10 @@
 import ballerina/log;
 import ballerina/task;
 
-// Task Appointment configuration record to task Listener.
-// Task Appointment can either have a cronExpression (`string`), or an
-// `AppointmentData` record, for the `appointmentData` field. Optionally a
-// `noOfRecurrences` can be provided to limit the number of executionsg.
+// Task Appointment configuration record of the Task Listener.
+// Task Appointment can either have a CRON expression (`string`) or an
+// `AppointmentData` record for the `appointmentData` field. Optionally, a
+// `noOfRecurrences` can be provided to limit the number of executions.
 task:AppointmentConfiguration appointmentConfiguration = {
     // This cron expression will schedule the appointment once every 2 seconds.
     appointmentDetails: "0/2 * * * * ?",
