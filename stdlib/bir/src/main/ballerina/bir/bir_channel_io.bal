@@ -15,7 +15,7 @@ public type BirChannelReader object {
             return "int";
         } else if (sginatureAlias == "B"){
             return "boolean";
-        }
+        } 
         error err = error("type signature " + sginatureAlias + " not supported.");
         panic err;
     }
@@ -28,7 +28,13 @@ public type BirChannelReader object {
         return self.cp.ints[self.reader.readInt32()];
     }
 
+    public function readFloatCpRef() returns float {
+        return self.cp.floats[self.reader.readInt32()];
+    }
 
+    public function readModuleIDCpRef() returns ModuleID {
+        return self.cp.packages[self.reader.readInt32()];
+    }
 
 
     // following methods "proxied" since ballerina doesn't support obj inheritance yet

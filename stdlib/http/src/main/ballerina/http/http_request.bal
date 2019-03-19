@@ -154,12 +154,6 @@ public type Request object {
     # + return - The `text` payload or `error` in case of errors
     public function getTextPayload() returns string|error;
 
-    # Gets the request payload as a `string`. Content type is not checked during payload construction which
-    # makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error;
-
     # Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
     # `getBodyParts()`.
     #
@@ -171,7 +165,7 @@ public type Request object {
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error;
 
-    # Gets the form parameters from the HTTP request as a `map`.
+    # Gets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.
     #
     # + return - The map of form params or `error` in case of errors
     public function getFormParams() returns map<string>|error;
@@ -318,10 +312,6 @@ public function Request.getTextPayload() returns string|error {
     return self.getEntity()!getText();
 }
 
-public function Request.getPayloadAsString() returns string|error {
-    return self.getEntity()!getBodyAsString();
-}
-
 public function Request.getBinaryPayload() returns byte[]|error {
     return self.getEntity()!getByteArray();
 }
@@ -335,6 +325,21 @@ public function Request.getBodyParts() returns mime:Entity[]|error {
 }
 
 public function Request.getFormParams() returns map<string>|error {
+    var mimeEntity = self.getEntity();
+    if (mimeEntity is mime:Entity) {
+        if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
+            string errorMessage = "Content type header is not available";
+            error typeError = error(mime:MIME_ERROR_CODE, { message : errorMessage });
+            return typeError;
+        }
+        if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
+            string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
+            error typeError = error(mime:MIME_ERROR_CODE, { message : errorMessage });
+            return typeError;
+        }
+    } else {
+        return mimeEntity;
+    }
     var formData = self.getEntity()!getText();
     map<string> parameters = {};
     if (formData is string) {

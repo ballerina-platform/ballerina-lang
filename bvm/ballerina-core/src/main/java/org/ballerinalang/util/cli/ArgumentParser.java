@@ -221,7 +221,7 @@ public class ArgumentParser {
         }
     }
 
-    private static BValue getBValue(BType type, String value) {
+    public static BValue getBValue(BType type, String value) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
