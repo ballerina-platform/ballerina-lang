@@ -49,16 +49,32 @@ public class MessageSender {
      */
     public HttpCarbonMessage sendMessage(HttpCarbonMessage httpCarbonMessage) {
         try {
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
-            responseFuture.setHttpConnectorListener(listener);
-            latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
+            DefaultHttpConnectorListener listener = getDefaultHttpConnectorListener(httpCarbonMessage);
             return listener.getHttpResponseMessage();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while sending a message", e);
         }
         return null;
+    }
+
+    public Throwable sendMessageAndExpectError(HttpCarbonMessage httpCarbonMessage) {
+        try {
+            DefaultHttpConnectorListener listener = getDefaultHttpConnectorListener(httpCarbonMessage);
+            return listener.getHttpErrorMessage();
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while sending a message", e);
+        }
+        return null;
+    }
+
+    private DefaultHttpConnectorListener getDefaultHttpConnectorListener(HttpCarbonMessage httpCarbonMessage)
+        throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
+        HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
+        responseFuture.setHttpConnectorListener(listener);
+        latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
+        return listener;
     }
 
     /**
