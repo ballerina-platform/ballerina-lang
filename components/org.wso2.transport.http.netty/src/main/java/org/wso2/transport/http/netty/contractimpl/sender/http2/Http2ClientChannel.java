@@ -271,4 +271,8 @@ public class Http2ClientChannel {
             }
         }
     }
+
+    void removeFromConnectionPool() {
+        http2ConnectionManager.removeClientChannel(httpRoute, this);
+    }
 }
