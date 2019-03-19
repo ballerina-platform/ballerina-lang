@@ -25,7 +25,7 @@ setup_deployment_env() {
 
     work_dir=$(pwd)
     declare -g -A infra_config
-    read_property_file "${${input_dir}/infrastructure.properties" infra_config
+    read_property_file "${input_dir}/infrastructure.properties" infra_config
 
     readonly docker_user=${infra_config["dockerhub_ballerina_scenarios_username"]}
     readonly docker_password=${infra_config["dockerhub_ballerina_scenarios_password"]}
