@@ -1,6 +1,6 @@
 import {
     Assignment, ASTKindChecker, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Function, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
+    ExpressionStatement, Function as BalFunction, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
@@ -9,9 +9,22 @@ import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
 import { WorkerSendViewState } from "../view-model/worker-send";
 
+let visibleEndpoints: VisibleEndpoint[] = [];
+
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
         node.viewState = new StmntViewState();
+    }
+
+    const viewState = node.viewState as StmntViewState;
+    if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
+        const expandedFunction = viewState.expandContext.expandedSubTree as BalFunction;
+        expandedFunction.viewState = new FunctionViewState();
+        expandedFunction.viewState.isExpandedFunction = true;
+        ASTUtil.traversNode(expandedFunction, visitor);
+        if (expandedFunction.VisibleEndpoints) {
+            visibleEndpoints = [...visibleEndpoints, ...expandedFunction.VisibleEndpoints];
+        }
     }
 }
 
@@ -31,7 +44,7 @@ export const visitor: Visitor = {
     },
 
     // tslint:disable-next-line:ban-types
-    beginVisitFunction(node: Function) {
+    beginVisitFunction(node: BalFunction) {
         if (!node.viewState) {
             node.viewState = new FunctionViewState();
         }
@@ -55,6 +68,28 @@ export const visitor: Visitor = {
         }
     },
 
+    endVisitFunction(node: BalFunction) {
+        const viewState = node.viewState as FunctionViewState;
+        let endpoints = visibleEndpoints;
+
+        if (node.VisibleEndpoints) {
+            endpoints = [...node.VisibleEndpoints, ...endpoints];
+        }
+
+        if (!viewState.isExpandedFunction) {
+            const toAdd: VisibleEndpoint[] = [];
+            const added: any = {};
+            endpoints.forEach((ep) => {
+                if (!added[ep.name]) {
+                    toAdd.push(ep);
+                    added[ep.name] = true;
+                }
+            });
+            viewState.containingVisibleEndpoints = toAdd;
+            visibleEndpoints = [];
+        }
+    },
+
     beginVisitCompilationUnit(node: ASTNode) {
         // view state will be set by the diagram component.
     },
@@ -69,6 +104,12 @@ export const visitor: Visitor = {
 
     endVisitVariableDef(node: VariableDef) {
         initStatement(node);
+        const viewState = node.viewState as StmntViewState;
+        if (node.variable.initialExpression &&
+            ASTKindChecker.isInvocation(node.variable.initialExpression) &&
+            !viewState.expandContext) {
+                viewState.expandContext = new ExpandContext(node.variable.initialExpression);
+        }
     },
 
     endVisitAssignment(node: Assignment) {

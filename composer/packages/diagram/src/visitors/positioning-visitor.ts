@@ -68,65 +68,84 @@ export const visitor: Visitor = {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
+        const bodyViewState: ViewState = node.body.viewState;
 
-        // Position the header
-        viewState.header.x = viewState.bBox.x;
-        viewState.header.y = viewState.bBox.y;
-        // Position the body
-        viewState.body.x = viewState.bBox.x;
-        viewState.body.y = viewState.header.y + viewState.header.h;
-        // Position client line
-        viewState.client.bBox.x = viewState.body.x + config.panel.padding.left;
-        viewState.client.bBox.y = viewState.body.y + config.panel.padding.top;
-        // Position default worker
-        defaultWorker.bBox.x = viewState.client.bBox.x + viewState.client.bBox.w + config.lifeLine.gutter.h;
-        defaultWorker.bBox.y = viewState.client.bBox.y;
-        // Position default worker lifeline.
-        positionWorkerLine(defaultWorker);
+        let workerX: number;
+        let workerY: number;
+
+        const workers = node.body.statements.filter((element: any) => ASTUtil.isWorker(element));
+
+        // They way we position function components depends on whether this is an expanded function
+        // or a regular functions
+        if (viewState.isExpandedFunction) {
+            bodyViewState.bBox.x = viewState.bBox.x + bodyViewState.bBox.leftMargin;
+            bodyViewState.bBox.y = viewState.bBox.y + config.statement.height;
+
+            if (workers.length > 0) {
+                bodyViewState.bBox.y += config.lifeLine.header.height +
+                + config.statement.height; // leave room for start line.
+            }
+            viewState.client.bBox.x = viewState.bBox.x;
+            viewState.client.bBox.w = 0;
+
+            workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
+            workerY = viewState.bBox.y + config.statement.height;
+        } else {
+            // Position the header
+            viewState.header.x = viewState.bBox.x;
+            viewState.header.y = viewState.bBox.y;
+            // Position the body
+            viewState.body.x = viewState.bBox.x;
+            viewState.body.y = viewState.header.y + viewState.header.h;
+            // Position client line
+            viewState.client.bBox.x = viewState.bBox.x + config.panel.padding.left;
+            viewState.client.bBox.y = viewState.body.y + config.panel.padding.top;
+            // Position default worker
+            defaultWorker.bBox.x = viewState.client.bBox.x + viewState.client.bBox.w + config.lifeLine.gutter.h;
+            defaultWorker.bBox.y = viewState.client.bBox.y;
+            // Position default worker lifeline.
+            positionWorkerLine(defaultWorker);
+                    // Position the body block node
+            bodyViewState.bBox.x = defaultWorker.bBox.x + defaultWorker.bBox.leftMargin;
+            bodyViewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height
+                + config.statement.height; // leave room for start line.
+            workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
+            workerY = defaultWorker.bBox.y;
+        }
 
         // Position the other workers
-        let workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
         let workerWidth = 0;
-        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
+        workers.forEach((worker) => {
             const workerViewState: WorkerViewState = worker.viewState;
             const variable: Variable = ((worker as VariableDef).variable as Variable);
             const lambda: Lambda = (variable.initialExpression as Lambda);
             const functionNode = lambda.functionNode;
             // Position worker lifeline
-            workerViewState.lifeline.bBox.y = defaultWorker.bBox.y;
+            workerViewState.lifeline.bBox.y = workerY;
             workerViewState.lifeline.bBox.x = workerX;
             // Position worker body
             let leftMargin = functionNode.body!.viewState.bBox.leftMargin;
             leftMargin = (leftMargin === 0) ? 60 : leftMargin;
             functionNode.body!.viewState.bBox.x = workerX + leftMargin;
             workerX = workerX + functionNode.body!.viewState.bBox.w + leftMargin;
-            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y
+            functionNode.body!.viewState.bBox.y = workerY
             + functionNode.body!.viewState.paddingTop
             + config.lifeLine.header.height;
             workerWidth += functionNode.body!.viewState.bBox.w + leftMargin;
         });
 
-        // Position the body block node
-        if (node.body) {
-            const bodyViewState: ViewState = node.body.viewState;
-            bodyViewState.bBox.x = defaultWorker.bBox.x + defaultWorker.bBox.leftMargin;
-            bodyViewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height
-                + config.statement.height; // leave room for start line.
-        }
-
         let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
             + config.lifeLine.gutter.h
             + workerWidth + config.lifeLine.gutter.h;
         // Position endpoints
-        if (node.VisibleEndpoints) {
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller && endpoint.viewState.visible) {
-                    endpoint.viewState.bBox.x = epX;
-                    endpoint.viewState.bBox.y = defaultWorker.bBox.y;
-                    epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-                }
-            });
-        }
+        (node.viewState as FunctionViewState).containingVisibleEndpoints.forEach(
+            (endpoint: VisibleEndpoint) => {
+            if (!endpoint.caller && endpoint.viewState.visible) {
+                endpoint.viewState.bBox.x = epX;
+                endpoint.viewState.bBox.y = defaultWorker.bBox.y;
+                epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+            }
+        });
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = epX;
@@ -140,32 +159,34 @@ export const visitor: Visitor = {
     beginVisitBlock(node: Block) {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
+
         node.statements.forEach((element) => {
             if (ASTUtil.isWorker(element)) {
                 height += config.statement.height;
                 return;
             }
 
-            const elViewStatement: StmntViewState = element.viewState;
+            const elViewState: StmntViewState = element.viewState;
 
-            elViewStatement.bBox.x = viewState.bBox.x;
-            elViewStatement.bBox.y = viewState.bBox.y + elViewStatement.bBox.paddingTop + height;
-            height += elViewStatement.bBox.h + elViewStatement.bBox.paddingTop;
-            if (elViewStatement.expandContext) {
-                if (elViewStatement.expandContext.expandedSubTree) {
-                    const expandedSubTree = elViewStatement.expandContext.expandedSubTree as BalFunction;
+            elViewState.bBox.x = viewState.bBox.x;
+            elViewState.bBox.y = viewState.bBox.y + elViewState.bBox.paddingTop + height;
+            height += elViewState.bBox.h + elViewState.bBox.paddingTop;
+            if (elViewState.expandContext) {
+                if (elViewState.expandContext.expandedSubTree) {
+                    const expandedSubTree = elViewState.expandContext.expandedSubTree as BalFunction;
                     const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
-
-                    // Expanded function is rendered as being called from the function this statement is in
-                    // So set its x as the client x
-                    expandedFunctionVS.client.bBox.x = elViewStatement.bBox.x;
-                    expandedFunctionVS.client.bBox.w = 0;
 
                     if (expandedSubTree.body) {
                         const bodyViewState = expandedSubTree.body.viewState as BlockViewState;
-                        bodyViewState.bBox.x = elViewStatement.bBox.x + config.statement.expanded.offset;
-                        bodyViewState.bBox.y = elViewStatement.bBox.y + config.statement.expanded.header;
-                        ASTUtil.traversNode(expandedSubTree.body, visitor);
+                        expandedFunctionVS.bBox.x = elViewState.bBox.x;
+                        expandedFunctionVS.bBox.y = elViewState.bBox.y;
+
+                        const workersPresent = expandedSubTree.body.statements.some((s) => ASTUtil.isWorker(s));
+                        if (workersPresent) {
+                            bodyViewState.bBox.y += 1.5 * config.statement.height;
+                        }
+
+                        ASTUtil.traversNode(expandedSubTree, visitor);
                     }
                 }
             }

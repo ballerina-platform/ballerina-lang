@@ -95,7 +95,6 @@ class SizingVisitor implements Visitor {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
     }
 
-    // tslint:disable-next-line:ban-types
     public endVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
@@ -150,15 +149,13 @@ class SizingVisitor implements Visitor {
 
         // Size endpoints
         let endpointWidth = 0;
-        if (node.VisibleEndpoints) {
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller && endpoint.viewState.visible) {
-                    endpoint.viewState.bBox.w = config.lifeLine.width;
-                    endpoint.viewState.bBox.h = client.bBox.h;
-                    endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-                }
-            });
-        }
+        viewState.containingVisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+            if (!endpoint.caller && endpoint.viewState.visible) {
+                endpoint.viewState.bBox.w = config.lifeLine.width;
+                endpoint.viewState.bBox.h = client.bBox.h;
+                endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+            }
+        });
 
         const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
             + defaultWorker.bBox.w + endpointWidth + workerWidth;
@@ -389,6 +386,7 @@ class SizingVisitor implements Visitor {
         if (action) {
             // find the endpoint view state
             const epName = ASTUtil.getEndpointName(action as Invocation);
+            // debugger;
             this.endpointHolder.forEach((element: VisibleEndpoint) => {
                 if (element.name === epName) {
                     viewState.endpoint = element.viewState;
@@ -414,16 +412,46 @@ class SizingVisitor implements Visitor {
             if (viewState.expandContext.expandedSubTree) {
                 const expandedSubTree = viewState.expandContext.expandedSubTree as BalFunction;
 
+                if (!expandedSubTree.body) {
+                    return;
+                }
+
+                const expandedBody = (expandedSubTree.body.viewState as BlockViewState).bBox;
+                const expandedDefaultWorker = (expandedSubTree.viewState as FunctionViewState).defaultWorker.bBox;
                 ASTUtil.traversNode(expandedSubTree, new SizingVisitor());
+                const sizes = config.statement.expanded;
+
+                if (sizes.offset > expandedBody.leftMargin) {
+                    expandedBody.leftMargin = sizes.offset;
+                }
+
+                let expandedFnWidth = expandedBody.w + expandedBody.leftMargin;
+                let workersPresent = false;
                 if (expandedSubTree.body) {
-                    const subTreeViewState = expandedSubTree.body.viewState as BlockViewState;
-                    const sizes = config.statement.expanded;
-                    viewState.bBox.h = (subTreeViewState.bBox.h + sizes.header + sizes.footer + sizes.bottomMargin);
-                    viewState.bBox.leftMargin = subTreeViewState.bBox.leftMargin;
-                    if (subTreeViewState.bBox.w > viewState.bBox.w) {
-                        viewState.bBox.w = subTreeViewState.bBox.w;
-                    }
-                    viewState.bBox.w += sizes.offset + sizes.margin;
+                    expandedSubTree.body!.statements.filter((element) => ASTUtil.isWorker(element))
+                        .forEach((worker) => {
+                        workersPresent = true;
+                        const variable: Variable = ((worker as VariableDef).variable as Variable);
+                        const lambda: Lambda = (variable.initialExpression as Lambda);
+                        const fnVS = lambda.functionNode.body!.viewState as BlockViewState;
+                        const leftMargin = fnVS.bBox.leftMargin > 0 ? fnVS.bBox.leftMargin : 60;
+                        expandedFnWidth += (fnVS.bBox.w + leftMargin);
+                    });
+                }
+
+                let expandedFnHeight = 0;
+
+                if (workersPresent) {
+                    expandedFnHeight = expandedDefaultWorker.h;
+                } else if (expandedSubTree.body) {
+                    expandedFnHeight = (expandedSubTree.body.viewState as BlockViewState).bBox.h;
+                }
+
+                viewState.bBox.h = expandedFnHeight + sizes.header + sizes.footer + sizes.bottomMargin;
+                viewState.bBox.leftMargin = expandedBody.leftMargin;
+
+                if (expandedFnWidth > viewState.bBox.w) {
+                    viewState.bBox.w = expandedFnWidth;
                 }
             }
         }

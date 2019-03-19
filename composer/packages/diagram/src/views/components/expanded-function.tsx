@@ -1,4 +1,5 @@
-import { ASTNode, ASTUtil, Function as BallerinaFunction, NodePosition } from "@ballerina/ast-model";
+import { ASTNode, ASTUtil, Function as BallerinaFunction,
+    NodePosition, VariableDef, ASTKindChecker } from "@ballerina/ast-model";
 import { BallerinaAST, IBallerinaLangClient } from "@ballerina/lang-service";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -7,9 +8,9 @@ import { DiagramContext } from "../../diagram/index";
 import { getCodePoint } from "../../utils";
 import { BlockViewState } from "../../view-model/block";
 import { ExpandContext } from "../../view-model/expand-context";
-import { StmntViewState } from "../../view-model/index";
-import { visitor as initVisitor } from "../../visitors/init-visitor";
+import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 import { Block } from "./block";
+import { Worker } from "./worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -40,12 +41,25 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                     context.update();
                 };
 
+                const workers = model.body!.statements.filter((statement) => ASTUtil.isWorker(statement));
+
+                const lifeLine = {
+                    x1: expandedFnBbox.x,
+                    x2: expandedFnBbox.x,
+                    y1: expandedFnBbox.y,
+                    y2: expandedFnBbox.y + expandedFnBbox.h,
+                };
+
+                if (!(model.viewState as FunctionViewState).implicitReturn.hidden && workers.length > 0) {
+                    lifeLine.y2 += (2 * config.statement.height);
+                }
+
                 return (
                     <g>
                         <rect className="expanded-func-frame"
-                            x={expandedFnBbox.x - expandedFnBbox.leftMargin - config.statement.expanded.margin}
+                            x={bBox.x - config.statement.expanded.margin}
                             y={bBox.y}
-                            width={expandedFnBbox.w + expandedFnBbox.leftMargin + config.statement.expanded.margin}
+                            width={bBox.w + config.statement.expanded.margin}
                             height={bBox.h - config.statement.expanded.footer}/>
                         <text
                             x={bBox.statement.x}
@@ -58,18 +72,27 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             onClick={onClickClose}>
                             {getCodePoint("up")}
                         </text>
+
                         <g className="life-line">
-                            <line x1={bBox.x - config.statement.expanded.offset}
-                                x2={bBox.x}
-                                y1={bBox.y + config.statement.expanded.header}
-                                y2={bBox.y + config.statement.expanded.header} />
-                            <line x1={bBox.x} x2={bBox.x}
-                                y1={bBox.y + config.statement.expanded.header}
-                                y2={bBox.y + bBox.h - config.statement.expanded.footer
-                                        - config.statement.expanded.bottomMargin } />
+                            <line x1={bBox.x}
+                                x2={expandedFnBbox.x}
+                                y1={expandedFnBbox.y}
+                                y2={expandedFnBbox.y} />
+                            <line { ...lifeLine } />
                         </g>
                         { /* Override the docUri context value */ }
                         <DiagramContext.Provider value={{ ...context, docUri }}>
+                            {workers.map((worker) => {
+                                const client = new ViewState();
+                                client.bBox.w = 0;
+                                client.bBox.x = expandedFnBbox.x;
+                                return <Worker
+                                    model={ worker as VariableDef }
+                                    startY={ expandedFnBbox.y +
+                                        (model.viewState as FunctionViewState).defaultWorker.initHeight -
+                                        2 * config.statement.height }
+                                    client={client} />;
+                            })}
                             <Block model={model.body} />
                         </DiagramContext.Provider>
                     </g>
@@ -96,7 +119,7 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ statementVi
                     className="expander"
                     // style={{visibility: statementViewState.hovered ? "visible" : "hidden"}}
                     onClick={getExpandFunctionHandler(
-                        langClient, docUri, position, expandContext, statementViewState, update)}>
+                        langClient, docUri, position, expandContext, update)}>
                     {getCodePoint("down")}
                 </text>
             )}
@@ -106,16 +129,15 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ statementVi
 
 function getExpandFunctionHandler(
     langClient: IBallerinaLangClient | undefined, docUri: string | undefined,
-    position: NodePosition, expandContext: ExpandContext, statementViewState: StmntViewState, update: () => void) {
+    position: NodePosition, expandContext: ExpandContext, update: () => void) {
 
-    return async (e: React.MouseEvent<SVGTextElement>) => {
+    return async () => {
         if (!langClient || !docUri) {
             return;
         }
-
         const res = await langClient.getDefinitionPosition({
             position: {
-                character: position.startColumn,
+                character: position.startColumn - 1,
                 line: position.startLine - 1,
             },
             textDocument: {
@@ -137,7 +159,6 @@ function getExpandFunctionHandler(
         }, astRes.ast);
 
         const defTree = subTree as BallerinaFunction;
-        ASTUtil.traversNode(defTree, initVisitor);
 
         expandContext.expandedSubTree = defTree;
         expandContext.expandedSubTreeDocUri = res.uri;
@@ -147,7 +168,13 @@ function getExpandFunctionHandler(
 
 function findDefinitionSubTree(position: NodePosition, ast: BallerinaAST) {
     return ast.topLevelNodes.find((balNode) => {
-        const node = balNode as ASTNode;
+        const tlnode = balNode as ASTNode;
+        if (!ASTKindChecker.isFunction(tlnode)) {
+            return false;
+        }
+
+        const node = tlnode.name;
+
         if (!node.position) {
             return false;
         }

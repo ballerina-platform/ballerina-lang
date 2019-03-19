@@ -51,14 +51,13 @@ export const Statement: React.StatelessComponent<{
                 const expandedBBox = {
                     h: viewState.bBox.h,
                     statement: {
-                        h: viewState.bBox.h,
                         text: label,
                         textWidth: viewState.bBox.labelWidth,
                         x: viewState.bBox.x + config.statement.padding.left,
                         y: viewState.bBox.y,
                     },
-                    w: viewState.bBox.w + viewState.bBox.leftMargin,
-                    x: viewState.bBox.x + config.statement.expanded.offset,
+                    w: viewState.bBox.w,
+                    x: viewState.bBox.x,
                     y: viewState.bBox.y,
                 };
 
@@ -83,8 +82,6 @@ export const Statement: React.StatelessComponent<{
                 }
                 {!viewState.hiddenBlock &&
                     <g className="statement"
-                        onMouseEnter={() => {(viewState as any).hovered = true; console.log(viewState.hovered);}}
-                        onMouseLeave={() => {(viewState as any).hovered = false; console.log(viewState.hovered);}}
                     >
                         {viewState.isAction && !viewState.isReturn
                             && <ActionInvocation
