@@ -23,13 +23,16 @@ const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
 # Specifies how the authentication credentials should be sent when token exchanging
-public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER;
+public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER|NO_BEARER;
 
 # Indicates that the authentication credentials should be sent via the Authentication Header
 public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 
 # Indicates that the authentication credentials should be sent via the body of the POST request
 public const POST_BODY_BEARER = "POST_BODY_BEARER";
+
+# Indicates that the authentication credentials should not be sent
+public const NO_BEARER = "NO_BEARER";
 
 # Specifies type of the the OAuth2 grant type
 public type OAuth2GrantType CLIENT_CREDENTIALS_GRANT|PASSWORD_GRANT|DIRECT_TOKEN;
@@ -64,8 +67,8 @@ type CachedTokenConfig record {
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 type RequestConfig record {
     string payload;
-    string clientId;
-    string clientSecret;
+    string clientId?;
+    string clientSecret?;
     string[]? scopes;
     CredentialBearer credentialBearer;
     !...;
@@ -340,6 +343,9 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
+// TODO: Null check for all the record values
+// TODO: Return error or panic error
+
 # Prepare HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
 # retry is required if the response will be 401.
 #
@@ -508,15 +514,25 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         };
     } else {
         authorizationClient = check createClient(config.tokenUrl, {});
-        requestConfig = {
-            payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
-            clientId: config.clientId,
-            clientSecret: config.clientSecret,
-            scopes: config["scopes"],
-            credentialBearer: config.credentialBearer
-        };
+        var clientId = config["clientId"];
+        var clientSecret = config["clientSecret"];
+        if (clientId is string && clientSecret is string) {
+            requestConfig = {
+                payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
+                clientId: clientId,
+                clientSecret: clientSecret,
+                scopes: config["scopes"],
+                credentialBearer:config.credentialBearer
+            };
+        } else {
+            requestConfig = {
+                payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
+                scopes: config["scopes"],
+                credentialBearer:config.credentialBearer
+            };
+        }
     }
-    Request authorizationRequest = prepareRequest(requestConfig);
+    Request authorizationRequest = check prepareRequest(requestConfig);
     Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
     return extractAccessTokenFromResponse(authorizationResponse);
 }
@@ -561,7 +577,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             return e;
         }
     }
-    Request refreshRequest = prepareRequest(requestConfig);
+    Request refreshRequest = check prepareRequest(requestConfig);
     Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
     return extractAccessTokenFromResponse(refreshResponse);
 }
@@ -570,7 +586,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 #
 # + config - Request configurations record
 # + return - Prepared HTTP request object
-function prepareRequest(RequestConfig config) returns Request {
+function prepareRequest(RequestConfig config) returns Request|error {
     Request req = new;
     string textPayload = config.payload;
     string scopeString = EMPTY_STRING;
@@ -583,12 +599,27 @@ function prepareRequest(RequestConfig config) returns Request {
     if (scopeString != EMPTY_STRING) {
         textPayload = textPayload + "&scope=" + scopeString.trim();
     }
+
+    var clientId = config["clientId"];
+    var clientSecret = config["clientSecret"];
     if (config.credentialBearer == AUTH_HEADER_BEARER) {
-        string clientIdSecret = config.clientId + ":" + config.clientSecret;
-        req.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
-                encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
-    } else {
-        textPayload = textPayload + "&client_id=" + config.clientId + "&client_secret=" + config.clientSecret;
+        if (clientId is string && clientSecret is string) {
+            string clientIdSecret = clientId + ":" + clientSecret;
+            req.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
+                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
+        } else {
+            error e = error(HTTP_ERROR_CODE,
+            { message: "Client ID or client secret is not provided for client authentication" });
+            return e;
+        }
+    } else if (config.credentialBearer == POST_BODY_BEARER) {
+        if (clientId is string && clientSecret is string) {
+            textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+        } else {
+            error e = error(HTTP_ERROR_CODE,
+            { message: "Client ID or client secret is not provided for client authentication" });
+            return e;
+        }
     }
     req.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
     return req;
@@ -617,7 +648,7 @@ function updateTokenCache(json responsePayload) returns ()|error {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     int expiresIn = check int.convert(responsePayload.expires_in);
-    if (!(responsePayload["refresh_token"] is ())) {
+    if (responsePayload["refresh_token"] is string) {
         string refreshToken = responsePayload.refresh_token.toString();
         tokenCache.refreshToken = refreshToken;
     }

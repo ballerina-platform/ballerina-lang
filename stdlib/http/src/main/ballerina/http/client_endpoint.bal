@@ -386,8 +386,8 @@ public type PasswordGrantConfig record {
     string tokenUrl;
     string username;
     string password;
-    string clientId;
-    string clientSecret;
+    string clientId?;
+    string clientSecret?;
     string[] scopes?;
     RefreshConfig refreshConfig?;
     boolean retryRequest = true;
