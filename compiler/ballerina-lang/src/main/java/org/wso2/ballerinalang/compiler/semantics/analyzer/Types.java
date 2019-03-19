@@ -1045,7 +1045,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1546,7 +1546,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1610,7 +1610,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -2292,12 +2292,7 @@ public class Types {
             case TypeTags.ANY:
                 return true;
             case TypeTags.ARRAY:
-                BArrayType arrayType = (BArrayType) type;
-                if (arrayType.state == BArrayState.UNSEALED) {
-                    // Empty array is the implicit initial value for arrays.
-                    return true;
-                }
-                return hasImplicitInitialValue(arrayType.eType);
+                return hasImplicitInitialValue(((BArrayType) type).eType);
             case TypeTags.FINITE:
                 return analyzeFiniteType((BFiniteType) type);
             case TypeTags.OBJECT:

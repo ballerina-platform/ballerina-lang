@@ -16,15 +16,15 @@
  */
 package org.ballerinalang.test.statements.ifelse;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -492,5 +492,30 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForValueTypeAsFiniteType_1"},
                 {"testTypeNarrowingForValueTypeAsFiniteType_2"}
         };
+    }
+
+    @Test
+    public void testTypeGuardForErrorPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForErrorNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForCustomErrorPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForCustomErrorPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForCustomErrorNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForCustomErrorNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

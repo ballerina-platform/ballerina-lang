@@ -21,6 +21,11 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 
 /**
+ * {code DiagnosticPos} represents a specific position in a source file.
+ *
+ * Source position is a combination of the source file, start and end line numbers,
+ * and start and end column numbers.
+ *
  * @since 0.94
  */
 public class DiagnosticPos implements DiagnosticPosition {
