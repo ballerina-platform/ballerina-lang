@@ -26,7 +26,7 @@ infrastructureConfig:
 scenarioConfigs:
 - testType: TESTNG
   remoteRepository: "https://github.com/ballerina-platform/ballerina-lang.git"
-  remoteBranch: "ballerina-scenarios"
+  remoteBranch: "ballerina-scenarios-cleaned"
   name: "ballerinaScenarios"
   description: "ballerina-scenarios-cleaned"
   file: product-scenarios/test-grid-scripts/bbg/http/test-http.sh
