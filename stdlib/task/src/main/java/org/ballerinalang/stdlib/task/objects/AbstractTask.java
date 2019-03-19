@@ -45,7 +45,6 @@ public abstract class AbstractTask implements Task {
     protected Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
     Scheduler scheduler;
-    private static final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
@@ -57,10 +56,7 @@ public abstract class AbstractTask implements Task {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Initializing the task/scheduler failed." + e.getMessage());
-            }
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
         }
     }
 
@@ -77,10 +73,7 @@ public abstract class AbstractTask implements Task {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
-            }
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
         }
     }
 
@@ -147,10 +140,7 @@ public abstract class AbstractTask implements Task {
         try {
             this.scheduler.shutdown(true);
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to stop the task." + e.getMessage());
-            }
-            throw new SchedulingException("Failed to stop the task.");
+            throw new SchedulingException("Failed to stop the task.", e);
         }
     }
 
@@ -161,10 +151,7 @@ public abstract class AbstractTask implements Task {
         try {
             this.scheduler.pauseAll();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot pause the task. " + e.getMessage());
-            }
-            throw new SchedulingException("Cannot pause the task.");
+            throw new SchedulingException("Cannot pause the task.", e);
         }
     }
 
@@ -175,10 +162,7 @@ public abstract class AbstractTask implements Task {
         try {
             this.scheduler.resumeAll();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot resume the task. " + e.getMessage());
-            }
-            throw new SchedulingException("Cannot resume the task.");
+            throw new SchedulingException("Cannot resume the task.", e);
         }
     }
 }

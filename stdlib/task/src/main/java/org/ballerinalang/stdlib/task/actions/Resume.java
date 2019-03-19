@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
@@ -52,6 +54,8 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 )
 public class Resume extends BlockingNativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Resume.class);
+
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
@@ -60,6 +64,9 @@ public class Resume extends BlockingNativeCallableUnit {
         try {
             task.resume();
         } catch (SchedulingException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.error(e.getMessage() + "\nCause: " + e.getCause());
+            }
             createError(context, e.getMessage());
         }
     }

@@ -28,6 +28,8 @@ import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
@@ -54,6 +56,7 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 )
 public class Start extends BlockingNativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Start.class);
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
@@ -63,6 +66,9 @@ public class Start extends BlockingNativeCallableUnit {
         try {
             serverConnector.start();
         } catch (SchedulingException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.error(e.getMessage() + "\nCause: " + e.getCause());
+            }
             context.setReturnValues(createError(context, e.getMessage()));
         }
     }

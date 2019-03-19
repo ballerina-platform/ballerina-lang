@@ -79,15 +79,12 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void run(Context context) throws SchedulingException {
+    public void start(Context context) throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to schedule Task. " + e.getMessage());
-            }
-            throw new SchedulingException("Failed to schedule Task.");
+            throw new SchedulingException("Failed to schedule Task.", e);
         }
     }
 
