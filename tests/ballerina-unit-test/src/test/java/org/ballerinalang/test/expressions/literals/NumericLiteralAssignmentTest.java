@@ -135,4 +135,16 @@ public class NumericLiteralAssignmentTest {
                 {"testFloatLiteralAsDecimalViaFiniteType"}
         };
     }
+
+    @Test
+    public void testIntLiteralAsIntWithBuiltinUnion() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntLiteralAsIntWithBuiltinUnion");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFloatLiteralAsIntWithBuiltinUnion() {
+        BValue[] returns = BRunUtil.invoke(result, "testFloatLiteralAsFloatWithBuiltinUnion");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

@@ -187,3 +187,27 @@ function testFloatLiteralAsDecimalViaFiniteType() returns boolean {
     Qux|xml z = 12.0;
     return result && z is decimal && d == z;
 }
+
+function testIntLiteralAsIntWithBuiltinUnion() returns boolean {
+    anydata|float x = 12;
+    boolean result = x is int && x == i;
+
+    decimal|json y = 12;
+    result = result && y is int && y == i;
+
+    byte|any|float z = 12;
+    return result && z is int && z == i;
+}
+
+type TempTwo 123.0|124.0;
+
+function testFloatLiteralAsFloatWithBuiltinUnion() returns boolean {
+    anydata|decimal x = 12.0;
+    boolean result = x is float && x == f;
+
+    decimal|json y = 12.0;
+    result = result && y is float && y == f;
+
+    TempTwo|any|decimal z = 12.0;
+    return result && z is float && z == f;
+}
