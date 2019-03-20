@@ -344,8 +344,6 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-// TODO: Null check for all the record values
-
 # Prepare HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
 # retry is required if the response will be 401.
 #
@@ -360,6 +358,12 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             if (authConfig is BasicAuthConfig) {
                 string username = authConfig.username;
                 string password = authConfig.password;
+                if (username == EMPTY_STRING || password == EMPTY_STRING) {
+                    string errMsg = "Username or password cannot be empty.";
+                    log:printError(errMsg);
+                    error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                    return e;
+                }
                 string str = username + ":" + password;
                 string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
@@ -556,6 +560,12 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     Client authorizationClient;
     RequestConfig requestConfig;
     if (config is ClientCredentialsGrantConfig) {
+        if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
+            string errMsg = "Client id or client secret cannot be empty.";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
+            return e;
+        }
         authorizationClient = check createClient(config.tokenUrl, {});
         requestConfig = {
             payload: "grant_type=client_credentials",
@@ -569,6 +579,12 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         var clientId = config["clientId"];
         var clientSecret = config["clientSecret"];
         if (clientId is string && clientSecret is string) {
+            if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+                string errMsg = "Client id or client secret cannot be empty.";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
+            }
             requestConfig = {
                 payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
                 clientId: clientId,
@@ -602,6 +618,12 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is RefreshConfig) {
+            if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
+                string errMsg = "Client id or client secret cannot be empty.";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
+            }
             refreshClient = check createClient(refreshConfig.refreshUrl, {});
             requestConfig = {
                 payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
@@ -617,8 +639,14 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             return e;
         }
     } else {
-        DirectTokenRefreshConfig? refreshConfig = config.refreshConfig;
+        var refreshConfig = config["refreshConfig"];
         if (refreshConfig is DirectTokenRefreshConfig) {
+            if (refreshConfig.clientId == EMPTY_STRING || refreshConfig.clientSecret == EMPTY_STRING) {
+                string errMsg = "Client id or client secret cannot be empty.";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
+            }
             refreshClient = check createClient(refreshConfig.refreshUrl, {});
             requestConfig = {
                 payload: "grant_type=refresh_token&refresh_token=" + refreshConfig.refreshToken,
@@ -710,6 +738,7 @@ function extractAccessTokenFromResponse(Response response) returns string|error 
 # Update token cache with the received json payload of the response.
 #
 # + responsePayload - Payload of the response
+# + return - If any error occurred due to convertion of parameters
 function updateTokenCache(json responsePayload) returns ()|error {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
