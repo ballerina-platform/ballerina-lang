@@ -397,12 +397,21 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                                     });
                                 return grantTypeConfig.retryRequest;
                             } else {
-                                // TODO: introduce locking mechanism to limit the refreshing
-                                string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
-                                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                                log:printDebug(function() returns string {
-                                        return "Secure request generated for OAuth2 password grant type with the new access token received from refresh request.";
-                                    });
+                                lock {
+                                    if (isValidAccessToken()) {
+                                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
+                                        log:printDebug(function() returns string {
+                                                return "Secure request generated for OAuth2 password grant type with cached access token.";
+                                            });
+                                        return grantTypeConfig.retryRequest;
+                                    } else {
+                                        string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
+                                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                                        log:printDebug(function () returns string {
+                                                return "Secure request generated for OAuth2 password grant type with the new access token received from refresh request.";
+                                            });
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -452,11 +461,21 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                                 });
                             return grantTypeConfig.retryRequest;
                         } else {
-                            string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
-                            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                            log:printDebug(function() returns string {
-                                    return "Secure request generated for OAuth2 direct token mode with the new access token received from refresh request.";
-                                });
+                            lock {
+                                if (isValidAccessToken()) {
+                                    string cachedAccessToken = tokenCache.accessToken;
+                                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
+                                    log:printDebug(function() returns string {
+                                            return "Secure request generated for OAuth2 direct token mode with the cached access token.";
+                                        });
+                                } else {
+                                    string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
+                                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                                    log:printDebug(function () returns string {
+                                            return "Secure request generated for OAuth2 direct token mode with the new access token received from refresh request.";
+                                        });
+                                }
+                            }
                         }
                     } else {
                         string errMsg = "Invalid config is provided for the direct token mode.";
@@ -803,11 +822,21 @@ function updateRequest(Request req, ClientEndpointConfig config) returns ()|erro
                         return "Updated secure request generated for OAuth2 client credentials grant type with the access token received from authorization request.";
                     });
             } else {
-                string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                log:printDebug(function() returns string {
-                        return "Updated secure request generated for OAuth2 direct token mode with the access token received from refresh request.";
-                    });
+                lock {
+                    if (isValidAccessToken()) {
+                        string cachedAccessToken = tokenCache.accessToken;
+                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
+                        log:printDebug(function() returns string {
+                                return "Updated secure request generated for OAuth2 direct token mode with the cached access token.";
+                            });
+                    } else {
+                        string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
+                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                        log:printDebug(function() returns string {
+                                return "Updated secure request generated for OAuth2 direct token mode with the access token received from refresh request.";
+                            });
+                    }
+                }
             }
         }
     }
