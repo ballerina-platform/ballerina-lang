@@ -33,6 +33,7 @@ import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.javainterop.JPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
@@ -109,6 +110,7 @@ public class PackageLoader {
     private final PackageCache packageCache;
     private final SymbolEnter symbolEnter;
     private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
+    private final JPackageSymbolEnter jPackageSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
@@ -136,6 +138,7 @@ public class PackageLoader {
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.compiledPkgSymbolEnter = CompiledPackageSymbolEnter.getInstance(context);
+        this.jPackageSymbolEnter = JPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
@@ -347,6 +350,12 @@ public class PackageLoader {
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
+        }
+
+        // TODO Check whether the JBALLERINA mode is switched on
+        // Check whether this is a java package with 'jballerina' org name, If so, use JavaPackageLoader.
+        if (packageId.orgName.value.equals(Names.JBALLERINA_ORG.value)) {
+            return jPackageSymbolEnter.definePackage(packageId);
         }
 
         PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId, encPkgRepoHierarchy);
