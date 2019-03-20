@@ -253,7 +253,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = setLiteralValueAndGetType(literalExpr, expType);
-        if (literalType == symTable.semanticError) {
+        if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
             return;
         }
         resultType = types.checkType(literalExpr, literalType, expType);
@@ -287,28 +287,32 @@ public class TypeChecker extends BLangNodeVisitor {
                     BType type = setLiteralValueAndGetType(literalExpr, symTable.intType);
                     types.setImplicitCastExpr(literalExpr, type, this.expType);
                     resultType = type;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return type;
                 } else if (finiteType.valueSpace.stream()
                         .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.BYTE &&
                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
                     BType type = setLiteralValueAndGetType(literalExpr, symTable.byteType);
                     types.setImplicitCastExpr(literalExpr, type, this.expType);
                     resultType = type;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return type;
                 } else if (finiteType.valueSpace.stream()
                         .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
                     BType type = setLiteralValueAndGetType(literalExpr, symTable.floatType);
                     types.setImplicitCastExpr(literalExpr, type, this.expType);
                     resultType = type;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return type;
                 } else if (finiteType.valueSpace.stream()
                         .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
                     BType type = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
                     types.setImplicitCastExpr(literalExpr, type, this.expType);
                     resultType = type;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return type;
                 }
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
@@ -341,14 +345,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     BType type = setLiteralValueAndGetType(literalExpr, symTable.floatType);
                     types.setImplicitCastExpr(literalExpr, type, this.expType);
                     resultType = type;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return type;
                 } else if (finiteType.valueSpace.stream()
                         .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
                     BType type = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
                     types.setImplicitCastExpr(literalExpr, type, this.expType);
                     resultType = type;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return type;
                 }
             } else if (expType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
@@ -369,7 +375,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (foundMember) {
                     types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                     resultType = literalType;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return literalType;
                 }
             } else if (this.expType.tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) this.expType;
@@ -379,7 +386,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (foundMember) {
                     types.setImplicitCastExpr(literalExpr, literalType, this.expType);
                     resultType = literalType;
-                    return symTable.semanticError;
+                    literalExpr.isFiniteContext = true;
+                    return literalType;
                 }
             }
         }
