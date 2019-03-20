@@ -86,7 +86,9 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Lower the AST to BIR.
@@ -194,7 +196,18 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.clear();
 
         // Rearrange basic block ids.
-        birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
+        Map<Name, Name> bbIdMap = new HashMap<>();
+        birFunc.basicBlocks.forEach(bb -> {
+            Name newId = this.env.nextBBId(names);
+            bbIdMap.put(bb.id, newId);
+            bb.id = newId;
+        });
+        
+        // Rearrange error table.
+        birFunc.errorTable.forEach(errorEntry -> {
+            errorEntry.fromBlockId = bbIdMap.get(errorEntry.fromBlockId);
+            errorEntry.toBlockId = bbIdMap.get(errorEntry.toBlockId);
+        });
         this.env.clear();
     }
 
