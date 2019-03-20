@@ -2580,8 +2580,39 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatPanicNode(JsonObject node) {
-        // TODO: fix formatting for panic.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
+
+            // Iterate and update the whitespaces of the node.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("panic")) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                        + indentation);
+                    } else if (text.equals(";")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
+                }
+            }
+
+            // Handle the expression formatting.
+            if (node.has("expressions")) {
+                node.getAsJsonObject("expressions").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, this.getWhiteSpaceCount(indentation),
+                                false, this.getWhiteSpaceCount(indentationOfParent),
+                                formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()));
+            }
+        }
     }
 
     /**
@@ -3963,8 +3994,31 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatTrapExprNode(JsonObject node) {
-        // TODO: fix formatting for Trap Expr.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            this.preserveHeight(ws, indentationOfParent);
+
+            // Update the whitespace for trap keyword.
+            JsonObject trapKeywordWS = ws.get(0).getAsJsonObject();
+            if (this.noHeightAvailable(trapKeywordWS.get(FormattingConstants.WS).getAsString())) {
+                String text = trapKeywordWS.get(FormattingConstants.TEXT).getAsString();
+                if (text.equals("trap")) {
+                    trapKeywordWS.addProperty(FormattingConstants.WS,
+                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                }
+            }
+
+            // Handle the whitespaces for expression.
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                node.getAsJsonObject(FormattingConstants.EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentationOfParent),
+                                formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()));
+            }
+        }
     }
 
     /**
