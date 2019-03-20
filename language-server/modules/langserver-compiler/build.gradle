@@ -26,6 +26,7 @@ dependencies {
 description = 'Ballerina - Language server - Compiler'
 
 test {
+    exclude '**/*'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
