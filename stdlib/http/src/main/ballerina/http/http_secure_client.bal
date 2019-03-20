@@ -363,6 +363,9 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 string str = username + ":" + password;
                 string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
+                log:printDebug(function() returns string {
+                        return "Secure request generated for basic auth scheme";
+                    });
             } else {
                 string errMsg = "Basic auth config not provided";
                 log:printError(errMsg);
@@ -379,14 +382,23 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         if (cachedAccessToken == EMPTY_STRING) {
                             string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                            log:printDebug(function() returns string {
+                                    return "Secure request generated for OAuth2 password grant type with the access token received from authorization request";
+                                });
                         } else {
                             if (isValidAccessToken()) {
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
+                                log:printDebug(function() returns string {
+                                        return "Secure request generated for OAuth2 password grant type with cached access token";
+                                    });
                                 return grantTypeConfig.retryRequest;
                             } else {
                                 // TODO: introduce locking mechanism to limit the refreshing
                                 string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                                log:printDebug(function() returns string {
+                                        return "Secure request generated for OAuth2 password grant type with the new access token received from refresh request";
+                                    });
                             }
                         }
                     } else {
@@ -401,13 +413,22 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         if (cachedAccessToken == EMPTY_STRING) {
                             string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                            log:printDebug(function() returns string {
+                                    return "Secure request generated for OAuth2 client credentials grant type with the access token received from authorization request";
+                                });
                         } else {
                             if (isValidAccessToken()) {
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
+                                log:printDebug(function() returns string {
+                                        return "Secure request generated for OAuth2 client credentials grant type with cached access token";
+                                    });
                                 return grantTypeConfig.retryRequest;
                             } else {
                                 string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
                                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                                log:printDebug(function() returns string {
+                                        return "Secure request generated for OAuth2 client credentials grant type with the new access token received from authorization request";
+                                    });
                             }
                         }
                     } else {
@@ -422,10 +443,16 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                         var directAccessToken = grantTypeConfig["accessToken"];
                         if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + directAccessToken);
+                            log:printDebug(function() returns string {
+                                    return "Secure request generated for OAuth2 direct token mode with the user given access token";
+                                });
                             return grantTypeConfig.retryRequest;
                         } else {
                             string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                            log:printDebug(function() returns string {
+                                    return "Secure request generated for OAuth2 direct token mode with the new access token received from refresh request";
+                                });
                         }
                     } else {
                         string errMsg = "Invalid config is provided for the direct token mode";
@@ -503,12 +530,21 @@ function isValidAccessToken() returns boolean {
     // TODO: introduce clock-skew
     int expiryTime = tokenCache.expiryTime;
     if (expiryTime == 0) {
+        log:printDebug(function() returns string {
+                return "Expiry time is 0, which means cached access token is always valid until we get a 401 response";
+            });
         return true;
     }
     int currentSystemTime = time:currentTime().time;
     if (currentSystemTime > expiryTime) {
+        log:printDebug(function() returns string {
+                return "Current tume > expiry time, which means cached access token is valid until we get a 401 response";
+            });
         return true;
     }
+    log:printDebug(function() returns string {
+            return "Cached access token is invalid";
+        });
     return false;
 }
 
@@ -549,6 +585,9 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         }
     }
     Request authorizationRequest = check prepareRequest(requestConfig);
+    log:printDebug(function() returns string {
+            return "Authorization request is prepared successfully";
+        });
     Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
     return extractAccessTokenFromResponse(authorizationResponse);
 }
@@ -596,6 +635,9 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         }
     }
     Request refreshRequest = check prepareRequest(requestConfig);
+    log:printDebug(function() returns string {
+            return "Refresh request is prepared successfully";
+        });
     Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
     return extractAccessTokenFromResponse(refreshResponse);
 }
@@ -652,6 +694,9 @@ function prepareRequest(RequestConfig config) returns Request|error {
 function extractAccessTokenFromResponse(Response response) returns string|error {
     json payload = check response.getJsonPayload();
     if (response.statusCode == OK_200) {
+        log:printDebug(function() returns string {
+                return "Response from the token endpoint is valid";
+            });
         check updateTokenCache(payload);
         return payload.access_token.toString();
     } else {
@@ -677,6 +722,9 @@ function updateTokenCache(json responsePayload) returns ()|error {
         string refreshToken = responsePayload.refresh_token.toString();
         tokenCache.refreshToken = refreshToken;
     }
+    log:printDebug(function() returns string {
+            return "Updated token cache with the new parameters received";
+        });
     return ();
 }
 
@@ -698,6 +746,9 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
                 var grantTypeConfig = authConfig.config;
                 if ((grantType is PASSWORD_GRANT || grantType is DIRECT_TOKEN) &&
                     (grantTypeConfig is PasswordGrantConfig || grantTypeConfig is DirectTokenConfig)) {
+                    log:printDebug(function() returns string {
+                            return "Retry is required for the given request";
+                        });
                     return true;
                 }
             }
@@ -719,9 +770,15 @@ function updateRequest(Request req, ClientEndpointConfig config) returns ()|erro
             if (grantTypeConfig is ClientCredentialsGrantConfig) {
                 string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                log:printDebug(function() returns string {
+                        return "Updated secure request generated for OAuth2 client credentials grant type with the access token received from authorization request";
+                    });
             } else {
                 string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                log:printDebug(function() returns string {
+                        return "Updated secure request generated for OAuth2 direct token mode with the access token received from refresh request";
+                    });
             }
         }
     }
