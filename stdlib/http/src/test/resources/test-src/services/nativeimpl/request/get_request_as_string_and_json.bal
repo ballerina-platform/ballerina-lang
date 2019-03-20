@@ -13,7 +13,7 @@ service MyService on testEP {
         path: "/bar"
     }
     resource function myResource(http:Caller caller, http:Request req) {
-        var stringValue = req.getPayloadAsString();
+        var stringValue = req.getTextPayload();
         if (stringValue is string) {
             string s = stringValue;
         } else {

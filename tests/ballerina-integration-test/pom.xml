@@ -15,8 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-integration-test-utils</artifactId>
-            <version>${project.version}</version>
+            <artifactId>ballerina-test-utils</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -52,11 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -267,7 +263,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-integration-test-utils</artifactId>
+                                    <artifactId>ballerina-test-utils</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -302,9 +298,9 @@
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
-                        <ballerina.agent.path>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.agent.path>
+                        <ballerina.agent.path>${project.build.directory}/ballerina-test-utils-${project.version}.jar</ballerina.agent.path>
                         <integration.test.utils.service.file>
-                            ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
+                            ${basedir}/../../tests/ballerina-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>
                         <observability-test-natives.jar>
                             ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar

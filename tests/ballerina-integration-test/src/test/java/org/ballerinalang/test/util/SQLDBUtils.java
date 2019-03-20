@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
 import org.hsqldb.Server;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerAcl;

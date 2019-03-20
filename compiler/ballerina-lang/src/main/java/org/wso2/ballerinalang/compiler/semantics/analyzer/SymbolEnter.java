@@ -1149,7 +1149,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol))
+                            .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                             .collect(Collectors.toList());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
