@@ -484,14 +484,15 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig)
             });
         return (accessToken, false);
     } else {
-        if (isValidAccessToken()) {
+        if (isCachedTokenValid()) {
             log:printDebug(function() returns string {
                     return "OAuth2 password grant type; Access token received form cache.";
                 });
             return (cachedAccessToken, grantTypeConfig.retryRequest);
         } else {
             lock {
-                if (isValidAccessToken()) {
+                if (isCachedTokenValid()) {
+                    cachedAccessToken = tokenCache.accessToken;
                     log:printDebug(function() returns string {
                             return "OAuth2 password grant type; Access token received form cache.";
                         });
@@ -521,14 +522,15 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
             });
         return (accessToken, false);
     } else {
-        if (isValidAccessToken()) {
+        if (isCachedTokenValid()) {
             log:printDebug(function() returns string {
                     return "OAuth2 client credentials grant type; Access token received from cache.";
                 });
             return (cachedAccessToken, grantTypeConfig.retryRequest);
         } else {
             lock {
-                if (isValidAccessToken()) {
+                if (isCachedTokenValid()) {
+                    cachedAccessToken = tokenCache.accessToken;
                     log:printDebug(function() returns string {
                             return "OAuth2 client credentials grant type; Access token received from cache.";
                         });
@@ -566,14 +568,15 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig)
             return (accessToken, false);
         }
     } else {
-        if (isValidAccessToken()) {
+        if (isCachedTokenValid()) {
             log:printDebug(function() returns string {
                     return "OAuth2 client credentials grant type; Access token received from cache.";
                 });
             return (cachedAccessToken, grantTypeConfig.retryRequest);
         } else {
             lock {
-                if (isValidAccessToken()) {
+                if (isCachedTokenValid()) {
+                    cachedAccessToken = tokenCache.accessToken;
                     log:printDebug(function() returns string {
                             return "OAuth2 client credentials grant type; Access token received from cache.";
                         });
@@ -623,7 +626,7 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
 # returned at the authorization request which implies that the token is valid forever.
 #
 # + return - Whether the access token is valid or not
-function isValidAccessToken() returns boolean {
+function isCachedTokenValid() returns boolean {
     // TODO: introduce clock-skew
     int expiryTime = tokenCache.expiryTime;
     if (expiryTime == 0) {
