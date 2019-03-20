@@ -109,11 +109,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     bir:ErrorEntry[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
     boolean isInTryBlock = false;
+    jvm:Label endLable = new;
+    jvm:Label handlerLable = new;
     int genTrapCount = 0;
     if (errorEntries.length() > genTrapCount) {
         currentEE = errorEntries[genTrapCount];
     }
-    TryCatchBlock currentTryBlock = {};
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         //io:println("Basic Block Is : ", bb.id.value);
@@ -130,7 +131,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
             if (!isInTryBlock && currentEE is bir:ErrorEntry &&
                     currentEE.fromBlockId.value == currentBBName && currentEE.fromIp == m) {
-                instGen.generateTryIns(currentTryBlock);
+                endLable = new;
+                handlerLable = new;
+                instGen.generateTryIns(endLable, handlerLable);
                 isInTryBlock = true;
             }
             if (inst is bir:ConstantLoad) {
@@ -147,7 +150,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                         if (errorEntries.length() > genTrapCount) {
                             currentEE = errorEntries[genTrapCount];
                         }
-                        instGen.generateCatchIns(inst, currentTryBlock);
+                        instGen.generateCatchIns(inst, endLable, handlerLable);
                     }
                 }
             } else if (inst is bir:BinaryOp) {

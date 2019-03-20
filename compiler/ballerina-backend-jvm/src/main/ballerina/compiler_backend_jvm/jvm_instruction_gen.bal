@@ -366,20 +366,18 @@ type InstructionGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryIns(TryCatchBlock tryCatchBlock) {
+    function generateTryIns(jvm:Label endLable, jvm:Label handlerLable) {
         jvm:Label startLable = new;
-        tryCatchBlock.endLable = new;
-        tryCatchBlock.handlerLable = new;
-        self.mv.visitTryCatchBlock(startLable, tryCatchBlock.endLable, tryCatchBlock.handlerLable, ERROR_VALUE);
+        self.mv.visitTryCatchBlock(startLable, endLable, handlerLable, ERROR_VALUE);
         self.mv.visitLabel(startLable);
     }
 
-    function generateCatchIns(bir:Move moveIns, TryCatchBlock tryCatchBlock) {
+    function generateCatchIns(bir:Move moveIns, jvm:Label endLable, jvm:Label handlerLable) {
         int lhsIndex = self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl);
-        self.mv.visitLabel(tryCatchBlock.endLable);
+        self.mv.visitLabel(endLable);
         jvm:Label jumpLable = new;
         self.mv.visitJumpInsn(GOTO, jumpLable);
-        self.mv.visitLabel(tryCatchBlock.handlerLable);
+        self.mv.visitLabel(handlerLable);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLable);
     }
@@ -484,11 +482,6 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
         self.generateVarStore(typeTestIns.lhsOp.variableDcl);
     }
-};
-
-type TryCatchBlock record {
-    jvm:Label handlerLable = new;
-    jvm:Label endLable = new;
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
