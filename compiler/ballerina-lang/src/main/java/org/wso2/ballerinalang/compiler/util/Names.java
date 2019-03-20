@@ -65,6 +65,10 @@ public class Names {
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
     public static final Name BIR_GLOBAL_VAR_PREFIX = new Name("#");
 
+    // Java interoperability related constants
+    public static final Name JBALLERINA_ORG = new Name("jballerina");
+
+
     // Names related to Endpoint SPI.
     public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");
     public static final Name EP_SPI_INIT = new Name("init");
