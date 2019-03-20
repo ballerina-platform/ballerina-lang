@@ -251,9 +251,16 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
+        BType literalType = setLiteralValueAndGetType(literalExpr, expType);
+        if (literalType == symTable.semanticError) {
+            return;
+        }
+        resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
-
         Object literalValue = literalExpr.value;
         literalExpr.isJSONContext = types.isJSONContext(expType);
 
@@ -268,49 +275,138 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!types.isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
                     resultType = symTable.semanticError;
-                    return;
+                    return resultType;
                 }
                 literalType = symTable.byteType;
                 literalExpr.value = ((Long) literalValue).byteValue();
+            } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
+                BFiniteType finiteType = (BFiniteType) expType;
+                if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.INT &&
+                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType type = setLiteralValueAndGetType(literalExpr, symTable.intType);
+                    types.setImplicitCastExpr(literalExpr, type, this.expType);
+                    resultType = type;
+                    return symTable.semanticError;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.BYTE &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType type = setLiteralValueAndGetType(literalExpr, symTable.byteType);
+                    types.setImplicitCastExpr(literalExpr, type, this.expType);
+                    resultType = type;
+                    return symTable.semanticError;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType type = setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                    types.setImplicitCastExpr(literalExpr, type, this.expType);
+                    resultType = type;
+                    return symTable.semanticError;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType type = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                    types.setImplicitCastExpr(literalExpr, type, this.expType);
+                    resultType = type;
+                    return symTable.semanticError;
+                }
+            } else if (expType.tag == TypeTags.UNION) {
+                Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.INT)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                } else if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.BYTE)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.byteType);
+                } else if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.FLOAT)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                } else if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                } else {
+                    BType type = getSingleFiniteType((BUnionType) expType);
+                    if (type != symTable.semanticError) {
+                        return setLiteralValueAndGetType(literalExpr, type);
+                    }
+                }
             }
-        }
-
-        // check whether this is a byte array
-        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
-            literalType = new BArrayType(symTable.byteType);
-        }
-
-        // Check whether this belongs to decimal type or float type
-        if (literalType.tag == TypeTags.FLOAT) {
+        } else if (literalType.tag == TypeTags.FLOAT) {
             if (expType.tag == TypeTags.DECIMAL) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
-            } else if (expType.tag == TypeTags.FLOAT) {
-                literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
+            } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
+                BFiniteType finiteType = (BFiniteType) expType;
+                if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType type = setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                    types.setImplicitCastExpr(literalExpr, type, this.expType);
+                    resultType = type;
+                    return symTable.semanticError;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType type = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                    types.setImplicitCastExpr(literalExpr, type, this.expType);
+                    resultType = type;
+                    return symTable.semanticError;
+                }
+            } else if (expType.tag == TypeTags.UNION) {
+                Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.FLOAT)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                } else if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                } else {
+                    BType type = getSingleFiniteType((BUnionType) expType);
+                    if (type != symTable.semanticError) {
+                        return setLiteralValueAndGetType(literalExpr, type);
+                    }
+                }
+            }
+        } else {
+            if (this.expType.tag == TypeTags.FINITE) {
+                boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
+                if (foundMember) {
+                    types.setImplicitCastExpr(literalExpr, literalType, this.expType);
+                    resultType = literalType;
+                    return symTable.semanticError;
+                }
+            } else if (this.expType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) this.expType;
+                boolean foundMember = unionType.getMemberTypes()
+                        .stream()
+                        .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
+                if (foundMember) {
+                    types.setImplicitCastExpr(literalExpr, literalType, this.expType);
+                    resultType = literalType;
+                    return symTable.semanticError;
+                }
             }
         }
 
-        if (this.expType.tag == TypeTags.FINITE) {
-            BFiniteType expType = (BFiniteType) this.expType;
-            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
-            if (foundMember) {
-                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
-                resultType = literalType;
-                return;
-            }
-        } else if (this.expType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) this.expType;
-            boolean foundMember = unionType.getMemberTypes()
-                    .stream()
-                    .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
-            if (foundMember) {
-                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
-                resultType = literalType;
-                return;
-            }
+        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
+            // check whether this is a byte array
+            literalType = new BArrayType(symTable.byteType);
         }
 
-        resultType = types.checkType(literalExpr, literalType, expType);
+        return literalType;
+    }
+
+    private BType getSingleFiniteType(BUnionType unionType) {
+        List<BFiniteType> finiteTypeMembers = unionType.getMemberTypes().stream()
+                .filter(memType -> memType.tag == TypeTags.FINITE)
+                .map(memFiniteType -> (BFiniteType) memFiniteType)
+                .collect(Collectors.toList());
+
+        if (finiteTypeMembers.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        if (finiteTypeMembers.size() == 1) {
+            return finiteTypeMembers.get(0);
+        }
+
+        Set<BLangExpression> valueSpace = new LinkedHashSet<>();
+        finiteTypeMembers.forEach(constituent -> valueSpace.addAll(constituent.valueSpace));
+        return new BFiniteType(null, valueSpace);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {

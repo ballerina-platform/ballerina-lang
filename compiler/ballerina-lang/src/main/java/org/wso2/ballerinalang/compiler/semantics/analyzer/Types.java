@@ -1712,7 +1712,7 @@ public class Types {
      * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
      * @return true if assignable; false otherwise.
      */
-    private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
         // Different literal kinds.
         if (baseLiteral.getKind() != candidateLiteral.getKind()) {
             return false;
