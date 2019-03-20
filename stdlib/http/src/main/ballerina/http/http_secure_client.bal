@@ -537,16 +537,24 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + authConfig - Direct token configurations
 # + return - Auth token or `error` if error occured during HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig) returns (string,boolean)|error {
-    var directAccessToken = grantTypeConfig["accessToken"];
-    if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
-        log:printDebug(function() returns string {
-                return "Authorization header is generated for OAuth2 direct token mode with the user given access token.";
-            });
-        return (directAccessToken, grantTypeConfig.retryRequest);
+    string cachedAccessToken = tokenCache.accessToken;
+    if (cachedAccessToken == EMPTY_STRING) {
+        var directAccessToken = grantTypeConfig["accessToken"];
+        if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
+            log:printDebug(function() returns string {
+                    return "Authorization header is generated for OAuth2 direct token mode with the user given access token.";
+                });
+            return (directAccessToken, grantTypeConfig.retryRequest);
+        } else {
+            string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
+            log:printDebug(function () returns string {
+                    return "Authorization header is generated for OAuth2 direct token mode with the new access token received from refresh request.";
+                });
+            return (accessToken, false);
+        }
     } else {
         lock {
             if (isValidAccessToken()) {
-                string cachedAccessToken = tokenCache.accessToken;
                 log:printDebug(function() returns string {
                         return "Authorization header is generated for OAuth2 direct token mode with the cached access token.";
                     });
