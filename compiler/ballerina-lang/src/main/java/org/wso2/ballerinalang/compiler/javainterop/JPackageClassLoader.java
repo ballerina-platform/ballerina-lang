@@ -23,7 +23,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 /**
- * A class loader which load java packages and classes used in Ballerina code.
+ * A class loader which loads java packages and classes used in Ballerina code.
  *
  * @since 0.991.0
  */
