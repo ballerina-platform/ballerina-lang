@@ -305,6 +305,15 @@ function mapOperationsOnXmlAttribute() returns (int?, string[]?, boolean) {
     return (x1@.length(), x1@.keys(), isMap);
 }
 
+function mapUpdateOnXmlAttribute() returns (xml) {
+    var x1 = xml `<child foo="bar" itemCode="3344"/>`;
+    map<string> attrMap = <map<string>>x1@;
+
+    attrMap["abc"] = "xyz";
+    attrMap["{http://example.com/ns}baz"] = "value";
+    return x1;
+}
+
 function nonSingletonXmlAttributeAccess() returns boolean {
     xml x = xml `<someEle>cont</someEle>`;
     xml y = xml `<elem>More-Stuff</elem>`;

@@ -385,9 +385,19 @@ public class XMLAttributesTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
+    @Test(description = "Test map insertion on xml@ value")
+    public void testMapUpdateOnXmlAttributeMap() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "mapUpdateOnXmlAttribute");
+        BXML xml = (BXML) returns[0];
+        String abcAttrVal = xml.getAttribute("abc", null);
+        Assert.assertEquals(abcAttrVal, "xyz");
+        String bazAttrVal = xml.getAttribute("baz", "http://example.com/ns");
+        Assert.assertEquals(bazAttrVal, "value");
+    }
+
     @Test(description = "Test xml@ return nil when xml is non singleton xml item")
-    public void testMapOpera() {
+    public void testAttributeAccessOfNonSingletonXML() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "nonSingletonXmlAttributeAccess");
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }
