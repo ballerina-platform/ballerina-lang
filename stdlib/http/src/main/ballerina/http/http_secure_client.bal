@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/io;
+import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
 
@@ -344,7 +345,6 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 }
 
 // TODO: Null check for all the record values
-// TODO: Return error or panic error
 
 # Prepare HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
 # retry is required if the response will be 401.
@@ -364,8 +364,10 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
             } else {
-                error e = error(HTTP_ERROR_CODE, { message: "Basic auth config not provided" });
-                panic e;
+                string errMsg = "Basic auth config not provided";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
             }
         } else if (auth.scheme == OAUTH2) {
             if (authConfig is OAuth2AuthConfig) {
@@ -388,8 +390,9 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                             }
                         }
                     } else {
-                        error e = error(HTTP_ERROR_CODE,
-                        { message: "Invalid config is provided for the password grant type" });
+                        string errMsg = "Invalid config is provided for the password grant type";
+                        log:printError(errMsg);
+                        error e = error(HTTP_ERROR_CODE, { message: errMsg });
                         return e;
                     }
                 } else if (grantType is CLIENT_CREDENTIALS_GRANT) {
@@ -408,8 +411,9 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                             }
                         }
                     } else {
-                        error e = error(HTTP_ERROR_CODE,
-                        { message: "Invalid config is provided for the password grant type" });
+                        string errMsg = "Invalid config is provided for the password grant type";
+                        log:printError(errMsg);
+                        error e = error(HTTP_ERROR_CODE, { message: errMsg });
                         return e;
                     }
                 } else {
@@ -424,20 +428,25 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
                         }
                     } else {
-                        error e = error(HTTP_ERROR_CODE,
-                        { message: "Invalid config is provided for the direct token mode" });
+                        string errMsg = "Invalid config is provided for the direct token mode";
+                        log:printError(errMsg);
+                        error e = error(HTTP_ERROR_CODE, { message: errMsg });
                         return e;
                     }
                 }
             } else {
-                error e = error(HTTP_ERROR_CODE, { message: "OAuth2 config not provided" });
-                panic e;
+                string errMsg = "OAuth2 config not provided";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
             }
         } else if (auth.scheme == JWT_AUTH) {
             string authToken = EMPTY_STRING;
             if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
-                error e = error(HTTP_ERROR_CODE, { message: "JWT auth config not provided" });
-                panic e;
+                string errMsg = "JWT auth config not provided";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
             } else if (authConfig is JwtAuthConfig) {
                 var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
                 if (jwtIssuerConfig is ()) {
@@ -470,14 +479,17 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 authToken = runtime:getInvocationContext().authenticationContext.authToken;
             }
             if (authToken == EMPTY_STRING) {
-                error err = error(HTTP_ERROR_CODE, { message: "JWT was not used during inbound authentication.
-                                                     Provide InferredJwtIssuerConfig to issue new token." });
-                return err;
+                string errMsg = "JWT was not used during inbound authentication. Provide InferredJwtIssuerConfig to issue new token.";
+                log:printError(errMsg);
+                error e = error(HTTP_ERROR_CODE, { message: errMsg });
+                return e;
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         } else {
-            error err = error(HTTP_ERROR_CODE, { message: "Unsupported auth scheme" });
-            return err;
+            string errMsg = "Unsupported auth scheme";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
+            return e;
         }
     }
     return false;
@@ -560,8 +572,9 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 credentialBearer: refreshConfig.credentialBearer
             };
         } else {
-            error e = error(HTTP_ERROR_CODE,
-            { message: "Failed to refresh access token since RefreshTokenConfig is not provided" });
+            string errMsg = "Failed to refresh access token since RefreshTokenConfig is not provided";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
     } else {
@@ -576,8 +589,9 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 credentialBearer: refreshConfig.credentialBearer
             };
         } else {
-            error e = error(HTTP_ERROR_CODE,
-            { message: "Failed to refresh access token since RefreshTokenConfig is not provided" });
+            string errMsg = "Failed to refresh access token since RefreshTokenConfig is not provided";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
     }
@@ -612,16 +626,18 @@ function prepareRequest(RequestConfig config) returns Request|error {
             req.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
                     encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
         } else {
-            error e = error(HTTP_ERROR_CODE,
-            { message: "Client ID or client secret is not provided for client authentication" });
+            string errMsg = "Client ID or client secret is not provided for client authentication";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
     } else if (config.credentialBearer == POST_BODY_BEARER) {
         if (clientId is string && clientSecret is string) {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         } else {
-            error e = error(HTTP_ERROR_CODE,
-            { message: "Client ID or client secret is not provided for client authentication" });
+            string errMsg = "Client ID or client secret is not provided for client authentication";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
     }
@@ -639,9 +655,10 @@ function extractAccessTokenFromResponse(Response response) returns string|error 
         check updateTokenCache(payload);
         return payload.access_token.toString();
     } else {
-        error err = error(HTTP_ERROR_CODE,
-        { message: "Failed to retrieve access token from the response" });
-        return err;
+        string errMsg = "Failed to retrieve access token from the response.";
+        log:printError(errMsg);
+        error e = error(HTTP_ERROR_CODE, { message: errMsg, statusCode: response.statusCode, payload: payload });
+        return e;
     }
 }
 
