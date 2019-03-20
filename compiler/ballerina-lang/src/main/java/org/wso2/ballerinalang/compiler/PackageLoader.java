@@ -352,8 +352,8 @@ public class PackageLoader {
             return packageSymbol;
         }
 
-        // TODO Check whether the JBALLERINA mode is switched on
-        // Check whether this is a java package with 'jballerina' org name, If so, use JavaPackageLoader.
+        // TODO Add the JBALLERINA mode
+        // Check whether this is a Java package with 'jballerina' org name, If so, use JavaPackageLoader.
         if (packageId.orgName.value.equals(Names.JBALLERINA_ORG.value)) {
             return jPackageSymbolEnter.definePackage(packageId);
         }
