@@ -2393,7 +2393,7 @@
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.9.1</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.1.1</rs-api.version>
-        <msf4j.version>2.6.4</msf4j.version>
+        <msf4j.version>2.7.0</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.3</javax-transaction-version>
         <quartz.version>2.3.0</quartz.version>
