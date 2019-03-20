@@ -124,7 +124,7 @@ public class GlobalVarFunctionInBaloTest {
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByte");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[0]).byteValue(), (byte) 234);
+        Assert.assertEquals(((BByte) returns[0]).byteValue(), 234);
     }
 
     @Test(description = "Test global variable byte array1")
