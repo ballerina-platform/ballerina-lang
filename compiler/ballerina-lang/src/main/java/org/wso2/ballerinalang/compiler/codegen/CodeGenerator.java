@@ -213,7 +213,6 @@ import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -580,9 +579,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
             case TypeTags.INT:
-                return InstructionCodes.IRET;
             case TypeTags.BYTE:
-                return InstructionCodes.BRET;
+                return InstructionCodes.IRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.DECIMAL:
@@ -607,6 +605,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 long longVal = (Long) literalExpr.value;
                 if (longVal >= 0 && longVal <= 5) {
                     opcode = InstructionCodes.ICONST_0 + (int) longVal;
@@ -615,12 +614,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
-                break;
-
-            case TypeTags.BYTE:
-                byte byteVal = (Byte) literalExpr.value;
-                int byteCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(byteVal));
-                emit(InstructionCodes.BICONST, getOperand(byteCPEntryIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -1501,10 +1494,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         int index;
         switch (typeTag) {
             case TypeTags.INT:
-                index = ++indexes.tInt;
-                break;
             case TypeTags.BYTE:
-                index = ++indexes.tBoolean;
+                index = ++indexes.tInt;
                 break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
@@ -1527,6 +1518,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 opcode = baseOpcode;
                 break;
             case TypeTags.FLOAT:
@@ -1535,7 +1527,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.STRING:
                 opcode = baseOpcode + STRING_OFFSET;
                 break;
-            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
                 break;
@@ -1858,10 +1849,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (RegIndex regIndex : regIndexList) {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
-                    break;
                 case TypeTags.BYTE:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -2037,8 +2026,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
                 break;
             case TypeTags.BYTE:
-                defaultValue.byteValue = (Byte) value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
+                defaultValue.byteValue = (Long) value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase

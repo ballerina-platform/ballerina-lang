@@ -272,7 +272,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
                 literalType = symTable.byteType;
-                literalExpr.value = ((Long) literalValue).byteValue();
             }
         }
 

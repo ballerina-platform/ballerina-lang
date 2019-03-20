@@ -1,0 +1,6 @@
+// Type cast casts a value to a target type performing a numeric conversion if required.
+// If the value belongs to the target type, the result of the type cast expression is the value itself.
+// Else, if the target type contains exactly one basic numeric type, and the value belongs to a numeric type,
+// the resultant value would be the numeric conversion of the value to the target numeric type.
+// If neither is satisfied or if the numeric conversion returns an error, the type cast expression completes abruptly
+// with a panic.
