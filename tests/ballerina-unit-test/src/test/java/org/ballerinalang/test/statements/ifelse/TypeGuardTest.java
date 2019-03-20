@@ -443,6 +443,12 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testFiniteTypeAsFiniteTypeWithIntersectionNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeWithIntersectionNegative");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testFiniteTypeReassignmentToBroaderType() {
         BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeReassignmentToBroaderType");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -465,13 +471,14 @@ public class TypeGuardTest {
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_2"},
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_3"},
                 {"testFiniteTypeAsBroaderTypesAndFiniteType_4"},
-                {"testFiniteTypeAsComplexFiniteTypes_1"},
-                {"testFiniteTypeAsComplexFiniteTypes_2"},
-                {"testFiniteTypeAsComplexFiniteTypes_3"},
-                {"testFiniteTypeAsComplexFiniteTypes_4"},
-                {"testFiniteTypeAsComplexFiniteTypes_5"},
-                {"testFiniteTypeAsComplexFiniteTypes_6"},
-                {"testFiniteTypeAsComplexFiniteTypes_7"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_1"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_2"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_3"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_4"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_5"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_6"},
+                {"testFiniteTypeInUnionAsComplexFiniteTypes_7"},
+                {"testFiniteTypeAsFiniteTypeWithIntersectionPositive"},
                 {"testFiniteTypeAsBroaderTypeInStructurePositive"}
         };
     }

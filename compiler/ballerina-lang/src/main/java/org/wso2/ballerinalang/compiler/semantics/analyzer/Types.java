@@ -1795,13 +1795,15 @@ public class Types {
         Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
                 .filter(
                         // case I: targetType - string ("foo" is assignable to string)
+                        // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
                         expr -> isAssignable(expr.type, targetType) ||
-                        // type FooVal "foo";
-                        // case II:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
-                        (targetType.tag == TypeTags.UNION &&
-                                 ((BUnionType) targetType).getMemberTypes().stream()
-                                         .filter(memType -> memType.tag == TypeTags.FINITE)
-                                         .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
+                                isAssignableToFiniteType(targetType, (BLangLiteral) expr) ||
+                                // type FooVal "foo";
+                                // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
+                                (targetType.tag == TypeTags.UNION &&
+                                         ((BUnionType) targetType).getMemberTypes().stream()
+                                                 .filter(memType ->  memType.tag == TypeTags.FINITE)
+                                                 .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
                                                                                             (BLangLiteral) expr))))
                 .collect(Collectors.toSet());
 
