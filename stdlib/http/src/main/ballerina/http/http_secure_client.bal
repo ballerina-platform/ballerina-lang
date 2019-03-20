@@ -369,7 +369,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
             if (authConfig is OAuth2AuthConfig) {
                 string authToken;
                 boolean retryRequired;
-                (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig);
+                (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, false);
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
                 return retryRequired;
             } else {
@@ -432,8 +432,9 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 # Process auth token for OAuth2
 #
 # + authConfig - OAuth2 configurations
+# + updateRequest - Check if the request is an updating request after 401 response
 # + return - Auth token or `error` if validation fails
-function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig) returns (string,boolean)|error {
+function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, boolean updateRequest) returns (string,boolean)|error {
     var grantType = authConfig.grantType;
     var grantTypeConfig = authConfig.config;
     if (grantType is PASSWORD_GRANT) {
@@ -457,6 +458,9 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig) returns (string,bool
     } else {
         // Within this code block, the grant type is DIRECT_TOKEN
         if (grantTypeConfig is DirectTokenConfig) {
+            if (updateRequest) {
+                grantTypeConfig.accessToken = EMPTY_STRING;
+            }
             return getAuthTokenForOAuth2DirectTokenMode(grantTypeConfig);
         } else {
             string errMsg = "Invalid config is provided for the direct token mode.";
@@ -469,33 +473,33 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig) returns (string,bool
 
 # Process auth token for OAuth2 password grant
 #
-# + authConfig - Password grant configurations
+# + grantTypeConfig - Password grant configurations
 # + return - Auth token or `error` if error occured during HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig) returns (string,boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
         log:printDebug(function() returns string {
-                return "Authorization header is generated for OAuth2 password grant type with the access token received from authorization request.";
+                return "OAuth2 password grant type; Access token received from authorization request. Cache is empty.";
             });
         return (accessToken, false);
     } else {
         if (isValidAccessToken()) {
             log:printDebug(function() returns string {
-                    return "Authorization header is generated for OAuth2 password grant type with cached access token.";
+                    return "OAuth2 password grant type; Access token received form cache.";
                 });
             return (cachedAccessToken, grantTypeConfig.retryRequest);
         } else {
             lock {
                 if (isValidAccessToken()) {
                     log:printDebug(function() returns string {
-                            return "Authorization header is generated for OAuth2 password grant type with cached access token.";
+                            return "OAuth2 password grant type; Access token received form cache.";
                         });
                     return (cachedAccessToken, grantTypeConfig.retryRequest);
                 } else {
                     string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
                     log:printDebug(function () returns string {
-                            return "Authorization header is generated for OAuth2 password grant type with the new access token received from refresh request.";
+                            return "OAuth2 password grant type; Access token received from refresh request.";
                         });
                     return (accessToken, false);
                 }
@@ -506,35 +510,44 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig)
 
 # Process auth token for OAuth2 client credentials grant
 #
-# + authConfig - Client credentials grant configurations
+# + grantTypeConfig - Client credentials grant configurations
 # + return - Auth token or `error` if error occured during HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig) returns (string,boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
         log:printDebug(function() returns string {
-                return "Authorization header is generated for OAuth2 client credentials grant type with the access token received from authorization request.";
+                return "OAuth2 client credentials grant type; Access token received from authorization request. Cache is empty.";
             });
         return (accessToken, false);
     } else {
         if (isValidAccessToken()) {
             log:printDebug(function() returns string {
-                    return "Authorization header is generated for OAuth2 client credentials grant type with cached access token";
+                    return "OAuth2 client credentials grant type; Access token received from cache.";
                 });
             return (cachedAccessToken, grantTypeConfig.retryRequest);
         } else {
-            string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
-            log:printDebug(function() returns string {
-                    return "Authorization header is generated for OAuth2 client credentials grant type with the new access token received from authorization request.";
-                });
-            return (accessToken, false);
+            lock {
+                if (isValidAccessToken()) {
+                    log:printDebug(function() returns string {
+                            return "OAuth2 client credentials grant type; Access token received from cache.";
+                        });
+                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                } else {
+                    string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
+                    log:printDebug(function () returns string {
+                            return "OAuth2 client credentials grant type; Access token received from authorization request.";
+                        });
+                    return (accessToken, false);
+                }
+            }
         }
     }
 }
 
 # Process auth token for OAuth2 direct token mode
 #
-# + authConfig - Direct token configurations
+# + grantTypeConfig - Direct token configurations
 # + return - Auth token or `error` if error occured during HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig) returns (string,boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -542,29 +555,36 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig)
         var directAccessToken = grantTypeConfig["accessToken"];
         if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
             log:printDebug(function() returns string {
-                    return "Authorization header is generated for OAuth2 direct token mode with the user given access token.";
+                    return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
                 });
             return (directAccessToken, grantTypeConfig.retryRequest);
         } else {
             string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
             log:printDebug(function () returns string {
-                    return "Authorization header is generated for OAuth2 direct token mode with the new access token received from refresh request.";
+                    return "OAuth2 direct token mode; Access token received from refresh request. Cache is empty.";
                 });
             return (accessToken, false);
         }
     } else {
-        lock {
-            if (isValidAccessToken()) {
-                log:printDebug(function() returns string {
-                        return "Authorization header is generated for OAuth2 direct token mode with the cached access token.";
-                    });
-                return (cachedAccessToken, false);
-            } else {
-                string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
-                log:printDebug(function () returns string {
-                        return "Authorization header is generated for OAuth2 direct token mode with the new access token received from refresh request.";
-                    });
-                return (accessToken, false);
+        if (isValidAccessToken()) {
+            log:printDebug(function() returns string {
+                    return "OAuth2 client credentials grant type; Access token received from cache.";
+                });
+            return (cachedAccessToken, grantTypeConfig.retryRequest);
+        } else {
+            lock {
+                if (isValidAccessToken()) {
+                    log:printDebug(function() returns string {
+                            return "OAuth2 client credentials grant type; Access token received from cache.";
+                        });
+                    return (cachedAccessToken, grantTypeConfig.retryRequest);
+                } else {
+                    string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
+                    log:printDebug(function () returns string {
+                            return "OAuth2 direct token mode; Access token received from refresh request.";
+                        });
+                    return (accessToken, false);
+                }
             }
         }
     }
@@ -675,7 +695,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     }
     Request authorizationRequest = check prepareRequest(requestConfig);
     log:printDebug(function() returns string {
-            return "Authorization request is prepared successfully.";
+            return "Sending authorization request.";
         });
     Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
     return extractAccessTokenFromResponse(authorizationResponse);
@@ -737,7 +757,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     }
     Request refreshRequest = check prepareRequest(requestConfig);
     log:printDebug(function() returns string {
-            return "Refresh request is prepared successfully.";
+            return "Sending refresh request.";
         });
     Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
     return extractAccessTokenFromResponse(refreshResponse);
@@ -796,12 +816,12 @@ function extractAccessTokenFromResponse(Response response) returns string|error 
     json payload = check response.getJsonPayload();
     if (response.statusCode == OK_200) {
         log:printDebug(function() returns string {
-                return "Response from the token endpoint is valid.";
+                return "Received an valid response. Extracting access token from the payload: " + payload.toString();
             });
         check updateTokenCache(payload);
         return payload.access_token.toString();
     } else {
-        string errMsg = "Failed to retrieve access token from the response.";
+        string errMsg = "Failed to retrieve access token from " + response.statusCode + " response with payload: " + payload.toString();
         log:printError(errMsg);
         error e = error(HTTP_ERROR_CODE, { message: errMsg, statusCode: response.statusCode, payload: payload });
         return e;
@@ -825,7 +845,7 @@ function updateTokenCache(json responsePayload) returns ()|error {
         tokenCache.refreshToken = refreshToken;
     }
     log:printDebug(function() returns string {
-            return "Updated token cache with the new parameters received.";
+            return "Updated token cache with the new parameters of the response.";
         });
     return ();
 }
@@ -849,13 +869,16 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
                 if ((grantType is PASSWORD_GRANT || grantType is DIRECT_TOKEN) &&
                     (grantTypeConfig is PasswordGrantConfig || grantTypeConfig is DirectTokenConfig)) {
                     log:printDebug(function() returns string {
-                            return "Retry is required for the given request.";
+                            return "Retry is required for the given request and configurations.";
                         });
                     return true;
                 }
             }
         }
     }
+    log:printDebug(function() returns string {
+            return "Retry is not required for the given request.";
+        });
     return false;
 }
 
@@ -868,30 +891,10 @@ function updateRequest(Request req, ClientEndpointConfig config) returns ()|erro
     if (auth is AuthConfig) {
         var authConfig = auth.config;
         if (authConfig is OAuth2AuthConfig) {
-            var grantTypeConfig = authConfig.config;
-            if (grantTypeConfig is ClientCredentialsGrantConfig) {
-                string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig);
-                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                log:printDebug(function() returns string {
-                        return "Updated secure request generated for OAuth2 client credentials grant type with the access token received from authorization request.";
-                    });
-            } else {
-                lock {
-                    if (isValidAccessToken()) {
-                        string cachedAccessToken = tokenCache.accessToken;
-                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + cachedAccessToken);
-                        log:printDebug(function() returns string {
-                                return "Updated secure request generated for OAuth2 direct token mode with the cached access token.";
-                            });
-                    } else {
-                        string accessToken = check getAccessTokenFromRefreshRequest(grantTypeConfig);
-                        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
-                        log:printDebug(function() returns string {
-                                return "Updated secure request generated for OAuth2 direct token mode with the access token received from refresh request.";
-                            });
-                    }
-                }
-            }
+            string authToken;
+            boolean retryRequired;
+            (authToken, retryRequired) = check getAuthTokenForOAuth2(authConfig, true);
+            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
         }
     }
     return ();
