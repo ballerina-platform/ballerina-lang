@@ -113,7 +113,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (errorEntries.length() > genTrapCount) {
         currentEE = errorEntries[genTrapCount];
     }
-    TryCatchBlock tryCatchBlock = {};
+    TryCatchBlock currentTryBlock = {};
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         //io:println("Basic Block Is : ", bb.id.value);
@@ -128,9 +128,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         while (m < bb.instructions.length()) {
             bir:Instruction? inst = bb.instructions[m];
             InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
-            if (currentEE is  bir:ErrorEntry && !isInTryBlock &&
+            if (!isInTryBlock && currentEE is bir:ErrorEntry &&
                     currentEE.fromBlockId.value == currentBBName && currentEE.fromIp == m) {
-                instGen.generateTryIns(tryCatchBlock);
+                instGen.generateTryIns(currentTryBlock);
                 isInTryBlock = true;
             }
             if (inst is bir:ConstantLoad) {
@@ -140,14 +140,14 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateCastIns(inst);
                 } else {
                     instGen.generateMoveIns(inst);
-                    if (currentEE is  bir:ErrorEntry && isInTryBlock &&
+                    if (isInTryBlock && currentEE is bir:ErrorEntry &&
                             currentEE.toBlockId.value == currentBBName && currentEE.toIp == m) {
                         genTrapCount = genTrapCount + 1;
                         isInTryBlock = false;
                         if (errorEntries.length() > genTrapCount) {
                             currentEE = errorEntries[genTrapCount];
                         }
-                        instGen.generateCatchIns(inst, tryCatchBlock);
+                        instGen.generateCatchIns(inst, currentTryBlock);
                     }
                 }
             } else if (inst is bir:BinaryOp) {
