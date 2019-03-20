@@ -549,7 +549,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     Client refreshClient;
     RequestConfig requestConfig;
     if (config is PasswordGrantConfig) {
-        RefreshConfig? refreshConfig = config.refreshConfig;
+        var refreshConfig = config["refreshConfig"];
         if (refreshConfig is RefreshConfig) {
             refreshClient = check createClient(refreshConfig.refreshUrl, {});
             requestConfig = {
