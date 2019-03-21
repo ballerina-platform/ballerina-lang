@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.NoType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 
 /**
  * @since 0.94
@@ -26,5 +27,10 @@ public class BNoType extends BType implements NoType {
 
     public BNoType(int tag) {
         super(tag, null);
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 }
