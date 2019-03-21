@@ -153,7 +153,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -1049,8 +1048,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-        analyzeArrayVariableImplicitInitialValue(varNode);
-
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1078,46 +1075,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
-        BLangType varTypeNode = varNode.typeNode;
-        if (varTypeNode == null || varTypeNode.type == null) {
+    private void analyzeArrayElementImplicitInitialValue(BType type, DiagnosticPos pos) {
+        if (type == null || type.tag != TypeTags.ARRAY) {
             return;
         }
-        // Variable is a array def, elements must have implicit initial value.
-        if (varTypeNode.type.tag == TypeTags.ARRAY) {
-            analyzeArrayElemImplicitInitialValue(varTypeNode, varNode.pos);
-        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            // Specific handling for T[]|?, typeNode is a BLangArrayType
-            analyzeArrayElemImplicitInitialValue(varNode);
-        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-            // Check each member of the union.
-            for (BLangType memberTypeNode : ((BLangUnionTypeNode) varTypeNode).memberTypeNodes) {
-                analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
-            }
-        }
-    }
 
-    private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
-        BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
-        if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
-            BType eType = arrayPart.elemtype.type;
-            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
-        }
-    }
-
-    private void analyzeArrayElemImplicitInitialValue(BLangType typeNode, DiagnosticPos pos) {
-        if (typeNode.type.tag != TypeTags.ARRAY) {
-            return;
-        }
-        BArrayType arrayType = (BArrayType) typeNode.type;
+        BArrayType arrayType = (BArrayType) type;
 
         if (arrayType.state != BArrayState.UNSEALED) {
             return;
         }
 
         if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BType eType = ((BLangArrayType) typeNode).elemtype.type;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
+            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, arrayType.eType,
+                            getNilableType(arrayType.eType));
         }
     }
 
@@ -1153,8 +1124,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         analyzeNode(varDefNode.var, env);
-        // validate for endpoints here.
-        validateEndpointDeclaration(varDefNode);
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
@@ -1415,6 +1384,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
+        analyzeArrayElementImplicitInitialValue(arrayLiteral.type, arrayLiteral.pos);
         analyzeExprs(arrayLiteral.exprs);
     }
 
@@ -1506,39 +1476,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (invocationExpr.actionInvocation) {
             validateActionInvocation(invocationExpr.pos, invocationExpr);
-        }
-    }
-
-    private void validateEndpointDeclaration(BLangSimpleVariableDef varDefNode) {
-        if (Objects.isNull(varDefNode.var.symbol) || varDefNode.var.symbol.tag != SymTag.ENDPOINT ||
-                Objects.isNull(varDefNode.parent) || Objects
-                .isNull(varDefNode.parent.parent)) {
-            return;
-        }
-        // Check for valid parents nodes. (immediate parent is block node)
-        switch (varDefNode.parent.parent.getKind()) {
-            case RESOURCE:
-            case FUNCTION:
-                break;
-            default:
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                return;
-        }
-        // Check with siblings now.
-        BLangBlockStmt blockStmt = (BLangBlockStmt) varDefNode.parent;
-        for (BLangStatement statement : blockStmt.stmts) {
-            if (statement == varDefNode) {
-                break;
-            }
-            if (statement.getKind() != NodeKind.VARIABLE_DEF) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                break;
-            }
-            BLangSimpleVariableDef def = (BLangSimpleVariableDef) statement;
-            if (def.var.symbol.tag != SymTag.ENDPOINT) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                break;
-            }
         }
     }
 
@@ -1988,10 +1925,38 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
-        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
+                !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
-                    typeTestExpr.typeNode.type);
+                       typeTestExpr.typeNode.type);
         }
+    }
+
+    private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
+        BType expressionType = expression.type;
+        switch (expressionType.tag) {
+            case TypeTags.UNION:
+                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+                break;
+            case TypeTags.FINITE:
+                if (types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+        }
+
+        switch (testType.tag) {
+            case TypeTags.UNION:
+                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType) !=
+                        symTable.semanticError;
+            case TypeTags.FINITE:
+                return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
+                        symTable.semanticError;
+        }
+        return false;
     }
 
     // private methods

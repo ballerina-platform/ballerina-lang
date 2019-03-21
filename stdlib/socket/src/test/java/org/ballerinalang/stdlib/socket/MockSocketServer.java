@@ -106,12 +106,13 @@ public class MockSocketServer implements Runnable {
                     log.error("Error in MockSocketServer loop: " + e.getMessage());
                 }
             }
+            serverSocket.close();
         } catch (Throwable e) {
             log.error(e.getMessage());
         }
     }
 
-    public void stop() {
+    void stop() {
         execute = false;
         if (selector == null) {
             return;

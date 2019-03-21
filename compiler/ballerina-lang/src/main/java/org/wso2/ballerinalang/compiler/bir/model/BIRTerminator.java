@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -33,7 +34,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
     public InstructionKind kind;
 
-    public BIRTerminator(InstructionKind kind) {
+    public BIRTerminator(DiagnosticPos pos, InstructionKind kind) {
+        super(pos);
         this.kind = kind;
     }
 
@@ -48,8 +50,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
         public BIRBasicBlock targetBB;
 
-        public GOTO(BIRBasicBlock targetBB) {
-            super(InstructionKind.GOTO);
+        public GOTO(DiagnosticPos pos, BIRBasicBlock targetBB) {
+            super(pos, InstructionKind.GOTO);
             this.targetBB = targetBB;
         }
 
@@ -67,18 +69,18 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.980.0
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
-        public BIROperand.BIRVarRef lhsOp;
+        public BIROperand lhsOp;
         public List<BIROperand> args;
         public BIRBasicBlock thenBB;
         public Name name;
         public PackageID calleePkg;
 
-        public Call(PackageID calleePkg,
+        public Call(DiagnosticPos pos, PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
-                    BIROperand.BIRVarRef lhsOp,
+                    BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
-            super(InstructionKind.CALL);
+            super(pos, InstructionKind.CALL);
             this.lhsOp = lhsOp;
             this.args = args;
             this.thenBB = thenBB;
@@ -87,7 +89,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         }
 
         @Override
-        public BIROperand.BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -106,8 +108,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Return extends BIRTerminator {
 
-        public Return() {
-            super(InstructionKind.RETURN);
+        public Return(DiagnosticPos pos) {
+            super(pos, InstructionKind.RETURN);
         }
 
         @Override
@@ -128,8 +130,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIRBasicBlock trueBB;
         public BIRBasicBlock falseBB;
 
-        public Branch(BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
-            super(InstructionKind.BRANCH);
+        public Branch(DiagnosticPos pos, BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
+            super(pos, InstructionKind.BRANCH);
             this.op = op;
             this.trueBB = trueBB;
             this.falseBB = falseBB;
