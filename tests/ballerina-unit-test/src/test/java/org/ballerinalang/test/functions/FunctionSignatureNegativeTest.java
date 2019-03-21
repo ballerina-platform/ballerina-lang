@@ -45,7 +45,7 @@ public class FunctionSignatureNegativeTest {
 
         BAssertUtil.validateError(result, i++, "invalid value for parameter 'j': only simple literals allowed", 40,
                 61);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml'", 40, 61);
+        BAssertUtil.validateError(result, i, "incompatible types: expected 'json', found 'xml'", 40, 61);
 
     }
 
@@ -58,6 +58,6 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testExternFunctionWithBody() {
         CompileResult result = BCompileUtil.compile("test-src/functions/extern-function-with-body.bal");
-        BAssertUtil.validateError(result, 0, "extern function 'foo' cannot have a body", 1, 1);
+        BAssertUtil.validateError(result, 0, "extern function 'foo' cannot have a body", 5, 1);
     }
 }

@@ -11,7 +11,7 @@ public function Person.func1() {
 
 }
 
-private function Person.func2();
+private function Person.func2() = external;
 
 
 
