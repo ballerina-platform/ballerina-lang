@@ -29,17 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  * @since 0.985.0
  */
 public interface ErrorDestructureNode extends StatementNode {
-    ExpressionNode getReason();
-
-    ExpressionNode getDetail();
 
     BLangErrorVarRef getVarRef();
-
-    BLangExpression getExpr();
-
-    void addReasonRef(VariableReferenceNode variableReferenceNode);
-
-    void addDetailRef(VariableReferenceNode variableReferenceNode);
 
     ExpressionNode getExpression();
 

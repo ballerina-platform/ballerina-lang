@@ -37,38 +37,13 @@ public class BLangErrorDestructure extends BLangStatement implements ErrorDestru
     public BLangExpression expr;
 
     @Override
-    public BLangVariableReference getReason() {
-        return this.varRef.reason;
-    }
-
-    @Override
-    public BLangVariableReference getDetail() {
-        return this.varRef.detail;
-    }
-
-    @Override
     public BLangErrorVarRef getVarRef() {
         return this.varRef;
     }
 
     @Override
-    public BLangExpression getExpr() {
-        return this.expr;
-    }
-
-    @Override
-    public void addReasonRef(VariableReferenceNode variableReferenceNode) {
-        varRef.reason = (BLangVariableReference) variableReferenceNode;
-    }
-
-    @Override
-    public void addDetailRef(VariableReferenceNode variableReferenceNode) {
-        varRef.detail = (BLangVariableReference) variableReferenceNode;
-    }
-
-    @Override
     public BLangExpression getExpression() {
-        return expr;
+        return this.expr;
     }
 
     @Override
