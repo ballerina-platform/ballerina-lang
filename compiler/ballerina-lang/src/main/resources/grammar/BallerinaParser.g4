@@ -458,7 +458,16 @@ tupleRefBindingPattern
     ;
 
 recordRefBindingPattern
+    :   openRecordRefBindingPattern
+    |   closedRecordRefBindingPattern
+    ;
+
+openRecordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordRefBindingPattern
+    :   LEFT_BRACE PIPE fieldRefBindingPattern (COMMA fieldRefBindingPattern)* PIPE RIGHT_BRACE
     ;
 
 errorRefBindingPattern
