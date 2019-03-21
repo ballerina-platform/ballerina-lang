@@ -142,7 +142,6 @@ public class TreeVisitor extends LSNodeVisitor {
         isCurrentNodeTransactionStack = new ArrayDeque<>();
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        lsContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     ///////////////////////////////////
