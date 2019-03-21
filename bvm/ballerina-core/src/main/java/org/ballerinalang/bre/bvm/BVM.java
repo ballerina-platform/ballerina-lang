@@ -4892,7 +4892,6 @@ public class BVM {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.SERVICE_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
                             .allMatch(bValue -> checkIsType(bValue, targetType));
