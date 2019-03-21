@@ -16,14 +16,14 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -185,8 +185,8 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 75, 5);
         BAssertUtil.validateError(resultNegative, 8, "unknown type 'Student'", 87, 11);
         BAssertUtil.validateError(resultNegative, 9,
-            "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
-                100, 25);
+                                  "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns ()'",
+                                  100, 25);
         BAssertUtil.validateError(resultNegative, 10,
                 "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' column", 122, 11);
         BAssertUtil.validateError(resultNegative, 11,

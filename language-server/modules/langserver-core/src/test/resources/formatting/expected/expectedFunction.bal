@@ -1,4 +1,6 @@
-import ballerina/io;
+function name0() {
+
+}
 
 type Person record {
     string name;
@@ -47,4 +49,20 @@ function name9() returns (Person) {
     return {
         name: ""
     };
+}
+
+private function name10() {
+
+}
+
+extern function name11() {
+
+}
+
+public extern function name12() {
+
+}
+
+private extern function name12() {
+
 }

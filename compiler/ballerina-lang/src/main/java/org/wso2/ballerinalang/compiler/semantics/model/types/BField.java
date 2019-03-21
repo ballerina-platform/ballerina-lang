@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.Field;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * {@code BField} represents a field in a structure type in Ballerina.
@@ -31,8 +32,12 @@ public class BField implements Field {
     public BType type;
     public BVarSymbol symbol;
 
-    public BField(Name name, BVarSymbol symbol) {
+    //Position for BIR model
+    public DiagnosticPos pos;
+
+    public BField(Name name, DiagnosticPos pos, BVarSymbol symbol) {
         this.name = name;
+        this.pos = pos;
         this.symbol = symbol;
         this.type = symbol.type;
     }

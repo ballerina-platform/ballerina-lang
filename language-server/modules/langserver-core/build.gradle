@@ -31,6 +31,7 @@ dependencies {
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
     implementation project(':testerina:testerina-core')
+    implementation project(':ballerina-activemq-artemis')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.1'
     implementation 'io.netty:netty-buffer:4.1.19.Final'
@@ -58,7 +59,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')

@@ -77,9 +77,16 @@ public type Cache object {
         };
         task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
 
-        _ = cacheCleanupTimer.attach(cacheCleanupService);
-        _ = cacheCleanupTimer.start();
-
+        var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
+        if (attachCacheCleanerResult is error) {
+            error e = error("Failed to create the cache cleanup task.", { message : attachCacheCleanerResult.detail().message });
+            panic e;
+        }
+        var timerStartResult = cacheCleanupTimer.start();
+        if (timerStartResult is error) {
+            error e = error("Failed to start the cache cleanup task.", { message : timerStartResult.detail().message });
+            panic e;
+        }
     }
 
     # Checks whether the given key has an accociated cache value.
