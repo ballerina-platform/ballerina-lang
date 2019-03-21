@@ -221,7 +221,7 @@ public class ArgumentParser {
         }
     }
 
-    private static BValue getBValue(BType type, String value) {
+    public static BValue getBValue(BType type, String value) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
@@ -317,7 +317,7 @@ public class ArgumentParser {
         return Boolean.parseBoolean(argument);
     }
 
-    private static byte getByteValue(String argument) {
+    private static long getByteValue(String argument) {
         long longValue; // TODO: 7/4/18 Allow byte literals?
         try {
             longValue = Long.parseLong(argument);
@@ -327,7 +327,7 @@ public class ArgumentParser {
         if (!BVM.isByteLiteral(longValue)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value, found int");
         }
-        return (byte) longValue;
+        return longValue;
     }
 
     private static BNewArray getRestArgArray(BType type, int index, String[] args) {
@@ -362,7 +362,7 @@ public class ArgumentParser {
                 case TypeTags.BYTE_TAG:
                     BValueArray byteArrayArgs = new BValueArray(BTypes.typeByte);
                     for (int i = index; i < args.length; i++) {
-                        byteArrayArgs.add(i - index, getByteValue(args[i]));
+                        byteArrayArgs.add(i - index, (byte) getByteValue(args[i]));
                     }
                     return byteArrayArgs;
                 default:

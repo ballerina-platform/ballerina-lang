@@ -15,8 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-integration-test-utils</artifactId>
-            <version>${project.version}</version>
+            <artifactId>ballerina-test-utils</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -29,10 +29,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-packerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
@@ -62,7 +58,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-integration-test-utils</artifactId>
+                                    <artifactId>ballerina-test-utils</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -85,9 +81,9 @@
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
-                        <ballerina.agent.path>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.agent.path>
+                        <ballerina.agent.path>${project.build.directory}/ballerina-test-utils-${project.version}.jar</ballerina.agent.path>
                         <integration.test.utils.service.file>
-                            ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
+                            ${basedir}/../../tests/ballerina-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>

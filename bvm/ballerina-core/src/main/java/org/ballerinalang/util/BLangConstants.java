@@ -45,6 +45,8 @@ public class BLangConstants {
     public static final String BLANG_EXEC_FILE_EXT = "balx";
     public static final String BLANG_EXEC_FILE_SUFFIX = "." + BLANG_EXEC_FILE_EXT;
 
+    public static final String JAR_FILE_SUFFIX = ".jar";
+
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 

@@ -1045,7 +1045,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1546,7 +1546,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1610,7 +1610,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1730,11 +1730,9 @@ public class Types {
         // with the same value.
         switch (baseLiteral.type.tag) {
             case TypeTags.BYTE:
-                if (candidateTypeTag == TypeTags.BYTE) {
-                    return (byte) baseValue == (byte) candidateValue;
-                } else if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
-                        isByteLiteralValue((Long) candidateValue)) {
-                    return (byte) baseValue == ((Long) candidateValue).byteValue();
+                if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
+                        !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
+                    return (long) baseValue == (long) candidateValue;
                 }
                 break;
             case TypeTags.INT:

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.NoType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 
 /**
  * @since 0.94
@@ -32,5 +33,10 @@ public class BXMLAttributesType extends BType implements NoType {
     @Override
     public TypeKind getKind() {
         return TypeKind.XML_ATTRIBUTES;
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 }
