@@ -18,12 +18,12 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -70,11 +70,13 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
         String invalidRecordPattern = "invalid record binding pattern; ";
         String invalidTuplePattern = "invalid tuple variable; ";
+        String unreachablePattern =
+                "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
 
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 34, 14);
@@ -85,6 +87,7 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 39, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 40, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 49, 14);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 50, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 51, 13);

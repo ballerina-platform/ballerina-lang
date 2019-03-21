@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -72,7 +72,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
             <scope>test</scope>
@@ -195,29 +195,6 @@
             <artifactId>ballerina-auth</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-config-api</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-config-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

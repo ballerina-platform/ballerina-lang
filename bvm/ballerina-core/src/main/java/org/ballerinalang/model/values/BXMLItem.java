@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -705,7 +706,7 @@ public final class BXMLItem extends BXML<OMNode> {
     /**
      * {@inheritDoc}
      */
-    public int length() {
+    public long size() {
         return this.omNode == null ? 0 : 1;
     }
 
@@ -788,6 +789,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 nodeType = XMLNodeType.ELEMENT;
                 break;
             case OMNode.TEXT_NODE:
+            case OMNode.SPACE_NODE:
                 nodeType = XMLNodeType.TEXT;
                 break;
             case OMNode.COMMENT_NODE:
@@ -841,6 +843,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
         BXMLItem value;
         int cursor = 0;
+        BXMLCodePointIterator codePointIterator;
 
         BXMLItemIterator(BXMLItem bxmlItem) {
             value = bxmlItem;
@@ -848,7 +851,13 @@ public final class BXMLItem extends BXML<OMNode> {
 
         @Override
         public BValue getNext() {
-            if (hasNext()) {
+            if (value.getNodeType() == XMLNodeType.TEXT) {
+                if (codePointIterator == null) {
+                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                }
+                cursor++;
+                return codePointIterator.getNext();
+            } else if (hasNext()) {
                 cursor++;
                 return value;
             }
@@ -857,6 +866,12 @@ public final class BXMLItem extends BXML<OMNode> {
 
         @Override
         public boolean hasNext() {
+            if (value.getNodeType() == XMLNodeType.TEXT) {
+                if (codePointIterator == null) {
+                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                }
+                return codePointIterator.hasNext();
+            }
             return cursor == 0;
         }
 

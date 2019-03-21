@@ -107,7 +107,7 @@ function testMultiDimensionalSealedArrays() {
 }
 
 function testOpenSealedArrays() {
-    int[!...] x19 = [1, 2, 3, 4];
+    int[*] x19 = [1, 2, 3, 4];
     int[] x20 = x19;
     x20[4] = 5; // Runtime Exception
 }

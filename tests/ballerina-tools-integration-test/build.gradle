@@ -6,6 +6,8 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-launcher')
+    implementation project(':ballerina-test-utils')
+
     testCompile 'org.awaitility:awaitility:3.0.0'
     testCompile 'commons-io:commons-io:2.6'
     testCompile 'org.testng:testng:6.13.1'

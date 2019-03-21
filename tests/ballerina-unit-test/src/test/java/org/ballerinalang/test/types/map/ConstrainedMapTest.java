@@ -18,10 +18,6 @@
 
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -30,6 +26,10 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -432,7 +432,7 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonComplexTwo'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'PersonComplexTwo'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

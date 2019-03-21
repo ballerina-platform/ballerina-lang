@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defFl5.bal"
+  },
+  "position": {
+    "line": 16,
+    "character": 6
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 8
+        },
+        "end": {
+          "line": 11,
+          "character": 10
+        }
+      },
+      "uri": "defFl5.bal"
+    }
+  ]
+}

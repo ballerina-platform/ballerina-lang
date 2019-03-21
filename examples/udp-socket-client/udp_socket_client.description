@@ -1,0 +1,2 @@
+// The UDP Client is used to connect to a remote UDP host.
+// This sample demonstrates how the send data to remote server and print the echo response.

@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -165,8 +166,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String EVENT_DATA_VARIABLE_NAME = "data";
     private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
+    private static final String INIT_PERSISTENCE_METHOD_NAME = "initPersistence";
+    private static final String REGISTER_SNAPSHOTABLE_METHOD_NAME = "registerSnapshotable";
     private static final String STREAM_SUBSCRIBE_METHOD_NAME = "stream.subscribe";
     private static final String JOIN_TYPE = "JoinType";
+    private static final String SCOPE_NAME_ARG_NAME = "scopeName";
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -232,7 +236,40 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         // Generate Streaming Consumer Function
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
+        injectInitPersistenceStmt(foreverStatement);
         return ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
+    }
+
+    private void injectInitPersistenceStmt(BLangForever foreverStatement) {
+        BInvokableSymbol initPersistenceInvokableSymbol = (BInvokableSymbol) symResolver.
+                resolvePkgSymbol(foreverStatement.pos, env, Names.STREAMS_MODULE).
+                scope.lookup(new Name(INIT_PERSISTENCE_METHOD_NAME)).symbol;
+        BLangInvocation initPersistenceMethodInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(foreverStatement.pos, initPersistenceInvokableSymbol, new ArrayList<>(),
+                        symResolver);
+        BLangExpressionStmt initPersistenceExpressionStmt = (BLangExpressionStmt) TreeBuilder.
+                createExpressionStatementNode();
+        initPersistenceExpressionStmt.pos = foreverStatement.pos;
+        initPersistenceExpressionStmt.expr = initPersistenceMethodInvocation;
+        stmts.add(initPersistenceExpressionStmt);
+    }
+
+    private void injectRegisterSnapshotableStmt(List<BLangStatement> stmts, DiagnosticPos pos, String key,
+                                                BLangSimpleVarRef varRef) {
+        BInvokableSymbol registerSnapshotableInvokableSymbol = (BInvokableSymbol) symResolver.
+                resolvePkgSymbol(pos, env, Names.STREAMS_MODULE).scope
+                .lookup(new Name(REGISTER_SNAPSHOTABLE_METHOD_NAME)).symbol;
+        List<BLangExpression> args = new ArrayList<>();
+        args.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, key));
+        args.add(varRef);
+        BLangInvocation registerSnapshotableMethodInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(pos, registerSnapshotableInvokableSymbol, args, symResolver);
+        registerSnapshotableMethodInvocation.argExprs = args;
+        BLangExpressionStmt initPersistenceExpressionStmt = (BLangExpressionStmt) TreeBuilder.
+                createExpressionStatementNode();
+        initPersistenceExpressionStmt.pos = pos;
+        initPersistenceExpressionStmt.expr = registerSnapshotableMethodInvocation;
+        stmts.add(initPersistenceExpressionStmt);
     }
 
     @Override
@@ -598,6 +635,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef outputTypeRef = ASTBuilderUtil.createVariableRef(mapVarRef.pos, typeSymbol);
         //special case for varRefs of Types;
         outputTypeRef.type = symTable.typeDesc;
+        outputTypeRef.symbol.tag = TypeTags.TYPEDESC;
         BSymbol createMethodSymbol =
                 symResolver.createSymbolForConvertOperator(mapVarRef.pos,
                         names.fromBuiltInMethod(BLangBuiltInMethod.CONVERT), Lists.of(mapVarRef), outputTypeRef);
@@ -684,6 +722,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangInvocation selectWithGroupByInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(selectClause.pos, groupBySelectInvokableSymbol, args, symResolver);
         selectWithGroupByInvocation.argExprs = args;
+        selectWithGroupByInvocation.namedArgs.add(ASTBuilderUtil.createNamedArg(SCOPE_NAME_ARG_NAME,
+                ASTBuilderUtil.createLiteral(selectClause.pos, symTable.stringType, getScopeName())));
 
         // streams:Select variable name
         BLangSimpleVariable selectWithGroupByInvokableTypeVariable = ASTBuilderUtil.
@@ -1304,6 +1344,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE, WINDOW_OBJECT_NAME);
                 stmts.add(windowDef);
 
+                BLangSimpleVarRef windowVarRef = ASTBuilderUtil.createVariableRef(window.pos,
+                        windowDef.getVariable().symbol);
+                injectRegisterSnapshotableStmt(stmts, window.pos, windowDef.getVariable().getName().value,
+                        windowVarRef);
+
                 if (!joinProcessorStack.empty()) {
                     if (isTableJoin) {
                         attachWindowToTableJoinProcessor(window, windowInvokableTypeVarSymbol, lhsStream, rhsStream);
@@ -1567,7 +1612,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private String getVariableName(String name) {
-        return name + lambdaFunctionCount;
+        return name + getScopeName() + lambdaFunctionCount;
+    }
+
+    private String getScopeName() {
+        return (env.scope.owner != null) ? "$" + env.scope.owner.name.value + "$" : "$";
     }
 
     private void defineFunction(BLangFunction funcNode, BLangPackage targetPkg) {

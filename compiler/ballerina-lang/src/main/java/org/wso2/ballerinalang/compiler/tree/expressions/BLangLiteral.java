@@ -29,6 +29,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
     public Object value;
     public String originalValue;
     public boolean isJSONContext;
+    public boolean isConstant;
 
     @Override
     public Object getValue() {
@@ -62,7 +63,8 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        // To distinguish between `()` and `null`
+        return value == null ? originalValue : String.valueOf(value);
     }
 
 }

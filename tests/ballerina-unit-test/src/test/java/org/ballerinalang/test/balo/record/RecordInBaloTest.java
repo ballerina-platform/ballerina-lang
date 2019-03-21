@@ -18,11 +18,12 @@
 
 package org.ballerinalang.test.balo.record;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -55,5 +56,10 @@ public class RecordInBaloTest {
 
         returns = BRunUtil.invoke(result, "testCRRestFieldInCR");
         assertEquals(returns[0].stringValue(), "{name:\"Closed Foo\", cb:{x:4.0}}");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project/", "testorg", "records");
     }
 }

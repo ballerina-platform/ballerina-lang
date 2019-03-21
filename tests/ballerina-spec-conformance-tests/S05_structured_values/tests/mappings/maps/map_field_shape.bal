@@ -30,7 +30,7 @@ function testMapFieldShape() {
     m1.bazFieldTwo = 1.0;
     conversionResult = BazRecordTen.convert(m1);
     if (conversionResult is error) {
-        test:assertEquals(conversionResult.reason(), "{ballerina}StampError",
+        test:assertEquals(conversionResult.reason(), "{ballerina}ConversionError",
             msg = "invalid reason on conversion failure due to shape mismatch");
     } else {
         test:assertFail(msg = "expected conversion to fail");
@@ -42,7 +42,7 @@ function testMapFieldShape() {
     m1.bazFieldThree = "test string 3";
     conversionResult = BazRecordTen.convert(m1);
     if (conversionResult is error) {
-        test:assertEquals(conversionResult.reason(), "{ballerina}StampError",
+        test:assertEquals(conversionResult.reason(), "{ballerina}ConversionError",
             msg = "invalid reason on conversion failure due to shape mismatch");
     } else {
         test:assertFail(msg = "expected conversion to fail");

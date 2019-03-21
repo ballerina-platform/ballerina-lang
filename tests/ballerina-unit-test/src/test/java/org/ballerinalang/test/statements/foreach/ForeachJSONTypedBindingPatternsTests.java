@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.statements.foreach;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -91,15 +91,16 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testDirectAccessInvalidElementWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}StampError {\"message\":\"cannot stamp 'null' " +
-                "value to type 'map<json>'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert " 
+                + "'null' value to type 'map<json>'\"}");
     }
 
     @Test
     public void testDirectAccessInvalidElementWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}StampError {\"message\":\"cannot stamp 'null' " +
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}ConversionError {\"message\":\"cannot convert 'null'" 
+                + " " +
                 "value to type 'map<json>'\"}");
     }
 

@@ -88,7 +88,14 @@ public type GlobalPoolConfigContainer object {
 // __init functions of database clients pass poolConfig member of this instance
 // to the extern client creation logic in order to access the internal map
 // of connection pools.
-public final GlobalPoolConfigContainer globalPoolConfigContainer = new;
+final GlobalPoolConfigContainer globalPoolConfigContainer = new;
+
+# Retrieves the `final` `GlobalPoolConfigContainer` object.
+#
+# + return - The `final` `GlobalPoolConfigContainer` object
+public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer {
+    return globalPoolConfigContainer;
+}
 
 # The SQL Datatype of the parameter.
 #
@@ -186,6 +193,16 @@ public type Parameter record {
     any value = ();
     Direction direction = DIRECTION_IN;
     typedesc recordType?;
+    !...;
+};
+
+# Result represents the output of the `update` remote function.
+#
+# + updatedRowCount - The updated row count during the sql statement exectuion
+# + generatedKeys - A map of auto generated key values during the sql statement execution
+public type UpdateResult record {
+    int updatedRowCount;
+    map<anydata> generatedKeys;
     !...;
 };
 

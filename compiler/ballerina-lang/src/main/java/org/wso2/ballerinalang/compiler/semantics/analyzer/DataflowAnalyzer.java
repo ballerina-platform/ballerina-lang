@@ -295,6 +295,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
+        this.currDependentSymbol.push(service.serviceTypeDefinition.symbol);
+        for (BLangExpression attachedExpr : service.attachedExprs) {
+            analyzeNode(attachedExpr, env);
+        }
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -591,6 +596,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
+        if (this.currDependentSymbol.peek() != null) {
+            addDependency(this.currDependentSymbol.peek(), typeInitExpr.type.tsymbol);
+        }
     }
 
     @Override
@@ -906,6 +914,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        this.currDependentSymbol.push(objectTypeNode.symbol);
+
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         objectTypeNode.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
@@ -936,6 +946,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -1023,9 +1034,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorDestructure recordDestructure) {
-        analyzeNode(recordDestructure.expr, env);
-        checkAssignment(recordDestructure.varRef);
+    public void visit(BLangErrorDestructure errorDestructure) {
+        analyzeNode(errorDestructure.expr, env);
+        checkAssignment(errorDestructure.varRef);
     }
 
     @Override
@@ -1035,10 +1046,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
+        varRefExpr.recordRefFields.forEach(expr -> analyzeNode(expr.variableReference, env));
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
+        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.detail, env);
     }
 
     @Override
@@ -1063,7 +1077,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangVariable var = bLangRecordVariableDef.var;
         if (var.expr == null) {
             addUninitializedVar(var);
-            return;
         }
     }
 
@@ -1073,6 +1086,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        BLangVariable var = bLangErrorVariableDef.errorVariable;
+        if (var.expr == null) {
+            addUninitializedVar(var);
+        }
     }
 
     @Override
@@ -1177,6 +1194,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // Global variable ref from non package level.
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
             addDependency(invokableOwnerSymbol, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.OBJECT && isGlobalVarSymbol(symbol)) {
+            // Global variable reference from a field assignment of an object or a service.
+            // Or global variable reference from a __init function of an object or a service.
+            addDependency(ownerSymbol, symbol);
         }
     }
 
@@ -1190,10 +1211,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkAssignment(BLangExpression varRef) {
         switch (varRef.getKind()) {
             case RECORD_VARIABLE_REF:
-                ((BLangRecordVarRef) varRef).recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
+                recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+                if (recordVarRef.restParam != null) {
+                    checkAssignment((BLangExpression) recordVarRef.restParam);
+                }
                 return;
             case TUPLE_VARIABLE_REF:
-                ((BLangTupleVarRef) varRef).expressions.forEach(expr -> checkAssignment(expr));
+                ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);
+                return;
+            case ERROR_VARIABLE_REF:
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
+                checkAssignment(errorVarRef.reason);
+                checkAssignment(errorVarRef.detail);
                 return;
             case INDEX_BASED_ACCESS_EXPR:
             case FIELD_BASED_ACCESS_EXPR:

@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -925,6 +926,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorVariable varNode) {
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+    }
+
+    @Override
     public void visit(BLangEndpoint endpoint) {
     }
 
@@ -1141,7 +1149,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
                             .peek(field -> defineNode(field, typeDefEnv))
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol))
+                            .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                             .collect(Collectors.toList());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {

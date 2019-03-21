@@ -16,12 +16,13 @@
  */
 package org.ballerinalang.test.balo.annotation;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -69,5 +70,10 @@ public class AnnotationTests {
         Assert.assertTrue(returns[0].stringValue()
                 .contains("name:\"ResourceConfig\", moduleName:\"ballerina/http\", " + "moduleVersion:\"\""));
         Assert.assertTrue(returns[0].stringValue().contains("/bar"));
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
     }
 }

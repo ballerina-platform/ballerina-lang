@@ -175,6 +175,8 @@ public type ServiceEndpointConfiguration record {
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
 public type ServiceSecureSocket record {
     TrustStore? trustStore = ();
@@ -192,6 +194,8 @@ public type ServiceSecureSocket record {
                         "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
+    int? handshakeTimeout = ();
+    int? sessionTimeout = ();
     ServiceOcspStapling? ocspStapling = ();
     !...;
 };

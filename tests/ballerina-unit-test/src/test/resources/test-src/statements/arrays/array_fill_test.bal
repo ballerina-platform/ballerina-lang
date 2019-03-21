@@ -160,9 +160,9 @@ function testUnionArrayFill2(int index) returns (string|string)[] {
     return ar;
 }
 
-function testUnionArrayFill3(int index) returns (Person|Person)[] {
+function testUnionArrayFill3(int index) returns (Person|Person|())[] {
     (Person|Person) value = {name:"John", age:25};
-    (Person|Person)[] ar = [];
+    (Person|Person|())[] ar = [];
     ar[index] = value;
     return ar;
 }
