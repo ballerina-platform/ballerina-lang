@@ -195,13 +195,13 @@ public class RecordVariableReferenceTest {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 43, 12);
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 43, 19);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 40);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 48);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 66);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 41);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 49);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 63);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 43, 35);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 43, 33);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 62, 35);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 62, 33);
         BAssertUtil.validateError(resultNegative, ++i,
                 "not enough fields to match to closed record type 'Person'", 69, 5);
         BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 94, 5);
@@ -219,7 +219,7 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 119, 5);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 119, 27);
+                "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 119, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "unknown type 'Data'", 123, 6);
         BAssertUtil.validateError(resultNegative, ++i,
