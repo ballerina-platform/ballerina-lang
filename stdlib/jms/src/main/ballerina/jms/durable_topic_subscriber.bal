@@ -62,10 +62,11 @@ public type DurableTopicSubscriber object {
         return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(service serviceType, DurableTopicSubscriberCaller actions,
- map<any> data) returns error?;
+    function registerListener(service serviceType, DurableTopicSubscriberCaller actions,
+ map<any> data) returns error? = external;
 
-    extern function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector) returns error?;
+    function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector) 
+        returns error? = external;
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint
     #
@@ -88,7 +89,7 @@ public type DurableTopicSubscriber object {
         return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(DurableTopicSubscriberCaller actions) returns error?;
+    function closeSubscriber(DurableTopicSubscriberCaller actions) returns error? = external;
 };
 
 # Caller actions related to DurableTopicSubscriber endpoint
@@ -98,11 +99,11 @@ public type DurableTopicSubscriberCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - Error upon failure to acknowledge the received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error upon JMS provider internal error
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message | error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 };

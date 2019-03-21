@@ -152,4 +152,5 @@ public type Client client object {
     }
 };
 
-extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions) returns sql:Client;
+function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config, sql:PoolOptions globalPoolOptions)
+             returns sql:Client = external;

@@ -77,7 +77,7 @@ public type GlobalPoolConfigContainer object {
          self.initGlobalPoolContainer(frozenConfig);
      }
 
-     extern function initGlobalPoolContainer(PoolOptions poolConfig);
+     function initGlobalPoolContainer(PoolOptions poolConfig) = external;
 
      public function getGlobalPoolConfig() returns PoolOptions {
         return self.poolConfig;

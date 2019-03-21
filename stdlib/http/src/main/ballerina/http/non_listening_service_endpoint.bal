@@ -41,11 +41,11 @@ public type MockListener object {
         self.init(self.config);
     }
 
-    public function init (ServiceEndpointConfiguration c);
-    public extern function initEndpoint () returns (error?);
-    public extern function register (service s, map<any> annotationData) returns error?;
-    public extern function start ();
-    public extern function stop ();
+    public function init(ServiceEndpointConfiguration c);
+    public function initEndpoint() returns error? = external;
+    public function register(service s, map<any> annotationData) returns error? = external;
+    public function start() = external;
+    public function stop() = external;
 };
 
 public function MockListener.init (ServiceEndpointConfiguration c) {

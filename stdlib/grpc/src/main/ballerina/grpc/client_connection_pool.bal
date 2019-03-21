@@ -37,7 +37,7 @@ type ConnectionManager object {
     public function __init() {
         self.initGlobalPool(self.poolConfig);
     }
-    extern function initGlobalPool(PoolConfiguration poolConfig);
+    function initGlobalPool(PoolConfiguration poolConfig) = external;
 
     public function getPoolConfiguration() returns PoolConfiguration {
         return self.poolConfig;

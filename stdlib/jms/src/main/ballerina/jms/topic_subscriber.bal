@@ -66,9 +66,9 @@ public type TopicSubscriber object {
         return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error?;
+    function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error? = external;
 
-    extern function createSubscriber(Session? session, string messageSelector, string|Destination dest);
+    function createSubscriber(Session? session, string messageSelector, string|Destination dest) = external;
 
     # Start TopicSubscriber endpoint
     #
@@ -91,7 +91,7 @@ public type TopicSubscriber object {
         return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(TopicSubscriberCaller actions) returns error?;
+    function closeSubscriber(TopicSubscriberCaller actions) returns error? = external;
 };
 
 # Remote functions that topic subscriber endpoint could perform
@@ -105,13 +105,13 @@ public type TopicSubscriberCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - error on failure to acknowledge a received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error.
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 
     # Synchronously receive a message from the JMS provider
     #

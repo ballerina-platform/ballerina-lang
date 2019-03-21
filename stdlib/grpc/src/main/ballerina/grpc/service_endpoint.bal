@@ -56,14 +56,14 @@ public type Listener object {
         self.init(self.port, self.config);
     }
 
-    extern function init(int port, ServiceEndpointConfiguration config);
+    function init(int port, ServiceEndpointConfiguration config) = external;
 
 
-    extern function register(service serviceType, map<any> annotationData) returns error?;
+    function register(service serviceType, map<any> annotationData) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 
-    extern function stop() returns error?;
+    function stop() returns error? = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.

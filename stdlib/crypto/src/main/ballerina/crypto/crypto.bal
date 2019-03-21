@@ -125,107 +125,107 @@ public type CryptoError record {
 #
 # + input - Value to be hashed
 # + return - Hashed output
-public extern function hashMd5(byte[] input) returns byte[];
+public function hashMd5(byte[] input) returns byte[] = external;
 
 # Returns the SHA-1 hash of the given data.
 #
 # + input - Value to be hashed
 # + return - Hashed output
-public extern function hashSha1(byte[] input) returns byte[];
+public function hashSha1(byte[] input) returns byte[] = external;
 
 # Returns the SHA-256 hash of the given data.
 #
 # + input - Value to be hashed
 # + return - Hashed output
-public extern function hashSha256(byte[] input) returns byte[];
+public function hashSha256(byte[] input) returns byte[] = external;
 
 # Returns the SHA-384 hash of the given data.
 #
 # + input - Value to be hashed
 # + return - Hashed output
-public extern function hashSha384(byte[] input) returns byte[];
+public function hashSha384(byte[] input) returns byte[] = external;
 
 # Returns the SHA-512 hash of the given data.
 #
 # + input - Value to be hashed
 # + return - Hashed output
-public extern function hashSha512(byte[] input) returns byte[];
+public function hashSha512(byte[] input) returns byte[] = external;
 
 # Returns the HMAC using MD-5 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
 # + return - HMAC output
-public extern function hmacMd5(byte[] input, byte[] key) returns byte[];
+public function hmacMd5(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-1 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
 # + return - HMAC output
-public extern function hmacSha1(byte[] input, byte[] key) returns byte[];
+public function hmacSha1(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-256 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
 # + return - HMAC output
-public extern function hmacSha256(byte[] input, byte[] key) returns byte[];
+public function hmacSha256(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-384 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
 # + return - HMAC output
-public extern function hmacSha384(byte[] input, byte[] key) returns byte[];
+public function hmacSha384(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-512 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
 # + return - HMAC output
-public extern function hmacSha512(byte[] input, byte[] key) returns byte[];
+public function hmacSha512(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns Hex encoded CRC32B value for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
 #
 # + input - Value for checksum generation
 # + return - The generated checksum
-public extern function crc32b(any input) returns (string);
+public function crc32b(any input) returns string = external;
 
 # Returns RSA-MD5 based signature value for the given data.
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
-public extern function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|error;
+public function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|error = external;
 
 # Returns RSA-SHA1 based signature value for the given data.
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
-public extern function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|error;
+public function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|error = external;
 
 # Returns RSA-SHA256 based signature value for the given data.
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
-public extern function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[]|error;
+public function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[]|error = external;
 
 # Returns RSA-SHA384 based signature value for the given data.
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing.
 # + return - The generated signature or error if private key is invalid
-public extern function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[]|error;
+public function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[]|error = external;
 
 # Returns RSA-SHA512 based signature value for the given data.
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
 # + return - The generated signature or error if private key is invalid
-public extern function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|error;
+public function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|error = external;
 
 # Verify RSA-MD5 based signature.
 #
@@ -233,7 +233,8 @@ public extern function signRsaSha512(byte[] input, PrivateKey privateKey) return
 # + signature - Signature value
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
-public extern function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey) returns boolean|error;
+public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey) 
+returns boolean|error = external;
 
 # Verify RSA-SHA1 based signature.
 #
@@ -241,8 +242,8 @@ public extern function verifyRsaMd5Signature(byte[] data, byte[] signature, Publ
 # + signature - Signature value
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
-public extern function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error;
+public function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error = external;
 
 # Verify RSA-SHA256 based signature.
 #
@@ -250,8 +251,8 @@ returns boolean|error;
 # + signature - Signature value
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
-public extern function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error;
+public function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error = external;
 
 # Verify RSA-SHA384 based signature.
 #
@@ -259,8 +260,8 @@ returns boolean|error;
 # + signature - Signature value
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
-public extern function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error;
+public function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error = external;
 
 # Verify RSA-SHA512 based signature.
 #
@@ -268,8 +269,8 @@ returns boolean|error;
 # + signature - Signature value
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or error if public key is invalid
-public extern function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
-returns boolean|error;
+public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
+returns boolean|error = external;
 
 # Read a private key from the provided PKCS#12 archive file.
 #
@@ -277,15 +278,15 @@ returns boolean|error;
 # + keyAlias - Key alias
 # + keyPassword - Key password
 # + return - Reference to the private key or error if private key was unreadable
-public extern function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (), string? keyPassword = ())
-returns PrivateKey|error;
+public function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (), string? keyPassword = ())
+returns PrivateKey|error = external;
 
 # Read a public key from the provided PKCS#12 archive file.
 #
 # + keyStore - Key store configuration
 # + keyAlias - Key alias
 # + return - Reference to the public key or error if private key was unreadable
-public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ()) returns PublicKey|error;
+public function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ()) returns PublicKey|error = external;
 
 # Returns RSA encrypted value for the given data.
 #
@@ -293,8 +294,8 @@ public extern function decodePublicKey(KeyStore? keyStore = (), string? keyAlias
 # + input - The content to be encrypted
 # + key - Private or public key used for encryption
 # + return - Encrypted data or error if key is invalid
-public extern function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key)
-returns byte[]|error;
+public function encryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key)
+returns byte[]|error = external;
 
 # Returns AES CBC encrypted value for the given data.
 #
@@ -303,8 +304,8 @@ returns byte[]|error;
 # + key - Encryption key
 # + iv - Initialization vector
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv)
-returns byte[]|error;
+public function encryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv)
+returns byte[]|error = external;
 
 # Returns AES ECB encrypted value for the given data.
 #
@@ -312,7 +313,7 @@ returns byte[]|error;
 # + input - The content to be encrypted
 # + key - Encryption key
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesEcb(AesPadding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
+public function encryptAesEcb(AesPadding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error = external;
 
 # Returns AES GCM encrypted value for the given data.
 #
@@ -322,8 +323,8 @@ public extern function encryptAesEcb(AesPadding padding = "PKCS5", byte[] input,
 # + iv - Initialization vector
 # + tagSize - Tag size
 # + return - Encrypted data or error if key is invalid
-public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv,
-                                     int? tagSize = 128) returns byte[]|error;
+public function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv,
+                                     int? tagSize = 128) returns byte[]|error = external;
 
 # Returns RSA decrypted value for the given RSA encrypted data.
 #
@@ -331,8 +332,8 @@ public extern function encryptAesGcm(AesPadding padding = "PKCS5", byte[] input,
 # + input - The content to be decrypted
 # + key - Private or public key used for encryption
 # + return - Decrypted data or error if key is invalid
-public extern function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key)
-returns byte[]|error;
+public function decryptRsaEcb(RsaPadding padding = "PKCS1", byte[] input, PrivateKey|PublicKey key)
+returns byte[]|error = external;
 
 # Returns AES CBC decrypted value for the given AES CBC encrypted data.
 #
@@ -341,8 +342,8 @@ returns byte[]|error;
 # + key - Encryption key
 # + iv - Initialization vector
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv)
-returns byte[]|error;
+public function decryptAesCbc(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv)
+returns byte[]|error = external;
 
 # Returns AES ECB decrypted value for the given AES ECB encrypted data.
 #
@@ -350,7 +351,7 @@ returns byte[]|error;
 # + input - The content to be decrypted
 # + key - Encryption key
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesEcb(AesPadding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error;
+public function decryptAesEcb(AesPadding padding = "PKCS5", byte[] input, byte[] key) returns byte[]|error = external;
 
 # Returns AES GCM decrypted value for the given AES GCM encrypted data.
 #
@@ -360,5 +361,5 @@ public extern function decryptAesEcb(AesPadding padding = "PKCS5", byte[] input,
 # + iv - Initialization vector
 # + tagSize - Tag size
 # + return - Decrypted data or error if key is invalid
-public extern function decryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv,
-                                     int? tagSize = 128) returns byte[]|error;
+public function decryptAesGcm(AesPadding padding = "PKCS5", byte[] input, byte[] key, byte[] iv,
+                                     int? tagSize = 128) returns byte[]|error = external;

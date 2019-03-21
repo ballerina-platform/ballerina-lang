@@ -19,24 +19,24 @@
 #
 # + name - Name of the environment variable
 # + return - Environment variable value if it exists, otherwise an empty string
-public extern function getEnv(@sensitive string name) returns string;
+public function getEnv(@sensitive string name) returns string = external;
 
 # Returns the current working directory.
 #
 # + return - Current working directory or an empty string if the current working directory cannot be determined
-public extern function getCurrentDirectory() returns string;
+public function getCurrentDirectory() returns string = external;
 
 # Returns the current user's name.
 #
 # + return - Current user's name if it can be determined, an empty string otherwise
-public extern function getUsername() returns string;
+public function getUsername() returns string = external;
 
 # Returns the current user's home directory path.
 #
 # + return - Current user's home directory if it can be determined, an empty string otherwise
-public extern function getUserHome() returns string;
+public function getUserHome() returns string = external;
 
 # Returns a random UUID string.
 #
 # + return - The random string
-public extern function uuid() returns string;
+public function uuid() returns string = external;

@@ -25,12 +25,12 @@ public type annotationData record {
     record { any...; } value;
 };
 
-public extern function getServiceAnnotations(service serviceType) returns (annotationData[]);
+public function getServiceAnnotations(service serviceType) returns annotationData[] = external;
 
-public extern function getResourceAnnotations(service serviceType, string resourceName) returns (annotationData[]);
+public function getResourceAnnotations(service serviceType, string resourceName) returns annotationData[] = external;
 
-public extern function getStructAnnotations(typedesc structType) returns (annotationData[]);
+public function getStructAnnotations(typedesc structType) returns annotationData[] = external;
 
-public extern function getStructFieldAnnotations(typedesc structType, string fieldName) returns (annotationData[]);
+public function getStructFieldAnnotations(typedesc structType, string fieldName) returns annotationData[] = external;
 
-public extern function getFunctionAnnotations(any functionPointer) returns (annotationData[]);
+public function getFunctionAnnotations(any functionPointer) returns annotationData[] = external;
