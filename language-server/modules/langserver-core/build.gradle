@@ -51,7 +51,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-swagger', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-openapi', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
