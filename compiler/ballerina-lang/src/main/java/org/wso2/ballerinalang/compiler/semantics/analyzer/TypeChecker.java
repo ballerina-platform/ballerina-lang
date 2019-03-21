@@ -2141,11 +2141,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
-        int envCount = env.envCount;
-        if (env.node.getKind() == NodeKind.ARROW_EXPR) {
-            envCount = envCount + 1;
-        }
-        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env, envCount);
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
         bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
         return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
     }

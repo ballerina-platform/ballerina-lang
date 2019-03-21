@@ -556,7 +556,6 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
 
-        // Add the parameter symbols to the param stack
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
@@ -1591,8 +1590,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignment) {
         BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignStmt.pos = compoundAssignment.pos;
-        compoundAssignment.varRef.lhsVar = true;
         BLangVariableReference varRef = compoundAssignment.varRef;
+
         // Create a new varRef if this is a simpleVarRef. Because this can be a
         // narrowed type var. In that case, lhs and rhs must be visited in two
         // different manners.
@@ -1602,9 +1601,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         assignStmt.setVariable(rewriteExpr(varRef));
-        compoundAssignment.varRef.lhsVar = false;
-        assignStmt.expr = rewriteExpr(addConversionExprIfRequired(compoundAssignment.modifiedExpr,
-                assignStmt.varRef.type));
+        assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
         result = assignStmt;
     }
 

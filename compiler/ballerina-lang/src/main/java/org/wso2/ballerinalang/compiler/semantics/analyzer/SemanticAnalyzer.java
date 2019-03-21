@@ -325,7 +325,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
 
         boolean isAbstract = objectTypeNode.flagSet.contains(Flag.ABSTRACT);
-
         objectTypeNode.fields.forEach(field -> {
             analyzeDef(field, objectEnv);
             if (isAbstract && field.flagSet.contains(Flag.PRIVATE)) {

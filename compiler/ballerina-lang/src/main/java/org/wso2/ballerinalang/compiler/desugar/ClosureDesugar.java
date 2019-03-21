@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -107,7 +106,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
@@ -391,11 +389,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResource resourceNode) {
-        /* Ignore */
-    }
-
-    @Override
     public void visit(BLangSimpleVariable varNode) {
         varNode.expr = rewriteExpr(varNode.expr);
         result = varNode;
@@ -403,32 +396,38 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
+        varNode.expr = rewriteExpr(varNode.expr);
         result = varNode;
     }
 
     @Override
     public void visit(BLangRecordVariable varNode) {
+        varNode.expr = rewriteExpr(varNode.expr);
         result = varNode;
     }
 
     @Override
     public void visit(BLangErrorVariable varNode) {
+        varNode.expr = rewriteExpr(varNode.expr);
         result = varNode;
     }
 
     @Override
     public void visit(BLangTupleVariableDef varDefNode) {
+        varDefNode.var = rewrite(varDefNode.var, env);
         result = varDefNode;
     }
 
     @Override
     public void visit(BLangRecordVariableDef varDefNode) {
+        varDefNode.var = rewrite(varDefNode.var, env);
         result = varDefNode;
     }
 
     @Override
     public void visit(BLangErrorVariableDef varDefNode) {
-        /* Ignore */
+        varDefNode.errorVariable = rewrite(varDefNode.errorVariable, env);
+        result = varDefNode;
     }
 
     @Override
@@ -495,10 +494,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         xmlnsNode.namespaceURI = rewriteExpr(xmlnsNode.namespaceURI);
         result = xmlnsNode;
-    }
-
-    public void visit(BLangCompoundAssignment compoundAssignment) {
-        /* Ignore */
     }
 
     @Override

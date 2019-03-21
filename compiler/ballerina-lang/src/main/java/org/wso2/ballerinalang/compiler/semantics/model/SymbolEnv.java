@@ -164,9 +164,8 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env, int envCount) {
+    public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
-        symbolEnv.envCount = envCount + 1;
         symbolEnv.enclEnv = env;
         symbolEnv.enclPkg = env.enclPkg;
         return symbolEnv;
