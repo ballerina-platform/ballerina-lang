@@ -246,7 +246,7 @@ public type ClientEndpointConfig record {
 };
 
 extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
-                                        returns Client;
+                    returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
@@ -361,7 +361,7 @@ public type OAuth2AuthConfig record {
 # + scopes - Scope of the access request
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request gets a 401 response
-# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+# + credentialBearer - How authentication credentials are sent to authorization server
 public type ClientCredentialsGrantConfig record {
     string tokenUrl;
     string clientId;
@@ -384,7 +384,7 @@ public type ClientCredentialsGrantConfig record {
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request gets a 401 response
-# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+# + credentialBearer - How authentication credentials are sent to authorization server
 public type PasswordGrantConfig record {
     string tokenUrl;
     string username;
@@ -405,7 +405,7 @@ public type PasswordGrantConfig record {
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request gets a 401 response
-# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+# + credentialBearer - How authentication credentials are sent to authorization server
 public type DirectTokenConfig record {
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
@@ -419,7 +419,7 @@ public type DirectTokenConfig record {
 #
 # + refreshUrl - Refresh token URL for refresh token server
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+# + credentialBearer - How authentication credentials are sent to authorization server
 public type RefreshConfig record {
     string refreshUrl;
     string[] scopes?;
@@ -435,7 +435,7 @@ public type RefreshConfig record {
 # + clientId - Clietnt ID for authentication with authorization server
 # + clientSecret - Client secret for authentication with authorization server
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
+# + credentialBearer - How authentication credentials are sent to authorization server
 public type DirectTokenRefreshConfig record {
     string refreshUrl;
     string refreshToken;
