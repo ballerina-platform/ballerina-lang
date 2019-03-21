@@ -17,10 +17,10 @@
 import ballerina/nats;
 import ballerina/io;
 
-listener nats:Consumer subscription = new({ host: "localhost", port: 4222,
+listener nats:Listener subscription = new({ host: "localhost", port: 4222,
                                             clientId: "s0" });
 
-@nats:ServiceConfig { subject: "demo" }
+@nats:ConsumerConfig { subject: "demo" }
 service demo on subscription {
 
     resource function onMessage(nats:Message msg) {

@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a connection which will be used for subscription.
-public type Consumer object {
+public type Listener object {
 
     *AbstractListener;
     private Connection? connection = ();

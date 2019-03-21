@@ -28,7 +28,7 @@ public type ConnectionConfig record {
     int port;
     string clusterId = "test-cluster";
     string clientId = "ballerina_client";
-    int connectTimeout = 30;
+    int connectionTimeout = 30;
     int maxPubAcksInFlight = 100;
     int ackTimeout = 30;
     !...;

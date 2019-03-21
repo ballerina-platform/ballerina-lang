@@ -24,9 +24,9 @@ public type Message object {
     public function getData() returns string {
         return self.content;
     }
-    //
-    //# Acknowleges a given message.
-    //#
-    //# + return - an error if the acknowledgment fails.
-    //public extern function ack() returns error?;
+
+    # Acknowleges a given message.
+    #
+    # + return - an error if the acknowledgment fails.
+    public extern function ack() returns error?;
 };

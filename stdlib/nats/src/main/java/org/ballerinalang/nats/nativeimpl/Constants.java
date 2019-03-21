@@ -50,7 +50,7 @@ public class Constants {
     /**
      * Represents the service configuration.
      */
-    public static final String NATS_SERVICE_CONFIG = "ServiceConfig";
+    public static final String NATS_SERVICE_CONFIG = "ConsumerConfig";
 
     /**
      * IO error struct name.

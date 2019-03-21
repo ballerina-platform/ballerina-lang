@@ -19,6 +19,7 @@
 package org.ballerinalang.nats.nativeimpl.consumer;
 
 import io.nats.streaming.StreamingConnection;
+import io.nats.streaming.SubscriptionOptions;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Annotation;
@@ -26,6 +27,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.impl.StructImpl;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -35,6 +37,7 @@ import org.ballerinalang.nats.nativeimpl.Utils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -45,13 +48,16 @@ import java.util.concurrent.TimeoutException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "nats",
         functionName = "create",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Consumer", structPackage = "ballerina/nats"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/nats"),
         isPublic = true
 )
 public class Create implements NativeCallableUnit {
 
+    private static final String START_SEQ = "startSeq";
     private static final String SUBJECT_FIELD = "subject";
-    private static final String EXCHANGE_FEILD = "exchange";
+    private static final String MANUAL_ACK = "manualAck";
+    private static final String ACK_WAIT = "ackWait";
+    private static final String DURABLE_NAME = "durableName";
 
     /**
      * {@inheritDoc}
@@ -66,12 +72,27 @@ public class Create implements NativeCallableUnit {
             List<Annotation> annotationList = service.getAnnotationList(Constants.NATS_PACKAGE,
                     Constants.NATS_SERVICE_CONFIG);
             Annotation annotation = annotationList.get(0);
+            Resource resources = Utils.extractNATSResource(service);
             Struct value = annotation.getValue();
             String subject = value.getStringField(SUBJECT_FIELD);
-            value.getStringField(EXCHANGE_FEILD);
-            Resource resources = Utils.extractNATSResource(service);
+            SubscriptionOptions.Builder builder = new SubscriptionOptions.Builder();
+            if (value.getBooleanField(MANUAL_ACK)) {
+                builder.manualAcks();
+            }
+            long ackWait = value.getRefField(ACK_WAIT) != null ? value.getIntField(ACK_WAIT) : 0;
+            if (ackWait > 0) {
+                builder.ackWait(ackWait, TimeUnit.MILLISECONDS);
+            }
+            long startSeq = value.getRefField(START_SEQ) != null ? value.getIntField(START_SEQ) : 0;
+            if (startSeq > 0) {
+                builder.startAtSequence(startSeq);
+            }
+            String durableName = value.getRefField(DURABLE_NAME) != null ? value.getStringField(DURABLE_NAME) : null;
+            if (null != durableName) {
+                builder.durableName(durableName);
+            }
             Listener listener = new Listener(resources);
-            connection.subscribe(subject, listener);
+            connection.subscribe(subject, listener, builder.build());
         } catch (IOException | TimeoutException e) {
             // Both the error messages returned would not give java specific information
             // Hence the error message will not be overridden

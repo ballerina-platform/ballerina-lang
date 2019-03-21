@@ -16,13 +16,19 @@
 
 # Represents the list of paramters required to create a subscription.
 #
-# + subject - The name of the subject the subscription should be bound
-# + exchange - specifies the type of exchange i.e topic or queue
-public type ServiceConfigData record {
+# + subject -  name of the subject the subscription should be bound.
+# + exchange - specifies the type of exchange i.e topic or queue.
+# + ackWait - amount of time the client should wait before retrying.
+# + startSeq - sequence id of the message the message should be consumed.
+# + durableName - unique name to identify the durable subscription.
+public type ConsumerConfigData record {
     string subject;
-    string exchange = "topic";
+    boolean manualAck = false;
+    int ackWait?;
+    int startSeq?;
+    string durableName?;
     !...;
 };
 
 # Service descriptor data generated at compile time. This is for internal use.
-public annotation <service> ServiceConfig ServiceConfigData;
+public annotation <service> ConsumerConfig ConsumerConfigData;

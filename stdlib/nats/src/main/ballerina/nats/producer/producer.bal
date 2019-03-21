@@ -34,20 +34,29 @@ public type Producer client object {
     #
     # + subject - Could also be referred as the 'topic/queue' name.
     # + message - Message could be either a string, json representation.
+    # + charset - Encoding of the message (by defaults it would be UTF-8)
     # + return -  GUID of acknowledgment or the specific error which might have occurred while publishing the message.
-    public remote function send(string subject, string|json message) returns string|error {
+    public remote function send(string subject, string|json message, string charset = "UTF-8") returns string|error {
         if (message is string) {
-            return self.sendMsg(subject, message.toByteArray("UTF-8"));
+            return self.sendMsg(subject, message.toByteArray(charset));
         } else {
-            return self.sendMsg(subject, message.toString().toByteArray("UTF-8"));
+            return self.sendMsg(subject, message.toString().toByteArray(charset));
         }
     }
 
-    public remote function requestReply(string subject,
-                                        string content,
-                                        string replyTo,
-                                        int timeout) returns Message|error {
-
+    # Produces a message and would await for a response.
+    #
+    # + subject - Would represent the topic/queue name.
+    # + message - Message could be either a string, json representation.
+    # + charset - Encoding of the message by defaults it would be UTF-8
+    # + return - Response message or an error
+    public remote function requestReply(string subject, string|json message,
+                                        string charset = "UTF-8") returns Message|error {
+        if (message is string) {
+            return self.sendRequestReplyMsg(subject, message.toByteArray(charset));
+        } else {
+            return self.sendRequestReplyMsg(subject, message.toString().toByteArray(charset));
+        }
     }
 
     # Sends a message via a given connection.
@@ -56,9 +65,12 @@ public type Producer client object {
     # + message - Message could be either a string, json representation.
     # + return -  GUID of acknowledgment or the specific error which might have occurred while publishing the message.
     extern function sendMsg(string subject, byte[] message) returns string|error;
-};
 
-public type PubMsg record {
-    string|json content;
-    string encoding = "UTF-8";
+
+    # Produces a message and would await for a response.
+    #
+    # + subject - Would represent the topic/queue name.
+    # + message - Message could be either a string, json representation.
+    # + return - Response message or an error
+    extern function sendRequestReplyMsg(string subject, byte[] message) returns Message|error;
 };
