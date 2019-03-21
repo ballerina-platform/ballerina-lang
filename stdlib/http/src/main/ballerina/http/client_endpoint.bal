@@ -359,6 +359,7 @@ public type OAuth2AuthConfig record {
 # + clientId - Clietnt ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
+# + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request gets a 401 response
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type ClientCredentialsGrantConfig record {
@@ -366,6 +367,7 @@ public type ClientCredentialsGrantConfig record {
     string clientId;
     string clientSecret;
     string[] scopes?;
+    int clockSkew = 0;
     boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
@@ -380,6 +382,7 @@ public type ClientCredentialsGrantConfig record {
 # + clientSecret - Client secret for password grant authentication
 # + scopes - Scope of the access request
 # + refreshConfig - Configurations for refreshing the access token
+# + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request gets a 401 response
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type PasswordGrantConfig record {
@@ -390,6 +393,7 @@ public type PasswordGrantConfig record {
     string clientSecret?;
     string[] scopes?;
     RefreshConfig refreshConfig?;
+    int clockSkew = 0;
     boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;
@@ -399,11 +403,13 @@ public type PasswordGrantConfig record {
 #
 # + accessToken - Access token for authorization server
 # + refreshConfig - Configurations for refreshing the access token
+# + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request gets a 401 response
 # + credentialBearer - How authentication credentials are sent to authorization server (AuthHeaderBearer, PostBodyBearer)
 public type DirectTokenConfig record {
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
+    int clockSkew = 0;
     boolean retryRequest = true;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
     !...;

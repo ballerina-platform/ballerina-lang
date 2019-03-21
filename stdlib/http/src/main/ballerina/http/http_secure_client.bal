@@ -634,7 +634,6 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
 # + tokenCache - Cached token configurations
 # + return - Whether the access token is valid or not
 function isCachedTokenValid(CachedTokenConfig tokenCache) returns boolean {
-    // TODO: introduce clock-skew
     int expiryTime = tokenCache.expiryTime;
     if (expiryTime == 0) {
         log:printDebug(function() returns string {
@@ -663,6 +662,7 @@ function isCachedTokenValid(CachedTokenConfig tokenCache) returns boolean {
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config, CachedTokenConfig tokenCache) returns string|error {
     Client authorizationClient;
     RequestConfig requestConfig;
+    int clockSkew;
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
             string errMsg = "Client id or client secret cannot be empty.";
@@ -678,6 +678,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
             scopes: config["scopes"],
             credentialBearer: config.credentialBearer
         };
+        clockSkew = config.clockSkew;
     } else {
         authorizationClient = check createClient(config.tokenUrl, {});
         var clientId = config["clientId"];
@@ -703,13 +704,14 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
                 credentialBearer:config.credentialBearer
             };
         }
+        clockSkew = config.clockSkew;
     }
     Request authorizationRequest = check prepareRequest(requestConfig);
     log:printDebug(function() returns string {
             return "Sending authorization request.";
         });
     Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
-    return extractAccessTokenFromResponse(authorizationResponse, tokenCache);
+    return extractAccessTokenFromResponse(authorizationResponse, tokenCache, clockSkew);
 }
 
 # Request an access token from authorization server using the provided refresh configurations.
@@ -720,6 +722,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config, CachedTokenConfig tokenCache) returns string|error {
     Client refreshClient;
     RequestConfig requestConfig;
+    int clockSkew;
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is RefreshConfig) {
@@ -743,6 +746,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
+        clockSkew = config.clockSkew;
     } else {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is DirectTokenRefreshConfig) {
@@ -766,13 +770,14 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
+        clockSkew = config.clockSkew;
     }
     Request refreshRequest = check prepareRequest(requestConfig);
     log:printDebug(function() returns string {
             return "Sending refresh request.";
         });
     Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
-    return extractAccessTokenFromResponse(refreshResponse, tokenCache);
+    return extractAccessTokenFromResponse(refreshResponse, tokenCache, clockSkew);
 }
 
 # Prepare the request which is to be sent to authorization server by adding relevant headers and payloads.
@@ -824,14 +829,15 @@ function prepareRequest(RequestConfig config) returns Request|error {
 #
 # + response - HTTP response object
 # + tokenCache - Cached token configurations
+# + clockSkew - Clock skew in seconds
 # + return - Extracted access token or `error` if error occured during HTTP client invocation
-function extractAccessTokenFromResponse(Response response, CachedTokenConfig tokenCache) returns string|error {
+function extractAccessTokenFromResponse(Response response, CachedTokenConfig tokenCache, int clockSkew) returns string|error {
     json payload = check response.getJsonPayload();
     if (response.statusCode == OK_200) {
         log:printDebug(function() returns string {
                 return "Received an valid response. Extracting access token from the payload: " + payload.toString();
             });
-        check updateTokenCache(payload, tokenCache);
+        check updateTokenCache(payload, tokenCache, clockSkew);
         return payload.access_token.toString();
     } else {
         string errMsg = "Failed to retrieve access token from " + response.statusCode + " response with payload: " + payload.toString();
@@ -845,14 +851,15 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
 #
 # + responsePayload - Payload of the response
 # + tokenCache - Cached token configurations
+# + clockSkew - Clock skew in seconds
 # + return - If any error occurred due to convertion of parameters
-function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache) returns ()|error {
+function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache, int clockSkew) returns ()|error {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     tokenCache.accessToken = accessToken;
     if (responsePayload["expires_in"] is int) {
         int expiresIn = check int.convert(responsePayload.expires_in);
-        tokenCache.expiryTime = issueTime + expiresIn * 1000;
+        tokenCache.expiryTime = issueTime + (expiresIn - clockSkew)  * 1000;
     }
     if (responsePayload["refresh_token"] is string) {
         string refreshToken = responsePayload.refresh_token.toString();
