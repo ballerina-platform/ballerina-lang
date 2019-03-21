@@ -335,7 +335,11 @@ public class XMLUtils {
      */
     public static BXML<?> createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
-        content = content.replace("\r\n", "\n");
+        content = content
+                .replace("\r\n", "\n")
+                .replace("&gt;", ">")
+                .replace("&lt;", "<")
+                .replace("&amp;", "&");
 
         OMText omText = OM_FACTORY.createOMText(content);
         return new BXMLItem(omText);

@@ -662,7 +662,7 @@ XMLEscapedSequence
     :   '\\\\'
     |   '\\{{'
     |   '\\}}'
-    |   '&' ('gt' | 'lt' | 'amp')
+    |   '&' ('gt' | 'lt' | 'amp') ';'
     ;
 
 fragment

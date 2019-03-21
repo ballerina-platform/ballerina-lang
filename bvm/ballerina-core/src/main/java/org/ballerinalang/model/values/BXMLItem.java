@@ -33,6 +33,7 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
@@ -177,23 +178,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BString getTextValue() {
-        switch(nodeType) {
-            case ELEMENT:
-                StringBuilder elementTextBuilder = new StringBuilder();
-                Iterator<OMNode> children = ((OMElement) omNode).getChildren();
-                while (children.hasNext()) {
-                    elementTextBuilder.append(getTextValue(children.next()));
-                }
-                return new BString(elementTextBuilder.toString());
-            case TEXT:
-                return new BString(((OMText) omNode).getText());
-            case COMMENT:
-                return BTypes.typeString.getZeroValue();
-            case PI:
-                return BTypes.typeString.getZeroValue();
-            default:
-                return BTypes.typeString.getZeroValue();
-        }
+        return new BString(getTextValue(omNode));
     }
 
     /**
@@ -637,7 +622,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 case COMMENT:
                     return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
                 case TEXT:
-                    return ((OMText) omNode).getText();
+                    return getTextValue(omNode);
                 case PI:
                     return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
                             ((OMProcessingInstruction) omNode).getValue() + PI_END;
@@ -814,7 +799,8 @@ public final class BXMLItem extends BXML<OMNode> {
                 }
                 return sb.toString();
             case OMNode.TEXT_NODE:
-                return ((OMText) node).getText();
+                String text = ((OMText) node).getText();
+                return StringEscapeUtils.escapeXml11(text);
             case OMNode.COMMENT_NODE:
                 return STRING_NULL_VALUE;
             case OMNode.PI_NODE:
@@ -853,7 +839,7 @@ public final class BXMLItem extends BXML<OMNode> {
         public BValue getNext() {
             if (value.getNodeType() == XMLNodeType.TEXT) {
                 if (codePointIterator == null) {
-                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                    codePointIterator = createCodePointIterator(value);
                 }
                 cursor++;
                 return codePointIterator.getNext();
@@ -868,11 +854,15 @@ public final class BXMLItem extends BXML<OMNode> {
         public boolean hasNext() {
             if (value.getNodeType() == XMLNodeType.TEXT) {
                 if (codePointIterator == null) {
-                    codePointIterator = new BXMLCodePointIterator(value.stringValue());
+                    codePointIterator = createCodePointIterator(value);
                 }
                 return codePointIterator.hasNext();
             }
             return cursor == 0;
+        }
+
+        private BXMLCodePointIterator createCodePointIterator(BXMLItem value) {
+            return new BXMLCodePointIterator(((OMText) value.omNode).getText());
         }
 
         @Override
