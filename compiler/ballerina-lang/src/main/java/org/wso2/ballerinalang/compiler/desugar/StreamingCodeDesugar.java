@@ -101,13 +101,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 
 /**
  * Class responsible for desugar streaming pipeline into actual Ballerina code.
@@ -1752,7 +1749,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos,
-                                                     List<BLangSimpleVariable> lambdaFunctionVariable, TypeNode returnType) {
+                                                     List<BLangSimpleVariable> lambdaFunctionVariable,
+                                                     TypeNode returnType) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         BLangFunction func = ASTBuilderUtil.createFunction(pos,
                 getFunctionName(FUNC_CALLER));

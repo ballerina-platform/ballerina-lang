@@ -150,7 +150,7 @@ public class VarMutabilityClosureTest {
     @Test(description = "Test variable mutability with xml")
     public void testVarMutabilityWithXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test12");
-        Assert.assertEquals(((BXMLSequence) returns[0]).length(), 3);
+        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 3);
         Assert.assertEquals(((BXMLSequence) returns[0]).getItem(0).toString(), "<book>The Princess Diaries" +
                 "</book>");
         Assert.assertEquals(((BXMLSequence) returns[0]).getItem(1).toString(), "Hello, Princess!! :) ");

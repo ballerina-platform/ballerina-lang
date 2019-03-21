@@ -48,26 +48,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -145,7 +125,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
@@ -696,6 +675,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
+        if (conversionExpr.expr.impConversionExpr != null) {
+            result = conversionExpr;
+            return;
+        }
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
     }
@@ -1193,116 +1176,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         /* Ignore */
     }
-
-    // Streaming related queries
-
-    @Override
-    public void visit(BLangOrderBy orderBy) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangGroupBy groupBy) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangHaving having) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangSelectExpression selectExpression) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangWhere whereClause) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangStreamingInput streamingInput) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangStreamAction streamAction) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangFunctionClause functionClause) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangWindow windowClause) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingInput patternStreamingInput) {
-        // todo
-    }
-
-
-    @Override
-    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangWithinClause withinClause) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangOutputRateLimit outputRateLimit) {
-        // todo
-    }
-
-    @Override
-    public void visit(BLangPatternClause patternClause) {
-        // todo
-    }
-
-    // Streaming related queries
 
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
