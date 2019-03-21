@@ -228,17 +228,20 @@
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
         </action>
 
-        <!-- LSP Plugin Actions -->
-        <!--<action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/> </action>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction"><keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/></action>-->
+        <action class="com.github.lsp4intellij.actions.LSPShowReformatDialogAction" id="ReformatCode"
+                use-shortcut-of="ReformatCode"
+                overrides="true" text="Reformat Code"/>
+        <action class="com.github.lsp4intellij.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
+                use-shortcut-of="ShowReformatFileDialog" overrides="true" text="Show Reformat File Dialog"/>
+        <action class="com.github.lsp4intellij.actions.LSPReferencesAction"
+                id="LSPFindUsages">
+            <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
+        </action>
     </actions>
 
     <application-components>
         <component>
-            <implementation-class>com.github.lsp4intellij.PluginMain</implementation-class>
+            <implementation-class>com.github.lsp4intellij.IntellijLanguageClient</implementation-class>
         </component>
     </application-components>
 
