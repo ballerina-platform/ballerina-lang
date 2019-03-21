@@ -1,4 +1,21 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
+
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
@@ -144,6 +161,11 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
                                          "(Ljava/lang/String;)Ljava/lang/String;", false);
             self.generateVarStore(binaryIns.lhsOp.variableDcl);
+        } else if (bType is bir:BTypeFloat) {
+            self.generateBinaryRhsAndLhsLoad(binaryIns);
+
+            self.mv.visitInsn(DADD);
+            self.generateVarStore(binaryIns.lhsOp.variableDcl);
         } else {
             error err = error( "JVM generation is not supported for type " +
                             io:sprintf("%s", binaryIns.lhsOp.typeValue));
@@ -152,20 +174,47 @@ type InstructionGenerator object {
     }
 
     function generateSubIns(bir:BinaryOp binaryIns) {
+        bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
-        self.mv.visitInsn(LSUB);
+        if (bType is bir:BTypeInt) {
+            self.mv.visitInsn(LSUB);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitInsn(DSUB);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            panic err;
+        }
         self.generateVarStore(binaryIns.lhsOp.variableDcl);
     }
 
     function generateDivIns(bir:BinaryOp binaryIns) {
+        bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
-        self.mv.visitInsn(LDIV);
+        if (bType is bir:BTypeInt) {
+            self.mv.visitInsn(LDIV);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitInsn(DDIV);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            panic err;
+        }
         self.generateVarStore(binaryIns.lhsOp.variableDcl);
     }
 
     function generateMulIns(bir:BinaryOp binaryIns) {
+        bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
-        self.mv.visitInsn(LMUL);
+        if (bType is bir:BTypeInt) {
+            self.mv.visitInsn(LMUL);
+        } else if (bType is bir:BTypeFloat) {
+            self.mv.visitInsn(DMUL);
+        } else {
+            error err = error( "JVM generation is not supported for type " +
+                            io:sprintf("%s", binaryIns.lhsOp.typeValue));
+            panic err;
+        }
         self.generateVarStore(binaryIns.lhsOp.variableDcl);
     }
 
@@ -441,25 +490,31 @@ type InstructionGenerator object {
             }
         }
     }
+
+    function generateCastIns(bir:TypeCast typeCastIns) {
+        // load source value
+        self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
+        generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        self.generateVarStore(typeCastIns.lhsOp.variableDcl);
+    }
+
+    function generateTypeTestIns(bir:TypeTest typeTestIns) {
+        // load source value
+        self.generateVarLoad(typeTestIns.rhsOp.variableDcl);
+
+        // load targetType
+        loadType(self.mv, typeTestIns.typeValue);
+
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
+                io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
+        self.generateVarStore(typeTestIns.lhsOp.variableDcl);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    } else {
-        return;
-    }
+    generateCast(mv, bType, "any");
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType bType) {
-    if (bType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
-    } else if (bType is bir:BTypeString) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-    } else if (bType is bir:BMapType) {
-        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
-    } else {
-        return;
-    }
+    generateCast(mv, "any", bType);
 }

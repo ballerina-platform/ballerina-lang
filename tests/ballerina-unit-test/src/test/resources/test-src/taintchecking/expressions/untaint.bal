@@ -1,4 +1,4 @@
-public string globalvariable = "input4";
+string globalvariable = "input4";
 
 public function main(string... args)  {
     secureFunction(untaintWithAddOperatorInReturn(...args));

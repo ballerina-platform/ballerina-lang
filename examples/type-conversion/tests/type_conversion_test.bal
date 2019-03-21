@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-(any|error)[] outputs = [];
+(any|error)?[] outputs = [];
 int counter = 0;
 
 // This is the mock function that replaces the real function.
@@ -28,7 +28,7 @@ function testFunc() {
     test:assertEquals(outputs[5], "int value: ");
     test:assertEquals(outputs[6], 45);
     test:assertEquals(outputs[7], "error: ");
-    test:assertEquals(outputs[8], "'string' cannot be converted to 'int'");
+    test:assertEquals(outputs[8], "incompatible convert operation: 'string' value 'abc' cannot be converted as 'int'");
     test:assertEquals(outputs[9], "int value: ");
     test:assertEquals(outputs[10], 10);
     test:assertEquals(outputs[11], "boolean value: ");

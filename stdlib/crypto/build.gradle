@@ -1,0 +1,17 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-time')
+
+    implementation 'commons-codec:commons-codec:1.9'
+    
+    testCompile 'org.testng:testng:6.13.1'
+}
+
+description = 'Ballerina - Crypto'

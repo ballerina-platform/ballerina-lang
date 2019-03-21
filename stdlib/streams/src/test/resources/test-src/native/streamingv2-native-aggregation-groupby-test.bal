@@ -78,7 +78,7 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 
 //  ------------- Query to be implemented -------------------------------------------------------
 //  from inputStream where inputStream.age > getValue()
-//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
+//  select inputStream.name, inputStream.age, getAge(sum(inputStream.age)) as sumAge, count() as count
 //  group by inputStream.name
 //      => (TeacherOutput [] o) {
 //            outputStream.publish(o);
@@ -111,7 +111,7 @@ function createStreamingConstruct() {
     aggregatorArr[0] = sumAggregator;
     aggregatorArr[1] = countAggregator;
 
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns anydata {
             return getGroupByField(<int>e.data["inputStream.age"]);
@@ -123,15 +123,15 @@ function createStreamingConstruct() {
             return {
                 "name": e.data["inputStream.name"],
                 "age": e.data["inputStream.age"],
-                "sumAge": sumAggregator1.process(e.data["inputStream.age"], e.eventType),
+                "sumAge": getAge(<int>sumAggregator1.process(e.data["inputStream.age"], e.eventType)),
                 "count": countAggregator1.process((), e.eventType)
             };
         }
     );
 
     streams:Window tmpWindow = streams:time([1000],
-        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
+        nextProcessPointer = function (streams:StreamEvent?[] e) {select.process(e);});
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent?[] e) {tmpWindow.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.age"] > getValue();
@@ -140,7 +140,7 @@ function createStreamingConstruct() {
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
+            streams:StreamEvent?[] eventArr = streams:buildStreamEvent(t, "inputStream");
             filter.process(eventArr);
         }
     );
@@ -148,6 +148,11 @@ function createStreamingConstruct() {
 
 function getValue() returns int {
     return 25;
+}
+
+
+function getAge(int x) returns int {
+    return x;
 }
 
 function printTeachers(TeacherOutput e) {

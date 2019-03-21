@@ -1,0 +1,31 @@
+plugins {
+    id 'base'
+    id 'com.gradle.build-scan' version '2.1' 
+    id "com.github.spotbugs" version "1.6.10"
+    id "com.dorongold.task-tree" version "1.3.1"
+}
+
+allprojects {
+    group = 'org.ballerinalang'
+    version = '0.990.4-SNAPSHOT'
+
+    task printPath {
+        doLast{
+            println projectDir
+        }
+    }
+}
+
+subprojects {
+}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}
+
+dependencies {
+    constraints {
+        //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
+    }
+}

@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-(any|error)[] outputs = [];
+(any|error)?[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -18,9 +18,9 @@ public function mockPrint(any|error... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "This is a string");
-    test:assertEquals(outputs[1], 101);
-    test:assertEquals(outputs[2], "this is a value");
+    test:assertEquals(<string> outputs[0], "This is a string");
+    test:assertEquals(<int> outputs[1], 101);
+    test:assertEquals(<string> outputs[2], "this is a value");
 
     var output3 = outputs[3];
     if (output3 is error) {

@@ -19,11 +19,15 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
@@ -38,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -70,7 +75,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -79,25 +83,19 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
  */
 public class LauncherUtils {
 
-    private static PrintStream outStream = System.out;
+    private static final String STATUS_CODE = "statusCode";
+    private static final int DEFAULT_ERROR_RETURN_STATUS_CODE = 1;
+
+    private static PrintStream errStream = System.err;
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
-        runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
-                observeFlag, false, false, true);
+        runProgram(sourceRootPath, sourcePath, runtimeParams, configFilePath, args, offline, observeFlag, false, true);
     }
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn) {
-        runProgram(sourceRootPath, sourcePath, functionName, runtimeParams, configFilePath, args, offline, observeFlag,
-                printReturn, false, true);
-    }
-
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn, boolean siddhiRuntimeFlag,
-                                  boolean experimentalFlag) {
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams, 
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag, 
+                                  boolean siddhiRuntimeFlag, boolean experimentalFlag) {
 
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -105,30 +103,38 @@ public class LauncherUtils {
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
         loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
-        runBal(sourceRootPath, sourcePath, functionName, args, offline, printReturn, siddhiRuntimeFlag,
-                experimentalFlag, srcPathStr, fullPath);
+        runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
     }
 
-    public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
+    @SuppressWarnings("unchecked")
+    public static void runMain(ProgramFile programFile, String[] args) {
+        BValue[] result;
+        int statusCode = 0;
         try {
-            BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
-            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1 && entryFuncResult[0] != null) {
-                outStream.print(entryFuncResult[0].stringValue());
+            result = BLangProgramRunner.runMainFunc(programFile, args);
+            if (result[0] != null && result[0].getType().getTag() == TypeTags.ERROR) {
+                // If an error occurred on main function execution, the program should terminate.
+                BError returnedError = (BError) result[0];
+                errStream.print(prepareErrorReturnedErrorMessage(returnedError));
+
+                if (returnedError.details != null) {
+                    BMap<String, BValue> details =  (BMap<String, BValue>) returnedError.details;
+                    statusCode = getStatusCode(details);
+                }
+            } else if (programFile.isServiceEPAvailable()) {
+                return;
             }
         } catch (BLangUsageException | BallerinaException e) {
             throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }
 
-        if (programFile.isServiceEPAvailable()) {
-            return;
-        }
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             // Ignore the error
         }
-        Runtime.getRuntime().exit(0);
+        Runtime.getRuntime().exit(statusCode);
     }
 
     public static void runServices(ProgramFile programFile) {
@@ -369,9 +375,8 @@ public class LauncherUtils {
         }
     }
 
-    private static void runBal(Path sourceRootPath, Path sourcePath, String functionName, String[] args,
-                               boolean offline, boolean printReturn, boolean siddhiRuntimeFlag,
-                               boolean experimentalFlag, String srcPathStr, Path fullPath) {
+    private static void runBal(Path sourceRootPath, Path sourcePath, String[] args, boolean offline,
+                               boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr, Path fullPath) {
         ProgramFile programFile;
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
@@ -389,13 +394,12 @@ public class LauncherUtils {
 
         // If a function named main is expected to be the entry point but such a function does not exist and there is
         // no service entry point either, throw an error
-        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())
-                && !programFile.isServiceEPAvailable()) {
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
             throw createLauncherException("'" + programFile.getProgramFilePath()
                                                   + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOnly = MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable();
+        boolean runServicesOnly = !programFile.isMainEPAvailable();
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
@@ -407,7 +411,7 @@ public class LauncherUtils {
             }
             runServices(programFile);
         } else {
-            runMain(programFile, functionName, args, printReturn);
+            runMain(programFile, args);
         }
         BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
@@ -441,5 +445,29 @@ public class LauncherUtils {
         }
         programFile = compile(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag);
         return programFile;
+    }
+
+    private static int getStatusCode(BMap<String, BValue> errorDetails) {
+        if (!errorDetails.hasKey(STATUS_CODE)) {
+            return DEFAULT_ERROR_RETURN_STATUS_CODE;
+        }
+
+        BValue specifiedStatusCode = errorDetails.get(STATUS_CODE);
+        if (specifiedStatusCode.getType().getTag() != TypeTags.INT) {
+            return DEFAULT_ERROR_RETURN_STATUS_CODE;
+        }
+
+        long specifiedIntCode = ((BInteger) specifiedStatusCode).intValue();
+        if (specifiedIntCode >= DEFAULT_ERROR_RETURN_STATUS_CODE) {
+            if (specifiedIntCode > Integer.MAX_VALUE) {
+                return Integer.MAX_VALUE;
+            }
+            return (int) specifiedIntCode;
+        }
+        return DEFAULT_ERROR_RETURN_STATUS_CODE;
+    }
+
+    private static String prepareErrorReturnedErrorMessage(BError error) {
+        return "error: " + BLangVMErrors.getErrorMessage(error);
     }
 }

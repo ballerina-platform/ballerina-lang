@@ -1,5 +1,20 @@
-import ballerina/io;
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
+import ballerina/io;
 
 public type BirEmitter object {
 
@@ -46,8 +61,10 @@ public type BirEmitter object {
 
     function emitTypeDefs() {
         foreach var bTypeDef in self.pkg.typeDefs {
-            self.emitTypeDef(bTypeDef);
-            println();
+            if (bTypeDef is TypeDef) {
+                self.emitTypeDef(bTypeDef);
+                println();
+            }
         }
     }
 
@@ -59,16 +76,20 @@ public type BirEmitter object {
 
     function emitGlobalVars() {
         foreach var bGlobalVar in self.pkg.globalVars {
-            print(bGlobalVar.visibility, " ");
-            self.typeEmitter.emitType(bGlobalVar.typeValue);
-            println(" ", bGlobalVar.name.value, ";");
+            if (bGlobalVar is GlobalVariableDcl) {
+                print(bGlobalVar.visibility, " ");
+                self.typeEmitter.emitType(bGlobalVar.typeValue);
+                println(" ", bGlobalVar.name.value, ";");
+            }
         }
     }
 
     function emitFunctions() {
         foreach var bFunction in self.pkg.functions {
-            self.emitFunction(bFunction);
-            println();
+            if (bFunction is Function) {
+                self.emitFunction(bFunction);
+                println();
+            }
         }
     }
 
@@ -82,16 +103,20 @@ public type BirEmitter object {
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
-            self.emitBasicBlock(b, "\t");
-            println();// empty line
+            if (b is BasicBlock) {
+                self.emitBasicBlock(b, "\t");
+                println();// empty line
+            }
         }
         println("}");
     }
 
     function emitBasicBlock(BasicBlock bBasicBlock, string tabs) {
         println(tabs, bBasicBlock.id.value, " {");
-        foreach var i in bBasicBlock.instructions {
-            self.insEmitter.emitIns(i, tabs = tabs + "\t");
+        foreach var ins in bBasicBlock.instructions {
+            if (ins is Instruction) {
+                self.insEmitter.emitIns(ins, tabs = tabs + "\t");
+            }
         }
         self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs + "\t");
         println(tabs, "}");
@@ -162,7 +187,7 @@ type InstructionEmitter object {
             println(" ");
             self.opEmitter.emitOp(ins.detailsOp);
             println(";");
-        } else if (ins is TypeCast) { // TypeAssert will also come here
+        } else if (ins is TypeCast) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
@@ -197,12 +222,14 @@ type TerminalEmitter object {
             }
             print(term.pkgID.org, "/", term.pkgID.name, "::", term.pkgID.modVersion, ":", term.name.value, "(");
             int i = 0;
-            foreach var o in term.args {
-                if (i != 0) {
-                    print(", "); 
+            foreach var arg in term.args {
+                if (arg is VarRef) {
+                    if (i != 0) {
+                        print(", ");
+                    }
+                    self.opEmitter.emitOp(arg);
+                    i = i + 1;
                 }
-                self.opEmitter.emitOp(o);    
-                i = i + 1;            
             }
             print(") -> ", term.thenBB.id.value, ";");
         } else if (term is Branch) {
@@ -253,9 +280,11 @@ type TypeEmitter object {
 
     function emitRecordType(BRecordType bRecordType, string tabs) {
         println(tabs, "record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
-        foreach var f in bRecordType.fields {
-            self.emitType(f.typeValue, tabs = tabs + "\t");
-            println(" ", f.name.value);
+        foreach var field in bRecordType.fields {
+            if (field is BRecordField) {
+                self.emitType(field.typeValue, tabs = tabs + "\t");
+                println(" ", field.name.value);
+            }
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
         println("...");
@@ -264,10 +293,12 @@ type TypeEmitter object {
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
         println(tabs, "object {\\\\ name - ", bObjectType.name.value);
-        foreach var f in bObjectType.fields {
-            print(tabs + "\t", f.visibility, " ");
-            self.emitType(f.typeValue);
-            println(" ", f.name.value);
+        foreach var field in bObjectType.fields {
+            if (field is BObjectField) {
+                print(tabs + "\t", field.visibility, " ");
+                self.emitType(field.typeValue);
+                println(" ", field.name.value);
+            }
         }
         print(tabs, "}");
     }

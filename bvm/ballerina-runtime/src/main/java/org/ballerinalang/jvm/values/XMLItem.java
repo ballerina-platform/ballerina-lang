@@ -792,6 +792,7 @@ public final class XMLItem extends XMLValue<OMNode> {
                 nodeType = XMLNodeType.ELEMENT;
                 break;
             case OMNode.TEXT_NODE:
+            case OMNode.SPACE_NODE:
                 nodeType = XMLNodeType.TEXT;
                 break;
             case OMNode.COMMENT_NODE:

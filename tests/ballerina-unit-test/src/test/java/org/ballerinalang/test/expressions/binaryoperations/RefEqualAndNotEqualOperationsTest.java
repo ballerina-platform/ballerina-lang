@@ -91,7 +91,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "equalByteValues")
     public void testByteRefEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) i)};
+        BValue[] args = {new BByte(i), new BByte(i)};
         BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -101,7 +101,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "unequalByteValues")
     public void testByteRefEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) j)};
+        BValue[] args = {new BByte(i), new BByte(j)};
         BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -374,9 +374,9 @@ public class RefEqualAndNotEqualOperationsTest {
         validateError(resultNegative, 1, "operator '!==' not defined for 'int' and 'string'", 20, 25);
         validateError(resultNegative, 2, "operator '===' not defined for 'int[2]' and 'string[2]'", 26, 21);
         validateError(resultNegative, 3, "operator '!==' not defined for 'int[2]' and 'string[2]'", 26, 34);
-        validateError(resultNegative, 4, "operator '===' not defined for 'float|int[]' and 'boolean|xml[]'", 30,
+        validateError(resultNegative, 4, "operator '===' not defined for 'float|int?[]' and 'boolean|xml?[]'", 30,
                       21);
-        validateError(resultNegative, 5, "operator '!==' not defined for 'float|int[]' and 'boolean|xml[]'", 30,
+        validateError(resultNegative, 5, "operator '!==' not defined for 'float|int?[]' and 'boolean|xml?[]'", 30,
                       34);
         validateError(resultNegative, 6, "operator '===' not defined for 'map<int>' and 'map<float>'", 38, 21);
         validateError(resultNegative, 7, "operator '!==' not defined for 'map<int>' and 'map<float>'", 38, 34);

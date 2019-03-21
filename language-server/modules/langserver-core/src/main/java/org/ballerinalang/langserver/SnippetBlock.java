@@ -17,9 +17,16 @@
 */
 package org.ballerinalang.langserver;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.TextEdit;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represent an insert text block having both plain text and snippet format strings.
@@ -32,26 +39,39 @@ public class SnippetBlock {
     private String detail = "";
     private String snippet;
     private SnippetType snippetType;
+    private final Pair<String, String>[] imports;
+
+    public SnippetBlock(String snippet, SnippetType snippetType) {
+        this.snippet = snippet;
+        this.snippetType = snippetType;
+        this.imports = null;
+    }
 
     public SnippetBlock(String label, String snippet, String detail, SnippetType snippetType) {
         this.label = label;
         this.snippet = snippet;
         this.detail = detail;
         this.snippetType = snippetType;
+        this.imports = null;
     }
 
-    public SnippetBlock(String snippet,  SnippetType snippetType) {
+    public SnippetBlock(String label, String snippet, String detail, SnippetType snippetType,
+                        Pair<String, String>... importsByOrgAndAlias) {
+        this.label = label;
         this.snippet = snippet;
+        this.detail = detail;
         this.snippetType = snippetType;
+        this.imports = importsByOrgAndAlias;
     }
 
     /**
      * Create a given completionItem's insert text.
      *
+     * @param ctx   LS Context
      * @param isSnippetSupported Whether snippet is expected or plain text expected
      * @return modified Completion Item
      */
-    public CompletionItem build(boolean isSnippetSupported) {
+    public CompletionItem build(LSContext ctx, boolean isSnippetSupported) {
         CompletionItem completionItem = new CompletionItem();
         if (isSnippetSupported) {
             completionItem.setInsertText(this.snippet);
@@ -59,6 +79,13 @@ public class SnippetBlock {
         } else {
             completionItem.setInsertText(getPlainTextSnippet());
             completionItem.setInsertTextFormat(InsertTextFormat.PlainText);
+        }
+        if (imports != null) {
+            List<TextEdit> importTextEdits = new ArrayList<>();
+            for (Pair<String, String> pair : imports) {
+                importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(ctx, pair.getLeft(), pair.getRight()));
+            }
+            completionItem.setAdditionalTextEdits(importTextEdits);
         }
         if (!label.isEmpty()) {
             completionItem.setLabel(label);

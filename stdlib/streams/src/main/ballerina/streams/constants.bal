@@ -16,13 +16,13 @@
 
 public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 public type JoinType "JOIN"|"LEFTOUTERJOIN"|"RIGHTOUTERJOIN"|"FULLOUTERJOIN";
-public string OUTPUT = "OUTPUT";
-public EventType RESET = "RESET";
-public EventType EXPIRED = "EXPIRED";
-public string DEFAULT = "DEFAULT";
-public EventType CURRENT = "CURRENT";
-public EventType TIMER = "TIMER";
-public string DELIMITER = ".";
-public string DELIMITER_REGEX = "\\.";
-public string ASCENDING = "ascending";
-public string DESCENDING = "descending";
+public const OUTPUT = "OUTPUT";
+public const RESET = "RESET";
+public const EXPIRED = "EXPIRED";
+public const DEFAULT = "DEFAULT";
+public const CURRENT = "CURRENT";
+public const TIMER = "TIMER";
+public const DELIMITER = ".";
+public const DELIMITER_REGEX = "\\.";
+public const ASCENDING = "ascending";
+public const DESCENDING = "descending";

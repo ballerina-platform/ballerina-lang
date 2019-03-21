@@ -136,10 +136,8 @@ public class StructAccessWithIndexTest {
     @Test(description = "Test accesing a struct with a dynamic index")
     public void testExpressionAsStructIndex() {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-access-dynamic-index-negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                "invalid index expression: expected string literal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
+        Assert.assertEquals(result[0].stringValue(), "Jack");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

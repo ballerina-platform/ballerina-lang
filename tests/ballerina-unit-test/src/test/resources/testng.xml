@@ -75,9 +75,9 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
     </test>
-    <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
         <packages >
-            <package name="org.ballerinalang.test.entry.function.*"/>
+            <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
     </test>
 
@@ -86,6 +86,7 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
+            <package name="org.ballerinalang.test.types.floattype"/>
         </packages>
     </test>
 </suite>

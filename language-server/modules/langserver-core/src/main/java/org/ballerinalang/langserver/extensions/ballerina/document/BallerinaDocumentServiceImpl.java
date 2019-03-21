@@ -258,7 +258,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         try {
             LSContext astContext = new LSServiceOperationContext();
             astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(astContext, this.documentManager, false,
+            BLangPackage bLangPackage = lsCompiler.getBLangPackage(astContext, this.documentManager, true,
                     LSCustomErrorStrategy.class, false);
             astContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
             reply.setAst(getTreeForContent(astContext));

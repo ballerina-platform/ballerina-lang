@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -41,10 +42,13 @@ import org.ballerinalang.jvm.values.RefValue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Responsible for performing runtime type checking.
@@ -53,6 +57,50 @@ import java.util.Set;
  */
 @SuppressWarnings({ "rawtypes" })
 public class TypeChecker {
+
+    public static Object checkCast(Object sourceVal, BType targetType) {
+        if (checkIsType(sourceVal, targetType)) {
+            return sourceVal;
+        }
+
+        throw getTypeCastError(sourceVal, targetType);
+    }
+
+    public static long anyToInt(Object sourceVal) {
+        if (sourceVal instanceof Long) {
+            return ((Long) sourceVal).longValue();
+        } else if (sourceVal instanceof Double) {
+            return ((Double) sourceVal).longValue();
+        } else {
+            throw getTypeCastError(sourceVal, BTypes.typeInt);
+        }
+    }
+
+    public static double anyToFloat(Object sourceVal) {
+        if (sourceVal instanceof Long) {
+            return ((Long) sourceVal).doubleValue();
+        } else if (sourceVal instanceof Double) {
+            return ((Double) sourceVal).doubleValue();
+        } else {
+            throw getTypeCastError(sourceVal, BTypes.typeFloat);
+        }
+    }
+
+    public static boolean anyToBoolean(Object sourceVal) {
+        if (sourceVal instanceof Boolean) {
+            return ((Boolean) sourceVal).booleanValue();
+        }
+
+        throw getTypeCastError(sourceVal, BTypes.typeBoolean);
+    }
+
+    public static byte anyToByte(Object sourceVal) {
+        if (sourceVal instanceof Byte) {
+            return ((Byte) sourceVal).byteValue();
+        }
+
+        throw getTypeCastError(sourceVal, BTypes.typeByte);
+    }
 
     /**
      * Check whether a given value belongs to the given type.
@@ -111,7 +159,7 @@ public class TypeChecker {
             return BTypes.typeNull;
         } else if (value instanceof Long) {
             return BTypes.typeInt;
-        } else if (value instanceof Float) {
+        } else if (value instanceof Double) {
             return BTypes.typeFloat;
         } else if (value instanceof BigDecimal) {
             return BTypes.typeDecimal;
@@ -163,8 +211,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ANYDATA_TAG:
-                // TODO
-                return false;
+                return isAnydata(sourceType);
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -507,7 +554,8 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, BType sourceType) {
         // All the value types are immutable
-        if (sourceType.getTag() < TypeTags.JSON_TAG || sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
+                sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -754,6 +802,52 @@ public class TypeChecker {
             }
         }
         return false;
+    }
+
+    private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
+        return new BLangRuntimeException("'" + getType(sourceVal) + "' cannot be cast to '" + targetType + "'");
+    }
+
+    private static boolean isAnydata(BType type) {
+        return isAnydata(type, new HashSet<>());
+    }
+
+    private static boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() <= TypeTags.ANYDATA_TAG) {
+            return true;
+        }
+
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                if (unresolvedTypes.contains(type)) {
+                    return true;
+                }
+                unresolvedTypes.add(type);
+                BRecordType recordType = (BRecordType) type;
+                List<BType> fieldTypes =
+                        recordType.getFields().values().stream().map(BField::getFieldType).collect(Collectors.toList());
+                return isAnydata(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+            case TypeTags.UNION_TAG:
+                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
+            case TypeTags.TUPLE_TAG:
+                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+            case TypeTags.ARRAY_TAG:
+                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
+                        .map(value -> getType(value))
+                        .collect(Collectors.toSet());
+                return isAnydata(valSpaceTypes, unresolvedTypes);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
     /**

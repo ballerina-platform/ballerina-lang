@@ -1,3 +1,20 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 
@@ -5,10 +22,11 @@ string typeOwnerClass = "";
 #
 # + cw - class writer
 # + typeDefs - array of type definitions
-public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] typeDefs) {
+public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs) {
     string fieldName;
     // create the type
-    foreach var typeDef in typeDefs {
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType || bType is bir:BObjectType) {
@@ -26,11 +44,12 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef[] 
 #
 # + mv - method visitor
 # + typeDefs - array of type definitions
-public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typeDefs) {
+public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs) {
     string fieldName;
 
     // Create the type
-    foreach var typeDef in typeDefs {
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
@@ -46,9 +65,11 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef[] typ
     }
 
     // Populate the field types
-    foreach var typeDef in typeDefs {
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
             mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
@@ -96,6 +117,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
     mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>", 
             io:sprintf("(L%s;L%s;IZ)V", STRING_VALUE, STRING_VALUE), 
             false);
+
     return;
 }
 
@@ -104,13 +126,14 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, stri
 #
 # + mv - method visitor
 # + fields - record fields to be added
-function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField[] fields) {
+function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField?[] fields) {
     // Create the fields map
     mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
-    foreach var field in fields {
+    foreach var optionalField in fields {
+        bir:BRecordField field = getRecordField(optionalField);
         mv.visitInsn(DUP);
 
         // Load field name
@@ -204,13 +227,14 @@ function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, stri
 #
 # + mv - method visitor
 # + fields - object fields to be added
-function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField[] fields) {
+function addObjectFields(jvm:MethodVisitor mv, bir:BObjectField?[] fields) {
     // Create the fields map
     mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
 
-    foreach var field in fields {
+    foreach var optionalField in fields {
+        bir:BObjectField field = getObjectField(optionalField);
         mv.visitInsn(DUP);
 
         // Load field name
@@ -265,23 +289,25 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 #
 # + mv - method visitor
 # + attachedFunctions - attached functions to be added
-function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction[] attachedFunctions) {
+function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions) {
     // Create the attached function array
     mv.visitLdcInsn(attachedFunctions.length());
     mv.visitInsn(L2I);
     mv.visitTypeInsn(ANEWARRAY, ATTACHED_FUNCTION);
     int i = 0;
     foreach var attachedFunc in attachedFunctions {
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn(i);
-        mv.visitInsn(L2I);
+        if (attachedFunc is bir:BAttachedFunction) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(i);
+            mv.visitInsn(L2I);
 
-        // create and load attached function
-        createObjectAttachedFunction(mv, attachedFunc);
+            // create and load attached function
+            createObjectAttachedFunction(mv, attachedFunc);
 
-        // Add the member to the array
-        mv.visitInsn(AASTORE);
-        i += 1;
+            // Add the member to the array
+            mv.visitInsn(AASTORE);
+            i += 1;
+        }
     }
 
     // Set the fields of the object

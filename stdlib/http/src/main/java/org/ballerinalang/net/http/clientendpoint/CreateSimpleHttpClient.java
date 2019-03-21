@@ -34,6 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
@@ -42,7 +43,8 @@ import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurationOptions;
+import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
+import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
 
 /**
  * Initialization of client endpoint.
@@ -65,6 +67,8 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> configBStruct =
                 (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
+        BMap<String, BValue> globalPoolConfig = (BMap<String, BValue>) context
+                .getRefArgument(HttpConstants.CLIENT_GLOBAL_POOL_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
@@ -86,13 +90,23 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        populateSenderConfigurationOptions(senderConfiguration, clientEndpointConfig);
+        populateSenderConfigurations(senderConfiguration, clientEndpointConfig);
+        ConnectionManager poolManager;
+        BMap<String, BValue> userDefinedPoolConfig = (BMap<String, BValue>) configBStruct.get(
+                HttpConstants.USER_DEFINED_POOL_CONFIG);
+
+        if (userDefinedPoolConfig == null) {
+            poolManager = getConnectionManager(globalPoolConfig);
+        } else {
+            poolManager = getConnectionManager(userDefinedPoolConfig);
+        }
+
         HttpClientConnector httpClientConnector = httpConnectorFactory
-                .createHttpClientConnector(properties, senderConfiguration);
+                .createHttpClientConnector(properties, senderConfiguration, poolManager);
         BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
-                                                                                      HTTP_PACKAGE_PATH,
-                                                                                      HTTP_CLIENT, urlString,
-                                                                                      clientEndpointConfig);
+                                                                              HTTP_PACKAGE_PATH,
+                                                                              HTTP_CLIENT, urlString,
+                                                                              clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);

@@ -35,7 +35,7 @@ public class BAnyTypeInvalidCastError {
 
         Assert.assertEquals(resultNegative.getErrorCount(), 0);
         BValue[] returns = BRunUtil.invoke(resultNegative, "invalidCastingError", new BValue[]{});
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeAssertionError {\"message\":\"assertion error:" +
-                " expected 'float', found 'string'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
+                " 'string' cannot be cast to 'float'\"}");
     }
 }

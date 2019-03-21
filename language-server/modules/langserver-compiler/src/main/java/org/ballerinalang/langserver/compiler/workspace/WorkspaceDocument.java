@@ -17,12 +17,20 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a document open in workspace.
  */
 public class WorkspaceDocument {
+    private static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
 
     private Path path;
     private String content;
@@ -46,6 +54,54 @@ public class WorkspaceDocument {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setContent(Range range, String content) {
+        this.content = getRangeTextAppliedContent(range, content, this.content);
+    }
+
+    private String getRangeTextAppliedContent(Range range, String newText, String oldText) {
+        if (range == null) {
+            return newText;
+        }
+        String trimmedOldText = oldText.trim();
+        int leadingNewLines = oldText.indexOf(trimmedOldText);
+        int trailingNewLines = oldText.length() - leadingNewLines - trimmedOldText.length();
+        List<String> oldTextLines = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
+        oldTextLines.addAll(Collections.nCopies(trailingNewLines, ""));
+        Position start = range.getStart();
+        Position end = range.getEnd();
+        int rangeLineLength = end.getLine() - start.getLine();
+        if (rangeLineLength == 0) {
+            // single line edit
+            String line = oldTextLines.get(start.getLine());
+            String mLine = line.substring(0, start.getCharacter()) + newText + line.substring(end.getCharacter());
+            oldTextLines.set(start.getLine(), mLine);
+        } else {
+            // multi-line edit
+            String[] newTextArr = newText.split(LINE_SEPARATOR_SPLIT);
+            String sLine = oldTextLines.get(start.getLine());
+            String eLine = oldTextLines.get(end.getLine());
+
+            // remove lines
+            int i = 0;
+            while (i <= rangeLineLength) {
+                oldTextLines.remove(start.getLine());
+                i++;
+            }
+
+            //add lines
+            int j = 0;
+            while (j < newTextArr.length) {
+                String changeText = newTextArr[j];
+                String prefix = (j == 0) ? sLine.substring(0, start.getCharacter()) : "";
+                String suffix = (j == newTextArr.length - 1) ? eLine.substring(end.getCharacter()) : "";
+                String mLine = prefix + changeText + suffix;
+                oldTextLines.add(start.getLine() + j, mLine);
+                j++;
+            }
+        }
+        return String.join(System.lineSeparator(), oldTextLines);
     }
 
     @Override

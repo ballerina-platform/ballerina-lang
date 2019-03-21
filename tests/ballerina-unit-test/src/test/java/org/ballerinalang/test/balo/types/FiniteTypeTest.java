@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.balo.types;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -31,6 +32,7 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -258,7 +260,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertSame(returns[0].getClass(), BByte.class);
-        Assert.assertEquals((((BByte) returns[0]).byteValue()), (byte) 222);
+        Assert.assertEquals((((BByte) returns[0]).byteValue()), 222);
     }
 
     @Test()
@@ -285,9 +287,32 @@ public class FiniteTypeTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
     }
 
+    @Test(dataProvider = "assignmentToBroaderTypeFunctions")
+    public void testFiniteTypeAssignmentToBroaderType(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "assignmentToBroaderTypeFunctions")
+    public Object[][] assignmentToBroaderTypeFunctions() {
+        return new Object[][]{
+                {"testStringOnlyFiniteTypeAssignmentToTypeWithString"},
+                {"testIntOnlyFiniteTypeAssignmentToTypeWithInt"},
+                {"testFloatOnlyFiniteTypeAssignmentToTypeWithFloat"},
+                {"testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean"},
+                {"testByteOnlyFiniteTypeAssignmentToTypeWithByte"},
+                {"testFiniteTypeAssignmentToBroaderType"},
+                {"testFiniteTypeWithConstAssignmentToBroaderType"},
+                {"testFiniteTypeWithConstAndTypeAssignmentToBroaderType"},
+                {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
+                {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
+        };
+    }
+
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("finiteTypeTest", "foo");
+        BaloCreator.clearPackageFromRepository(
+                "test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
     }
 }
 

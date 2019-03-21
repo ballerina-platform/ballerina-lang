@@ -339,4 +339,10 @@ public class TernaryExpressionTest {
         BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'boolean', found 'int'", 7, 13);
         BAssertUtil.validateError(compileResult, 2, "incompatible types: expected 'string', found 'boolean'", 13, 30);
     }
+
+    @Test
+    public void testErrorInTernary() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testErrorInTernary");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 7);
+    }
 }

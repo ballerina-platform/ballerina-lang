@@ -1,13 +1,29 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 public type Package record {
     ImportModule[] importModules = [];
-    TypeDef[] typeDefs = [];
-    GlobalVariableDcl[] globalVars = [];
-    Function[] functions = [];
+    TypeDef?[] typeDefs = [];
+    GlobalVariableDcl?[] globalVars;
+    Function?[] functions = [];
     Name name = {};
     Name org = {};
-    BType[] types = [];
+    BType?[] types = [];
     Name versionValue = {};
+    !...;
 };
 
 public type ImportModule record {
@@ -17,29 +33,32 @@ public type ImportModule record {
 };
 
 public type TypeDef record {
-    Name name;
-    Visibility visibility;
-    BType typeValue;
+    Name name = {};
+    Visibility visibility = "PACKAGE_PRIVATE";
+    BType typeValue = "()";
 };
 
 public type Function record {
     int argsCount = 0;
-    BasicBlock[] basicBlocks = [];
+    BasicBlock?[] basicBlocks = [];
     boolean isDeclaration = false;
-    VariableDcl[] localVars = [];
+    VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
+    !...;
 };
 
 public type BasicBlock record {
     Name id = {};
-    Instruction[] instructions = [];
+    Instruction?[] instructions = [];
     Terminator terminator = {kind:"RETURN"};
+    !...;
 };
 
 public type Name record {
     string value = "";
+    !...;
 };
 
 public const BINARY_ADD = "ADD";
@@ -69,14 +88,12 @@ public const INS_KIND_MAP_LOAD = "MAP_LOAD";
 public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
 public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
-public const INS_KIND_TYPE_ASSERT = "TYPE_ASSERT";
 public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|INS_KIND_TYPE_ASSERT|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST
-                                |BinaryOpInstructionKind;
+                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -115,7 +132,7 @@ public type VariableDcl record {
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     BType typeValue = "()";
-    any...; // This is to type match with Object type fields in subtypes
+    anydata...; // This is to type match with Object type fields in subtypes
 };
 
 public type GlobalVariableDcl record {
@@ -175,14 +192,14 @@ public type BRecordType record {
     Name name = {};
     boolean sealed;
     BType restFieldType;
-    BRecordField[] fields;
+    BRecordField?[] fields = [];
     !...;
 };
 
 public type BObjectType record {
     Name name = {};
-    BObjectField[] fields;
-    BAttachedFunction[] attachedFunctions;
+    BObjectField?[] fields = [];
+    BAttachedFunction?[] attachedFunctions = [];
     !...;
 };
 
@@ -246,12 +263,10 @@ public type Visibility VISIBILITY_PACKAGE_PRIVATE|VISIBILITY_PRIVATE|VISIBILITY_
 
 public type Instruction record  {
     InstructionKind kind;
-    any...; // This is to type match with Object type fields in subtypes
 };
 
 public type Terminator record {
     TerminatorKind kind;
-    any...; // This is to type match with Object type fields in subtypes
 };
 
 public type ConstantLoad record {
@@ -292,13 +307,6 @@ public type TypeCast record {
     !...;
 };
 
-public type TypeAssert record {
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef rhsOp;
-    !...;
-};
-
 public type IsLike record {
     InstructionKind kind;
     VarRef lhsOp;
@@ -315,13 +323,10 @@ public type TypeTest record {
     !...;
 };
 
-public type VarRef object {
-    public BType typeValue;
-    public VariableDcl variableDcl;
-    public function __init(BType typeValue, VariableDcl variableDcl) {
-        self.typeValue = typeValue;
-        self.variableDcl = variableDcl;
-    }
+public type VarRef record {
+    BType typeValue;
+    VariableDcl variableDcl;
+    !...;
 };
 
 public type Move record {
@@ -340,7 +345,7 @@ public type BinaryOp record {
 };
 
 public type Call record {
-    VarRef[] args;
+    VarRef?[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
     ModuleID pkgID;

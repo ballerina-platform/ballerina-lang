@@ -396,6 +396,6 @@ public class FunctionSignatureInBaloTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.clearPackageFromRepository("testorg", "foo");
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
     }
 }

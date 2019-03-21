@@ -111,7 +111,6 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.NoTokenPropagationTest"/>
             <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
         </classes>
@@ -167,6 +166,11 @@
     </test>
 
     <test name="ballerina-grpc-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
@@ -219,6 +223,11 @@
     </test>
 
     <test name="ballerina-jms-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>
         </classes>
@@ -259,6 +268,14 @@
         <classes>
             <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
             <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
+        </classes>
+    </test>
+
+    <test name="artemis-test" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons" />
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest" />
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest" />
         </classes>
     </test>
 </suite>

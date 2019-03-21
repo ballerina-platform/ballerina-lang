@@ -30,8 +30,8 @@ public class BErrorType extends BType {
     public BType reasonType;
     public BType detailsType;
 
-    BErrorType(String typeName, BType reasonType, BType detailsType) {
-        super(typeName, null, BError.class);
+    BErrorType(String typeName, BType reasonType, BType detailsType, String pkgPath) {
+        super(typeName, pkgPath, BError.class);
         this.reasonType = reasonType;
         this.detailsType = detailsType;
     }
@@ -55,5 +55,19 @@ public class BErrorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+            return false;
+        }
+
+        BErrorType other = (BErrorType) obj;
+        if (reasonType == other.reasonType && detailsType == other.detailsType) {
+            return true;
+        }
+
+        return reasonType.equals(other.reasonType) && detailsType.equals(other.detailsType);
     }
 }

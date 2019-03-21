@@ -26,7 +26,7 @@ function testFunc() {
         } else {
             test:assertFail(msg = "Invalid body parts");
         }
-    } else if (response1 is error) {
+    } else {
         test:assertFail(msg = "Error in calling multipart decoder");
     }
 

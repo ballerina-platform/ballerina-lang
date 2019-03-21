@@ -21,9 +21,9 @@ import * as Swagger from "openapi3-ts";
 import * as React from "react";
 import { Accordion, AccordionTitleProps, Button, Divider } from "semantic-ui-react";
 
-import { OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
+import { ExpandMode, OpenApiContext, OpenApiContextConsumer } from "../components/context/open-api-context";
 
-import InlineEdit from "../components/utils/inline-edit";
+import InlineEdit from "../components/utils/inline-edit/inline-edit";
 
 import OpenApiParameterList from "../parameter/parameter-list";
 import OpenApiResponseList from "../response/response-list";
@@ -33,11 +33,11 @@ import OpenApiAddParameter from "../parameter/add-parameter";
 interface OpenApiOperationProp {
     pathItem: Swagger.PathItemObject;
     path: string;
-    showType: string;
+    expandMode: ExpandMode;
 }
 
 interface OpenApiOperationState {
-    activeIndex: number[];
+    activeOpIndex: number[];
     showAddParameter: number[];
 }
 
@@ -46,31 +46,40 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
         super(props);
 
         this.state = {
-            activeIndex: [],
+            activeOpIndex: [],
             showAddParameter: []
         };
 
         this.onAccordionTitleClick = this.onAccordionTitleClick.bind(this);
+        this.handleShowAddParameter = this.handleShowAddParameter.bind(this);
     }
 
     public componentWillReceiveProps(nextProps: OpenApiOperationProp) {
-        const { pathItem, showType } = nextProps;
-        const activeOperations: number[] = [];
+        const { pathItem, expandMode } = nextProps;
+        let activeOperations: number[] = this.state.activeOpIndex;
 
-        if (showType === "operations" || showType === "all") {
+        if (expandMode.isEdit) {
+            return;
+        }
+
+        if (expandMode.type === "collapse" || expandMode.type === "resources") {
+            activeOperations = [];
+        }
+
+        if (expandMode.type === "operations") {
             Object.keys(pathItem).sort().map((openApiOperation, index) => {
                 activeOperations.push(index);
             });
         }
 
         this.setState({
-            activeIndex: activeOperations
+            activeOpIndex: activeOperations
         });
     }
 
     public render() {
         const { pathItem, path } = this.props;
-        const { activeIndex, showAddParameter } = this.state;
+        const { activeOpIndex, showAddParameter } = this.state;
 
         return (
             <Accordion>
@@ -78,7 +87,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                     return(
                         <React.Fragment>
                             <Accordion.Title
-                                active={activeIndex.includes(index)}
+                                active={activeOpIndex.includes(index)}
                                 index={index}
                                 onClick={this.onAccordionTitleClick}
                                 className={openApiOperation} >
@@ -93,15 +102,16 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                     key: "operation.summary",
                                                     path
                                                 }}
-                                                text={pathItem[openApiOperation].summary}
+                                                editableObject={pathItem[openApiOperation].summary ?
+                                                    pathItem[openApiOperation].summary : ""}
                                                 placeholderText="Add a summary"
-                                                onInlineValueChange={appContext.onInlineValueChange}
+                                                onValueChange={appContext.onInlineValueChange}
                                             />
                                         );
                                     }}
                                 </OpenApiContextConsumer>
                             </Accordion.Title>
-                            <Accordion.Content active={activeIndex.includes(index)} className={openApiOperation}>
+                            <Accordion.Content active={activeOpIndex.includes(index)} className={openApiOperation}>
                                 <OpenApiContextConsumer>
                                     {(appContext: OpenApiContext) => {
                                         return (
@@ -112,9 +122,10 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                     key: "operation.description",
                                                     path
                                                 }}
-                                                text={pathItem[openApiOperation].description}
+                                                editableObject={pathItem[openApiOperation].description ?
+                                                    pathItem[openApiOperation].description : ""}
                                                 placeholderText="Add a description"
-                                                onInlineValueChange={appContext.onInlineValueChange}
+                                                onValueChange={appContext.onInlineValueChange}
                                             />
                                         );
                                     }}
@@ -144,6 +155,8 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                                         onAddParameter={appContext!.onAddOpenApiParameter}
                                                         operation={openApiOperation}
                                                         resourcePath={path}
+                                                        onClose={this.handleShowAddParameter}
+                                                        index={index}
                                                     />
                                                 );
                                             }}
@@ -160,6 +173,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
                                     <div className="title">
                                         <p>Responses</p>
                                     </div>
+                                    <Divider />
                                     {pathItem[openApiOperation].responses &&
                                         <OpenApiResponseList
                                             responsesList={pathItem[openApiOperation].responses}
@@ -189,11 +203,11 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
 
     private onAccordionTitleClick(e: React.MouseEvent, titleProps: AccordionTitleProps) {
         const { index } = titleProps;
-        const { activeIndex } = this.state;
+        const { activeOpIndex } = this.state;
 
         this.setState({
-            activeIndex: !activeIndex.includes(Number(index)) ?
-                [...this.state.activeIndex, Number(index)] : this.state.activeIndex.filter((i) => i !== index)
+            activeOpIndex: !activeOpIndex.includes(Number(index)) ?
+                [...this.state.activeOpIndex, Number(index)] : this.state.activeOpIndex.filter((i) => i !== index)
         });
     }
 }

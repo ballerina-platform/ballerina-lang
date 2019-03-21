@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 final map<string> fullQualifiedClassNames = {};
 
 final map<(bir:Call,string)> lambdas = {};
@@ -8,12 +24,18 @@ function lookupFullQualifiedClassName(string key) returns string {
     if (result is string) {
         return result;
     } else {
-        error err = error("cannot find full qualified class for method : " + key);
+        error err = error("cannot find full qualified class for : " + key);
         panic err;
     }
 }
 
 public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries) {
+
+    // generate imported modules recursively
+    foreach var mod in module.importModules {
+        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        generateImportedPackage(importedPkg, pkgEntries);
+    }
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -31,7 +53,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
     generateDefaultConstructor(cw);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -40,18 +62,20 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // populate global variable to class name mapping and generate them
     foreach var globalVar in module.globalVars {
-        fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
-        generatePackageVariable(globalVar, cw);
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+            generatePackageVariable(globalVar, cw);
+        }
     }
 
     // populate function to class name mapping
     foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
+        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
     }
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw, module);
+        generateMethod(getFunction(func), cw, module);
     }
 
     cw.visitEnd();
@@ -78,7 +102,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     generateFrameClasses(module, pkgEntries);
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+    cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
     generateDefaultConstructor(cw);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -87,13 +111,15 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // populate global variable to class name mapping and generate them
     foreach var globalVar in module.globalVars {
-        fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
-        generatePackageVariable(globalVar, cw);
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+            generatePackageVariable(globalVar, cw);
+        }
     }
 
     // populate function to class name mapping
     foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + func.name.value] = moduleClass;
+        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
     }
 
     bir:Function? mainFunc = getMainFunc(module.functions);
@@ -104,7 +130,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(func, cw, module);
+        generateMethod(getFunction(func), cw, module);
     }
 
     foreach var (k,v) in lambdas {
@@ -131,6 +157,12 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
         panic err;
     }
+}
+
+function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
+    bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
+                                modVersion: importModule.modVersion.value};
+    return birContext.lookupBIRModule(moduleId);
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {

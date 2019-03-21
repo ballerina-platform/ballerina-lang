@@ -36,8 +36,7 @@ import java.io.UnsupportedEncodingException;
  * @since 0.980
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "byteArrayToString",
+        orgName = "ballerina", packageName = "encoding", functionName = "byteArrayToString",
         args = {
                 @Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "encoding", type = TypeKind.STRING)

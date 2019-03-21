@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 public type PackageParser object {
     BirChannelReader reader;
     TypeParser typeParser;
@@ -34,10 +50,8 @@ public type PackageParser object {
         var argsCount = self.reader.readInt32();
         var numLocalVars = self.reader.readInt32();
 
-        VariableDcl[] dcls = [];
-        map<VariableDcl> localVarMap = {
-        
-        };
+        VariableDcl?[] dcls = [];
+        map<VariableDcl> localVarMap = {};
         int i = 0;
         while (i < numLocalVars) {
             var dcl = self.parseVariableDcl();
@@ -45,15 +59,9 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
 
-        BasicBlock[] basicBlocks = [];
-        var numBB = self.reader.readInt32();
-        i = 0;
-        while (i < numBB) {
-            basicBlocks[i] = bodyParser.parseBB();
-            i += 1;
-        }
+        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
+        BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
 
         return {
             name: { value: name },
@@ -69,10 +77,10 @@ public type PackageParser object {
     public function parsePackage() returns Package {
         ModuleID pkgId = self.reader.readModuleIDCpRef();
         ImportModule[] importModules = self.parseImportMods();
-        TypeDef[] typeDefs = self.parseTypeDefs();
-        GlobalVariableDcl[] globalVars = self.parseGlobalVars();
+        TypeDef?[] typeDefs = self.parseTypeDefs();
+        GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
         var numFuncs = self.reader.readInt32();
-        Function[] funcs = [];
+        Function?[] funcs = [];
         int i = 0;
         while (i < numFuncs) {
             funcs[i] = self.parseFunction();
@@ -84,8 +92,26 @@ public type PackageParser object {
 //                                    versionValue: {value: pkgId.modVersion}});
 //       emitter.emitPackage();
 
-        return { importModules: importModules, typeDefs: typeDefs, globalVars:globalVars, functions: funcs,
-                name: {value: pkgId.name}, org: {value: pkgId.org}, versionValue: {value: pkgId.modVersion}};
+
+        return { importModules : importModules, 
+                    typeDefs : typeDefs, 
+                    globalVars : globalVars, 
+                    functions : funcs,
+                    name : { value: pkgId.name }, 
+                    org : { value: pkgId.org }, 
+                    versionValue : { value: pkgId.modVersion } };
+    }
+
+    function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock?[] {
+        BasicBlock?[] basicBlocks = [];
+        var numBB = self.reader.readInt32();
+        int i = 0;
+        while (i < numBB) {
+            basicBlocks[i] = bodyParser.parseBB();
+            i += 1;
+        }
+
+        return basicBlocks;
     }
 
     function parseImportMods() returns ImportModule[] {
@@ -101,14 +127,15 @@ public type PackageParser object {
         return importModules;
     }
 
-    function parseTypeDefs() returns TypeDef[] {
+    function parseTypeDefs() returns TypeDef?[] {
         int numTypeDefs = self.reader.readInt32();
-        TypeDef[] typeDefs = [];
+        TypeDef?[] typeDefs = [];
         int i = 0;
         while i < numTypeDefs {
             typeDefs[i] = self.parseTypeDef();
             i = i + 1;
         }
+
         return typeDefs;
     }
 
@@ -118,8 +145,8 @@ public type PackageParser object {
         return { name:{ value: name}, visibility: visibility, typeValue: self.typeParser.parseType()};
     }
 
-    function parseGlobalVars() returns GlobalVariableDcl[] {       
-        GlobalVariableDcl[] globalVars = []; 
+    function parseGlobalVars() returns GlobalVariableDcl?[] {       
+        GlobalVariableDcl?[] globalVars = []; 
         int numGlobalVars = self.reader.readInt32();        
         int i = 0;
         while i < numGlobalVars {

@@ -8,11 +8,13 @@ import ballerina/log;
 http:Client httpEndpoint = new("https://www.googleapis.com/tasks/v1", config = {
     auth: {
         scheme: http:OAUTH2,
-        accessToken: "ya29.GlsKBjW1zLmpJQOohUEMjfqn8m1MU_BhkIv4YsQHbLMb8XntaKdg6kkPIi4x22ZksJ2sYFIDtVWTxjiJnkDtUk3ZROe6AVq4EIQRrazNGfeXEGdjBkR0LxIo1D_C",
-        clientId: "833478926540-a61oihs15lt3jsf7fq5roeiki0hrk4t9.apps.googleusercontent.com",
-        clientSecret: "x3-rqEnDti6lX_tsVelyfjTm",
-        refreshToken: "1/XlnjQH5Y4ueEggJWAfwZJUu74nAEwfBtFZNFfCXySYs",
-        refreshUrl: "https://www.googleapis.com/oauth2/v4/token"
+        config: {
+            accessToken: "ya29.GlvQBkqJS0yn0zsZm4IIUUzLk3DH1rRiCMKnHiz6deycKmTFiDsuoFlFfrmXF8dCb0gyzLyXpnv3VcrIlauj3nMs61CbydaAqMl6RwVIU2r2qg1StVVvxRWT9_Or",
+            clientId: "506144513496-dqm5vdqfrfhdjjom10rmvafb8e3h7rtm.apps.googleusercontent.com",
+            clientSecret: "3hw2XN4MfiIRrv6mghX6m5gM",
+            refreshToken: "1/UwH3YyYccKTrH9bqj35Y7hMYTK9f3HEC3uzlrleFwPE",
+            refreshUrl: "https://www.googleapis.com/oauth2/v4/token"
+        }
     }
 });
 
@@ -20,7 +22,7 @@ public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/users/@me/lists/");
     if (response is http:Response) {
-        var result = response.getPayloadAsString();
+        var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
                                         : result);
     } else {
