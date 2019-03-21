@@ -185,24 +185,27 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 75, 5);
         BAssertUtil.validateError(resultNegative, 8, "unknown type 'Student'", 87, 11);
         BAssertUtil.validateError(resultNegative, 9,
-                                  "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns ()'",
+                                  "incompatible types: expected 'function (any) returns (boolean)', found 'function " +
+                                          "(Person) returns ()'",
                                   100, 25);
         BAssertUtil.validateError(resultNegative, 10,
-                "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' column", 122, 11);
+                                  "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' " +
+                                          "column", 122, 11);
         BAssertUtil.validateError(resultNegative, 11,
-                "column 'name' of type 'json' is not allowed as key, use an 'int' or 'string' column", 128, 11);
+                                  "column 'name' of type 'json' is not allowed as key, use an 'int' or 'string' column",
+                                  128, 11);
         BAssertUtil.validateError(resultNegative, 12,
-                "field 'salary' of type 'float|int' is not allowed as a table column", 161, 28);
+                                  "field 'salary' of type 'float|int' is not allowed as a table column", 161, 28);
         BAssertUtil.validateError(resultNegative, 13,
-                "field 'bar' of type 'Bar' is not allowed as a table column", 170, 31);
+                                  "field 'bar' of type 'Bar' is not allowed as a table column", 170, 31);
         BAssertUtil.validateError(resultNegative, 14,
-                "field 'foo' of type 'Foo' is not allowed as a table column", 179, 31);
+                                  "field 'foo' of type 'Foo' is not allowed as a table column", 179, 31);
         BAssertUtil.validateError(resultNegative, 15,
-                "field 'bar' of type 'error' is not allowed as a table column", 187, 31);
+                                  "field 'bar' of type 'error' is not allowed as a table column", 187, 31);
         BAssertUtil.validateError(resultNegative, 16,
-                "field 'xArr' of type 'xml[]' is not allowed as a table column", 203, 29);
+                                  "field 'xArr' of type 'xml[]' is not allowed as a table column", 203, 29);
         BAssertUtil.validateError(resultNegative, 17,
-                "field 'eArr' of type 'error?[]' is not allowed as a table column", 203, 29);
+                                  "field 'eArr' of type 'error?[]' is not allowed as a table column", 203, 29);
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
