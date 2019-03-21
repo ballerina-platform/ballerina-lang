@@ -49,7 +49,7 @@ public class Acknowledgment implements AckHandler {
      */
     @Override
     public void onAck(String guid, Exception err) {
-        if(null != err){
+        if (null != err) {
             context.setReturnValues(Utils.createError(context, Constants.NATS_ERROR_CODE, err.getMessage()));
         } else {
             context.setReturnValues(new BString(guid));
