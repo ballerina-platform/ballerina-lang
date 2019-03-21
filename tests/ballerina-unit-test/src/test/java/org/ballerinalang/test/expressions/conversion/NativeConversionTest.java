@@ -771,7 +771,7 @@ public class NativeConversionTest {
         Assert.assertTrue(((BBoolean) map.get("fromString")).booleanValue());
         Assert.assertFalse(((BBoolean) map.get("fromInt")).booleanValue());
         Assert.assertTrue(((BBoolean) map.get("fromDecimal")).booleanValue());
-        Assert.assertFalse(((BBoolean) map.get("fromByte")).booleanValue());
+        Assert.assertTrue(((BBoolean) map.get("fromByte")).booleanValue());
         Assert.assertFalse(((BBoolean) map.get("fromBoolean")).booleanValue());
     }
 

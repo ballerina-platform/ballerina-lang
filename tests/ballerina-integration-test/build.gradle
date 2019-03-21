@@ -1,6 +1,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
+    testCompile 'org.apache.activemq:artemis-server:2.6.3'
     implementation project(':ballerina-integration-test-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-core')
@@ -21,14 +22,9 @@ dependencies {
     implementation project(':ballerina-grpc')
     implementation project(':protobuf-ballerina')
     implementation 'com.google.protobuf:protobuf-java:3.5.1'
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-h2')
-    implementation project(':ballerina-mysql')
-    implementation project(':ballerina-sql')
-    implementation project(':ballerina-transactions')
+    implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
-    implementation project(':ballerina-grpc')
     implementation project(':ballerina-socket')
     implementation project(':ballerina-observability')
     implementation project(':observability-test-utils')
