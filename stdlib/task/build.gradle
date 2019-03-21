@@ -3,12 +3,11 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
-    implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-utils')
+    implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-utils')
 
     implementation 'org.quartz-scheduler:quartz:2.3.0'
 
