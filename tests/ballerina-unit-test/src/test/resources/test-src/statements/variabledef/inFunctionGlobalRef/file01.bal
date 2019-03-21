@@ -31,7 +31,7 @@ public function getEmployee2() returns Employee {
 Person fromFuncA = fromFunc;
 Person fromFunc = getPersonOuter();
 
-public Employee employee = {
+Employee employee = {
     name: person.name,
     age: person.age,
     empNo: 100

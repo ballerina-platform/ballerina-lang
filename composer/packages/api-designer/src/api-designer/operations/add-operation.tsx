@@ -19,7 +19,7 @@
 
 import * as Swagger from "openapi3-ts";
 import * as React from "react";
-import { Button, Form, Segment } from "semantic-ui-react";
+import { Button, Divider, Form } from "semantic-ui-react";
 
 export interface OpenApiAddOperationProps {
     openApiJson: Swagger.OpenAPIObject;
@@ -85,24 +85,6 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
 
         return (
             <Form className="add-operation">
-                <Segment basic clearing>
-                    <Button size="mini" className="btn-close" floated="right" onClick={(e: any) => {
-                        handleOnClose(operationIndex);
-                        this.setState({
-                            operationMethods: [],
-                            operationObject: {
-                                description: "",
-                                id: "",
-                                method: [],
-                                name: "",
-                                path: this.props.resourcePath,
-                                responses: []
-                            }
-                        });
-                    }}>
-                        <i className="fw fw-close icon"></i>
-                    </Button>
-                </Segment>
                 <Form.Group inline>
                     <label>Methods</label>
                     {operationMethods.sort().map((method) => {
@@ -116,8 +98,7 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
                             />
                         );
                     })}
-                </Form.Group>
-                <Button size="mini" onClick={() => {
+                    <Button size="mini" primary onClick={() => {
                     onAddOperation(this.state.operationObject);
                     handleOnClose(operationIndex);
                     this.setState({
@@ -131,7 +112,9 @@ class AddOpenApiOperation extends React.Component<OpenApiAddOperationProps, Open
                             responses: []
                         }
                     });
-                }}>Add</Button>
+                }}>Add Method</Button>
+                </Form.Group>
+                <Divider/>
             </Form>
         );
     }

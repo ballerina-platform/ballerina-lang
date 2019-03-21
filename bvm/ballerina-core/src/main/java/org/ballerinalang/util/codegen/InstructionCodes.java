@@ -81,10 +81,8 @@ public interface InstructionCodes {
     int RASTORE = BASTORE + 1;
     int JSONASTORE = RASTORE + 1;
 
-    int BIAND = JSONASTORE + 1;
-    int IAND = BIAND + 1;
-    int BIOR = IAND + 1;
-    int IOR = BIOR + 1;
+    int IAND = JSONASTORE + 1;
+    int IOR = IAND + 1;
 
     int IGSTORE = IOR + 1;
     int FGSTORE = IGSTORE + 1;
@@ -94,17 +92,10 @@ public interface InstructionCodes {
 
     int IS_LIKE = RGSTORE + 1;
 
-    int STAMP = IS_LIKE + 1;
-
-    int FREEZE = STAMP + 1;
-    int IS_FROZEN = FREEZE + 1;
-
-    int ERROR = IS_FROZEN + 1;
+    int ERROR = IS_LIKE + 1;
     int PANIC = ERROR + 1;
-    int REASON = PANIC + 1;
-    int DETAIL = REASON + 1;
 
-    int MAPSTORE = DETAIL + 1;
+    int MAPSTORE = PANIC + 1;
     int JSONSTORE = MAPSTORE + 1;
 
     int IADD = JSONSTORE + 1;
@@ -271,32 +262,25 @@ public interface InstructionCodes {
     int BNEWARRAY = SNEWARRAY + 1;
     int RNEWARRAY = BNEWARRAY + 1;
 
-    int CLONE = RNEWARRAY + 1;
 
-    int FLUSH = CLONE + 1;
+    int FLUSH = RNEWARRAY + 1;
 
-    int LENGTH = FLUSH + 1;
-    int WAITALL = LENGTH + 1;
+    int WAITALL = FLUSH + 1;
 
     int NEWSTRUCT = WAITALL + 1;
     int NEWMAP = NEWSTRUCT + 1;
     int NEWTABLE = NEWMAP + 1;
     int NEWSTREAM = NEWTABLE + 1;
 
-    int CONVERT = NEWSTREAM + 1;
+    int ITR_NEW  = NEWSTREAM + 1;
 
-    int ITR_NEW = CONVERT + 1;
     int ITR_NEXT = ITR_NEW + 1;
     int INT_RANGE = ITR_NEXT + 1;
 
     int I2BI = INT_RANGE + 1;
-    int BI2I = I2BI + 1;
-    int F2BI = BI2I + 1;
-    int BI2F = F2BI + 1;
-    int D2BI = BI2F + 1;
-    int BI2D = D2BI + 1;
-    int BIXOR = BI2D + 1;
-    int IXOR = BIXOR + 1;
+    int F2BI = I2BI + 1;
+    int D2BI = F2BI + 1;
+    int IXOR = D2BI + 1;
     int BACONST = IXOR + 1;
     int IURSHIFT = BACONST + 1;
 

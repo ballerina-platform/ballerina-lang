@@ -33,6 +33,7 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.ConcurrentHashMa
 import org.ballerinalang.model.util.serializer.providers.bvalue.DateTimeBValueProviders;
 import org.ballerinalang.model.util.serializer.providers.bvalue.HashSetBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.InetSocketAddressBValueProvider;
+import org.ballerinalang.model.util.serializer.providers.bvalue.LinkedHashSetBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.serializable.SerializableState;
@@ -65,10 +66,13 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BBooleanBValueProvider());
         bValueProvider.register(new ArrayListBValueProvider());
         bValueProvider.register(new HashSetBValueProvider());
+        bValueProvider.register(new LinkedHashSetBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BObjectTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BRecordTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
+        bValueProvider.register(new BTypeBValueProviders.BAnydataTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
+        bValueProvider.register(new BTypeBValueProviders.BMapTypeBValueProvider());
         bValueProvider.register(new DateTimeBValueProviders.DateBValueProvider());
         bValueProvider.register(new DateTimeBValueProviders.InstantBValueProvider());
         bValueProvider.register(new BXMLBValueProviders.BXMLItemBValueProvider());

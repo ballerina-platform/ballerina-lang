@@ -18,14 +18,14 @@
  */
 package org.ballerinalang.test.statements.arrays.arraysofarrays;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -141,13 +141,13 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, 18, "array index out of range: index: '4', size: '3'", 68, 14);
         BAssertUtil.validateError(
-                resultNegative, 19, "size mismatch in sealed array. expected '3', but found '5'", 73, 49);
+                resultNegative, 19, "size mismatch in sealed array. expected '3', but found '5'", 73, 46);
         BAssertUtil.validateError(
-                resultNegative, 20, "size mismatch in sealed array. expected '3', but found '4'", 73, 69);
+                resultNegative, 20, "size mismatch in sealed array. expected '3', but found '4'", 73, 66);
         BAssertUtil.validateError(
-                resultNegative, 21, "invalid usage of sealed type: can not infer array size", 75, 25);
+                resultNegative, 21, "invalid usage of sealed type: can not infer array size", 75, 22);
         BAssertUtil.validateError(
-                resultNegative, 22, "invalid usage of sealed type: can not infer array size", 75, 29);
+                resultNegative, 22, "invalid usage of sealed type: can not infer array size", 75, 26);
         BAssertUtil.validateError(
                 resultNegative, 23, "invalid usage of sealed type: array not initialized", 76, 5);
         BAssertUtil.validateError(

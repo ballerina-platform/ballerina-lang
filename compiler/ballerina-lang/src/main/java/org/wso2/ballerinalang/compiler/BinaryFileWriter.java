@@ -37,10 +37,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PROG_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
@@ -103,7 +105,7 @@ public class BinaryFileWriter {
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        String execFileName = cleanupExecFileName(fileName);
+        String execFileName = cleanupExecFileName(fileName, BLANG_COMPILED_PROG_EXT);
 
         // Generate code for the given executable
         ProgramFile programFile = this.codeGenerator.generateBALX(packageNode);
@@ -160,6 +162,23 @@ public class BinaryFileWriter {
         }
     }
 
+    /**
+     * Writes the given binary content as a java archive to specified location with the name.
+     *
+     * @param jarContent the binary content of jar
+     * @param outputPath path to be used for writing the jar file
+     * @param targetFileName file name of the jar to be used
+     */
+    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
+        Path path = null;
+        try {
+            path = outputPath.resolve(cleanupExecFileName(targetFileName, BLANG_COMPILED_JAR_EXT));
+            Files.write(path, jarContent);
+        } catch (IOException e) {
+            String msg = "error writing the jar file to '" + path + "': " + e.getMessage();
+            throw new BLangCompilerException(msg, e);
+        }
+    }
 
     // private methods
 
@@ -195,7 +214,7 @@ public class BinaryFileWriter {
         return packageID.getName().value + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
-    private String cleanupExecFileName(String fileName) {
+    private String cleanupExecFileName(String fileName, String extension) {
         String updatedFileName = fileName;
         if (updatedFileName == null || updatedFileName.isEmpty()) {
             throw new IllegalArgumentException("invalid target file name");
@@ -206,8 +225,8 @@ public class BinaryFileWriter {
                     updatedFileName.length() - BLANG_SOURCE_EXT.length());
         }
 
-        if (!updatedFileName.endsWith(BLANG_COMPILED_PROG_EXT)) {
-            updatedFileName += BLANG_COMPILED_PROG_EXT;
+        if (!updatedFileName.endsWith(extension)) {
+            updatedFileName += extension;
         }
         return updatedFileName;
     }

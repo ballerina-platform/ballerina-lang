@@ -24,6 +24,7 @@ import org.eclipse.lsp4j.Range;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -75,25 +76,29 @@ public class WorkspaceDocument {
         if (range == null) {
             return newText;
         }
-        List<String> content = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
+        String trimmedOldText = oldText.trim();
+        int leadingNewLines = oldText.indexOf(trimmedOldText);
+        int trailingNewLines = oldText.length() - leadingNewLines - trimmedOldText.length();
+        List<String> oldTextLines = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
+        oldTextLines.addAll(Collections.nCopies(trailingNewLines, ""));
         Position start = range.getStart();
         Position end = range.getEnd();
         int rangeLineLength = end.getLine() - start.getLine();
         if (rangeLineLength == 0) {
             // single line edit
-            String line = content.get(start.getLine());
+            String line = oldTextLines.get(start.getLine());
             String mLine = line.substring(0, start.getCharacter()) + newText + line.substring(end.getCharacter());
-            content.set(start.getLine(), mLine);
+            oldTextLines.set(start.getLine(), mLine);
         } else {
             // multi-line edit
             String[] newTextArr = newText.split(LINE_SEPARATOR_SPLIT);
-            String sLine = content.get(start.getLine());
-            String eLine = content.get(end.getLine());
+            String sLine = oldTextLines.get(start.getLine());
+            String eLine = oldTextLines.get(end.getLine());
 
             // remove lines
             int i = 0;
             while (i <= rangeLineLength) {
-                content.remove(start.getLine());
+                oldTextLines.remove(start.getLine());
                 i++;
             }
 
@@ -104,11 +109,11 @@ public class WorkspaceDocument {
                 String prefix = (j == 0) ? sLine.substring(0, start.getCharacter()) : "";
                 String suffix = (j == newTextArr.length - 1) ? eLine.substring(end.getCharacter()) : "";
                 String mLine = prefix + changeText + suffix;
-                content.add(start.getLine(), mLine);
+                oldTextLines.add(start.getLine() + j, mLine);
                 j++;
             }
         }
-        return String.join(System.lineSeparator(), content);
+        return String.join(System.lineSeparator(), oldTextLines);
     }
 
     @Override

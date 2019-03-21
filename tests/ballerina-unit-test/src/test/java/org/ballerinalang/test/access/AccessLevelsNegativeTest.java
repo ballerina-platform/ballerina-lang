@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.access;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,33 +32,30 @@ public class AccessLevelsNegativeTest {
     public void testPrivateAccessLevel() {
         CompileResult compileResult = BCompileUtil.compile("test-src/access/private_access_negative.bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 25);
+        Assert.assertEquals(compileResult.getErrorCount(), 22);
         String expectedErrMsg = "attempt to expose non-public symbol ";
 
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg + "'Foo'", 13, 1);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg + "'Bar'", 15, 1);
-        BAssertUtil.validateError(compileResult, 2, expectedErrMsg + "'Baz'", 17, 1);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg + "'Baz'", 21, 14);
-        BAssertUtil.validateError(compileResult, 4, expectedErrMsg + "'Foo'", 22, 14);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'ChildFoo'", 29, 5);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg + "'Foo'", 30, 5);
-        BAssertUtil.validateError(compileResult, 7, expectedErrMsg + "'Baz'", 31, 5);
-        BAssertUtil.validateError(compileResult, 8, expectedErrMsg + "'Foo'", 50, 77);
-        BAssertUtil.validateError(compileResult, 9, expectedErrMsg + "'Foo'", 55, 78);
-        BAssertUtil.validateError(compileResult, 10, expectedErrMsg + "'Baz'", 65, 48);
-        BAssertUtil.validateError(compileResult, 11, expectedErrMsg + "'Baz'", 82, 45);
-        BAssertUtil.validateError(compileResult, 12, expectedErrMsg + "'Foo'", 83, 45);
-        BAssertUtil.validateError(compileResult, 13, expectedErrMsg + "'Baz'", 132, 6);
-        BAssertUtil.validateError(compileResult, 14, expectedErrMsg + "'Foo'", 133, 6);
-        BAssertUtil.validateError(compileResult, 15, expectedErrMsg + "'BarRecord'", 134, 6);
-        BAssertUtil.validateError(compileResult, 16, expectedErrMsg + "'ChildFoo'", 139, 5);
-        BAssertUtil.validateError(compileResult, 17, expectedErrMsg + "'ChildRecord'", 140, 5);
-        BAssertUtil.validateError(compileResult, 18, expectedErrMsg + "'Foo'", 141, 5);
-        BAssertUtil.validateError(compileResult, 19, expectedErrMsg + "'Baz'", 142, 5);
-        BAssertUtil.validateError(compileResult, 20, expectedErrMsg + "'Baz'", 171, 37);
-        BAssertUtil.validateError(compileResult, 21, expectedErrMsg + "'Foo'", 172, 37);
-        BAssertUtil.validateError(compileResult, 22, expectedErrMsg + "'BarRecord'", 173, 37);
-        BAssertUtil.validateError(compileResult, 23, expectedErrMsg + "'FooTypeObj'", 197, 1);
-        BAssertUtil.validateError(compileResult, 24, expectedErrMsg + "'BarTypeRecord'", 199, 1);
+        BAssertUtil.validateError(compileResult, 0, expectedErrMsg + "'Baz'", 15, 14);
+        BAssertUtil.validateError(compileResult, 1, expectedErrMsg + "'Foo'", 16, 14);
+        BAssertUtil.validateError(compileResult, 2, expectedErrMsg + "'ChildFoo'", 23, 5);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg + "'Foo'", 24, 5);
+        BAssertUtil.validateError(compileResult, 4, expectedErrMsg + "'Baz'", 25, 5);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg + "'Foo'", 44, 77);
+        BAssertUtil.validateError(compileResult, 6, expectedErrMsg + "'Foo'", 49, 78);
+        BAssertUtil.validateError(compileResult, 7, expectedErrMsg + "'Baz'", 59, 48);
+        BAssertUtil.validateError(compileResult, 8, expectedErrMsg + "'Baz'", 76, 45);
+        BAssertUtil.validateError(compileResult, 9, expectedErrMsg + "'Foo'", 77, 45);
+        BAssertUtil.validateError(compileResult, 10, expectedErrMsg + "'Baz'", 126, 6);
+        BAssertUtil.validateError(compileResult, 11, expectedErrMsg + "'Foo'", 127, 6);
+        BAssertUtil.validateError(compileResult, 12, expectedErrMsg + "'BarRecord'", 128, 6);
+        BAssertUtil.validateError(compileResult, 13, expectedErrMsg + "'ChildFoo'", 133, 5);
+        BAssertUtil.validateError(compileResult, 14, expectedErrMsg + "'ChildRecord'", 134, 5);
+        BAssertUtil.validateError(compileResult, 15, expectedErrMsg + "'Foo'", 135, 5);
+        BAssertUtil.validateError(compileResult, 16, expectedErrMsg + "'Baz'", 136, 5);
+        BAssertUtil.validateError(compileResult, 17, expectedErrMsg + "'Baz'", 165, 37);
+        BAssertUtil.validateError(compileResult, 18, expectedErrMsg + "'Foo'", 166, 37);
+        BAssertUtil.validateError(compileResult, 19, expectedErrMsg + "'BarRecord'", 167, 37);
+        BAssertUtil.validateError(compileResult, 20, expectedErrMsg + "'FooTypeObj'", 191, 1);
+        BAssertUtil.validateError(compileResult, 21, expectedErrMsg + "'BarTypeRecord'", 193, 1);
     }
 }

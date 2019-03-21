@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -39,4 +40,8 @@ public abstract class BStructureType extends BType {
         return fields;
     }
 
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

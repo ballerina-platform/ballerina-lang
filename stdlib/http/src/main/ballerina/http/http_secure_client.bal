@@ -31,8 +31,8 @@ public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 # Indicates that the authentication credentials should be sent via the body of the POST request
 public const POST_BODY_BEARER = "POST_BODY_BEARER";
 
-# Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication schemes
-# configured in the HTTP client endpoint to secure the HTTP requests.
+# Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication
+# schemes configured in the HTTP client endpoint to secure the HTTP requests.
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this HttpActions instance
@@ -55,8 +55,8 @@ public type HttpSecureClient client object {
         }
     }
 
-    # This wraps the `post()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `post()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -74,8 +74,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `head()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `head()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -93,8 +93,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `put()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `put()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -112,8 +112,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `execute()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `execute()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers o the request and send the request to actual network call.
     #
     # + httpVerb - HTTP verb value
     # + path - Resource path
@@ -132,8 +132,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `patch()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `patch()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -151,8 +151,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `delete()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `delete()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -170,8 +170,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `get()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `get()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Request path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -189,8 +189,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `options()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `options()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -208,8 +208,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `forward()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `forward()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + path - Request path
     # + request - An HTTP inbound request message
@@ -225,8 +225,8 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `submit()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
-    # to the request and send the request to actual network call.
+    # This wraps the `submit()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # headers to the request and send the request to actual network call.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
@@ -311,7 +311,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
             } else {
-                error e = error("Basic auth config not provided");
+                error e = error(HTTP_ERROR_CODE, { message: "Basic auth config not provided" });
                 panic e;
             }
         } else if (auth.scheme == OAUTH2) {
@@ -323,13 +323,13 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
                 }
             } else {
-                error e = error("OAuth2 config not provided");
+                error e = error(HTTP_ERROR_CODE, { message: "OAuth2 config not provided" });
                 panic e;
             }
         } else if (auth.scheme == JWT_AUTH) {
             string authToken = EMPTY_STRING;
             if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
-                error e = error("JWT auth config not provided");
+                error e = error(HTTP_ERROR_CODE, { message: "JWT auth config not provided" });
                 panic e;
             } else if (authConfig is JwtAuthConfig) {
                 var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
@@ -394,7 +394,8 @@ function updateRequestAndConfig(Request req, ClientEndpointConfig config) return
 # Request an access token from authorization server using the provided refresh token.
 #
 # + config - Client endpoint configurations
-# + return - AccessToken received from the authorization server or `error` if error occured during HTTP client invocation
+# + return - AccessToken received from the authorization server or `error` if error occured during HTTP client
+# invocation
 function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns string|error {
     Client refreshTokenClient;
     var authConfig = config.auth.config;
@@ -409,7 +410,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
             || refreshUrl == EMPTY_STRING) {
             error err = error(HTTP_ERROR_CODE,
                 { message: "Failed to generate new access token since one or more of refresh token, client id,
-                  client secret, refresh url are not provided" });
+                client secret, refresh url are not provided" });
             return err;
         }
 
@@ -447,7 +448,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
             return simpleClient;
         }
     } else {
-        error e = error("OAuth2 config not provided");
+        error e = error(HTTP_ERROR_CODE, { message: "OAuth2 config not provided" });
         panic e;
     }
 }
