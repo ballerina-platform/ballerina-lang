@@ -135,12 +135,6 @@ public type Response object {
     # + return - The string representation of the message payload or `error` in case of errors
     public function getTextPayload() returns string|error;
 
-    # Gets the response payload as a `string`. Content type is not checked during payload construction which
-    # makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error;
-
     # Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
     # `getBodyParts()`.
     #
@@ -291,10 +285,6 @@ public function Response.getXmlPayload() returns xml|error {
 
 public function Response.getTextPayload() returns string|error {
     return self.getEntity()!getText();
-}
-
-public function Response.getPayloadAsString() returns string|error {
-    return self.getEntity()!getBodyAsString();
 }
 
 public function Response.getBinaryPayload() returns byte[]|error {

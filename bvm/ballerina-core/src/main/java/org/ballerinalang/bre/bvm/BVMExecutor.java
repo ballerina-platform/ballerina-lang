@@ -207,7 +207,7 @@ public class BVMExecutor {
                     callee.longRegs[++longRegIndex] = ((BValueType) args[i]).intValue();
                     break;
                 case TypeTags.BYTE_TAG:
-                    callee.intRegs[++booleanRegIndex] = ((BValueType) args[i]).byteValue();
+                    callee.longRegs[++longRegIndex] = ((BValueType) args[i]).byteValue();
                     break;
                 case TypeTags.FLOAT_TAG:
                     callee.doubleRegs[++doubleRegIndex] = ((BValueType) args[i]).floatValue();
@@ -238,7 +238,7 @@ public class BVMExecutor {
                 returnValue = new BInteger(strandCallback.getIntRetVal());
                 break;
             case TypeTags.BYTE_TAG:
-                returnValue = new BByte((byte) strandCallback.getByteRetVal());
+                returnValue = new BByte(strandCallback.getByteRetVal());
                 break;
             case TypeTags.FLOAT_TAG:
                 returnValue = new BFloat(strandCallback.getFloatRetVal());

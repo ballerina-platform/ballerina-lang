@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -60,6 +61,11 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public boolean isNullable() {
         return nullable;
     }
@@ -76,7 +82,8 @@ public class BUnionType extends BType implements UnionType {
                 .filter(memberType -> memberType.tag != TypeTags.NIL)
                 .forEach(memberType -> joiner.add(memberType.toString()));
         String typeStr = joiner.toString();
-        return nullable ? typeStr + Names.QUESTION_MARK.value : typeStr;
+        boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
+        return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 
     @Override
@@ -100,7 +107,12 @@ public class BUnionType extends BType implements UnionType {
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = toFlatTypeSet(types);
-        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL));
+        boolean hasNilableType = memberTypes.stream().anyMatch(t -> t.isNullable() && t.tag != TypeTags.NIL);
+        if (hasNilableType) {
+            memberTypes = memberTypes.stream().filter(t -> t.tag != TypeTags.NIL)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
+        return new BUnionType(tsymbol, memberTypes, memberTypes.stream().anyMatch(BType::isNullable));
     }
 
     /**

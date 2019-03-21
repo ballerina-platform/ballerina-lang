@@ -20,7 +20,9 @@ configurations {
     ballerinaZip {
         transitive false
     }
+    docerina
     bin
+    balSource
 }
 
 dependencies {
@@ -31,26 +33,39 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+    dist 'org.ow2.asm:asm:6.2.1'
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-llvm')
+    dist project(':ballerina-jvm')
+    dist project(':ballerina-encoding')
+    dist project(':ballerina-bir')
+    dist project(':ballerina-utils')
+    dist project(':ballerina-runtime')
 
     dist project(':testerina:testerina-core')
     
     dist project(':swagger-ballerina:swagger-to-ballerina-generator')
     dist project(':ballerina-backend-llvm')
+    dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler');
     dist project(':ballerina-packerina');
     dist project(':protobuf-ballerina')
     dist project(':swagger-ballerina:swagger-to-ballerina-generator');
-    dist project(':docerina');
+    docerina project(':docerina-gradle-plugin');
 
     toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
     tools project(':language-server:language-server-stdio-launcher');
     tools project(':language-server:language-server-core');
+    balSource project(path: ':ballerina', configuration: 'source');
     distBal project(path: ':ballerina', configuration: 'balo');
     dist project(path: ':ballerina', configuration: 'jar');
     bin project(path: ':ballerina', configuration: 'bin');
+
+    distBal project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
 def basePath = '/' + project.name + '-' + project.version + '/'
@@ -103,6 +118,37 @@ CopySpec examplesSpec = copySpec {
     into(basePath + '/examples')
 }
 
+task extractLibs(type: Copy) {
+    def path = "$buildDir/ballerina";
+    from configurations.balSource.files
+    into path
+}
+
+task generateDocs(type: JavaExec) {
+    dependsOn extractLibs
+    inputs.dir("$buildDir/ballerina/");
+    outputs.dir("$buildDir/api-docs")
+
+    systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
+    systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
+
+    classpath = configurations.docerina
+    main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
+
+    def libs = "$buildDir/ballerina/"
+    args("$libs", "$buildDir/api-docs")
+}
+
+CopySpec apiDocsSpec = copySpec {
+    from generateDocs.outputs.files
+    into("$basePath/docs")
+}
+
+task createApiDocsZip(type: Zip) {
+    from generateDocs.outputs.files
+    archiveName "ballerina-api-docs-${project.version}.zip"
+}
+
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
@@ -112,6 +158,7 @@ task createZip(type: Zip) {
     with copyToolsBin
     with copyBallerinaZipSpec
     with examplesSpec
+    with apiDocsSpec
 }
 
 build {

@@ -17,16 +17,16 @@
 */
 package org.ballerinalang.test.types.var;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -206,7 +206,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -218,7 +218,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonA'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")

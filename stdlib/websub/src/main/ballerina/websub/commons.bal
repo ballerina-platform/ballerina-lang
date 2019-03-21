@@ -180,13 +180,15 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     return response;
 }
 
-# Function to validate signature for requests received at the callback.
+# Function to build the data source and validate the signature for requests received at the callback.
 #
 # + request - The request received
 # + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, service serviceType) returns error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
+    // Build the data source before responding to the content delivery requests automatically
+    var payload = request.getTextPayload();
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -204,10 +206,8 @@ function processWebSubNotification(http:Request request, service serviceType) re
         return;
     }
 
-    string stringPayload = "";
-    var payload = request.getPayloadAsString();
     if (payload is string) {
-        stringPayload = payload;
+        return validateSignature(xHubSignature, payload, secret);
     } else {
         string errCause = <string> payload.detail().message;
         map<any> errorDetail = { message : "Error extracting notification payload as string " +
@@ -215,8 +215,6 @@ function processWebSubNotification(http:Request request, service serviceType) re
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
-
-    return validateSignature(xHubSignature, stringPayload, secret);
 }
 
 # Function to validate the signature header included in the notification.
@@ -333,14 +331,6 @@ public type Notification object {
     #            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns string|error {
         return self.request.getTextPayload();
-    }
-
-    # Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
-    # construction which makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error {
-        return self.request.getPayloadAsString();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.

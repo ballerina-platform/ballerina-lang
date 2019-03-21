@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -36,8 +35,6 @@ import java.util.EnumSet;
 public class BLangErrorVariable extends BLangVariable implements ErrorVariableNode {
     public BLangSimpleVariable reason;
     public BLangVariable detail;
-    public VariableNode restParam;
-    public boolean isClosed;
 
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
