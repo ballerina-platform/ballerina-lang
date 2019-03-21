@@ -573,6 +573,12 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             result = streamingCodeDesugar.desugar(foreverStatement);
             result = rewrite(result, env);
+
+            ((BLangBlockStmt) result).stmts.stream()
+                                           .filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
+                                           .map(stmt -> (BLangSimpleVariableDef) stmt)
+                                           .forEach(varDef -> ((BLangBlockStmt) result).scope.define
+                                                   (varDef.var.symbol.name, varDef.var.symbol));
         }
     }
 

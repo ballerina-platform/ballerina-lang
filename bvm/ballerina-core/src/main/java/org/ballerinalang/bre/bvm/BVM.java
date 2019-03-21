@@ -547,7 +547,7 @@ public class BVM {
                     BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
                             typeEntry.getType());
                     sf.refRegs[j] = functionPointer;
-                    findAndAddAdditionalVarRegIndexes(sf, operands, functionPointer);
+                    findAndAddAdditionalVarRegIndexesInFuncPointerLoad(sf, operands, functionPointer);
                     break;
                 case InstructionCodes.VFPLOAD:
                     i = operands[0];
@@ -570,7 +570,7 @@ public class BVM {
 
                     BFunctionPointer fPointer = new BFunctionPointer(attachedFuncInfo, typeEntry.getType());
                     sf.refRegs[j] = fPointer;
-                    findAndAddAdditionalVarRegIndexes(sf, operands, fPointer);
+                    findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(sf, operands, fPointer);
                     break;
 
                 case InstructionCodes.CLONE:
@@ -1285,8 +1285,8 @@ public class BVM {
         return refIndex;
     }
 
-    private static void findAndAddAdditionalVarRegIndexes(StackFrame sf, int[] operands,
-                                                          BFunctionPointer fp) {
+    private static void findAndAddAdditionalVarRegIndexesInFuncPointerLoad(StackFrame sf, int[] operands,
+                                                                           BFunctionPointer fp) {
 
         int h = operands[3];
 
@@ -1302,6 +1302,56 @@ public class BVM {
             // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
             // registry
             fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
+        }
+    }
+
+    private static void findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(StackFrame sf, int[] operands,
+                                                                                  BFunctionPointer fp) {
+        int h = operands[3];
+        //if '0', then there are no additional indexes needs to be processed
+        if (h == 0) {
+            return;
+        }
+        //or else, this is a closure related scenario
+        for (int i = 0; i < h; i++) {
+            int operandIndex = i + 4;
+            int type = operands[operandIndex];
+            int index = operands[++operandIndex];
+            switch (type) {
+                case TypeTags.INT_TAG: {
+                    fp.addClosureVar(new BClosure(new BInteger(sf.longRegs[index]), BTypes.typeInt),
+                            TypeTags.INT_TAG);
+                    break;
+                }
+                case TypeTags.BYTE_TAG: {
+                    fp.addClosureVar(new BClosure(new BByte((byte) sf.intRegs[index]), BTypes.typeByte),
+                            TypeTags.BYTE_TAG);
+                    break;
+                }
+                case TypeTags.FLOAT_TAG: {
+                    fp.addClosureVar(new BClosure(new BFloat(sf.doubleRegs[index]), BTypes.typeFloat),
+                            TypeTags.FLOAT_TAG);
+                    break;
+                }
+                case TypeTags.DECIMAL_TAG: {
+                    fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeDecimal),
+                            TypeTags.DECIMAL_TAG);
+                    break;
+                }
+                case TypeTags.BOOLEAN_TAG: {
+                    fp.addClosureVar(new BClosure(new BBoolean(sf.intRegs[index] == 1),
+                            BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
+                    break;
+                }
+                case TypeTags.STRING_TAG: {
+                    fp.addClosureVar(new BClosure(new BString(sf.stringRegs[index]), BTypes.typeString),
+                            TypeTags.STRING_TAG);
+                    break;
+                }
+                default:
+                    fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
+            }
+            i++;
         }
     }
 

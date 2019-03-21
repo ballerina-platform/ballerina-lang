@@ -850,7 +850,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 if (symbolEnv.envCount == absoluteLevel && symbolEnv.node.getKind() == NodeKind.BLOCK) {
                     if (((BLangBlockStmt) symbolEnv.node).mapSymbol == null) {
                         ((BLangBlockStmt) symbolEnv.node).mapSymbol =
-                                createMapSymbol("$map$block$" + blockClosureMapCount, env);
+                                createMapSymbol("$map$block$" + symbolEnv.envCount, env);
                     }
                     updateClosureVars(localVarRef, ((BLangBlockStmt) symbolEnv.node).mapSymbol);
                     return;
@@ -859,7 +859,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 if (symbolEnv.envCount == absoluteLevel && symbolEnv.node.getKind() == NodeKind.FUNCTION) {
                     if (((BLangFunction) symbolEnv.node).mapSymbol == null) {
                         ((BLangFunction) symbolEnv.node).mapSymbol =
-                                createMapSymbol("$map$func$" + funClosureMapCount, env);
+                                createMapSymbol("$map$func$" + symbolEnv.envCount, env);
                     }
                     updateClosureVars(localVarRef, ((BLangFunction) symbolEnv.node).mapSymbol);
                     return;
