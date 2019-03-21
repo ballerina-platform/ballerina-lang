@@ -421,9 +421,9 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAny || bType is bir:BTypeAnyData || bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAnyData || bType is bir:BUnionType) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
+    } else if (bType is bir:BMapType || bType is bir:BRecordType || bType is bir:BTypeAny) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
