@@ -65,7 +65,7 @@ public class Pause extends BlockingNativeCallableUnit {
         try {
             task.pause();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
+            LOG.error(e.getMessage(), e);
             Utils.createError(context, e.getMessage());
         }
     }

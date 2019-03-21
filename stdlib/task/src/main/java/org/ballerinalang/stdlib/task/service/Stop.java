@@ -66,7 +66,7 @@ public class Stop extends BlockingNativeCallableUnit {
         try {
             serverConnector.stop();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
+            LOG.error(e.getMessage(), e);
             context.setReturnValues(createError(context, e.getMessage()));
         }
     }

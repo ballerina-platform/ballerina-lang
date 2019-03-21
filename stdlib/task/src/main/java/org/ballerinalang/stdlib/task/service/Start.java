@@ -67,7 +67,7 @@ public class Start extends BlockingNativeCallableUnit {
         try {
             serverConnector.start();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
+            LOG.error(e.getMessage(), e);
             context.setReturnValues(createError(context, e.getMessage()));
         }
     }

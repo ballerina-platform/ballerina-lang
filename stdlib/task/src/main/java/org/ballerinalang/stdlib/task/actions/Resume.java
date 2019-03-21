@@ -64,7 +64,7 @@ public class Resume extends BlockingNativeCallableUnit {
         try {
             task.resume();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
+            LOG.error(e.getMessage(), e);
             createError(context, e.getMessage());
         }
     }
