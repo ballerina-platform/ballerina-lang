@@ -55,7 +55,7 @@ public extern function toString(Time time) returns string;
 #
 # + time - The Time record to be formatted
 # + timeFormat - The format which is used to format the time represented by this object
-# + return - The formatted string of the given time
+# + return - The formatted string of the given time or an `error` if failed to format the time
 public extern function format(Time time, string|TimeFormat timeFormat) returns string|error;
 
 # Returns the year representation of the given time.
@@ -156,6 +156,7 @@ public extern function subtractDuration(Time time, int years, int months, int da
 # + time - The Time record of which the time-zone to be changed
 # + zoneId - The new time-zone id
 # + return - Time object containing time and zone information after the conversion
+#            or an `error` if failed to format the time
 public extern function toTimeZone(Time time, string zoneId) returns Time|error;
 
 # Returns the current time value with the system default time-zone.
@@ -178,7 +179,7 @@ public extern function nanoTime() returns int;
 # + second - The second-of-minute to represent, from 0 to 59
 # + milliSecond - The milli-of-second to represent, from 0 to 999
 # + zoneId - The zone id of the required time-zone.If empty the system local time-zone will be used
-# + return - Time object containing time and zone information
+# + return - Time object containing time and zone information or an `error` if failed to create the time
 public extern function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                                   string zoneId) returns Time|error;
 
@@ -186,5 +187,5 @@ public extern function createTime(int year, int month, int date, int hour, int m
 #
 # + data - The time text to parse
 # + timeFormat - The format which is used to parse the given text
-# + return - Time object containing time and zone information
+# + return - Time object containing time and zone information or an `error` if failed to parse the given string
 public extern function parse(string data, string|TimeFormat timeFormat) returns Time|error;
