@@ -1,0 +1,34 @@
+{
+    "name": "Ballerina Standard Library",
+    "description": "Built in modules of Ballerina",
+    "modules": [
+        {
+            "id": "auth",
+            "description": "This module provides a set of default authentication store providers that can be extended to create new authentication store providers.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "http",
+            "description": "This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+<div>
+  <h1>{{name}}</h1>
+  <p>{{description}}</p>
+  {{#if modules}}
+    <ul>
+    {{#each modules}}
+        <li>
+            <a href="{{id}}/index.html">{{id}}</a>
+            <span>{{description}}</span>
+        </li>
+    {{/each}}
+    </ul>
+  {{/if}}
+</div>
