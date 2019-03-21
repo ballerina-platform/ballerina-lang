@@ -693,7 +693,8 @@ public class BLangPackageBuilder {
         BLangErrorVariable errorVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
-        errorVariable.reason = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, null, reasonIdentifier, false);
+        errorVariable.reason = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, null,
+                reasonIdentifier, false);
         if (hasRecordVariable) {
             errorVariable.detail = this.varStack.pop();
         } else if (detailIdentifier != null) {
