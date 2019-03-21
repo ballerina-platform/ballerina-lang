@@ -18,6 +18,7 @@
 
 package org.ballerinalang.docgen.docs;
 
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -49,6 +50,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,10 +83,11 @@ public class BallerinaDocGenerator {
      * @param packageFilter comma separated list of package names to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
      * @param offline       is offline generation
+     * @param dumpModel     instruct to write a json containing the doc model for each page
      * @param sources       either the path to the directories where Ballerina source files reside or a
      */
     public static void generateApiDocs(String sourceRoot, String output, String packageFilter, boolean isNative,
-                                       boolean offline, String... sources) {
+                                       boolean offline, boolean dumpModel, String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
         List<Link> primitives = primitives();
 
@@ -161,6 +164,16 @@ public class BallerinaDocGenerator {
                 Page page = Generator.generatePage(bLangPackage, packageNameList, pkgDescription, primitives);
                 String filePath = output + File.separator + packagePath + HTML;
                 Writer.writeHtmlDocument(page, packageTemplateName, filePath);
+
+                // dump data if needed
+                if (dumpModel) {
+                    String dumpPath = output + File.separator + packagePath + ".json";
+                    Gson gson = new Gson();
+                    String pageData = gson.toJson(page);
+                    PrintWriter writer = new PrintWriter(dumpPath, "UTF-8");
+                    writer.println(pageData);
+                    writer.close();
+                }
 
                 if (ConfigRegistry.getInstance().getAsBoolean(BallerinaDocConstants.GENERATE_TOC)) {
                     // generates ToC into a separate HTML - requirement of Central

@@ -131,7 +131,7 @@ public class DocerinaMojo extends AbstractMojo {
         }
 
         try {
-            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, offline,
+            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, offline, true,
                     sources.toArray(new String[sources.size()]));
         } catch (Throwable e) {
             err.println(ExceptionUtils.getStackTrace(e));

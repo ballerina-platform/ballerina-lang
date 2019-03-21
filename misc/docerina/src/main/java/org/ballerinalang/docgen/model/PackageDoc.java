@@ -31,8 +31,8 @@ import java.util.List;
  */
 public class PackageDoc {
     public final String description;
-    public final BLangPackage bLangPackage;
-    public final List<Path> resources;
+    public final transient BLangPackage bLangPackage;
+    public final transient List<Path> resources;
 
     /**
      * Constructor.
