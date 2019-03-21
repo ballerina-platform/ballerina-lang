@@ -35,18 +35,18 @@ public class OAuthConfigTest extends AuthBaseTest {
     private static final String BAL_FILE = Paths.get("src", "test", "resources", "auth",
             "authclients", "oauth-client.bal").toFile().getAbsolutePath();
 
-    @Test(description = "Test client credentials grant type")
-    public void testClientCredentialsGrantType() throws Exception {
+    @Test(description = "Test client credentials grant type with valid credentials")
+    public void testClientCredentialsGrantType1() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE"});
+        ballerinaClient.runMain(BAL_FILE, null, new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_VALID_CREDENTIALS"});
         serverLeecher.waitForText(20000);
     }
 
     @Test(description = "Test client credentials grant type with invalid client credentials")
-    public void testClientCredentialsGrantTypeWithInvalidCredentials() throws Exception {
+    public void testClientCredentialsGrantType2() throws Exception {
         final String serverResponse = "{\"error\":\"invalid_client\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
@@ -56,19 +56,19 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test client credentials grant type with post body bearer")
-    public void testClientCredentialsGrantTypeWithPostBodyBearer() throws Exception {
+    @Test(description = "Test client credentials grant type with post body bearer and valid credentials")
+    public void testClientCredentialsGrantType3() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER"});
+                new String[]{"CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_VALID_CREDENTIALS"});
         serverLeecher.waitForText(20000);
     }
 
     @Test(description = "Test client credentials grant type with post body bearer and invalid credentials")
-    public void testClientCredentialsGrantTypeWithPostBodyBearerAndInvalidCredentials() throws Exception {
+    public void testClientCredentialsGrantType4() throws Exception {
         final String serverResponse = "{\"error\":\"invalid_client\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
@@ -78,86 +78,114 @@ public class OAuthConfigTest extends AuthBaseTest {
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test password grant type")
-    public void testPasswordGrantType() throws Exception {
+    @Test(description = "Test password grant type with valid credentials")
+    public void testPasswordGrantType1() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"PASSWORD_GRANT_TYPE"});
+        ballerinaClient.runMain(BAL_FILE, null, new String[]{"PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS"});
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test password grant type with refresh config")
-    public void testPasswordGrantTypeWithRefreshConfig() throws Exception {
+    @Test(description = "Test password grant type with valid credentials and valid refresh config")
+    public void testPasswordGrantType2() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"PASSWORD_GRANT_TYPE_WITH_REFRESH_CONFIG"});
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG"});
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test password grant type with invalid username password")
-    public void testPasswordGrantTypeWithInvalidUsernamePassword() throws Exception {
+    @Test(description = "Test password grant type with invalid username password and valid refresh config")
+    public void testPasswordGrantType3() throws Exception {
         final String serverResponse = "{\"error\":\"unauthorized_client\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"PASSWORD_GRANT_TYPE_WITH_INVALID_USERNAME_PASSWORD"});
+                new String[]{"PASSWORD_GRANT_TYPE_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG"});
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test password grant type with no credentials bearer")
-    public void testPasswordGrantTypeWithNoBearer() throws Exception {
+    @Test(description = "Test password grant type with no credentials bearer and valid username, password")
+    public void testPasswordGrantType4() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"PASSWORD_GRANT_TYPE_WITH_NO_BEARER"});
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"PASSWORD_GRANT_TYPE_WITH_NO_BEARER_AND_VALID_CREDENTIALS"});
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test direct token mode")
-    public void testDirectToken() throws Exception {
+    @Test(description = "Test direct token mode with valid credentials and no refresh config")
+    public void testDirectToken1() throws Exception {
         final String serverResponse = "{\"success\":\"access_granted\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"DIRECT_TOKEN"});
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG"});
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test direct token mode with invalid access token")
-    public void testDirectTokenWithInvalidAccessToken() throws Exception {
-        final String serverResponse = "{\"success\":\"access_granted\"}";
-        LogLeecher serverLeecher = new LogLeecher(serverResponse);
-        serverInstance.addLogLeecher(serverLeecher);
-        ballerinaClient = new BMainInstance(balServer);
-        ballerinaClient.runMain(BAL_FILE, null, new String[]{"DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN"});
-        serverLeecher.waitForText(20000);
-    }
-
-    @Test(description = "Test direct token mode with invalid access token but retry request is set as false")
-    public void testDirectTokenWithInvalidAccessTokenAndRetryRequestFalse() throws Exception {
+    @Test(description = "Test direct token mode with invalid access token and no refresh config")
+    public void testDirectToken2() throws Exception {
         final String serverResponse = "{\"error\":\"access_denied\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_RETRY_REQUEST_FALSE"});
+                new String[]{"DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG"});
         serverLeecher.waitForText(20000);
     }
 
-    @Test(description = "Test direct token mode with invalid access token and invalid refresh token")
-    public void testDirectTokenWithInvalidAccessTokenAndInvalidRefreshToken() throws Exception {
+    @Test(description = "Test direct token mode with invalid access token and valid refresh config")
+    public void testDirectToken3() throws Exception {
+        final String serverResponse = "{\"success\":\"access_granted\"}";
+        LogLeecher serverLeecher = new LogLeecher(serverResponse);
+        serverInstance.addLogLeecher(serverLeecher);
+        ballerinaClient = new BMainInstance(balServer);
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG"});
+        serverLeecher.waitForText(20000);
+    }
+
+    @Test(description = "Test direct token mode with invalid access token and no refresh config " +
+            "but retry request is set as false")
+    public void testDirectToken4() throws Exception {
+        final String serverResponse = "{\"error\":\"access_denied\"}";
+        LogLeecher serverLeecher = new LogLeecher(serverResponse);
+        serverInstance.addLogLeecher(serverLeecher);
+        ballerinaClient = new BMainInstance(balServer);
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"});
+        serverLeecher.waitForText(20000);
+    }
+
+    @Test(description = "Test direct token mode with invalid access token and valid refresh config " +
+            "but retry request is set as false")
+    public void testDirectToken5() throws Exception {
+        final String serverResponse = "{\"error\":\"access_denied\"}";
+        LogLeecher serverLeecher = new LogLeecher(serverResponse);
+        serverInstance.addLogLeecher(serverLeecher);
+        ballerinaClient = new BMainInstance(balServer);
+        ballerinaClient.runMain(BAL_FILE, null,
+                new String[]{"DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"});
+        serverLeecher.waitForText(20000);
+    }
+
+    @Test(description = "Test direct token mode with invalid access token and invalid refresh config")
+    public void testDirectToken6() throws Exception {
         final String serverResponse = "{\"error\":\"invalid_grant\"}";
         LogLeecher serverLeecher = new LogLeecher(serverResponse);
         serverInstance.addLogLeecher(serverLeecher);
         ballerinaClient = new BMainInstance(balServer);
         ballerinaClient.runMain(BAL_FILE, null,
-                new String[]{"DIRECT_TOKEN_WITH_INVALID_ACCESS_TOKEN_AND_INVALID_REFRESH_TOKEN"});
+                new String[]{"DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG"});
         serverLeecher.waitForText(20000);
     }
 }
