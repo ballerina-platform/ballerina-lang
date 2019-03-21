@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.bre.Context;
@@ -57,6 +57,7 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 public class Start extends BlockingNativeCallableUnit {
 
     private static final Logger LOG = LoggerFactory.getLogger(Start.class);
+
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
@@ -66,9 +67,7 @@ public class Start extends BlockingNativeCallableUnit {
         try {
             serverConnector.start();
         } catch (SchedulingException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error(e.getMessage() + "\nCause: " + e.getCause());
-            }
+            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
             context.setReturnValues(createError(context, e.getMessage()));
         }
     }

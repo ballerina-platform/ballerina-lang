@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.actions;
 
 import org.ballerinalang.bre.Context;
@@ -64,9 +64,7 @@ public class Resume extends BlockingNativeCallableUnit {
         try {
             task.resume();
         } catch (SchedulingException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error(e.getMessage() + "\nCause: " + e.getCause());
-            }
+            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
             createError(context, e.getMessage());
         }
     }

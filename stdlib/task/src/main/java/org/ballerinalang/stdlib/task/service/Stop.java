@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.bre.Context;
@@ -59,16 +59,14 @@ public class Stop extends BlockingNativeCallableUnit {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void execute (Context context) {
+    public void execute(Context context) {
         BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(context, task);
         try {
             serverConnector.stop();
         } catch (SchedulingException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error(e.getMessage() + "\nCause: " + e.getCause());
-            }
+            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
             context.setReturnValues(createError(context, e.getMessage()));
         }
     }

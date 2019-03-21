@@ -84,9 +84,7 @@ public class Init extends BlockingNativeCallableUnit {
             }
             taskStruct.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
         } catch (SchedulingException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.error(e.getMessage() + "\nCause: " + e.getCause());
-            }
+            LOG.error(e.getMessage() + "\nCause: " + e.getCause());
             context.setReturnValues(Utils.createError(context, e.getMessage()));
         }
     }
