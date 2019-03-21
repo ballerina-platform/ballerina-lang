@@ -1,7 +1,7 @@
 import ballerina/log;
 import ballerina/task;
 
-// Task Timer configuration record to configure task listener.
+// The Task Timer configuration record to configure the Task Listener.
 task:TimerConfiguration timerConfiguration = {
     interval: 1000,
     initialDelay: 3000,

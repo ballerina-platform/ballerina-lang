@@ -32,12 +32,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.ballerinalang.stdlib.socket.MockSocketServer.SERVER_HOST;
+import static org.ballerinalang.stdlib.socket.MockSocketServer.SERVER_PORT;
 
 /**
  * Unit tests for client socket.
@@ -60,7 +61,7 @@ public class ClientSocketTest {
             mockSocketServer = new MockSocketServer();
             executor.execute(mockSocketServer);
             Thread.sleep(2000);
-            connectionStatus = isConnected(MockSocketServer.SERVER_HOST, numberOfRetryAttempts);
+            connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER_PORT, numberOfRetryAttempts);
             if (!connectionStatus) {
                 Assert.fail("Unable to open connection with the test TCP server");
             }
@@ -71,62 +72,6 @@ public class ClientSocketTest {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
         socketClient = BCompileUtil.compile(testResourceRoot.resolve("client_socket.bal").toString());
-    }
-
-    /**
-     * Closes a provided socket connection.
-     *
-     * @param socket socket which should be closed.
-     */
-    private void close(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            log.error("Error occurred while closing the Socket connection", e);
-        }
-    }
-
-    /**
-     * Will enforce to sleep the thread for the provided time.
-     *
-     * @param retryInterval the time in milliseconds the thread should sleep
-     */
-    private void sleep(int retryInterval) {
-        try {
-            Thread.sleep(retryInterval);
-        } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * Attempts to establish a connection with the test server.
-     *
-     * @param hostName        hostname of the server.
-     * @param numberOfRetries number of retry attempts.
-     * @return true if the connection is established successfully.
-     */
-    private boolean isConnected(String hostName, int numberOfRetries) {
-        Socket temporarySocketConnection = null;
-        boolean isConnected = false;
-        final int retryInterval = 1000;
-        final int initialRetryCount = 0;
-        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
-            try {
-                //Attempts to establish a connection with the server
-                temporarySocketConnection = new Socket(hostName, MockSocketServer.SERVER_PORT);
-                isConnected = true;
-            } catch (IOException e) {
-                log.error("Error occurred while establishing a connection with test server", e);
-                sleep(retryInterval);
-            } finally {
-                if (null != temporarySocketConnection) {
-                    //We close the connection once completed.
-                    close(temporarySocketConnection);
-                }
-            }
-        }
-        return isConnected;
     }
 
     @AfterClass

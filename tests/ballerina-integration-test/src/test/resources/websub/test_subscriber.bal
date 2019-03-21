@@ -58,7 +58,7 @@ service websubSubscriberTwo on websubEP {
     }
 
     resource function onNotification (websub:Notification notification) {
-        string payload = <string> notification.getPayloadAsString();
+        string payload = <string> notification.getTextPayload();
         io:println("WebSub Notification Received by Two: ", payload);
     }
 }
@@ -76,7 +76,7 @@ string subscriberThreeTopic = "http://one.websub.topic.com";
 }
 service websubSubscriberWithQueryParams on websubEP {
     resource function onNotification (websub:Notification notification) {
-        string payload = <string> notification.getPayloadAsString();
+        string payload = <string> notification.getTextPayload();
         io:println("WebSub Notification Received by Three: ", payload);
         io:println("Query Params: ", notification.getQueryParams());
     }

@@ -1,5 +1,10 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
+
+configurations {
+    balRuntime
+}
+
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.26'
     implementation project(':ballerina-config')
@@ -12,6 +17,7 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
+    implementation project(':ballerina-jvm')
 
     implementation 'com.h2database:h2:1.4.197'
     implementation 'org.testng:testng:6.13.1'
@@ -33,6 +39,8 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-test-utils')
 
+    balRuntime project(':ballerina-runtime')
+
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
@@ -40,6 +48,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
@@ -66,6 +76,11 @@ dependencies {
 
 description = 'Ballerina - Unit Test Module'
 
+task createBre(type: org.gradle.api.tasks.Copy) {
+    from configurations.balRuntime
+    into "$buildDir/bre/lib"
+}
+
 test {
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
@@ -78,6 +93,8 @@ test {
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
     }
+
+    dependsOn createBre
 }
 
 configurations {

@@ -122,8 +122,8 @@ public abstract class StrandCallback {
      *
      * @param value to be returned
      */
-    public void setByteReturn(int value) {
-        this.intVal = value;
+    public void setByteReturn(long value) {
+        this.longVal = value;
         this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
@@ -192,8 +192,8 @@ public abstract class StrandCallback {
      *
      * @return value
      */
-    public int getByteRetVal() {
-        return intVal;
+    public long getByteRetVal() {
+        return longVal;
     }
 
     /**

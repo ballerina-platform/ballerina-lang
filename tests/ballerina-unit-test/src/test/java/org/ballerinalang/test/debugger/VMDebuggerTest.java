@@ -412,7 +412,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(255)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 7, variables, false);
@@ -439,7 +439,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(255)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
         variables.add(Util.createVariable("args", "Local", new BValueArray(new String[]{"Hello", "World"})));
         variables.add(Util.createVariable("x", "Local", new BInteger(10)));
@@ -526,7 +526,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("")));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 0)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(0)));
 
         // Expected global variables count should be 6 in this case
         // Reason: Variable 'gPerson' is not yet initialized. Thus, its current value is null
