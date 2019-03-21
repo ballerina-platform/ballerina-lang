@@ -29,7 +29,7 @@ public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
-        var result = response.getPayloadAsString();
+        var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
                                         : result);
     } else {

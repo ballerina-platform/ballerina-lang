@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -30,12 +27,15 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Class to test functionality of "==" and "!=".
@@ -93,7 +93,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with two equal bytes", dataProvider = "equalByteValues")
     public void testByteEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) i)};
+        BValue[] args = {new BByte(i), new BByte(i)};
         BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityPositive", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -102,7 +102,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with two unequal bytes", dataProvider = "unequalByteValues")
     public void testByteEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) j)};
+        BValue[] args = {new BByte(i), new BByte(j)};
         BValue[] returns = BRunUtil.invoke(result, "checkByteEqualityNegative", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

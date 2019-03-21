@@ -258,8 +258,8 @@
                 "url": "type-conversion"
             },
             {
-                "name": "Type Assertion",
-                "url": "type-assertion"
+                "name": "Type Cast",
+                "url": "type-cast"
             },
             {
                 "name": "Nil Lifting",
@@ -947,6 +947,10 @@
         "samples": [{
                 "name": "TCP Socket Basic Example",
                 "url": "tcp-socket-listener-client"
+            },
+            {
+                "name": "UDP Client Socket Basic Example",
+                "url": "udp-socket-client"
             }
         ]
     },
