@@ -133,6 +133,8 @@ public class FormattingTest {
                 {"expectedTypeGuard.bal", "typeGuard.bal"},
                 {"expectedTernaryExpr.bal", "ternaryExpr.bal"},
                 {"expectedStringTemplateLiteral.bal", "stringTemplateLiteral.bal"},
+                {"expectedTrap.bal", "trap.bal"},
+                {"expectedPanic.bal", "panic.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
