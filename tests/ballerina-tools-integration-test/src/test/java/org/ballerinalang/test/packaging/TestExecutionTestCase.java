@@ -18,9 +18,8 @@
 package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Ignore;
@@ -44,9 +43,9 @@ public class TestExecutionTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        envVariables = PackagingTestUtils.getEnvVariables();
+        envVariables = TestUtils.getEnvVariables();
     }
 
     @Test(description = "Test creating a project")
@@ -240,7 +239,7 @@ public class TestExecutionTestCase extends BaseTest {
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
 
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @Test(description = "Test executing tests in a module with test failures", dependsOnMethods = "testInitProject")
@@ -293,7 +292,7 @@ public class TestExecutionTestCase extends BaseTest {
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
 
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @Test(description = "Test executing grouped tests", dependsOnMethods = "testInitProject")
@@ -379,7 +378,7 @@ public class TestExecutionTestCase extends BaseTest {
                           new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
 
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @Test(description = "Test executing multiple grouped tests", dependsOnMethods = "testInitProject")
@@ -447,7 +446,7 @@ public class TestExecutionTestCase extends BaseTest {
                           new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
 
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @Test(description = "Test executing data driven tests", dependsOnMethods = "testInitProject")
@@ -509,7 +508,7 @@ public class TestExecutionTestCase extends BaseTest {
         balClient.runMain("test", new String[]{"main_test.bal"}, envVariables, new String[0],
                 new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @Test(description = "Test execution order of tests", dependsOnMethods = "testInitProject")
@@ -562,7 +561,7 @@ public class TestExecutionTestCase extends BaseTest {
         balClient.runMain("test", new String[]{"main_test.bal"}, envVariables, new String[0],
                 new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @Test(description = "Test execution of function mock tests", dependsOnMethods = "testInitProject")
@@ -611,11 +610,11 @@ public class TestExecutionTestCase extends BaseTest {
         balClient.runMain("test", new String[]{"main_test.bal"}, envVariables, new String[0],
                 new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
-        PackagingTestUtils.deleteFiles(modulePath);
+        TestUtils.deleteFiles(modulePath);
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

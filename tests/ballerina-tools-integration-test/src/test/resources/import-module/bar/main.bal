@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import integrationtests/abc;
+import bcintegrationtest/abc;
 
 public function greeting() returns string {
     string name = "Hello" + abc:name() + "!!!! Have a good day!!!";

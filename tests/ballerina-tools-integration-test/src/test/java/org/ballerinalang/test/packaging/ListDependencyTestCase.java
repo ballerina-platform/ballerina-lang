@@ -19,8 +19,7 @@ package org.ballerinalang.test.packaging;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +42,7 @@ public class ListDependencyTestCase extends BaseTest {
     private Path tempProjectDirectory;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         // Copy sources
         String projectPath = (new File("src/test/resources/list")).getAbsolutePath();
@@ -166,6 +165,6 @@ public class ListDependencyTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }
