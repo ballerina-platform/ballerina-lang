@@ -16,7 +16,6 @@
 package io.ballerina.plugins.idea.preloading;
 
 import com.github.lsp4intellij.IntellijLanguageClient;
-import com.github.lsp4intellij.client.languageserver.serverdefinition.LanguageServerDefinition;
 import com.github.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
 
 /**
@@ -25,6 +24,6 @@ import com.github.lsp4intellij.client.languageserver.serverdefinition.RawCommand
 public class LanguageServerRegisterService {
 
     static void register(String[] args) {
-       IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", args));
+        IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", args));
     }
 }

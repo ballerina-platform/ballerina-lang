@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.Icon;
 
 /**
  * Represents a ballerina file.
