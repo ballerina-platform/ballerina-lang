@@ -37,7 +37,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
-
     implementation project(':ballerina-encoding')
 
     testCompile 'org.testng:testng:6.13.1'

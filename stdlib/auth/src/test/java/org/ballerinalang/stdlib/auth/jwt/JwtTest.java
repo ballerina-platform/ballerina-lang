@@ -51,8 +51,7 @@ public class JwtTest {
 
     @BeforeClass
     public void setup() {
-        keyStorePath = 
-            Paths.get("src", "test", "resources", "datafiles", 
+        keyStorePath = Paths.get("src", "test", "resources", "datafiles", 
                 "keystore", "ballerinaKeystore.p12").toAbsolutePath().toString();
         trustStorePath = Paths.get("src", "test", "resources", "datafiles", 
             "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
