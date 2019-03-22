@@ -2,7 +2,8 @@ import ballerina/test;
 import ballerina/log;
 import ballerina/io;
 
-string log = "";
+string[] outputs = [];
+int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
@@ -11,7 +12,8 @@ string log = "";
 }
 public function mockPrintInfo(string|(function () returns (string)) msg) {
     if (msg is string) {
-        log = msg;
+        outputs[counter] = msg;
+        counter += 1;
     }
 }
 
@@ -19,5 +21,7 @@ public function mockPrintInfo(string|(function () returns (string)) msg) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertTrue(log.contains("tasks#taskLists"));
+    test:assertTrue(outputs[0] == "{9356828d-6797-496f-975e-3fabaf677214}");
+    test:assertTrue(outputs[1] == "{9356828d-6797-496f-975e-3fabaf677214}");
+    test:assertTrue(outputs[2] == "tasks#taskLists");
 }
