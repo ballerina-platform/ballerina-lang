@@ -80,7 +80,16 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
                     List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
-            super(pos, InstructionKind.CALL);
+            this(pos, calleePkg, name, args, lhsOp, thenBB, InstructionKind.CALL);
+
+        }
+
+        public Call(DiagnosticPos pos, PackageID calleePkg,
+                    Name name,
+                    List<BIROperand> args,
+                    BIROperand lhsOp,
+                    BIRBasicBlock thenBB, InstructionKind kind) {
+            super(pos, kind);
             this.lhsOp = lhsOp;
             this.args = args;
             this.thenBB = thenBB;
@@ -106,7 +115,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      *
      * @since 0.995.0
      */
-    public static class AsyncCall extends BIRTerminator implements BIRAssignInstruction {
+    public static class AsyncCall extends Call implements BIRAssignInstruction {
         public BIROperand lhsOp;
         public List<BIROperand> args;
         public BIRBasicBlock thenBB;
@@ -118,12 +127,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
                     List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
-            super(pos, InstructionKind.ASYNC_CALL);
-            this.lhsOp = lhsOp;
-            this.args = args;
-            this.thenBB = thenBB;
-            this.name = name;
-            this.calleePkg = calleePkg;
+            super(pos, calleePkg, name, args, lhsOp, thenBB, InstructionKind.ASYNC_CALL);
         }
 
         @Override
