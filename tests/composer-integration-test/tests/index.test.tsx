@@ -53,6 +53,11 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
         .spyOn(fontUtils, 'getCodePoint')
         .mockImplementation(getCodePoint);
 
+    jest.mock('@ballerina/diagram/lib/src/diagram/controllers/controller-panel');
+    
+    jest.spyOn(console, "error")
+        .mockImplementation(jest.fn());
+
     const component = create(
         <Diagram
             ast={ast as CompilationUnit}
