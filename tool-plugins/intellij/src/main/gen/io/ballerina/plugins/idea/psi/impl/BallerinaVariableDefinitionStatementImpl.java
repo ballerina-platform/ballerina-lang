@@ -54,9 +54,4 @@ public class BallerinaVariableDefinitionStatementImpl extends ASTWrapperPsiEleme
     return findChildByClass(BallerinaVariableDefinitionStatementWithoutAssignment.class);
   }
 
-  @Nullable
-  public PsiElement getType() {
-    return BallerinaPsiImplUtil.getType(this);
-  }
-
 }

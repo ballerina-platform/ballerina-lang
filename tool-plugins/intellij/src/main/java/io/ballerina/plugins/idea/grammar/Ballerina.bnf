@@ -367,7 +367,7 @@ private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_ST
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
-VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment {methods=[getType]}
+VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment
 variableDefinitionStatementWithoutAssignment::= TypeName identifier SEMICOLON {pin=2}
 variableDefinitionStatementWithAssignment ::= final? (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=4}
 
@@ -537,8 +537,6 @@ VariableReference ::= MapArrayVariableReference
                       | FunctionInvocationReference
                       | SimpleVariableReference
                       | TypeAccessExprInvocationReference
-
-                      {methods=[getType]}
 
 InvocationReference ::= VariableReference Invocation
 MapArrayVariableReference ::= VariableReference Index

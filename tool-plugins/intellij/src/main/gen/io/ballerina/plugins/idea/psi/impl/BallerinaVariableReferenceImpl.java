@@ -42,9 +42,4 @@ public abstract class BallerinaVariableReferenceImpl extends ASTWrapperPsiElemen
     else super.accept(visitor);
   }
 
-  @Nullable
-  public PsiElement getType() {
-    return BallerinaPsiImplUtil.getType(this);
-  }
-
 }

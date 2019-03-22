@@ -29,7 +29,4 @@ public interface BallerinaVariableDefinitionStatement extends PsiElement {
   @Nullable
   BallerinaVariableDefinitionStatementWithoutAssignment getVariableDefinitionStatementWithoutAssignment();
 
-  @Nullable
-  PsiElement getType();
-
 }
