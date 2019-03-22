@@ -33,7 +33,6 @@
         </component>
     </module-components>
 
-
     <extensions defaultExtensionNs="com.intellij">
 
         <!--lsp4intellij extensions-->
@@ -54,27 +53,15 @@
 
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaFunctionIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaAnnotationIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaWorkerIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex"/>
         <!--Add organization index-->
-
-        <stubElementTypeHolder class="io.ballerina.plugins.idea.psi.BallerinaTypes"/>
 
         <indexPatternBuilder implementation="io.ballerina.plugins.idea.BallerinaIndexPatternBuilder"/>
 
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="io.ballerina.plugins.idea.marker.BallerinaTypeFunctionMarker"/>
 
-        <!--<lang.findUsagesProvider language="Ballerina"-->
-                                 <!--implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>-->
-
         <lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"
                                  implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
-
-        <!--<codeInsight.parameterInfo language="Ballerina"-->
-                                   <!--implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>-->
 
         <spellchecker.support language="Ballerina"
                               implementationClass="io.ballerina.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
@@ -85,10 +72,6 @@
         <annotator language="Ballerina"
                    implementationClass="io.ballerina.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
-        <!--refactoring-->
-        <!--<lang.refactoringSupport language="Ballerina"-->
-                                 <!--implementationClass="io.ballerina.plugins.idea.refactoring.BallerinaRefactoringSupport"/>-->
-
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
@@ -96,28 +79,13 @@
         <lang.braceMatcher language="Ballerina"
                            implementationClass="io.ballerina.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
 
-
-        <!--<completion.contributor language="Ballerina"-->
-        <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaKeywordContributor"/>-->
-        <!--<completion.contributor language="Ballerina"-->
-        <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaCompletionContributor"/>-->
-
-        <!--live templates-->
-        <!--<defaultLiveTemplatesProvider-->
-                <!--implementation="io.ballerina.plugins.idea.template.BallerinaLiveTemplateProvider"/>-->
-        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaEverywhereContextType"/>-->
-        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$File"/>-->
-        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Service"/>-->
-        <!--<liveTemplateContext-->
-                <!--implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>-->
-
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina"
                              implementationClass="io.ballerina.plugins.idea.editor.BallerinaFoldingBuilder"/>
 
         <!--formatter-->
-        <lang.formatter language="Ballerina"
-                        implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
+        <!--<lang.formatter language="Ballerina"-->
+                        <!--implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
         <codeStyleSettingsProvider
                 implementation="io.ballerina.plugins.idea.formatter.settings.BallerinaCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
@@ -185,9 +153,6 @@
         <xdebugger.breakpointType
                 implementation="io.ballerina.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
 
-        <codeInsight.template.postfixTemplateProvider language="Ballerina"
-                                                      implementationClass="io.ballerina.plugins.idea.codeinsight.template.postfix.BallerinaPostfixTemplateProvider"/>
-
         <!--project-->
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService"/>
@@ -206,15 +171,6 @@
 
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchSettings"/>
-
-        <!--Todo - Use language server diagnostics after fixing-->
-        <!--inspections-->
-        <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
-                         groupName="General" enabledByDefault="true" level="WARNING"
-                         shortName="BallerinaUnresolvedReference"
-                         implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
