@@ -114,7 +114,8 @@ public function filename(string path) returns string|error {
 # + path - String value of file path.
 # + return - Path of parent folder or error occurred while getting parent directory
 public function parent(string path) returns string|error {
-    int[] offsetIndexes = getOffsetIndexes(path);
+    string validatedPath = check parse(path);
+    int[] offsetIndexes = getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
     if (count == 0) {
         return "";
@@ -122,12 +123,11 @@ public function parent(string path) returns string|error {
     int len = offsetIndexes[count-1] - 1;
     int offset;
     string root;
-    (root, offset) = check getRootComponent(path);
+    (root, offset) = check getRootComponent(validatedPath);
     if (len < offset) {
         return root;
     }
-    string parentPath = path.substring(0, len);
-    return parse(parentPath);
+    return validatedPath.substring(0, len);
 }
 
 # Returns the shortest path name equivalent to path by purely lexical processing.

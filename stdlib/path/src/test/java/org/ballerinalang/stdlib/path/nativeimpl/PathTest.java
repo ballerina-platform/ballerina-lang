@@ -372,36 +372,36 @@ public class PathTest {
     @DataProvider(name = "parent_data")
     public Object[][] getParentDataset() {
         return new Object[][] {
-                {"/A/B/C", "/A/B", "/A/B"},
-                {"/foo/..", "/foo", "/foo"},
+                {"/A/B/C", "/A/B", "A\\B"},
+                {"/foo/..", "/foo", "foo"},
                 {".", "", ""},
                 {"..", "", ""},
                 {"../../", "..", ".."},
                 {"foo/", "", ""},
                 {"foo/bar/", "foo", "foo"},
-                {"/AAA/////BBB/", "/AAA", "/AAA"},
+                {"/AAA/////BBB/", "/AAA", "AAA"},
                 {"", "", ""},
                 {"//////////////////", "", "error"},
                 {"\\\\\\\\\\\\\\\\\\\\", "", "error"},
-                {"/foo/./bar", "/foo/.", "/foo/."},
-                {"foo/../bar", "foo/..", "foo/.."},
-                {"../foo/bar", "../foo", "../foo"},
-                {"./foo/bar/../", "./foo/bar", "./foo/bar"},
-                {"../../foo/../bar/zoo", "../../foo/../bar", "../../foo/../bar"},
-                {"abc/../../././../def", "abc/../../././..", "abc/../../././.."},
-                {"abc/def/../../..", "abc/def/../..", "abc/def/../.."},
+                {"/foo/./bar", "/foo/.", "foo\\."},
+                {"foo/../bar", "foo/..", "foo\\.."},
+                {"../foo/bar", "../foo", "..\\foo"},
+                {"./foo/bar/../", "./foo/bar", ".\\foo\\bar"},
+                {"../../foo/../bar/zoo", "../../foo/../bar", "..\\..\\foo\\..\\bar"},
+                {"abc/../../././../def", "abc/../../././..", "abc\\..\\..\\.\\.\\.."},
+                {"abc/def/../../..", "abc/def/../..", "abc\\def\\..\\.."},
                 {"abc/def/../../../ghi/jkl/../../../mno", "abc/def/../../../ghi/jkl/../../..",
-                        "abc/def/../../../ghi/jkl/../../.."},
+                        "abc\\def\\..\\..\\..\\ghi\\jkl\\..\\..\\.."},
                 // windows paths
                 {"//server", "/", "error"},
                 {"\\\\server", "", "error"},
-                {"C:/foo/..", "C:/foo", "foo"},
-                {"C:\\foo\\..", "", "foo"},
-                {"D;\\bar\\baz", "", "bar"},
+                {"C:/foo/..", "C:/foo", "C:\\foo"},
+                {"C:\\foo\\..", "", "C:\\foo"},
+                {"D;\\bar\\baz", "", "D;\\bar"},
                 {"bar\\baz", "", "bar"},
                 {"bar/baz", "bar", "bar"},
-                {"C:\\\\\\\\", "", ""},
-                {"\\..\\A\\B", "", "A"}
+                {"C:\\\\\\\\", "", "C:\\"},
+                {"\\..\\A\\B", "", "..\\A"}
         };
     }
 
