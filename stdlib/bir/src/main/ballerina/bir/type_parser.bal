@@ -101,6 +101,8 @@ public type TypeParser object {
             return self.parseObjectType();
         } else if (typeTag == self.TYPE_TAG_ERROR){
             return self.parseErrorType();
+        } else if (typeTag == self.TYPE_TAG_FUTURE){
+            return self.parseFutureType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -112,6 +114,10 @@ public type TypeParser object {
 
     function parseMapType() returns BMapType {
         return { constraint:self.parseType() };
+    }
+
+    function parseFutureType() returns BFutureType {
+        return { returnType:self.parseType() };
     }
 
     function parseUnionType() returns BUnionType {

@@ -94,10 +94,11 @@ public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|I
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
+public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 
-public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN;
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL;
 
 
 //TODO try to make below details meta
@@ -220,10 +221,13 @@ public type BTupleType record {|
    BType[]  tupleTypes;
 |};
 
+public type BFutureType record {|
+    BType returnType;
+|};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone;
+                  BTypeAnyData | BTypeNone | BFutureType;
 
 public type ModuleID record {|
     string org = "";
@@ -321,6 +325,15 @@ public type BinaryOp record {|
 |};
 
 public type Call record {|
+    VarRef?[] args;
+    TerminatorKind kind;
+    VarRef? lhsOp;
+    ModuleID pkgID;
+    Name name;
+    BasicBlock thenBB;
+|};
+
+public type AsyncCall record {|
     VarRef?[] args;
     TerminatorKind kind;
     VarRef? lhsOp;

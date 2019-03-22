@@ -201,6 +201,10 @@ public final class BFunctionCompletionItemBuilder {
         }
         signature.append(")");
         insertText.append(")");
+        if (bInvokableSymbol.type.getReturnType() == null
+                || bInvokableSymbol.type.getReturnType() instanceof BNilType) {
+            insertText.append(";");
+        }
         String initString = "(";
         String endString = ")";
 

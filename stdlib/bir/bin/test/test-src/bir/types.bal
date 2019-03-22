@@ -54,3 +54,6 @@ object {int age;} myPerson = new;
 
 // expected: object {int age; function () returns string getFullName; }
 object {int age;  function getFullName() returns string { return ""; }} myPerson2 = new;
+
+// expected: future<int>
+future<int> future;
