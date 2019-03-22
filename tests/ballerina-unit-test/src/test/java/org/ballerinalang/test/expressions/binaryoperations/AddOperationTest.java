@@ -16,10 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -137,6 +140,28 @@ public class AddOperationTest {
         double actual = ((BFloat) returns[0]).floatValue();
         double expected = a + b;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test xml xml add expression")
+    public void testXmlXmlAddExpr() {
+        BXML a = XMLUtils.createXMLText("abc");
+        BXML b = XMLUtils.createXMLText("def");
+        BValue[] args = { a, b};
+
+        BValue[] returns = BRunUtil.invoke(result, "xmlXmlAdd", args);
+        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 2);
+        Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "abcdef");
+    }
+
+    @Test(description = "Test xml xml add expression")
+    public void testXmlStringAddExpr() {
+        BXML a = XMLUtils.createXMLText("abc");
+        BString b = new BString("def");
+        BValue[] args = { a, b};
+
+        BValue[] returns = BRunUtil.invoke(result, "xmlStringAdd", args);
+        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 2);
+        Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "abcdef");
     }
 
     @Test(description = "Test binary statement with errors")

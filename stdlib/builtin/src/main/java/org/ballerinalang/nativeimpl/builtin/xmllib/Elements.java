@@ -70,7 +70,7 @@ public class Elements extends BlockingNativeCallableUnit {
     private BValue generateCodePointSequence(BXML value, BValueArray array) {
         BIterator bIterator = value.newIterator();
         long i = 0;
-        while(bIterator.hasNext()) {
+        while (bIterator.hasNext()) {
             BString next = (BString) bIterator.getNext();
             array.add(i++, next);
         }

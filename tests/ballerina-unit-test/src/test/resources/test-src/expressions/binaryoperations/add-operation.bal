@@ -21,3 +21,11 @@ function intFloatAdd(int a, float b) returns (float) {
 function floatIntAdd(float a, int b) returns (float) {
     return a + b;
 }
+
+function xmlXmlAdd(xml a, xml b) returns (xml) {
+    return a + b;
+}
+
+function xmlStringAdd(xml a, string b) returns (xml) {
+    return a + b;
+}
