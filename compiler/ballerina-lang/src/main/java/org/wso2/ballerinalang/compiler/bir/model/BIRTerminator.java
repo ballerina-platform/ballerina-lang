@@ -100,6 +100,44 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     }
 
     /**
+     * A async function call instruction.
+     * <p>
+     * e.g., _4 = call doSomethingAsynchronously _1 _2 _3
+     *
+     * @since 0.980.0
+     */
+    public static class AsyncCall extends BIRTerminator implements BIRAssignInstruction {
+        public BIROperand lhsOp;
+        public List<BIROperand> args;
+        public BIRBasicBlock thenBB;
+        public Name name;
+        public PackageID calleePkg;
+
+        public AsyncCall(DiagnosticPos pos, PackageID calleePkg,
+                    Name name,
+                    List<BIROperand> args,
+                    BIROperand lhsOp,
+                    BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.ASYNC_CALL);
+            this.lhsOp = lhsOp;
+            this.args = args;
+            this.thenBB = thenBB;
+            this.name = name;
+            this.calleePkg = calleePkg;
+        }
+
+        @Override
+        public BIROperand getLhsOperand() {
+            return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A return instruction.
      * <p>
      * e.g., return _4
