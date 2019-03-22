@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaErrorDestructuringStatementImpl extends BallerinaCompositeElementImpl implements BallerinaErrorDestructuringStatement {
+public class BallerinaErrorDestructuringStatementImpl extends ASTWrapperPsiElement implements BallerinaErrorDestructuringStatement {
 
   public BallerinaErrorDestructuringStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaErrorDestructuringStatementImpl extends BallerinaComposite
   @Override
   @NotNull
   public BallerinaErrorRefBindingPattern getErrorRefBindingPattern() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaErrorRefBindingPattern.class));
+    return findNotNullChildByClass(BallerinaErrorRefBindingPattern.class);
   }
 
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public PsiElement getAssign() {
-    return notNullChild(findChildByType(ASSIGN));
+    return findNotNullChildByType(ASSIGN);
   }
 
   @Override
   @NotNull
   public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
+    return findNotNullChildByType(SEMICOLON);
   }
 
 }

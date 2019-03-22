@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaSelectClauseImpl extends BallerinaCompositeElementImpl implements BallerinaSelectClause {
+public class BallerinaSelectClauseImpl extends ASTWrapperPsiElement implements BallerinaSelectClause {
 
   public BallerinaSelectClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaSelectClauseImpl extends BallerinaCompositeElementImpl imp
   @Override
   @Nullable
   public BallerinaGroupByClause getGroupByClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGroupByClause.class);
+    return findChildByClass(BallerinaGroupByClause.class);
   }
 
   @Override
   @Nullable
   public BallerinaHavingClause getHavingClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaHavingClause.class);
+    return findChildByClass(BallerinaHavingClause.class);
   }
 
   @Override
   @Nullable
   public BallerinaSelectExpressionList getSelectExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSelectExpressionList.class);
+    return findChildByClass(BallerinaSelectExpressionList.class);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class BallerinaSelectClauseImpl extends BallerinaCompositeElementImpl imp
   @Override
   @NotNull
   public PsiElement getSelect() {
-    return notNullChild(findChildByType(SELECT));
+    return findNotNullChildByType(SELECT);
   }
 
 }

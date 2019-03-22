@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPatternStreamingEdgeInputImpl extends BallerinaCompositeElementImpl implements BallerinaPatternStreamingEdgeInput {
+public class BallerinaPatternStreamingEdgeInputImpl extends ASTWrapperPsiElement implements BallerinaPatternStreamingEdgeInput {
 
   public BallerinaPatternStreamingEdgeInputImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaPatternStreamingEdgeInputImpl extends BallerinaCompositeEl
   @Override
   @Nullable
   public BallerinaIntRangeExpression getIntRangeExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaIntRangeExpression.class);
+    return findChildByClass(BallerinaIntRangeExpression.class);
   }
 
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
   @Nullable
   public BallerinaWhereClause getWhereClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWhereClause.class);
+    return findChildByClass(BallerinaWhereClause.class);
   }
 
   @Override
