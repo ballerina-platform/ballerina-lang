@@ -71,8 +71,8 @@ public class PushUtils {
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
     private static Settings settings;
 
-    private static final PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
+    private static final PrintStream SYS_ERR = System.err;
+    private static final PrintStream SYS_OUT = System.out;
     /**
      * Push/Uploads modules to the central repository.
      *
@@ -171,7 +171,7 @@ public class PushUtils {
             if (execute.isPresent()) {
                 String errorMessage = RepoUtils.getInnerErrorMessage(execute.get());
                 if (!errorMessage.trim().equals("")) {
-                    errStream.println(errorMessage);
+                    SYS_ERR.println(errorMessage);
                     return false;
                 }
             }
@@ -194,7 +194,7 @@ public class PushUtils {
 
         if (accessToken.isEmpty()) {
             try {
-                errStream.println("Opening the web browser to " +
+                SYS_ERR.println("Opening the web browser to " +
                                         BALLERINA_CENTRAL_CLI_TOKEN +
                                         " for auto token update ...");
 
@@ -273,7 +273,7 @@ public class PushUtils {
             try {
                 Files.createDirectories(targetDirectoryPath);
                 Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                outStream.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
+                SYS_OUT.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
                                           packageID.version.getValue() + " [project repo -> home repo]");
             } catch (IOException e) {
                 throw createLauncherException("Error occurred when creating directories in the home repository");
