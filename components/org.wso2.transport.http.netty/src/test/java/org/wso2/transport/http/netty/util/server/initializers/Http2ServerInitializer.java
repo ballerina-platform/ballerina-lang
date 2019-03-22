@@ -50,13 +50,12 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
         if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
             if (getBusinessLogicHandlerViaBuiler() != null) {
                 return new Http2ServerUpgradeCodec(getBusinessLogicHandlerViaBuiler());
-            } else {
-                return new Http2ServerUpgradeCodec(Http2FrameCodecBuilder.forServer().build(),
-                                                   getBusinessLogicHandler());
             }
-        } else {
-            return null;
+            return new Http2ServerUpgradeCodec(Http2FrameCodecBuilder.forServer().build(),
+                                               getBusinessLogicHandler());
+
         }
+        return null;
     };
 
     @Override

@@ -127,43 +127,53 @@ public final class H2ChannelIdHandler extends Http2ConnectionHandler implements 
     @Override
     public void onPriorityRead(ChannelHandlerContext ctx, int streamId, int streamDependency,
                                short weight, boolean exclusive) {
+        LOG.debug("onPriorityRead {}", streamId);
     }
 
     @Override
     public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
+        LOG.debug("onRstStreamRead {}", streamId);
     }
 
     @Override
     public void onSettingsAckRead(ChannelHandlerContext ctx) {
+        LOG.debug("onSettingsAckRead");
     }
 
     @Override
     public void onSettingsRead(ChannelHandlerContext ctx, Http2Settings settings) {
+        LOG.debug("onSettingsRead");
     }
 
     @Override
     public void onPingRead(ChannelHandlerContext ctx, long data) {
+        LOG.debug("onPingRead");
     }
 
     @Override
     public void onPingAckRead(ChannelHandlerContext ctx, long data) {
+        LOG.debug("onPingAckRead");
     }
 
     @Override
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) {
+        LOG.debug("onPushPromiseRead {}", streamId);
     }
 
     @Override
     public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
+        LOG.debug("onGoAwayRead {}", lastStreamId);
     }
 
     @Override
     public void onWindowUpdateRead(ChannelHandlerContext ctx, int streamId, int windowSizeIncrement) {
+        LOG.debug("onWindowUpdateRead {}", streamId);
     }
 
     @Override
     public void onUnknownFrame(ChannelHandlerContext ctx, byte frameType, int streamId,
                                Http2Flags flags, ByteBuf payload) {
+        LOG.debug("onUnknownFrame {}", streamId);
     }
 }
