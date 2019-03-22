@@ -17,9 +17,6 @@
 {
     classHeader = "CopyrightHeader.txt"
 
-    implements = "io.ballerina.plugins.idea.psi.BallerinaCompositeElement"
-    extends = "io.ballerina.plugins.idea.psi.impl.BallerinaCompositeElementImpl"
-
     parserClass = "io.ballerina.plugins.idea.parser.BallerinaParser"
     parserUtilClass="io.ballerina.plugins.idea.parser.BallerinaParserUtil"
 
@@ -116,25 +113,8 @@
 
     extends("StaticMatch(OrExpression|(Simple|Record|Tuple|Identifier)Literal)") = StaticMatchLiterals
 
-    // Each named definition which can be renamed should implement this interface.
-    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // This is to identify top level elements in a file.
     implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
-    // Each named definition should extend this class.
-    extends("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
-
-    // Each stubbed element should have this element type factory.
-    elementTypeFactory("(Function|Struct|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
-
-    // Todo - Add CatchClause, TriggerWorker, WorkerReply?
-    // Each named element (which can be renamed) should implement this interface.
-    implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
-    // Each named element should extend this class.
-    extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
-    // Each stubbed element should have this element type factory.
-    elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
-
-    implements("NameReference") = "io.ballerina.plugins.idea.psi.BallerinaReferenceExpressionBase"
 
     generateTokenAccessors = true
 }
@@ -153,30 +133,25 @@ DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttach
 
 CompletePackageName ::= PackageName (DOT PackageName)* {
     pin(".*")=1
-    methods=[getReferences]
 }
 
 PackageName ::= identifier {
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageNameStub"
 }
 
 PackageVersion ::= version identifier {
     pin=1
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageVersionStub"
 }
 
 // Todo - Cache
 ImportDeclaration ::= import (OrgName DIV)? CompletePackageName PackageVersion? Alias? SEMICOLON {
     pin=1
-    methods=[getShortPackageName]
 }
 
 OrgName ::= identifier {
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaOrgNameStub"
 }
 
 Alias ::= as identifier {
-    pin=1 stubClass="io.ballerina.plugins.idea.stubs.BallerinaAliasStub"
+    pin=1
 }
 
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
@@ -203,7 +178,7 @@ Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
 FunctionDefinition ::= (public|private)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
-    pin=4 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
+    pin=4 methods=[getIdentifier getName]
 }
 private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
 private FunctionWithoutReceiver ::= AttachedObject DOT CallableUnitSignature CallableUnitBody {pin=2}
@@ -224,8 +199,6 @@ CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList
 
 TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
     pin=2
-    methods=[getName]
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
 }
 
 ObjectBody ::=  (ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference)*
@@ -244,7 +217,6 @@ ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecat
 
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier TypeName? SEMICOLON {
     pin=2
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
 }
 
 ConstantDefinition ::= constWithoutType | constWithType
@@ -272,7 +244,6 @@ AttachmentPoint ::= service | resource | function | remote | object | client | l
 // Todo - Rename as declaration
 WorkerDefinition ::= worker identifier ReturnParameter? WorkerBody {
     pin=1
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
     recoverWhile=WorkerDefinitionRecover
 }
 
@@ -628,7 +599,6 @@ NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
 
 NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON {
     pin=1
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaNamespaceDeclarationStub"
 }
 
 Expression
@@ -735,12 +705,7 @@ ShiftExpression ::= GT <<shiftExprPredicate>> GT
 
 //reusable productions
 
-NameReference ::= <<isPackageExpected>> PackageReference identifier | identifier {
-    methods=[/*getReference*/ getQualifier /*resolve*/ resolveType isInLocalPackage]
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaNameReferenceStub"
-//    extends=test
-//    elementType=test
-}
+NameReference ::= <<isPackageExpected>> PackageReference identifier | identifier
 
 functionNameReference ::= <<isPackageExpected>> PackageReference? AnyIdentifierName {
     methods=[/*getReference*/ getQualifier /*resolve*/ resolveType isInLocalPackage]
@@ -748,8 +713,6 @@ functionNameReference ::= <<isPackageExpected>> PackageReference? AnyIdentifierN
 
 PackageReference ::= identifier COLON {
     pin=2
-    methods=[getReference]
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageReferenceStub"
 }
 
 ReturnParameter ::= returns ReturnType {pin=1}
