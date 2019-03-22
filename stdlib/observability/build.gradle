@@ -14,6 +14,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-test-common')
     testCompile 'org.testng:testng:6.13.1'
