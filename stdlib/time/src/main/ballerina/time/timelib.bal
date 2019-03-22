@@ -16,11 +16,12 @@
 
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
+# The time format defined by the RFC-1123.
 public type TimeFormat "RFC_1123";
 
 # Ballerina TimeZone represents the time-zone information associated with a particular time.
 #
-# + is - Zone short ID or offset string
+# + id - Zone short ID or offset string
 # + offset - The offset in seconds
 public type TimeZone record {
     string id;
@@ -37,6 +38,13 @@ public type Time record {
     TimeZone zone;
     !...;
 };
+
+
+type TimeError record {
+    string message;
+    !...;
+};
+
 # Returns ISO 8601 string representation of the given time.
 #
 # + time - The Time record to be converted to string
@@ -47,8 +55,8 @@ public function toString(Time time) returns string = external;
 #
 # + time - The Time record to be formatted
 # + timeFormat - The format which is used to format the time represented by this object
-# + return - The formatted string of the given time
-public function format(Time time, string|TimeFormat timeFormat) returns string = external;
+# + return - The formatted string of the given time or an `error` if failed to format the time
+public function format(Time time, string|TimeFormat timeFormat) returns string|error = external;
 
 # Returns the year representation of the given time.
 #
@@ -148,7 +156,8 @@ public function subtractDuration(Time time, int years, int months, int days, int
 # + time - The Time record of which the time-zone to be changed
 # + zoneId - The new time-zone id
 # + return - Time object containing time and zone information after the conversion
-public function toTimeZone(Time time, string zoneId) returns Time = external;
+#            or an `error` if failed to format the time
+public function toTimeZone(Time time, string zoneId) returns Time|error = external;
 
 # Returns the current time value with the system default time-zone.
 #
@@ -170,13 +179,13 @@ public function nanoTime() returns int = external;
 # + second - The second-of-minute to represent, from 0 to 59
 # + milliSecond - The milli-of-second to represent, from 0 to 999
 # + zoneId - The zone id of the required time-zone.If empty the system local time-zone will be used
-# + return - Time object containing time and zone information
+# + return - Time object containing time and zone information or an `error` if failed to create the time
 public function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
-                           string zoneId) returns Time = external;
+                                  string zoneId) returns Time|error = external;
 
 # Returns the time for the given string representation based on the given format string.
 #
 # + data - The time text to parse
 # + timeFormat - The format which is used to parse the given text
-# + return - Time object containing time and zone information
-public function parse(string data, string|TimeFormat timeFormat) returns Time = external;
+# + return - Time object containing time and zone information or an `error` if failed to parse the given string
+public function parse(string data, string|TimeFormat timeFormat) returns Time|error = external;
