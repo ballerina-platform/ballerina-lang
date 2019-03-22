@@ -2280,6 +2280,10 @@ public class Types {
     }
 
     public boolean hasImplicitInitialValue(BType type) {
+        return hasImplicitInitialValue(type, new ArrayList<>());
+    }
+
+    public boolean hasImplicitInitialValue(BType type, List<BType> unanalyzedTypes) {
         if (type.tag < TypeTags.RECORD) {
             return true;
         }
@@ -2296,8 +2300,7 @@ public class Types {
             case TypeTags.OBJECT:
                 return analyzeObjectType((BObjectType) type);
             case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                return recordType.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type));
+                return analyzeRecordType((BRecordType) type, unanalyzedTypes);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.tupleTypes.stream().allMatch(this::hasImplicitInitialValue);
@@ -2324,6 +2327,14 @@ public class Types {
         }
         // Control reaching this point means there is only one type in the union.
         return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+    }
+
+    private boolean analyzeRecordType(BRecordType type, List<BType> unanalyzedTypes) {
+        if (unanalyzedTypes.contains(type)) {
+            return true;
+        }
+        unanalyzedTypes.add(type);
+        return type.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type, unanalyzedTypes));
     }
 
     private boolean analyzeObjectType(BObjectType type) {
