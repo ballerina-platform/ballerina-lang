@@ -74,3 +74,11 @@ function getUnixOffsetIndex(string path) returns int[] {
     }
     return offsetIndexes;
 }
+
+function isPosixSlash(string|byte c) returns boolean {
+    if (c is string) {
+        return c == "/";
+    } else {
+        return c == 47;
+    }
+}

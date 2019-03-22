@@ -140,3 +140,11 @@ function getWindowsOffsetIndex(string path) returns int[] {
     }
     return offsetIndexes;
 }
+
+function isWindowsSlash(string|byte c) returns boolean {
+    if (c is string) {
+        return (c == "\\") || (c == "/");
+    } else {
+        return (c == 92 || c == 47);
+    }
+}

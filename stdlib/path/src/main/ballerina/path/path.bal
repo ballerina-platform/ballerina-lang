@@ -518,10 +518,10 @@ function normalizePosixPath(string input, int off) returns string|error {
 }
 
 function isSlash(string|byte c) returns boolean {
-    if (c is string) {
-        return (c == "\\") || (c == "/");
+    if (IS_WINDOWS) {
+        return isWindowsSlash(c);
     } else {
-        return (c == 92 || c == 47);
+        return isPosixSlash(c);
     }
 }
 

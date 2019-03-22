@@ -142,7 +142,7 @@ public class PathTest {
         log.info("{ballerina/path}:isAbsolute(). Input: " + input + " is absolute: " + actual);
         assertEquals(actual, expected, "Path: " + input + " isAbsolute()");
         try {
-            assertEquals(actual, Paths.get(input).isAbsolute(), "Path: " + input + " isAbsolute()");
+            assertEquals(actual, Paths.get(input).isAbsolute(), "Assert with Java | Path: " + input + " isAbsolute()");
         } catch (InvalidPathException ex) {
             assertFalse(actual, "Path: " + input + " isAbsolute()");
         }
@@ -170,35 +170,39 @@ public class PathTest {
             assertTrue(returns[0] instanceof BString);
             BString filename = (BString) returns[0];
             log.info("{ballerina/path}:filename(). Input: " + path + " | Return: " + filename.stringValue());
-            assertEquals(filename.stringValue(), expected);
+            assertEquals(filename.stringValue(), expected, "Path: " + path + " filename()");
             String expectedValue = Paths.get(path).getFileName() != null ? 
                                     Paths.get(path).getFileName().toString() : "";
-            assertEquals(filename.stringValue(), expectedValue);
+            assertEquals(filename.stringValue(), expectedValue, "Assert with Java | Path: " + path + " filename()");
         }
     }
 
-    // @Test(description = "Test filename path function for windows paths", dataProvider = "windows_paths")
-    // public void testGetWindowsFileName(String path) {
-    //     validateFilename(path);
-    // }
-
-    //@Test(description = "Test parent path function for posix paths", dataProvider = "posix_paths")
-    public void testGetPosixParent(String path) {
-        validateParent(path);
+    @Test(description = "Test parent path function for paths", dataProvider = "parent_data")
+    public void testGetParent(String path, String posixOutput, String windowsOutput) {
+        if (IS_WINDOWS) {
+            validateParent(path, windowsOutput);
+        } else {
+            validateParent(path, posixOutput);
+        }
     }
 
-    //@Test(description = "Test parent path function for windows paths", dataProvider = "windows_paths")
-    public void testGetWindowsParent(String path) {
-        validateParent(path);
-    }
-
-    private void validateParent(String input) {
+    private void validateParent(String input, String expected) {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetParent", args);
-        BString filename = (BString) returns[0];
-        log.info("{ballerina/path}:parent(). Input: " + input + " | Return: " + filename.stringValue());
-        String expectedValue = Paths.get(input).getParent() != null ? Paths.get(input).getParent().toString() : "";
-        assertEquals(filename.stringValue(), expectedValue);
+        if ("error".equals(expected)) {
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            log.info("Ballerina error: " + error.getDetails().stringValue());
+        } else {
+            assertTrue(returns[0] instanceof BString);
+            BString parent = (BString) returns[0];
+            log.info("{ballerina/path}:parent(). Input: " + input + " | Return: " + parent.stringValue());
+            assertEquals(parent.stringValue(), expected, "Path: " + input + " filename()");
+            String expectedValue = Paths.get(input).getParent() != null ?
+                    Paths.get(input).getParent().toString() : "";
+            assertEquals(parent.stringValue(), expectedValue, "Assert with Java | Path: " + input + " parent()");
+        }
     }
 
     //@Test(description = "Test normalize path function for posix paths", dataProvider = "posix_paths")
@@ -325,7 +329,7 @@ public class PathTest {
             {"D;\\bar\\baz", "D;\\bar\\baz", "baz"},
             {"bar\\baz", "bar\\baz", "baz"},
             {"bar/baz", "baz", "baz"},
-            {"C:\\\\\\\\", "C:", ""},
+            {"C:\\\\\\\\", "C:\\\\\\\\", ""},
             {"\\..\\A\\B", "\\..\\A\\B", "B"}
         };
     }
@@ -362,6 +366,42 @@ public class PathTest {
             {"bar/baz", false, false},
             {"C:\\\\\\\\", false, true},
             {"\\..\\A\\B", false, false}
+        };
+    }
+
+    @DataProvider(name = "parent_data")
+    public Object[][] getParentDataset() {
+        return new Object[][] {
+                {"/A/B/C", "/A/B", "/A/B"},
+                {"/foo/..", "/foo", "/foo"},
+                {".", "", ""},
+                {"..", "", ""},
+                {"../../", "..", ".."},
+                {"foo/", "", ""},
+                {"foo/bar/", "foo", "foo"},
+                {"/AAA/////BBB/", "/AAA", "/AAA"},
+                {"", "", ""},
+                {"//////////////////", "", "error"},
+                {"\\\\\\\\\\\\\\\\\\\\", "", "error"},
+                {"/foo/./bar", "/foo/.", "/foo/."},
+                {"foo/../bar", "foo/..", "foo/.."},
+                {"../foo/bar", "../foo", "../foo"},
+                {"./foo/bar/../", "./foo/bar", "./foo/bar"},
+                {"../../foo/../bar/zoo", "../../foo/../bar", "../../foo/../bar"},
+                {"abc/../../././../def", "abc/../../././..", "abc/../../././.."},
+                {"abc/def/../../..", "abc/def/../..", "abc/def/../.."},
+                {"abc/def/../../../ghi/jkl/../../../mno", "abc/def/../../../ghi/jkl/../../..",
+                        "abc/def/../../../ghi/jkl/../../.."},
+                // windows paths
+                {"//server", "/", "error"},
+                {"\\\\server", "", "error"},
+                {"C:/foo/..", "C:/foo", "foo"},
+                {"C:\\foo\\..", "", "foo"},
+                {"D;\\bar\\baz", "", "bar"},
+                {"bar\\baz", "", "bar"},
+                {"bar/baz", "bar", "bar"},
+                {"C:\\\\\\\\", "", ""},
+                {"\\..\\A\\B", "", "A"}
         };
     }
 
