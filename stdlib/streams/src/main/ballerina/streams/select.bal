@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The `Select` object represents the select clause. Anything that comes under select clause like aggregator function
+# invocations are also handled in this processor. Further, grouping of the events (provided by the groupby clause) is
+# also performed in this processor. `aggregatorArr` is an array of aggregators which are used in the select clause.
+# `groupbyFuncArray` is an array of function pointers which returns the values being grouped. `selectFunc` is a
+# function pointer to a lambda function which creates the `data` field of the output stream event. `scopeName` is
+# used as a breadcrumb to identify the select clause if there are multiple `forever` blocks.
 public type Select object {
 
     private function (StreamEvent?[]) nextProcessorPointer;
@@ -35,6 +41,8 @@ public type Select object {
         self.scopeName = scopeName;
     }
 
+    # Selects only the selected fields in the select clause.
+    # + streamEvents - The array of stream events passed to the select clause.
     public function process(StreamEvent?[] streamEvents) {
         StreamEvent?[] outputStreamEvents = [];
         if (self.aggregatorArr.length() > 0) {
@@ -86,6 +94,10 @@ public type Select object {
         }
     }
 
+    # Creates a unique key for each group with the given values in the group by clause.
+    # + groupbyFunctionArray - Function pointer array to the lambda function which returns each group by field.
+    # + e - Stream Event object being grouped.
+    # + return - Returns a unique groupby key by which the event `e` is grouped.
     public function getGroupByKey(((function (StreamEvent o) returns anydata)?[])? groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
@@ -101,6 +113,16 @@ public type Select object {
     }
 };
 
+# Creates and returns a select clause.
+# + nextProcPointer - The function pointer to the `process` function of the next processor.
+# + aggregatorArr - The array of aggregators used in the select clause. If the same aggregator is used twice, the
+#                  `aggregatorArr` will contains that specific aggregator twice in the order they appear in the select
+#                   clause.
+# + groupbyFuncArray - The array of function pointer which contains the lambda function which returns the expressions
+#                      in the group by clause.
+# + selectFunc - The function pointer to a lambda function that creates the `data` field of the output stream event.
+# + scopeName - A unique id to identify the forever block if there are multiple forever blocks.
+# + return - Returns a `Select` object.
 public function createSelect(function (StreamEvent?[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
                              ((function (StreamEvent o) returns anydata)?[])? groupbyFuncArray,

@@ -69,8 +69,16 @@ public function createTimer(int interval, int delay, int recurrences) {
     };
     task:Scheduler timer = new(timerConfiguration);
     
-    _ = timer.attach(timerService);
-    _ = timer.start();
+    var result  = timer.attach(timerService);
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
+    result = timer.start();
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
 }
 
 service timerService = service {
@@ -91,7 +99,7 @@ service timerService = service {
 
 ## Samples
 
-### Tasks Listener - Timer
+### Task Listener - Timer
 
 In this sample, a task is registered with a delay of 1000 milliseconds and is made to run every 1000 milliseconds. 
 The `onTrigger ` resource function is triggered when the clock goes off. 
@@ -125,9 +133,9 @@ service timerService on timer {
 }
 ```
 
-### Tasks Listener - Appointment
+### Task Listener - Appointment
 
-In this sample, a task appointment is registered with a cron expression to run every 5 seconds. Therefore, the 
+In this sample, a task appointment is registered with a CRON expression to run it every 5 seconds. Therefore, the 
 `onTrigger ` function is triggered every 5 seconds.
 The count variable is incremented by the task.
 

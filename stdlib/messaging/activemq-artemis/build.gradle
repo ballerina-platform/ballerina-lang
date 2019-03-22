@@ -1,0 +1,27 @@
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+
+dependencies {
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-lang')
+    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-utils')
+    implementation 'org.apache.activemq:artemis-core-client:2.6.3'
+
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+}
+
+description = 'Ballerina - ActiveMQ Artemis'
+
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
