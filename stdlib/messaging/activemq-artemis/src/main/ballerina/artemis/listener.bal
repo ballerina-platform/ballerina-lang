@@ -37,7 +37,7 @@ public type Listener object {
     public function __stop() returns error? {
         return self.stop();
     }
-    public function __attach(service serviceType, map<any> annotationData) returns error? {
+    public function __attach(service serviceType, string? name = ()) returns error? {
         return self.createConsumer(serviceType);
     }
 
