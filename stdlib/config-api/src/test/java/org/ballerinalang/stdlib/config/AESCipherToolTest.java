@@ -60,4 +60,23 @@ public class AESCipherToolTest {
         String encryptedStr = aesCipherTool.encrypt(plainText);
         Assert.assertEquals(plainText, aesCipherTool.decrypt(encryptedStr));
     }
+
+    @Test
+    public void testEncryptionAndDecryptionWithTwoCipherToolsNegative() {
+        String plainText = "this is the plain text";
+        String encryptionKey = "abc&xyz";
+        String decryptionKey = "xyz&abc";
+        try {
+            AESCipherTool encryptionCipherTool = new AESCipherTool(encryptionKey);
+            String encryptedStr = encryptionCipherTool.encrypt(plainText);
+            AESCipherTool decryptionCipherTool = new AESCipherTool(decryptionKey);
+            String decryptedText = decryptionCipherTool.decrypt(encryptedStr);
+            // We expect the above line should throw an exception since the decryption key is invalid. But in some cases
+            // the given decryption key is able to decrypt the given encrypted string with the use of padding. Then, the
+            // output (decrypted text) does not match with the plain text.
+            Assert.assertNotEquals(decryptedText, plainText);
+        } catch (AESCipherToolException e) {
+            Assert.assertTrue(e.getMessage().contains("Given final block not properly padded"), e.getMessage());
+        }
+    }
 }

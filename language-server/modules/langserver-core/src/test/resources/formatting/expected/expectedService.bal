@@ -23,13 +23,13 @@ service serviceName3 on new http:Listener(9090) {
 }
 
 service serviceName4 on new http:Listener(9090) {
-    resource function newResource1(http:Caller caller, http:Request request) {
+    public resource function newResource1(http:Caller caller, http:Request request) {
         http:Response res = new;
         res.setPayload("sd");
         _ = caller->respond(res);
     }
 
-    resource function newResource2(http:Caller caller, http:Request request) {
+    private resource function newResource2(http:Caller caller, http:Request request) {
         http:Listener listener1 = new(8080);
 
         http:Response res = new;
@@ -37,14 +37,14 @@ service serviceName4 on new http:Listener(9090) {
         _ = caller->respond(res);
     }
 
-    resource function newResource3(http:Caller caller, http:Request request) {
-        worker default {
+    resource extern function newResource3(http:Caller caller, http:Request request) {
+        worker worker1 {
             http:Response res = new;
             res.setPayload("sd");
             _ = caller->respond(res);
         }
 
-        worker worker1 {
+        worker worker2 {
             http:Response res = new;
             res.setPayload("sd");
             _ = caller->respond(res);

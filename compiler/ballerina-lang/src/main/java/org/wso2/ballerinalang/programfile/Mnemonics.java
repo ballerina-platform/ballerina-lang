@@ -82,9 +82,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RASTORE] = "rastore";
         mnemonics[InstructionCodes.JSONASTORE] = "jsonastore";
 
-        mnemonics[InstructionCodes.BIAND] = "biand";
         mnemonics[InstructionCodes.IAND] = "iand";
-        mnemonics[InstructionCodes.BIOR] = "bior";
         mnemonics[InstructionCodes.IOR] = "ior";
 
         mnemonics[InstructionCodes.IGSTORE] = "igstore";
@@ -277,12 +275,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.I2BI] = "i2bi";
-        mnemonics[InstructionCodes.BI2I] = "bi2i";
         mnemonics[InstructionCodes.F2BI] = "f2bi";
-        mnemonics[InstructionCodes.BI2F] = "bi2f";
         mnemonics[InstructionCodes.D2BI] = "d2bi";
-        mnemonics[InstructionCodes.BI2D] = "bi2d";
-        mnemonics[InstructionCodes.BIXOR] = "bior";
         mnemonics[InstructionCodes.IXOR] = "ior";
         mnemonics[InstructionCodes.BACONST] = "baconst";
         mnemonics[InstructionCodes.IURSHIFT] = "iurshift";
