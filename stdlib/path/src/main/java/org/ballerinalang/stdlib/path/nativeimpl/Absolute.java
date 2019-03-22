@@ -48,7 +48,7 @@ public class Absolute extends BlockingNativeCallableUnit {
             String absolutePath = FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
             context.setReturnValues(new BString(absolutePath));
         } catch (InvalidPathException ex) {
-            context.setError(Utils.getPathError("INVALID_PATH", ex));
+            context.setReturnValues(Utils.getPathError("INVALID_PATH", ex));
         }
     }
 }

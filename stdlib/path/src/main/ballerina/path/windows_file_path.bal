@@ -56,7 +56,7 @@ function buildWindowsPath(string... parts) returns string|error {
     }
     i = i + 1;
     while (i < count) {
-        finalPath = finalPath + "\\." + parts[i];
+        finalPath = finalPath + "\\" + parts[i];
         i = i + 1;
     }
     return parse(finalPath);
@@ -93,16 +93,16 @@ function getWindowsRoot(string input) returns (string, int)|error {
                 return err;
             }
             //TODO remove dot from expression. added because of formatting issue #13872.
-            root = "\\\\." + host + "\\." + input.substring(offset, next) + "\\.";
+            root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
             offset = next;
         } else {
             if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
                 if (input.length() > 2 && isSlash(check charAt(input, 2))) {
                     string c2 = check charAt(input, 2);
-                    if (c2 == "\\.") {
+                    if (c2 == "\\") {
                         root = input.substring(0, 3);
                     } else {
-                        root = input.substring(0, 2) + "\\.";
+                        root = input.substring(0, 2) + "\\";
                     }
                     offset = 3;
                 } else {
@@ -124,7 +124,7 @@ function getWindowsOffsetIndex(string path) returns int[] {
         count = count + 1;
     } else {
         byte[] pathValues = path.toByteArray("UTF-8");
-        while(index < path.length()) {
+        while(index < pathValues.length()) {
             byte c = pathValues[index];
             if (c == 47 || c == 92) {
                 index = index + 1;
@@ -132,7 +132,7 @@ function getWindowsOffsetIndex(string path) returns int[] {
                 offsetIndexes[count] = index;
                 count = count + 1;
                 index = index + 1;
-                while(index < path.length() && (pathValues[index] != 47 || pathValues[index] != 92)) {
+                while(index < pathValues.length() && pathValues[index] != 47 && pathValues[index] != 92) {
                     index = index + 1;
                 }
             }

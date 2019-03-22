@@ -18,8 +18,8 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/system;
 
-boolean IS_WINDOWS = system:getEnv("OS") != "" ;
-string PATH_SEPARATOR = IS_WINDOWS ? "" : "/";
+boolean IS_WINDOWS = system:getEnv("OS") != "";
+string PATH_SEPARATOR = IS_WINDOWS ? "\\" : "/";
 byte PATH_SEPARATOR_UTF8 = IS_WINDOWS ? 92 : 47;
 string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
 
@@ -89,17 +89,22 @@ public function isAbsolute(string path) returns boolean|error {
 # + path - String value of file path.
 # + return - Returns the name of the file
 public function filename(string path) returns string|error {
-    int[] offsetIndexes = getOffsetIndexes(path);
+    string validatedPath = check parse(path);
+    int[] offsetIndexes = getOffsetIndexes(validatedPath);
+    log:printInfo("Validated file path: " + validatedPath);
     int count = offsetIndexes.length();
     if (count == 0) {
         return "";
     }
-    if (count == 1 && path.length() > 0 && !(check isAbsolute(path))) {
-        return parse(path);
+    if (count == 1 && validatedPath.length() > 0) {
+        if !(check isAbsolute(validatedPath)) {
+            return validatedPath;
+        } else if (IS_WINDOWS) {
+            return "";
+        }
     }
     int lastOffset = offsetIndexes[count - 1];
-    log:printInfo("filename path: " + path);
-    return parse(path.substring(lastOffset, path.length()));
+    return validatedPath.substring(lastOffset, validatedPath.length());
 }
 
 # Get the enclosing parent directory.
@@ -430,16 +435,16 @@ function getRootComponent(string input) returns (string,int)|error {
                     return err;
                 }
                 //TODO remove dot from expression. added because of formatting issue #13872.
-                root = "\\\\." + host + "\\." + input.substring(offset, next) + "\\.";
+                root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
                 offset = next;
             } else {
                 if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
                     if (input.length() > 2 && isSlash(check charAt(input, 2))) {
                         string c2 = check charAt(input, 2);
-                        if (c2 == "\\.") {
+                        if (c2 == "\\") {
                             root = input.substring(0, 3);
                         } else {
-                            root = input.substring(0, 2) + "\\.";
+                            root = input.substring(0, 2) + "\\";
                         }
                         offset = 3;
                     } else {
@@ -470,7 +475,7 @@ function normalizeWindowsPath(string path, int off) returns string|error {
             normalizedPath = normalizedPath + path.substring(startIndex, offset);
             offset = nextNonSlashIndex(path, offset, length);
             if (offset != length) {
-                normalizedPath = normalizedPath + "\\.";
+                normalizedPath = normalizedPath + "\\";
             }
             startIndex = offset;
         } else {
@@ -514,7 +519,7 @@ function normalizePosixPath(string input, int off) returns string|error {
 
 function isSlash(string|byte c) returns boolean {
     if (c is string) {
-        return (c == "") || (c == "/");
+        return (c == "\\") || (c == "/");
     } else {
         return (c == 92 || c == 47);
     }
