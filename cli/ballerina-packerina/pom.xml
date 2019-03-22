@@ -39,7 +39,8 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-backend-llvm</artifactId>
+            <artifactId>ballerina-backend-jvm</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>

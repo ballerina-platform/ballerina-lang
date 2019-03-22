@@ -188,20 +188,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getPayloadAsString()(string|error)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "right":{
-          "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nGets the response payload as a `string`. Content type is not checked during payload construction which\nmakes this different from `getTextPayload()` function.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText":"121",
-      "insertText":"getPayloadAsString()",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"setByteChannel(io:ReadableByteChannel payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",

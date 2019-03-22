@@ -159,7 +159,7 @@ public class WaitCallbackHandler {
                 ((BMap) sf.refRegs[retReg]).put(keyValue, new BInteger (strandCallback.getIntRetVal()));
                 break;
             case TypeTags.BYTE_TAG:
-                ((BMap) sf.refRegs[retReg]).put(keyValue, new BByte((byte) strandCallback.getByteRetVal()));
+                ((BMap) sf.refRegs[retReg]).put(keyValue, new BByte(strandCallback.getByteRetVal()));
                 break;
             case TypeTags.FLOAT_TAG:
                 ((BMap) sf.refRegs[retReg]).put(keyValue, new BFloat(strandCallback.getFloatRetVal()));
@@ -185,7 +185,7 @@ public class WaitCallbackHandler {
                     sf.refRegs[retReg] = new BInteger(strandCallback.getIntRetVal());
                     break;
                 case TypeTags.BYTE_TAG:
-                    sf.refRegs[retReg] = new BByte((byte) strandCallback.getByteRetVal());
+                    sf.refRegs[retReg] = new BByte(strandCallback.getByteRetVal());
                     break;
                 case TypeTags.FLOAT_TAG:
                     sf.refRegs[retReg] = new BFloat(strandCallback.getFloatRetVal());
@@ -207,7 +207,7 @@ public class WaitCallbackHandler {
                 sf.longRegs[retReg] = strandCallback.getIntRetVal();
                 break;
             case TypeTags.BYTE_TAG:
-                sf.intRegs[retReg] = strandCallback.getByteRetVal();
+                sf.longRegs[retReg] = strandCallback.getByteRetVal();
                 break;
             case TypeTags.FLOAT_TAG:
                 sf.doubleRegs[retReg] = strandCallback.getFloatRetVal();

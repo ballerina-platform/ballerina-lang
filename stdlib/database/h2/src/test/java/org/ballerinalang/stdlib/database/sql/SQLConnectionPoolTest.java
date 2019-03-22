@@ -40,6 +40,8 @@ import java.util.HashMap;
 public class SQLConnectionPoolTest {
     private CompileResult result;
     private static final String POOL_TEST_GROUP = "ConnectionPoolTest";
+    private static final String connectionTimeoutError = ".*Connection is not available, request timed out after "
+            + "10\\d\\dms.*";
 
     @BeforeClass
     public void setup() throws Exception {
@@ -73,8 +75,8 @@ public class SQLConnectionPoolTest {
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
-        Assert.assertTrue((((BValueArray) returns[0])).getRefValue(10).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error = (((BValueArray) returns[0])).getRefValue(10).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -87,14 +89,14 @@ public class SQLConnectionPoolTest {
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", jsonArray1.getRefValue(i).stringValue());
         }
-        Assert.assertTrue(jsonArray1.getRefValue(10).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error1 = jsonArray1.getRefValue(10).stringValue();
+        Assert.assertTrue(error1.matches(connectionTimeoutError), "Actual Error: " + error1);
 
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", jsonArray2.getRefValue(i).stringValue());
         }
-        Assert.assertTrue(jsonArray2.getRefValue(10).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error2 = jsonArray2.getRefValue(10).stringValue();
+        Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -107,8 +109,8 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(array.getRefValue(1).stringValue(), "1");
         }
         BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(4));
-        Assert.assertTrue(
-                array.getRefValue(2).stringValue().matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error = array.getRefValue(2).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -118,8 +120,8 @@ public class SQLConnectionPoolTest {
         for (int i = 0; i < 5; i++) {
             Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
-        Assert.assertTrue((((BValueArray) returns[0])).getRefValue(5).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error = (((BValueArray) returns[0])).getRefValue(5).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -132,10 +134,10 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
             Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), "1");
         }
-        Assert.assertTrue(returnArray.getRefValue(3).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
-        Assert.assertTrue(returnArray.getRefValue(7).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
+        String error1 = returnArray.getRefValue(3).stringValue();
+        Assert.assertTrue(error1.matches(connectionTimeoutError), "Actual Error: " + error1);
+        String error2 = returnArray.getRefValue(7).stringValue();
+        Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
     @Test(groups = POOL_TEST_GROUP)
