@@ -104,7 +104,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * <p>
      * e.g., _4 = call doSomethingAsynchronously _1 _2 _3
      *
-     * @since 0.980.0
+     * @since 0.995.0
      */
     public static class AsyncCall extends BIRTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
