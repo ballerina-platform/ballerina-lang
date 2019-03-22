@@ -1,5 +1,14 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    ballerina {
+        transitive false
+    }
+    testUtils {
+        transitive false
+    }
+}
+
 dependencies {
     implementation project(':ballerina-integration-test-utils')
     implementation project(':ballerina-config')
@@ -32,7 +41,8 @@ dependencies {
     implementation project(':ballerina-socket')
     implementation project(':ballerina-observability')
     implementation project(':observability-test-utils')
-    implementation project(':ballerina-test-utils')
+    testCompile project(':ballerina-test-utils')
+    testUtils project(':ballerina-test-utils')
 
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
     testCompile 'io.netty:netty-transport:4.1.34.Final'
@@ -49,10 +59,18 @@ dependencies {
     testCompile 'org.apache.directory.server:apacheds-all:2.0.0-M24'
     testCompile 'org.apache.commons:commons-lang3:3.5'
     testCompile 'org.testng:testng:6.13.1'
+    ballerina project(path: ':ballerina', configuration: 'zip')
 }
 
 test {
     exclude '*/**'
+    systemProperty 'ballerina.home', '$buildDir'
+    systemProperty 'server.zip', configurations.ballerina.asPath
+    systemProperty 'java.util.logging.config.file', '$buildDir/classes/java/test/logging.properties'
+    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
+    systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
+    systemProperty 'integration.test.utils.service.file', '${buildDir}/../../../tests/ballerina-test-utils/src/main/ballerina/httpService/common_backend.bal'
+    systemProperty('observability-test-natives.jar', '${buildDir}/../../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar')
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
