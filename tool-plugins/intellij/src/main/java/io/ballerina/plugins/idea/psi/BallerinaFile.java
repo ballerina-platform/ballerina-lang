@@ -27,18 +27,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayFactory;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.MultiMap;
 import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.psi.impl.BallerinaElementFactory;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import io.ballerina.plugins.idea.stubs.BallerinaFileStub;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,8 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.Icon;
+import javax.swing.*;
 
 /**
  * Represents a ballerina file.
@@ -56,7 +49,8 @@ public class BallerinaFile extends PsiFileBase {
 
     public static final BallerinaImportDeclaration[] EMPTY_ARRAY = new BallerinaImportDeclaration[0];
     public static final ArrayFactory<BallerinaImportDeclaration> ARRAY_FACTORY = count -> count == 0 ?
-            EMPTY_ARRAY : new BallerinaImportDeclaration[count];
+            EMPTY_ARRAY :
+            new BallerinaImportDeclaration[count];
 
     public BallerinaFile(@NotNull FileViewProvider viewProvider) {
         super(viewProvider, BallerinaLanguage.INSTANCE);
@@ -78,34 +72,16 @@ public class BallerinaFile extends PsiFileBase {
         return super.getIcon(flags);
     }
 
-    @Nullable
-    @Override
-    public BallerinaFileStub getStub() {
-        //noinspection unchecked
-        return (BallerinaFileStub) super.getStub();
-    }
-
     @NotNull
     private static <E extends PsiElement> List<E> getChildrenByType(@NotNull StubElement<? extends PsiElement> stub,
-                                                                    IElementType elementType,
-                                                                    ArrayFactory<E> f) {
+            IElementType elementType, ArrayFactory<E> f) {
         return Arrays.asList(stub.getChildrenByType(elementType, f));
     }
 
     @NotNull
-    public List<BallerinaImportDeclaration> getCachedImports() {
-        return CachedValuesManager.getCachedValue(this, () -> {
-            StubElement<BallerinaFile> stub = getStub();
-            List<BallerinaImportDeclaration> imports = stub != null ? getChildrenByType(stub,
-                    BallerinaTypes.IMPORT_DECLARATION, ARRAY_FACTORY) : getImports();
-            return CachedValueProvider.Result.create(imports, this);
-        });
-    }
-
-    @NotNull
     private List<BallerinaImportDeclaration> getImports() {
-        List<BallerinaImportDeclaration> allImportsInPackage = PsiTreeUtil.getChildrenOfTypeAsList(this,
-                BallerinaImportDeclaration.class);
+        List<BallerinaImportDeclaration> allImportsInPackage = PsiTreeUtil
+                .getChildrenOfTypeAsList(this, BallerinaImportDeclaration.class);
         // We need to get the original file since the file in the context is an in-memory file.
         PsiFile originalFile = getOriginalFile();
         PsiDirectory parent = originalFile.getParent();
@@ -121,8 +97,8 @@ public class BallerinaFile extends PsiFileBase {
                 continue;
             }
             // Get all imports in the file and iterate through them.
-            Collection<BallerinaImportDeclaration> importDeclarations = PsiTreeUtil.findChildrenOfType(child,
-                    BallerinaImportDeclaration.class);
+            Collection<BallerinaImportDeclaration> importDeclarations = PsiTreeUtil
+                    .findChildrenOfType(child, BallerinaImportDeclaration.class);
             for (BallerinaImportDeclaration importDeclaration : importDeclarations) {
                 // Get the package name.
                 BallerinaCompletePackageName completePackageName = importDeclaration.getCompletePackageName();
@@ -139,21 +115,6 @@ public class BallerinaFile extends PsiFileBase {
         return allImportsInPackage;
     }
 
-    @NotNull
-    public MultiMap<String, BallerinaImportDeclaration> getImportMap() {
-        return CachedValuesManager.getCachedValue(this, () -> {
-            MultiMap<String, BallerinaImportDeclaration> map = MultiMap.createLinked();
-            List<Object> dependencies = ContainerUtil.newArrayList(this);
-            for (BallerinaImportDeclaration importDeclaration : getCachedImports()) {
-                PsiElement shortPackageName = importDeclaration.getShortPackageName();
-                if (shortPackageName != null) {
-                    map.putValue(shortPackageName.getText(), importDeclaration);
-                }
-            }
-            return CachedValueProvider.Result.create(map, ArrayUtil.toObjectArray(dependencies));
-        });
-    }
-
     public List<BallerinaDefinition> getDefinitions() {
         return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDefinition.class);
     }
@@ -168,20 +129,20 @@ public class BallerinaFile extends PsiFileBase {
      */
     @NotNull
     public static BallerinaImportDeclaration addImport(@NotNull BallerinaFile file, @NotNull String importPath,
-                                                       @Nullable String alias) {
+            @Nullable String alias) {
         PsiElement addedNode;
-        Collection<BallerinaImportDeclaration> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
-                BallerinaImportDeclaration.class);
+        Collection<BallerinaImportDeclaration> importDeclarationNodes = PsiTreeUtil
+                .findChildrenOfType(file, BallerinaImportDeclaration.class);
         Project project = file.getProject();
-        BallerinaImportDeclaration importDeclaration = BallerinaElementFactory.createImportDeclaration(project,
-                importPath, alias);
+        BallerinaImportDeclaration importDeclaration = BallerinaElementFactory
+                .createImportDeclaration(project, importPath, alias);
 
         if (importDeclarationNodes.isEmpty()) {
 
             PsiElement[] children = file.getChildren();
             // Children cannot be empty since the IDEA adds placeholder string
-            PsiElement nonEmptyElement = PsiTreeUtil.skipSiblingsForward(children[0], PsiWhiteSpace.class,
-                    PsiComment.class);
+            PsiElement nonEmptyElement = PsiTreeUtil
+                    .skipSiblingsForward(children[0], PsiWhiteSpace.class, PsiComment.class);
             if (nonEmptyElement == null) {
                 nonEmptyElement = children[0];
             }
