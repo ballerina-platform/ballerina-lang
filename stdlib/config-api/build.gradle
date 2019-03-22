@@ -5,20 +5,45 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-config')
     implementation project(':ballerina-launcher')
+    implementation project(':lib-creator')
+
+    testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-runtime-api')
+    testCompile project(':ballerina-system')
+    testCompile project(':ballerina-utils')
+    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
 
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    testCompile 'org.testng:testng:6.13.1'
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+
 }
 
 description = 'Ballerina - Config API'
 
-task copyGeneratedBalo(type: org.gradle.api.tasks.Copy) {
-    from "$buildDir/generated-balo/repo/ballerina"
-    into "$buildDir/lib/repo/ballerina"
-}
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
-build {
-    dependsOn copyGeneratedBalo
+    environment "testEnvironmentVariable", "EnvironmentVariable"
+    environment "user_name", "b7auser"
+    environment "password", "b7apw"
+    environment "hello_http_host", "192.168.1.11"
+    environment "hello_http_port", "5656"
+    environment "hello_cache_enabled", "true"
+    environment "hello_eviction_fac", "0.2333333"
+    environment "helloneg_http_port", "invalid port"
+    environment "helloneg_eviction_fac", "invalid eviction factor"
 }

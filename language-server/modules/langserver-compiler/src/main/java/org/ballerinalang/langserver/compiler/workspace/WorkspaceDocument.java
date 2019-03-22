@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
@@ -30,14 +31,25 @@ import java.util.List;
  * Represents a document open in workspace.
  */
 public class WorkspaceDocument {
-    private static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
 
+    /* Tracking code lenses sent to client, to make-use in compilation failures */
+    private List<CodeLens> codeLenses;
     private Path path;
     private String content;
 
     public WorkspaceDocument(Path path, String content) {
         this.path = path;
         this.content = content;
+        this.codeLenses = new ArrayList<>();
+    }
+
+    public List<CodeLens> getCodeLenses() {
+        return codeLenses;
+    }
+
+    public void setCodeLenses(List<CodeLens> codeLenses) {
+        this.codeLenses = codeLenses;
     }
 
     public Path getPath() {

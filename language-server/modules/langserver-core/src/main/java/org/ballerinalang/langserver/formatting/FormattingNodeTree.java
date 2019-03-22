@@ -572,9 +572,11 @@ public class FormattingNodeTree {
 
             // Get the indentation for the node.
             String indentation = this.getIndentation(formatConfig, true);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
 
             // Preserve the line separators that already available.
-            this.preserveHeight(ws, indentation);
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
 
             // Update the ref type whitespace.
             JsonObject refTypeWhitespace = ws.get(0).getAsJsonObject();
@@ -875,9 +877,11 @@ public class FormattingNodeTree {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, true);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
 
             // Preserve line separations that already available.
-            this.preserveHeight(ws, indentation);
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
 
             // Update whitespace for type node.
             if (node.has("type")) {
@@ -887,7 +891,8 @@ public class FormattingNodeTree {
             // Update whitespace for constraint.
             if (node.has("constraint")) {
                 JsonObject constraintFormatConfig = this.getFormattingConfig(0, 0, 0, false,
-                        this.getWhiteSpaceCount(indentation), false);
+                        this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                .getAsBoolean() ? indentationOfParent : indentation), true);
                 node.getAsJsonObject("constraint").add(FormattingConstants.FORMATTING_CONFIG, constraintFormatConfig);
             }
 
@@ -1098,8 +1103,40 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatErrorDestructureNode(JsonObject node) {
-        // TODO: fix formatting for Error Destructure node.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
+
+            // Iterate and update whitespaces for error destructure node.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("=")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(";")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
+                }
+            }
+
+            // Handle error variable reference formatting.
+            if (node.has("varRef")) {
+                node.getAsJsonObject("varRef").add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+            }
+
+            // Handle expression formatting.
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                node.getAsJsonObject(FormattingConstants.EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentation), true));
+            }
+        }
     }
 
     /**
@@ -1112,23 +1149,109 @@ public class FormattingNodeTree {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
 
             // Preserve comments and new line that already available.
-            this.preserveHeight(ws, indentation);
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
 
-            // Update reference whitespace.
-            JsonObject referenceWS = ws.get(0).getAsJsonObject();
-            if (this.noHeightAvailable(referenceWS.get(FormattingConstants.WS).getAsString())) {
-                if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
-                    referenceWS.addProperty(FormattingConstants.WS,
-                            this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
-                                    + indentation);
-                } else if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
-                    referenceWS.addProperty(FormattingConstants.WS,
-                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                } else {
-                    referenceWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("error")) {
+                        if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                            + indentation);
+                        } else if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                    } else if (text.equals("<") || text.equals(",") || text.equals(">") || text.equals("?")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
                 }
+            }
+
+            // Handle formatting for reason type node.
+            if (node.has("reasonTypeNode")) {
+                node.getAsJsonObject("reasonTypeNode").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 0, 0, false,
+                                this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                        .getAsBoolean() ? indentationOfParent : indentation), true));
+            }
+
+            // Handle formatting for details type node.
+            if (node.has("detailsTypeNode")) {
+                node.getAsJsonObject("detailsTypeNode").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                        .getAsBoolean() ? indentationOfParent : indentation), true));
+            }
+        }
+    }
+
+    /**
+     * format Error Variable node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatErrorVariableNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
+
+            // Iterate and update whitespaces for error variable node.
+            boolean reasonWSUpdated = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("error")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals("(")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(",") || text.equals(")") || text.equals(";")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        if (reasonWSUpdated) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            reasonWSUpdated = true;
+                        }
+                    }
+                }
+            }
+
+            // Handle type node formatting
+            if (node.has("typeNode")) {
+                node.getAsJsonObject("typeNode").add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+            }
+
+            // Handle detail node formatting
+            if (node.has("detail") && node.getAsJsonObject("detail").has("ws")) {
+                node.getAsJsonObject("detail").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                        .getAsBoolean() ? indentationOfParent : indentation), true));
+            }
+
+            // Handle initial expression's formatting
+            if (node.has("initialExpression")) {
+                node.getAsJsonObject("initialExpression").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                        .getAsBoolean() ? indentationOfParent : indentation), true));
             }
         }
     }
@@ -1139,8 +1262,47 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatErrorVariableRefNode(JsonObject node) {
-        // TODO: fix formatting for Error Variable Ref.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
+
+            // Iterate and update whitespaces for error variable reference.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("error")) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                        + indentation);
+                    } else if (text.equals("(")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(",") || text.equals(")")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
+                }
+            }
+
+            // Handle whitespaces for reason.
+            if (node.has("reason")) {
+                node.getAsJsonObject("reason").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 0, 0, false,
+                                this.getWhiteSpaceCount(indentation), true));
+            }
+
+            // Handle whitespaces for detail.
+            if (node.has("detail")) {
+                node.getAsJsonObject("detail").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentation), true));
+            }
+        }
     }
 
     /**

@@ -272,7 +272,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns (boolean)
 function validateCertificate(JWTValidatorConfig config) returns boolean|error {
     crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = config.trustStore,
                                                               keyAlias = config.certificateAlias);
-    time:Time currTimeInGmt = time:toTimeZone(time:currentTime(), "GMT");
+    time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
     int currTimeInGmtMillis = currTimeInGmt.time;
 
     var certificate = publicKey.certificate;
