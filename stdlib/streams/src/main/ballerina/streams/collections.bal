@@ -22,7 +22,7 @@ public type Node object {
     public Node? next;
     public Node? prev;
 
-    function __init(Node? prev, any? data, Node? next) {
+    public function __init(Node? prev, any? data, Node? next) {
         self.prev = prev;
         self.data = data;
         self.next = next;
@@ -37,7 +37,7 @@ public type LinkedList object {
     public int size = 0;
     public boolean ascend = true;
 
-    function __init() {
+    public function __init() {
         self.first = ();
         self.last = ();
         self.curr = ();

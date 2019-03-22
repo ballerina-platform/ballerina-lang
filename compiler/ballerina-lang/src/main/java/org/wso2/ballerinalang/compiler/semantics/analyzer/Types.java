@@ -2311,6 +2311,14 @@ public class Types {
         }
     }
 
+    public boolean includesErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
+        }
+
+        return type.tag == TypeTags.ERROR;
+    }
+
     private boolean analyzeUnionType(BUnionType type) {
         // NIL is a member.
         if (type.isNullable()) {
