@@ -1,20 +1,40 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+description = 'Ballerina - Cache'
+
 dependencies {
-    implementation project(':ballerina-builtin')
+
+    implementation project(':lib-creator')
     implementation 'commons-logging:commons-logging:1.1.1'
-    implementation project(':ballerina-launcher')
-    implementation project(':ballerina-core')
-    implementation 'org.awaitility:awaitility:3.0.0'
 
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-core')
+    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-system')
+    testCompile project(':ballerina-runtime-api')
+    testCompile project(':ballerina-task')
+    testCompile project(':ballerina-time')
+    testCompile project(':ballerina-utils')
+    testCompile 'org.awaitility:awaitility:3.0.0'
     testCompile 'org.testng:testng:6.13.1'
 }
 
-description = 'Ballerina - Cache'
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
