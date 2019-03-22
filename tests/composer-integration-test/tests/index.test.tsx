@@ -6,6 +6,7 @@ import * as React from "react";
 import { Diagram, DiagramMode } from '@ballerina/diagram';
 import { DiagramUtils } from '@ballerina/diagram/lib/src/diagram/diagram-utils';
 import * as fontUtils from '@ballerina/diagram/lib/src/utils';
+import * as controllerPanel from '@ballerina/diagram/lib/src/diagram/controllers/controller-panel';
 import { create } from 'react-test-renderer';
 import { StdioBallerinaLangServer, createStdioLangClient,
     IBallerinaLangClient, BallerinaAST } from '@ballerina/lang-service';
@@ -53,8 +54,10 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
         .spyOn(fontUtils, 'getCodePoint')
         .mockImplementation(getCodePoint);
 
-    jest.mock('@ballerina/diagram/lib/src/diagram/controllers/controller-panel');
+    // jest.mock('@ballerina/diagram/lib/src/diagram/controllers/controller-panel');
     
+    jest.spyOn(controllerPanel, "ControllerPanel")
+            .mockImplementation(jest.fn().mockReturnValue(<div />));
     jest.spyOn(console, "error")
         .mockImplementation(jest.fn());
 
@@ -69,8 +72,6 @@ function testDiagramRendering(ast: BallerinaAST,  uri: string) {
     );
     let tree = component.toJSON();
     expect(tree).toMatchSnapshot();
-    expect(getTextWidth).toHaveBeenCalled();
-    expect(getCodePoint).toHaveBeenCalled();
 }
 
 var bbeFiles = globSync(path.join(bbeDir, '**', '*.bal'), {});
