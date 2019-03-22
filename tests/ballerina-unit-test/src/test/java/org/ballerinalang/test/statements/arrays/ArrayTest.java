@@ -185,7 +185,7 @@ public class ArrayTest {
     @Test(description = "Test arrays of types without implicit initial values")
     public void testArrayImplicitInitialValues() {
         String errMsgFormat = "array element type '%s' does not have an implicit initial value, use '%s'";
-        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 17);
+        Assert.assertEquals(arrayImplicitInitialValueNegative.getErrorCount(), 18);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 0,
                                   format(errMsgFormat, "ObjInitWithParam", "ObjInitWithParam?"), 53, 41);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 1, format(errMsgFormat, "1|2|3", "1|2|3?"),
@@ -223,10 +223,9 @@ public class ArrayTest {
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 171, 11);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 15,
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 179, 25);
-        // TODO: 3/14/19 Uncomment after PR #14220 is merged
-//        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 16,
-//                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 186, 21);
         BAssertUtil.validateError(arrayImplicitInitialValueNegative, 16,
+                                  format(errMsgFormat, "1|2|3", "1|2|3?"), 186, 21);
+        BAssertUtil.validateError(arrayImplicitInitialValueNegative, 17,
                                   format(errMsgFormat, "1|2|3", "1|2|3?"), 196, 29);
     }
 
