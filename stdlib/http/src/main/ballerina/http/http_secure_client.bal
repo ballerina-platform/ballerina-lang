@@ -844,18 +844,28 @@ function prepareRequest(RequestConfig config) returns Request|error {
 # + return - Extracted access token or `error` if error occured during HTTP client invocation
 function extractAccessTokenFromResponse(Response response, CachedTokenConfig tokenCache,
                                         int clockSkew) returns string|error {
-    json payload = check response.getJsonPayload();
     if (response.statusCode == OK_200) {
-        log:printDebug(function () returns string {
-                return "Received an valid response. Extracting access token from the payload: " + payload.toString();
-            });
-        check updateTokenCache(payload, tokenCache, clockSkew);
-        return payload.access_token.toString();
+        var payload = response.getJsonPayload();
+        if (payload is json) {
+            log:printDebug(function () returns string {
+                    return "Received an valid response. Extracting access token from the payload: " + <string>payload;
+                });
+            check updateTokenCache(payload, tokenCache, clockSkew);
+            return payload.access_token.toString();
+        } else {
+            string errMsg = "Failed to retrieve access token since the response payload is not a JSON.";
+            log:printError(errMsg);
+            error e = error(HTTP_ERROR_CODE, { message: errMsg });
+            return e;
+        }
     } else {
-        string errMsg = "Failed to retrieve access token from " + response.statusCode + "
-            response with payload: " + payload.toString();
+        string errMsg = "Received an invalid response. StatusCode: " + response.statusCode;
+        var stringPayload = response.getPayloadAsString();
+        if (stringPayload is string) {
+            errMsg = " Payload: " + stringPayload;
+        }
         log:printError(errMsg);
-        error e = error(HTTP_ERROR_CODE, { message: errMsg, statusCode: response.statusCode, payload: payload });
+        error e = error(HTTP_ERROR_CODE, { message: errMsg });
         return e;
     }
 }
