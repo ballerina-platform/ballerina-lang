@@ -29,7 +29,7 @@ function write(xml content, string path) returns error? {
     // Derives the character channel from the byte channel.
     io:WritableCharacterChannel wch = new(wbc, "UTF8");
     var result = wch.writeXml(content);
-
+    // Close the character channel once you are done with it.
     closeWc(wch);
     return result;
 }
@@ -42,7 +42,7 @@ function read(string path) returns xml|error {
     io:ReadableCharacterChannel rch = new(rbc, "UTF8");
     // This is how XML content is read from the character channel.
     var result = rch.readXml();
-
+    // Close the character channel once you are done with it.
     closeRc(rch);
     return result;
 }
