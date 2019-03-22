@@ -299,10 +299,10 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         if (!invocationExpr.async) {
-            this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, invocationExpr.symbol.pkgID,
+            this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, invocationExpr.symbol.pkgID,
                     names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
         } else {
-            this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, invocationExpr.symbol.pkgID,
+            this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, invocationExpr.symbol.pkgID,
                     names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
         }
 
