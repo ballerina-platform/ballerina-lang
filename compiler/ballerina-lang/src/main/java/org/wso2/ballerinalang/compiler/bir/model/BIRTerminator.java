@@ -75,20 +75,13 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Name name;
         public PackageID calleePkg;
 
-        public Call(DiagnosticPos pos, PackageID calleePkg,
+        public Call(DiagnosticPos pos,
+                    InstructionKind kind,
+                    PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
-            this(pos, calleePkg, name, args, lhsOp, thenBB, InstructionKind.CALL);
-
-        }
-
-        public Call(DiagnosticPos pos, PackageID calleePkg,
-                    Name name,
-                    List<BIROperand> args,
-                    BIROperand lhsOp,
-                    BIRBasicBlock thenBB, InstructionKind kind) {
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.args = args;
@@ -111,23 +104,20 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
     /**
      * A async function call instruction.
      * <p>
-     * e.g., _4 = call doSomethingAsynchronously _1 _2 _3
+     * e.g., _4 = callAsync doSomething _1 _2 _3
      *
      * @since 0.995.0
      */
-    public static class AsyncCall extends Call implements BIRAssignInstruction {
-        public BIROperand lhsOp;
-        public List<BIROperand> args;
-        public BIRBasicBlock thenBB;
-        public Name name;
-        public PackageID calleePkg;
+    public static class AsyncCall extends Call {
 
-        public AsyncCall(DiagnosticPos pos, PackageID calleePkg,
+        public AsyncCall(DiagnosticPos pos,
+                    InstructionKind kind,
+                    PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
-            super(pos, calleePkg, name, args, lhsOp, thenBB, InstructionKind.ASYNC_CALL);
+            super(pos, kind, calleePkg, name, args, lhsOp, thenBB);
         }
 
         @Override
