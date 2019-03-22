@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.LSCompletionProviderException;
 import org.ballerinalang.langserver.completions.providers.subproviders.AbstractSubCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.subproviders.BLangAnnotationCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.BLangMatchCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.BLangMatchExpressionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.BLangRecordICompletionProvider;
@@ -49,6 +50,7 @@ import org.ballerinalang.langserver.completions.providers.subproviders.parsercon
 import org.ballerinalang.langserver.completions.providers.subproviders.parsercontext.ParserRuleTriggerWorkerCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.parsercontext.ParserRuleVariableDefinitionCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.subproviders.parsercontext.ParserRuleWorkerReplyCompletionProvider;
+import org.ballerinalang.langserver.completions.resolvers.BLangAnnotationAttachmentContext;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchContext;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchExpressionContext;
 import org.ballerinalang.langserver.completions.resolvers.BLangRecordContext;
@@ -122,6 +124,8 @@ public class LSDefaultCompletionItemProvider implements LSCompletionProvider {
                               new ParserRuleGlobalVariableDefinitionCompletionProvider());
         contextToProvider.put(ParserRuleWorkerReplyContext.class,
                               new ParserRuleWorkerReplyCompletionProvider());
+        contextToProvider.put(BLangAnnotationAttachmentContext.class,
+                              new BLangAnnotationCompletionProvider());
         contextToProvider.put(BLangMatchContext.class,
                               new BLangMatchCompletionProvider());
         contextToProvider.put(BLangMatchExpressionContext.class,
