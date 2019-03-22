@@ -28,7 +28,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler.UpgradeCodecFactory;
+import io.netty.handler.codec.http2.CleartextHttp2ServerUpgradeHandler;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2FrameCodecBuilder;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.ApplicationProtocolNames;
@@ -46,11 +48,14 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
 
     private final UpgradeCodecFactory upgradeCodecFactory = protocol -> {
         if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
-            return new Http2ServerUpgradeCodec(
-                Http2FrameCodecBuilder.forServer().build(), getBusinessLogicHandler());
-        } else {
-            return null;
+            if (getBusinessLogicHandlerViaBuiler() != null) {
+                return new Http2ServerUpgradeCodec(getBusinessLogicHandlerViaBuiler());
+            }
+            return new Http2ServerUpgradeCodec(Http2FrameCodecBuilder.forServer().build(),
+                                               getBusinessLogicHandler());
+
         }
+        return null;
     };
 
     @Override
@@ -68,11 +73,13 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
      * @param ch represents the socket channel
      */
     private void configureClearText(SocketChannel ch) {
-        final ChannelPipeline p = ch.pipeline();
         final HttpServerCodec sourceCodec = new HttpServerCodec();
-
-        p.addLast(sourceCodec);
-        p.addLast(new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
+        final HttpServerUpgradeHandler upgradeHandler = new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory);
+        final CleartextHttp2ServerUpgradeHandler cleartextHttp2ServerUpgradeHandler =
+            new CleartextHttp2ServerUpgradeHandler(sourceCodec, upgradeHandler,
+                                                   getBusinessLogicHandler());
+        final ChannelPipeline channelPipeline = ch.pipeline();
+        channelPipeline.addLast(cleartextHttp2ServerUpgradeHandler);
     }
 
     /**
@@ -89,6 +96,8 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
     }
 
     protected abstract ChannelHandler getBusinessLogicHandler();
+
+    protected abstract Http2ConnectionHandler getBusinessLogicHandlerViaBuiler();
 
     /**
      * Handler which handles ALPN.
@@ -109,7 +118,7 @@ public abstract class Http2ServerInitializer extends ChannelInitializer<SocketCh
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
-                ctx.pipeline().addLast(Http2FrameCodecBuilder.forServer().build(), getBusinessLogicHandler());
+                ctx.pipeline().addLast(getBusinessLogicHandler());
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);
             }

@@ -27,6 +27,7 @@ import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.DefaultHttp2WindowUpdateFrame;
+import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
@@ -48,6 +49,11 @@ public class Http2EchoServerInitializer extends Http2ServerInitializer {
     @Override
     protected ChannelHandler getBusinessLogicHandler() {
         return new EchoHandler();
+    }
+
+    @Override
+    protected Http2ConnectionHandler getBusinessLogicHandlerViaBuiler() {
+        return null;
     }
 
     private class EchoHandler extends ChannelDuplexHandler {

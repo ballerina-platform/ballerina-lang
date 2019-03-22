@@ -97,6 +97,10 @@
             <class name="org.wso2.transport.http.netty.http2.Http2ClientTimeoutTestCase"/>
             <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase"/>
             <class name="org.wso2.transport.http.netty.http2.TestHttp2WithALPN"/>
+            <class name="org.wso2.transport.http.netty.http2.H2ConnectionPoolWithALPN"/>
+            <class name="org.wso2.transport.http.netty.http2.H2ConnectionPoolWithPriorKnowledge"/>
+            <class name="org.wso2.transport.http.netty.http2.H2ConnectionPoolWithUpgrade"/>
+            <class name="org.wso2.transport.http.netty.http2.TestExhaustedStreamIdForClient"/>
         </classes>
     </test>
     <test name="Transport Security Tests" parallel="false">
