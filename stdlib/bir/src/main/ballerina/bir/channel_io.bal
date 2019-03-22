@@ -1,12 +1,30 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/encoding;
 
 // TODO: move to DataChannel native impl
 public type ChannelReader object {
     io:ReadableByteChannel byteChannel;
+    io:ReadableDataChannel dataChannel;
 
     public function __init(io:ReadableByteChannel byteChannel) {
         self.byteChannel = byteChannel;
+        self.dataChannel = new (byteChannel);
     }
 
     public function readBoolean() returns boolean {
@@ -27,6 +45,16 @@ public type ChannelReader object {
 
     public function readInt64() returns int {
         return self.readInt32() << 32 | self.readInt32();
+    }
+
+    //TODO remove these and directly use data channel reader
+    public function readFloat64() returns float {
+        float | error ret = self.dataChannel.readFloat64();
+        if (ret is float) {
+            return ret;
+        } else {
+            panic ret;
+        }
     }
 
 

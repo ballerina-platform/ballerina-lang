@@ -35,6 +35,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -51,11 +53,12 @@ public class CompressionTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/compression/compression.bal");
+        Path balPath = Paths.get("src", "test", "resources", "test-src", "compression", "compression.bal");
+        compileResult = BCompileUtil.compile(balPath.toAbsolutePath().toString());
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with src and destination directory path")
-    public void testDecompressFile() throws IOException, URISyntaxException {
+    public void testDecompressFile() throws URISyntaxException {
         String resourceToRead = getAbsoluteFilePath("datafiles/compression/hello.zip");
         BString dirPath = new BString(resourceToRead);
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");

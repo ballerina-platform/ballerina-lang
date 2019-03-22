@@ -36,6 +36,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
@@ -94,7 +96,7 @@ public class SocketUtils {
      * @param socketService {@link SocketService} instance that contains SocketChannel and resource map
      * @return 'Caller' object
      */
-    public static BMap<String, BValue> createClient(ProgramFile programFile, SocketService socketService) {
+    static BMap<String, BValue> createClient(ProgramFile programFile, SocketService socketService) {
         BValue[] args = new BValue[] { null };
         // Passing parameters as null to prevent object init in the socket client.
         BMap<String, BValue> caller = BLangConnectorSPIUtil.createObject(programFile, SOCKET_PACKAGE, CLIENT, args);
@@ -163,5 +165,21 @@ public class SocketUtils {
             }
         }
         return registry;
+    }
+
+    /**
+     * This will try to shutdown executor service gracefully.
+     *
+     * @param executorService {@link ExecutorService} that need shutdown
+     */
+    public static void shutdownExecutor(ExecutorService executorService) {
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+        }
     }
 }

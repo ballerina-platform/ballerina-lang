@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ServiceContextItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
         boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
 
@@ -55,7 +55,7 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         }
     }
 
-    private void populateWhenCursorBeforeOrAfterEp(LSServiceOperationContext ctx, List<CompletionItem> completionItems,
+    private void populateWhenCursorBeforeOrAfterEp(LSContext ctx, List<CompletionItem> completionItems,
                                                    boolean snippetCapability) {
         CompletionItem xmlnsSnippet = Snippet.STMT_NAMESPACE_DECLARATION.get().build(ctx, snippetCapability);
         CompletionItem resSnippet = this.getResourceSnippet(ctx, snippetCapability);
@@ -67,7 +67,7 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
         completionItems.add(resSnippet);
     }
 
-    private CompletionItem getResourceSnippet(LSServiceOperationContext ctx, boolean snippetCapability) {
+    private CompletionItem getResourceSnippet(LSContext ctx, boolean snippetCapability) {
         return Snippet.DEF_RESOURCE.get().build(ctx, snippetCapability);
     }
 }

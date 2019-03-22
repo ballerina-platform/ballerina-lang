@@ -393,7 +393,7 @@ public class BValueArray extends BNewArray implements Serializable {
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
                 for (int i = 0; i < size; i++) {
-                    sj.add(Integer.toString(Byte.toUnsignedInt(byteValues[i])));
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
@@ -459,7 +459,6 @@ public class BValueArray extends BNewArray implements Serializable {
         return byteValues.clone();
     }
 
-    @SuppressWarnings("unchecked")
     public String[] getStringArray() {
         return stringValues;
     }
@@ -663,7 +662,7 @@ public class BValueArray extends BNewArray implements Serializable {
         if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
             for (int i = 0; i < this.size(); i++) {
-                byteValues[i] = ((BByte) arrayValues[i]).value();
+                byteValues[i] = ((BByte) arrayValues[i]).value().byteValue();
             }
         }
 
