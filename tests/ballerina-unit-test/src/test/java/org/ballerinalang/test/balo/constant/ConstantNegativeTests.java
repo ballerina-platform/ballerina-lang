@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.balo.constant;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,11 +53,7 @@ public class ConstantNegativeTests {
                 offset += 9, 25);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'",
                 offset += 7, 28);
-        // TODO: We should revert the below validation change (240 -> -16) once git issue #13821 is fixed.
-        // For byte type, values greater than 127 would get the equivalent value between -128 to 127 based on
-        // round-robin algorithm. As a result, for negative test cases a different value might get printed than the
-        // expected.
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '-16', found 'int'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
                 offset += 9, 26);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
                 offset += 9, 27);
