@@ -39,6 +39,7 @@ import io.ballerina.plugins.idea.psi.BallerinaIntegerLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTableColumn;
@@ -71,6 +72,8 @@ public class BallerinaAnnotator implements Annotator {
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 }
             }
+        } else if(element instanceof BallerinaPackageReference){
+            annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
         } else if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
             if (elementType == BallerinaTypes.AT) {
