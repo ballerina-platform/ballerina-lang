@@ -1,22 +1,22 @@
 import ballerina/io;
 
-type Person record {|
+type Person record {
     string name;
     int age;
     string country;
 };
 
-type Employee record {
+type Employee record {|
     string name;
     int age;
 |};
 
-type Country record {|
+type Country record {
     string name;
     Capital capital;
 };
 
-type Capital record {
+type Capital record {|
     string name;
 |};
 

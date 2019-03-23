@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type Employee record {|
+type Employee record {
     string name;
     string status;
     string batch;
@@ -14,7 +14,7 @@ type Teacher record {
     string school;
 };
 
-type Foo record {
+type Foo record {|
     string [] a;
 |};
 

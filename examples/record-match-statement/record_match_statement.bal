@@ -1,10 +1,10 @@
 import ballerina/io;
 
-type RecordOne record {|
+type RecordOne record {
     string var1;
 };
 
-type RecordTwo record {
+type RecordTwo record {|
     string var1;
     int var2;
 |};

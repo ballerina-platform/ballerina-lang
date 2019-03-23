@@ -51,7 +51,7 @@ public function main() {
 
     // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
     // `Employee` should be a closed record.
-    Employee {| name: empName, age: empAgec |} = getEmployee();
+    Employee {| name: empName, age: empAge |} = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 

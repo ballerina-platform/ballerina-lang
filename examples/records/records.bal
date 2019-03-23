@@ -1,13 +1,13 @@
 import ballerina/io;
 
-type Student record {|
+type Student record {
     string name;
     int age;
     Grades grades;
     string...;
 };
 
-type Grades record {
+type Grades record {|
     int maths;
     int physics;
     int chemistry;
