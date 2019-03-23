@@ -36,7 +36,7 @@
     "@types/react-test-renderer": "^16.0.3",
     "@types/rimraf": "^2.0.2",
     "@types/storybook__addon-storyshots": "^3.4.3",
-    "@types/storybook__react": "^3.0.9",
+    "@types/storybook__react": "^4.0.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.4",
     "copy-webpack-plugin": "^4.6.0",
