@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -26,6 +27,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -561,7 +563,7 @@ public class ObjectTest {
         CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
         Assert.assertEquals(result.getErrorCount(), 19);
         int index = 0;
-        BAssertUtil.validateError(result, index++, "object attached function definition must have a body 'func2'", 14
+        BAssertUtil.validateError(result, index++, "extern function 'func2' cannot have a body", 14
                 , 1);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 46, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
@@ -727,6 +729,18 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
+    @Test(dataProvider = "missingNativeImplFiles")
+    public void testObjectWithMissingNativeImpl(String filePath) {
+        try {
+            BCompileUtil.compile(filePath);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains(
+                    "error: failed to compile file: native function not available .:Person.printName"));
+            return;
+        }
+        Assert.fail("expected compilation to fail due to missing external implementation");
+    }
+
     @Test(description = "Negative test for object union type inference")
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
@@ -735,5 +749,13 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, 1, "ambiguous type 'Obj|Obj2|Obj3|Obj4'", 49, 25);
         BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from 'Obj|Obj2|Obj3|Obj4'",
                 50, 46);
+    }
+
+    @DataProvider
+    public Object[][] missingNativeImplFiles() {
+        return new Object[][]{
+                {"test-src/object/object_with_missing_native_impl.bal"},
+                {"test-src/object/object_with_missing_native_impl_2.bal"}
+        };
     }
 }
