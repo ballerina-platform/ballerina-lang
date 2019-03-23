@@ -173,10 +173,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -1027,7 +1029,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (objectTypeNode.isFieldAnalyseRequired) {
             objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         }
-        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
+
+        // To ensure the order of the compile errors
+        Stream.concat(objectTypeNode.functions.stream(),
+                      Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
+                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
+                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -1892,7 +1899,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!enclInvokableHasErrorReturn) {
-            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
         returnTypes.peek().add(exprType);

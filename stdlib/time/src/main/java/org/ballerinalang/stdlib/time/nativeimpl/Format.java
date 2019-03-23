@@ -19,13 +19,11 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,11 +35,7 @@ import java.time.format.DateTimeFormatter;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "format",
-        args = {@Argument(name = "pattern", type = TypeKind.UNION),
-                @Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+        functionName = "format"
 )
 public class Format extends AbstractTimeFunction {
 
@@ -50,14 +44,18 @@ public class Format extends AbstractTimeFunction {
         BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         BString pattern = (BString) context.getNullableRefArgument(1);
 
-        switch (pattern.stringValue()) {
-            case "RFC_1123":
+        try {
+            if ("RFC_1123".equals(pattern.stringValue())) {
                 ZonedDateTime zonedDateTime = getZonedDateTime(timeStruct);
                 String formattedDateTime = zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);
                 context.setReturnValues(new BString(formattedDateTime));
-                break;
-            default:
+            } else {
                 context.setReturnValues(new BString(getFormattedtString(timeStruct, pattern.stringValue())));
+            }
+        } catch (IllegalArgumentException e) {
+            String msg = "Invalid Pattern: " + pattern.stringValue();
+            context.setReturnValues(TimeUtils.getTimeError(context, msg));
         }
+
     }
 }
