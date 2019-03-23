@@ -335,8 +335,9 @@ public class XMLUtils {
      */
     public static BXML<?> createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
+        content = content.replace("\r\n", "\n");
+        // &gt; &lt; and &amp; in XML literal in Ballerina lang maps to >, <, and & in XML infoset.
         content = content
-                .replace("\r\n", "\n")
                 .replace("&gt;", ">")
                 .replace("&lt;", "<")
                 .replace("&amp;", "&");
