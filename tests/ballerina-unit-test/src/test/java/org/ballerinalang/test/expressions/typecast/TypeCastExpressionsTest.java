@@ -125,7 +125,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'error'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'MyErrorTwo'.*")
     public void testErrorCastNegative() {
         BRunUtil.invoke(result, "testErrorCastNegative");
     }

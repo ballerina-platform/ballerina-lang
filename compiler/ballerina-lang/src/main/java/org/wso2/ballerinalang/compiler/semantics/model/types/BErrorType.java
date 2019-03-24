@@ -38,6 +38,10 @@ public class BErrorType extends BType implements ErrorType {
         this.detailType = detailType;
     }
 
+    public BErrorType(BTypeSymbol tSymbol) {
+        super(TypeTags.ERROR, tSymbol);
+    }
+
     @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
@@ -55,6 +59,6 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_ERROR + "(" + reasonType.getDesc() + detailType.getDesc() + ")";
+        return TypeDescriptor.SIG_ERROR + getQualifiedTypeName() + ";";
     }
 }

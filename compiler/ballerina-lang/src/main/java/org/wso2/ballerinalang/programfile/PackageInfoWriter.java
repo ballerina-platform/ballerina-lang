@@ -331,6 +331,9 @@ public class PackageInfoWriter {
             case TypeTags.RECORD:
                 writeRecordTypeDefInfo(dataOutStream, (RecordTypeInfo) typeDefInfo.typeInfo);
                 break;
+            case TypeTags.ERROR:
+                writeErrorTypeDefInfo(dataOutStream, (ErrorTypeInfo) typeDefInfo.typeInfo);
+                break;
             case TypeTags.FINITE:
                 writeFiniteTypeDefInfo(dataOutStream, (FiniteTypeInfo) typeDefInfo.typeInfo);
                 break;
@@ -379,6 +382,13 @@ public class PackageInfoWriter {
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, recordInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeErrorTypeDefInfo(DataOutputStream dataOutStream, ErrorTypeInfo errorTypeInfo)
+            throws IOException {
+        dataOutStream.writeInt(errorTypeInfo.reasonTypeSigCPIndex);
+        dataOutStream.writeInt(errorTypeInfo.detailTypeSigCPIndex);
+        writeAttributeInfoEntries(dataOutStream, errorTypeInfo.getAttributeInfoEntries());
     }
 
     private static void writeFiniteTypeDefInfo(DataOutputStream dataOutStream,

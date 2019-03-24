@@ -187,6 +187,7 @@ public class SymbolTable {
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
         defineType(this.errorType, errorSymbol);
+        errorSymbol.type = this.errorType;
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
         this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);

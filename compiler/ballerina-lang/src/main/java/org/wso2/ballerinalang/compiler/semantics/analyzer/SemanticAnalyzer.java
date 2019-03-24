@@ -1929,7 +1929,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPanic panicNode) {
-        this.typeChecker.checkExpr(panicNode.expr, env);
+        this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
         if (panicNode.expr.type.tag != TypeTags.ERROR) {
             dlog.error(panicNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, panicNode.expr.type);
         }
