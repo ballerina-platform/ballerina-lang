@@ -22,14 +22,13 @@
 # + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + properties - Additional properties used when initializing the initial context
-public type SenderEndpointConfiguration record {
+public type SenderEndpointConfiguration record {|
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map<any> properties = {};
-    !...;
-};
+|};
 
 # Configuration related to simple topic subscriber endpoint
 #
@@ -39,11 +38,10 @@ public type SenderEndpointConfiguration record {
 # + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + properties - Additional properties used when initializing the initial context
-public type ReceiverEndpointConfiguration record {
+public type ReceiverEndpointConfiguration record {|
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map<any> properties = {};
-    !...;
-};
+|};

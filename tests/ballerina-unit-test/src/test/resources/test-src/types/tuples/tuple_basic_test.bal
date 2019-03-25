@@ -123,10 +123,9 @@ function testIndexBasedAccess () returns (string, int, boolean) {
     return (x[2], x[1], x[0]);
 }
 
-type Person record {
+type Person record {|
     string name;
-    !...;
-};
+|};
 
 type Employee record {
     string name;

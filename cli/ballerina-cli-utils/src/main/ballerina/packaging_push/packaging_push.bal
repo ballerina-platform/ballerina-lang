@@ -35,9 +35,11 @@ import ballerina/http;
 # + ballerinaVersion - Ballerina version the module is built
 # + msg - Message printed when the module is pushed successfully which includes module info
 # + baloVersion - Balo version of the module
+# + return - Error if occurred, else nil
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
-                string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg, string baloVersion) {
-    
+                string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg,
+                string baloVersion) returns error? {
+
     http:Client httpEndpoint = definedEndpoint;
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
     mime:Entity summaryBodyPart = addStringBodyParts("summary", summary);
@@ -71,19 +73,18 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     if (result is http:Response) {
         httpResponse = result;
     } else {
-        io:println("connection to the remote host failed : " + result.reason());
-        return;
+        return createError("connection to the remote host failed : " + result.reason());
     }
     string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
-        io:println("remote registry failed for url :" + url);
+        return createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
         if (jsonResponse is json) {
             string message = jsonResponse.message.toString();
-            io:println(message);
+            return createError(message);
         } else {
-            io:println("invalid response json");
+            return createError("invalid response json");
         }
     } else {
         io:println(msg);
@@ -92,7 +93,8 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 
 # This function will invoke the method to push the module.
 # + args - Arguments passed
-public function main (string... args) {
+# + return - nil if no error occurred, else error.
+public function main (string... args) returns error? {
     http:Client httpEndpoint;
     string host = args[13];
     string strPort = args[14];
@@ -102,20 +104,20 @@ public function main (string... args) {
             http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
             if (result is http:Client) {
                 httpEndpoint = result;
-                pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
+                return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7],
+                    args[8], args[9], args[10], args[12], args[11], args[17]);
             } else {
-                io:println("failed to resolve host : " + host + " with port " + port);
-                return;
+                return createError("failed to resolve host : " + host + " with port " + port);
             }
         } else {
-            io:println("invalid port : " + strPort);
+            return createError("invalid port : " + strPort);
         }
     } else  if (host != "" || strPort != "") {
-        io:println("both host and port should be provided to enable proxy");     
-        return;   
+        return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
-        pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
+        return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8],
+            args[9], args[10], args[12], args[11], args[17]);
     }
 }
 
@@ -197,4 +199,13 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
 function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
     http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
+}
+
+# Creates an error record.
+
+# + errMessage - The error message.
+# + return - Newly created error record.
+function createError (string errMessage) returns error {
+    error err = error(errMessage);
+    return err;
 }

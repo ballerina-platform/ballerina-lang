@@ -271,6 +271,8 @@ type TypeEmitter object {
             self.emitTupleType(typeVal, tabs);
         } else if (typeVal is BMapType) {
             self.emitMapType(typeVal, tabs);
+        } else if (typeVal is BFutureType) {
+            self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
             print("()");
         } else if (typeVal is BErrorType) {
@@ -354,6 +356,12 @@ type TypeEmitter object {
     function emitMapType(BMapType bMapType, string tabs) {
         print(tabs, "map<");
         self.emitType(bMapType.constraint);
+        print(">");
+    }
+
+    function emitFutureType(BFutureType bFutureType, string tabs) {
+        print(tabs, "future<");
+        self.emitType(bFutureType.returnType);
         print(">");
     }
 
