@@ -645,7 +645,7 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
     return (date, time, timestamp, datetime);
 }
 
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int) {
+function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int)|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -663,13 +663,13 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
     int datetimeInserted = -1;
     int datetimeRetrieved = -1;
 
-    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
+    time:Time dateStruct = check time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
     time:TimeZone zoneValue = { id: "UTC" };
     time:Time timeStruct = { time: 51323000, zone: zoneValue };
 
-    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
+    time:Time timestampStruct = check time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
+    time:Time datetimeStruct = check time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
     dateInserted = dateStruct.time;
     timeInserted = timeStruct.time;
     timestampInserted = timestampStruct.time;

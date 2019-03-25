@@ -41,24 +41,46 @@ function testCreateTimeWithNoZone() returns (int, string, int) {
 }
 
 function testCreateDateTime() returns (string) {
-    time:Time time = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
-    return time:toString(time);
+    string timeValue = "";
+    var  retTime = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+    if (retTime is time:Time) {
+        timeValue = time:toString(retTime);
+    }
+    return timeValue;
 }
 
+function testCreateDateTimeWithInvalidZone() returns string|error {
+    var retTime = time:createTime(2017, 3, 28, 23, 42, 45, 554, "TEST");
+    if (retTime is time:Time) {
+        return time:toString(retTime);
+    } else {
+        return retTime;
+    }
+}
 
 function testParseTime() returns (int, string, int) {
-    time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    int timeValue = time.time;
-    string zoneId = time.zone.id;
-    int zoneoffset = time.zone.offset;
+    var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    int timeValue = 0;
+    string zoneId = "";
+    int zoneoffset = 0;
+    if (timeRet is time:Time) {
+        timeValue = timeRet.time;
+        zoneId = timeRet.zone.id;
+        zoneoffset = timeRet.zone.offset;
+    }
     return (timeValue, zoneId, zoneoffset);
 }
 
 function testParseRFC1123Time(string timestamp) returns (int, string, int) {
-    time:Time time = time:parse(timestamp, time:TIME_FORMAT_RFC_1123);
-    int timeValue = time.time;
-    string zoneId = time.zone.id;
-    int zoneoffset = time.zone.offset;
+    var timeRet = time:parse(timestamp, time:TIME_FORMAT_RFC_1123);
+    int timeValue = 0;
+    string zoneId = "";
+    int zoneoffset = 0;
+    if (timeRet is time:Time) {
+        timeValue = timeRet.time;
+        zoneId = timeRet.zone.id;
+        zoneoffset = timeRet.zone.offset;
+    }
     return (timeValue, zoneId, zoneoffset);
 }
 
@@ -69,15 +91,25 @@ function testToStringWithCreateTime() returns (string) {
 }
 
 function testFormatTime() returns (string) {
+    string retValue = "";
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
-    return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    var ret =  time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    if (ret is string ) {
+        retValue = ret;
+    }
+    return retValue;
 }
 
 function testFormatTimeToRFC1123() returns (string) {
+    string retValue = "";
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
-    return time:format(time, time:TIME_FORMAT_RFC_1123);
+    var ret = time:format(time, time:TIME_FORMAT_RFC_1123);
+    if (ret is string ) {
+        retValue = ret;
+    }
+    return retValue;
 }
 
 function testGetFunctions() returns (int, int, int, int, int, int, int, string) {
@@ -111,37 +143,69 @@ function testGetTimeFunction() returns (int, int, int, int) {
 }
 
 function testAddDuration() returns (string) {
-    time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    time = time:addDuration(time, 1, 1, 1, 1, 1, 1, 1);
-    return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    string formattedTime = "";
+    var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    if (timeRet is time:Time) {
+        time:Time timeAdded = time:addDuration(timeRet, 1, 1, 1, 1, 1, 1, 1);
+        var retStr = time:format(timeAdded, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        if (retStr is string) {
+            formattedTime = retStr;
+        }
+    }
+    return formattedTime;
 }
 
 function testSubtractDuration() returns (string) {
-    time:Time time = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    time = time:subtractDuration(time, 1, 1, 1, 1, 1, 1, 1);
-    return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    string formattedTime = "";
+    var timeRet = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    if (timeRet is time:Time) {
+        time:Time timeSubs = time:subtractDuration(timeRet, 1, 1, 1, 1, 1, 1, 1);
+        var retStr = time:format(timeSubs, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        if (retStr is string) {
+            formattedTime = retStr;
+        }
+    }
+    return formattedTime;
 }
 
-function testToTimezone() returns (string, string) {
+function testToTimezone() returns (string, string)|error {
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
     string timeStrBefore = time:toString(time);
-    time = time:toTimeZone(time, "Asia/Colombo");
-    string timeStrAfter = time:toString(time);
-    return (timeStrBefore, timeStrAfter);
+    var retTime = time:toTimeZone(time, "Asia/Colombo");
+    if (retTime is time:Time) {
+        string timeStrAfter = time:toString(time);
+        return (timeStrBefore, timeStrAfter);
+    } else {
+        return retTime;
+    }
+
 }
 
-function testToTimezoneWithInvalidZone() returns (string) {
+function testToTimezoneWithInvalidZone() returns string|error {
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1456876583555, zone: zoneValue };
-    time = time:toTimeZone(time, "test");
-    return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    var retTime = time:toTimeZone(time, "test");
+    if (retTime is time:Time) {
+        return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    } else {
+        return retTime;
+    }
 }
 
 function testToTimezoneWithDateTime() returns (string) {
-    time:Time time = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    time = time:toTimeZone(time, "Asia/Colombo");
-    return time:format(time, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    string formattedString = "";
+    var timeRet = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    if (timeRet is time:Time) {
+        var newTime = time:toTimeZone(timeRet, "Asia/Colombo");
+        if (newTime is time:Time) {
+            var retStr = time:format(newTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+            if (retStr is string) {
+                formattedString = retStr;
+            }
+        }
+    }
+    return formattedString;
 }
 
 function testManualTimeCreate() returns (string) {
@@ -168,23 +232,38 @@ function testManualTimeCreateWithInvalidZone() returns (int) {
     return time:getYear(time);
 }
 
-function testParseTimenvalidPattern() returns (int, string, int) {
-    time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "test");
-    int timeValue = time.time;
-    string zoneId = time.zone.id;
-    int zoneoffset = time.zone.offset;
-    return (timeValue, zoneId, zoneoffset);
+function testParseTimenvalidPattern() returns (int, string, int)|error {
+    var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "test");
+    int timeValue = 0;
+    string zoneId = "";
+    int zoneoffset = 0;
+    if (timeRet is time:Time) {
+        timeValue = timeRet.time;
+        zoneId = timeRet.zone.id;
+        zoneoffset = timeRet.zone.offset;
+        return (timeValue, zoneId, zoneoffset);
+    } else {
+        return timeRet;
+    }
+
 }
 
-function testParseTimenFormatMismatch() returns (int, string, int) {
-    time:Time time = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
-    int timeValue = time.time;
-    string zoneId = time.zone.id;
-    int zoneoffset = time.zone.offset;
-    return (timeValue, zoneId, zoneoffset);
+function testParseTimenFormatMismatch() returns (int, string, int)|error {
+    var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
+    int timeValue = 0;
+    string zoneId = "";
+    int zoneoffset = 0;
+    if (timeRet is time:Time) {
+        timeValue = timeRet.time;
+        zoneId = timeRet.zone.id;
+        zoneoffset = timeRet.zone.offset;
+        return (timeValue, zoneId, zoneoffset);
+    } else {
+        return timeRet;
+    }
 }
 
-function testFormatTimeInvalidPattern() returns (string) {
+function testFormatTimeInvalidPattern() returns (string|error) {
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
     return time:format(time, "test");
@@ -192,27 +271,73 @@ function testFormatTimeInvalidPattern() returns (string) {
 
 function testParseTimeWithDifferentFormats() returns (int, int, int, int, int, int, int, string, string, string,
         string) {
-    time:Time time = time:parse("2017", "yyyy");
-    int year = time:getYear(time);
-    time = time:parse("03", "MM");
-    int month = time:getMonth(time);
-    time = time:parse("31", "dd");
-    int day = time:getDay(time);
-    time = time:parse("16", "HH");
-    int hour = time:getHour(time);
-    time = time:parse("59", "mm");
-    int minute = time:getMinute(time);
-    time = time:parse("58", "ss");
-    int second = time:getSecond(time);
-    time = time:parse("999", "SSS");
-    int milliSecond = time:getMilliSecond(time);
-    time = time:parse("2017/09/23", "yyyy/MM/dd");
-    string dateStr = time:format(time, "yyyy-MM-dd");
-    time = time:parse("2015/02/15+0800", "yyyy/MM/ddZ");
-    string dateZoneStr = time:format(time, "yyyy-MM-ddZ");
-    time = time:parse("08/23/59.544+0700", "HH/mm/ss.SSSZ");
-    string timeZoneStr = time:format(time, "HH-mm-ss-SSS:Z");
-    time = time:parse("2014/05/29-23:44:59.544", "yyyy/MM/dd-HH:mm:ss.SSS");
-    string datetimeStr = time:format(time, "yyyy-MM-dd-HH:mm:ss.SSS");
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+    int milliSecond = 0;
+    string dateStr = "";
+    string dateZoneStr = "";
+    string timeZoneStr = "";
+    string datetimeStr = "";
+
+    var timeRet = time:parse("2017", "yyyy");
+    if (timeRet is time:Time) {
+        year = time:getYear(timeRet);
+    }
+    timeRet = time:parse("03", "MM");
+    if (timeRet is time:Time) {
+        month = time:getMonth(timeRet);
+    }
+    timeRet = time:parse("31", "dd");
+    if (timeRet is time:Time) {
+        day = time:getDay(timeRet);
+    }
+    timeRet = time:parse("16", "HH");
+    if (timeRet is time:Time) {
+        hour = time:getHour(timeRet);
+    }
+    timeRet = time:parse("59", "mm");
+    if (timeRet is time:Time) {
+        minute = time:getMinute(timeRet);
+    }
+    timeRet = time:parse("58", "ss");
+    if (timeRet is time:Time) {
+        second = time:getSecond(timeRet);
+    }
+    timeRet = time:parse("999", "SSS");
+    if (timeRet is time:Time) {
+        milliSecond = time:getMilliSecond(timeRet);
+    }
+    timeRet = time:parse("2017/09/23", "yyyy/MM/dd");
+    if (timeRet is time:Time) {
+        var retStr = time:format(timeRet, "yyyy-MM-dd");
+        if (retStr is string) {
+            dateStr = retStr;
+        }
+    }
+    timeRet = time:parse("2015/02/15+0800", "yyyy/MM/ddZ");
+    if (timeRet is time:Time) {
+        var retStr = time:format(timeRet, "yyyy-MM-ddZ");
+        if (retStr is string) {
+            dateZoneStr = retStr;
+        }
+    }
+    timeRet = time:parse("08/23/59.544+0700", "HH/mm/ss.SSSZ");
+    if (timeRet is time:Time) {
+        var retStr = time:format(timeRet, "HH-mm-ss-SSS:Z");
+        if (retStr is string) {
+            timeZoneStr = retStr;
+        }
+    }
+    timeRet = time:parse("2014/05/29-23:44:59.544", "yyyy/MM/dd-HH:mm:ss.SSS");
+    if (timeRet is time:Time) {
+        var retStr = time:format(timeRet, "yyyy-MM-dd-HH:mm:ss.SSS");
+        if (retStr is string) {
+            datetimeStr = retStr;
+        }
+    }
     return (year, month, day, hour, minute, second, milliSecond, dateStr, dateZoneStr, timeZoneStr, datetimeStr);
 }
