@@ -21,14 +21,13 @@
 # + ackWait -  Amount of time (in seconds) the client should wait before retrying.
 # + startSeq - Sequence id of the message which should be consumed.
 # + durableName - Unique name to identify the durable subscription.
-public type ConsumerConfigData record {
+public type ConsumerConfigData record {|
     string subject;
     boolean manualAck = false;
     int ackWait?;
     int startSeq?;
     string durableName?;
-    !...;
-};
+|};
 
 # Service descriptor data generated at compile time. This is for internal use.
 public annotation <service> ConsumerConfig ConsumerConfigData;

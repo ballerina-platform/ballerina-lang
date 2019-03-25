@@ -18,8 +18,7 @@
 #
 # + message - error message.
 # + id - error id.
-public type IOError record {
+public type IOError record {|
     string message;
     int id;
-    !...;
-};
+|};

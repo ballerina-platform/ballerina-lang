@@ -25,7 +25,7 @@ public type Producer client object {
     public function __init(ConnectionConfig|Connection c) {
         if (c is Connection) {
             self.connection = c;
-        } else if (c is ConnectionConfig) {
+        } else {
             self.connection = new Connection(c);
         }
     }

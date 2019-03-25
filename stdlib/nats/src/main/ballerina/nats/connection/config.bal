@@ -23,7 +23,7 @@
 # + connectionTimeout - Number of seconds to hold an idle connection.
 # + maxPubAcksInFlight - Number of messages which could be dispatched without receiving acks.
 # + ackTimeout - Time (in seconds) to wait for an acknowledment before retrying.
-public type ConnectionConfig record {
+public type ConnectionConfig record {|
     string host;
     int port;
     string clusterId = "test-cluster";
@@ -31,5 +31,4 @@ public type ConnectionConfig record {
     int connectionTimeout = 30;
     int maxPubAcksInFlight = 100;
     int ackTimeout = 30;
-    !...;
-};
+|};
