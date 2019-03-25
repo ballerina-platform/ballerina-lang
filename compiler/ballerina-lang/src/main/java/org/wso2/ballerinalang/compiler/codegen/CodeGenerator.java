@@ -2144,11 +2144,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 constantValue.booleanValue = (Boolean) literalValue.value;
                 break;
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 constantValue.valueCPEntryIndex =
                         currentPkgInfo.addCPEntry(new IntegerCPEntry((Long) literalValue.value));
-                break;
-            case TypeTags.BYTE:
-                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry((Byte) literalValue.value));
                 break;
             case TypeTags.FLOAT:
                 constantValue.valueCPEntryIndex =

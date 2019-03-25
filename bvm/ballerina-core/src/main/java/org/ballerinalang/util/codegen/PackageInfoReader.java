@@ -380,7 +380,7 @@ public class PackageInfoReader {
                     bMapType = new BMapType(BTypes.typeByte);
                     bValueMap = new BMap<>(bMapType);
 
-                    BByte bByte = new BByte(((ByteCPEntry) cpEntry).getValue());
+                    BByte bByte = new BByte(((IntegerCPEntry) cpEntry).getValue());
                     bValueMap.put(keyCPEntry.getValue(), bByte);
                     break;
                 case FLOAT_TAG:
