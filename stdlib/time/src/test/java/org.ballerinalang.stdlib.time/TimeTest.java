@@ -19,9 +19,11 @@ package org.ballerinalang.stdlib.time;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -195,36 +197,49 @@ public class TimeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Unknown time-zone ID: test.*")
+          expectedExceptionsMessageRegExp = ".*invalid timezone id: test.*")
     public void testManualTimeCreateWithInvalidZone() {
         BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithInvalidZone");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid pattern for parsing test.*")
+    @Test
+    public void testCreateDateTimeWithInvalidZone() {
+        BValue[] returns = BRunUtil.invoke(result, "testCreateDateTimeWithInvalidZone");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"invalid timezone "
+                + "id: TEST\"}");
+    }
+
+    @Test
     public void testParseTimenvalidPattern() {
-        BRunUtil.invoke(result, "testParseTimenvalidPattern");
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimenvalidPattern");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"invalid pattern: test\"}");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*parse date \"2017-06-26T09:46:22.444-0500\" for the format "
-                  + "\"yyyy-MM-dd\" failed.*")
+    @Test
     public void testParseTimenFormatMismatch() {
-        BRunUtil.invoke(result, "testParseTimenFormatMismatch");
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimenFormatMismatch");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"parse date "
+                + "\"2017-06-26T09:46:22.444-0500\" for the format \"yyyy-MM-dd\" "
+                + "failed:Text '2017-06-26T09:46:22.444-0500' could not be parsed, unparsed text found at index 10\"}");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid pattern for formatting: test.*")
+    @Test
     public void testFormatTimeInvalidPattern() {
-        BRunUtil.invoke(result, "testFormatTimeInvalidPattern");
+        BValue[] returns = BRunUtil.invoke(result, "testFormatTimeInvalidPattern");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"Invalid Pattern: test\"}");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid timezone id: test.*")
+    @Test
     public void testToTimezoneWithInvalidZone() {
         BValue[] returns = BRunUtil.invoke(result, "testToTimezoneWithInvalidZone");
-        Assert.assertEquals((returns[0]).stringValue(), "2016-03-02T05:26:23.555+0530");
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina/time}TimeError {message:\"invalid timezone "
+                + "id: test\"}");
     }
 
     @Test(description = "Test parsing a given time string to time.")

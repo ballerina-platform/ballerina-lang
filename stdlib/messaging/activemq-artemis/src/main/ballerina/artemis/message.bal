@@ -44,7 +44,7 @@ public type Message client object {
             self.createMessage(session, string.convert(data), self.configuration);
         } else if (data is json) {
             self.createMessage(session, data.toString(), self.configuration);
-        } else if (data is byte[]) {
+        } else {
             self.messageType = BYTES;
             self.createMessage(session, data, self.configuration);
         }

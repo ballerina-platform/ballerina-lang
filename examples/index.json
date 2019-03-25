@@ -442,8 +442,8 @@
         "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Date Time",
-                "url": "date-time"
+                "name": "Time",
+                "url": "time"
             },
             {
                 "name": "Caching",
