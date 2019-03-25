@@ -67,9 +67,9 @@ public class Init implements NativeCallableUnit {
     private static final String ACK_TIMEOUT = "ackTimeout";
 
     /**
-     * Initializes NATS_URL_PREFIX streaming connection.
+     * Initializes NATS streaming connection.
      *
-     * @param serverConfig Holds values related to establishing a NATS_URL_PREFIX connection.
+     * @param serverConfig Holds values related to establishing a NATS connection.
      * @return Streaming connection created.
      * @throws IOException if a failure occurs while establishing a connection.
      */

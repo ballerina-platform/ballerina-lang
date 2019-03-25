@@ -22,7 +22,7 @@ public type Listener object {
 
     # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
     #
-    # + c - An already established connection or configuration to create a new connection
+    # + c - An already established connection or configuration to create a new connection.
     public function __init(ConnectionConfig|Connection c) {
         if (c is Connection) {
             self.connection = c;
@@ -33,23 +33,18 @@ public type Listener object {
 
     # Binds the NATS consumer to a service.
     #
-    # + serviceType - Type descriptor of the service to bind to
-    # + data - Service annotations
-    # + return - Nil or error upon failure to register listener
+    # + serviceType - Type descriptor of the service.
+    # + data - Service annotations.
+    # + return - Nil or error upon failure to register listener.
     public function __attach(service serviceType, map<any> data) returns error? {
         return self.create(serviceType, data);
     }
 
-    # Binds the NATS consumer to a service.
-    #
-    # + serviceType - Type descriptor of the service to bind to
-    # + data - Service annotations
-    # + return - Nil or error upon failure to register listener
     extern function create(service serviceType, map<any> data) returns error?;
 
     # Starts the listener in the lifecyle.
     #
-    # + return - error or ()
+    # + return - Error or ().
     public function __start() returns error? {
         //ignore : since connection can be re-used between multiple listeners
         return ();
@@ -57,7 +52,7 @@ public type Listener object {
 
     # Stops the listener in the lifecyle.
     #
-    # + return - error or ()
+    # + return - error or ().
     public function __stop() returns error? {
         //ignore : since connection can be re-used between multiple listeners
         return ();

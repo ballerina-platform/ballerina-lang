@@ -14,18 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a NATS connection. Would create a connection out of the given ConnectionFactory.
+# Represents a NATS connection.
 public type Connection object {
 
     # Initializes a connection from the given server config.
     #
-    # + config - Information related to NATS server to establish a connection.
+    # + config - Information neccasary for NATS client to establish a connection with the server.
     public function __init(ConnectionConfig config) {
         self.init(config);
     }
 
-    # Initializes a connection from the given server config.
-    #
-    # + config - Information related to NATS server to establish a connection.
     extern function init(ConnectionConfig config);
 };

@@ -33,7 +33,7 @@ import org.ballerinalang.nats.nativeimpl.Utils;
 import java.io.IOException;
 
 /**
- * Acknowledges a given message.
+ * Acknowledges to a given message.
  *
  * @since 0.995
  */

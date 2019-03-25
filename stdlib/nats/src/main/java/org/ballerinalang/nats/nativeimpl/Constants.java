@@ -19,11 +19,11 @@
 package org.ballerinalang.nats.nativeimpl;
 
 /**
- * Represents the constants which will be used for NATS_URL_PREFIX.
+ * Represents the constants which will be used for NATS.
  */
 public class Constants {
     /**
-     * Represents the nats connection.
+     * Represents the NATS connection.
      */
     public static final String NATS_CONNECTION = "nats_connection";
 
@@ -33,12 +33,12 @@ public class Constants {
     public static final String NATS_PACKAGE = "ballerina/nats";
 
     /**
-     * Represents the message which will be consumed from NATS_URL_PREFIX.
+     * Represents the message which will be consumed from NATS.
      */
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
 
     /**
-     * Represents the NATS_URL_PREFIX message.
+     * Represents the NATS message.
      */
     public static final String NATS_MSG = "NATSMSG";
 
@@ -58,7 +58,7 @@ public class Constants {
     static final String IO_ERROR = "IOError";
 
     /**
-     * Specifies the error code for i/o.
+     * Error code for i/o.
      */
     public static final String NATS_ERROR_CODE = "{ballerina/nats}NATSError";
 

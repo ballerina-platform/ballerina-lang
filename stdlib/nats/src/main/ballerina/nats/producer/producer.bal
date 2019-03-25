@@ -33,9 +33,9 @@ public type Producer client object {
     # Produces a message to a NATS streaming server for the given subject.
     #
     # + subject - Could also be referred as the 'topic/queue' name.
-    # + message - Message could be either a string, json representation.
-    # + charset - Encoding of the message (by defaults it would be UTF-8)
-    # + return -  GUID of acknowledgment or the specific error which might have occurred while publishing the message.
+    # + message - Message could be either a string or json representation.
+    # + charset - Encoding of the message (by defaults it would be UTF-8).
+    # + return -  GUID of acknowledgment or the specific error.
     public remote function send(string subject, string|json message, string charset = "UTF-8") returns string|error {
         if (message is string) {
             return self.sendMsg(subject, message.toByteArray(charset));
@@ -44,12 +44,12 @@ public type Producer client object {
         }
     }
 
-    # Produces a message and would await for a response.
+    # Produces a message and would wait for a response.
     #
     # + subject - Would represent the topic/queue name.
-    # + message - Message could be either a string, json representation.
-    # + charset - Encoding of the message by defaults it would be UTF-8
-    # + return - Response message or an error
+    # + message - Message could be either a string or json representation.
+    # + charset - Encoding of the message by default it would be UTF-8.
+    # + return -  Response message or an error.
     public remote function requestReply(string subject, string|json message,
                                         string charset = "UTF-8") returns Message|error {
         if (message is string) {
@@ -59,18 +59,7 @@ public type Producer client object {
         }
     }
 
-    # Sends a message via a given connection.
-    #
-    # + subject - Could also be referred as the 'topic/queue' name.
-    # + message - Message could be either a string, json representation.
-    # + return -  GUID of acknowledgment or the specific error which might have occurred while publishing the message.
     extern function sendMsg(string subject, byte[] message) returns string|error;
 
-
-    # Produces a message and would await for a response.
-    #
-    # + subject - Would represent the topic/queue name.
-    # + message - Message could be either a string, json representation.
-    # + return - Response message or an error
     extern function sendRequestReplyMsg(string subject, byte[] message) returns Message|error;
 };

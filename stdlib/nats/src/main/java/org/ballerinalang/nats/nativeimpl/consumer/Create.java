@@ -57,6 +57,7 @@ public class Create implements NativeCallableUnit {
     private static final String MANUAL_ACK = "manualAck";
     private static final String ACK_WAIT = "ackWait";
     private static final String DURABLE_NAME = "durableName";
+    public static final int ZERO = 0;
 
     /**
      * {@inheritDoc}
@@ -70,7 +71,7 @@ public class Create implements NativeCallableUnit {
             Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
             List<Annotation> annotationList = service.getAnnotationList(Constants.NATS_PACKAGE,
                     Constants.NATS_SERVICE_CONFIG);
-            Annotation annotation = annotationList.get(0);
+            Annotation annotation = annotationList.get(ZERO);
             Resource resources = Utils.extractNATSResource(service);
             Struct value = annotation.getValue();
             String subject = value.getStringField(SUBJECT_FIELD);
@@ -78,12 +79,12 @@ public class Create implements NativeCallableUnit {
             if (value.getBooleanField(MANUAL_ACK)) {
                 builder.manualAcks();
             }
-            long ackWait = value.getRefField(ACK_WAIT) != null ? value.getIntField(ACK_WAIT) : 0;
-            if (ackWait > 0) {
+            long ackWait = value.getRefField(ACK_WAIT) != null ? value.getIntField(ACK_WAIT) : ZERO;
+            if (ackWait > ZERO) {
                 builder.ackWait(ackWait, TimeUnit.MILLISECONDS);
             }
-            long startSeq = value.getRefField(START_SEQ) != null ? value.getIntField(START_SEQ) : 0;
-            if (startSeq > 0) {
+            long startSeq = value.getRefField(START_SEQ) != null ? value.getIntField(START_SEQ) : ZERO;
+            if (startSeq > ZERO) {
                 builder.startAtSequence(startSeq);
             }
             String durableName = value.getRefField(DURABLE_NAME) != null ? value.getStringField(DURABLE_NAME) : null;

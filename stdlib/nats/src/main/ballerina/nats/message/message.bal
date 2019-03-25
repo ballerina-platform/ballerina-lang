@@ -14,18 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represent a message which will be pushed from the NATS server to the consumer.
+# Represents a message which will be pushed from the NATS server to the consumer.
 public type Message object {
     private string content = "";
 
     # Get message content.
     #
-    # + return - message content information.
+    # + return - message content as a 'string' liternal.
     public function getData() returns string {
         return self.content;
     }
 
-    # Acknowleges a given message.
+    # Acknowleges to a given message.
     #
     # + return - an error if the acknowledgment fails.
     public extern function ack() returns error?;

@@ -34,21 +34,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents the utils which would be used for NATS_URL_PREFIX.
+ * Utilities for producing and consuming via NATS sever.
  */
 public class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
     /**
-     * message which will be propagated.
+     * Message which will be propagated.
      */
     private static final String MESSAGE = "message";
 
+    /**
+     * Constructs a BallerinaException and throw it.
+     *
+     * @param message error message which should be included.
+     * @param context context of the ballerina call.
+     * @param throwable the exception stacktrace.
+     */
     public static void throwBallerinaException(String message, Context context, Throwable throwable) {
         LOGGER.error(message, throwable);
         throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
     }
 
+    /**
+     * Retrieve the receiver object.
+     *
+     * @param context Ballerina context which should be received.
+     * @return the receiver object struct.
+     */
     public static Struct getReceiverObject(Context context) {
         return BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
     }
@@ -69,7 +82,7 @@ public class Utils {
     }
 
     /**
-     * Extract NATS_URL_PREFIX Resource from the Ballerina Service.
+     * Extract NATS Resource from the Ballerina Service.
      *
      * @param service Service instance.
      * @return extracted resource.

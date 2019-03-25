@@ -16,11 +16,11 @@
 
 # Represents the list of paramters required to create a subscription.
 #
-# + subject -  name of the subject the subscription should be bound.
-# + exchange - specifies the type of exchange i.e topic or queue.
-# + ackWait - amount of time the client should wait before retrying.
-# + startSeq - sequence id of the message the message should be consumed.
-# + durableName - unique name to identify the durable subscription.
+# + subject -  Name of the subject.
+# + manualAck - True if the acknowledgments will be done manually.
+# + ackWait -  Amount of time (in seconds) the client should wait before retrying.
+# + startSeq - Sequence id of the message which should be consumed.
+# + durableName - Unique name to identify the durable subscription.
 public type ConsumerConfigData record {
     string subject;
     boolean manualAck = false;

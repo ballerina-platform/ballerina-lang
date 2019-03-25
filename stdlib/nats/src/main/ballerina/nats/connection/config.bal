@@ -16,13 +16,13 @@
 
 # Represents the list of paramters required to establish a connection.
 #
-# + host - The remote host name/IP
-# + port - The remote port
-# + clusterId - The name of the NATS server cluster the connection should be established
-# + clientId - Unique identifier for the client
-# + connectionTimeout - Specify the time server should wait to establish a connection (in seconds)
-# + maxPubAcksInFlight - Specify the number of messages which can be dispatched without receiving acks
-# + ackTimeout - The time (in seconds) before retrying to send an unacknowledged message
+# + host - Remote server host name/IP.
+# + port - Remote server port.
+# + clusterId - Name of the NATS server cluster.
+# + clientId - Unique identifier for the client.
+# + connectionTimeout - Number of seconds to hold an idle connection.
+# + maxPubAcksInFlight - Number of messages which could be dispatched without receiving acks.
+# + ackTimeout - Time (in seconds) to wait for an acknowledment before retrying.
 public type ConnectionConfig record {
     string host;
     int port;

@@ -26,7 +26,7 @@ import org.ballerinalang.nats.nativeimpl.Constants;
 import org.ballerinalang.nats.nativeimpl.Utils;
 
 /**
- * Represents an acknowledgement a produced message would await for.
+ * Represents an acknowledgement which will be received for a produced message.
  */
 public class Acknowledgment implements AckHandler {
     /**

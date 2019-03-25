@@ -17,11 +17,12 @@
 import ballerina/nats;
 import ballerina/io;
 
-nats:Producer producer = new({ host: "localhost", port: 4222, clientId: "p0" });
-
+// Produce a message to a subject in NATS sever.
 public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
+    // Initializes a producer
+    nats:Producer producer = new({ host: "localhost", port: 4222, clientId: "p0" });
     while (message != "!q") {
         message = io:readln("Message : ");
         if (message != "!q") {

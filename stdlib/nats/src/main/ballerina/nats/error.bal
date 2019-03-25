@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an I/O error which occurrs while communicating with the NATS server.
+# Represents an I/O error.
 #
-# + message - error message
-# + id - error id
+# + message - error message.
+# + id - error id.
 public type IOError record {
     string message;
     int id;
