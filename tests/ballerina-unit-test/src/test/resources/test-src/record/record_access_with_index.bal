@@ -107,15 +107,14 @@ function testExpressionAsStructIndex() returns string {
     }
 }
 
-type Foo record {
+type Foo record {|
     string fieldOne;
     int fieldTwo;
     boolean fieldThree;
     () fieldFour;
     float fieldFive;
     decimal fieldSix;
-    !...;
-};
+|};
 
 function testDynamicIndexAccessTypes() returns string {
     Foo f = {
@@ -289,10 +288,9 @@ function testDynamicIndexAccessWithSingleType() returns int {
     return marks;
 }
 
-type Quux record {
+type Quux record {|
     Qux fieldOne;
-    !...;
-};
+|};
 
 function testDynamicIndexAccessWithRecordInsideRecord() returns (int?, int?) {
     Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };

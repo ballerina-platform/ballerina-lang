@@ -214,10 +214,9 @@ type A3 record {
     int x = 0;
 };
 
-type B3 record {
+type B3 record {|
     int x = 0;
-    !...;
-};
+|};
 
 function testSealedRecordTypes() returns (boolean, boolean) {
     A3 a3 = {};

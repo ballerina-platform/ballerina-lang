@@ -62,11 +62,10 @@ function testClosureWithCasting() returns float {
     return lambda.call(20, "ignore");
 }
 
-type Person record {
+type Person record {|
    string name;
     int age;
-    !...;
-};
+|};
 
 function testRecordTypeWithArrowExpr() returns Person {
     function (Person) returns Person lambda = (param1) => param1;

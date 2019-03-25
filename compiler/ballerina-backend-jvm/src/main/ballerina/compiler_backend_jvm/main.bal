@@ -19,11 +19,10 @@ import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
 
-public type JarFile record {
+public type JarFile record {|
     map<string> manifestEntries;
     map<byte[]> jarEntries;
-    !...;
-};
+|};
 
 bir:BIRContext currentBIRContext = new;
 
