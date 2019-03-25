@@ -17,6 +17,7 @@
 package org.ballerinalang.test.expressions.binaryoperations;
 
 import org.ballerinalang.model.util.XMLUtils;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -146,22 +147,43 @@ public class AddOperationTest {
     public void testXmlXmlAddExpr() {
         BXML a = XMLUtils.createXMLText("abc");
         BXML b = XMLUtils.createXMLText("def");
-        BValue[] args = { a, b};
+        BValue[] args = {a, b};
 
         BValue[] returns = BRunUtil.invoke(result, "xmlXmlAdd", args);
         Assert.assertEquals(((BXMLSequence) returns[0]).size(), 2);
         Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "abcdef");
     }
 
-    @Test(description = "Test xml xml add expression")
+    @Test(description = "Test xml string add expression")
     public void testXmlStringAddExpr() {
         BXML a = XMLUtils.createXMLText("abc");
         BString b = new BString("def");
-        BValue[] args = { a, b};
+        BValue[] args = {a, b};
 
         BValue[] returns = BRunUtil.invoke(result, "xmlStringAdd", args);
         Assert.assertEquals(((BXMLSequence) returns[0]).size(), 2);
         Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "abcdef");
+    }
+
+    @Test(description = "Test string xml add expression")
+    public void testStringXmlAddExpr() {
+        BString a = new BString("def");
+        BXML b = XMLUtils.createXMLText("abc");
+        BValue[] args = {a, b};
+
+        BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd", args);
+        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 2);
+        Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "defabc");
+    }
+
+    @Test(description = "Test string xml add expression")
+    public void testStringXmlAddExprCommutative() {
+        BString a = new BString("abc");
+        BXML b = XMLUtils.createXMLText("abc");
+        BValue[] args = {a, b};
+
+        BValue[] returns = BRunUtil.invoke(result, "stringXmlAdditionCommutative", args);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test binary statement with errors")

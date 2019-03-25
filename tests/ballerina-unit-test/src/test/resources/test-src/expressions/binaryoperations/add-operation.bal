@@ -29,3 +29,11 @@ function xmlXmlAdd(xml a, xml b) returns (xml) {
 function xmlStringAdd(xml a, string b) returns (xml) {
     return a + b;
 }
+
+function stringXmlAdd(string a, xml b) returns (xml) {
+    return a + b;
+}
+
+function stringXmlAdditionCommutative(string a, xml b) returns (boolean) {
+    return (a + b) == (b + a);
+}

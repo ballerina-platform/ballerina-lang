@@ -2467,6 +2467,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            // string + xml ==> (xml string) + xml
+            if (rhsExprTypeTag == TypeTags.XML) {
+                binaryExpr.lhsExpr = createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr, binaryExpr.lhsExpr.pos);
+                return;
+            }
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                                                     binaryExpr.lhsExpr.type);
             return;
