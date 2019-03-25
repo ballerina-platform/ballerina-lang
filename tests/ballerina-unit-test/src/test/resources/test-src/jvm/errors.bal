@@ -51,7 +51,7 @@ public function foo(error|int x) returns int|error  {
 
 public function bar(error|int x) returns error|int  {
     if( x  is int) {
-        if ( x == 0){
+        if ( x == 0) {
             panic error("reason bar 1", {"message":"bar"});
         }
         return x;

@@ -35,7 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Test cases to cover error related tests on JBallerina.
  *
- * @since 0.955.0
+ * @since 0.995.0
  */
 public class ErrorTest {
 

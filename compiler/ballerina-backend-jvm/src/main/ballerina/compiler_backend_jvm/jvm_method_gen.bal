@@ -133,10 +133,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
     
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
+    // Generate try catch blocks based on error entries and sort them based on bb id.
     TryCatchBlock[] tryCatchBlocks = sortTryCatchBlocks(getTryCatchBlocks(errorEntries, basicBlocks, bbIdMap));
     
-    
-    // rearrange
     TryCatchBlock? currentTryCatch = ();
     boolean isInTryBlock = false;
     jvm:Label endLabel = new;
@@ -166,8 +165,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 endLabel = new;
                 handlerLabel = new;
                 jumpLabel = new;
-                instGen.generateTryIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
                 isInTryBlock = true;
+                instGen.generateTryIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
             }
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
@@ -185,7 +184,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     if (tryCatchBlocks.length() > genTrapCount) {
                         currentTryCatch = tryCatchBlocks[genTrapCount];
                     }
-                  
                 }
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
@@ -232,8 +230,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 endLabel = new;
                 handlerLabel = new;
                 jumpLabel = new;
-                instGen.generateTryIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
                 isInTryBlock = true;
+                instGen.generateTryIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
             }
             termGen.genCallTerm(terminator, funcName, isInTryBlock, instGen, currentTryCatch, 
                                 endLabel, handlerLabel, jumpLabel);
@@ -866,6 +864,7 @@ function getTryCatchBlocks(bir:ErrorEntry?[] errorEntries, bir:BasicBlock?[] bas
         tryCatchBlocks[tryCatchBlocks.length()] = tryCatchBlock;
         if (fromIndex != toIndex) {
             tryCatchBlock.toIp = <int>fromBB.instructions.length();
+            // Duplicate try catch blocks for intermediate bir blocks which are inside of trap bir blocks.
             getIntermediateTryCatchBlocks(basicBlocks, tryCatchBlocks, fromBB, bbIdMap,
                                             toIndex, <int>e.toIp, e.errorOp);
         }
@@ -890,8 +889,8 @@ function getIntermediateTryCatchBlocks(bir:BasicBlock?[] basicBlocks, TryCatchBl
     tryCatchBlocks[tryCatchBlocks.length()] = tryCatchBlock;
     if (bbIndex != toIndex) {
         tryCatchBlock.toIp = <int>newFromBB.instructions.length();
+        // Recursively generate intermediate try catch blocks until finding last affected bir block.
         getIntermediateTryCatchBlocks(basicBlocks, tryCatchBlocks, newFromBB, bbIdMap, toIndex, toIp, errorOp);
-
     }
 }
 

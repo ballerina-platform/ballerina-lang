@@ -793,7 +793,6 @@ public class BIRGen extends BLangNodeVisitor {
             returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
             this.env.returnBB = returnBB;
         }
-
         this.env.enclBB.terminator = new BIRTerminator.GOTO(panicNode.pos, this.env.returnBB);
     }
 
@@ -809,7 +808,7 @@ public class BIRGen extends BLangNodeVisitor {
             if (thenBB.id != env.enclBB.id) {
                 thenBB = getParentBB(env.enclBB, thenBB);
                 this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB.id, this.env.trapIp,
-                                                                           thenBB.id, 0,this.env.targetOperand));
+                                                                           thenBB.id, 0, this.env.targetOperand));
             } else {
                 this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB.id, this.env.trapIp,
                                                                            this.env.trapBB.id,
@@ -818,7 +817,6 @@ public class BIRGen extends BLangNodeVisitor {
             }
             this.env.trapBB = env.enclBB;
             this.env.trapIp = 0;
-         
         } else {
             int toIp = this.env.trapBB.instructions.size() - 1;
             this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB.id, this.env.trapIp,

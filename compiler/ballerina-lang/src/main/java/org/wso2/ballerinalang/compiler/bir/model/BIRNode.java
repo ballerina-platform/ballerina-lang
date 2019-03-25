@@ -232,6 +232,7 @@ public abstract class BIRNode {
             super(null);
             this.id = id;
             this.instructions = new ArrayList<>();
+            this.terminator = null;
         }
 
         @Override

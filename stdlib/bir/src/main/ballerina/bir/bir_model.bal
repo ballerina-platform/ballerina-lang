@@ -54,7 +54,7 @@ public type BasicBlock record {|
     Terminator terminator = {kind:"RETURN"};
 |};
 
-public type ErrorEntry record {
+public type ErrorEntry record {|
     Name fromBlockId;
     int fromIp;
     Name toBlockId;
@@ -376,7 +376,7 @@ public type NewError record {|
     VarRef detailsOp;
 |};
 
-public type Panic record {
+public type Panic record {|
     InstructionKind kind;
     VarRef errorOp;
 |};
