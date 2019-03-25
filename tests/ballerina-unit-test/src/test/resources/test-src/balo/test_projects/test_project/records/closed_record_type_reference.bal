@@ -14,26 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type BClosedPerson record {
+public type BClosedPerson record {|
     string name = "anonymous";
     int age = 0;
     ClosedAddress adr = {city:"", country:""};
-};
+|};
 
-public type BClosedManager record {
+public type BClosedManager record {|
     *BClosedEmployee;
     string dept = "";
-    !...;
-};
+|};
 
-public type BClosedEmployee record {
+public type BClosedEmployee record {|
     string company = "";
     *BClosedPerson;
-    !...;
-};
+|};
 
-public type ClosedAddress record {
+public type ClosedAddress record {|
     string city;
     string country;
-    !...;
-};
+|};

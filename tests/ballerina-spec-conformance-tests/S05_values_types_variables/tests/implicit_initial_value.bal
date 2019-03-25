@@ -175,12 +175,10 @@ function testImplicitInitialValueOfUnions() {
     test:assertEquals(unionArray2[0], expectedVal, msg = "expected implicit initial value of this union should be 0");
 }
 
-public type QuuzRecord record {
+public type QuuzRecord record {|
     int quuzFieldOne;
-    !...;
-};
+|};
 
-public type QuuxRecord record {
+public type QuuxRecord record {|
     string quuxFieldOne;
-    !...;
-};
+|};
