@@ -367,9 +367,9 @@ type InstructionGenerator object {
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
         self.generateVarLoad(inst.rhsOp.variableDcl);
 
-        bir:BArrayType arrayType = <bir:BArrayType> inst.lhsOp.variableDcl.typeValue;
+        bir:BType varRefType = inst.lhsOp.variableDcl.typeValue;
         string valueDesc;
-        if (arrayType.eType is bir:BTypeByte) {
+        if (varRefType is bir:BArrayType && varRefType.eType is bir:BTypeByte) {
             self.mv.visitInsn(L2I);
             self.mv.visitInsn(I2B);
             valueDesc = "B";
