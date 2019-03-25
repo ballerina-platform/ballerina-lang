@@ -20,12 +20,14 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
+    implementation project(':ballerina-activemq-artemis')
     testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Language server - Compiler'
 
 test {
+    exclude '**/*'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 
 public type TypeParser object {
@@ -23,8 +39,7 @@ public type TypeParser object {
     // All the above types are branded types
     public int TYPE_TAG_ANY = TYPE_TAG_INVOKABLE + 1;
     public int TYPE_TAG_ENDPOINT = TYPE_TAG_ANY + 1;
-    public int TYPE_TAG_SERVICE = TYPE_TAG_ENDPOINT + 1;
-    public int TYPE_TAG_ARRAY = TYPE_TAG_SERVICE + 1;
+    public int TYPE_TAG_ARRAY = TYPE_TAG_ENDPOINT + 1;
     public int TYPE_TAG_UNION = TYPE_TAG_ARRAY + 1;
     public int TYPE_TAG_PACKAGE = TYPE_TAG_UNION + 1;
     public int TYPE_TAG_NONE = TYPE_TAG_PACKAGE + 1;
@@ -43,6 +58,8 @@ public type TypeParser object {
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
     public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
+
+    public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -84,6 +101,8 @@ public type TypeParser object {
             return self.parseObjectType();
         } else if (typeTag == self.TYPE_TAG_ERROR){
             return self.parseErrorType();
+        } else if (typeTag == self.TYPE_TAG_FUTURE){
+            return self.parseFutureType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -95,6 +114,10 @@ public type TypeParser object {
 
     function parseMapType() returns BMapType {
         return { constraint:self.parseType() };
+    }
+
+    function parseFutureType() returns BFutureType {
+        return { returnType:self.parseType() };
     }
 
     function parseUnionType() returns BUnionType {

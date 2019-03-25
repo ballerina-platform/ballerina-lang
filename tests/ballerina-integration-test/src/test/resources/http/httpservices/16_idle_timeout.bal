@@ -27,7 +27,7 @@ service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 })
         path: "/timeout408"
     }
     resource function timeoutTest408(http:Caller caller, http:Request req) {
-        var result = req.getPayloadAsString();
+        var result = req.getTextPayload();
         if (result is string) {
             log:printInfo(result);
         } else  {

@@ -188,7 +188,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 function processWebSubNotification(http:Request request, service serviceType) returns error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
     // Build the data source before responding to the content delivery requests automatically
-    var payload = request.getPayloadAsString();
+    var payload = request.getTextPayload();
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -331,14 +331,6 @@ public type Notification object {
     #            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns string|error {
         return self.request.getTextPayload();
-    }
-
-    # Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
-    # construction which makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error {
-        return self.request.getPayloadAsString();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.

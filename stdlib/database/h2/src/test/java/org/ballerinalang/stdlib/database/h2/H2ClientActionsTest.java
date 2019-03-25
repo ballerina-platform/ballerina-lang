@@ -128,7 +128,7 @@ public class H2ClientActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration:Exception during pool initialization:"
+                  ".*error in sql connector configuration:Failed to initialize pool: "
                   + "Unsupported connection setting \"INVALID_PARAM\".*", groups = H2_TEST_GROUP)
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions");

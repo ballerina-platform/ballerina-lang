@@ -87,6 +87,7 @@ include(':ballerina-tools-integration-test')
 include(':examples-test')
 include(':plugin-vscode')
 include(':benchmarks')
+include(':ballerina-activemq-artemis')
 include(':build-config:checkstyle')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-utils').projectDir = file('stdlib/utils')
@@ -172,6 +173,7 @@ project(':ballerina-integration-test').projectDir = file('tests/ballerina-integr
 project(':ballerina-tools-integration-test').projectDir = file('tests/ballerina-tools-integration-test')
 project(':examples-test').projectDir = file('tests/ballerina-examples-test')
 project(':plugin-vscode').projectDir = file('tool-plugins/vscode')
+project(':ballerina-activemq-artemis').projectDir = file('stdlib/messaging/activemq-artemis')
 
 buildCache {
     remote(HttpBuildCache) {
