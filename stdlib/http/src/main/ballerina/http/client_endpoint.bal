@@ -356,7 +356,7 @@ public type OAuth2AuthConfig record {
 # ClientCredentialsGrantConfig record can be used to configue OAuth2 client credentials grant type
 #
 # + tokenUrl - Token URL for authorization server
-# + clientId - Clietnt ID for client credentials grant authentication
+# + clientId - Client ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
 # + clockSkew - Clock skew in seconds
@@ -378,7 +378,7 @@ public type ClientCredentialsGrantConfig record {
 # + tokenUrl - Token URL for authorization server
 # + username - Username for password grant authentication
 # + password - Password for password grant authentication
-# + clientId - Clietnt ID for password grant authentication
+# + clientId - Client ID for password grant authentication
 # + clientSecret - Client secret for password grant authentication
 # + scopes - Scope of the access request
 # + refreshConfig - Configurations for refreshing the access token
@@ -432,7 +432,7 @@ public type RefreshConfig record {
 #
 # + refreshUrl - Refresh token URL for refresh token server
 # + refreshToken - Refresh token fro refresh token server
-# + clientId - Clietnt ID for authentication with authorization server
+# + clientId - Client ID for authentication with authorization server
 # + clientSecret - Client secret for authentication with authorization server
 # + scopes - Scope of the access request
 # + credentialBearer - How authentication credentials are sent to authorization server

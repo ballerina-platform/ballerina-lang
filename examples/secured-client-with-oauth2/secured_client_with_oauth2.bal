@@ -74,8 +74,8 @@ public function main() {
     var response1 = clientEP1->get("/repositories/b7ademo");
     if (response1 is http:Response) {
         var result = response1.getJsonPayload();
-        log:printInfo((result is error) ? "Failed to retrieve payload for clientEP1."
-                                        : <string>result.values[0].uuid);
+        log:printInfo(result is error ? "Failed to retrieve payload for clientEP1."
+                                        : <string> result.values[0].uuid);
     } else {
         log:printError("Failed to call the endpoint.", err = response1);
     }
@@ -85,7 +85,7 @@ public function main() {
     if (response2 is http:Response) {
         var result = response2.getJsonPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload for clientEP2."
-                                        : <string>result.values[0].uuid);
+                                        : <string> result.values[0].uuid);
     } else {
         log:printError("Failed to call the endpoint.", err = response2);
     }
@@ -95,7 +95,7 @@ public function main() {
     if (response3 is http:Response) {
         var result = response3.getJsonPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload for clientEP3."
-                                        : <string>result.kind);
+                                        : <string> result.kind);
     } else {
         log:printError("Failed to call the endpoint.", err = response3);
     }

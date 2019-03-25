@@ -62,7 +62,7 @@ public type CachedTokenConfig record {
 # RequestConfig record is used to prepare the HTTP request which is to be sent to authorization server.
 #
 # + payload - Payload of the request
-# + clientId - Clietnt ID for client credentials grant authentication
+# + clientId - Client ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
 # + credentialBearer - How authentication credentials are sent to authorization server
@@ -364,7 +364,6 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
                 return false;
             } else {
                 string errMsg = "Basic auth config not provided.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             }
@@ -377,7 +376,6 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
                 return retryRequired;
             } else {
                 string errMsg = "OAuth2 config not provided.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             }
@@ -387,7 +385,6 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
                 authToken = check getAuthTokenForJWTAuth(authConfig);
             } else if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
                 string errMsg = "JWT auth config not provided.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             } else {
@@ -396,23 +393,17 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
             if (authToken == EMPTY_STRING) {
                 string errMsg = "JWT was not used during inbound authentication.
                     Provide InferredJwtIssuerConfig to issue new token.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
             return false;
-        } else {
-            string errMsg = "Unsupported auth scheme.";
-            log:printError(errMsg);
-            error e = error(HTTP_ERROR_CODE, { message: errMsg });
-            return e;
         }
     }
     return false;
 }
 
-# Process auth token for basic auth
+# Process auth token for basic auth.
 #
 # + authConfig - Basic auth configurations
 # + return - Auth token or `error` if error occured during validation
@@ -421,7 +412,6 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
     string password = authConfig.password;
     if (username == EMPTY_STRING || password == EMPTY_STRING) {
         string errMsg = "Username or password cannot be empty.";
-        log:printError(errMsg);
         error e = error(HTTP_ERROR_CODE, { message: errMsg });
         return e;
     }
@@ -433,12 +423,12 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
     return token;
 }
 
-# Process auth token for OAuth2
+# Process auth token for OAuth2.
 #
 # + authConfig - OAuth2 configurations
 # + tokenCache - Cached token configurations
 # + updateRequest - Check if the request is an updating request after 401 response
-# + return - Auth token or `error` if validation fails
+# + return - Auth token with the status of retry is required for 401 response or `error` if validation fails
 function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig tokenCache,
                                boolean updateRequest) returns (string, boolean)|error {
     var grantType = authConfig.grantType;
@@ -448,7 +438,6 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
             return getAuthTokenForOAuth2PasswordGrant(grantTypeConfig, tokenCache);
         } else {
             string errMsg = "Invalid config is provided for the password grant type.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -457,7 +446,6 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
             return getAuthTokenForOAuth2ClientCredentialsGrant(grantTypeConfig, tokenCache);
         } else {
             string errMsg = "Invalid config is provided for the password grant type.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -470,18 +458,18 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
             return getAuthTokenForOAuth2DirectTokenMode(grantTypeConfig, tokenCache);
         } else {
             string errMsg = "Invalid config is provided for the direct token mode.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
     }
 }
 
-# Process auth token for OAuth2 password grant
+# Process auth token for OAuth2 password grant.
 #
 # + grantTypeConfig - Password grant configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token or `error` if error occured during HTTP client invocation or validation
+# + return - Auth token with the status of retry is required for 401 response or `error` if error occured during
+# HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                                             CachedTokenConfig tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -517,11 +505,12 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
     }
 }
 
-# Process auth token for OAuth2 client credentials grant
+# Process auth token for OAuth2 client credentials grant.
 #
 # + grantTypeConfig - Client credentials grant configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token or `error` if error occured during HTTP client invocation or validation
+# + return - Auth token with the status of retry is required for 401 response or `error` if error occured during
+# HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
                                                      CachedTokenConfig tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -559,11 +548,12 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
     }
 }
 
-# Process auth token for OAuth2 direct token mode
+# Process auth token for OAuth2 direct token mode.
 #
 # + grantTypeConfig - Direct token configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token or `error` if error occured during HTTP client invocation or validation
+# + return - Auth token with the status of retry is required for 401 response or `error` if error occured during
+# HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               CachedTokenConfig tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -607,7 +597,7 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
     }
 }
 
-# Process auth token for JWT auth
+# Process auth token for JWT auth.
 #
 # + authConfig - JWT auth configurations
 # + return - Auth token or `error` if error occured during JWT issuing or validation
@@ -676,7 +666,6 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
             string errMsg = "Client id or client secret cannot be empty.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -696,7 +685,6 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         if (clientId is string && clientSecret is string) {
             if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
                 string errMsg = "Client id or client secret cannot be empty.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             }
@@ -739,7 +727,6 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         if (refreshConfig is RefreshConfig) {
             if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
                 string errMsg = "Client id or client secret cannot be empty.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             }
@@ -753,7 +740,6 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             };
         } else {
             string errMsg = "Failed to refresh access token since RefreshTokenConfig is not provided.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -763,7 +749,6 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         if (refreshConfig is DirectTokenRefreshConfig) {
             if (refreshConfig.clientId == EMPTY_STRING || refreshConfig.clientSecret == EMPTY_STRING) {
                 string errMsg = "Client id or client secret cannot be empty.";
-                log:printError(errMsg);
                 error e = error(HTTP_ERROR_CODE, { message: errMsg });
                 return e;
             }
@@ -777,7 +762,6 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             };
         } else {
             string errMsg = "Failed to refresh access token since RefreshTokenConfig is not provided.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -818,7 +802,6 @@ function prepareRequest(RequestConfig config) returns Request|error {
                     encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
         } else {
             string errMsg = "Client ID or client secret is not provided for client authentication.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -827,7 +810,6 @@ function prepareRequest(RequestConfig config) returns Request|error {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         } else {
             string errMsg = "Client ID or client secret is not provided for client authentication.";
-            log:printError(errMsg);
             error e = error(HTTP_ERROR_CODE, { message: errMsg });
             return e;
         }
@@ -848,14 +830,13 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
         var payload = response.getJsonPayload();
         if (payload is json) {
             log:printDebug(function () returns string {
-                    return "Received an valid response. Extracting access token from the payload: " + <string>payload;
+                    return "Received an valid response. Extracting access token from the payload: " + <string> payload;
                 });
             check updateTokenCache(payload, tokenCache, clockSkew);
             return payload.access_token.toString();
         } else {
             string errMsg = "Failed to retrieve access token since the response payload is not a JSON.";
-            log:printError(errMsg);
-            error e = error(HTTP_ERROR_CODE, { message: errMsg });
+            error e = error(HTTP_ERROR_CODE, { message: errMsg, details: payload.reason() });
             return e;
         }
     } else {
@@ -864,7 +845,6 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
         if (textPayload is string) {
             errMsg = " Payload: " + textPayload;
         }
-        log:printError(errMsg);
         error e = error(HTTP_ERROR_CODE, { message: errMsg });
         return e;
     }
