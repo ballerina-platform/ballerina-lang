@@ -23,8 +23,8 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static java.lang.String.format;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Test case for equivalency of open records with different rest type descriptors.

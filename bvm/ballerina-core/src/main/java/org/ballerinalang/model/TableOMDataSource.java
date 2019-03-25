@@ -28,6 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.SQLException;
 import java.sql.Struct;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
