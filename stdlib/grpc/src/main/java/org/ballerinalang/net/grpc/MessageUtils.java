@@ -130,7 +130,7 @@ public class MessageUtils {
      */
     public static BError getConnectorError(BErrorType errorType, Throwable error) {
         BErrorType errType = Optional.ofNullable(errorType).orElse(BTypes.typeError);
-        BMap<String, BValue> refData = new BMap<>(errType.getDetailType());
+        BMap<String, BValue> refData = new BMap<>(errType.detailType);
         String reason = "{ballerina/grpc}";
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;

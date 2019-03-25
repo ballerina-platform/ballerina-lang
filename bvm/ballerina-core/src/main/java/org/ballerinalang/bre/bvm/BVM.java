@@ -4927,7 +4927,7 @@ public class BVM {
         }
 
         return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.getDetailType(), unresolvedValues);
+                checkIsLikeType(((BError) sourceValue).details, targetType.detailType, unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {

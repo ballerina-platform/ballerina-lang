@@ -49,6 +49,10 @@ public class BTypes {
     public static BType typeAnyService = new BServiceType(null, TypeConstants.SERVICE, null, 0);
     public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
 
+    static {
+        typeError.detailType = new BMapType(typePureType);
+    }
+
     private BTypes() {
     }
 

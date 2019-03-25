@@ -75,14 +75,6 @@ public class BErrorType extends BType {
             return true;
         }
 
-        return reasonType.equals(other.reasonType) && getDetailType().equals(other.getDetailType());
-    }
-
-    public BType getDetailType() {
-        if (this.detailType == BTypes.typeMap) {
-            this.detailType = new BMapType(BTypes.typePureType);
-        }
-
-        return this.detailType;
+        return reasonType.equals(other.reasonType) && detailType.equals(other.detailType);
     }
 }

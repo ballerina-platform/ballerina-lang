@@ -1270,10 +1270,10 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getErrorType(BType reasonType, BType detailsType) {
-            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.pureTypeConstrainedMap) {
                 return symTable.errorType;
             }
-            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                     env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
             BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
             errorSymbol.type = errorType;
