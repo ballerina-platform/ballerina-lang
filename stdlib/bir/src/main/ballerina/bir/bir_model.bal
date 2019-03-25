@@ -26,7 +26,7 @@ public type TypeDef record {
 public type Function record {
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
-    ErrorEntry[] errorEntries = [];
+    ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
     VariableDcl?[] localVars = [];
     Name name = {};
@@ -47,6 +47,8 @@ public type ErrorEntry record {
     int fromIp;
     Name toBlockId;
     int toIp;
+    VarRef errorOp;
+    !...;
 };
 
 public type Name record {

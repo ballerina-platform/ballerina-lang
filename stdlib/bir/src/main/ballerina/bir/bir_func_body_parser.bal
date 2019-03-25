@@ -30,7 +30,8 @@ public type FuncBodyParser object {
         return { fromBlockId: { value: self.reader.readStringCpRef() },
                  fromIp:  self.reader.readInt32(),
                  toBlockId: { value: self.reader.readStringCpRef() },
-                 toIp: self.reader.readInt32() };
+                 toIp: self.reader.readInt32(),
+                 errorOp: self.parseVarRef()};
     }
 
     public function parseInstruction() returns Instruction {

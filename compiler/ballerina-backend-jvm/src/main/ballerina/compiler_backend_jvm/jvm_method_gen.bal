@@ -1,3 +1,11 @@
+type TryCatchBlock record {
+    int bbIndex;
+    int fromIp;
+    int toIp;
+    bir:VarRef? errorOp;
+    boolean handleError;
+};
+
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
 
     string currentPackageName = getPackageName(module.org.value, module.name.value);
@@ -78,6 +86,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     int[] states = [];
 
     int i = 0;
+    map<int> bbIdMap = {};
     while (i < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[i]);
         if(i == 0){
@@ -86,6 +95,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             lables[i] = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         }
         states[i] = i;
+        bbIdMap[bb.id.value] = i;
         i = i + 1;
     }
 
@@ -106,14 +116,19 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:Label yieldLable = labelGen.getLabel(funcName + "yield");
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
     
-    bir:ErrorEntry[] errorEntries = func.errorEntries;
-    bir:ErrorEntry? currentEE = ();
+    bir:ErrorEntry?[] errorEntries = func.errorEntries;
+    TryCatchBlock[] tryCatchBlocks = sortTryCatchBlocks(getTryCatchBlocks(errorEntries, basicBlocks, bbIdMap));
+    
+    
+    // rearrange
+    TryCatchBlock? currentTryCatch = ();
     boolean isInTryBlock = false;
-    jvm:Label endLable = new;
-    jvm:Label handlerLable = new;
+    jvm:Label endLabel = new;
+    jvm:Label handlerLabel = new;
+    jvm:Label jumpLabel = new;
     int genTrapCount = 0;
-    if (errorEntries.length() > genTrapCount) {
-        currentEE = errorEntries[genTrapCount];
+    if (tryCatchBlocks.length() > genTrapCount) {
+        currentTryCatch = tryCatchBlocks[genTrapCount];
     }
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
@@ -126,14 +141,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
         // generate instructions
         int m = 0;
-        while (m < bb.instructions.length()) {
+        int insCount = bb.instructions.length();
+        InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+        while (m < insCount) {
             bir:Instruction? inst = bb.instructions[m];
-            InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
-            if (!isInTryBlock && currentEE is bir:ErrorEntry &&
-                    currentEE.fromBlockId.value == currentBBName && currentEE.fromIp == m) {
-                endLable = new;
-                handlerLable = new;
-                instGen.generateTryIns(endLable, handlerLable);
+            if (!isInTryBlock && currentTryCatch is TryCatchBlock  &&
+                        currentTryCatch.bbIndex == j && currentTryCatch.fromIp == m) {
+                endLabel = new;
+                handlerLabel = new;
+                jumpLabel = new;
+                instGen.generateTryIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
                 isInTryBlock = true;
             }
             if (inst is bir:ConstantLoad) {
@@ -143,15 +160,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     instGen.generateCastIns(inst);
                 } else {
                     instGen.generateMoveIns(inst);
-                    if (isInTryBlock && currentEE is bir:ErrorEntry &&
-                            currentEE.toBlockId.value == currentBBName && currentEE.toIp == m) {
-                        genTrapCount = genTrapCount + 1;
-                        isInTryBlock = false;
-                        if (errorEntries.length() > genTrapCount) {
-                            currentEE = errorEntries[genTrapCount];
-                        }
-                        instGen.generateCatchIns(inst, endLable, handlerLable);
+                }
+                if (isInTryBlock && currentTryCatch is TryCatchBlock &&
+                                currentTryCatch.bbIndex == j && currentTryCatch.toIp == m) {
+                    genTrapCount = genTrapCount + 1;
+                    isInTryBlock = false;
+                    instGen.generateCatchIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
+                    if (tryCatchBlocks.length() > genTrapCount) {
+                        currentTryCatch = tryCatchBlocks[genTrapCount];
                     }
+                  
                 }
             } else if (inst is bir:BinaryOp) {
                 instGen.generateBinaryOpIns(inst);
@@ -193,7 +211,23 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
-            termGen.genCallTerm(terminator, funcName);
+            if (currentTryCatch is TryCatchBlock && currentTryCatch.bbIndex == j && 
+                    currentTryCatch.fromIp == insCount) {
+                endLabel = new;
+                handlerLabel = new;
+                jumpLabel = new;
+                instGen.generateTryIns(currentTryCatch, endLabel, handlerLabel, jumpLabel);
+                isInTryBlock = true;
+            }
+            termGen.genCallTerm(terminator, funcName, isInTryBlock, instGen, currentTryCatch, 
+                                endLabel, handlerLabel, jumpLabel);
+            if (isInTryBlock) {
+                genTrapCount = genTrapCount + 1;
+                isInTryBlock = false;
+                if (tryCatchBlocks.length() > genTrapCount) {
+                    currentTryCatch = tryCatchBlocks[genTrapCount];
+                }
+            }
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -797,4 +831,67 @@ function getRecordField(bir:BRecordField? recordField) returns bir:BRecordField 
         error err = error("Invalid record field");
         panic err;
     }
+}
+
+function getTryCatchBlocks(bir:ErrorEntry?[] errorEntries, bir:BasicBlock?[] basicBlocks,
+                           map<int> bbIdMap) returns TryCatchBlock[] {
+    TryCatchBlock[] tryCatchBlocks = [];
+    foreach bir:ErrorEntry? e in errorEntries {
+        int fromIndex = <int>bbIdMap[<string>e.fromBlockId.value];
+        int toIndex = <int>bbIdMap[<string>e.toBlockId.value];
+        bir:BasicBlock? fromBB = basicBlocks[fromIndex];
+        TryCatchBlock tryCatchBlock = {
+                                        bbIndex : fromIndex,
+                                        fromIp : <int>e.fromIp,
+                                        toIp :<int>e.toIp,
+                                        errorOp: e.errorOp,
+                                        handleError : false
+        };
+        tryCatchBlocks[tryCatchBlocks.length()] = tryCatchBlock;
+        if (fromIndex != toIndex) {
+            tryCatchBlock.toIp = <int>fromBB.instructions.length();
+            getIntermediateTryCatchBlocks(basicBlocks, tryCatchBlocks, fromBB, bbIdMap,
+                                            toIndex, <int>e.toIp, e.errorOp);
+        }
+    }
+    return tryCatchBlocks;
+}
+
+function getIntermediateTryCatchBlocks(bir:BasicBlock?[] basicBlocks, TryCatchBlock[] tryCatchBlocks,
+                                       bir:BasicBlock? fromBB, map<int> bbIdMap,  int toIndex, int toIp,
+                                       bir:VarRef? errorOp) {
+    bir:Call call = <bir:Call>fromBB.terminator;
+    bir:BasicBlock? thenBB = call.thenBB;
+    int bbIndex = <int>bbIdMap[<string>thenBB.id.value];
+    bir:BasicBlock? newFromBB = basicBlocks[bbIndex];
+    TryCatchBlock tryCatchBlock = {
+                                    bbIndex : bbIndex,
+                                    fromIp : 0,
+                                    toIp : toIp,
+                                    errorOp: errorOp,
+                                    handleError : true
+    };
+    tryCatchBlocks[tryCatchBlocks.length()] = tryCatchBlock;
+    if (bbIndex != toIndex) {
+        tryCatchBlock.toIp = <int>newFromBB.instructions.length();
+        getIntermediateTryCatchBlocks(basicBlocks, tryCatchBlocks, newFromBB, bbIdMap, toIndex, toIp, errorOp);
+
+    }
+}
+
+function sortTryCatchBlocks(TryCatchBlock[] tryCatchBlocks) returns TryCatchBlock[]  {
+    int i = tryCatchBlocks.length() - 1;
+    while (i >= 0) {
+        int j = 1;
+        while (j <= i) {
+            if (tryCatchBlocks[j-1].bbIndex > tryCatchBlocks[j].bbIndex) {
+                TryCatchBlock temp = tryCatchBlocks[j-1];
+                tryCatchBlocks[j-1] = tryCatchBlocks[j];
+                tryCatchBlocks[j] = temp;
+            }
+            j = j + 1;
+        }
+        i = i - 1;
+    }
+    return tryCatchBlocks;
 }

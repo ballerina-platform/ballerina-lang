@@ -65,7 +65,9 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    function genCallTerm(bir:Call callIns, string funcName) {
+    function genCallTerm(bir:Call callIns, string funcName, boolean isInTryBlock, InstructionGenerator instGen, 
+                         TryCatchBlock? tryCatch, jvm:Label endLabel, jvm:Label handlerLabel, 
+                         jvm:Label jumpLabel) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string methodName = callIns.name.value;
 
@@ -169,7 +171,11 @@ type TerminatorGenerator object {
             }
 
         }
-
+        
+        if (isInTryBlock && tryCatch is TryCatchBlock) {
+            instGen.generateCatchIns(tryCatch, endLabel, handlerLabel, jumpLabel);
+        }
+        
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
         jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");

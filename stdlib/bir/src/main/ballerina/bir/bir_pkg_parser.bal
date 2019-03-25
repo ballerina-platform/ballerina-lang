@@ -45,7 +45,7 @@ public type PackageParser object {
         }
         FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
-        ErrorEntry[] errorEntries = self.getErrorEntries(bodyParser);
+        ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         return {
             name: { value: name },
             isDeclaration: isDeclaration,
@@ -98,8 +98,8 @@ public type PackageParser object {
         return basicBlocks;
     }
 
-    function getErrorEntries(FuncBodyParser bodyParser) returns ErrorEntry[] {
-        ErrorEntry[] errorEntries = [];
+    function getErrorEntries(FuncBodyParser bodyParser) returns ErrorEntry?[] {
+        ErrorEntry?[] errorEntries = [];
         var numEE = self.reader.readInt32();
         int i = 0;
         while (i < numEE) {

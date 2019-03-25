@@ -366,20 +366,29 @@ type InstructionGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryIns(jvm:Label endLable, jvm:Label handlerLable) {
-        jvm:Label startLable = new;
-        self.mv.visitTryCatchBlock(startLable, endLable, handlerLable, ERROR_VALUE);
-        self.mv.visitLabel(startLable);
+    function generateTryIns(TryCatchBlock tryCatch, jvm:Label endLabel, jvm:Label handlerLabel,
+                            jvm:Label jumpLabel) {
+        jvm:Label startLabel = new;
+        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
+        if (tryCatch.handleError) {
+            jvm:Label temp = new;
+            self.mv.visitLabel(temp);
+            int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>tryCatch.errorOp.variableDcl);
+            self.mv.visitVarInsn(ALOAD, lhsIndex);
+            self.mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+            self.mv.visitJumpInsn(IFNE, jumpLabel);
+        }
+        self.mv.visitLabel(startLabel);
     }
 
-    function generateCatchIns(bir:Move moveIns, jvm:Label endLable, jvm:Label handlerLable) {
-        int lhsIndex = self.getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl);
-        self.mv.visitLabel(endLable);
-        jvm:Label jumpLable = new;
-        self.mv.visitJumpInsn(GOTO, jumpLable);
-        self.mv.visitLabel(handlerLable);
+    function generateCatchIns(TryCatchBlock tryCatch, jvm:Label endLabel, jvm:Label handlerLabel,
+                              jvm:Label jumpLabel) {
+        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>tryCatch.errorOp.variableDcl);
+        self.mv.visitLabel(endLabel);
+        self.mv.visitJumpInsn(GOTO, jumpLabel);
+        self.mv.visitLabel(handlerLabel);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
-        self.mv.visitLabel(jumpLable);
+        self.mv.visitLabel(jumpLabel);
     }
 
     function generateVarLoad(bir:VariableDcl varDcl) {
