@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -514,8 +515,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        // TODO: Complete
-        super.visit(recordTypeNode);
+        // Type name is handled at the BLangTypeDefinition visitor and here we visit the fields
+        recordTypeNode.fields.forEach(this::acceptNode);
     }
 
     @Override
@@ -601,6 +602,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         this.acceptNode(checkedExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangWaitExpr awaitExpr) {
+        awaitExpr.exprList.forEach(this::acceptNode);
     }
 
     @Override
@@ -693,7 +699,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         } else if (typeNode instanceof BLangTupleTypeNode) {
             length += this.getTupleTypeLength((BLangTupleTypeNode) typeNode, nested);
         } else if (typeNode instanceof BLangValueType || typeNode instanceof BLangUserDefinedType
-                || typeNode instanceof BLangBuiltInRefTypeNode) {
+                || typeNode instanceof BLangBuiltInRefTypeNode || typeNode instanceof BLangErrorType) {
             // Ex: int or http:Request or MyType
             int startCounter = 0;
             if (!nested) {

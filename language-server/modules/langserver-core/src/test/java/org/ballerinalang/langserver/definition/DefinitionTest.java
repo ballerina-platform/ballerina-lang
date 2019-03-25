@@ -181,6 +181,9 @@ public class DefinitionTest {
                 {"defMatchStmt6.json", "matchstmt"},
                 {"defTransaction1.json", "transaction"},
                 {"defGlobal1.json", "global"},
+                {"defRecord1.json", "record"},
+                {"defError1.json", "error"},
+                {"defWaitExpression1.json", "waitexpression"},
         };
     }
     

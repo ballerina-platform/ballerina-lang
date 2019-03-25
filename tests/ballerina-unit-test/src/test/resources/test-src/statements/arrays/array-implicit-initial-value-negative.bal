@@ -154,3 +154,68 @@ FandF[]|FTUnion[] unionOfArrays = [2.4];
 (anydata|error)[] anyOrErrorList = [];
 
 anydata[] anyDataArray = [];
+
+function complexArrays() {
+    (int|string, float)[][] a = [];
+
+    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+
+    (int|float)[][] f = [[23, 45], [123, 43, 68]];
+
+    (boolean|float)[][] c = [];
+    (boolean|float)[][] d = c;
+}
+
+function testElementTypesWithoutImplicitInitVal() {
+    FT[] arr;
+    arr = [1, 2];
+}
+
+type BarRec record {
+    FT[] fArr;
+};
+
+function testArrayFieldInRecord() {
+    BarRec rec = {fArr: [1, 2]};
+}
+
+type BarObj object {
+    FT[] fArr;
+
+    function __init() {
+        self.fArr = [1, 2];
+    }
+};
+
+function fnWithArrayParam(FT[] arr) returns FT[] {
+    FT[*] newArr = [arr[0],3];
+    return newArr;
+}
+
+function testArraysAsFuncParams() returns FT[] {
+    return fnWithArrayParam([1, 2]);
+}
+
+type A record {
+    B b;
+    string a1;
+};
+
+type B record {
+    A a?;
+    C c;
+};
+
+type C object {
+    string s;
+
+    function __init(string s) {
+        self.s = s;
+    }
+};
+
+function testArraysOfCyclicDependentTypes() returns A[] {
+    A[] arr = [];
+    arr[3] = {a1: "A", b: {c: new("C")}};
+    return arr;
+}

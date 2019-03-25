@@ -358,6 +358,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
@@ -365,6 +366,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
@@ -388,7 +390,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 35, 0, new ArrayList<>(), false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 37, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
@@ -412,7 +414,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(255)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 7, variables, false);
@@ -439,7 +441,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(255)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
         variables.add(Util.createVariable("args", "Local", new BValueArray(new String[]{"Hello", "World"})));
         variables.add(Util.createVariable("x", "Local", new BInteger(10)));
@@ -526,7 +528,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("")));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 0)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(0)));
 
         // Expected global variables count should be 6 in this case
         // Reason: Variable 'gPerson' is not yet initialized. Thus, its current value is null

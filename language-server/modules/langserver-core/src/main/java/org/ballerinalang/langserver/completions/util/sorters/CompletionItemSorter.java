@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
@@ -34,7 +34,7 @@ public abstract class CompletionItemSorter {
      * @param ctx               Completion context
      * @param completionItems   List of initial completion items
      */
-    public abstract void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems);
+    public abstract void sortItems(LSContext ctx, List<CompletionItem> completionItems);
 
     /**
      * Set the priorities in the default order.

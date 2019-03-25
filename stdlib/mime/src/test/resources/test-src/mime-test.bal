@@ -432,7 +432,7 @@ function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ReadableByteCha
 function testGetAnyStreamAsString(io:ReadableByteChannel byteChannel, string contentType) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
-    return entity.getBodyAsString();
+    return entity.getText();
 }
 
 function testByteArrayWithContentType(io:ReadableByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
@@ -500,9 +500,9 @@ function getAnyStreamAsStringFromCache(io:ReadableByteChannel byteChannel, strin
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
     string returnContent;
-    returnContent = check entity.getBodyAsString();
+    returnContent = check entity.getText();
     //String body should be retrieved from the cache the second time this is called
-    returnContent = returnContent + check entity.getBodyAsString();
+    returnContent = returnContent + check entity.getText();
     return returnContent;
 }
 

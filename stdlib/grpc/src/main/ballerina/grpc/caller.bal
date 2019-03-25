@@ -60,18 +60,16 @@ public type Caller client object {
 #
 # + host - The remote host name/IP
 # + port - The remote port
-public type Remote record {
+public type Remote record {|
     string host = "";
     int port = 0;
-    !...;
-};
+|};
 
 # Presents a read-only view of the local address.
 #
 # + host - The local host name/IP
 # + port - The local port
-public type Local record {
+public type Local record {|
     string host = "";
     int port = 0;
-    !...;
-};
+|};

@@ -178,7 +178,10 @@ public class ReferencesUtil {
     private static void prepareReferences(List<BLangPackage> modules, LSContext context, Position position)
             throws LSReferencesException {
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
-        String currentCUnitName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        /*
+        In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
+         */
+        String currentCUnitName = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/");
         Optional<BLangPackage> currentPkg = modules.stream()
                 .filter(pkg -> pkg.symbol.getName().getValue().equals(currentPkgName))
                 .findAny();
@@ -215,8 +218,9 @@ public class ReferencesUtil {
         return references.stream().map(reference -> {
             DiagnosticPos position = reference.getPosition();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-                        String fileURI = Paths.get(sourceRoot).resolve(reference.getSourcePkgName())
-                    .resolve(reference.getCompilationUnit()).toUri().toString();
+            Path baseRoot = reference.getSourcePkgName().equals(".") ? Paths.get(sourceRoot)
+                    : Paths.get(sourceRoot).resolve(reference.getSourcePkgName());
+            String fileURI = baseRoot.resolve(reference.getCompilationUnit()).toUri().toString();
 
             return new Location(fileURI, getRange(position));
         }).collect(Collectors.toList());
@@ -234,7 +238,9 @@ public class ReferencesUtil {
             DiagnosticPos referencePos = reference.getPosition();
             String pkgName = reference.getSourcePkgName();
             String cUnitName = reference.getCompilationUnit();
-            String uri = Paths.get(sourceRoot).resolve(pkgName).resolve(cUnitName).toUri().toString();
+            // If evaluating a single file which is not in a project/module, we skip adding the package name to root
+            Path baseRoot = pkgName.equals(".") ? Paths.get(sourceRoot) : Paths.get(sourceRoot).resolve(pkgName);
+            String uri = baseRoot.resolve(cUnitName).toUri().toString();
             TextEdit textEdit = new TextEdit(getRange(referencePos), newName);
             if (workspaceEdit.getChanges().containsKey(uri)) {
                 workspaceEdit.getChanges().get(uri).add(textEdit);

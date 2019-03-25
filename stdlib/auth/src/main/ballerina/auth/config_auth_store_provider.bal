@@ -21,9 +21,8 @@ const string CONFIG_USER_SECTION = "b7a.users";
 
 # Represents configurations that required for Config auth store.
 #
-public type ConfigAuthProviderConfig record {
-    !...;
-};
+public type ConfigAuthProviderConfig record {|
+|};
 
 # Represents Ballerina configuration file based auth store provider
 #

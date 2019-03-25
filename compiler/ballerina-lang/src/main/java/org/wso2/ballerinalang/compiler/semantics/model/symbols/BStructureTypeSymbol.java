@@ -34,7 +34,6 @@ public abstract class BStructureTypeSymbol extends BTypeSymbol {
 
     public List<BAttachedFunction> attachedFuncs;
     public BAttachedFunction initializerFunc;
-    public BAttachedFunction defaultsValuesInitFunc;
 
     BStructureTypeSymbol(SymbolKind kind, int symTag, int flags, Name name, PackageID pkgID, BType type,
                          BSymbol owner) {

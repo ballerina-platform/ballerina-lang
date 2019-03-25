@@ -328,7 +328,7 @@ public class DatabaseUtils {
                 stmt.setBoolean(index, ((BBoolean) value).booleanValue());
                 break;
             case TypeTags.BYTE_TAG:
-                stmt.setByte(index, ((BByte) value).byteValue());
+                stmt.setByte(index, ((BByte) value).value().byteValue());
                 break;
             default:
                 if (isKey && value instanceof BMap) {
