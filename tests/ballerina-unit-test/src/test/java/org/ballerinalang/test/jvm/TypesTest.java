@@ -219,7 +219,7 @@ public class TypesTest {
     @Test
     public void testAny() {
         BValue[] result = BRunUtil.invoke(compileResult, "anyTest");
-        Assert.assertEquals((result[0]).stringValue(), "{\"name\":\"Jbal\", \"physics\":75, \"chemistry\":89}");
+        Assert.assertEquals((result[0]).stringValue(), "{name:\"Jbal\", physics:75, chemistry:89}");
     }
 
     @Test
