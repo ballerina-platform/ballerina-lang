@@ -39,3 +39,64 @@ int globalVar = 7;
 function getGlobalVar() returns int {
     return globalVar;
 }
+
+function testByteWithoutArgs() returns int {
+   int b = 7;
+   return b;
+}
+
+byte globalByte = 0;
+
+function testByteValue() returns byte {
+    byte a = 0;
+    a = 34;
+    return a;
+}
+
+function testByteValueSpace() returns byte {
+    byte a = 0;
+    a = 234;
+    return a;
+}
+
+function testByteDefaultValue() returns byte {
+    byte a = 0;
+    return a;
+}
+
+function testByteParam(byte b) returns byte {
+    byte a = 0;
+    a = b;
+    return a;
+}
+
+function testGlobalByte(byte b) returns byte {
+    globalByte = b;
+    return globalByte;
+}
+
+function testIntToByteCast(int b) returns byte|error {
+    byte a = <byte> b;
+    return a;
+}
+
+function testByteToIntCast(byte a) returns int {
+    int b = <int>a;
+    return b;
+}
+
+function testIntToByteExplicitCast(int b) returns byte|error {
+    byte a = <byte> b;
+    return a;
+}
+
+function testByteArray() returns byte[] {
+    byte[] ba = [12, 24, 7];
+    return ba;
+}
+
+function testByteArrayAssignment(byte[] cArrayIn) returns byte[] {
+    byte[] cArray;
+    cArray = cArrayIn;
+    return cArray;
+}

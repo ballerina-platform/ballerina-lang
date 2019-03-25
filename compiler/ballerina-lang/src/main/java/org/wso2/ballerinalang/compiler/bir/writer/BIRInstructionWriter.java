@@ -140,6 +140,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BOOLEAN:

@@ -45,7 +45,7 @@ public type FuncBodyParser object {
     public function parseInstruction() returns Instruction {
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;
-        // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
+        // this is hacky to init to a fake val, but ballerina dosn't support un intialized vars
         if (kindTag == INS_ARRAY_STORE) {
             kind = INS_KIND_ARRAY_STORE;
             var lhsOp = self.parseVarRef();
@@ -114,7 +114,7 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
 
             int | string | boolean | float value = 0;
-            if (bType is BTypeInt) {
+            if (bType is BTypeInt || bType is BTypeByte) {
                 value = self.reader.readIntCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();

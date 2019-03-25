@@ -30,7 +30,7 @@ type InstructionGenerator object {
     function generateConstantLoadIns(bir:ConstantLoad loadIns) {
         bir:BType bType = loadIns.typeValue;
 
-        if (bType is bir:BTypeInt) {
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
         } else if (bType is bir:BTypeFloat) {
@@ -150,7 +150,7 @@ type InstructionGenerator object {
 
         bir:BType bType = binaryIns.lhsOp.typeValue;
 
-        if (bType is bir:BTypeInt) {
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             self.generateBinaryRhsAndLhsLoad(binaryIns);
 
             self.mv.visitInsn(LADD);
@@ -335,7 +335,15 @@ type InstructionGenerator object {
         bir:BType valueType = inst.rhsOp.variableDcl.typeValue;
         self.generateVarLoad(inst.rhsOp.variableDcl);
 
-        string valueDesc = getTypeDesc(valueType);
+        bir:BArrayType arrayType = <bir:BArrayType> inst.lhsOp.variableDcl.typeValue;
+        string valueDesc;
+        if (arrayType.eType is bir:BTypeByte) {
+            self.mv.visitInsn(L2I);
+            self.mv.visitInsn(I2B);
+            valueDesc = "B";
+        } else {
+            valueDesc = getTypeDesc(valueType);
+        }
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
@@ -384,7 +392,7 @@ type InstructionGenerator object {
             string varName = varDcl.name.value;
             string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
 
-            if (bType is bir:BTypeInt) {
+            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
                 self.mv.visitFieldInsn(GETSTATIC, className, varName, "J");
             } else if (bType is bir:BMapType) {
                 self.mv.visitFieldInsn(GETSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
@@ -394,11 +402,11 @@ type InstructionGenerator object {
             }
         } else {
             int valueIndex = self.getJVMIndexOfVarRef(varDcl);
-            if (bType is bir:BTypeInt) {
+            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(LLOAD, valueIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DLOAD, valueIndex);
-            } else if (bType is bir:BTypeBoolean || bType is bir:BTypeByte) {
+            } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, valueIndex);
             } else if (bType is bir:BArrayType ||
                           bType is bir:BTypeString ||
@@ -425,7 +433,7 @@ type InstructionGenerator object {
             string varName = varDcl.name.value;
             string className = lookupFullQualifiedClassName(self.currentPackageName + varName);
 
-            if (bType is bir:BTypeInt) {
+            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
                 self.mv.visitFieldInsn(PUTSTATIC, className, varName, "J");
             } else if (bType is bir:BMapType) {
                 self.mv.visitFieldInsn(PUTSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
@@ -435,11 +443,11 @@ type InstructionGenerator object {
             }
         } else {
             int valueIndex = self.getJVMIndexOfVarRef(varDcl);
-            if (bType is bir:BTypeInt) {
+            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(LSTORE, valueIndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DSTORE, valueIndex);
-            } else if (bType is bir:BTypeBoolean || bType is bir:BTypeByte) {
+            } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ISTORE, valueIndex);
             } else if (bType is bir:BArrayType ||
                             bType is bir:BTypeString ||
