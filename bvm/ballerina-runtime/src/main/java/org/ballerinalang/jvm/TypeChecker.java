@@ -34,8 +34,9 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
 
@@ -804,8 +805,10 @@ public class TypeChecker {
         return false;
     }
 
-    private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
-        return new BLangRuntimeException("'" + getType(sourceVal) + "' cannot be cast to '" + targetType + "'");
+    private static ErrorValue getTypeCastError(Object sourceVal, BType targetType) {
+        MapValue details = new MapValue();
+        details.put("message", "'" + getType(sourceVal) + "' cannot be cast to'" + targetType + "'");
+        return new ErrorValue(RuntimeErrors.TYPE_CAST_ERROR.getErrorMsgKey(), details);
     }
 
     private static boolean isAnydata(BType type) {
