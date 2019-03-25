@@ -66,14 +66,13 @@ public type CachedTokenConfig record {
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
 # + credentialBearer - How authentication credentials are sent to authorization server
-type RequestConfig record {
+type RequestConfig record {|
     string payload;
     string clientId?;
     string clientSecret?;
     string[]? scopes;
     CredentialBearer credentialBearer;
-    !...;
-};
+|};
 
 # Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication
 # schemes configured in the HTTP client endpoint to secure the HTTP requests.
