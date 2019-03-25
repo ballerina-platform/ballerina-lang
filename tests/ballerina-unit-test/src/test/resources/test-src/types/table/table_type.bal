@@ -43,15 +43,14 @@ type ResultSetTestAlias record {
     int DT2INT_TYPE;
 };
 
-type ResultClosed record {
+type ResultClosed record {|
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
-    !...;
-};
+|};
 
 type ResultObject record {
     byte[] BLOB_TYPE;

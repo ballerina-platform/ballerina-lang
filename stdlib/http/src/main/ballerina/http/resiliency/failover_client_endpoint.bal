@@ -22,11 +22,10 @@ import ballerina/io;
 #
 # + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
 # + interval - Failover delay interval in milliseconds
-public type FailoverConfig record {
+public type FailoverConfig record {|
     int[] failoverCodes = [];
     int interval = 0;
-    !...;
-};
+|};
 
 // TODO: This can be made package private
 // Represents inferred failover configurations passed to Failover connector.
@@ -35,12 +34,11 @@ public type FailoverConfig record {
 # + failoverClientsArray - Array of HTTP Clients that needs to be Failover
 # + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
 # + failoverInterval - Failover delay interval in milliseconds
-public type FailoverInferredConfig record {
+public type FailoverInferredConfig record {|
     Client?[] failoverClientsArray = [];
     boolean[] failoverCodesIndex = [];
     int failoverInterval = 0;
-    !...;
-};
+|};
 
 # An HTTP client endpoint which provides failover support over multiple HTTP clients.
 #
@@ -454,7 +452,7 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 # + auth - HTTP authentication releated configurations
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalMillis - Failover delay interval in milliseconds
-public type FailoverClientEndpointConfiguration record {
+public type FailoverClientEndpointConfiguration record {|
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
@@ -471,8 +469,7 @@ public type FailoverClientEndpointConfiguration record {
     AuthConfig? auth = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalMillis = 0;
-    !...;
-};
+|};
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
                                                   TargetService target) returns ClientEndpointConfig {
