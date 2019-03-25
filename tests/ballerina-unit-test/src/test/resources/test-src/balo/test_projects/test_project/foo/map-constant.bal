@@ -102,19 +102,26 @@ public const sConst = "Ballerina";
 public const iConst = 100;
 public const map<string> mConst = { "mKey": "mValue" };
 
-public type TestConfig record {
+public type TestConfig record {|
     string s;
     int i;
     map<string> m;
-    !...;
-};
+|};
 
 public annotation<function> testAnnotation TestConfig;
 
-public map<map<string>> m5 = { "m5k": m6 };
+map<map<string>> m5 = { "m5k": m6 };
 public const map<string> m6 = { "m6k": "m6v" };
 
-public map<string>[] a1 = [m6];
+function getM5() returns map<map<string>> {
+    return m5;
+}
+
+map<string>[] a1 = [m6];
+
+function getA1() returns map<string>[] {
+    return a1;
+}
 
 public const map<boolean> bm4 = { "bm4k": true };
 public const map<boolean> bm5 = { "bm5kn": bm4.bm4k };
@@ -139,37 +146,93 @@ public const map<()> nm5 = { "nm5kn": nm4.nm4k };
 
 // -----------------------------------------------------------
 
-public map<map<boolean>> bm10 = { "bm10k": bm11 };
+map<map<boolean>> bm10 = { "bm10k": bm11 };
 public const map<boolean> bm11 = { "bm11k": true };
 
-public map<boolean>[] ba1 = [bm11];
+public function getBM10() returns map<map<boolean>> {
+    return bm10;
+}
 
-public map<map<int>> im10 = { "im10k": im11 };
+map<boolean>[] ba1 = [bm11];
+
+public function getBA1() returns map<boolean>[] {
+    return ba1;
+}
+
+map<map<int>> im10 = { "im10k": im11 };
 public const map<int> im11 = { "im11k": 10 };
 
-public map<int>[] ia1 = [im11];
+public function getIM10() returns map<map<int>> {
+    return im10;
+}
 
-public map<map<byte>> bytem10 = { "bytem10k": bytem11 };
+map<int>[] ia1 = [im11];
+
+public function getIA1() returns map<int>[] {
+    return ia1;
+}
+
+map<map<byte>> bytem10 = { "bytem10k": bytem11 };
 public const map<byte> bytem11 = { "bytem11k": 4 };
 
-public map<byte>[] bytea1 = [bytem11];
+public function getBYTEM10() returns map<map<byte>> {
+    return bytem10;
+}
 
-public map<map<float>> fm10 = { "fm10k": fm11 };
+map<byte>[] bytea1 = [bytem11];
+
+public function getBYTEA1() returns map<byte>[] {
+    return bytea1;
+}
+
+map<map<float>> fm10 = { "fm10k": fm11 };
 public const map<float> fm11 = { "fm11k": 40.0 };
 
-public map<float>[] fa1 = [fm11];
+public function getFM10() returns map<map<float>> {
+    return fm10;
+}
 
-public map<map<decimal>> dm10 = { "dm10k": dm11 };
+map<float>[] fa1 = [fm11];
+
+public function getFA1() returns map<float>[] {
+    return fa1;
+}
+
+map<map<decimal>> dm10 = { "dm10k": dm11 };
 public const map<decimal> dm11 = { "dm11k": 125 };
 
-public map<decimal>[] da1 = [dm11];
+public function getDM10() returns map<map<decimal>> {
+    return dm10;
+}
 
-public map<map<string>> sm10 = { "sm10k": sm11 };
+map<decimal>[] da1 = [dm11];
+
+public function getDA1() returns map<decimal>[] {
+    return da1;
+}
+
+map<map<string>> sm10 = { "sm10k": sm11 };
 public const map<string> sm11 = { "sm11k": "sm11v" };
 
-public map<string>[] sa1 = [sm11];
+public function getSM10() returns map<map<string>> {
+    return sm10;
+}
 
-public map<map<()>> nm10 = { "nm10k": nm11 };
+map<string>[] sa1 = [sm11];
+
+public function getSA1() returns map<string>[] {
+    return sa1;
+}
+
+map<map<()>> nm10 = { "nm10k": nm11 };
 public const map<()> nm11 = { "nm11k": () };
 
-public map<()>[] na1 = [nm11];
+public function getNM10() returns map<map<()>> {
+    return nm10;
+}
+
+map<()>[] na1 = [nm11];
+
+public function getNA1() returns map<()>[] {
+    return na1;
+}

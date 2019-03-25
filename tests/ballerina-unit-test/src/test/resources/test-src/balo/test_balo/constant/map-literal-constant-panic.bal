@@ -3,11 +3,11 @@ import testorg/foo version v1;
 // boolean ---------------------------------------------------
 
 function updateNestedConstantBooleanMapValueWithExistingKey() {
-    foo:bm10.bm10k.bm11k = false; // panic
+    foo:getBM10().bm10k.bm11k = false; // panic
 }
 
 function updateNestedConstantBooleanMapValueWithNewKey() {
-    foo:bm10.bm10k.newKey = false; // panic
+    foo:getBM10().bm10k.newKey = false; // panic
 }
 
 function updateReturnedConstantBooleanMapWithExistingKey() {
@@ -27,25 +27,25 @@ function getBooleanMap() returns map<boolean> {
 // -----------------------------------------------------------
 
 function updateConstantBooleanMapValueInArrayWithExistingKey() {
-    foo:ba1[0].bm11k = false; // panic
+    foo:getBA1()[0].bm11k = false; // panic
 }
 
 function updateConstantBooleanMapValueInArrayWithNewKey() {
-    foo:ba1[0].newKey = false; // panic
+    foo:getBA1()[0].newKey = false; // panic
 }
 
 function getConstantBooleanMapValueInArray() returns boolean {
-    return foo:ba1[0].bm11k;
+    return foo:getBA1()[0].bm11k;
 }
 
 // int -------------------------------------------------------
 
 function updateNestedConstantIntMapValueWithExistingKey() {
-    foo:im10.im10k.im11k = 20; // panic
+    foo:getIM10().im10k.im11k = 20; // panic
 }
 
 function updateNestedConstantIntMapValueWithNewKey() {
-    foo:im10.im10k.newKey = 20; // panic
+    foo:getIM10().im10k.newKey = 20; // panic
 }
 
 function updateReturnedConstantIntMapWithExistingKey() {
@@ -65,25 +65,25 @@ function getIntMap() returns map<int> {
 // -----------------------------------------------------------
 
 function updateConstantIntMapValueInArrayWithExistingKey() {
-    foo:ia1[0].im11k = 20; // panic
+    foo:getIA1()[0].im11k = 20; // panic
 }
 
 function updateConstantIntMapValueInArrayWithNewKey() {
-    foo:ia1[0].newKey = 20; // panic
+    foo:getIA1()[0].newKey = 20; // panic
 }
 
 function getConstantIntMapValueInArray() returns int {
-    return foo:ia1[0].im11k;
+    return foo:getIA1()[0].im11k;
 }
 
 // byte ------------------------------------------------------
 
 function updateNestedConstantByteMapValueWithExistingKey() {
-    foo:bytem10.bytem10k.bytem11k = 8; // panic
+    foo:getBYTEM10().bytem10k.bytem11k = 8; // panic
 }
 
 function updateNestedConstantByteMapValueWithNewKey() {
-    foo:bytem10.bytem10k.newKey = 8; // panic
+    foo:getBYTEM10().bytem10k.newKey = 8; // panic
 }
 
 function updateReturnedConstantByteMapWithExistingKey() {
@@ -103,25 +103,25 @@ function getByteMap() returns map<byte> {
 // -----------------------------------------------------------
 
 function updateConstantByteMapValueInArrayWithExistingKey() {
-    foo:bytea1[0].bytem11k = 8; // panic
+    foo:getBYTEA1()[0].bytem11k = 8; // panic
 }
 
 function updateConstantByteMapValueInArrayWithNewKey() {
-    foo:bytea1[0].newKey = 8; // panic
+    foo:getBYTEA1()[0].newKey = 8; // panic
 }
 
 function getConstantByteMapValueInArray() returns byte {
-    return foo:bytea1[0].bytem11k;
+    return foo:getBYTEA1()[0].bytem11k;
 }
 
 // float -----------------------------------------------------
 
 function updateNestedConstantFloatMapValueWithExistingKey() {
-    foo:fm10.fm10k.fm11k = 15.0; // panic
+    foo:getFM10().fm10k.fm11k = 15.0; // panic
 }
 
 function updateNestedConstantFloatMapValueWithNewKey() {
-    foo:fm10.fm10k.newKey = 15.0; // panic
+    foo:getFM10().fm10k.newKey = 15.0; // panic
 }
 
 function updateReturnedConstantFloatMapWithExistingKey() {
@@ -141,25 +141,25 @@ function getFloatMap() returns map<float> {
 // -----------------------------------------------------------
 
 function updateConstantFloatMapValueInArrayWithExistingKey() {
-    foo:fa1[0].fm11k = 15.0; // panic
+    foo:getFA1()[0].fm11k = 15.0; // panic
 }
 
 function updateConstantFloatMapValueInArrayWithNewKey() {
-    foo:fa1[0].newKey = 15.0; // panic
+    foo:getFA1()[0].newKey = 15.0; // panic
 }
 
 function getConstantFloatMapValueInArray() returns float {
-    return foo:fa1[0].fm11k;
+    return foo:getFA1()[0].fm11k;
 }
 
 // decimal ---------------------------------------------------
 
 function updateNestedConstantDecimalMapValueWithExistingKey() {
-    foo:dm10.dm10k.dm11k = 200; // panic
+    foo:getDM10().dm10k.dm11k = 200; // panic
 }
 
 function updateNestedConstantDecimalMapValueWithNewKey() {
-    foo:dm10.dm10k.newKey = 200; // panic
+    foo:getDM10().dm10k.newKey = 200; // panic
 }
 
 function updateReturnedConstantDecimalMapWithExistingKey() {
@@ -179,25 +179,25 @@ function getDecimalMap() returns map<decimal> {
 // -----------------------------------------------------------
 
 function updateConstantDecimalMapValueInArrayWithExistingKey() {
-    foo:da1[0].dm11k = 200; // panic
+    foo:getDA1()[0].dm11k = 200; // panic
 }
 
 function updateConstantDecimalMapValueInArrayWithNewKey() {
-    foo:da1[0].newKey = 200; // panic
+    foo:getDA1()[0].newKey = 200; // panic
 }
 
 function getConstantDecimalMapValueInArray() returns decimal {
-    return foo:da1[0].dm11k;
+    return foo:getDA1()[0].dm11k;
 }
 
 // string ----------------------------------------------------
 
 function updateNestedConstantStringMapValueWithExistingKey() {
-    foo:sm10.sm10k.sm11k = "sm11nv"; // panic
+    foo:getSM10().sm10k.sm11k = "sm11nv"; // panic
 }
 
 function updateNestedConstantStringMapValueWithNewKey() {
-    foo:sm10.sm10k.newKey = "newValue"; // panic
+    foo:getSM10().sm10k.newKey = "newValue"; // panic
 }
 
 function updateReturnedConstantStringMapWithExistingKey() {
@@ -217,25 +217,25 @@ function getStringMap() returns map<string> {
 // -----------------------------------------------------------
 
 function updateConstantStringMapValueInArrayWithExistingKey() {
-    foo:sa1[0].sm11k = "sm11nv"; // panic
+    foo:getSA1()[0].sm11k = "sm11nv"; // panic
 }
 
 function updateConstantStringMapValueInArrayWithNewKey() {
-    foo:sa1[0].newKey = "newValue"; // panic
+    foo:getSA1()[0].newKey = "newValue"; // panic
 }
 
 function getConstantStringMapValueInArray() returns string {
-    return foo:sa1[0].sm11k;
+    return foo:getSA1()[0].sm11k;
 }
 
 // nil -------------------------------------------------------
 
 function updateNestedConstantNilMapValueWithExistingKey() {
-    foo:nm10.nm10k.nm11k = (); // panic
+    foo:getNM10().nm10k.nm11k = (); // panic
 }
 
 function updateNestedConstantNilMapValueWithNewKey() {
-    foo:nm10.nm10k.newKey = (); // panic
+    foo:getNM10().nm10k.newKey = (); // panic
 }
 
 function updateReturnedConstantNilMapWithExistingKey() {
@@ -255,13 +255,13 @@ function getNilMap() returns map<()> {
 // -----------------------------------------------------------
 
 function updateConstantNilMapValueInArrayWithExistingKey() {
-    foo:na1[0].nm11k = (); // panic
+    foo:getNA1()[0].nm11k = (); // panic
 }
 
 function updateConstantNilMapValueInArrayWithNewKey() {
-    foo:na1[0].newKey = (); // panic
+    foo:getNA1()[0].newKey = (); // panic
 }
 
 function getConstantNilMapValueInArray() returns () {
-    return foo:na1[0].nm11k;
+    return foo:getNA1()[0].nm11k;
 }

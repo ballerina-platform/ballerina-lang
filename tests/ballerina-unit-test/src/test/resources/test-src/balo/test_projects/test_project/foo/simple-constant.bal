@@ -27,8 +27,17 @@ public const () NilWithType = ();
 
 // -----------------------------------------------------------
 
-public string sgvWithType = nameWithType;
-public string sgvWithoutType = nameWithoutType;
+string sgvWithType = nameWithType;
+
+public function getSgvWithType() returns string {
+    return sgvWithType;
+}
+
+string sgvWithoutType = nameWithoutType;
+
+public function getSgvWithoutType() returns string {
+    return sgvWithoutType;
+}
 
 // -----------------------------------------------------------
 
@@ -96,7 +105,11 @@ public const string constAddress = "Colombo";
 
 public type AB "A"|"B";
 
-public AB A = "A";
+AB A = "A";
+
+public function getA() returns AB {
+    return A;
+}
 
 // -----------------------------------------------------------
 

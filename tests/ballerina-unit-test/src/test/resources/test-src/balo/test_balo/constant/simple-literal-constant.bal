@@ -50,7 +50,7 @@ function testConstInRecord() returns string {
 // -----------------------------------------------------------
 
 function testConstWithTypeAssignmentToGlobalVariable() returns string {
-    return foo:sgvWithType;
+    return foo:getSgvWithType();
 }
 
 function testConstWithTypeAssignmentToLocalVariable() returns string {
@@ -62,7 +62,7 @@ function testConstWithTypeAssignmentToLocalVariable() returns string {
 
 
 function testConstWithoutTypeAssignmentToGlobalVariable() returns string {
-    return foo:sgvWithoutType;
+    return foo:getSgvWithoutType();
 }
 
 function testConstWithoutTypeAssignmentToLocalVariable() returns string {
