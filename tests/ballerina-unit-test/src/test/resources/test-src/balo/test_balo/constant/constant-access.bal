@@ -23,11 +23,11 @@ function testAccessConstantWithType() returns Colombo {
 type AB "A"|"B";
 
 function testAccessFiniteType() returns foo:AB {
-    return foo:A;
+    return foo:getA();
 }
 
 function testReturnFiniteType() returns AB {
-    return foo:A; // Valid because this is same as `return "A";`
+    return foo:getA(); // Valid because this is same as `return "A";`
 }
 
 function testAccessTypeWithContInDef() returns foo:XY {

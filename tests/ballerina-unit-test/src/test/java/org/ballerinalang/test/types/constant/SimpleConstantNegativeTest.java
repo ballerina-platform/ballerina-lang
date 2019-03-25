@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -56,7 +56,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "invalid literal for type 'string'", offset += 2, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", offset += 5, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'def'", offset += 6, 5);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'string'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 offset += 11, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 offset += 9, 12);
@@ -103,11 +103,7 @@ public class SimpleConstantNegativeTest {
                 offset += 11, 25);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'", offset += 9,
                 28);
-        // TODO: We should revert the below validation change (240 -> -16) once git issue #13821 is fixed.
-        // For byte type, values greater than 127 would get the equivalent value between -128 to 127 based on
-        // round-robin algorithm. As a result, for negative test cases a different value might get printed than the
-        // expected.
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '-16', found 'int'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
                 offset += 11, 26);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
                 offset += 11, 27);

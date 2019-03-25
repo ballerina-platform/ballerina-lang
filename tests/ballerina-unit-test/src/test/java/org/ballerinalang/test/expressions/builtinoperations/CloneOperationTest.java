@@ -18,10 +18,6 @@
 
 package org.ballerinalang.test.expressions.builtinoperations;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -36,6 +32,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -95,9 +95,9 @@ public class CloneOperationTest {
     public void testCloneByte() {
         BValue[] results = BRunUtil.invoke(result, "cloneByte");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BByte) results[0]).byteValue(), (byte) 234);
-        Assert.assertEquals(((BByte) results[1]).byteValue(), (byte) 100);
-        Assert.assertEquals(((BByte) results[2]).byteValue(), (byte) 133);
+        Assert.assertEquals(((BByte) results[0]).byteValue(), 234);
+        Assert.assertEquals(((BByte) results[1]).byteValue(), 100);
+        Assert.assertEquals(((BByte) results[2]).byteValue(), 133);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 

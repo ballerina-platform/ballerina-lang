@@ -96,21 +96,19 @@ public function Listener.init(ServiceEndpointConfiguration c) {
 #
 # + host - The remote host name/IP
 # + port - The remote port
-public type Remote record {
+public type Remote record {|
     string host = "";
     int port = 0;
-    !...;
-};
+|};
 
 # Presents a read-only view of the local address.
 #
 # + host - The local host name/IP
 # + port - The local port
-public type Local record {
+public type Local record {|
     string host = "";
     int port = 0;
-    !...;
-};
+|};
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
 #
@@ -120,12 +118,11 @@ public type Local record {
 #                   `413 - Payload Too Large` response.
 # + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
-public type RequestLimits record {
+public type RequestLimits record {|
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...;
-};
+|};
 
 # Provides a set of configurations for HTTP service endpoints.
 #
@@ -146,7 +143,7 @@ public type RequestLimits record {
 # + authProviders - The array of authentication providers which are used to authenticate the users
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
-public type ServiceEndpointConfiguration record {
+public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
@@ -158,8 +155,7 @@ public type ServiceEndpointConfiguration record {
     AuthProvider[]? authProviders = ();
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-    !...;
-};
+|};
 
 # Configures the SSL/TLS options to be used for HTTP service.
 #
@@ -175,8 +171,10 @@ public type ServiceEndpointConfiguration record {
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
-public type ServiceSecureSocket record {
+public type ServiceSecureSocket record {|
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
     string certFile = "";
@@ -192,9 +190,10 @@ public type ServiceSecureSocket record {
                         "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
+    int? handshakeTimeout = ();
+    int? sessionTimeout = ();
     ServiceOcspStapling? ocspStapling = ();
-    !...;
-};
+|};
 
 # Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
 #
@@ -203,13 +202,12 @@ public type ServiceSecureSocket record {
 # + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
-public type AuthCacheConfig record {
+public type AuthCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
     int expiryTimeMillis = 5 * 1000; // 5 seconds;
     float evictionFactor = 1;
-    !...;
-};
+|};
 
 # Configuration for authentication providers.
 #
@@ -217,13 +215,12 @@ public type AuthCacheConfig record {
 # + scheme - Authentication scheme
 # + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
 # + config - Configuration related to the selected authentication provider.
-public type AuthProvider record {
+public type AuthProvider record {|
     string id = "";
     InboundAuthScheme? scheme = ();
     AuthStoreProvider? authStoreProvider = ();
     auth:LdapAuthProviderConfig|auth:ConfigAuthProviderConfig|auth:JWTAuthProviderConfig? config = ();
-    !...;
-};
+|};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;

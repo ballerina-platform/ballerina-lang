@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -156,7 +156,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Map access negative scenarios")
     public void negativeTest() {
-        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 6);
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 5);
 
         int index = 0;
         // testMapAccessWithIndex
@@ -167,10 +167,9 @@ public class MapAccessExprTest {
         BAssertUtil.validateError(incorrectCompileResult, index++, "cannot get all fields from a map", 9, 13);
 
         // uninitialized map access
-        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 16, 5);
-        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 18, 41);
-        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'globalM' is not initialized", 22, 5);
-        BAssertUtil.validateError(incorrectCompileResult, index, "variable 'm4' is not initialized", 43, 12);
+        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 14, 5);
+        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 16, 41);
+        BAssertUtil.validateError(incorrectCompileResult, index, "variable 'm4' is not initialized", 39, 12);
     }
 
     @Test(description = "Test map remove key positive.")

@@ -1,21 +1,18 @@
-type Department record {
+type Department record {|
     string dptName = "";
     boolean y = false;
-    !...;
-};
+|};
 
-type Department record {
+type Department record {|
     string name = "";
     int[] a1 = [];
-    !...;
-};
+|};
 
-type Department2 record {
+type Department2 record {|
     string dptName = "";
     int id = 0;
     string id = "";
-    !...;
-};
+|};
 
 function testUndeclaredStructInit () {
     Department123 dpt1 = {name:"HR"};

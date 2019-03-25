@@ -26,7 +26,7 @@
 # + externalDocs - Additional external documentation
 # + tags - A list of tags used by the specification with additional metadata
 # + security - Security requirements for this service
-public type ServiceInformation record {
+public type ServiceInformation record {|
     string title = "";
     string serviceVersion = "";
     string description = "";
@@ -36,62 +36,56 @@ public type ServiceInformation record {
     DocumentationInformation externalDocs = {};
     Tag[] tags = [];
     SecurityRequirement[] security = [];
-    !...;
-};
+|};
 
 # Model for Swagger contact information.
 #
 # + name - Contact name
 # + email - Contact email
 # + url - Contact web address/page
-public type Contact record {
+public type Contact record {|
     string name = "";
     string email = "";
     string url = "";
-    !...;
-};
+|};
 
 # Model for service licence information.
 #
 # + name - License name
 # + url - License url
-public type License record {
+public type License record {|
     string name = "";
     string url = "";
-    !...;
-};
+|};
 
 # Model for service documentation definition.
 #
 # + description - Documentation description
 # + url - External documentation url
-public type DocumentationInformation record {
+public type DocumentationInformation record {|
     string description = "";
     string url = "";
-    !...;
-};
+|};
 
 # Model for Swagger service tag definition.
 #
 # + name - Tag name
 # + description - Tag decription
 # + externalDocs - Optional documentation on the tag
-public type Tag record {
+public type Tag record {|
     string name = "";
     string description = "";
     DocumentationInformation externalDocs = {};
-    !...;
-};
+|};
 
 # Model for security requirement definition. This is most likely the OAuth scopes.
 #
 # + name - Security scheme name
 # + requirements - Array of security requirements
-public type SecurityRequirement record {
+public type SecurityRequirement record {|
     string name = "";
     string[] requirements = [];
-    !...;
-};
+|};
 
 # Model for keeping Swagger parameter information.
 #
@@ -103,7 +97,7 @@ public type SecurityRequirement record {
 # + discontinued - Is this parameter deprecated
 # + allowEmptyValue - Is an empty value allowed for this parameter. Valid only for query parameters
 # + schema - Parameter data type
-public type ParameterInformation record {
+public type ParameterInformation record {|
     string inInfo = "";
     string name = "";
     string paramType = "";
@@ -112,20 +106,18 @@ public type ParameterInformation record {
     boolean discontinued = false;
     string allowEmptyValue = "";
     Schema schema = {};
-    !...;
-};
+|};
 
 # Model for keeping additional Swagger schema information.
 #
 # + format - Data format as specified by Swagger data type
 # + isArray - Is this an array type schema
 # + ref - Schema reference if this schema definition is a reference type definition
-public type Schema record {
+public type Schema record {|
     string format = "";
     boolean isArray = false;
     string ref = "";
-    !...;
-};
+|};
 
 # Model for additional Swagger resource definition.
 #
@@ -134,14 +126,13 @@ public type Schema record {
 # + description - A verbose explanation of the operation behavior
 # + externalDocs - Additional documentation for this operation
 # + parameters - A list of parameters that are applicable for this operation
-public type ResourceInformation record {
+public type ResourceInformation record {|
     string[] tags = [];
     string summary = "";
     string description = "";
     DocumentationInformation externalDocs = {};
     ParameterInformation[] parameters = [];
-    !...;
-};
+|};
 
 # Model for keeping Swagger response information.
 #
@@ -150,26 +141,24 @@ public type ResourceInformation record {
 # + response - Response content
 # + headers - Response headers
 # + examples - Examples for this response
-public type Response record {
+public type Response record {|
     string code = "";
     string description = "";
     string response = "";
     Header[] headers = [];
     Example[] examples = [];
-    !...;
-};
+|};
 
 # Model for keeping Swagger header definition information.
 #
 # + required - Is this a required header
 # + discontinued - Is this header deprecated
 # + description - Header description
-public type Header record {
+public type Header record {|
     boolean required = false;
     boolean discontinued = false;
     string description = "";
-    !...;
-};
+|};
 
 # Model for keeping Swagger example information.
 #
@@ -177,13 +166,12 @@ public type Header record {
 # + description - Long description for the example
 # + value - Any example value
 # + externalValue - A URL that points to the literal example
-public type Example record {
+public type Example record {|
     string summary = "";
     string description = "";
     any value = "";
     string externalValue = "";
-    !...;
-};
+|};
 
 # Model for additional Swagger request body details.
 #
@@ -193,15 +181,14 @@ public type Example record {
 # + examples - Examples of the media type
 # + schema - The schema defining the type used for the request body
 # + encoding - Encoding and content type details
-public type requestBody record {
+public type requestBody record {|
     string description = "";
     boolean required = false;
     string example = "";
     Example[] examples = [];
     Schema schema = {};
     Encoding[] encoding = [];
-    !...;
-};
+|};
 
 # Model for additional Swagger content type definition.
 #
@@ -210,30 +197,27 @@ public type requestBody record {
 # + style - Describes how a specific property value will be serialized depending on its type
 # + explode - Should property values of array or object generate separate parameters for each value of the array
 # + allowReserved - Determines whether the parameter value SHOULD allow reserved characters
-public type Encoding record {
+public type Encoding record {|
     ParameterInformation[] headers = [];
     string contentType = "";
     string style = "";
     boolean explode = false;
     boolean allowReserved = false;
-    !...;
-};
+|};
 
 # Configuration elements for client code generation.
 #
 # + generate - generates client code if set to true
-public type ClientInformation record {
+public type ClientInformation record {|
     boolean generate = true;
-    !...;
-};
+|};
 
 # Model for multi swagger operation definition for ballerina resource.
 #
 # + resourceInformation - list of resource information
-public type MultiResourceInformation record {
+public type MultiResourceInformation record {|
     map<ResourceInformation> resourceInformation;
-    !...;
-};
+|};
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
 public annotation <listener> ClientEndpoint;

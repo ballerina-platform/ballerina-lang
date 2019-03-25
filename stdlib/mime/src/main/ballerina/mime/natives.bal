@@ -47,7 +47,7 @@ public const string CONTENT_TYPE = "content-type";
 public const string CONTENT_DISPOSITION = "content-disposition";
 
 # Represents MIME error code.
-const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
+public const string MIME_ERROR_CODE = "{ballerina/mime}MIMEError";
 
 type MIMEError record {
     string message = "";
@@ -276,14 +276,6 @@ public type Entity object {
     #
     # + return - `string` data extracted from the the entity body or `error` in case of errors.
     public extern function getText() returns @tainted string|error;
-
-    # Given an entity, gets the entity body as a string. Content type is checked during entity body construction which
-    # makes this different from getText() method.
-    #
-    # + return - Entity body as a `string` or `error` in case of errors occurred during
-    #            construction of the string body.
-
-    public extern function getBodyAsString() returns @tainted string|error;
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
     # with the default content type `application/octet-stream`. The default value `application/octet-stream`

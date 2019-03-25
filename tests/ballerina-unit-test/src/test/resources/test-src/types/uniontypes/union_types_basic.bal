@@ -104,17 +104,15 @@ function testRecordLiteralAssignment() returns string {
     }
 }
 
-type Foo record {
+type Foo record {|
     string s;
     int i = 0;
-    !...;
-};
+|};
 
-type Bar record {
+type Bar record {|
     string x;
     int y = 0;
-    !...;
-};
+|};
 
 function testUnionTypeWithMultipleRecordTypes() returns string[] {
 

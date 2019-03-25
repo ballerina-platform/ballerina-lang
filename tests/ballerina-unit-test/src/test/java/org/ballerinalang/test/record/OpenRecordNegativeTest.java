@@ -18,12 +18,12 @@
 
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -101,22 +101,13 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test uninitialized record access")
     public void testUninitRecordAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
-        assertEquals(compileResult.getErrorCount(), 15);
+        assertEquals(compileResult.getErrorCount(), 6);
         int index = 0;
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 22, 1);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 27, 19);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 28, 12);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 5);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 31, 5);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 33, 42);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 37, 12);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 38, 12);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 40, 5);
-        validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 41, 5);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 43, 12);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 44, 12);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 46, 5);
-        validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 47, 5);
-        validateError(compileResult, index, "variable 'p4' is not initialized", 67, 12);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 24, 19);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 25, 12);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 27, 5);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 28, 5);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 42);
+        validateError(compileResult, index, "variable 'p4' is not initialized", 52, 12);
     }
 }

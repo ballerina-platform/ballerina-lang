@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -26,12 +23,15 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Class to test functionality of "===" and "!==".
@@ -91,7 +91,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "equalByteValues")
     public void testByteRefEqualityPositive(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) i)};
+        BValue[] args = {new BByte(i), new BByte(i)};
         BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -101,7 +101,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "unequalByteValues")
     public void testByteRefEqualityNegative(int i, int j) {
-        BValue[] args = {new BByte((byte) i), new BByte((byte) j)};
+        BValue[] args = {new BByte(i), new BByte(j)};
         BValue[] returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

@@ -48,8 +48,8 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test(description = "Test socket clinet callback service read ready")
-    public void testSocketClinetCallbackServerEcho() throws Exception {
+    @Test(description = "Test socket client callback service read ready")
+    public void testSocketClientCallbackServerEcho() throws Exception {
         String requestMessage = "Hello Ballerina";
         LogLeecher serverLeecher = new LogLeecher(requestMessage);
         serverInstance.addLogLeecher(serverLeecher);

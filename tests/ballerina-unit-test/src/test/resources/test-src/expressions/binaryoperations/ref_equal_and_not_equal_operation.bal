@@ -24,11 +24,10 @@ type OpenPerson record {
     int id;
 };
 
-type ClosedEmployee record {
+type ClosedEmployee record {|
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
 type Abc object {
     public string name;
@@ -146,8 +145,8 @@ function testArrayRefEqualityPositive() returns boolean {
 
     refEquals = refEquals && a === b && !(a !== b);
 
-    (boolean|float)[][] c = [];
-    (boolean|float)[][] d = c;
+    (boolean|float)?[][] c = [];
+    (boolean|float)?[][] d = c;
 
     c = [[true, 1.3], [false, false, 12.2]];
     d = c;
