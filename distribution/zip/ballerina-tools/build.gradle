@@ -147,7 +147,13 @@ task generateDocs(type: JavaExec) {
 
 CopySpec apiDocsSpec = copySpec {
     from generateDocs.outputs.files
-    into("$basePath/docs")
+    into("$basePath/docs/ballerina")
+}
+
+CopySpec copySrcBaloSpec = copySpec {
+    def path = "$buildDir/ballerina";
+    from configurations.balSource.files
+    into("$basePath/src")
 }
 
 task createApiDocsZip(type: Zip) {
@@ -165,6 +171,7 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec
     with examplesSpec
     with apiDocsSpec
+    with copySrcBaloSpec
 }
 
 build {
