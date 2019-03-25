@@ -306,11 +306,14 @@ function mapOperationsOnXmlAttribute() returns (int?, string[]?, boolean) {
 }
 
 function mapUpdateOnXmlAttribute() returns (xml) {
+    xmlns "the{}url" as nsLocal;
     var x1 = xml `<child foo="bar" itemCode="3344"/>`;
     map<string> attrMap = <map<string>>x1@;
 
     attrMap["abc"] = "xyz";
     attrMap["{http://example.com/ns}baz"] = "value";
+    attrMap["{abc}}bak}bar"] = "theNewVal";
+    attrMap[nsLocal:foo] = "foo2";
     return x1;
 }
 

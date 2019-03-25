@@ -391,8 +391,9 @@ public class XMLAttributesTest {
         BXML xml = (BXML) returns[0];
         String abcAttrVal = xml.getAttribute("abc", null);
         Assert.assertEquals(abcAttrVal, "xyz");
-        String bazAttrVal = xml.getAttribute("baz", "http://example.com/ns");
-        Assert.assertEquals(bazAttrVal, "value");
+        Assert.assertEquals(xml.getAttribute("baz", "http://example.com/ns"), "value");
+        Assert.assertEquals(xml.getAttribute("bar", "abc}}bak"), "theNewVal");
+        Assert.assertEquals(xml.getAttribute("foo", "the{}url"), "foo2");
     }
 
     @Test(description = "Test xml@ return nil when xml is non singleton xml item")

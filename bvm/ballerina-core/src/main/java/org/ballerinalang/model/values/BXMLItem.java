@@ -918,7 +918,7 @@ public final class BXMLItem extends BXML<OMNode> {
             String url = null;
             String localName = key;
 
-            int endOfUrl = key.indexOf('}');
+            int endOfUrl = key.lastIndexOf('}');
             if (endOfUrl != -1) {
                 int startBrace = key.indexOf('{');
                 if (startBrace == 0) {
