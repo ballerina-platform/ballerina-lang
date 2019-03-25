@@ -96,12 +96,11 @@ const sConst = "Ballerina";
 const iConst = 100;
 const map<string> mConst = { "mKey": "mValue" };
 
-public type TestConfig record {
+public type TestConfig record {|
     string s;
     int i;
     map<string> m;
-    !...;
-};
+|};
 
 public annotation<function> testAnnotation TestConfig;
 
