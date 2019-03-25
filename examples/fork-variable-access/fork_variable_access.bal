@@ -39,6 +39,9 @@ public function main() {
                     i = i + 100;
                 }
             }
+
+            // Wait for worker `W3` to finish.
+            wait W3;
         }
 
         worker W2 {

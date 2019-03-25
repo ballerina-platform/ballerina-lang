@@ -30,7 +30,7 @@ public class DefaultValue {
 
     private int valueCPIndex = -1;
     private long intValue;
-    private byte byteValue;
+    private long byteValue;
     private double floatValue;
     private BigDecimal decimalValue;
     private String stringValue;
@@ -97,11 +97,11 @@ public class DefaultValue {
         this.booleanValue = booleanValue;
     }
 
-    public byte getByteValue() {
+    public long getByteValue() {
         return byteValue;
     }
 
-    public void setByteValue(byte byteValue) {
+    public void setByteValue(long byteValue) {
         this.byteValue = byteValue;
     }
 }

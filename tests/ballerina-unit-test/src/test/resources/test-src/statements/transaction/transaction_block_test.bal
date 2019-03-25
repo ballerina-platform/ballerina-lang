@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type TrxError record {
+public type TrxError record {|
     string message;
     error? cause;
     string data;
-    !...;
-};
+|};
 
 function testTransactionFailing() returns string|error {
     return trap testTransactionStmtWithCommitedAndAbortedBlocks(2, false);

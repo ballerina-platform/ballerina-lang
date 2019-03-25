@@ -66,6 +66,39 @@ public class CPEntry {
     }
 
     /**
+     * A float constant-pool entry.
+     *
+     * @since 0.980.0
+     */
+    public static class FloatCPEntry extends CPEntry {
+        public double value;
+
+        public FloatCPEntry(double value) {
+            super(Type.CP_ENTRY_FLOAT);
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            FloatCPEntry that = (FloatCPEntry) o;
+            return value == that.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+    }
+
+    /**
      * A boolean constant-pool entry.
      *
      * @since 0.980.0

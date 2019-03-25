@@ -1,18 +1,17 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
-    baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-internal", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-builtin", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-crypto", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-cache", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-log-api", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-runtime-api", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
+    baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')	
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')	
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 
     // // tansitive
@@ -20,15 +19,44 @@ dependencies {
 
     implementation 'commons-logging:commons-logging:1.1.1'
     implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation project(':ballerina-crypto')
+
     implementation project(':ballerina-config')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-internal')
+    implementation project(":ballerina-builtin")
+    implementation project(":ballerina-config-api")
+    implementation project(":ballerina-crypto")
+    implementation project(":ballerina-cache")
+    implementation project(":ballerina-log-api")
+    implementation project(":ballerina-runtime-api")
+    implementation project(":ballerina-internal")
+    implementation project(":ballerina-system")
+    implementation project(":ballerina-time")
+    implementation project(':ballerina-task')
+    implementation project(':ballerina-utils')
+    implementation project(':ballerina-io')
+    implementation project(':ballerina-encoding')
 
     testCompile 'org.testng:testng:6.13.1'
-    
+    testCompile 'org.slf4j:slf4j-jdk14:1.7.26'
+}
+
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "experimental", "true"
+    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 description = 'Ballerina - Auth'

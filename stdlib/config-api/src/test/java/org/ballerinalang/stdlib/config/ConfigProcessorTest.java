@@ -24,7 +24,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -43,8 +42,7 @@ public class ConfigProcessorTest {
 
     @BeforeClass
     public void setup() {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
+        resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         confFile = Paths.get(resourceRoot, "datafiles", "lookupenv.conf").toString();
 
         runtimeParams = new HashMap<>();

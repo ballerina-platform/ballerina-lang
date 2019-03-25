@@ -142,7 +142,6 @@ public enum DiagnosticCode {
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
     REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
-    INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
     INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
 
@@ -216,6 +215,7 @@ public enum DiagnosticCode {
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
     INVALID_TUPLE_INDEX_EXPR("invalid.tuple.index.expr"),
+    INVALID_RECORD_INDEX_EXPR("invalid.record.index.expr"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
