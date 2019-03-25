@@ -45,6 +45,9 @@ public type ConfigAuthStoreProvider object {
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
+        if (user == "" || password == "") {
+            return false;
+        }
         boolean isAuthenticated = password == self.readPassword(user);
             if(isAuthenticated){
                 runtime:Principal principal = runtime:getInvocationContext().principal;
