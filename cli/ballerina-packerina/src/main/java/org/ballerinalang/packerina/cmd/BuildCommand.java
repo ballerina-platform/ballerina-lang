@@ -230,10 +230,6 @@ public class BuildCommand implements BLauncherCmd {
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-    }
-
     private void genNativeBinary(Path projectDirPath, List<String> argList) {
         throw LauncherUtils.createLauncherException("llvm native generation is not supported");
     }

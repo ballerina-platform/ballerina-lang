@@ -80,8 +80,4 @@ public class UninstallCommand implements BLauncherCmd {
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-    }
 }
