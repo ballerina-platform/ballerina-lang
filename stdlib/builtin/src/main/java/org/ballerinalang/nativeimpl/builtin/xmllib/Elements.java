@@ -53,9 +53,8 @@ public class Elements extends BlockingNativeCallableUnit {
         try {
             // Accessing Parameters.
             BXML value = (BXML) ctx.getRefArgument(0);
-            BValueArray array = new BValueArray();
             if (value.getNodeType() == XMLNodeType.TEXT) {
-                result = generateCodePointSequence(value, array);
+                result = generateCodePointSequence(value);
             } else {
                 result = value.elements();
             }
@@ -67,7 +66,8 @@ public class Elements extends BlockingNativeCallableUnit {
         ctx.setReturnValues(result);
     }
 
-    private BValue generateCodePointSequence(BXML value, BValueArray array) {
+    private BValue generateCodePointSequence(BXML value) {
+        BValueArray array = new BValueArray();
         BIterator bIterator = value.newIterator();
         long i = 0;
         while (bIterator.hasNext()) {
