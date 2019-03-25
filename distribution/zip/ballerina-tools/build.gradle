@@ -23,6 +23,7 @@ configurations {
     docerina
     bin
     balSource
+    zip
 }
 
 dependencies {
@@ -56,36 +57,39 @@ dependencies {
     distBal project(path: ':ballerina', configuration: 'balo');
     dist project(path: ':ballerina', configuration: 'jar');
     bin project(path: ':ballerina', configuration: 'bin');
+
+    balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
+    baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 }
 
-def basePath = '/' + project.name + '-' + project.version + '/'
+def basePath = '/' + project.name + '-' + project.version
 
 CopySpec copyJarSpec = copySpec {
     from configurations.dist
-    into(basePath + 'bre/lib')
+    into(basePath + '/bre/lib')
 }
 
 CopySpec copyBaloSpec = copySpec {
     from configurations.distBal
-    into(basePath + 'lib')
+    into(basePath + '/lib')
 }
 
 CopySpec copyBinSpec = copySpec {
     from configurations.bin
     filter { line -> line.replace('${project.version}', "$project.version") }
-    into(basePath + 'bin')
+    into(basePath + '/bin')
 }
 
 CopySpec copyToolsBin = copySpec {
     from ('resources')
-    into(basePath + 'lib/tools/lang-server/launcher')
+    into(basePath + '/lib/tools/lang-server/launcher')
 }
 
 CopySpec copyToolsZipSpec = copySpec {
     configurations.toolsZip.asFileTree.each {
         from(zipTree(it))
     }
-    into(basePath + 'lib/tools/lang-server')
+    into(basePath + '/lib/tools/lang-server')
 }
 
 CopySpec copyBallerinaZipSpec = copySpec {
@@ -100,7 +104,7 @@ CopySpec copyBallerinaZipSpec = copySpec {
 
 CopySpec copyToolsSpec = copySpec {
     from configurations.tools
-    into(basePath + 'lib/tools/lang-server/lib')
+    into(basePath + '/lib/tools/lang-server/lib')
 }
 
 CopySpec examplesSpec = copySpec {
@@ -153,6 +157,11 @@ task createZip(type: Zip) {
 
 build {
     dependsOn createZip
+}
+
+artifacts {
+    balo configurations.distBal.files
+    zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.
