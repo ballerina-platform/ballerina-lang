@@ -784,11 +784,9 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPanic panicNode) {
         panicNode.expr.accept(this);
         emit(new BIRNonTerminator.Panic(panicNode.pos, InstructionKind.PANIC, this.env.targetOperand));
-        
-        // Check whether this function already has a returnBB.
-        // A given function can have only one BB that has a return instruction.
+
+        // After the panic, function will return.
         if (this.env.returnBB == null) {
-            // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
             this.env.returnBB = returnBB;
