@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
+apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
@@ -40,5 +41,6 @@ spotbugsTest {
 }
 
 test {
+    systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
 }

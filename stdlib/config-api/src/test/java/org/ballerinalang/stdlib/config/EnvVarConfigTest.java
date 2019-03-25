@@ -32,7 +32,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,16 +44,13 @@ public class EnvVarConfigTest {
 
     private static final ConfigRegistry registry = ConfigRegistry.getInstance();
     private CompileResult compileResult;
-    private String resourceRoot;
-    private Path sourceRoot;
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
-        sourceRoot = Paths.get(resourceRoot, "test-src");
         registry.initRegistry(null, null, null); // empty registry
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("config.bal").toString());
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
+                "config.bal");
+        compileResult = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
     }
 
     @Test
