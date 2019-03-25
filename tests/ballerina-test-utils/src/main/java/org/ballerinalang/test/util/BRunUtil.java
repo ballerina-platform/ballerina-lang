@@ -22,6 +22,7 @@ import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
@@ -29,6 +30,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -314,6 +316,7 @@ public class BRunUtil {
                     tupleValues[i] = getBVMValue(jvmTuple.getRefValue(i));
                 }
                 return new BValueArray(tupleValues, getBVMType(jvmTuple.getType()));
+            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 MapValue jvmMap = (MapValue) value;
                 BMap bmap = new BMap(getBVMType(jvmMap.getType()));
@@ -321,6 +324,10 @@ public class BRunUtil {
                     bmap.put(key, getBVMValue(jvmMap.get(key)));
                 }
                 return bmap;
+            case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
+                ErrorValue errorValue = (ErrorValue) value;
+                BRefType<?> details = getBVMValue(errorValue.getDetails());
+                return new BError(getBVMType(errorValue.getType()), errorValue.getReason(), details);
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -350,8 +357,11 @@ public class BRunUtil {
                 return BTypes.typeAny;
             case org.ballerinalang.jvm.types.TypeTags.ANYDATA_TAG:
                 return BTypes.typeAnydata;
+            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 return BTypes.typeMap;
+            case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
+                return BTypes.typeError;
             default:
                 throw new RuntimeException("Unsupported jvm type: " + jvmType + "' ");
         }
