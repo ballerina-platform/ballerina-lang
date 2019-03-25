@@ -99,7 +99,6 @@ fieldDefinition
 
 recordRestFieldDefinition
     :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
-    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral
@@ -168,11 +167,21 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
+    |   openRecordTypeDescriptor                                                                # openRecordTypeNameLabel
+    |   closedRecordTypeDescriptor                                                              # closedRecordTypeNameLabel
     ;
 
-recordFieldDefinitionList
-    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
+openRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* recordRestFieldDefinition? RIGHT_BRACE
+    ;
+
+closedRecordTypeDescriptor
+    :   RECORD LEFT_BRACE PIPE fieldDescriptor* PIPE RIGHT_BRACE
+    ;
+
+fieldDescriptor
+    :   fieldDefinition
+    |   typeReference
     ;
 
 // Temporary production rule name
@@ -408,7 +417,16 @@ tupleBindingPattern
     ;
 
 recordBindingPattern
+    :   openRecordBindingPattern
+    |   closedRecordBindingPattern
+    ;
+
+openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordBindingPattern
+    :   LEFT_BRACE PIPE fieldBindingPattern (COMMA fieldBindingPattern)* PIPE RIGHT_BRACE
     ;
 
 entryBindingPattern
@@ -422,7 +440,6 @@ fieldBindingPattern
 
 restBindingPattern
     :   ELLIPSIS Identifier
-    |   sealedLiteral
     ;
 
 bindingRefPattern
@@ -441,7 +458,16 @@ tupleRefBindingPattern
     ;
 
 recordRefBindingPattern
+    :   openRecordRefBindingPattern
+    |   closedRecordRefBindingPattern
+    ;
+
+openRecordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordRefBindingPattern
+    :   LEFT_BRACE PIPE fieldRefBindingPattern (COMMA fieldRefBindingPattern)* PIPE RIGHT_BRACE
     ;
 
 errorRefBindingPattern

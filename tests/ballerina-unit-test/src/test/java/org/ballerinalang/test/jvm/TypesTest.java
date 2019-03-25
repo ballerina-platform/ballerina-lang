@@ -69,6 +69,12 @@ public class TypesTest {
     }
 
     @Test
+    public void testArray() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testArray", new BValue[] { new BString("World") });
+        Assert.assertEquals((result[0]).stringValue(), "3");
+    }
+
+    @Test
     public void getGlobalVar() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getGlobalVar");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
@@ -191,4 +197,34 @@ public class TypesTest {
         Assert.assertEquals(bByteArrayOut.getByte(3), input4);
     }
 
+    @Test
+    public void testTuple() {
+        // Todo: revisit when tuple access and var type supported
+        BValue[] result = BRunUtil.invoke(compileResult, "tupleTest");
+        Assert.assertEquals((result[0]).stringValue(), "10");
+    }
+
+    @Test
+    public void testRecords() {
+        BValue[] result = BRunUtil.invoke(compileResult, "recordsTest");
+        Assert.assertEquals((result[0]).stringValue(), "JBallerina");
+    }
+
+    @Test
+    public void testUnions() {
+        BValue[] result = BRunUtil.invoke(compileResult, "unionTest");
+        Assert.assertEquals((result[0]).stringValue(), "10.5");
+    }
+
+    @Test
+    public void testAny() {
+        BValue[] result = BRunUtil.invoke(compileResult, "anyTest");
+        Assert.assertEquals((result[0]).stringValue(), "{\"name\":\"Jbal\", \"physics\":75, \"chemistry\":89}");
+    }
+
+    @Test
+    public void testAnyData() {
+        BValue[] result = BRunUtil.invoke(compileResult, "anyDataTest");
+        Assert.assertEquals((result[0]).stringValue(), "1000");
+    }
 }

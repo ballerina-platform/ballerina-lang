@@ -182,6 +182,26 @@ public type FuncBodyParser object {
             BasicBlock thenBB = self.parseBBRef();
             Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
+        } else if (kindTag == INS_ASYNC_CALL){
+            TerminatorKind kind = TERMINATOR_ASYNC_CALL;
+            var pkgId = self.reader.readModuleIDCpRef();
+            var name = self.reader.readStringCpRef();
+            var argsCount = self.reader.readInt32();
+            VarRef?[] args = [];
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = self.parseVarRef();
+                i += 1;
+            }
+            var hasLhs = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (hasLhs){
+                lhsOp = self.parseVarRef();
+            }
+
+            BasicBlock thenBB = self.parseBBRef();
+            AsyncCall call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            return call;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -65,7 +66,8 @@ public class FilterUtils {
                                                                      String variableName, String delimiter,
                                                                      List<SymbolInfo> symbolInfos, boolean addBuiltIn) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
-        SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         SymbolInfo variable = getVariableByName(variableName, symbolInfos);
 
         if (variable == null) {

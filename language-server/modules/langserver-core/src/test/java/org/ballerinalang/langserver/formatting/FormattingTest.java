@@ -135,6 +135,10 @@ public class FormattingTest {
                 {"expectedStringTemplateLiteral.bal", "stringTemplateLiteral.bal"},
                 {"expectedTrap.bal", "trap.bal"},
                 {"expectedPanic.bal", "panic.bal"},
+                {"expectedErrorVariableDefinition.bal", "errorVariableDefinition.bal"},
+                {"expectedErrorVariableReference.bal", "errorVariableReference.bal"},
+                {"expectedErrorType.bal", "errorType.bal"},
+                {"expectedIndexBasedAccess.bal", "indexBasedAccess.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }

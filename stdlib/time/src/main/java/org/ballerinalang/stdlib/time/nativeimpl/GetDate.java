@@ -20,14 +20,11 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
 
@@ -38,12 +35,7 @@ import java.util.Arrays;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "getDate",
-        args = {@Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.INT),
-                      @ReturnType(type = TypeKind.INT),
-                      @ReturnType(type = TypeKind.INT)},
-        isPublic = true
+        functionName = "getDate"
 )
 public class GetDate extends AbstractTimeFunction {
 

@@ -17,10 +17,9 @@
 # Represent all compression related errors.
 #
 # + message - The error message
-public type CompressionError record {
+public type CompressionError record {|
     string message;
-    !...;
-};
+|};
 
 # Decompresses a byte array into a directory.
 #
