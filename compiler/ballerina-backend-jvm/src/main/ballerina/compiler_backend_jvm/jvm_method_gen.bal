@@ -136,6 +136,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 instGen.generateMapNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
+            } else if (inst is bir:NewInstance) {
+                //TODO
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == "MAP_STORE") {
                     instGen.generateMapStoreIns(inst);

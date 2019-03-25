@@ -17,6 +17,7 @@ public const int INS_NEW_ERROR = 13;
 public const int INS_TYPE_CAST = 14;
 public const int INS_IS_LIKE = 15;
 public const int INS_TYPE_TEST = 16;
+public const int INS_NEW_INST = 17;
 
 
 // Binary expression related instructions.

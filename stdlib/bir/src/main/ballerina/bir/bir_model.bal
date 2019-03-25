@@ -66,6 +66,7 @@ public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
 public const INS_KIND_NEW_MAP = "NEW_MAP";
+public const INS_KIND_NEW_INST = "NEW_INST";
 public const INS_KIND_MAP_STORE = "MAP_STORE";
 public const INS_KIND_NEW_ARRAY = "NEW_ARRAY";
 public const INS_KIND_ARRAY_STORE = "ARRAY_STORE";
@@ -76,7 +77,7 @@ public const INS_KIND_TYPE_CAST = "TYPE_CAST";
 public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 
-public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
+public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_NEW_INST|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
                                 |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
 
@@ -266,6 +267,13 @@ public type NewMap record {
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
+    !...;
+};
+
+public type NewInstance record {
+    InstructionKind kind;
+    TypeDef typeDef;
+    VarRef lhsOp;
     !...;
 };
 

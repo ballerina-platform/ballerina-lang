@@ -167,6 +167,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewStructure.lhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        buf.writeByte(newInstance.kind.getValue());
+        buf.writeInt(newInstance.def.index);
+        newInstance.lhsOp.accept(this);
+    }
+
+
     public void visit(NewArray birNewArray) {
         buf.writeByte(birNewArray.kind.getValue());
         birNewArray.type.accept(typeWriter);
