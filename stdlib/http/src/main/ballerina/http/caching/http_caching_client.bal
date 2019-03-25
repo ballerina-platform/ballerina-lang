@@ -59,15 +59,14 @@ public const RFC_7234 = "RFC_7234";
 # + policy - Gives the user some control over the caching behaviour. By default, this is set to
 #            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
 #            header and either the `etag` or `last-modified` header are present.
-public type CacheConfig record {
+public type CacheConfig record {|
     boolean enabled = true;
     boolean isShared = false;
     int expiryTimeMillis = 86400;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
-    !...;
-};
+|};
 
 # An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.
 #

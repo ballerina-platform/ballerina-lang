@@ -34,8 +34,7 @@ public type StreamEvent object {
             foreach var (k, v) in eventData[1] {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
-        }
-        else if (eventData is map<anydata>) {
+        } else {
             self.data = eventData;
         }
     }
@@ -79,9 +78,8 @@ public type StreamEvent object {
 };
 
 # This record represents a stream event which can be persisted.
-public type SnapshottableStreamEvent record {
+public type SnapshottableStreamEvent record {|
     EventType eventType = "CURRENT";
     int timestamp = 0;
     map<anydata> data = {};
-    !...;
-};
+|};

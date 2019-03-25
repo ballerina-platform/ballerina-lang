@@ -130,19 +130,16 @@ type Person record {
     string id = "";
 };
 
-type ClosedDept record {
+type ClosedDept record {|
     string code;
-    !...;
-};
+|};
 
-type EmployeeWithOptionalId record {
+type EmployeeWithOptionalId record {|
     string name;
     float id?;
-    !...;
-};
+|};
 
-type PersonWithOptionalId record {
+type PersonWithOptionalId record {|
     string name;
     string id?;
-    !...;
-};
+|};

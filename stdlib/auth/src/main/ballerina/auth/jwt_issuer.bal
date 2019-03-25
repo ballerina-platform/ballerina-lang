@@ -23,13 +23,12 @@ import ballerina/encoding;
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
 # + audienceAsArray - Always represent audience as an array (even when there is single audience)
-public type JWTIssuerConfig record {
+public type JWTIssuerConfig record {|
     crypto:KeyStore keyStore?;
     string keyAlias?;
     string keyPassword?;
     boolean audienceAsArray = false;
-    !...;
-};
+|};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
 # in the `JWTIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
@@ -203,7 +202,7 @@ function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
 # + keyAlias - Key alias for signing newly issued JWT tokens
 # + keyPassword - Key password for signing newly issued JWT tokens
 # + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJwtIssuerConfig record {
+public type InferredJwtIssuerConfig record {|
     string issuer;
     string[] audience;
     int expTime = 300;
@@ -211,5 +210,4 @@ public type InferredJwtIssuerConfig record {
     string keyAlias;
     string keyPassword;
     JwtSigningAlgorithm signingAlg = RS256;
-    !...;
-};
+|};
