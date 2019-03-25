@@ -119,7 +119,10 @@ public final class BXMLSequence extends BXML<BValueArray> {
         StringBuilder seqTextBuilder = new StringBuilder();
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem item = (BXMLItem) sequence.getRefValue(i);
-            seqTextBuilder.append(item.getTextValue().stringValue());
+            String strVal = item.getTextValue().stringValue();
+            if (strVal != null) {
+                seqTextBuilder.append(strVal);
+            }
         }
         return new BString(seqTextBuilder.toString());
     }
