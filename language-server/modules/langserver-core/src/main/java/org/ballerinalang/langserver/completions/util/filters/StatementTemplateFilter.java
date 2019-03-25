@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +41,14 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
 
         // Populate If Statement template
         completionItems.add(Snippet.STMT_IF.get().build(context, isSnippet));
+        
+        if (context.get(CompletionKeys.PREVIOUS_NODE_KEY) instanceof BLangIf) {
+            // Populate Else If Statement template
+            completionItems.add(Snippet.STMT_ELSE_IF.get().build(context, isSnippet));
+            // Populate Else Statement template
+            completionItems.add(Snippet.STMT_ELSE.get().build(context, isSnippet));
+        }
+        
         // Populate While Statement template
         completionItems.add(Snippet.STMT_WHILE.get().build(context, isSnippet));
         // Populate Lock Statement template
@@ -52,6 +61,8 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(Snippet.STMT_TRANSACTION.get().build(context, isSnippet));
         // Populate Match statement template
         completionItems.add(Snippet.STMT_MATCH.get().build(context, isSnippet));
+        // Populate Worker Declaration statement template
+        completionItems.add(Snippet.DEF_WORKER.get().build(context, isSnippet));
         
         if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0 
                 && !context.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
