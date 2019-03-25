@@ -87,10 +87,10 @@ public type PackageParser object {
             i += 1;
         }
 
-       BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
-                                    functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
-                                    versionValue: {value: pkgId.modVersion}});
-       emitter.emitPackage();
+       //BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
+       //                             functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
+       //                             versionValue: {value: pkgId.modVersion}});
+       //emitter.emitPackage();
 
         return { importModules : importModules, 
                     typeDefs : typeDefs, 
@@ -145,7 +145,6 @@ public type PackageParser object {
         if (bType is BObjectType || bType is BRecordType) {
             Function?[] funcs = [];
             var numFuncs = self.reader.readInt32();
-            io:println(numFuncs);
             int i = 0;
             while (i < numFuncs) {
                 funcs[i] = self.parseFunction([]);

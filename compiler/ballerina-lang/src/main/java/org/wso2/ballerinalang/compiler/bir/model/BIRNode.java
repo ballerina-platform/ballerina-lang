@@ -52,7 +52,6 @@ public abstract class BIRNode {
         public List<BIRTypeDefinition> typeDefs;
         public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
-//        public List<BIRBehavioral> behaviorals;
 
         public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
             super(pos);
@@ -63,7 +62,6 @@ public abstract class BIRNode {
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
             this.functions = new ArrayList<>();
-//            this.behaviorals = new ArrayList<>();
         }
 
         @Override
