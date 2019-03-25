@@ -41,7 +41,7 @@ import ballerina/runtime;
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
-public type LdapAuthProviderConfig record {
+public type LdapAuthProviderConfig record {|
     string domainName;
     string connectionURL;
     string connectionName;
@@ -63,18 +63,16 @@ public type LdapAuthProviderConfig record {
     int readTimeout = 60000;
     int retryAttempts = 0;
     SecureClientSocket? secureClientSocket = ();
-    !...;
-};
+|};
 
 # Configures the SSL/TLS options to be used for LDAP communication.
 #
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
-public type SecureClientSocket record {
+public type SecureClientSocket record {|
     crypto:TrustStore? trustStore = ();
     string trustedCertFile = "";
-    !...;
-};
+|};
 
 # Represents Ballerina configuration for LDAP based auth store provider
 #

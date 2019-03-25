@@ -24,11 +24,10 @@ type OpenPerson record {
     int id;
 };
 
-type ClosedEmployee record {
+type ClosedEmployee record {|
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
 type Abc object {
     public string name;

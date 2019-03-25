@@ -68,8 +68,7 @@ public type Producer client object {
 #
 # + routingType - the routing type for the address, MULTICAST or ANYCAST
 # + autoCreated - whether the address has to be auto created. 
-public type AddressConfiguration record {
+public type AddressConfiguration record {|
     RoutingType routingType = ANYCAST;
     boolean autoCreated = true;
-    !...;
-};
+|};

@@ -44,7 +44,7 @@ public type Message client object {
             self.createMessage(session, string.convert(data), self.configuration);
         } else if (data is json) {
             self.createMessage(session, data.toString(), self.configuration);
-        } else if (data is byte[]) {
+        } else {
             self.messageType = BYTES;
             self.createMessage(session, data, self.configuration);
         }
@@ -109,14 +109,13 @@ error | () = external;
 # + priority - the message priority (between 0 and 9 inclusive)
 # + durable - whether the created message is durable or not
 # + routingType - `RoutingType` of the message
-public type MessageConfiguration record {
+public type MessageConfiguration record {|
     int? expiration = ();
     int? timeStamp = ();
     byte priority = 0;
     boolean durable = true;
     RoutingType? routingType = ();
-    !...;
-};
+|};
 
 # ActiveMQ Artemis message types.
 public type MessageType TEXT | BYTES | MAP | STREAM | UNSUPPORTED;

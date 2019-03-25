@@ -20,13 +20,12 @@
 # + moduleName - Module name
 # + fileName - File name
 # + lineNumber - Line number
-public type CallStackElement record {
+public type CallStackElement record {|
     string callableName;
     string moduleName;
     string fileName;
     int lineNumber;
-    !...;
-};
+|};
 
 # Retrieves the Call Stack
 #

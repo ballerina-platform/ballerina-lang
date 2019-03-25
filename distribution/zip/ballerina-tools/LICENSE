@@ -141,7 +141,7 @@ slf4j-jdk14-1.7.22.jar                                                          
 snakeyaml-1.16.0.wso2v1.jar                                                     bundle         apache2   11755
 staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754
 strip-bouncycastle-0.990.3.jar                                                  jar            apache2   3657
-swagger-to-ballerina-generator-0.990.3.jar                                      jar            apache2   3656
+openapi-to-ballerina-generator-0.990.3.jar                                      jar            apache2   3656
 testerina-core-0.990.3.jar                                                      jar            apache2   3655      
 toml-parser-0.990.3.jar                                                         jar            apache2   3654
 

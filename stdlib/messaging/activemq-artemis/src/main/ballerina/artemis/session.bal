@@ -42,9 +42,7 @@ public type Session client object {
 #
 # + username - The username
 # + password - The password
-public type SessionConfiguration record {
+public type SessionConfiguration record {|
     string? username = ();
     string? password = ();
-    !...;
-};
-
+|};

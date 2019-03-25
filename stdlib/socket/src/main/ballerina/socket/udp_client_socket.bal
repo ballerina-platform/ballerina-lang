@@ -67,8 +67,7 @@ public type UdpClient client object {
 #
 # + host - The hostname of the Socket Address
 # + port - The port number of the Socket Address
-public type Address record {
+public type Address record {|
     string host?;
     int port;
-    !...;
-};
+|};
