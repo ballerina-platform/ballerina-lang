@@ -20,11 +20,6 @@ function defineEmptyNamespaceInline() {
     xml x = xml `<root xmlns:ns0=""/>`;
 }
 
-function testExpressionAsElementName() {
-    int v1 = 11;
-    // xml x1 = xml `<ns0:${v1}>hello</ns0:${v1}>`;
-}
-
 function testTextWithMultiTypeExpressions() {
     int v1 = 11;
     string v2 = "world";
