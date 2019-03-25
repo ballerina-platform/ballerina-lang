@@ -168,7 +168,7 @@ service {
                             if (fetchResponse.hasHeader(CONTENT_TYPE)) {
                                 contentType = fetchResponse.getHeader(CONTENT_TYPE);
                             }
-                            var fetchedPayload = fetchResponse.getPayloadAsString();
+                            var fetchedPayload = fetchResponse.getTextPayload();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
                         } else {
                             string errorCause = <string> fetchResponse.detail().message;
@@ -188,7 +188,7 @@ service {
                         if (request.hasHeader(CONTENT_TYPE)) {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
-                        var result = request.getPayloadAsString();
+                        var result = request.getTextPayload();
                         stringPayload = result is string ? result : "";
                     }
 
@@ -455,7 +455,7 @@ returns error? {
             persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        var result = request.getPayloadAsString();
+        var result = request.getTextPayload();
         string stringPayload = result is error ? "" : result;
 
         if (subscriptionDetails.secret != "") {
@@ -505,10 +505,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...;
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #

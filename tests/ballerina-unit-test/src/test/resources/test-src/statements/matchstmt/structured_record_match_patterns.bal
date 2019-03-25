@@ -69,29 +69,25 @@ function testStructuredMatchPatternsBasic4() returns string {
     }
 }
 
-type ClosedFoo1 record {
+type ClosedFoo1 record {|
     string var1;
     int var2;
-    !...;
-};
+|};
 
-type ClosedFoo2 record {
+type ClosedFoo2 record {|
     float var1;
     boolean var2;
-    !...;
-};
+|};
 
-type ClosedFoo3 record {
+type ClosedFoo3 record {|
     string var1;
     int var2;
     boolean var3;
-    !...;
-};
+|};
 
-type ClosedFoo4 record {
+type ClosedFoo4 record {|
     string var1;
-    !...;
-};
+|};
 
 function testStructuredMatchPatternsBasics5() returns string[] {
 
@@ -121,11 +117,10 @@ function basicMatch(ClosedFoo1|ClosedFoo2|ClosedFoo3|ClosedFoo4 a) returns strin
     return "Default";
 }
 
-type ClosedBar1 record {
+type ClosedBar1 record {|
     string var1;
     int var2;
-    !...;
-};
+|};
 
 type ClosedBar2 record {
     string var1;
@@ -271,10 +266,9 @@ type RestParam record {
     boolean...;
 };
 
-type ClosedRec record {
+type ClosedRec record {|
     string var1;
-    !...;
-};
+|};
 
 function testStructuredMatchPatternWithTypeGuard4() returns string[] {
     RestParam foo1 = {var1: 500};
@@ -306,7 +300,7 @@ function testClosedRecord() returns string[] {
 
 function matchClosedRecordPattern(any matchExpr) returns string {
     match matchExpr {
-        var {var1, !...} => return "Matched with closed pattern";
+        var {| var1 |} => return "Matched with closed pattern";
         var {var1} => return "Matched with opened pattern";
     }
 

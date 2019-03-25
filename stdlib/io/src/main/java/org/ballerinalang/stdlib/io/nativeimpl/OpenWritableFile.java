@@ -54,9 +54,17 @@ public class OpenWritableFile extends AbstractNativeChannel {
      */
     private static final int PATH_FIELD_INDEX = 0;
     /**
+     * Index which will specify the file access mode.
+     */
+    private static final int APPEND_STATE_INDEX = 0;
+    /**
      * Read only access mode.
      */
     private static final String WRITE_ACCESS_MODE = "w";
+    /**
+     * Append content.
+     */
+    private static final String APPEND_ACCESS_MODE = "a";
 
     /**
      * {@inheritDoc}
@@ -64,10 +72,16 @@ public class OpenWritableFile extends AbstractNativeChannel {
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
+        boolean accessMode = context.getBooleanArgument(APPEND_STATE_INDEX);
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannel(path, WRITE_ACCESS_MODE);
+            FileChannel fileChannel;
+            if (accessMode) {
+                fileChannel = IOUtils.openFileChannel(path, APPEND_ACCESS_MODE);
+            } else {
+                fileChannel = IOUtils.openFileChannel(path, WRITE_ACCESS_MODE);
+            }
             channel = new FileIOChannel(fileChannel);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: ", e);

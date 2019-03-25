@@ -1,11 +1,10 @@
 import ballerina/io;
 
-type Grades record {
+type Grades record {|
     int maths;
     int physics;
     int chemistry;
-    !...;
-};
+|};
 
 public function main() {
     // This creates a `Grades` record.
