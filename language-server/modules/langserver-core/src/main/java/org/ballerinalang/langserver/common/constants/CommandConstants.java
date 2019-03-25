@@ -44,6 +44,9 @@ public class CommandConstants {
 
     public static final String ARG_KEY_NODE_COLUMN = "node.column";
 
+    public static final String ARG_KEY_MESSAGE_TYPE = "message.type";
+
+    public static final String ARG_KEY_MESSAGE = "message";
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";

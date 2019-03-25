@@ -1,3 +1,18 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 public type Package record {
     ImportModule[] importModules = [];
@@ -83,10 +98,11 @@ public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|I
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
+public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
 
-public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN;
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL;
 
 
 //TODO try to make below details meta
@@ -218,10 +234,14 @@ public type BTupleType record {
    !...;
 };
 
+public type BFutureType record {
+    BType returnType;
+    !...;
+};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone;
+                  BTypeAnyData | BTypeNone | BFutureType;
 
 public type ModuleID record {
     string org = "";
@@ -330,6 +350,16 @@ public type BinaryOp record {
 };
 
 public type Call record {
+    VarRef?[] args;
+    TerminatorKind kind;
+    VarRef? lhsOp;
+    ModuleID pkgID;
+    Name name;
+    BasicBlock thenBB;
+    !...;
+};
+
+public type AsyncCall record {
     VarRef?[] args;
     TerminatorKind kind;
     VarRef? lhsOp;
