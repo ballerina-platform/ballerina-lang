@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
@@ -88,6 +90,22 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         openOrUpdateFile(filePath, range, updatedContent);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, handle it locally
+            tempDocument.setCodeLenses(codeLens);
+        } else if (super.isFileOpen(filePath)) {
+            // If file open, call parent class
+            super.setCodeLenses(filePath, codeLens);
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+    }
+
     private void openOrUpdateFile(Path filePath, Range range, String content) throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
@@ -110,6 +128,19 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         if (!isExplicitMode && !isTempFile(filePath)) {
             super.closeFile(filePath);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeLens> getCodeLenses(Path filePath) {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, return local code lenses
+            return tempDocument.getCodeLenses();
+        }
+        // Or else, call parent class
+        return super.getCodeLenses(filePath);
     }
 
     /**

@@ -1,9 +1,8 @@
-public type TrxErrorData record {
+public type TrxErrorData record {|
     string message = "";
     error? cause = ();
     string data = "";
-    !...;
-};
+|};
 
 public type TrxError error<string, TrxErrorData>;
 

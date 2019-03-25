@@ -196,10 +196,9 @@ extern function nativeForward(string url, ClientEndpointConfig config, @sensitiv
 # + message - An explanation on what went wrong
 # + cause - The error which caused the `HttpTimeoutError`
 # + statusCode - HTTP status code
-public type HttpTimeoutError record {
+public type HttpTimeoutError record {|
     string message = "";
     error? cause = ();
     int statusCode = 0;
-    !...;
-};
+|};
 

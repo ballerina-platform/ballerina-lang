@@ -122,6 +122,27 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        sb.append("\t\t");
+        if (birAsyncCall.lhsOp != null) {
+            birAsyncCall.lhsOp.accept(this);
+            sb.append(" = ");
+        }
+        sb.append(birAsyncCall.name.getValue()).append("(");
+        List<BIROperand> args = birAsyncCall.args;
+        for (int i = 0; i < args.size(); i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            BIROperand arg = args.get(i);
+            arg.accept(this);
+        }
+        sb.append(") ->> ");
+        sb.append(birAsyncCall.thenBB.id);
+
+        sb.append(";\n");
+    }
+
     // Non-terminating instructions
     public void visit(BIRNonTerminator.Move birMove) {
         sb.append("\t\t");

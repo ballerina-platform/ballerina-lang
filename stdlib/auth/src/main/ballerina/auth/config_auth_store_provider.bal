@@ -21,9 +21,8 @@ const string CONFIG_USER_SECTION = "b7a.users";
 
 # Represents configurations that required for Config auth store.
 #
-public type ConfigAuthProviderConfig record {
-    !...;
-};
+public type ConfigAuthProviderConfig record {|
+|};
 
 # Represents Ballerina configuration file based auth store provider
 #
@@ -76,7 +75,7 @@ public type ConfigAuthStoreProvider object {
     }
 
     public function getConfigAuthValue(string instanceId, string property) returns string {
-        return config:getAsString(instanceId + "." + property, default = "");
+        return config:getAsString(instanceId + "." + property, defaultValue = "");
     }
 
     # Construct an array of groups from the comma separed group string passed
