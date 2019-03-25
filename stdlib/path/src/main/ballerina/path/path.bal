@@ -121,6 +121,9 @@ public function parent(string path) returns string|error {
         return "";
     }
     int len = offsetIndexes[count-1] - 1;
+    if (len < 0) {
+        return "";
+    }
     int offset;
     string root;
     (root, offset) = check getRootComponent(validatedPath);
@@ -437,6 +440,9 @@ function getRootComponent(string input) returns (string,int)|error {
                 //TODO remove dot from expression. added because of formatting issue #13872.
                 root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
                 offset = next;
+            } else if (isSlash(c0)) {
+                root = "\\";
+                offset = 1;
             } else {
                 if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
                     if (input.length() > 2 && isSlash(check charAt(input, 2))) {
