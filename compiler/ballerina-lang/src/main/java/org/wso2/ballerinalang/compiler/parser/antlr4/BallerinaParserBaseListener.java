@@ -1456,13 +1456,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWorkerIdentifier(BallerinaParser.WorkerIdentifierContext ctx) { }
+	@Override public void enterPeerWorker(BallerinaParser.PeerWorkerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWorkerIdentifier(BallerinaParser.WorkerIdentifierContext ctx) { }
+	@Override public void exitPeerWorker(BallerinaParser.PeerWorkerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWorkerName(BallerinaParser.WorkerNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWorkerName(BallerinaParser.WorkerNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

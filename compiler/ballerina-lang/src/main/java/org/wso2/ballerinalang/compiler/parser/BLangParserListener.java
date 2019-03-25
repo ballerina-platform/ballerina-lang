@@ -1645,8 +1645,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String workerName = ctx.workerIdentifier().DEFAULT() != null ?
-                ctx.workerIdentifier().DEFAULT().getText() : ctx.workerIdentifier().Identifier().getText();
+        String workerName = ctx.peerWorker().DEFAULT() != null ?
+                ctx.peerWorker().DEFAULT().getText() : ctx.peerWorker().workerName().getText();
 
         this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), workerName, ctx.expression() != null);
     }
@@ -1666,8 +1666,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String workerName = ctx.workerIdentifier().DEFAULT() != null ?
-                ctx.workerIdentifier().DEFAULT().getText() : ctx.workerIdentifier().Identifier().getText();
+        String workerName = ctx.peerWorker().DEFAULT() != null ?
+                ctx.peerWorker().DEFAULT().getText() : ctx.peerWorker().workerName().getText();
 
         this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), workerName, ctx.expression().size() > 1);
     }
@@ -1678,8 +1678,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String workerName = ctx.workerIdentifier().DEFAULT() != null ?
-                ctx.workerIdentifier().DEFAULT().getText() : ctx.workerIdentifier().Identifier().getText();
+        String workerName = ctx.peerWorker().DEFAULT() != null ?
+                ctx.peerWorker().DEFAULT().getText() : ctx.peerWorker().workerName().getText();
 
         this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), workerName);
     }
