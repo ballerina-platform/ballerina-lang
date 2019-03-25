@@ -17,8 +17,8 @@
   "dependencies": {
     "@types/classnames": "^2.2.6",
     "classnames": "^2.2.6",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.3",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-less": "^2.4.1",
     "semantic-ui-react": "^0.82.5"
@@ -31,9 +31,9 @@
     "@storybook/react": "^4.0.4",
     "@types/jest": "^23.3.5",
     "@types/node": "^10.11.7",
-    "@types/react": "16.4.18",
-    "@types/react-dom": "^16.0.9",
-    "@types/react-test-renderer": "^16.0.3",
+    "@types/react": "^16.8.8",
+    "@types/react-dom": "^16.8.3",
+    "@types/react-test-renderer": "^16.8.1",
     "@types/rimraf": "^2.0.2",
     "@types/storybook__addon-storyshots": "^3.4.3",
     "@types/storybook__react": "^4.0.1",
