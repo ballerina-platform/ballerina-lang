@@ -69,11 +69,11 @@
       "insertText": "ballerina/runtime"
     },
     {
-      "label": "ballerina/swagger",
+      "label": "ballerina/openapi",
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/swagger"
+      "insertText": "ballerina/openapi"
     },
     {
       "label": "ballerina/file",
