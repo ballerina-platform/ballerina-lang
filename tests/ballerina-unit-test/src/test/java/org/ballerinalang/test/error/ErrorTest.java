@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -173,6 +174,13 @@ public class ErrorTest {
         Assert.assertEquals(array.getString(3), "Error3");
         Assert.assertEquals(array.getString(4), "Something Went Wrong");
         Assert.assertEquals(array.getString(5), "1");
+    }
+
+    @Test
+    public void testGenericErrorWithDetailRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGenericErrorWithDetailRecord");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")

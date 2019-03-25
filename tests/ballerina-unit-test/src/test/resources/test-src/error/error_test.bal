@@ -133,6 +133,18 @@ function panicWithReasonAndDetailRecord() {
     panic error("Error3", detail);
 }
 
+function testGenericErrorWithDetailRecord() returns boolean {
+    string reason = "error reason 1";
+    string detailMessage = "Something Went Wrong";
+    int detailStatusCode = 123;
+    DetailRec detail = { message: detailMessage, statusCode: detailStatusCode };
+    error e = error(reason, detail);
+    string errReason = e.reason();
+    map<anydata|error> errDetail = e.detail();
+    return errReason == reason && <string> errDetail.message == detailMessage &&
+            <int> errDetail.statusCode == detailStatusCode;
+}
+
 type ErrorReasons "reason one"|"reason two";
 
 const ERROR_REASON_ONE = "reason one";
