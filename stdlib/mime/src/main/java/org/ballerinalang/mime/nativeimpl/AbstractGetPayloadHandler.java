@@ -27,11 +27,15 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructBlobDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSource;
@@ -48,6 +52,8 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
 public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
 
+    private static final Logger log = LoggerFactory.getLogger(AbstractGetPayloadHandler.class);
+
     @Override
     public boolean isBlocking() {
         return false;
@@ -62,21 +68,32 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
                 BValue dataSource = null;
                 HttpMessageDataStreamer dataStreamer = new HttpMessageDataStreamer(inboundMessage);
                 InputStream inputStream = dataStreamer.getInputStream();
-                switch (sourceType) {
-                    case JSON:
-                        dataSource = constructJsonDataSource(entity, inputStream);
-                        break;
-                    case TEXT:
-                        dataSource = constructStringDataSource(entity, inputStream);
-                        break;
-                    case XML:
-                        dataSource = constructXmlDataSource(entity, inputStream);
-                        break;
-                    case BLOB:
-                        dataSource = constructBlobDataSource(inputStream);
-                        break;
+                try {
+                    switch (sourceType) {
+                        case JSON:
+                            dataSource = constructJsonDataSource(entity, inputStream);
+                            break;
+                        case TEXT:
+                            dataSource = constructStringDataSource(entity, inputStream);
+                            break;
+                        case XML:
+                            dataSource = constructXmlDataSource(entity, inputStream);
+                            break;
+                        case BLOB:
+                            dataSource = constructBlobDataSource(inputStream);
+                            break;
+                    }
+                    updateDataSourceAndNotify(context, callback, entity, dataSource);
+                } catch (Exception e) {
+                    createErrorAndNotify(context, callback, "Error occurred while extracting " +
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
+                } finally {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        log.error("Error occurred while closing the inbound data stream", e);
+                    }
                 }
-                updateDataSourceAndNotify(context, callback, entity, dataSource);
             }
 
             @Override
