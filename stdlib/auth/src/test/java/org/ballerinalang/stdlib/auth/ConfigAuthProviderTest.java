@@ -115,6 +115,34 @@ public class ConfigAuthProviderTest {
         Assert.assertEquals(groups.getString(0), "scope1");
     }
 
+    @Test(description = "Test case for unsuccessful authentication when username is empty")
+    public void testAuthenticationWithEmptyUsername() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsername");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for unsuccessful authentication when password is empty")
+    public void testAuthenticationWithEmptyPassword() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPassword");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for unsuccessful authentication when password is empty and username is invalid")
+    public void testAuthenticationWithEmptyPasswordAndInvalidUsername() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyPasswordAndInvalidUsername");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for unsuccessful authentication when username and password are empty")
+    public void testAuthenticationWithEmptyUsernameAndEmptyPassword() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationWithEmptyUsernameAndEmptyPassword");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(secretCopyPath);
