@@ -108,6 +108,15 @@ public class HttpMessageDataStreamer {
                 throw new DecoderException(httpContent.decoderResult().cause().getMessage());
             }
         }
+
+        @Override
+        public void close() throws IOException {
+            byteBuffer = null;
+            if (httpContent != null && httpContent.refCnt() > 0) {
+                httpContent.release();
+            }
+            super.close();
+        }
     }
 
     /**
