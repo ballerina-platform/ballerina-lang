@@ -22,13 +22,12 @@ import ballerina/config;
 # + maxIdleConnections - Maximum number of idle connections allowed per pool.
 # + waitTimeinMillis - Maximum amount of time, the client should wait for an idle connection before it sends an error when the pool is exhausted
 # + maxActiveStreamsPerConnection - Maximum active streams per connection. This only applies to HTTP/2.
-public type PoolConfiguration record {
+public type PoolConfiguration record {|
     int maxActiveConnections = config:getAsInt("b7a.http.pool.maxActiveConnections", default = -1);
     int maxIdleConnections = config:getAsInt("b7a.http.pool.maxIdleConnections", default = 1000);
     int waitTimeinMillis = config:getAsInt("b7a.http.pool.waitTimeinMillis", default = 60000);
     int maxActiveStreamsPerConnection = config:getAsInt("b7a.http.pool.maxActiveStreamsPerConnection", default = 50);
-    !...;
-};
+|};
 
 //This is a hack to get the global map initialized, without involving locking.
 type ConnectionManager object {

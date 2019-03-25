@@ -50,12 +50,11 @@ function testArray(string str) returns int {
     return a[0];
 }
 
-public type Grades record {
+public type Grades record {|
    string name;
    int physics;
    int chemistry?;
-   !...;
-};
+|};
 
 function arrayFunc(string[] strs) returns Grades[] {
     Grades g = {name: strs[0], physics: 75, chemistry: 65};
