@@ -7,6 +7,10 @@ ExprStack expStack = new();
 boolean recovered = true;
 //tokenRecovery for token insertion
 boolean tokenRecovery = true;
+//keep track of error tokens
+Token[] errTokens = [];
+//error token counter
+int errCount = 0;
 
 
 type Parser object {
@@ -38,17 +42,37 @@ type Parser object {
 			return currToken;
 		} else {
 			tokenRecovery = false;
-			Token insertedToken = self.insertToken(mToken);
+			string capturedErr = tokenNames[self.LAToken(1)];
+			//Token insertedToken = self.insertToken(mToken);
+			Token panicToken = self.panicRecovery(mToken);
 			//Token errorToken = self.getLAToken();
-			log:printError("Expected " + tokenNames[mToken] + ";found " + tokenNames[self.LAToken(1)]);
+			log:printError("Expected " + tokenNames[mToken] + ";found " + capturedErr);
 			//io:println(errorToken);
-			return insertedToken;
+			return panicToken;
 		}
 	}
 
 	//error recovery token insertion
 	function insertToken(int mToken) returns Token {
 		tokenRecovery = true;
+		return { tokenType: mToken, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+			lineNumber: 0, index: -1, whiteSpace: "" };
+	}
+	//panic recovery
+	function panicRecovery(int mToken) returns Token {
+		int[] exprPanic = [SEMICOLON,RBRACE];
+		boolean panicMode = true;
+		while(panicMode){
+			if(self.LAToken(1) == exprPanic[0]){
+				panicMode = false;
+			}
+			else if (self.LAToken(1) == exprPanic[1]){
+				break;
+			}
+			Token currToken1 = self.parserBuffer.consumeToken();
+			errTokens[errCount] = currToken1;
+			errCount += 1;
+		}
 		return { tokenType: mToken, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
 
@@ -97,8 +121,13 @@ type Parser object {
 		while (self.LAToken(1) != RBRACE) {
 			StatementNode stNode = self.parseStatement();
 			if(recovered == false){
-				//ignoring the process of adding into the list
-				ErrorNode erNode = {nodeKind: ERROR_NODE,errorStatement:stNode};
+				Token errTkn  =  errTokens[0];
+				ErrorNode erNode = {nodeKind: ERROR_NODE,tokenList:[errTkn],errorStatement:stNode};
+				int listCount = 0;
+				while(listCount < errTokens.length()){
+					erNode.tokenList[listCount] = errTokens[listCount];
+					listCount += 1;
+				}
 				stsList[pos] = erNode;
 				pos += 1;
 				recovered = true;
@@ -231,6 +260,8 @@ type Parser object {
 			if(parenExpr is BinaryExpressionNode){
 				Token finalOperator = parenExpr.tokenList[0];
 				parenExpr.tokenList = [finalOperator,rParen,leftToken];
+
+
 			}
 			return true;
 		}
