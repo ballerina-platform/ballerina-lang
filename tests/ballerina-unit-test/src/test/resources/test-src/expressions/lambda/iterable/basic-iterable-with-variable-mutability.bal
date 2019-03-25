@@ -220,3 +220,191 @@ function testInStatement() returns int {
     }
     return 0;
 }
+
+function testWithComplexJson() returns json[] {
+    json j = {
+        "address_components": [
+            {
+                "long_name": "1823",
+                "short_name": "1823",
+                "types": [
+                    "street_number"
+                ]
+            },
+            {
+                "long_name": "Bonpland",
+                "short_name": "Bonpland",
+                "types": [
+                    "street_number"
+                ]
+            },
+            {
+                "long_name": "Palermo",
+                "short_name": "Palermo",
+                "types": [
+                    "sublocality_level_1",
+                    "sublocality",
+                    "political"
+                ]
+            },
+            {
+                "long_name": "Comuna 14",
+                "short_name": "Comuna 14",
+                "types": [
+                    "administrative_area_level_2",
+                    "political"
+                ]
+            },
+            {
+                "long_name": "Buenos Aires",
+                "short_name": "CABA",
+                "types": [
+                    "administrative_area_level_1",
+                    "political"
+                ]
+            },
+            {
+                "long_name": "Argentina",
+                "short_name": "AR",
+                "types": [
+                    "country",
+                    "political"
+                ]
+            },
+            {
+                "long_name": "C1414",
+                "short_name": "C1414",
+                "types": [
+                    "postal_code"
+                ]
+            },
+            {
+                "long_name": "CMW",
+                "short_name": "CMW",
+                "types": [
+                    "postal_code_suffix"
+                ]
+            }
+        ]
+    };
+    json[] filteredResults = [];
+    string filterFrom = "street_number";
+    json[] addressComp = <json[]>j.address_components;
+    int index = 0;
+    addressComp.filter(function (json comp) returns boolean {
+            json[] compTypes = <json[]>comp.types;
+            return compTypes.filter(function (json compType) returns boolean {
+                        return compType.toString() == filterFrom;
+
+                    }).count() > 0;
+        })
+    .foreach(function (json k) {
+            filteredResults[index] = k;
+            index += 1;
+        });
+
+    return filteredResults;
+}
+
+function testWithComplexXML() returns ((int, string)[]) {
+    xml bookstore = xml `<bookstore>
+                        <book category="cooking">
+                            <title lang="en">Everyday Italian</title>
+                            <author>Giada De Laurentiis</author>
+                            <year>2005</year>
+                            <price>30.00</price>
+                        </book>
+                        <book category="children">
+                            <title lang="en">Harry Potter</title>
+                            <author>J. K. Rowling</author>
+                            <year>2005</year>
+                            <price>29.99</price>
+                        </book>
+                        <book category="web">
+                            <title lang="en">XQuery Kick Start</title>
+                            <author>James McGovern</author>
+                            <author>Per Bothner</author>
+                            <author>Kurt Cagle</author>
+                            <author>James Linn</author>
+                            <author>Vaidyanathan Nagarajan</author>
+                            <year>2003</year>
+                            <price>49.99</price>
+                        </book>
+                        <book category="web" cover="paperback">
+                            <title lang="en">Learning XML</title>
+                            <author>Erik T. Ray</author>
+                            <year>2003</year>
+                            <price>39.95</price>
+                        </book>
+                    </bookstore>`;
+
+    (int, string)[] titles = [];
+    int count = 0;
+
+    bookstore["book"].foreach(function (xml|string ent) {
+            // If the element is an xml.
+            if (ent is xml) {
+                titles[count] = (count, ent["title"].getTextValue());
+                count += 1;
+            }
+    });
+
+    return titles;
+}
+
+type Balance record {
+    string asset;
+    string free;
+    string locked;
+};
+
+type Wallet record {
+    Balance[] balances;
+};
+
+function testWithComplexRecords() returns Balance[] {
+    Balance bal1 = {asset:"BTC", free:"12", locked:"8"};
+    Balance bal2 = {asset:"LTC", free:"2", locked:"1"};
+    Balance bal3 = {asset:"BTC", free:"20", locked:"3"};
+
+    Wallet wal = {balances:[bal1, bal2, bal3]};
+
+    string BTC = "BTC";
+    Balance[] bal = wal.balances.filter(
+        function (Balance b) returns boolean {
+            return b.asset == BTC;
+        }
+    );
+    return bal;
+}
+
+function multipleIterableOps() returns string[] {
+    string[] strArr = [];
+    int index = 0;
+
+    string currency = "USD";
+
+    var closure = function (string key) {
+        strArr[index] = currency;
+        index += 1;
+    };
+    closure.call("key");
+
+    map<int> currencies = { USD: 318, EUR: 322, GBP: 400 };
+    // Anonymus functions works as function literal.
+    currencies.keys().foreach(function (string key) {
+        strArr[index] = key;
+        index += 1;
+    });
+    currencies.foreach(function ((string, int) pair) {
+         var (x, y) = pair;
+         strArr[index] = x;
+         index += 1;
+    });
+
+    currencies.foreach(function ((string, int) pair) {
+        strArr[index] = currency;
+    });
+
+    return strArr;
+}

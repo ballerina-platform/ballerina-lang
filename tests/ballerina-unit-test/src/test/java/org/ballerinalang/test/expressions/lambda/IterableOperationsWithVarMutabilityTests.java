@@ -146,4 +146,44 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "16");
     }
+
+    @Test
+    public void testWithComplexJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexJson");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "{\"long_name\":\"1823\", \"short_name\":\"1823\", " +
+                "\"types\":[\"street_number\"]}");
+        Assert.assertEquals(returns[1].stringValue(), "{\"long_name\":\"Bonpland\", \"short_name\":\"Bonpland\", " +
+                "\"types\":[\"street_number\"]}");
+    }
+
+    @Test
+    public void testWithComplexXML() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexXML");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "(0, \"Everyday Italian\")");
+        Assert.assertEquals(returns[1].stringValue(), "(1, \"Harry Potter\")");
+        Assert.assertEquals(returns[2].stringValue(), "(2, \"XQuery Kick Start\")");
+        Assert.assertEquals(returns[3].stringValue(), "(3, \"Learning XML\")");
+    }
+
+    @Test
+    public void testWithComplexRecords() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexRecords");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "{asset:\"BTC\", free:\"12\", locked:\"8\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{asset:\"BTC\", free:\"20\", locked:\"3\"}");
+    }
+
+    @Test
+    public void multipleIterableOps() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "multipleIterableOps");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[\"USD\", \"USD\", \"EUR\", \"GBP\", \"USD\", \"EUR\", " +
+                "\"GBP\", \"USD\"]");
+    }
 }
