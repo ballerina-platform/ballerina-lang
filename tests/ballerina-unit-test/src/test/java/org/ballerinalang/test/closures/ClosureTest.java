@@ -180,7 +180,6 @@ public class ClosureTest {
         Assert.assertEquals((returns[0]).stringValue(), "Out31In65Ballerina!!!");
     }
 
-    // This test is not valid and should result in a compile time error.
     @Test(description = "Test three level closure with variable shadowing")
     public void testClosureWithVariableShadowing3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test25");

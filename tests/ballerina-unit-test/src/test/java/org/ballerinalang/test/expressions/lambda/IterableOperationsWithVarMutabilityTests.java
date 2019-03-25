@@ -34,7 +34,7 @@ import java.util.Locale;
 /**
  * TestCases for Iterable Operations.
  *
- * @since 0.990.4
+ * @since 0.995.0
  */
 public class IterableOperationsWithVarMutabilityTests {
 
@@ -54,8 +54,6 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), values.stream().mapToInt(Integer::intValue).sum());
     }
-
-
 
     @Test
     public void testFloat1() {

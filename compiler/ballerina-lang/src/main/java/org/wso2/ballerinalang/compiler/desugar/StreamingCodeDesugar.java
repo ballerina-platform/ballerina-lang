@@ -514,6 +514,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                 names.fromString(getVariableName(OUTPUT_FUNC_VAR_ARG)),
                                 lambdaFunction.function.symbol.pkgID, new BArrayType(anydataMapType),
                                 lambdaFunction.function.symbol.owner))}, typeNode);
+        // Rewrite the lambda function.
         outputLambdaFunc = desugar.rewrite(outputLambdaFunc, env);
         // create `T[] outputEvents`
         BLangSimpleVarRef outputArrayRef =

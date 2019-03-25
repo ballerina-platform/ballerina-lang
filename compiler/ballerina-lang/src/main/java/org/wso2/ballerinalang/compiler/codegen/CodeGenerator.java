@@ -3391,20 +3391,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        // Order the closures variable in order
+        // Order the closures variable maps.
         Set<BVarSymbol> closureMapSymbols = new LinkedHashSet<>();
 
-        // First add all the parameter closure maps
+        // First add the parameter closure maps.
         if (!lambdaFunction.function.paramClosureMap.isEmpty()) {
             // Check if the levels of the parameters are same. If same add them to the closure var map.
             TreeMap<Integer, BVarSymbol> paramClosureMap = lambdaFunction.function.paramClosureMap;
 
-            lambdaFunction.paramClosureMap.forEach((integer, bVarSymbol) -> {
+            lambdaFunction.paramMapSymbolsOfEnclInvokable.forEach((integer, bVarSymbol) -> {
                 if (paramClosureMap.containsKey(integer)) {
                     closureMapSymbols.add(bVarSymbol);
                 }
             });
-            // Then add the block symbol maps
+            // Afterwards add all the enclosing block symbol maps.
            closureMapSymbols.addAll(lambdaFunction.enclMapSymbols.values());
         }
 

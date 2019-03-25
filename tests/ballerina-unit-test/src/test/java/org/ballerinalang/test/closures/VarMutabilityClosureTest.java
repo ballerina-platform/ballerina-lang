@@ -34,6 +34,8 @@ import java.util.LinkedHashMap;
 
 /**
  * Test cases for variable mutability in closure related scenarios in ballerina.
+ *
+ * @since 0.995.0
  */
 public class VarMutabilityClosureTest {
 

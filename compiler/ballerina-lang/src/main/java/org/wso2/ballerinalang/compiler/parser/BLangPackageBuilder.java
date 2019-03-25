@@ -1639,7 +1639,6 @@ public class BLangPackageBuilder {
         BlockNode block = this.blockNodeStack.pop();
         InvokableNode invokableNode = this.invokableNodeStack.peek();
         invokableNode.addWS(ws);
-//        block.setDiagnosticPos((DiagnosticPos) invokableNode.getPosition());
         invokableNode.setBody(block);
     }
 

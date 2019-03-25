@@ -689,7 +689,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv,
                                                                   BLangLambdaFunction bLangLambdaFunction) {
         // save param closure map of the encl invokable
-        bLangLambdaFunction.paramClosureMap = ((BLangFunction) symbolEnv.enclInvokable).paramClosureMap;
+        bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = ((BLangFunction) symbolEnv.enclInvokable).paramClosureMap;
 
         // Recursively iterate back to the encl invokable and get all map symbols visited
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
@@ -901,7 +901,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
         // Get type of the index based access expression
-        BType typeOfExpr = isBasicType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
+        BType typeOfExpr = isSimpleType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
         // Create the index based access expression
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
                 varRefExpr.varSymbol.name.value);
@@ -917,7 +917,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = rewriteExpr(desugar.addConversionExprIfRequired(accessExpr, varRefExpr.type));
     }
 
-    private boolean isBasicType(BType bType) {
+    private boolean isSimpleType(BType bType) {
         return bType.tag != TypeTags.ARRAY && bType.tag != TypeTags.JSON && bType.tag != TypeTags.MAP &&
                 bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.RECORD && bType.tag != TypeTags.TUPLE &&
                 bType.tag != TypeTags.XML;

@@ -445,7 +445,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
 
-        // Invoke closure desugar
+        // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
@@ -574,11 +574,11 @@ public class Desugar extends BLangNodeVisitor {
             result = streamingCodeDesugar.desugar(foreverStatement);
             result = rewrite(result, env);
 
-            ((BLangBlockStmt) result).stmts.stream()
-                                           .filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
-                                           .map(stmt -> (BLangSimpleVariableDef) stmt)
-                                           .forEach(varDef -> ((BLangBlockStmt) result).scope.define
-                                                   (varDef.var.symbol.name, varDef.var.symbol));
+            // The result will be a block statement. All variable definitions in the block statement are defined in its
+            // scope.
+            ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
+                    .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
+                    ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
         }
     }
 
@@ -2144,11 +2144,11 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefType.tag == TypeTags.RECORD) {
             if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
                     && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
-                targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
+                targetVarRef = new BLangStructFunctionVarRef(((BLangVariableReference) fieldAccessExpr.expr),
+                        (BVarSymbol) fieldAccessExpr.symbol);
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                        (BVarSymbol) fieldAccessExpr.symbol,
-                        true);
+                        (BVarSymbol) fieldAccessExpr.symbol, true);
 
                 // expr symbol is null when their is a array as the field
                 if (!enclLocks.isEmpty() && (((BLangVariableReference) fieldAccessExpr.expr).symbol != null)) {
@@ -2181,9 +2181,8 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
-            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
-                    indexAccessExpr.expr, indexAccessExpr.indexExpr,
-                    (BVarSymbol) indexAccessExpr.symbol, false);
+            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
@@ -2516,6 +2515,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        // Collect all the lambda functions.
         env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         result = bLangLambdaFunction;
     }
@@ -2540,8 +2540,7 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.parent = bLangArrowFunction.parent;
         lambdaFunction.type = bLangArrowFunction.funcType;
 
-        // Create function symbol
-
+        // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 new Name(funcNode.name.value), env.enclPkg.symbol.pkgID, bLangArrowFunction.funcType,
@@ -2549,22 +2548,17 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 
-        List<BVarSymbol> paramSymbols =
-                funcNode.requiredParams.stream()
-                        .peek(varNode -> {
-                            Scope enclScope = invokableEnv.scope;
-                            varNode.symbol.kind = SymbolKind.FUNCTION;
-                            varNode.symbol.owner = invokableEnv.scope.owner;
-                            enclScope.define(varNode.symbol.name, varNode.symbol);
-
-                        })
-                        .map(varNode -> varNode.symbol)
-                        .collect(Collectors.toList());
+        List<BVarSymbol> paramSymbols = funcNode.requiredParams.stream().peek(varNode -> {
+            Scope enclScope = invokableEnv.scope;
+            varNode.symbol.kind = SymbolKind.FUNCTION;
+            varNode.symbol.owner = invokableEnv.scope.owner;
+            enclScope.define(varNode.symbol.name, varNode.symbol);
+        }).map(varNode -> varNode.symbol).collect(Collectors.toList());
 
         funcSymbol.params = paramSymbols;
         funcSymbol.retType = funcNode.returnTypeNode.type;
 
-        // Create function type
+        // Create function type.
         List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
         funcNode.type = new BInvokableType(paramTypes, funcNode.returnTypeNode.type, null);
 
@@ -2573,20 +2567,14 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
-        lambdaFunction.cachedEnv = bLangArrowFunction.cachedEnv;
         result = rewriteExpr(lambdaFunction);
     }
 
     private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
                                        SymbolEnv invokableEnv) {
         invokableNode.symbol = funcSymbol;
-
-        defineSymbol(funcSymbol);
+        funcSymbol.scope = new Scope(funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
-    }
-
-    private void defineSymbol(BSymbol symbol) {
-        symbol.scope = new Scope(symbol);
     }
 
     @Override

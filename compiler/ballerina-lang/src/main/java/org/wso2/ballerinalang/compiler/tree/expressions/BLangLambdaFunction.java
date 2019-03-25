@@ -36,7 +36,7 @@ public class BLangLambdaFunction extends BLangExpression implements LambdaFuncti
 
     public BLangFunction function;
     public SymbolEnv cachedEnv;
-    public TreeMap<Integer, BVarSymbol> paramClosureMap = new TreeMap<>();
+    public TreeMap<Integer, BVarSymbol> paramMapSymbolsOfEnclInvokable = new TreeMap<>();
     public TreeMap<Integer, BVarSymbol>  enclMapSymbols = new TreeMap<>();
 
     @Override

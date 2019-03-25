@@ -816,27 +816,28 @@ public class ASTBuilderUtil {
     }
 
     static BLangInvocation createLambdaInvocation(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                BLangSimpleVarRef simpleVarRef, List<BLangSimpleVariable> requiredArgs,
-                                                BLangBuiltInMethod builtInMethod, SymbolResolver symResolver) {
+                                                  BLangSimpleVarRef varRef, List<BLangSimpleVariable> requiredArgs,
+                                                  SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
         BLangIdentifier invocationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        invocationName.setValue(builtInMethod.getName());
+        invocationName.setValue(BLangBuiltInMethod.CALL.getName());
         invokeLambda.name = invocationName;
         invokeLambda.argExprs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params,
                 symResolver));
         invokeLambda.requiredArgs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params,
                 symResolver));
-        invokeLambda.builtInMethod = builtInMethod;
+        invokeLambda.builtInMethod = BLangBuiltInMethod.CALL;
         invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
-        invokeLambda.expr = simpleVarRef;
+        invokeLambda.expr = varRef;
         invokeLambda.builtinMethodInvocation = true;
-        invokeLambda.symbol = simpleVarRef.symbol;
+        invokeLambda.symbol = varRef.symbol;
         return invokeLambda;
     }
 
-    static List<BLangExpression> generateArgExprsForLambdas(DiagnosticPos pos, List<BLangSimpleVariable> args,
-                                                            List<BVarSymbol> formalParams, SymbolResolver symResolver) {
+    private static List<BLangExpression> generateArgExprsForLambdas(DiagnosticPos pos, List<BLangSimpleVariable> args,
+                                                                    List<BVarSymbol> formalParams,
+                                                                    SymbolResolver symResolver) {
         List<BLangExpression> argsExpr = new ArrayList<>();
         final List<BLangSimpleVarRef> variableRefList = createVariableRefList(pos, args);
         int mapSymbolsParams = formalParams.size() - args.size();

@@ -30,6 +30,8 @@ import java.util.Arrays;
 
 /**
  * Variable mutability with worker related tests.
+ *
+ * @since 0.995.0
  */
 public class VarMutabilityWithWorkersTest {
 

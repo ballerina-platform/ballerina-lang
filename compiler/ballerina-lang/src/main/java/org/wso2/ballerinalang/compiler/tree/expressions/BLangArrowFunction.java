@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -44,7 +43,6 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     public BType funcType;
     public IdentifierNode functionName;
     public BLangInvokableNode function;
-    public SymbolEnv cachedEnv;
 
     @Override
     public List<BLangSimpleVariable> getParameters() {

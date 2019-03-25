@@ -44,8 +44,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public boolean objInitFunction;
 
     public boolean interfaceFunction;
-    // TODO need to remove this variable after fixing streaming desugar for closure variables
-//    public Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
 
     public TreeMap<Integer, BVarSymbol> paramClosureMap = new TreeMap<>();
     public BVarSymbol mapSymbol;
