@@ -80,6 +80,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(errorEntry.fromIp);
         addCpAndWriteString(errorEntry.toBlockId.value);
         buf.writeInt(errorEntry.toIp);
+        errorEntry.errorOp.accept(this);
     }
 
     // Terminating instructions

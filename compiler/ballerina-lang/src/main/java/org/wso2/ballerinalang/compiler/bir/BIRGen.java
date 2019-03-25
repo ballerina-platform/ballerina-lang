@@ -776,15 +776,57 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPanic panicNode) {
         panicNode.expr.accept(this);
         emit(new BIRNonTerminator.Panic(panicNode.pos, InstructionKind.PANIC, this.env.targetOperand));
+        
+        // Check whether this function already has a returnBB.
+        // A given function can have only one BB that has a return instruction.
+        if (this.env.returnBB == null) {
+            // If not create one
+            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
+            returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
+            this.env.returnBB = returnBB;
+        }
+
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(panicNode.pos, this.env.returnBB);
     }
 
     public void visit(BLangTrapExpr trapExpr) {
-        int fromIp = this.env.enclBB.instructions.size();
-        Name fromBlockId = this.env.enclBB.id;
+        this.env.trapBB = this.env.enclBB;
+        this.env.trapIp = this.env.enclBB.instructions.size();
         trapExpr.expr.accept(this);
-        int toIp = this.env.enclBB.instructions.size();
-        Name toBlockId = this.env.enclBB.id;
-        this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(fromBlockId, fromIp, toBlockId, toIp));
+        // If trap block has terminator then we need to handle trap multiple bir blocks.
+        if (this.env.trapBB.terminator instanceof BIRTerminator.Call) {
+            BIRTerminator.Call terminator = (BIRTerminator.Call) this.env.trapBB.terminator;
+            BIRBasicBlock thenBB = terminator.thenBB;
+            // Handle trap which covers more than one bir blocks.
+            if (thenBB.id != env.enclBB.id) {
+                thenBB = getParentBB(env.enclBB, thenBB);
+                this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB.id, this.env.trapIp,
+                                                                           thenBB.id, 0,this.env.targetOperand));
+            } else {
+                this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB.id, this.env.trapIp,
+                                                                           this.env.trapBB.id,
+                                                                           this.env.trapBB.instructions.size(),
+                                                                           this.env.targetOperand));
+            }
+            this.env.trapBB = env.enclBB;
+            this.env.trapIp = 0;
+         
+        } else {
+            int toIp = this.env.trapBB.instructions.size() - 1;
+            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB.id, this.env.trapIp,
+                                                                       this.env.trapBB.id, toIp,
+                                                                       this.env.targetOperand));
+            this.env.trapIp = this.env.trapBB.instructions.size();
+            this.env.trapIp = toIp + 1;
+        }
+    }
+
+    private BIRBasicBlock getParentBB(BIRBasicBlock childBlock, BIRBasicBlock grandParentBlock) {
+        BIRBasicBlock thenBB = ((BIRTerminator.Call) grandParentBlock.terminator).thenBB;
+        if (thenBB == childBlock) {
+            return grandParentBlock;
+        }
+        return getParentBB(childBlock, thenBB);
     }
     
     // private methods

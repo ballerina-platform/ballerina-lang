@@ -286,13 +286,16 @@ public abstract class BIRNode {
         public int fromIp;
         public Name toBlockId;
         public int toIp;
+        public BIROperand errorOp;
 
-        public BIRErrorEntry(Name fromBlockId, int fromIp, Name toBlockId, int toIp) {
+        public BIRErrorEntry(Name fromBlockId, int fromIp, Name toBlockId,
+                             int toIp, BIROperand errorOp) {
             super(null);
             this.fromBlockId = fromBlockId;
             this.fromIp = fromIp;
             this.toBlockId = toBlockId;
             this.toIp = toIp;
+            this.errorOp = errorOp;
         }
 
         @Override

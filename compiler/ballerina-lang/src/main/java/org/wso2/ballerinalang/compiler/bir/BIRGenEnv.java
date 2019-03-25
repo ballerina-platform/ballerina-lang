@@ -49,6 +49,8 @@ class BIRGenEnv {
     private int currentGlobalVarId = -1;
 
     BIRBasicBlock enclBB;
+    BIRBasicBlock trapBB;
+    int trapIp;
     BIROperand targetOperand;
 
     // This is the basic block that contains the return instruction for the current function.
