@@ -860,9 +860,9 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
         }
     } else {
         string errMsg = "Received an invalid response. StatusCode: " + response.statusCode;
-        var stringPayload = response.getPayloadAsString();
-        if (stringPayload is string) {
-            errMsg = " Payload: " + stringPayload;
+        var textPayload = response.getTextPayload();
+        if (textPayload is string) {
+            errMsg = " Payload: " + textPayload;
         }
         log:printError(errMsg);
         error e = error(HTTP_ERROR_CODE, { message: errMsg });
