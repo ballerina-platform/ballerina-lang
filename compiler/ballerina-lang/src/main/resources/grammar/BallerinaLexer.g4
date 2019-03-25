@@ -288,8 +288,8 @@ HexadecimalFloatingPointLiteral
     ;
 
 DecimalFloatingPointNumber
-    :   DecimalNumeral ExponentPart
-    |   DottedDecimalNumber ExponentPart?
+    :   DecimalNumeral ExponentPart DecimalFloatSelector?
+    |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
 fragment
@@ -313,14 +313,19 @@ Sign
     ;
 
 fragment
+DecimalFloatSelector
+    : [dDfF]
+    ;
+
+fragment
 HexIndicator
     :   '0' [xX]
     ;
 
 fragment
 HexFloatingPointNumber
-    :   HexDigits BinaryExponent
-    |   DottedHexNumber BinaryExponent?
+    :   HexDigits BinaryExponent DecimalFloatSelector?
+    |   DottedHexNumber (DecimalFloatSelector |BinaryExponent)?
     ;
 
 fragment

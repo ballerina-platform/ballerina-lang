@@ -41,7 +41,7 @@ public class BDecimalValueNegativeTest {
                 " '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
 
-        expectedError = "extraneous input 'd'";
+        expectedError = "extraneous input 'g'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 21);
 
         expectedError = "extraneous input '23.04'";

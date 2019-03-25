@@ -105,3 +105,21 @@ function testIntLiteralAssignment() returns (decimal, decimal) {
     decimal d = 12;
     return (d, 15);
 }
+
+function testDecimalArrayValue() returns (decimal[]) {
+    decimal[] ds = [1.0, 2.0];
+    return ds;
+}
+
+function testDicimalArrayValueWithDiscriminator() returns (decimal[]) {
+    decimal[] ds = [1.0d, 2.0d];
+    return ds;
+}
+
+function testDisciminatedDecimalLiterals() returns (decimal, decimal, decimal, decimal) {
+    var a = 3.22d;
+    var b = 0.0d;
+    decimal c =3.141592653589793238462643383279502d;
+    decimal d =3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679d;
+    return (a, b, c, d);
+}

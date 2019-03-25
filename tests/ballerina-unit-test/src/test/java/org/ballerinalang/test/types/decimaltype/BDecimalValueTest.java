@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.types.decimaltype;
 
+import org.ballerinalang.model.util.DecimalValueKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
@@ -193,5 +194,28 @@ public class BDecimalValueTest {
                 "Invalid decimal value returned.");
         Assert.assertTrue(value2.decimalValue().compareTo(new BigDecimal("15", MathContext.DECIMAL128)) == 0,
                 "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test decimal array literal without decimal discriminator")
+    public void testDecimalArrayLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalArrayValue", new BValue[]{});
+        Assert.assertEquals(returns[0], new BDecimal("1.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("2.0", DecimalValueKind.OTHER));
+    }
+
+    @Test(description = "Test decimal array literal with decimal discriminator")
+    public void testDiscriminatedDecimalArrayLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testDicimalArrayValueWithDiscriminator", new BValue[]{});
+        Assert.assertEquals(returns[0], new BDecimal("1.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("2.0", DecimalValueKind.OTHER));
+    }
+
+    @Test(description = "Test decimal array literal with decimal discriminator")
+    public void testDiscriminatedDecimalLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testDisciminatedDecimalLiterals", new BValue[]{});
+        Assert.assertEquals(returns[0], new BDecimal("3.22", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("0.0", DecimalValueKind.ZERO));
+        Assert.assertEquals(returns[2], new BDecimal("3.141592653589793238462643383279502", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[3], new BDecimal("3.141592653589793238462643383279503", DecimalValueKind.OTHER));
     }
 }

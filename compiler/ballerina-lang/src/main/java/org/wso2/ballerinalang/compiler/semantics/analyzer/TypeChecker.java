@@ -281,12 +281,29 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check whether this belongs to decimal type or float type
-        if (literalType.tag == TypeTags.FLOAT) {
-            if (expType.tag == TypeTags.DECIMAL) {
+        if (literalType.tag == TypeTags.FLOAT || literalType.tag == TypeTags.DECIMAL) {
+            if (expType.tag == TypeTags.FLOAT && literalType.tag == TypeTags.DECIMAL) {
+                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+            }
+
+            String numericLiteral = String.valueOf(literalValue);
+            char lastChar = getLastChar(numericLiteral);
+
+            if (expType.tag == TypeTags.DECIMAL && (lastChar == 'f' || lastChar == 'F')) {
+                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, literalType, expType);
+            }
+
+            if (expType.tag == TypeTags.DECIMAL && !(lastChar == 'f' || lastChar == 'F')) {
                 literalType = symTable.decimalType;
-                literalExpr.value = String.valueOf(literalValue);
-            } else if (expType.tag == TypeTags.FLOAT) {
-                literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
+            }
+
+            numericLiteral = stripFloatDecimalDescriminater(numericLiteral, lastChar);
+
+            if (literalType.tag == TypeTags.DECIMAL) {
+                literalType = symTable.decimalType;
+                literalExpr.value = numericLiteral;
+            } else if (literalType.tag == TypeTags.FLOAT) {
+                literalExpr.value = Double.parseDouble(numericLiteral);
             }
         }
 
@@ -311,6 +328,17 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    private String stripFloatDecimalDescriminater(String numericLiteral, char lastChar) {
+        if (lastChar == 'd' || lastChar == 'D' || lastChar == 'f' || lastChar == 'F') {
+            numericLiteral = numericLiteral.substring(0, numericLiteral.length() - 1);
+        }
+        return numericLiteral;
+    }
+
+    private char getLastChar(String string) {
+        return string.charAt(string.length() - 1);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {

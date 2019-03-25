@@ -358,7 +358,7 @@ function testArrayofQueryParameters() returns string {
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
-    decimal[] decimalArray = [1233.4, 1433.4];
+    decimal[] decimalArray = [1233.4d, 1433.4d];
     sql:Parameter para0 = { sqlType: sql:TYPE_VARCHAR, value: "Johhhn" };
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: intDataArray };
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: stringDataArray };

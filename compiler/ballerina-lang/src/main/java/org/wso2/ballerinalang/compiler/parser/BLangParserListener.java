@@ -2402,10 +2402,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
+            int floatTypeTag = getFloatType(ctx);
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getNodeValue(ctx, node), node.getText());
+                this.pkgBuilder.addLiteralValue(pos, ws, floatTypeTag, getNodeValue(ctx, node), node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getHexNodeValue(ctx, node), node.getText());
+                this.pkgBuilder.addLiteralValue(pos, ws, floatTypeTag, getHexNodeValue(ctx, node), node.getText());
             }
         } else if ((node = ctx.BooleanLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()),
@@ -2422,6 +2423,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
         }
+    }
+
+    private int getFloatType(BallerinaParser.SimpleLiteralContext ctx) {
+        String text = ctx.floatingPointLiteral().getText();
+        if (text.length() > 1) {
+            char indicator = text.charAt(text.length() - 1);
+            if (indicator == 'd' || indicator == 'D') {
+                return TypeTags.DECIMAL;
+            }
+        }
+        return TypeTags.FLOAT;
     }
 
     /**
