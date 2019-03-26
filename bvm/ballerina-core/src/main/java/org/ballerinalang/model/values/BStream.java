@@ -19,7 +19,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.broker.StreamSubscrptionManager;
+import org.ballerinalang.streams.StreamSubscrptionManager;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BType;

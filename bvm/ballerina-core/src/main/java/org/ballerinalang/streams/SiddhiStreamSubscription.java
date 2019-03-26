@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.broker;
+package org.ballerinalang.streams;
 
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
