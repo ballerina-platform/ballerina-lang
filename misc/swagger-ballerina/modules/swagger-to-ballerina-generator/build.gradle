@@ -1,4 +1,5 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser:2.0.0-rc3'
@@ -8,6 +9,34 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':swagger-ballerina:ballerina-to-swagger')
     testCompile 'org.testng:testng:6.13.1'
+}
+
+jar {
+    enabled = false
+    dependsOn(shadowJar { classifier = null })
+}
+
+shadowJar {
+    configurations = [project.configurations.runtimeClasspath]
+    dependencies {
+        include(dependency('com.github.jknack:handlebars'))
+        include(dependency('commons-io:commons-io'))
+        include(dependency('io.swagger:swagger-core'))
+        include(dependency('io.swagger:swagger-models'))
+        include(dependency('io.swagger:swagger-parser'))
+        include(dependency('io.swagger.core.v3:swagger-core'))
+        include(dependency('io.swagger.core.v3:swagger-models'))
+        include(dependency('io.swagger.parser.v3:swagger-parser'))
+        include(dependency('io.swagger.parser.v3:swagger-parser-core'))
+        include(dependency('io.swagger.parser.v3:swagger-parser-v2-converter'))
+        include(dependency('io.swagger.parser.v3:swagger-parser-v3'))
+        include(dependency('javax.validation:validation-api'))
+        include(dependency('com.google.code.gson:gson'))
+        include(dependency('org.ballerinalang:ballerina-to-swagger'))
+        exclude('META-INF/*.SF')
+        exclude('META-INF/*.DSA')
+        exclude('META-INF/*.RSA')
+    }
 }
 
 description = 'Ballerina - Swagger Tooling - Swagger to Ballerina'
