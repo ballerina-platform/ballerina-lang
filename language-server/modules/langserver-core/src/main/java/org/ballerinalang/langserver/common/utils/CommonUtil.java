@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -954,7 +953,6 @@ public class CommonUtil {
                 || "runtime".equals(symbol.getName().getValue())
                 || "transactions".equals(symbol.getName().getValue())
                 || symbol instanceof BAnnotationSymbol
-                || symbol instanceof BServiceSymbol
                 || symbol instanceof BOperatorSymbol
                 || symbolContainsInvalidChars(symbol));
     }
@@ -1094,11 +1092,19 @@ public class CommonUtil {
     }
 
     private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
-                || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
-                || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
-                || bSymbol.getName().getValue().equals("main")
-                || bSymbol.getName().getValue().endsWith(".new");
+        String symbolName;
+        if (bSymbol.owner != null && bSymbol.owner.name != null
+                && bSymbol.name.value.startsWith(bSymbol.owner.name.value + ".")) {
+            symbolName = bSymbol.name.value.replace(bSymbol.owner.name.value + ".", "");
+        } else {
+            symbolName = bSymbol.getName().getValue();
+        }
+
+        return symbolName.contains(UtilSymbolKeys.LT_SYMBOL_KEY)
+                || symbolName.contains(UtilSymbolKeys.GT_SYMBOL_KEY)
+                || symbolName.contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
+                || symbolName.equals("main")
+                || symbolName.endsWith(".new");
     }
 
     private static boolean builtinLengthFunctionAllowed(BType bType) {

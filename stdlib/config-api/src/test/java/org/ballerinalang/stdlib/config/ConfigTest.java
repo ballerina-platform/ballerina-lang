@@ -30,7 +30,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,8 +51,7 @@ public class ConfigTest {
 
     @BeforeClass
     public void setup() {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-               .getAbsolutePath();
+        resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         sourceRoot = Paths.get(resourceRoot, "test-src");
         ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "default", BALLERINA_CONF);
         customConfigFilePath = Paths.get(resourceRoot, "datafiles", BALLERINA_CONF).toString();

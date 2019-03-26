@@ -86,6 +86,7 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
+            <package name="org.ballerinalang.test.types.floattype"/>
         </packages>
     </test>
 </suite>
