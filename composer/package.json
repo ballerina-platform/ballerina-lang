@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.1.5",
-    "@storybook/addon-actions": "^4.0.7",
+    "@storybook/addon-actions": "^5.0.5",
     "@storybook/addon-info": "^5.0.1",
     "@storybook/addon-storyshots": "^4.0.7",
     "@storybook/react": "^4.0.4",
