@@ -1,15 +1,14 @@
-# Ballerina Style Guide
+# Ballerina style guide
 
-Formatting is one of the most argued topic when it comes to a programming language.
-To avoid these arguments we decide to come up with a opinionated guide for Ballerina source code formatting. 
-Users can follow their own formatting but we recommend to use this formatting guide as all the IDE tools 
-will support only this format. Also following this guide will form a standard style across all developers.
+Formatting is one of the most vital topics with respect to a programming language. You can follow your own formatting for Ballerina source code. However, this guide brings you formatting recommendations since all the Ballerina IDE plugins/extensions support only these by default. Also, this guide aims at forming a standard style among the Ballerina community.
 
-### Indentation and Line Length
-* Use four spaces, not tabs.
-* No indentation for top level definitions. 
+### Indentation and length of the lines
+* Use four spaces (not tabs) for each level of indentation.
+* Do not indent the top level definitions. 
+
+Example,
   ```ballerina
-  // This is the top level of the .bal file.
+  // This is the top level definition of the .bal file.
 
   import ballerina/http;
 
@@ -26,27 +25,29 @@ will support only this format. Also following this guide will form a standard st
   }
 
   ```
-* Maximum line length is 120 characters. 
+* Keep the maximum length of a line as 120 characters. 
 
 ### Spacing
 
-#### Inline Spacing
+#### Inline spacing
 
-When applying spaces to separate keywords, types and identifiers always use only a single space. 
+Use only a single space to separate keywords, types, and identifiers. 
 
+Example,
 ```ballerina
 // public keyword, type keyword, identifier Employee, abstract keyword and object keyword
-// All have to be separated with only a single space.
+// all have to be separated with only a single space.
 public type Employee abstract object {
     public int id;
     public string name;
 };
 ```
 
-#### Blank Lines
+#### Blank lines
 
-Separate both statements and top level definitions by zero or one blank lines (one or two new lines).
+Separate both statements and top level definitions by zero or one blank lines (i.e., one or two new lines).
 
+  Example,
   ```ballerina
   import ballerina/http;
   import ballerina/io;
@@ -65,8 +66,9 @@ Separate both statements and top level definitions by zero or one blank lines (o
   function setAge(int age) {}
   ```
 ### Blocks
-* Before opening curly brace there should be a single space. 
+* Add a single space before opening the curly braces. 
 
+  Example,
   ```ballerina
 
   function func1() {
@@ -74,27 +76,30 @@ Separate both statements and top level definitions by zero or one blank lines (o
   }
 
    ```
-* If a block is empty, there shouldn't be any spaces between opening `{` and closing `}` brace.
+* If a block is empty, do not keep spaces in between the opening `{` and closing `}` braces.
+  
+  Example,
   ```ballerina
   function func1() {}
   ``` 
-* All statements inside a block should be block-indented.
+* Indent all the statements inside a block to be at the same level.
+
 ### Parentheses
-* If empty no spaces between opening and closing parentheses `()`.
-* No space before closing parentheses and after opening parentheses.
+* To define empty parenthese, do not keep spaces between the opening and closing parentheses `()`.
+* Do not have spaces before closing and after opening the parentheses.
   
+  Example,
   ```ballerina
   function setValue(string value) {} 
   ```
   
-### Line Breaks
+### Line breaks
 
-* Only one statement on a line.
-* Always try to split a line from a point located in the direction from end to start of the line.
-* When splitting lines which contains operator/s split should be done 
-  right before an operator.
+* Have only one statement in a line.
+* Split a line at some point, in the direction from the start towards the end of the line.
+* When splitting lines, which contain operator(s), split them right before an operator.
   
-  example:
+  Example,
   
   ```ballerina
   // Binary operations.
@@ -113,18 +118,20 @@ Separate both statements and top level definitions by zero or one blank lines (o
 
   ```
 
-* Splitted lines should be indented relative to the start position of the statement or definition.
+* Indent splitted lines with relation to the starting position of the statement or definition.
   
+  Example,
   ```ballerina
   if (isNameAvailable 
       && (i == 1)) {
     
   }
   ```
-* Avoid line breaking in constrained types and type casting.
-  e.g., 
+* Avoid line breaks in constrained types and type casting.
   
-  Dos
+  Example, 
+  
+  Correct method:
   
   ```ballerina
   map<int | string> // map reference type
@@ -134,7 +141,7 @@ Separate both statements and top level definitions by zero or one blank lines (o
   <string>
   ```
   
-  Don'ts
+  Incorrect method:
 
   ```ballerina
 
@@ -151,18 +158,19 @@ Separate both statements and top level definitions by zero or one blank lines (o
   >
   ```
   
-  But if type casting expression or statement with constrained type cannot be put on a single line, 
-  due to exceeding max line length, 
-    - Try to move the casting type with operators to a new line.
+  >**Info:** However, if you cannot add the type casting expression or statement with the constrained type in a single line 
+  due to it exceeding the max line length, 
+    - move the casting type with the operators to a new line.
   
+      Example,
       ```ballerina
       string name =
           <string>json.name;
       ```
   
-    - Keep the constrained type on the same line by splitting statement from a 
-      point located in a direction from end to start of the line.
+    - keep the constrained type on the same line by splitting the statement at some point, in the direction from the start towards the end of the line.
       
+      Example,
       ```ballerina
       map<int | string> registry = {};
       
@@ -177,12 +185,12 @@ Separate both statements and top level definitions by zero or one blank lines (o
 ### [Operators, Keywords and Types](operators_keywords_and_types.md)
 
 ### Annotations
-* No spaces around `@`.
-* Annotation should indent to align with the start position of the owner (statement, definition).
-  e.g:
+* Do not have spaces around the `@` symbol.
+* Indent annotations to align them with the starting position of the owner (statement or definition).
   
+  Example,
   ```ballerina
-  // Service annotations indented to align with start position of the service.
+  // Service annotations indented to align with the starting position of the service.
   @http:ServiceConfig {
       basePath: "greet"
   }
@@ -199,26 +207,30 @@ Separate both statements and top level definitions by zero or one blank lines (o
       }
   }
   ```
-* Annotation Attributes(Key value pairs), each should block-indent on their own line.
+* Indent each annotation attribute (i.e., key value pairs) as a block in their own lines.
   
+  Example,
   ```ballerina
   @http:ServiceConfig {
       basePath: "greet",
       methods: ["GET"]
   }
   ```
-* If annotation is empty, it should be placed on a single line and 
-  between both braces there shouldn't be any spaces.
+* If an annotation is empty, place it in a single line and 
+  do not have spoaces between both braces.
   
+  Example,
   ```ballerina
   @http:ServiceConfig {}
   ```
 
 ### Comments
-* Ballerina uses `//` to write both single line and multiline comments.
+* Use `//` to write both single-line and multi-line comments.
   
+  Example,
+
   ```ballerina
-  // This is a single line comment.
+  // This is a single-line comment.
   ```
   and 
   
@@ -240,13 +252,13 @@ Separate both statements and top level definitions by zero or one blank lines (o
   // under the License.
   ```
   
-* There should be a single space between `//` and the content.
-* If comment is on its own line then it should indent considering the 
-  context(top level or in a block) its in.
-  e.g: 
-
+* Add a single space between the `//` and the content.
+* If the comment is in its own line, then indent it considering the 
+  context its in (i.e., top level or in a block).
+  
+  Example,
   ```ballerina
-  // This is a top level comment
+  // This is a top level comment.
 
   function func1() {
       // This is a block level comment. 
@@ -261,8 +273,9 @@ Separate both statements and top level definitions by zero or one blank lines (o
   }
   ```
 
-* If comment is inline with code there should be a space before it.
+* If the comment is in line with the code, add a space before it.
 
+  Example,
   ```ballerina
 
   type People record {}; // Inline comment
@@ -275,9 +288,11 @@ Separate both statements and top level definitions by zero or one blank lines (o
 
 
 ### Documentation
-* Always should be indented to align with the start position of the owner.
-* `#` should followed by a space.
-* There should be an empty line after Description.
+* Always, indent them to align with the starting position of the owner.
+* Add a space before the`#` symnbol.
+* Add an empty line after the description.
+
+Example,
   ```ballerina
     # Get Value.
     #
@@ -287,9 +302,10 @@ Separate both statements and top level definitions by zero or one blank lines (o
         return value;
     }
   ```
-* There should be only one space after `+`, `-` and `return`.
-* Param identifier and description should begin with a single space.
+* Addonly one space after `+`, `-` and `return`.
+* Begin the param identifier and description with a single space.
 
+  Example,
   ```ballerina
   # Get Value.
   #
@@ -318,4 +334,4 @@ Separate both statements and top level definitions by zero or one blank lines (o
       }
   }
   ```
-  Find more details about how to document Ballerina code [here](https://ballerina.io/learn/how-to-document-ballerina-code/).
+  For more information on how to document Ballerina code, go to [How to document Ballerina code](https://ballerina.io/learn/how-to-document-ballerina-code/).

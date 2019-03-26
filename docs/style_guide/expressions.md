@@ -1,17 +1,19 @@
 # Expressions
 
-## Record Literals
+## Record literals
 
-* If record literal is empty
-  - Both braces should be placed on the same line as the record.
-  - There shouldn't be any spaces between opening and closing brace.
+* If a record literal is empty,
+  - place both braces on the same line of the record.
+  - do not keep any spaces between the opening and closing braces.
       
+    Example,
     ```ballerina
     Person p = {};
     ```
-* If record literal is not empty closing brace should be put on its
-  own line and indent and aligned with the start position of the statement.
+* If a record literal is not empty, put the closing brace on its
+  own line. Also, indent and alignedalign it with the starting position of the statement.
   
+  Example,
   ```ballerina
   Person p = {
       name: "john",
@@ -19,58 +21,62 @@
   };
   ```
 ### Fields
-* In a record literal fields can be arranged on a single line. Then
-  - A record field shouldn't have any spaces before comma.
-  - There Should be only one space after comma.
+* In a record literal, fields can be arranged on a single line. Then,
+  - do not keep spaces in a record field before the comma.
+  - keep only one space after the comma.
       
+    Example,
     ```ballerina  
     Person p = {name: "john", age: 20}; 
     ``` 
-* There shouldn't be any spaces between key and colon.
-* There should be only one space between the colon and the value.
+* Do not keep any spaces between the key and the colon.
+* Keep only one space between the colon and the value.
   
+  Example,
   ```ballerina
   Person person = {
       name: "john", // in this field Key is the "name" and value is "john".
   };
   ```
-* If at least one field is splitted on to a new line then all the fields should 
-  split on to new lines. For an example if record literal is as below
+* If at least one field is splitted on to a new line, then split all the fields to new lines. 
       
+  For example, if the record literal is as follows,
   ```ballerina
       
   Person p = {name: "john",
   age: 20}; 
       
   ``` 
-  then all the fields should be moved on to new lines and each field should be block-indented.
-      
+  then, move all the fields to new lines and indent each field as a block as follows.
+  
   ```ballerina
   Person p = {
       name: "john",
       age: 20
   };
   ``` 
-## Map Literal
+## Map literal
 
-* Map literals uses the same formatting guidelines as [record literals](#record-literals). 
+* For Map literals, follow the same formatting guidelines as [record literals](#record-literals). 
 
 ## Tuple
 
-* Always try to place tuple on a single line.
+* Always, place a tuple in a single line.
 
+  Example,
   ```ballerina
 
   (string, int) tuple = ("john", 20);
 
   ```
-* If it's not possible to place tuple on a single line, due to exceeding maximum line length limit,
-  each field in the tuple should be put on its own block-indented line. Also
+* If it is not possible to place a tuple on a single line due to it exceeding the maximum line length limit,
+  put each field in the tuple on its own block-indented line. Also,
   
-  - Trailing comma always should be on a end of a line and inline with a field.
-  - Parentheses act as a block and indented as blocks. So space before opening parentheses
-    and closing parentheses is on it's own line and indented to align with the parent.
+  - always, add the trailing comma at the end of a line and inline with a field.
+  - Parentheses act as a block and are indented as blocks. Thereofre, keep the space before the opening parentheses
+    and closing parentheses on it's own line and indent it to align it with the parent.
   
+    Example,
     ```ballerina
   
     (string, int) tuple = (
@@ -79,30 +85,32 @@
     );
   
     ```
-## Function Invocation
+## Function invocation
 
-* Always try to place function invocation on a single line.
-* No spaces between function name and the opening parentheses `(`,
-  opening parentheses and first argument and last parentheses and the last parentheses.
-* There shouldn't be any spaces between argument and the trailing comma `,`
+* Always, place the function invocation in a single line.
+* Do not keep spaces between the function name, opening parentheses `(`, first argument, and closing parentheses.
+* Do not keep spaces between the argument and the trailing comma `,`
 
+  Example,
   ```ballerina
   setAgeForEmployee(employeeName, employeeID);
   ```
-* When invoking a function from another module there are no spaces around `:`.
+* When invoking a function from another module, do not keep spaces around `:`.
   
+  Example,
   ```ballerina
   io:println("john");
   ```
   
-* If unable to keep the function invocation on a single line, due to exceeding max line length,
-  each argument should be splitted on to its own block-indented line.
+* If it is unable to keep the function invocation in a single line due to it exceeding the max line length,
+  split each argument on to its own block-indented line.
   
-  - Trailing comma always should be on a end of the line and inline with a argument.
-  - No space before opening parentheses
-  - closing parentheses is on it's own line and indented to align with the start 
+  - Always, place the trailing comma at the end of the line and inline with an argument.
+  - Do not keep space before the opening parentheses.
+  - Keep the closing parentheses on it's own line and indent it to align with the starting 
     position of the statement.
     
+    Example,
     ```ballerina
     
     setAgeForEmployee(
@@ -111,24 +119,26 @@
     );
     
     ```
-## Array Literals
+## Array literals
 
-* Simple arrays should be placed on a single line. Also
-  - There shouldn't be any spaces between the opening bracket and value.
-  - There shouldn't be any spaces between the closing bracket and value.
-  - There shouldn't be any spaces between a value and a trailing comma.
+* Place simple arrays in a single line. Also,
+  - do not keep any spaces between the opening bracket and value.
+  - do not keep any spaces between the closing bracket and value.
+  - do not keep any spaces between a value and a trailing comma.
   
+    Exampole,
     ```ballerina
     string[] names = ["john", "doe", "jane", "doe"];
     ```
-* If an array cannot be placed on a single line, due to exceeding the max line length,
-  each value in array should be splitted on to its own block-indented line. Also
+* If an array cannot be placed on a single line due to it exceeding the max line length,
+  split each value in the array to its own block-indented line. Also,
   
-  - Trailing comma always should be on a end of the line and inline with a value.
-  - Opening bracket should be on the same line where the statement starts.
-  - Closing bracket should be on it's own line and indented to align with the start 
+  - place the trailing comma at the end of the line and inline with a value.
+  - place the opening bracket on the same line where the statement starts.
+  - place the closing bracket on it's own line and indent it to align with the starting 
     position of the statement.
     
+    Example,
     ```ballerina
     
     string[] names = [
@@ -139,27 +149,30 @@
     ];
     
     ```
-## Type Casting
+## Type casting
 
-* There shouldn't be any spaces between the type and the angle brackets. `<string>`.
-* There shouldn't be any spaces between the closing angle bracket and value reference to be casted.
+* Do not keep spaces between the type and the angle brackets (i.e., `<string>`).
+* Do not keep spaces between the closing angle bracket and value reference, which will be be casted.
 
+  Example,
   ```ballerina
   string name = <string>json.name;
   ```
-## Table Literal
-* Table column and table data array in table literal, each should block-indent on its own line.
-* Table column definition should be place on a single line.
+## Table literal
+* In a table literal, indent the table column and table data array as a block in its own line.
+* Place the table column definition in a single line.
   
+  Example,
   ```ballerina
       table<Employee> employee = table {
           {key id, name, address}
       };
   ```
-* If table column definition cannot be put on a single line, due to exceeding max line length,
-  table column definition should split on to a new line just after a comma and indent related 
-  to start position of the table column definition.
+* If it is unable to have the table column definition in a single line due to it exceeding the max line length,
+  split the table column definition to a new line just after a comma and indent it with relation 
+  to the starting position of the table column definition.
   
+  Example,
   ```ballerina
   table<Employee> employee = table {
       {key id,
@@ -168,17 +181,19 @@
   };
   ```
   
-* Table data array should be placed on a single line. 
+* Place table data array in a single line. 
   
+  Example,
   ```ballerina
   table<Employee> employee = table {
       {id, name, address},
       [{"1", "test", "No:123 hty RD"}]
   }
   ```
-* If table data array cannot be put on a single line, due to exceeding max line length,
-  each table data should be block-indented on it own line.
+* If it is unable to keep the table data array in a single line due to it exceeding the max line length,
+  indent each table data as a block in it own line.
   
+  Example,
   ```ballerina
   table<Employee> employee = table {
       {id, name, address},

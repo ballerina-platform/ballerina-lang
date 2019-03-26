@@ -1,16 +1,18 @@
-# Operators, Keywords and Types
+# Operators, keywords and types
 
-## Single Line Formatting
-### Keywords and Types
-* If there is a keyword followed by a keyword they should be separated only by a single space.
+## Single-line formatting
+### Keywords and types
+* If there is a keyword followed by a keyword, separate them using a single space only.
   
+  Example,
   ```ballerina
   public remote function getUserName(http:Caller caller, http:Request req) {
   
   } 
   ```
-* If there is a keyword or type followed by a identifier they should be separated only by a single space.
+* If there is a keyword or type followed by an identifier, separate them using a single space only.
   
+  Example,
   ```ballerina
   string fullName = "john doe"; 
   
@@ -18,18 +20,22 @@
       return fullName;
   }
   ```
-* There shouldn't be any spaces around a type when enclosed using angle brackets `<string>`. 
+* Do not keep spaces around a type when it is enclosed using angle brackets `<string>`. 
   
+  Example,
   ```ballerina
   map<string> names = {};
   ```
-* There shouldn't be any spaces between type and opening bracket in array definition `string[]`.
+* Do not keep spaces between the type and opening bracket in the array definition `string[]`.
   
+  Example,
   ```ballerina
   string[] names = [];
   
   ```
-* There should be single spaces between type and a pipe operator when in an union type `string | int`.
+* Keep single spaces between the type and a pipe operator when it is in an union type `string | int`.
+  
+  Example,
   ```ballerina
   function getValue(string key) returns (string | error) {
       if (key == "") {
@@ -46,24 +52,27 @@
   }
   
   ```
-* When accessing a type(Record or Object) from a another module there cannot be any spaces around colon `http:Response`  
-* There shouldn't be any spaces between type and the optional operator `?`.
+* When accessing a type(Record or Object) from a another module, do not keep spaces around the colon (e.g., `http:Response`).
+* Do not keep spaces between the type and the optional operator `?`.
   
+  Example,
   ```ballerina
   string? name;
   ```
 ### Operators
-* There should be single space before and after `=` operator.
-* There shouldn't be any spaces around semicolon `;`.
-* There should be no spaces between unary operator and the expression.
+* Do not keep spaces before and after the `=` operator.
+* Do not keep spaces around the semicolon `;`.
+* Do not keep spaces between the unary operator and expression.
 
+  Example,
   ```ballerina
   int a = 0;
   a = -a;
   ``` 
 
-* There should be only a single space before and after any `binary` or `ternary` operator.
+* Keep a single space before and after any `binary` or `ternary` operator.
 
+  Example,
   ```ballerina
   var fullName = firstName + lastName;
   
@@ -71,8 +80,9 @@
   
   var elvisOperator = name ?: "Unknown";
   ```
-* There should be a single space before and after a compound operator such as `-=` and `+=`.
+* Keep a single space before and after a compound operator such as `-=` and `+=`.
 
+  Example,
   ```ballerina
   name += lastName;
   ```
