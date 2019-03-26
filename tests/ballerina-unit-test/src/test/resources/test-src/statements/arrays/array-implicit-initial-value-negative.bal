@@ -195,3 +195,27 @@ function fnWithArrayParam(FT[] arr) returns FT[] {
 function testArraysAsFuncParams() returns FT[] {
     return fnWithArrayParam([1, 2]);
 }
+
+type A record {
+    B b;
+    string a1;
+};
+
+type B record {
+    A a?;
+    C c;
+};
+
+type C object {
+    string s;
+
+    function __init(string s) {
+        self.s = s;
+    }
+};
+
+function testArraysOfCyclicDependentTypes() returns A[] {
+    A[] arr = [];
+    arr[3] = {a1: "A", b: {c: new("C")}};
+    return arr;
+}

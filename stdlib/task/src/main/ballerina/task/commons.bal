@@ -26,22 +26,20 @@ type TaskError record {
 # + interval - Timer interval (in Milliseconds), which triggers the onTrigger() resource.
 # + initialDelay - Delay (in Milliseconds) after which the timer will run.
 # + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
-public type TimerConfiguration record {
+public type TimerConfiguration record {|
     int interval;
     int initialDelay?;
     int noOfRecurrences?;
-    !...;
-};
+|};
 
 # Configurations related to an Appointment
 #
 # + appointmentDetails - A CronExpression (as a string) or AppointmentDetails for scheduling an Appointment.
 # + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
-public type AppointmentConfiguration record {
+public type AppointmentConfiguration record {|
     string|AppointmentData appointmentDetails;
     int noOfRecurrences?;
-    !...;
-};
+|};
 
 # Details for schedule an Appointment.
 #
@@ -52,7 +50,7 @@ public type AppointmentConfiguration record {
 # + months - Month(s) in a given year, in which the appointment will run.
 # + daysOfWeek - Day(s) of a week, in which the appointment will run.
 # + year - Year(s) in which the appointment will run.
-public type AppointmentData record {
+public type AppointmentData record {|
     string seconds?;
     string minutes?;
     string hours?;
@@ -60,5 +58,4 @@ public type AppointmentData record {
     string months?;
     string daysOfWeek?;
     string year?;
-    !...;
-};
+|};

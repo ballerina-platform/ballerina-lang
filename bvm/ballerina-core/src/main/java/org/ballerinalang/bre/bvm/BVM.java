@@ -36,6 +36,7 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -4392,7 +4393,6 @@ public class BVM {
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.SERVICE_TAG:
                 BObjectType objType = (BObjectType) mapType;
                 BField objField = objType.getFields().get(fieldName);
                 BType objFieldType = objField.getFieldType();
@@ -4892,7 +4892,6 @@ public class BVM {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.SERVICE_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
                             .allMatch(bValue -> checkIsType(bValue, targetType));
@@ -4918,7 +4917,8 @@ public class BVM {
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
-                return isAssignable(sourceType, targetType, unresolvedTypes);
+                return targetType instanceof BServiceType ? sourceType.getTag() == targetType.getTag() :
+                        isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:

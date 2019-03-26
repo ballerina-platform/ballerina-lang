@@ -62,10 +62,9 @@ function testIterableTypeRecord() {
     test:assertEquals(result, "2.2truevalueThree", msg = "expected record type to iterate over its fields");
 }
 
-public type TableConstraint record {
+public type TableConstraint record {|
     int constraintField;
-    !...;
-};
+|};
 
 @test:Config {}
 function testIterableTypeTable() {

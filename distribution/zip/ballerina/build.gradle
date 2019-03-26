@@ -16,6 +16,7 @@ configurations {
     bin
     balSource
     source
+    zip
 }
 
 dependencies {
@@ -113,7 +114,7 @@ dependencies {
     distBal project(path: ':ballerina-socket', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-sql', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-streams', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-swagger', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-system', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-task', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
@@ -143,7 +144,7 @@ dependencies {
     balSource project(path: ':ballerina-socket', configuration: 'balSource')
     balSource project(path: ':ballerina-sql', configuration: 'balSource')
     balSource project(path: ':ballerina-streams', configuration: 'balSource')
-    balSource project(path: ':ballerina-swagger', configuration: 'balSource')
+    balSource project(path: ':ballerina-openapi', configuration: 'balSource')
     balSource project(path: ':ballerina-system', configuration: 'balSource')
     balSource project(path: ':ballerina-task', configuration: 'balSource')
     balSource project(path: ':ballerina-time', configuration: 'balSource')
@@ -196,22 +197,22 @@ dependencies {
 
 }
 
-def basePath = '/' + project.name + '-' + project.version + '/'
+def basePath = '/' + project.name + '-' + project.version
 
 CopySpec copyJarSpec = copySpec {
     from configurations.dist
-    into(basePath + 'bre/lib')
+    into(basePath + '/bre/lib')
 }
 
 CopySpec copyBaloSpec = copySpec {
     from configurations.distBal
-    into(basePath + 'lib')
+    into(basePath + '/lib')
 }
 
 CopySpec copyBinSpec = copySpec {
     from ('bin')
     filter { line -> line.replace('${project.version}', "${project.version}") }
-    into(basePath + 'bin')
+    into(basePath + '/bin')
 }
 
 task createZip(type: Zip) {
@@ -225,6 +226,7 @@ artifacts {
     balo configurations.distBal.files
     source configurations.balSource.files
     bin file('bin')
+    zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
 
 build {
