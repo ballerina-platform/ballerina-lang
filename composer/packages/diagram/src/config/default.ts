@@ -17,7 +17,7 @@ export class DiagramConfig {
         expanded: {
             bottomMargin: 10,
             footer: 10,
-            header: 30,
+            header: 40,
             margin: 20,
             offset: 45,
         },

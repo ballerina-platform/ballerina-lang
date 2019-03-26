@@ -122,6 +122,11 @@ export const visitor: Visitor = {
 
     endVisitExpressionStatement(node: ExpressionStatement) {
         initStatement(node);
+
+        if (ASTUtil.isActionInvocation(node)) {
+            return;
+        }
+
         const viewState = node.viewState as StmntViewState;
         if (ASTKindChecker.isInvocation(node.expression) && !viewState.expandContext) {
             viewState.expandContext = new ExpandContext(node.expression);
@@ -130,6 +135,11 @@ export const visitor: Visitor = {
 
     endVisitVariableDef(node: VariableDef) {
         initStatement(node);
+
+        if (ASTUtil.isActionInvocation(node)) {
+            return;
+        }
+
         const viewState = node.viewState as StmntViewState;
         if (node.variable.initialExpression &&
             ASTKindChecker.isInvocation(node.variable.initialExpression) &&

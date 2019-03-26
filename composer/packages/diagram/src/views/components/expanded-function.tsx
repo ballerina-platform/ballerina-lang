@@ -1,5 +1,5 @@
 import { ASTKindChecker, ASTNode, ASTUtil,
-    Function as BallerinaFunction, Invocation, NodePosition, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
+    Function as BallerinaFunction, NodePosition, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
 import { BallerinaAST, IBallerinaLangClient } from "@ballerina/lang-service";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -42,7 +42,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                     context.update();
                 };
 
-                const workers = model.body!.statements.filter((statement) => ASTUtil.isWorker(statement));
+                const workers = model.body.statements.filter((statement) => ASTUtil.isWorker(statement));
 
                 const lifeLine = {
                     x1: expandedFnBbox.x,
@@ -51,8 +51,13 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                     y2: expandedFnBbox.y + expandedFnBbox.h,
                 };
 
-                if (!(model.viewState as FunctionViewState).implicitReturn.hidden && workers.length > 0) {
-                    lifeLine.y2 += (2 * config.statement.height);
+                // If workers present we want to increase the lifeline length
+                // but if the body is empty no need to do it as by default the body height at least one
+                // statement height
+                // A worker is actually 2 statements so have to multiply by 2
+                if (!(model.viewState as FunctionViewState).implicitReturn.hidden
+                    && workers.length > 0 && (model.body.statements.length - 2 * workers.length) > 0) {
+                    lifeLine.y2 += (1 * config.statement.height);
                 }
 
                 return (
@@ -83,8 +88,8 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             y1={expandedFnBbox.y}
                             y2={expandedFnBbox.y} />
                         <line className="life-line" { ...lifeLine } />
-                        { /* Override the docUri context value */ }
-                        <DiagramContext.Provider value={{ ...context, docUri }}>
+                        { /* Override the docUri context value and always disable editing */ }
+                        <DiagramContext.Provider value={{ ...context, docUri, editingEnabled: false }}>
                             {workers.map((worker) => {
                                 const client = new ViewState();
                                 client.bBox.w = 0;
@@ -114,14 +119,13 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
 };
 
 interface FunctionExpanderProps {
-    statement: Invocation;
     statementViewState: StmntViewState;
     position: NodePosition;
     expandContext: ExpandContext;
 }
 
 export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
-    { statement, statementViewState, position, expandContext }) => {
+    { statementViewState, position, expandContext }) => {
 
     const x = statementViewState.bBox.x + statementViewState.bBox.labelWidth + 10;
     const y = statementViewState.bBox.y + (statementViewState.bBox.h / 2) + 2;
@@ -130,9 +134,8 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
             {({ langClient, docUri, update }) => (
                 <text x={x} y={y}
                     className="expander"
-                    // style={{visibility: statementViewState.hovered ? "visible" : "hidden"}}
                     onClick={getExpandFunctionHandler(
-                        langClient, docUri, statement, position, expandContext, update)}>
+                        langClient, docUri, position, expandContext, update)}>
                     {getCodePoint("down")}
                 </text>
             )}
@@ -141,7 +144,7 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
 };
 
 function getExpandFunctionHandler(
-    langClient: IBallerinaLangClient | undefined, docUri: string | undefined, invocation: Invocation,
+    langClient: IBallerinaLangClient | undefined, docUri: string | undefined,
     position: NodePosition, expandContext: ExpandContext, update: () => void) {
 
     return async () => {
