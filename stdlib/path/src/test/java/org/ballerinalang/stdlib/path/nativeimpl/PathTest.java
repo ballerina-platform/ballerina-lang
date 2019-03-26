@@ -228,23 +228,37 @@ public class PathTest {
         }
     }
 
-    //@Test(description = "Test split path function for posix paths", dataProvider = "posix_paths")
-    public void testPosixSplitPath(String path) {
-        validateSplitPath(path);
+    @Test(description = "Test split path function for paths", dataProvider = "split_data")
+    public void testSplitPath(String path, String posixOutput, String windowsOutput) {
+        if (IS_WINDOWS) {
+            validateSplitPath(path, windowsOutput);
+        } else {
+            validateSplitPath(path, posixOutput);
+        }
     }
 
-    //@Test(description = "Test split path function for windows paths", dataProvider = "windows_paths")
-    public void testWindowsSplitPath(String path) {
-        validateSplitPath(path);
-    }
-
-    private void validateSplitPath(String input) {
+    private void validateSplitPath(String input, String expected) {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testSplitPath", args);
-        BValueArray parts = (BValueArray) returns[0];
-        log.info("{ballerina/path}:split(). Input: " + input + " | Return: " + parts.stringValue());
-        int expectedSize = Paths.get(input) != null ? Paths.get(input).getNameCount() : 0;
-        assertEquals(parts.size(), expectedSize);
+
+        if ("error".equals(expected)) {
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            log.info("Ballerina error: " + error.getDetails().stringValue());
+        } else {
+            assertTrue(returns[0] instanceof BValueArray);
+            BValueArray parts = (BValueArray) returns[0];
+            log.info("{ballerina/path}:split(). Input: " + input + " | Return: " + parts.stringValue());
+            String[] expectedValues = expected.split(",");
+            for (int i = 0; i < parts.size(); i++) {
+                assertEquals(parts.getBValue(i).stringValue(), expectedValues[i], "Path: " + input + " normalize()");
+                String expectedValue = Paths.get(input) != null ? Paths.get(input).getName(i).toString() : "";
+                assertEquals(parts.getBValue(i).stringValue(), expectedValue, "Assert with Java | Path: " + input +
+                        " normalize()");
+            }
+
+        }
     }
 
     //@Test(description = "Test build path function for paths", dataProvider = "file_parts")
@@ -448,6 +462,46 @@ public class PathTest {
                 {"bar/baz", "bar/baz", "bar\\baz"},
                 {"C:\\\\\\\\", "C:\\\\\\\\", "C:\\"},
                 {"\\..\\A\\B", "\\..\\A\\B", "\\A\\B"}
+        };
+    }
+
+    @DataProvider(name = "split_data")
+    public Object[][] getSplitDataset() {
+        return new Object[][] {
+                {"/A/B/C", "A,B,C", "A,B,C"},
+                {"/foo/..", "foo,..", "foo,.."},
+                {".", ".", "."},
+                {"..", "..", ".."},
+                {"../../", "..,..", "..,.."},
+                {"foo/", "foo", "foo"},
+                {"foo/bar/", "foo,bar", "foo,bar"},
+                {"/AAA/////BBB/", "AAA,BBB", "AAA,BBB"},
+                {"", "", ""},
+                {"//////////////////", "/", "error"},
+                {"\\\\\\\\\\\\\\\\\\\\", "\\\\\\\\\\\\\\\\\\\\", "error"},
+                {"/foo/./bar", "foo,.,bar", "foo,.,bar"},
+                {"foo/../bar", "foo,..,bar", "foo,..,bar"},
+                {"../foo/bar", "..,foo,bar", "..,foo,bar"},
+                {"./foo/bar/../", ".,foo,bar,..", ".,foo,bar,.."},
+                {"../../foo/../bar/zoo", "..,..,foo,..,bar,zoo", "..,..,foo,..,bar,zoo"},
+                {"abc/../../././../def", "abc,..,..,.,.,..,def", "abc,..,..,.,.,..,def"},
+                {"abc/def/../../..", "abc,def,..,..,..", "abc,def,..,..,.."},
+                {"abc/def/../../../ghi/jkl/../../../mno", "abc,def,..,..,..,ghi,jkl,..,..,..,mno",
+                        "abc,def,..,..,..,ghi,jkl,..,..,..,mno"},
+                {"/", "/", "\\"},
+                {"/A", "A", "A"},
+                {"/../A/B", "..,A,B", "..,A,B"},
+                // windows paths
+                {"//server", "server", "error"},
+                {"\\\\server", "\\\\server", "error"},
+                {"C:/foo/..", "C:,foo,..", "C:\\,foo,.."},
+                {"C:\\foo\\..", "C:\\foo\\..", "C:\\,foo,.."},
+                {"C:\\..\\foo", "C:\\..\\foo", "C:\\,..,foo"},
+                {"D;\\bar\\baz", "D;\\bar\\baz", "D;\\,bar,baz"},
+                {"bar\\baz", "bar\\baz", "bar,baz"},
+                {"bar/baz", "bar,baz", "bar,baz"},
+                {"C:\\\\\\\\", "C:\\\\\\\\", "C:\\"},
+                {"\\..\\A\\B", "\\..\\A\\B", "\\..,A,B"}
         };
     }
 
