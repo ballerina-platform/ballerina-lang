@@ -59,15 +59,15 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testExternFunctionWithBody() {
         CompileResult result = BCompileUtil.compile("test-src/functions/extern-function-with-body.bal");
-        BAssertUtil.validateError(result, 0, "extern function 'foo' cannot have a body", 5, 1);
+        BAssertUtil.validateError(result, 0, "external function 'foo' cannot have a body", 5, 1);
     }
 
     @Test
     public void testExternalResourceFunction() {
         CompileResult result = BCompileUtil.compile("test-src/functions/extern_resource_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "resource function 'foo' cannot be an 'extern' function", 19, 5);
-        BAssertUtil.validateError(result, 1, "resource function 'bar' cannot be an 'extern' function", 21, 5);
-        BAssertUtil.validateError(result, 2, "resource function 'baz' cannot be an 'extern' function", 23, 5);
+        BAssertUtil.validateError(result, 0, "resource function 'foo' cannot be an 'external' function", 19, 5);
+        BAssertUtil.validateError(result, 1, "resource function 'bar' cannot be an 'external' function", 21, 5);
+        BAssertUtil.validateError(result, 2, "resource function 'baz' cannot be an 'external' function", 23, 5);
     }
 }

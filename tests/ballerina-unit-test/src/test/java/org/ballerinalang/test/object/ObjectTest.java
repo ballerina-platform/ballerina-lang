@@ -530,8 +530,8 @@ public class ObjectTest {
     public void testObjectInitFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'extern' function", 19, 5);
-        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'extern' function", 23, 5);
+        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'external' function", 19, 5);
+        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'external' function", 23, 5);
     }
 
     @Test(description = "Test nillable initialization")
@@ -563,7 +563,7 @@ public class ObjectTest {
         CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
         Assert.assertEquals(result.getErrorCount(), 19);
         int index = 0;
-        BAssertUtil.validateError(result, index++, "extern function 'func2' cannot have a body", 14
+        BAssertUtil.validateError(result, index++, "external function 'func2' cannot have a body", 14
                 , 1);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 46, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
