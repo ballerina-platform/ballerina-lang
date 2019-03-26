@@ -41,7 +41,7 @@ public type Listener object {
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        return self.register(s, name = name);
+        return self.register(s, name);
     }
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
@@ -63,7 +63,7 @@ public type Listener object {
     # + s - The service that needs to be attached
     # + name - Name of the service
     # + return - An `error` if there is any error occured during the service attachment process or else nil
-    extern function register(service s, string? name = ()) returns error?;
+    extern function register(service s, string? name) returns error?;
 
     # Starts the registered service.
     extern function start();
@@ -389,7 +389,7 @@ public type WebSocketListener object {
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        return self.httpEndpoint.register(s, name = name);
+        return self.httpEndpoint.register(s, name);
     }
 
 
