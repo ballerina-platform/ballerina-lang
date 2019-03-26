@@ -171,7 +171,7 @@ export const visitor: Visitor = {
             height += elViewState.bBox.h + elViewState.bBox.paddingTop;
             if (elViewState.expandContext) {
                 if (elViewState.expandContext.expandedSubTree) {
-                    const expandedSubTree = elViewState.expandContext.expandedSubTree as BalFunction;
+                    const expandedSubTree = elViewState.expandContext.expandedSubTree;
                     const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
 
                     expandedFunctionVS.bBox.x = elViewState.bBox.x;

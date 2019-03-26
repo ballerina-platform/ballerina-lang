@@ -18,29 +18,41 @@ function initStatement(node: ASTNode) {
 
     const viewState = node.viewState as StmntViewState;
     if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
-        const expandedFunction = viewState.expandContext.expandedSubTree as BalFunction;
+        const expandedFunction = viewState.expandContext.expandedSubTree;
         expandedFunction.viewState = new FunctionViewState();
         expandedFunction.viewState.isExpandedFunction = true;
         ASTUtil.traversNode(expandedFunction, visitor);
-
-        const invocation = viewState.expandContext.expandableNode;
-        if (expandedFunction.VisibleEndpoints) {
-            expandedFunction.VisibleEndpoints.forEach((ep) => {
-                if (expandedFunction.allParams) {
-                    expandedFunction.allParams.forEach((p, i) => {
-                        if (ASTKindChecker.isVariable(p)) {
-                            if (p.name.value === ep.name) {
-                                const arg = invocation.argumentExpressions[i];
-                                if (ASTKindChecker.isSimpleVariableRef(arg)) {
-                                    (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-        }
+        handleEndpointParams(viewState.expandContext);
     }
+}
+
+// This function processes endpoint parameters of expanded functions
+// so that actions to these parameters can be drawn to the original endpoint passed to them
+function handleEndpointParams(expandContext: ExpandContext) {
+    const invocation = expandContext.expandableNode;
+    const expandedFunction = expandContext.expandedSubTree;
+
+    if (!expandedFunction || !expandedFunction.VisibleEndpoints || !expandedFunction.allParams) {
+        return;
+    }
+
+    const params = expandedFunction.allParams;
+
+    expandedFunction.VisibleEndpoints.forEach((ep) => {
+        // Find of one of the visible endpoints is actually a parameter to the function
+        params.forEach((p, i) => {
+            if (ASTKindChecker.isVariable(p)) {
+                if (p.name.value === ep.name) {
+                    // visible endpoint is a parameter
+                    const arg = invocation.argumentExpressions[i];
+                    if (ASTKindChecker.isSimpleVariableRef(arg)) {
+                        // This parameter actually refers to an endpoint with name in arg.variableName
+                        (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+                    }
+                }
+            }
+        });
+    });
 }
 
 export const visitor: Visitor = {

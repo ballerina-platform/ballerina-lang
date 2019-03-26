@@ -56,36 +56,33 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                 }
 
                 return (
-                    <g>
-                        <rect className="expanded-func-frame"
+                    <g className="expanded-func">
+                        <rect className="frame"
                             x={bBox.x - config.statement.expanded.margin}
                             y={bBox.y + config.statement.height / 2}
                             width={bBox.w + config.statement.expanded.margin}
                             height={bBox.h - config.statement.expanded.footer - (config.statement.height / 2)}/>
-                        <rect className="expanded-func-name-background"
+                        <rect className="name-background"
                             x={bBox.statement.x - 2}
                             y={bBox.y}
                             width={bBox.statement.textWidth + 10}
                             height={config.statement.height}/>
-                        <text className="expanded-func-name"
+                        <text className="func-name"
                             x={bBox.statement.x}
                             y={bBox.statement.y + (config.statement.height / 2)}>
                             {bBox.statement.text}
                         </text>
-                        <text className="expanded-func-collapser"
+                        <text className="collapser"
                             x={bBox.statement.x + bBox.w - 30}
                             y={bBox.statement.y + config.statement.height + 5}
                             onClick={onClickClose}>
                             {getCodePoint("up")}
                         </text>
-
-                        <g className="life-line">
-                            <line x1={bBox.x}
-                                x2={expandedFnBbox.x}
-                                y1={expandedFnBbox.y}
-                                y2={expandedFnBbox.y} />
-                            <line { ...lifeLine } />
-                        </g>
+                        <line className="life-line" x1={bBox.x}
+                            x2={expandedFnBbox.x}
+                            y1={expandedFnBbox.y}
+                            y2={expandedFnBbox.y} />
+                        <line className="life-line" { ...lifeLine } />
                         { /* Override the docUri context value */ }
                         <DiagramContext.Provider value={{ ...context, docUri }}>
                             {workers.map((worker) => {

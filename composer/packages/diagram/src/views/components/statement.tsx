@@ -1,6 +1,6 @@
 import {
     Assignment, ASTUtil, Break,
-    CompoundAssignment, ExpressionStatement, Function as BallerinaFunction, Panic, VariableDef
+    CompoundAssignment, ExpressionStatement, Panic, VariableDef
 } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -69,7 +69,7 @@ export const Statement: React.StatelessComponent<{
                 };
 
                 expandedFunction = <ExpandedFunction
-                    model={viewState.expandContext.expandedSubTree as BallerinaFunction}
+                    model={viewState.expandContext.expandedSubTree}
                     docUri={viewState.expandContext.expandedSubTreeDocUri}
                     bBox={expandedBBox}
                     onClose={onClose}

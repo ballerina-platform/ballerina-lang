@@ -200,15 +200,21 @@
                         stroke: ~"@{@{color}-diagram-panel-body-background-color}";
                         stroke-width: 2px;
                     }
-                    .expanded-func-frame {
-                        stroke: color("#bbb");
-                        fill: none;
-                    }
-                    .expanded-func-name {
-                        font-weight: bold;
-                    }
-                    .expanded-func-collapser {
-                        stroke: color("#aaa");
+                    .expanded-func {
+                        .frame {
+                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            fill: none;
+                        }
+                        .func-name {
+                            font-weight: bold;
+                        }
+                        .collapser {
+                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
+                        }
+                        .life-line {
+                            stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
+                            stroke-width: @diagram-life-line-stroke-width;
+                        }
                     }
                 }
                 .worker-block-container {
