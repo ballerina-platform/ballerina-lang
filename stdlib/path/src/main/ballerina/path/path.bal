@@ -183,7 +183,7 @@ public function normalize(string path) returns string|error {
                     }
                     j = j - 1;
                 }
-                if (hasPrevious) {
+                if (hasPrevious || check isAbsolute(filepath)) {
                     ignore[i] = true;
                     remaining = remaining - 1;
                 }

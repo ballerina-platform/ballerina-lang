@@ -436,6 +436,7 @@ public class PathTest {
                         "..\\..\\mno"},
                 {"/", "/", "\\"},
                 {"/A", "/A", "\\A"},
+                {"/../A/B", "/A/B", "\\A\\B"},
                 // windows paths
                 {"//server", "/server", "error"},
                 {"\\\\server", "\\\\server", "error"},
