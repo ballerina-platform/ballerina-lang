@@ -9,7 +9,7 @@ This tutorial consists of the following main sections.
 - [About service URLs](about-service-urls)
 - [Add a service](add-a-service)
 - [Add integration logic to your service](add-integration-logic-to-your-service)
-- [View the Swagger definition for your service](view-the-swagger-definition-for-your-service)
+- [View the OpenAPI definition for your service](view-the-swagger-definition-for-your-service)
 - [Add a client connector](add-a-client-connector)
 - [Call the client connector](call-the-client-connector)
 - [Extract content from the JSON](extract-content-from-the-json)
@@ -80,19 +80,19 @@ Now that you have added a service, you must set up this service so that it can b
 1. Click the `+` sign next to `@Http:Path` and select value in the dropdown that appears. Define the value as `/title` and assign it to the HTTP Path variable. This enables the Ballerina service and the resource to be mapped properly to the title of the book. This is linked to the URL to be called: `http://localhost:9090/books/title`.
     ![alt text](../images/AddValuetoPath2.png)
 
-## View the Swagger definition for your service
+## View the OpenAPI definition for your service
 
-If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
+If your Ballerina program contains services and resources, you can view the generated OpenAPI definition for your program by switching to the OpenAPI view. All the changes made on the OpenAPI definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
-You can also import Swagger files by clicking **File** in the top menu and selecting **Import Swagger**.
+You can also import OpenAPI files by clicking **File** in the top menu and selecting **Import Swagger**.
 
-1. Click the Swagger definition icon on the right of your service to view the Swagger definition. You can switch back to the **Design View** or **Source View** by clicking the buttons at the bottom right of your screen.
+1. Click the OpenAPI definition icon on the right of your service to view the OpenAPI definition. You can switch back to the **Design View** or **Source View** by clicking the buttons at the bottom right of your screen.
 
     ![alt text](../images/SwaggerView.png)
     
-    The Swagger UI Editor provides numerous usage options to easily interact with APIs.
+    The OpenAPI UI Editor provides numerous usage options to easily interact with APIs.
     ![alt text](../images/SwaggerUI.png)
-1. Click `GET` to see the details in the Swagger UI.
+1. Click `GET` to see the details in the OpenAPI UI.
     ![alt text](../images/SwaggerGET.png)
 
 ## Add a client connector
