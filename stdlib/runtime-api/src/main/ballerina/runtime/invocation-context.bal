@@ -20,23 +20,21 @@
 # + principal - User principal instance.
 # + authenticationContext - Authentication context instance.
 # + attributes - Context attributes.
-public type InvocationContext record {
+public type InvocationContext record {|
     string id;
     Principal principal?;
     AuthenticationContext authenticationContext?;
     map<any> attributes;
-    !...;
-};
+|};
 
 # Represents the AuthenticationContext, populated with authenticated information.
 #
 # + scheme - Authentication token type. e.g: JWT etc.
 # + authToken - Relevant token for the schema.
-public type AuthenticationContext record {
+public type AuthenticationContext record {|
     string scheme;
     string authToken;
-    !...;
-};
+|};
 
 # Represents the Principal, populated with authenticated user information.
 #
@@ -44,13 +42,12 @@ public type AuthenticationContext record {
 # + username - Username of the authenticated user.
 # + claims - Claims of the authenticated user.
 # + scopes - Authenticated user scopes.
-public type Principal record {
+public type Principal record {|
     string userId;
     string username;
     map<any> claims;
     string[] scopes;
-    !...;
-};
+|};
 
 # Creates a InvocationContext instance.
 #

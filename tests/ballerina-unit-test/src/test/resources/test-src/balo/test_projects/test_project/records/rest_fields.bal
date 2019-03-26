@@ -42,7 +42,6 @@ public type OpenBar record {
     float x = 0.0;
 };
 
-public type ClosedBar record {
+public type ClosedBar record {|
     float x = 0.0;
-    !...;
-};
+|};
