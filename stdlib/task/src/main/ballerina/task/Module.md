@@ -10,9 +10,9 @@ There are two types of configurations for a Listener.
 - `AppointmentConfiguration`
 
 If a task is needed to be run periodically, `TimerConfiguration` can be used. `TimerConfiguration` consists of three fields, from which two are optional.
-- `interval` - Timer interval by which the listener should trigger. This should be given in Milliseconds.
-- `initialDelay` - [Optional] Initial delay before the task should trigger. If this is set to `0`, task will run immediately. If the field is not set, interval will be taken as the initial delay. This should be given in Milliseconds.
-- `noOfRecurrences` - [Optional] If there's a requirement to run a particular task only for a number of times, this field can be used. This should be given as an int.
+- `interval` - Timer interval by which the listener should trigger. This should be given in milliseconds.
+- `initialDelay` - [Optional] Initial delay before the task should trigger. If this is set to `0`, task will run immediately. If the field is not set, interval will be taken as the initial delay. This should be given in milliseconds.
+- `noOfRecurrences` - [Optional] If there is a requirement to run a particular task only for a number of times, this field can be used. This should be given as an `int`.
 
 The following code snippet creates a listener which have an initial delay of 5000 Milliseconds (5 seconds) and with an interval of 1000 Milliseconds (1 second). Then we can create a service on the listener. The service consists of the resource function onTrigger() which will be executed when the timer goes off.
 
