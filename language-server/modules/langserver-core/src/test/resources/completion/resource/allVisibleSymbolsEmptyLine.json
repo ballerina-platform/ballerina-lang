@@ -522,11 +522,11 @@
       ]
     },
     {
-      "label": "ballerina/swagger",
+      "label": "ballerina/openapi",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "swagger",
+      "insertText": "openapi",
       "additionalTextEdits": [
         {
           "range": {
@@ -539,7 +539,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/swagger;\n"
+          "newText": "import ballerina/openapi;\n"
         }
       ]
     },
