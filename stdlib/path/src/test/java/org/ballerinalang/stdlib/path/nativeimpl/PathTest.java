@@ -261,7 +261,7 @@ public class PathTest {
         }
     }
 
-    //@Test(description = "Test build path function for paths", dataProvider = "file_parts")
+    @Test(description = "Test build path function for paths", dataProvider = "file_parts")
     public void testBuildPath(String... parts) {
         validateBuildPath(parts);
     }
@@ -502,22 +502,6 @@ public class PathTest {
                 {"bar/baz", "bar,baz", "bar,baz"},
                 {"C:\\\\\\\\", "C:\\\\\\\\", "C:\\"},
                 {"\\..\\A\\B", "\\..\\A\\B", "..,A,B"}
-        };
-    }
-
-    @DataProvider(name = "windows_paths")
-    public Object[] getWindowsPaths() {
-        return new Object[] {
-                "//server",
-                "\\\\server",
-                "C:/foo/..",
-                "C:\\foo\\..",
-                "D;\\bar\\baz",
-                "bar\\baz",
-                "bar/baz",
-                ".",
-                "C:\\\\\\\\",
-                "\\..\\A\\B"
         };
     }
 

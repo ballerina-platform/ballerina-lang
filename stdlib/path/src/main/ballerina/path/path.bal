@@ -415,68 +415,11 @@ function parse(string input) returns string|error {
 }
 
 function getRootComponent(string input) returns (string,int)|error {
-    int length = input.length();
-    int offset = 0;
-    string root = "";
     if (IS_WINDOWS) {
-        if (length > 1) {
-            string c0 = check charAt(input, 0);
-            string c1 = check charAt(input, 1);
-            int next = 2;
-            if (isSlash(c0) && isSlash(c1)) {
-                boolean unc = check isUNC(input);
-                if (!unc) {
-                    error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Invalid UNC path: " + input });
-                    return err;
-                }
-                offset = nextNonSlashIndex(input, next, length);
-                next = nextSlashIndex(input, offset, length);
-                if (offset == next) {
-                    error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
-                    " + input });
-                    return err;
-                }
-                string host = input.substring(offset, next);  //host
-                offset = nextNonSlashIndex(input, next, length);
-                next = nextSlashIndex(input, offset, length);
-                if (offset == next) {
-                    error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
-                    " + input });
-                    return err;
-                }
-                //TODO remove dot from expression. added because of formatting issue #13872.
-                root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
-                offset = next;
-            } else if (isSlash(c0)) {
-                root = "\\";
-                offset = 1;
-            } else {
-                if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
-                    if (input.length() > 2 && isSlash(check charAt(input, 2))) {
-                        string c2 = check charAt(input, 2);
-                        if (c2 == "\\") {
-                            root = input.substring(0, 3);
-                        } else {
-                            root = input.substring(0, 2) + "\\";
-                        }
-                        offset = 3;
-                    } else {
-                        root = input.substring(0, 2);
-                        offset = 2;
-                    }
-                }
-            }
-        } else if (length > 0 && isSlash(check charAt(input, 0))) {
-                root = "\\";
-                offset = 1;
-        }
+        return getWindowsRoot(input);
     } else {
-        if (length > 0 && isSlash(check charAt(input, 0))) {
-            root = PATH_SEPARATOR;
-            offset = 1;
-        }
+        return getUnixRoot(input);
     }
-    return (root, offset);
 }
 
 function normalizeWindowsPath(string path, int off) returns string|error {

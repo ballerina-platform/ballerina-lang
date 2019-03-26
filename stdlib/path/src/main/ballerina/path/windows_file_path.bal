@@ -44,6 +44,9 @@ function buildWindowsPath(string... parts) returns string|error {
         }
         i = i + 1;
     }
+    if (i == count) {
+        return "";
+    }
     string firstNonEmptyPart = parts[i];
     string root = "";
     int offset;
@@ -80,21 +83,23 @@ function getWindowsRoot(string input) returns (string, int)|error {
             next = nextSlashIndex(input, offset, length);
             if (offset == next) {
                 error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
-                    " + input });
+                " + input });
                 return err;
             }
-            string host = input.substring(offset, next);
-            //host
+            string host = input.substring(offset, next);  //host
             offset = nextNonSlashIndex(input, next, length);
             next = nextSlashIndex(input, offset, length);
             if (offset == next) {
                 error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
-                    " + input });
+                " + input });
                 return err;
             }
             //TODO remove dot from expression. added because of formatting issue #13872.
             root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
             offset = next;
+        } else if (isSlash(c0)) {
+            root = "\\";
+            offset = 1;
         } else {
             if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
                 if (input.length() > 2 && isSlash(check charAt(input, 2))) {
@@ -111,6 +116,9 @@ function getWindowsRoot(string input) returns (string, int)|error {
                 }
             }
         }
+    } else if (length > 0 && isSlash(check charAt(input, 0))) {
+            root = "\\";
+            offset = 1;
     }
     return (root, offset);
 }
