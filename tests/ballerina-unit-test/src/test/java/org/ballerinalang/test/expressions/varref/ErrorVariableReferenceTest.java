@@ -223,9 +223,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found 'string?'", 32, 52);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'map<string>', found 'map'", 41, 34);
+                                  incompatibleTypes + "expected 'map<string>', found 'map<anydata>'", 41, 34);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found 'any'", 42, 52);
+                incompatibleTypes + "expected 'string', found 'anydata'", 42, 52);
         BAssertUtil.validateError(resultNegative, ++i,
                 "error constructor expression is not supported for error binding pattern", 43, 82);
         BAssertUtil.validateError(resultNegative, ++i,

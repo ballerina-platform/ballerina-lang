@@ -15,9 +15,9 @@
 // under the License.
 
 type SMS error <string, map<string>>;
-type SMA error <string, map<any>>;
+type SMA error <string, map<anydata>>;
 type CMS error <string, map<string>>;
-type CMA error <string, map<any>>;
+type CMA error <string, map<anydata>>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
