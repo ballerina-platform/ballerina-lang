@@ -574,18 +574,16 @@ function insertElement(json[] jArr, int index, json val) returns boolean {
     return true;
 }
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
-    !...;
-};
+|};
 
-type DeptEmployee record {
+type DeptEmployee record {|
     int id;
     string name;
     Dept dept;
-    !...;
-};
+|};
 
 type Dept record {
     string code;

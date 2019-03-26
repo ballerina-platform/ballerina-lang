@@ -41,8 +41,8 @@ public class CheckedExprNegativeTest {
                 "operator: all expression types are equivalent to error type", 30, 25);
         BAssertUtil.validateError(compile, 3, "incompatible types: expected 'string|error'" +
                                               ", found 'string|int'", 39, 25);
-        BAssertUtil.validateError(compile, 4, "invalid usage of the 'check' expression " +
-                "operator: no error type return in enclosing invokable", 49, 25);
+        BAssertUtil.validateError(compile, 4, "invalid usage of the check expression " +
+                "operator: no error type return in enclosing invokable", 49, 19);
     }
 
     @Test
@@ -51,6 +51,6 @@ public class CheckedExprNegativeTest {
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
-                "operator: no error type return in enclosing invokable", 28, 28);
+                "operator: no error type return in enclosing invokable", 28, 22);
     }
 }

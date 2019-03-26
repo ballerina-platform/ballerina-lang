@@ -273,7 +273,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
                 literalType = symTable.byteType;
-                literalExpr.value = ((Long) literalValue).byteValue();
             }
         }
 
@@ -1096,6 +1095,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
+                    cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
                 } else if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
                     // pass any arguments.
@@ -1116,15 +1116,16 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);
+                cIExpr.initInvocation.type = symTable.nilType;
 
-                expType = matchedType;
                 if (matchedType.tag == TypeTags.OBJECT
                         && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
+
+                    cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
                 }
-                cIExpr.initInvocation.type = symTable.nilType;
-                types.checkType(cIExpr, matchedType, actualType);
+                types.checkType(cIExpr, matchedType, expType);
                 cIExpr.type = matchedType;
                 resultType = matchedType;
                 return;
@@ -1134,8 +1135,30 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
         }
 
-        cIExpr.initInvocation.type = symTable.nilType;
-        resultType = types.checkType(cIExpr, actualType, expType);
+        if (cIExpr.initInvocation.type == null) {
+            cIExpr.initInvocation.type = symTable.nilType;
+        }
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
+        resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+    }
+
+    private BType getObjectConstructorReturnType(BType objType, BType initRetType) {
+        if (initRetType.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
+            retTypeMembers.add(objType);
+
+            retTypeMembers.addAll(((BUnionType) initRetType).getMemberTypes());
+            retTypeMembers.remove(symTable.nilType);
+
+            BUnionType unionType = BUnionType.create(null, retTypeMembers);
+            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0,
+                                                         Names.EMPTY, env.enclPkg.symbol.pkgID, unionType,
+                                                         env.scope.owner);
+            return unionType;
+        } else if (initRetType.tag == TypeTags.NIL) {
+            return objType;
+        }
+        return symTable.semanticError;
     }
 
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {

@@ -18,9 +18,7 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the current local time with local timezone information.
@@ -29,10 +27,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "currentTime",
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
-                                  structPackage = "ballerina.time")},
-        isPublic = true
+        functionName = "currentTime"
 )
 public class CurrentTime extends  AbstractTimeFunction {
 

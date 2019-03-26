@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/internal;
 import ballerina/io;
 
@@ -165,6 +181,26 @@ public type FuncBodyParser object {
 
             BasicBlock thenBB = self.parseBBRef();
             Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            return call;
+        } else if (kindTag == INS_ASYNC_CALL){
+            TerminatorKind kind = TERMINATOR_ASYNC_CALL;
+            var pkgId = self.reader.readModuleIDCpRef();
+            var name = self.reader.readStringCpRef();
+            var argsCount = self.reader.readInt32();
+            VarRef?[] args = [];
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = self.parseVarRef();
+                i += 1;
+            }
+            var hasLhs = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (hasLhs){
+                lhsOp = self.parseVarRef();
+            }
+
+            BasicBlock thenBB = self.parseBBRef();
+            AsyncCall call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");

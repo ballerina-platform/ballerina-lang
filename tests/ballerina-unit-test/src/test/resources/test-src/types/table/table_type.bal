@@ -43,15 +43,14 @@ type ResultSetTestAlias record {
     int DT2INT_TYPE;
 };
 
-type ResultClosed record {
+type ResultClosed record {|
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
     boolean BOOLEAN_TYPE;
     string STRING_TYPE;
-    !...;
-};
+|};
 
 type ResultObject record {
     byte[] BLOB_TYPE;
@@ -645,7 +644,7 @@ function testDateTime(int datein, int timein, int timestampin) returns (string, 
     return (date, time, timestamp, datetime);
 }
 
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int) {
+function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, int)|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -663,13 +662,13 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int, int, int, 
     int datetimeInserted = -1;
     int datetimeRetrieved = -1;
 
-    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
+    time:Time dateStruct = check time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
     time:TimeZone zoneValue = { id: "UTC" };
     time:Time timeStruct = { time: 51323000, zone: zoneValue };
 
-    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
+    time:Time timestampStruct = check time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
+    time:Time datetimeStruct = check time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
     dateInserted = dateStruct.time;
     timeInserted = timeStruct.time;
     timestampInserted = timestampStruct.time;

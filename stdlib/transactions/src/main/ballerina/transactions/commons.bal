@@ -123,7 +123,7 @@ function isValidCoordinationType(string coordinationType) returns boolean {
 }
 
 function protoName(UProtocol p) returns string {
-    if (p is LocalProtocol) {
+    if (p is RemoteProtocol) {
         return p.name;
     } else {
         return <string> p.name;

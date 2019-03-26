@@ -82,10 +82,9 @@ function testRecordMutation() {
     test:assertTrue(q1 === q2, msg = EXPECTED_ORIGINAL_VALUE_TO_BE_UPDATED_FAILURE_MESSAGE);
 }
 
-public type TableConstraintTwo record {
+public type TableConstraintTwo record {|
     int constraintField;
-    !...;
-};
+|};
 
 @test:Config {}
 function testTableMutation() {

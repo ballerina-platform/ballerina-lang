@@ -4,7 +4,9 @@ import ballerina/http;
 channel<string> serviceReply = new;
 string msg = "hey";
 
-@test:Config
+@test:Config {
+    enable: false
+}
 function testText() {
     http:WebSocketClient wsClient = new("ws://localhost:9090/proxy/ws", config = {callbackService:callback});
     checkpanic wsClient->pushText(msg);

@@ -138,6 +138,7 @@ PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;
 WAIT        : 'wait' ;
+DEFAULT     : 'default' ;
 
 // Separators
 

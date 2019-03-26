@@ -14,14 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
+type Person record {|
     int id;
     int age;
     float salary;
     string name;
     boolean married = false;
-    !...;
-};
+|};
 
 type Employee object {
 

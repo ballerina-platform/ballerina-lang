@@ -143,15 +143,13 @@ function testObjectArrayMemberReferenceByInvalidIntegerIndex() {
                             INVALID_REASON_ON_ACCESS_BY_LARGER_INDEX_FAILURE_MESSAGE);
 }
 
-public type FooRecordFour record {
+public type FooRecordFour record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordFour record {
+public type BarRecordFour record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectFour object {
     public string fooFieldOne;

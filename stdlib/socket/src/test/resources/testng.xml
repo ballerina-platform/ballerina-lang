@@ -20,9 +20,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <listeners>
-        <listener class-name="org.ballerinalang.stdlib.common.BLogInitializer"/>
-    </listeners>
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.stdlib.socket.ClientSocketTest"/>

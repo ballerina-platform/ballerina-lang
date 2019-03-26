@@ -19,6 +19,9 @@ import ballerina/time;
 import ballerina/task;
 import ballerina/io;
 
+# The `Scheduler` object is responsible for generating streams:TIMER events at the given timestamp. Once the event is
+# generated, the timer event is passed to the provided `processFunc` function pointer. The function pointer is the
+# `process` function of the target processor, to which the timer event should be sent.
 public type Scheduler object {
 
     private LinkedList toNotifyQueue;
@@ -33,12 +36,15 @@ public type Scheduler object {
         self.processFunc = processFunc;
     }
 
+    # Schedule to send a timer events at the given timestamp.
+    # + timestamp - The timestamp at which the timer event will be generated and passed to the provided `processFunc`.
     public function notifyAt(int timestamp) {
         self.toNotifyQueue.addLast(timestamp);
         self.schedule(timestamp);
     }
 
-    public function schedule(int timestamp) {
+
+    function schedule(int timestamp) {
         if (self.toNotifyQueue.getSize() == 1 && self.running == false) {
             lock {
                 if (self.running == false) {
@@ -55,10 +61,12 @@ public type Scheduler object {
         }
     }
 
-    public function wrapperFunc() {
+    function wrapperFunc() {
         checkpanic self.sendTimerEvents();
     }
 
+    # Creates the timer events.
+    # +return - Returns error if sending timer events failed.
     public function sendTimerEvents() returns error? {
         any? first = self.toNotifyQueue.getFirst();
         int currentTime = time:currentTime().time;
@@ -103,6 +111,7 @@ public type Scheduler object {
     }
 };
 
+# `schedulerService` triggers the timer event generation at the given timestamp.
 service schedulerService = service {
     resource function onTrigger(Scheduler scheduler) {
         var e = scheduler.sendTimerEvents();

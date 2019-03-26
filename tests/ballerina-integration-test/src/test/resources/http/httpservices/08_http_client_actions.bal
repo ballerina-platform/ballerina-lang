@@ -217,7 +217,7 @@ service testService on new http:Listener(9098) {
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         var textResponse = clientEP2->post("/test1/directPayload", binaryValue);
         if (textResponse is http:Response) {
-            var result = textResponse.getPayloadAsString();
+            var result = textResponse.getTextPayload();
             if (result is string) {
                 value = result;
             } else {
@@ -237,7 +237,7 @@ service testService on new http:Listener(9098) {
         if (byteChannel is io:ReadableByteChannel) {
             var res = clientEP2->post("/test1/byteChannel", untaint byteChannel);
             if (res is http:Response) {
-                var result = res.getPayloadAsString();
+                var result = res.getTextPayload();
                 if (result is string) {
                     value = result;
                 } else {

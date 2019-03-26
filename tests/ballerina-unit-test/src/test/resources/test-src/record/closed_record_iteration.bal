@@ -1,43 +1,38 @@
-type ClosedPerson record {
+type ClosedPerson record {|
     string name = "";
     int age = 0;
     Address address = {};
-    !...;
-};
+|};
 
-type ClosedAddress record {
+type ClosedAddress record {|
     string street = "";
     string city = "";
-    !...;
-};
+|};
 
 type Address record {
     string street = "";
     string city = "";
 };
 
-type ClosedFoo record {
+type ClosedFoo record {|
     string a = "";
     string b = "";
     string c = "";
     string d = "";
     string e = "";
-    !...;
-};
+|};
 
-type ClosedGrades record {
+type ClosedGrades record {|
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
-    !...;
-};
+|};
 
-type ClosedBar record {
+type ClosedBar record {|
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
-    !...;
-};
+|};
 
 function testForeachWithClosedRecords() returns (string[], any[]) {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" } };

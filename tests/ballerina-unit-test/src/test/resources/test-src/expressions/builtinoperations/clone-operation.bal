@@ -26,12 +26,11 @@ type Employee record {
     float salary;
 };
 
-type ConstrainedEmp record {
+type ConstrainedEmp record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type A record {
     int a;

@@ -53,29 +53,25 @@ function testTableIterable() {
 // ● T and T’ have the same set of primary keys; and
 // ● for each column, the type for that column in T’ is a subtype of the type of that column
 // in T.
-public type Foo record {
+public type Foo record {|
     int id;
     string name;
-    !...;
-};
+|};
 
-public type Bar record {
+public type Bar record {|
     int id;
     string name;
-    !...;
-};
+|};
 
-public type Baz record {
+public type Baz record {|
     int id;
     boolean name;
-    !...;
-};
+|};
 
-public type Qux record {
+public type Qux record {|
     int id;
     string age;
-    !...;
-};
+|};
 
 @test:Config {}
 function testTableSubtype() {

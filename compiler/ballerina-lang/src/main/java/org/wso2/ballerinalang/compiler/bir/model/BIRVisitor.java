@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
@@ -71,6 +72,10 @@ public abstract class BIRVisitor {
     }
 
     public void visit(Call birCall) {
+        throw new AssertionError();
+    }
+
+    public void visit(AsyncCall birCall) {
         throw new AssertionError();
     }
 

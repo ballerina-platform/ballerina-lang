@@ -3,17 +3,15 @@ import ballerina/mime;
 
 listener http:MockListener testEP = new(9090);
 
-type Person record {
+type Person record {|
     string name;
     int age;
-    !...;
-};
+|};
 
-type Stock record {
+type Stock record {|
     int id;
     float price;
-    !...;
-};
+|};
 
 service echo on testEP {
 

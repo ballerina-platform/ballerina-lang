@@ -1,0 +1,30 @@
+{
+    "position": {
+        "line": 5,
+        "character": 21
+    },
+    "source": "service/source/serviceVariableAndFieldsCompletion1.bal",
+    "items": [
+        {
+            "label":"serviceFunc()",
+            "kind":"Function",
+            "detail":"Function",
+            "documentation":{
+                "right":{
+                    "kind":"markdown",
+                    "value":"**Package:** _._  \n  \nnull  \n  \n---    \n**Parameters**  \n"
+                }
+            },
+            "sortText":"121",
+            "insertText":"serviceFunc();",
+            "insertTextFormat":"Snippet"
+        },
+        {
+            "label":"testVal",
+            "kind":"Variable",
+            "detail":"int",
+            "sortText":"221",
+            "insertText":"testVal"
+        }
+    ]
+}

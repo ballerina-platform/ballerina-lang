@@ -186,7 +186,7 @@ function handleResponse(http:Response|error response) {
                     log:printError("Error in parsing json data", err = payload);
                 }
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                var payload = response.getPayloadAsString();
+                var payload = response.getTextPayload();
                 if (payload is string) {
                     log:printInfo("Response contains binary data: " + payload);
                 } else {
