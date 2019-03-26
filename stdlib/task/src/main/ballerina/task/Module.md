@@ -1,6 +1,6 @@
 ## Module overview
 
-This module provides functionality to configure and manage Task Listeners and Task Schedulers, which will be executed periodically.
+This module provides the functionality to configure and manage Task Listeners and Task Schedulers that are executed periodically.
 
 ### Task Listeners
 
