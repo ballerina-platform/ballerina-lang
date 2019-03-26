@@ -69,6 +69,7 @@ public enum DiagnosticCode {
     PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
+    RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
 
