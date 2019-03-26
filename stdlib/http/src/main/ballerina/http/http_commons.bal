@@ -121,45 +121,41 @@ public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIO
 #
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
-public type Protocols record {
+public type Protocols record {|
     string name = "";
     string[] versions = [];
-    !...;
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of `validateCertEnabled`
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ValidateCert record {
+public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {
+public type ServiceOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # A record for providing configurations for content compression.
 #
 # + enable - The status of compression
 # + contentTypes - Content types which are allowed for compression
-public type CompressionConfig record {
+public type CompressionConfig record {|
     Compression enable = COMPRESSION_AUTO;
     string[] contentTypes = [];
-    !...;
-};
+|};
 
 type HTTPError record {
     string message = "";
