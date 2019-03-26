@@ -208,6 +208,7 @@ public class BDecimalValueTest {
         BValue[] returns = BRunUtil.invoke(result, "testDecimalArrayValueWithDiscriminator", new BValue[]{});
         Assert.assertEquals(returns[0], new BDecimal("1.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns[1], new BDecimal("2.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[2], new BDecimal("3000.0", DecimalValueKind.OTHER));
     }
 
     @Test(description = "Test decimal array literal with decimal discriminator")

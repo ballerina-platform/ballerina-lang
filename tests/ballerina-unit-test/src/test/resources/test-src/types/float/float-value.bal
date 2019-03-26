@@ -75,9 +75,9 @@ function testIntLiteralAssignment() returns (float, float) {
     return (x, 15);
 }
 
-function testDiscriminatedFloatLiteral() returns (float, float, float[]) {
+function testDiscriminatedFloatLiteral() returns (float, float, float) {
     float a = 1.0f;
     var b = 1.0f;
-    float[] c = [1.0f, 2.0f];
-    return (a, b, c);
+    float d = 2.2e3f;
+    return (a, b, d);
 }
