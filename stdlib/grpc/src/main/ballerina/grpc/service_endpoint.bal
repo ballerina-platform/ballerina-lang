@@ -85,7 +85,7 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
-public type ServiceEndpointConfiguration record {
+public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
@@ -93,8 +93,7 @@ public type ServiceEndpointConfiguration record {
     RequestLimits? requestLimits = ();
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    !...;
-};
+|};
 
 # Configures the SSL/TLS options to be used for HTTP service.
 #
@@ -113,7 +112,7 @@ public type ServiceEndpointConfiguration record {
 # + ocspStapling - Enable/disable OCSP stapling
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
-public type ServiceSecureSocket record {
+public type ServiceSecureSocket record {|
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
     string certFile = "";
@@ -128,8 +127,7 @@ public type ServiceSecureSocket record {
     ServiceOcspStapling? ocspStapling = ();
     int handshakeTimeout?;
     int sessionTimeout?;
-    !...;
-};
+|};
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
 #
@@ -139,9 +137,8 @@ public type ServiceSecureSocket record {
 #                   `413 - Payload Too Large` response.
 # + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
-public type RequestLimits record {
+public type RequestLimits record {|
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...;
-};
+|};

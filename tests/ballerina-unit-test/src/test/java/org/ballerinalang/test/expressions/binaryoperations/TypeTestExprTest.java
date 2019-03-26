@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -103,23 +103,23 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 161, 18);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 178, 16);
+                "unnecessary condition: expression will always evaluate to 'true'", 177, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 188, 13);
+                "unnecessary condition: expression will always evaluate to 'true'", 187, 13);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 188, 23);
+                "unnecessary condition: expression will always evaluate to 'true'", 187, 23);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 226, 8);
+                "unnecessary condition: expression will always evaluate to 'true'", 225, 8);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 230, 9);
+                "unnecessary condition: expression will always evaluate to 'true'", 229, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "unnecessary condition: expression will always evaluate to 'true'", 242, 9);
+                                  "unnecessary condition: expression will always evaluate to 'true'", 241, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "unnecessary condition: expression will always evaluate to 'true'", 247, 9);
+                                  "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 256, 9);
+                                  "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
         BAssertUtil.validateError(negativeResult, i,
-                                  "incompatible types: 'string|int' will not be matched to 'float|boolean'", 263, 9);
+                                  "incompatible types: 'string|int' will not be matched to 'float|boolean'", 262, 9);
     }
 
     @Test
