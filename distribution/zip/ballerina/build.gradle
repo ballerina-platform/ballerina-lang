@@ -15,8 +15,11 @@ configurations {
     balo
     bin
     balSource
+    staticArtifacts
+    staticFiles
     source
     zip
+    resourceFiles
 }
 
 dependencies {
@@ -198,6 +201,7 @@ dependencies {
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist project(':ballerina-activemq-artemis')
 
+    staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }
 
 def basePath = '/' + project.name + '-' + project.version
@@ -218,10 +222,29 @@ CopySpec copyBinSpec = copySpec {
     into(basePath + '/bin')
 }
 
+CopySpec copyStaticSpec = copySpec {
+    from configurations.staticArtifacts.files
+    into(basePath + '/')
+}
+
+CopySpec copyResourceSpec = copySpec {
+    from files('resources')
+    into(basePath + '/bre')
+}
+
+CopySpec copySrcBaloSpec = copySpec {
+    from configurations.balSource.files
+    into("$basePath/src")
+}
+
+
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
     with copyBinSpec
+    with copyStaticSpec
+    with copyResourceSpec
+    with copySrcBaloSpec
 }
 
 artifacts {
@@ -229,6 +252,8 @@ artifacts {
     balo configurations.distBal.files
     source configurations.balSource.files
     bin file('bin')
+    staticFiles configurations.staticArtifacts.files
+    resourceFiles file('resources')
     zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
 
