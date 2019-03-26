@@ -25,6 +25,8 @@ configurations {
     balSource
     zip
     balo
+    resourceFiles
+    staticFiles
 }
 
 dependencies {
@@ -50,19 +52,21 @@ dependencies {
     dist project(':swagger-ballerina:swagger-to-ballerina-generator')
     dist project(':ballerina-backend-llvm')
     dist project(':ballerina-backend-jvm')
-    dist project(':language-server:language-server-compiler');
-    dist project(':ballerina-packerina');
+    dist project(':language-server:language-server-compiler')
+    dist project(':ballerina-packerina')
     dist project(':protobuf-ballerina')
-    dist project(':swagger-ballerina:swagger-to-ballerina-generator');
-    docerina project(':docerina-gradle-plugin');
+    dist project(':swagger-ballerina:swagger-to-ballerina-generator')
+    docerina project(':docerina-gradle-plugin')
 
-    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist');
-    tools project(':language-server:language-server-stdio-launcher');
-    tools project(':language-server:language-server-core');
-    balSource project(path: ':ballerina', configuration: 'source');
-    distBal project(path: ':ballerina', configuration: 'balo');
-    dist project(path: ':ballerina', configuration: 'jar');
-    bin project(path: ':ballerina', configuration: 'bin');
+    toolsZip project(path: ':language-server:language-server-core', configuration: 'dist')
+    tools project(':language-server:language-server-stdio-launcher')
+    tools project(':language-server:language-server-core')
+    balSource project(path: ':ballerina', configuration: 'source')
+    distBal project(path: ':ballerina', configuration: 'balo')
+    dist project(path: ':ballerina', configuration: 'jar')
+    bin project(path: ':ballerina', configuration: 'bin')
+    staticFiles project(path: ':ballerina', configuration: 'staticFiles')
+    resourceFiles project(path: ':ballerina', configuration: 'resourceFiles')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
@@ -92,8 +96,13 @@ CopySpec copyBinSpec = copySpec {
     into(basePath + '/bin')
 }
 
+CopySpec copyStaticSpec = copySpec {
+    from configurations.staticFiles
+    into(basePath)
+}
+
 CopySpec copyToolsBin = copySpec {
-    from ('resources')
+    from files('resources')
     into(basePath + '/lib/tools/lang-server/launcher')
 }
 
@@ -102,6 +111,11 @@ CopySpec copyToolsZipSpec = copySpec {
         from(zipTree(it))
     }
     into(basePath + '/lib/tools/lang-server')
+}
+
+CopySpec copyResourceSpec = copySpec {
+    from configurations.resourceFiles.files
+    into(basePath + '/bre')
 }
 
 CopySpec copyBallerinaZipSpec = copySpec {
@@ -151,7 +165,6 @@ CopySpec apiDocsSpec = copySpec {
 }
 
 CopySpec copySrcBaloSpec = copySpec {
-    def path = "$buildDir/ballerina";
     from configurations.balSource.files
     into("$basePath/src")
 }
@@ -172,6 +185,8 @@ task createZip(type: Zip) {
     with examplesSpec
     with apiDocsSpec
     with copySrcBaloSpec
+    with copyStaticSpec
+    with copyResourceSpec
 }
 
 build {
