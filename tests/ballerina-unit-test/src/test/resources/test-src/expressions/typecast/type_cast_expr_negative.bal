@@ -45,10 +45,9 @@ type Def record {
     float id;
 };
 
-type Employee record {
+type Employee record {|
     string name;
-    !...;
-};
+|};
 
 function testFutureFunc() returns int {
     return 1;

@@ -6,11 +6,11 @@
   "source": "annotation/source/serviceAnnotation1.bal",
   "items": [
     {
-      "label":"swagger:ServiceInfo",
+      "label":"openapi:ServiceInfo",
       "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
-      "insertText":"swagger:ServiceInfo {\n\t${1}\n}",
+      "insertText":"openapi:ServiceInfo {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
       "additionalTextEdits":[
         {
@@ -24,16 +24,16 @@
               "character":0
             }
           },
-          "newText":"import ballerina/swagger;\n"
+          "newText":"import ballerina/openapi;\n"
         }
       ]
     },
     {
-      "label":"swagger:ClientConfig",
+      "label":"openapi:ClientConfig",
       "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
-      "insertText":"swagger:ClientConfig {\n\t${1}\n}",
+      "insertText":"openapi:ClientConfig {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
       "additionalTextEdits":[
         {
@@ -47,7 +47,7 @@
               "character":0
             }
           },
-          "newText":"import ballerina/swagger;\n"
+          "newText":"import ballerina/openapi;\n"
         }
       ]
     },

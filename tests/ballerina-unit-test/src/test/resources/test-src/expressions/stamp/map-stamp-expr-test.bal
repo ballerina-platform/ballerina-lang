@@ -251,12 +251,11 @@ function stampConstraintMapToUnion() returns map<Teacher>|xml {
 
 //---------------------------------- Negative Test cases -----------------------------------------------------------
 
-type EmployeeClosedRecord record {
+type EmployeeClosedRecord record {|
     string name;
     string status;
     string batch;
-    !...;
-};
+|};
 
 function stampMapToRecordNegative() returns EmployeeClosedRecord|error {
     map<string> m = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };

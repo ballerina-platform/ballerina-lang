@@ -33,6 +33,5 @@ task createBalHome(type: org.gradle.api.tasks.Copy) {
 test {
     minHeapSize = "256m"
     maxHeapSize = "1024m"
-    systemProperty "ballerina.home", "$buildDir"
     dependsOn createBalHome
 }
