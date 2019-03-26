@@ -128,11 +128,6 @@ public class PathTest {
         }
     }
 
-    // @Test(description = "Test isAbsolute path function for windows paths", dataProvider = "windows_paths")
-    // public void testWindowsAbsolutePath(String path) {
-    //     validateAbsolutePath(path);
-    // }
-
     private void validateAbsolutePath(String input, boolean expected) {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testIsAbsolutePath", args);
@@ -205,23 +200,32 @@ public class PathTest {
         }
     }
 
-    //@Test(description = "Test normalize path function for posix paths", dataProvider = "posix_paths")
-    public void testPosixNormalizePath(String path) {
-        validateNormalizePath(path);
+    @Test(description = "Test normalize path function for paths", dataProvider = "normalize_data")
+    public void testPosixNormalizePath(String path, String posixOutput, String windowsOutput) {
+        if (IS_WINDOWS) {
+            validateNormalizePath(path, windowsOutput);
+        } else {
+            validateNormalizePath(path, posixOutput);
+        }
     }
 
-    //@Test(description = "Test normalize path function for windows paths", dataProvider = "windows_paths")
-    public void testWindowsNormalizePath(String path) {
-        validateNormalizePath(path);
-    }
-
-    private void validateNormalizePath(String input) {
+    private void validateNormalizePath(String input, String expected) {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testNormalizePath", args);
-        BString filename = (BString) returns[0];
-        log.info("{ballerina/path}:normalize(). Input: " + input + " | Return: " + filename.stringValue());
-        String expectedValue = Paths.get(input).normalize() != null ? Paths.get(input).normalize().toString() : "";
-        assertEquals(filename.stringValue(), expectedValue);
+
+        if ("error".equals(expected)) {
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            log.info("Ballerina error: " + error.getDetails().stringValue());
+        } else {
+            assertTrue(returns[0] instanceof BString);
+            BString filepath = (BString) returns[0];
+            log.info("{ballerina/path}:normalize(). Input: " + input + " | Return: " + filepath.stringValue());
+            assertEquals(filepath.stringValue(), expected, "Path: " + input + " normalize()");
+            String expectedValue = Paths.get(input).normalize() != null ? Paths.get(input).normalize().toString() : "";
+            assertEquals(filepath.stringValue(), expectedValue, "Assert with Java | Path: " + input + " normalize()");
+        }
     }
 
     //@Test(description = "Test split path function for posix paths", dataProvider = "posix_paths")
@@ -393,7 +397,7 @@ public class PathTest {
                 {"abc/def/../../../ghi/jkl/../../../mno", "abc/def/../../../ghi/jkl/../../..",
                         "abc\\def\\..\\..\\..\\ghi\\jkl\\..\\..\\.."},
                 {"/", "", ""},
-                {"/A", "", "\\"},
+                {"/A", "/", "\\"},
                 // windows paths
                 {"//server", "/", "error"},
                 {"\\\\server", "", "error"},
@@ -404,6 +408,44 @@ public class PathTest {
                 {"bar/baz", "bar", "bar"},
                 {"C:\\\\\\\\", "", ""},
                 {"\\..\\A\\B", "", "\\..\\A"}
+        };
+    }
+
+    @DataProvider(name = "normalize_data")
+    public Object[][] getNormalizedDataset() {
+        return new Object[][] {
+                {"/A/B/C", "/A/B/C", "\\A\\B\\C"},
+                {"/foo/..", "/", "\\"},
+                {".", "", ""},
+                {"..", "..", ".."},
+                {"../../", "../..", "../.."},
+                {"foo/", "foo", "foo"},
+                {"foo/bar/", "foo/bar", "foo/bar"},
+                {"/AAA/////BBB/", "/AAA/BBB", "\\AAA\\BBB"},
+                {"", "", ""},
+                {"//////////////////", "/", "error"},
+                {"\\\\\\\\\\\\\\\\\\\\", "\\\\\\\\\\\\\\\\\\\\", "error"},
+                {"/foo/./bar", "/foo/bar", "\\foo\\bar"},
+                {"foo/../bar", "bar", "bar"},
+                {"../foo/bar", "../foo/bar", "..\\foo\\bar"},
+                {"./foo/bar/../", "foo", "foo"},
+                {"../../foo/../bar/zoo", "../../bar/zoo", "..\\..\\bar\\zoo"},
+                {"abc/../../././../def", "../../def", "..\\..\\def"},
+                {"abc/def/../../..", "..", ".."},
+                {"abc/def/../../../ghi/jkl/../../../mno", "../../mno",
+                        "..\\..\\mno"},
+                {"/", "/", "\\"},
+                {"/A", "/A", "\\A"},
+                // windows paths
+                {"//server", "/server", "error"},
+                {"\\\\server", "\\\\server", "error"},
+                {"C:/foo/..", "C:", "C:\\foo"},
+                {"C:\\foo\\..", "C:\\foo\\..", "C:\\"},
+                {"D;\\bar\\baz", "D;\\bar\\baz", "D;\\bar\\baz"},
+                {"bar\\baz", "bar\\baz", "bar\\baz"},
+                {"bar/baz", "bar/baz", "bar/baz"},
+                {"C:\\\\\\\\", "C:\\\\\\\\", "C:\\"},
+                {"\\..\\A\\B", "\\..\\A\\B", "\\..\\A\\B"}
         };
     }
 
