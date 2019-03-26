@@ -59,7 +59,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.get("userAction").stringValue(), "stop");
     }
 
-    @Test(enabled = false, description = "Test pattern streaming query with 'And'")
+    @Test(description = "Test pattern streaming query with 'And'")
     public void testPatternQuery3() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery3");
         Assert.assertNotNull(roomActions);
@@ -68,7 +68,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.get("userAction").stringValue(), "RoomClosedWithRegulatorOff");
     }
 
-    @Test(enabled = false, description = "Test pattern streaming query with 'Not' and 'And'")
+    @Test(description = "Test pattern streaming query with 'Not' and 'And'")
     public void testPatternQuery4() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery4");
         Assert.assertNotNull(roomActions);
