@@ -25,13 +25,13 @@ const GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
 const GRANT_TYPE_PASSWORD = "password";
 const GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
 
-// The following constants are unique for the mock oauth2 server.
+// The following constants are unique for the mock OAuth2 server.
 const string USERNAME = "johndoe";
 const string PASSWORD = "A3ddj3w";
 const string CLIENT_ID = "3MVG9YDQS5WtC11paU2WcQjBB3L5w4gz52uriT8ksZ3nUVjKvrfQMrU4uvZohTftxStwNEW4cfStBEGRxRL68";
 const string CLIENT_SECRET = "9205371918321623741";
 
-// The bearer mode of the client id and client secret
+// The bearer mode of the client ID and client secret.
 const string HEADER_BEARER = "header";
 const string BODY_BEARER = "body";
 const string NO_BEARER = "none";
@@ -41,8 +41,8 @@ string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenStrin
 
 string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 
-// Mock OAuth2 server which is capable of issue access tokens with related to the grant type and also refresh the
-// already issued access tokens. This keeps the set of issued access tokens for the validation purpose of api endpoint.
+// The mock OAuth2 server, which is capable of issuing access tokens with related to the grant type and also of refreshing the
+// already-issued access tokens. This keeps the set of issued access tokens for the validation purpose of the API  endpoint.
 listener http:Listener oauth2Server = new(9196, config = {
         secureSocket: {
             keyStore: {
@@ -58,13 +58,13 @@ service oauth2 on oauth2Server {
         methods: ["POST"],
         path: "/token/authorize/{bearer}"
     }
-    // This issues access token with reference to the received grant type.
-    // For client_credentials grant type, the new access token will the MD5 hash of client_id + client_secret + scopes.
-    // For password grant type, the new access token will the MD5 hash of client_id + client_secret + username +
+    // This issues an access token with reference to the received grant type.
+    // For the `client_credentials` grant type, the new access token will have the MD5 hash of client_id + client_secret + scopes.
+    // For password grant type, the new access token will have the MD5 hash of client_id + client_secret + username +
     // password + scopes.
     resource function authorize(http:Caller caller, http:Request req, string bearer) {
         http:Response res = new;
-        // Get Authorization header which should contains base64 encoded client_id and client_secret with colon
+        // Get the authorization header, which should contain the base64-encoded `client_id` and `client_secret` with the colon
         // delimiter in most of the cases.
         if (bearer == HEADER_BEARER) {
             var authorizationHeader = trap req.getHeader("Authorization");
@@ -117,8 +117,8 @@ service oauth2 on oauth2Server {
                 _ = caller->respond(res);
             }
         } else if (bearer == BODY_BEARER) {
-            // No Authorization header presents with base64 encoded client_id and client_secret with colon delimiter.
-            // So, the client_id and client_secret should be in the text payload of the request.
+            // If there is not an authorization header present with the base64-encoded `client_id` and `client_secret` with colon delimiter,
+            // then, the `client_id` and `client_secret` should be in the text payload of the request.
             var payload = req.getTextPayload();
             if (payload is string) {
                 if (payload.contains("client_id") && payload.contains("client_secret")) {
@@ -208,8 +208,8 @@ service oauth2 on oauth2Server {
         methods: ["POST"],
         path: "/token/refresh"
     }
-    // This refresh the access token but does not issue a new refresh token. The new access
-    // token will the MD5 hash of client_id + client_secret + refresh_token + scopes.
+    // This refreshes the access token but does not issue a new refresh token. The new access
+    // token will have the MD5 hash of client_id + client_secret + refresh_token + scopes.
     resource function refresh(http:Caller caller, http:Request req) {
         http:Response res = new;
         var authorizationHeader = trap req.getHeader("Authorization");
@@ -228,8 +228,8 @@ service oauth2 on oauth2Server {
                             grantType = param.split("=")[1];
                         } else if (param.contains("refresh_token")) {
                             refreshToken = param.split("=")[1];
-                            // If refresh token contains `=` symbol, we need to concat all the parts of the value since
-                            // string split break all those into separate parts.
+                            // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
+                            // the String split breaks all those into separate parts.
                             if (param.hasSuffix("==")) {
                                 refreshToken += "==";
                             }
@@ -252,7 +252,7 @@ service oauth2 on oauth2Server {
                             res.setPayload(response);
                             _ = caller->respond(res);
                         } else {
-                            // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                            // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                             res.statusCode = http:BAD_REQUEST_400;
                             json errMsg = { "error": "invalid_grant" };
                             io:println(errMsg);
@@ -260,7 +260,7 @@ service oauth2 on oauth2Server {
                             _ = caller->respond(res);
                         }
                     } else {
-                        // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                        // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                         res.statusCode = http:BAD_REQUEST_400;
                         json errMsg = { "error": "invalid_grant" };
                         io:println(errMsg);
@@ -341,7 +341,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
             res.setPayload(errMsg);
         }
     } else {
-        // Invalid grant_type. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+        // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
         res.statusCode = http:BAD_REQUEST_400;
         json errMsg = { "error": "invalid_grant" };
         io:println(errMsg);
@@ -357,8 +357,8 @@ function addToAccessTokenStore(string accessToken) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-// API endpoint which is responsible for process the request after validating the access token in Authorization header.
-// The token should be listed in accessTokenStore, which keeps the issued tokens by mock OAuth2 server.
+//The API endpoint, which is responsible for processing the request after validating the access token in the authorization header.
+// The token should be listed in the accessTokenStore, which keeps the tokens issued by the mock OAuth2 server.
 listener http:Listener apiEndpoint = new(9095, config = {
         secureSocket: {
             keyStore: {

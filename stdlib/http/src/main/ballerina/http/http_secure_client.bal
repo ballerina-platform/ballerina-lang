@@ -23,7 +23,7 @@ import ballerina/runtime;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-# Specifies how the authentication credentials should be sent when token exchanging
+# Specifies how to send the authentication credentials when exchanging tokens.
 public type CredentialBearer AUTH_HEADER_BEARER|POST_BODY_BEARER|NO_BEARER;
 
 # Indicates that the authentication credentials should be sent via the Authentication Header
@@ -35,7 +35,7 @@ public const POST_BODY_BEARER = "POST_BODY_BEARER";
 # Indicates that the authentication credentials should not be sent
 public const NO_BEARER = "NO_BEARER";
 
-# Specifies type of the the OAuth2 grant type
+# Specifies the type of the OAuth2 grant type
 public type OAuth2GrantType CLIENT_CREDENTIALS_GRANT|PASSWORD_GRANT|DIRECT_TOKEN;
 
 # Indicates OAuth2 client credentials grant type
@@ -44,28 +44,28 @@ public const CLIENT_CREDENTIALS_GRANT = "CLIENT_CREDENTIALS_GRANT";
 # Indicates OAuth2 password grant type
 public const PASSWORD_GRANT = "PASSWORD_GRANT";
 
-# Indicates direct token as a grant type where this is considered as custom way of providing access tokens by user
+# Indicates `direct token` as a grant type, where this is considered as a custom way of providing access tokens by the user
 public const DIRECT_TOKEN = "DIRECT_TOKEN";
 
-# CachedTokenConfig record is used to store the received values from the authroization/token server, in order to use
+#The `CachedTokenConfig` stores the values received from the authroization/token server to use them
 # for the latter requests without requesting tokens again.
 #
-# + accessToken - Access token for authorization server
-# + refreshToken - Refresh token for refresh token server
-# + expiryTime - Expiry time of the access token in milli-seconds
+# + accessToken - Access token for the  authorization server
+# + refreshToken - Refresh token for the refresh token server
+# + expiryTime - Expiry time of the access token in milliseconds
 public type CachedTokenConfig record {
     string accessToken;
     string refreshToken;
     int expiryTime;
 };
 
-# RequestConfig record is used to prepare the HTTP request which is to be sent to authorization server.
+# The `RequestConfig` record prepares the HTTP request, which is to be sent to the authorization server.
 #
 # + payload - Payload of the request
 # + clientId - Client ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization server
 type RequestConfig record {|
     string payload;
     string clientId?;
@@ -78,12 +78,12 @@ type RequestConfig record {|
 # schemes configured in the HTTP client endpoint to secure the HTTP requests.
 #
 # + url - The URL of the remote HTTP endpoint
-# + config - The configurations of the client endpoint associated with this HttpActions instance
-# + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
+# + config - The configurations of the client endpoint associated with this `HttpActions` instance
+# + httpClient - The underlying `HttpActions` instance, which will make the actual network calls
 # + tokenCache - Cached token configurations
 public type HttpSecureClient client object {
-    //These properties are populated from the init call to the client connector as these were needed later stage
-    //for retry and other few places.
+    //These properties are populated from the init call and sent to the client connector as these will be needed at a later stage
+    //for retrying and in other few places.
     public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
@@ -111,7 +111,7 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function post(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
@@ -130,7 +130,7 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function head(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
@@ -207,7 +207,7 @@ public type HttpSecureClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function delete(string path, RequestMessage message) returns Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
@@ -226,7 +226,7 @@ public type HttpSecureClient client object {
     # + path - Request path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function get(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
@@ -245,7 +245,7 @@ public type HttpSecureClient client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    # + return - The inbound response message or the error if one  occurred while attempting to fulfill the HTTP request
     public remote function options(string path, RequestMessage message = ()) returns Response|error {
         Request req = <Request>message;
         boolean retryRequired = check generateSecureRequest(req, self.config, self.tokenCache);
@@ -263,7 +263,7 @@ public type HttpSecureClient client object {
     #
     # + path - Request path
     # + request - An HTTP inbound request message
-    # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
+    # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
     public remote function forward(string path, Request request) returns Response|error {
         boolean retryRequired = check generateSecureRequest(request, self.config, self.tokenCache);
         Response res = check self.httpClient->forward(path, request);
@@ -344,13 +344,13 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-# Prepare HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
-# retry is required if the response will be 401.
+# Prepare an HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
+# retrying is required if the response will be 401.
 #
 # + req - An HTTP outbound request message
 # + config - Client endpoint configurations
 # + tokenCache - Cached token configurations
-# + return - Whether retry is required for 401 response or `error` if error occured during HTTP client invocation
+# + return - Whether retrying is required for a 401 response or `error` if an error occurred during the HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config,
                                CachedTokenConfig tokenCache) returns boolean|error {
     var auth = config.auth;
@@ -402,10 +402,10 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
     return false;
 }
 
-# Process auth token for basic auth.
+# Process the auth token for basic auth
 #
 # + authConfig - Basic auth configurations
-# + return - Auth token or `error` if error occured during validation
+# + return - Auth token or `error` if an error occured during validation
 function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|error {
     string username = authConfig.username;
     string password = authConfig.password;
@@ -426,8 +426,8 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 #
 # + authConfig - OAuth2 configurations
 # + tokenCache - Cached token configurations
-# + updateRequest - Check if the request is an updating request after 401 response
-# + return - Auth token with the status of retry is required for 401 response or `error` if validation fails
+# + updateRequest - Check if the request is updated after a 401 response
+# + return - Auth token with the status whether retrying is required for a 401 response or returns `error` if the validation fails
 function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig tokenCache,
                                boolean updateRequest) returns (string, boolean)|error {
     var grantType = authConfig.grantType;
@@ -463,11 +463,11 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
     }
 }
 
-# Process auth token for OAuth2 password grant.
+# Process the auth token for OAuth2 password grant.
 #
 # + grantTypeConfig - Password grant configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token with the status of retry is required for 401 response or `error` if error occured during
+# + return - Auth token with the status whether retrying is required for a 401 response or returns `error` if an error occurred during the
 # HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                                             CachedTokenConfig tokenCache) returns (string, boolean)|error {
@@ -481,7 +481,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
     } else {
         if (isCachedTokenValid(tokenCache)) {
             log:printDebug(function () returns string {
-                    return "OAuth2 password grant type; Access token received form cache.";
+                    return "OAuth2 password grant type; Access token received from cache.";
                 });
             return (cachedAccessToken, grantTypeConfig.retryRequest);
         } else {
@@ -489,7 +489,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                 if (isCachedTokenValid(tokenCache)) {
                     cachedAccessToken = tokenCache.accessToken;
                     log:printDebug(function () returns string {
-                            return "OAuth2 password grant type; Access token received form cache.";
+                            return "OAuth2 password grant type; Access token received from cache.";
                         });
                     return (cachedAccessToken, grantTypeConfig.retryRequest);
                 } else {
@@ -504,11 +504,11 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
     }
 }
 
-# Process auth token for OAuth2 client credentials grant.
+# Process the auth token for OAuth2 client credentials grant.
 #
 # + grantTypeConfig - Client credentials grant configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token with the status of retry is required for 401 response or `error` if error occured during
+# + return - Auth token with the status whether retrying is required for a 401 response or `error` if an error occurred during the
 # HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
                                                      CachedTokenConfig tokenCache) returns (string, boolean)|error {
@@ -547,11 +547,11 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
     }
 }
 
-# Process auth token for OAuth2 direct token mode.
+# Process the auth token for OAuth2 direct token mode.
 #
 # + grantTypeConfig - Direct token configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token with the status of retry is required for 401 response or `error` if error occured during
+# + return - Auth token with the status whether retrying is required for a 401 response or `error` if an error occurred during the
 # HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               CachedTokenConfig tokenCache) returns (string, boolean)|error {
@@ -599,7 +599,7 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
 # Process auth token for JWT auth.
 #
 # + authConfig - JWT auth configurations
-# + return - Auth token or `error` if error occured during JWT issuing or validation
+# + return - Auth token or `error` if an error occurred during the JWT issuing or validation
 function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
     var jwtIssuerConfig = authConfig["inferredJwtIssuerConfig"];
     if (jwtIssuerConfig is ()) {
@@ -625,8 +625,8 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
     }
 }
 
-# Check the validity of the access token which is in the cache. If expiry time is 0, that means no expiry time is
-# returned at the authorization request which implies that the token is valid forever.
+# Check the validity of the access toke,n which is in the cache. If the expiry time is 0, that means no expiry time is
+# returned with the authorization request. This implies that the token is valid forever.
 #
 # + tokenCache - Cached token configurations
 # + return - Whether the access token is valid or not
@@ -652,11 +652,11 @@ function isCachedTokenValid(CachedTokenConfig tokenCache) returns boolean {
     return false;
 }
 
-# Request an access token from authorization server using the provided configurations.
+# Request an access token from the authorization server using the provided configurations.
 #
 # + config - Grant type configuration
 # + tokenCache - Cached token configurations
-# + return - Access token received or `error` if error occured during HTTP client invocation
+# + return - Access token received or `error` if an error occurred during the HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
                                                 CachedTokenConfig tokenCache) returns string|error {
     Client authorizationClient;
@@ -711,11 +711,11 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     return extractAccessTokenFromResponse(authorizationResponse, tokenCache, clockSkew);
 }
 
-# Request an access token from authorization server using the provided refresh configurations.
+# Request an access token from the authorization server using the provided refresh configurations.
 #
 # + config - Password grant type configuration or direct token configuration
 # + tokenCache - Cached token configurations
-# + return - Access token received or `error` if error occured during HTTP client invocation
+# + return - Access token received or `error` if an error occurred during HTTP client invocation
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
                                           CachedTokenConfig tokenCache) returns string|error {
     Client refreshClient;
@@ -774,7 +774,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     return extractAccessTokenFromResponse(refreshResponse, tokenCache, clockSkew);
 }
 
-# Prepare the request which is to be sent to authorization server by adding relevant headers and payloads.
+# Prepare the request to be sent to the authorization server by adding the relevant headers and payloads.
 #
 # + config - Request configurations record
 # + return - Prepared HTTP request object
@@ -817,12 +817,12 @@ function prepareRequest(RequestConfig config) returns Request|error {
     return req;
 }
 
-# Extract access token from the json payload of given HTTP response and update the token cache.
+# Extract the access token from the JSON payload of a given HTTP response and update the token cache.
 #
 # + response - HTTP response object
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
-# + return - Extracted access token or `error` if error occured during HTTP client invocation
+# + return - Extracted access token or `error` if an error occurred during the HTTP client invocation
 function extractAccessTokenFromResponse(Response response, CachedTokenConfig tokenCache,
                                         int clockSkew) returns string|error {
     if (response.statusCode == OK_200) {
@@ -849,12 +849,12 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
     }
 }
 
-# Update token cache with the received json payload of the response.
+# Update the token cache with the received JSON payload of the response.
 #
 # + responsePayload - Payload of the response
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
-# + return - If any error occurred due to convertion of parameters
+# + return - Returns `error` if an error occurred during the conversion of the parameters
 function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache, int clockSkew) returns ()|error {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
@@ -873,11 +873,11 @@ function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache, in
     return ();
 }
 
-# Check whether retry is required for the response. This returns true if the scheme is OAuth and the response status
-# is 401 only. That implies user has given a expired access token or the retrieved access token from cahce is expired
-# and the client should update it with the given refresh configurations.
+# Check whether retrying is required for the response. This returns 'true' if the scheme is OAuth and the response status
+# is 401. That implies that the user has given an expired access token or the retrieved access token from the cache is expired.
+# Thus, the client should update it with the given refresh configurations.
 #
-# + retryRequired - Status of retry required
+# + retryRequired - Whether retrying is required or not
 # + res - Request object
 # + config - Client endpoint configurations
 # + return - Whether the client should retry or not
@@ -905,12 +905,12 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
     return false;
 }
 
-# Update the request with new access token for the retry request.
+# Update the retry request with the new access token.
 #
 # + req - HTTP request object
 # + config - Client endpoint configurations
 # + tokenCache - Cached token configurations
-# + return - `error` if error occured during HTTP client invocation
+# + return - Returns `error` if an error occurred during the HTTP client invocation
 function updateRequest(Request req, ClientEndpointConfig config, CachedTokenConfig tokenCache) returns ()|error {
     var auth = config.auth;
     if (auth is AuthConfig) {
