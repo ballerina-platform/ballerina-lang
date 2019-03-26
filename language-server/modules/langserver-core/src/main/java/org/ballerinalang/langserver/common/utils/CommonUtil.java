@@ -72,7 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -701,25 +701,30 @@ public class CommonUtil {
     /**
      * Get completion items list for struct fields.
      *
-     * @param structFields List of struct fields
+     * @param fields List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getStructFieldCompletionItems(List<BField> structFields) {
+    public static List<CompletionItem> getRecordFieldCompletionItems(List<BField> fields) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        structFields.forEach(bStructField -> {
-            StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
-            if (bStructField.getType() instanceof BStructureType) {
+        fields.forEach(field -> {
+            BType fieldType = field.getType();
+            StringBuilder insertText = new StringBuilder(field.getName().getValue() + ": ");
+            if (fieldType instanceof BRecordType) {
                 insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
+            } else if (fieldType instanceof BArrayType) {
+                insertText.append("[").append("${1}").append("]");
+            } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
+                insertText.append("\"").append("${1}").append("\"");
             } else {
-                insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
-                if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
-                    insertText.append(getFiniteAndUnionTypesComment(bStructField.getType()));
+                insertText.append("${1:").append(getDefaultValueForType(field.getType())).append("}");
+                if (field.getType() instanceof BFiniteType || field.getType() instanceof BUnionType) {
+                    insertText.append(getFiniteAndUnionTypesComment(field.getType()));
                 }
             }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText.toString());
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(bStructField.getName().getValue());
+            fieldItem.setLabel(field.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
