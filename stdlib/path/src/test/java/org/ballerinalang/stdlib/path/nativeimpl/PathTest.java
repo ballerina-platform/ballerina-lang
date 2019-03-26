@@ -418,9 +418,9 @@ public class PathTest {
                 {"/foo/..", "/", "\\"},
                 {".", "", ""},
                 {"..", "..", ".."},
-                {"../../", "../..", "../.."},
+                {"../../", "../..", "..\\.."},
                 {"foo/", "foo", "foo"},
-                {"foo/bar/", "foo/bar", "foo/bar"},
+                {"foo/bar/", "foo/bar", "foo\\bar"},
                 {"/AAA/////BBB/", "/AAA/BBB", "\\AAA\\BBB"},
                 {"", "", ""},
                 {"//////////////////", "/", "error"},
@@ -440,13 +440,14 @@ public class PathTest {
                 // windows paths
                 {"//server", "/server", "error"},
                 {"\\\\server", "\\\\server", "error"},
-                {"C:/foo/..", "C:", "C:\\foo"},
+                {"C:/foo/..", "C:", "C:\\"},
                 {"C:\\foo\\..", "C:\\foo\\..", "C:\\"},
+                {"C:\\..\\foo", "C:\\..\\foo", "C:\\foo"},
                 {"D;\\bar\\baz", "D;\\bar\\baz", "D;\\bar\\baz"},
                 {"bar\\baz", "bar\\baz", "bar\\baz"},
-                {"bar/baz", "bar/baz", "bar/baz"},
+                {"bar/baz", "bar/baz", "bar\\baz"},
                 {"C:\\\\\\\\", "C:\\\\\\\\", "C:\\"},
-                {"\\..\\A\\B", "\\..\\A\\B", "\\..\\A\\B"}
+                {"\\..\\A\\B", "\\..\\A\\B", "\\A\\B"}
         };
     }
 

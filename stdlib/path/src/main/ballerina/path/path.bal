@@ -144,9 +144,17 @@ public function normalize(string path) returns string|error {
     string filepath = check parse(path);
     int[] offsetIndexes = getOffsetIndexes(filepath);
     int count = offsetIndexes.length();
+        io:println("filepath (normalize) : " + filepath);
+        io:println(offsetIndexes);
     if (count == 0 || isEmpty(filepath)) {
         return filepath;
     }
+
+    boolean abs = check isAbsolute(filepath);
+    string root;
+    int offset;
+    (root, offset) = check getRootComponent(filepath);
+    string c0 = check charAt(path, 0);
 
     int i = 0;
     string[] parts = [];
@@ -183,10 +191,10 @@ public function normalize(string path) returns string|error {
                     }
                     j = j - 1;
                 }
-                if (hasPrevious || check isAbsolute(filepath)) {
+                if (hasPrevious || abs || isSlash(c0)) {
                     ignore[i] = true;
                     remaining = remaining - 1;
-                }
+                }  
             }
         }
         i = i + 1;
@@ -195,11 +203,9 @@ public function normalize(string path) returns string|error {
     if (remaining == count) {
         return filepath;
     }
-    boolean abs = check isAbsolute(filepath);
-    string root;
-    (root, _) = check getRootComponent(filepath);
+
     if (remaining == 0) {
-        return abs? root : "";
+        return root;
     }
 
     string normalizedPath = "";
@@ -208,7 +214,7 @@ public function normalize(string path) returns string|error {
     }
     i = 0;
     while (i < count) {
-        if (!ignore[i]) {
+        if (!ignore[i] && (offset <= offsetIndexes[i])) {
             normalizedPath = normalizedPath + parts[i] + PATH_SEPARATOR;
         }
         i = i + 1;
@@ -459,6 +465,9 @@ function getRootComponent(string input) returns (string,int)|error {
                     }
                 }
             }
+        } else if (length > 0 && isSlash(check charAt(input, 0))) {
+                root = "\\";
+                offset = 1;
         }
     } else {
         if (length > 0 && isSlash(check charAt(input, 0))) {
