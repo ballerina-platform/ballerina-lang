@@ -33,14 +33,3 @@ dependencies {
 }
 
 description = 'Ballerina - NATS'
-
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-}

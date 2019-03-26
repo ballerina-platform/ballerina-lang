@@ -53,7 +53,7 @@ public class Constants {
     public static final String NATS_SERVICE_CONFIG = "ConsumerConfig";
 
     /**
-     * IO error struct name.
+     * IO error record name.
      */
     static final String IO_ERROR = "IOError";
 
@@ -63,7 +63,7 @@ public class Constants {
     public static final String NATS_ERROR_CODE = "{ballerina/nats}NATSError";
 
     /**
-     * Represents the struct which holds the connection.
+     * Represents the object which holds the connection.
      */
-    public static final String CONNECTION_STRUCT = "connection";
+    public static final String CONNECTION_OBJ = "connection";
 }

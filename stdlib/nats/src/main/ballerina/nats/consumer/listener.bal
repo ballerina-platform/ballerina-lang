@@ -47,7 +47,6 @@ public type Listener object {
     # + return - Error or ().
     public function __start() returns error? {
         //ignore : since connection can be re-used between multiple listeners
-        return ();
     }
 
     # Stops the listener in the lifecyle.
@@ -55,7 +54,6 @@ public type Listener object {
     # + return - error or ().
     public function __stop() returns error? {
         //ignore : since connection can be re-used between multiple listeners
-        return ();
     }
 
 };

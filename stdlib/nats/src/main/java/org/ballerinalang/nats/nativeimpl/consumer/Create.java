@@ -29,6 +29,8 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.nativeimpl.Constants;
@@ -57,7 +59,7 @@ public class Create implements NativeCallableUnit {
     private static final String MANUAL_ACK = "manualAck";
     private static final String ACK_WAIT = "ackWait";
     private static final String DURABLE_NAME = "durableName";
-    public static final int ZERO = 0;
+    private static final int ZERO = 0;
 
     /**
      * {@inheritDoc}
@@ -65,9 +67,9 @@ public class Create implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         try {
-            Struct consumer = Utils.getReceiverObject(context);
-            StreamingConnection connection = (StreamingConnection) consumer.getStructField(Constants.CONNECTION_STRUCT)
-                    .getNativeData(Constants.NATS_CONNECTION);
+            BMap<String, BValue> consumer = Utils.getReceiverObject(context);
+            StreamingConnection connection = (StreamingConnection) ((BMap) consumer.get(Constants.CONNECTION_OBJ)).
+                    getNativeData(Constants.NATS_CONNECTION);
             Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
             List<Annotation> annotationList = service.getAnnotationList(Constants.NATS_PACKAGE,
                     Constants.NATS_SERVICE_CONFIG);

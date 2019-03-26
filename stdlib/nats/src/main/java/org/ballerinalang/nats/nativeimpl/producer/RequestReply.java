@@ -23,7 +23,6 @@ import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -59,11 +58,11 @@ public class RequestReply implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
-            Struct publisher = Utils.getReceiverObject(context);
+            BMap<String, BValue> publisher = Utils.getReceiverObject(context);
             String subject = context.getStringArgument(0);
             byte[] content = ((BValueArray) context.getRefArgument(1)).getBytes();
-            StreamingConnection connection = (StreamingConnection) publisher.getStructField(Constants.CONNECTION_STRUCT)
-                    .getNativeData(Constants.NATS_CONNECTION);
+            StreamingConnection connection = (StreamingConnection) ((BMap) publisher.get(Constants.CONNECTION_OBJ)).
+                    getNativeData(Constants.NATS_CONNECTION);
             CompletableFuture<Message> future = connection.getNatsConnection().request(subject, content);
             // this will be a blocking call, given we will be rewriting this in ballerina
             // will not invest to write java non blocking version

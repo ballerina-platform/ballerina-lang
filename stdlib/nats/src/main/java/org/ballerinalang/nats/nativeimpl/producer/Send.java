@@ -21,9 +21,10 @@ package org.ballerinalang.nats.nativeimpl.producer;
 import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,18 +47,17 @@ import java.util.concurrent.TimeoutException;
         isPublic = true
 )
 public class Send implements NativeCallableUnit {
-
     /**
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
-            Struct publisher = Utils.getReceiverObject(context);
+            BMap<String, BValue> publisher = Utils.getReceiverObject(context);
             String subject = context.getStringArgument(0);
             byte[] content = ((BValueArray) context.getRefArgument(1)).getBytes();
-            StreamingConnection connection = (StreamingConnection) publisher.getStructField(Constants.CONNECTION_STRUCT)
-                    .getNativeData(Constants.NATS_CONNECTION);
+            StreamingConnection connection = (StreamingConnection) ((BMap) publisher.get(Constants.CONNECTION_OBJ)).
+                    getNativeData(Constants.NATS_CONNECTION);
             Acknowledgment acknowledgment = new Acknowledgment(context, callback);
             connection.publish(subject, content, acknowledgment);
         } catch (IOException | TimeoutException e) {

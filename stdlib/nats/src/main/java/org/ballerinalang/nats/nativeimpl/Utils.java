@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -47,8 +46,8 @@ public class Utils {
     /**
      * Constructs a BallerinaException and throw it.
      *
-     * @param message error message which should be included.
-     * @param context context of the ballerina call.
+     * @param message   error message which should be included.
+     * @param context   context of the ballerina call.
      * @param throwable the exception stacktrace.
      */
     public static void throwBallerinaException(String message, Context context, Throwable throwable) {
@@ -62,8 +61,8 @@ public class Utils {
      * @param context Ballerina context which should be received.
      * @return the receiver object struct.
      */
-    public static Struct getReceiverObject(Context context) {
-        return BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+    public static BMap<String, BValue> getReceiverObject(Context context) {
+        return (BMap<String, BValue>) context.getRefArgument(0);
     }
 
     /**
