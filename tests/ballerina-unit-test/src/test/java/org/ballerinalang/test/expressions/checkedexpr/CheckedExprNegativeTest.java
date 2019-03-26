@@ -41,7 +41,7 @@ public class CheckedExprNegativeTest {
                 "operator: all expression types are equivalent to error type", 30, 25);
         BAssertUtil.validateError(compile, 3, "incompatible types: expected 'string|error'" +
                                               ", found 'string|int'", 39, 25);
-        BAssertUtil.validateError(compile, 4, "invalid usage of the check expression " +
+        BAssertUtil.validateError(compile, 4, "invalid usage of the 'check' expression " +
                 "operator: no error type return in enclosing invokable", 49, 19);
     }
 
