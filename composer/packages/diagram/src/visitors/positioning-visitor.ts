@@ -74,22 +74,27 @@ export const visitor: Visitor = {
         let workerY: number;
 
         const workers = node.body.statements.filter((element: any) => ASTUtil.isWorker(element));
+        let visibleEndpoints: VisibleEndpoint[] = [];
+        if (node.VisibleEndpoints) {
+            visibleEndpoints = node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible);
+        }
 
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
         if (viewState.isExpandedFunction) {
             bodyViewState.bBox.x = viewState.bBox.x + bodyViewState.bBox.leftMargin;
-            bodyViewState.bBox.y = viewState.bBox.y + config.statement.height;
+            bodyViewState.bBox.y = viewState.bBox.y + config.statement.expanded.header;
 
-            if (workers.length > 0) {
-                bodyViewState.bBox.y += config.lifeLine.header.height +
-                + config.statement.height; // leave room for start line.
-            }
             viewState.client.bBox.x = viewState.bBox.x;
             viewState.client.bBox.w = 0;
 
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
-            workerY = viewState.bBox.y + config.statement.height;
+            workerY = bodyViewState.bBox.y;
+
+            if (workers.length > 0 || visibleEndpoints.length > 0) {
+                bodyViewState.bBox.y += config.lifeLine.header.height +
+                + config.statement.height; // leave room for start line.
+            }
         } else {
             // Position the header
             viewState.header.x = viewState.bBox.x;
@@ -114,7 +119,6 @@ export const visitor: Visitor = {
         }
 
         // Position the other workers
-        let workerWidth = 0;
         workers.forEach((worker) => {
             const workerViewState: WorkerViewState = worker.viewState;
             const variable: Variable = ((worker as VariableDef).variable as Variable);
@@ -131,20 +135,14 @@ export const visitor: Visitor = {
             functionNode.body!.viewState.bBox.y = workerY
             + functionNode.body!.viewState.paddingTop
             + config.lifeLine.header.height;
-            workerWidth += functionNode.body!.viewState.bBox.w + leftMargin;
         });
 
-        let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-            + config.lifeLine.gutter.h
-            + workerWidth + config.lifeLine.gutter.h;
+        let epX = workerX + config.lifeLine.gutter.h;
         // Position endpoints
-        (node.viewState as FunctionViewState).containingVisibleEndpoints.forEach(
-            (endpoint: VisibleEndpoint) => {
-            if (!endpoint.caller && endpoint.viewState.visible) {
-                endpoint.viewState.bBox.x = epX;
-                endpoint.viewState.bBox.y = defaultWorker.bBox.y;
-                epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            }
+        visibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+            endpoint.viewState.bBox.x = epX;
+            endpoint.viewState.bBox.y = workerY;
+            epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
         });
 
         // Position drop down menu for adding workers and endpoints
@@ -176,18 +174,10 @@ export const visitor: Visitor = {
                     const expandedSubTree = elViewState.expandContext.expandedSubTree as BalFunction;
                     const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
 
-                    if (expandedSubTree.body) {
-                        const bodyViewState = expandedSubTree.body.viewState as BlockViewState;
-                        expandedFunctionVS.bBox.x = elViewState.bBox.x;
-                        expandedFunctionVS.bBox.y = elViewState.bBox.y;
+                    expandedFunctionVS.bBox.x = elViewState.bBox.x;
+                    expandedFunctionVS.bBox.y = elViewState.bBox.y;
 
-                        const workersPresent = expandedSubTree.body.statements.some((s) => ASTUtil.isWorker(s));
-                        if (workersPresent) {
-                            bodyViewState.bBox.y += 1.5 * config.statement.height;
-                        }
-
-                        ASTUtil.traversNode(expandedSubTree, visitor);
-                    }
+                    ASTUtil.traversNode(expandedSubTree, visitor);
                 }
             }
         });

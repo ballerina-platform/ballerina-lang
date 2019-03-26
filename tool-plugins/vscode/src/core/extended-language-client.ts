@@ -19,7 +19,7 @@
  */
 
 import { LanguageClient, TextDocumentPositionParams } from "vscode-languageclient";
-import { Uri, Location, window } from "vscode";
+import { Uri, Location } from "vscode";
 
 export const BALLERINA_LANG_ID = "ballerina";
 

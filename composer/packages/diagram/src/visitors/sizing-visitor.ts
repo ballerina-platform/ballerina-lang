@@ -22,8 +22,11 @@ class SizingVisitor implements Visitor {
 
     public beginVisitFunction(node: BalFunction) {
         const viewState: FunctionViewState = node.viewState;
-        if (node.VisibleEndpoints && !node.lambda) {
-            this.endpointHolder = node.VisibleEndpoints;
+        if (!node.lambda) {
+            this.endpointHolder = (node.viewState as FunctionViewState).containingVisibleEndpoints;
+            if (node.VisibleEndpoints) {
+                this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+            }
             // clear return statements.
             this.returnStatements = [];
         }
@@ -149,13 +152,15 @@ class SizingVisitor implements Visitor {
 
         // Size endpoints
         let endpointWidth = 0;
-        viewState.containingVisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-            if (!endpoint.caller && endpoint.viewState.visible) {
-                endpoint.viewState.bBox.w = config.lifeLine.width;
-                endpoint.viewState.bBox.h = client.bBox.h;
-                endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            }
-        });
+        if (node.VisibleEndpoints) {
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                if (!endpoint.caller && endpoint.viewState.visible) {
+                    endpoint.viewState.bBox.w = config.lifeLine.width;
+                    endpoint.viewState.bBox.h = client.bBox.h;
+                    endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                }
+            });
+        }
 
         const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
             + defaultWorker.bBox.w + endpointWidth + workerWidth;
@@ -386,20 +391,26 @@ class SizingVisitor implements Visitor {
         if (action) {
             // find the endpoint view state
             const epName = ASTUtil.getEndpointName(action as Invocation);
-            // debugger;
-            this.endpointHolder.forEach((element: VisibleEndpoint) => {
-                if (element.name === epName) {
-                    viewState.endpoint = element.viewState;
-                    viewState.isAction = true;
-                    viewState.bBox.h = config.statement.actionHeight;
-                    let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
-                    actionName = (actionName) ? actionName : "";
-                    viewState.bBox.label = DiagramUtils.getTextWidth(actionName).text;
-                    // Set visible to true so we can only draw used endpoints.
-                    (element.viewState as EndpointViewState).visible = true;
-                    viewState.isReturn = (element.viewState as EndpointViewState).usedAsClient;
+
+            let endpoint = this.endpointHolder.find((el: VisibleEndpoint) => el.name === epName);
+            if (endpoint) {
+                const actualEpName = (endpoint.viewState as EndpointViewState).actualEpName;
+                if (actualEpName) {
+                    endpoint = this.endpointHolder.find((el: VisibleEndpoint) => el.name === actualEpName);
                 }
-            });
+            }
+
+            if (endpoint) {
+                viewState.endpoint = endpoint.viewState;
+                viewState.isAction = true;
+                viewState.bBox.h = config.statement.actionHeight;
+                let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
+                actionName = (actionName) ? actionName : "";
+                viewState.bBox.label = DiagramUtils.getTextWidth(actionName).text;
+                // Set visible to true so we can only draw used endpoints.
+                (endpoint.viewState as EndpointViewState).visible = true;
+                viewState.isReturn = (endpoint.viewState as EndpointViewState).usedAsClient;
+            }
         }
 
         if (node.viewState.hiddenBlock) {
@@ -439,16 +450,28 @@ class SizingVisitor implements Visitor {
                     });
                 }
 
-                let expandedFnHeight = 0;
+                let endpointsPresent = false;
+                if (expandedSubTree.VisibleEndpoints) {
+                    expandedSubTree.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                        if (!endpoint.caller && endpoint.viewState.visible) {
+                            endpointsPresent = true;
+                            endpoint.viewState.bBox.w = config.lifeLine.width;
+                            expandedFnWidth += (endpoint.viewState.bBox.w + config.lifeLine.gutter.h);
+                        }
+                    });
+                    if (endpointsPresent) {
+                        expandedFnWidth += config.lifeLine.gutter.h;
+                    }
+                }
 
-                if (workersPresent) {
+                let expandedFnHeight = 0;
+                if (workersPresent || endpointsPresent) {
                     expandedFnHeight = expandedDefaultWorker.h;
                 } else if (expandedSubTree.body) {
                     expandedFnHeight = (expandedSubTree.body.viewState as BlockViewState).bBox.h;
                 }
 
                 viewState.bBox.h = expandedFnHeight + sizes.header + sizes.footer + sizes.bottomMargin;
-                viewState.bBox.leftMargin = expandedBody.leftMargin;
 
                 if (expandedFnWidth > viewState.bBox.w) {
                     viewState.bBox.w = expandedFnWidth;

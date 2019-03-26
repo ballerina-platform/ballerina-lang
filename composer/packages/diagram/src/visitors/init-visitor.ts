@@ -22,8 +22,23 @@ function initStatement(node: ASTNode) {
         expandedFunction.viewState = new FunctionViewState();
         expandedFunction.viewState.isExpandedFunction = true;
         ASTUtil.traversNode(expandedFunction, visitor);
+
+        const invocation = viewState.expandContext.expandableNode;
         if (expandedFunction.VisibleEndpoints) {
-            visibleEndpoints = [...visibleEndpoints, ...expandedFunction.VisibleEndpoints];
+            expandedFunction.VisibleEndpoints.forEach((ep) => {
+                if (expandedFunction.allParams) {
+                    expandedFunction.allParams.forEach((p, i) => {
+                        if (ASTKindChecker.isVariable(p)) {
+                            if (p.name.value === ep.name) {
+                                const arg = invocation.argumentExpressions[i];
+                                if (ASTKindChecker.isSimpleVariableRef(arg)) {
+                                    (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+                                }
+                            }
+                        }
+                    });
+                }
+            });
         }
     }
 }
@@ -45,6 +60,9 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: BalFunction) {
+        if (node.VisibleEndpoints) {
+            visibleEndpoints = [...node.VisibleEndpoints, ...visibleEndpoints];
+        }
         if (!node.viewState) {
             node.viewState = new FunctionViewState();
         }
@@ -70,22 +88,18 @@ export const visitor: Visitor = {
 
     endVisitFunction(node: BalFunction) {
         const viewState = node.viewState as FunctionViewState;
-        let endpoints = visibleEndpoints;
 
-        if (node.VisibleEndpoints) {
-            endpoints = [...node.VisibleEndpoints, ...endpoints];
-        }
-
-        if (!viewState.isExpandedFunction) {
+        if (viewState.isExpandedFunction) {
             const toAdd: VisibleEndpoint[] = [];
             const added: any = {};
-            endpoints.forEach((ep) => {
+            visibleEndpoints.forEach((ep) => {
                 if (!added[ep.name]) {
                     toAdd.push(ep);
                     added[ep.name] = true;
                 }
             });
             viewState.containingVisibleEndpoints = toAdd;
+        } else {
             visibleEndpoints = [];
         }
     },

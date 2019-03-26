@@ -40,6 +40,7 @@ export const Statement: React.StatelessComponent<{
             const expanderProps = {
                 expandContext: viewState.expandContext,
                 position: viewState.expandContext.expandableNode.position!,
+                statement: viewState.expandContext.expandableNode,
                 statementViewState: viewState,
             };
 

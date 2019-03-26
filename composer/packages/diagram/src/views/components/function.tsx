@@ -74,7 +74,7 @@ export const Function = (props: { model: FunctionNode }) => {
                 />
             }
             {model.body && <Block model={model.body} />}
-            {viewState.containingVisibleEndpoints
+            {model.VisibleEndpoints && model.VisibleEndpoints
                 .filter((element) => element.viewState.visible)
                 .map((element: VisibleEndpoint) => {
                     return <LifeLine title={element.name} icon="endpoint"

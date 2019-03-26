@@ -1,5 +1,5 @@
-import { ASTNode, ASTUtil, Function as BallerinaFunction,
-    NodePosition, VariableDef, ASTKindChecker } from "@ballerina/ast-model";
+import { ASTKindChecker, ASTNode, ASTUtil,
+    Function as BallerinaFunction, Invocation, NodePosition, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
 import { BallerinaAST, IBallerinaLangClient } from "@ballerina/lang-service";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -10,6 +10,7 @@ import { BlockViewState } from "../../view-model/block";
 import { ExpandContext } from "../../view-model/expand-context";
 import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
 import { Block } from "./block";
+import { LifeLine } from "./life-line";
 import { Worker } from "./worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -58,17 +59,22 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                     <g>
                         <rect className="expanded-func-frame"
                             x={bBox.x - config.statement.expanded.margin}
-                            y={bBox.y}
+                            y={bBox.y + config.statement.height / 2}
                             width={bBox.w + config.statement.expanded.margin}
-                            height={bBox.h - config.statement.expanded.footer}/>
-                        <text
+                            height={bBox.h - config.statement.expanded.footer - (config.statement.height / 2)}/>
+                        <rect className="expanded-func-name-background"
+                            x={bBox.statement.x - 2}
+                            y={bBox.y}
+                            width={bBox.statement.textWidth + 10}
+                            height={config.statement.height}/>
+                        <text className="expanded-func-name"
                             x={bBox.statement.x}
                             y={bBox.statement.y + (config.statement.height / 2)}>
                             {bBox.statement.text}
                         </text>
-                        <text
-                            x={bBox.statement.x + bBox.statement.textWidth + 2}
-                            y={bBox.statement.y + (config.statement.height / 2)}
+                        <text className="expanded-func-collapser"
+                            x={bBox.statement.x + bBox.w - 30}
+                            y={bBox.statement.y + config.statement.height + 5}
                             onClick={onClickClose}>
                             {getCodePoint("up")}
                         </text>
@@ -94,6 +100,14 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                                     client={client} />;
                             })}
                             <Block model={model.body} />
+                            {model.VisibleEndpoints && model.VisibleEndpoints
+                                .filter((element) => element.viewState.visible)
+                                .map((element: VisibleEndpoint) => {
+                                    return <LifeLine title={element.name} icon="endpoint"
+                                        model={element.viewState.bBox}
+                                        astModel={element.caller ? model.parameters[0] : element } />;
+                                })
+                            }
                         </DiagramContext.Provider>
                     </g>
                 );
@@ -103,12 +117,14 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
 };
 
 interface FunctionExpanderProps {
+    statement: Invocation;
     statementViewState: StmntViewState;
     position: NodePosition;
     expandContext: ExpandContext;
 }
 
-export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ statementViewState, position, expandContext }) => {
+export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
+    { statement, statementViewState, position, expandContext }) => {
 
     const x = statementViewState.bBox.x + statementViewState.bBox.labelWidth + 10;
     const y = statementViewState.bBox.y + (statementViewState.bBox.h / 2) + 2;
@@ -119,7 +135,7 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ statementVi
                     className="expander"
                     // style={{visibility: statementViewState.hovered ? "visible" : "hidden"}}
                     onClick={getExpandFunctionHandler(
-                        langClient, docUri, position, expandContext, update)}>
+                        langClient, docUri, statement, position, expandContext, update)}>
                     {getCodePoint("down")}
                 </text>
             )}
@@ -128,7 +144,7 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = ({ statementVi
 };
 
 function getExpandFunctionHandler(
-    langClient: IBallerinaLangClient | undefined, docUri: string | undefined,
+    langClient: IBallerinaLangClient | undefined, docUri: string | undefined, invocation: Invocation,
     position: NodePosition, expandContext: ExpandContext, update: () => void) {
 
     return async () => {
