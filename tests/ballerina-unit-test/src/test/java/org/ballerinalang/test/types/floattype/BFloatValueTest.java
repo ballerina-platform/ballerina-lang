@@ -19,6 +19,7 @@ package org.ballerinalang.test.types.floattype;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -149,6 +150,16 @@ public class BFloatValueTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 12.0, "Invalid float value returned.");
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 15.0, "Invalid float value returned.");
+    }
+
+    @Test(description = "Test discriminated float literal")
+    public void testDiscriminatedFloatLiterals() {
+        BValue[] returns = BRunUtil.invoke(result, "testDiscriminatedFloatLiteral");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.0, "Invalid float value returned.");
+        Assert.assertEquals(((BValueArray) returns[2]).getFloat(0), 1.0, "Invalid float value returned.");
+        Assert.assertEquals(((BValueArray) returns[2]).getFloat(1), 2.0, "Invalid float value returned.");
     }
 
     @Test

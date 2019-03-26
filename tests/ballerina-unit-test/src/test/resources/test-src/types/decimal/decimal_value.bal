@@ -111,12 +111,12 @@ function testDecimalArrayValue() returns (decimal[]) {
     return ds;
 }
 
-function testDicimalArrayValueWithDiscriminator() returns (decimal[]) {
+function testDecimalArrayValueWithDiscriminator() returns (decimal[]) {
     decimal[] ds = [1.0d, 2.0d];
     return ds;
 }
 
-function testDisciminatedDecimalLiterals() returns (decimal, decimal, decimal, decimal) {
+function testDiscriminatedDecimalLiterals() returns (decimal, decimal, decimal, decimal) {
     var a = 3.22d;
     var b = 0.0d;
     decimal c =3.141592653589793238462643383279502d;

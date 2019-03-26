@@ -205,14 +205,14 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal array literal with decimal discriminator")
     public void testDiscriminatedDecimalArrayLiteral() {
-        BValue[] returns = BRunUtil.invoke(result, "testDicimalArrayValueWithDiscriminator", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalArrayValueWithDiscriminator", new BValue[]{});
         Assert.assertEquals(returns[0], new BDecimal("1.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns[1], new BDecimal("2.0", DecimalValueKind.OTHER));
     }
 
     @Test(description = "Test decimal array literal with decimal discriminator")
     public void testDiscriminatedDecimalLiteral() {
-        BValue[] returns = BRunUtil.invoke(result, "testDisciminatedDecimalLiterals", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDiscriminatedDecimalLiterals", new BValue[]{});
         Assert.assertEquals(returns[0], new BDecimal("3.22", DecimalValueKind.OTHER));
         Assert.assertEquals(returns[1], new BDecimal("0.0", DecimalValueKind.ZERO));
         Assert.assertEquals(returns[2], new BDecimal("3.141592653589793238462643383279502", DecimalValueKind.OTHER));
