@@ -37,7 +37,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAM
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
-import static org.ballerinalang.stdlib.task.utils.Utils.createError;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to start the service attached to the listener.
@@ -68,7 +68,7 @@ public class Start extends BlockingNativeCallableUnit {
             serverConnector.start();
         } catch (SchedulingException e) {
             LOG.error(e.getMessage(), e);
-            context.setReturnValues(createError(context, e.getMessage()));
+            setError(context, e.getMessage());
         }
     }
 }

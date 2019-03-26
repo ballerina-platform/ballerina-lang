@@ -30,7 +30,6 @@ import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.objects.Timer;
-import org.ballerinalang.stdlib.task.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +48,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_N
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
 import static org.ballerinalang.stdlib.task.utils.Utils.getCronExpressionFromAppointmentRecord;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to attach a service to the listener.
@@ -85,7 +85,7 @@ public class Init extends BlockingNativeCallableUnit {
             taskStruct.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
         } catch (SchedulingException e) {
             LOG.error(e.getMessage(), e);
-            context.setReturnValues(Utils.createError(context, e.getMessage()));
+            setError(context, e.getMessage());
         }
     }
 

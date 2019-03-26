@@ -35,7 +35,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAM
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
-import static org.ballerinalang.stdlib.task.utils.Utils.createError;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to resume a paused task.
@@ -65,7 +65,7 @@ public class Resume extends BlockingNativeCallableUnit {
             task.resume();
         } catch (SchedulingException e) {
             LOG.error(e.getMessage(), e);
-            createError(context, e.getMessage());
+            setError(context, e.getMessage());
         }
     }
 }

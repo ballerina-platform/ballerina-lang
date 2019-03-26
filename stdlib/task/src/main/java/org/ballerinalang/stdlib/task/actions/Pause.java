@@ -26,7 +26,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Task;
-import org.ballerinalang.stdlib.task.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +35,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAM
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to pause the task.
@@ -66,7 +66,7 @@ public class Pause extends BlockingNativeCallableUnit {
             task.pause();
         } catch (SchedulingException e) {
             LOG.error(e.getMessage(), e);
-            Utils.createError(context, e.getMessage());
+            setError(context, e.getMessage());
         }
     }
 }
