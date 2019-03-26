@@ -63,7 +63,8 @@ type StatementNode VariableDefinitionStatementNode | ErrorNode;
 
 type ErrorNode record{
 	*Node;
-    StatementNode? errorStatement;
+    StatementNode errorStatement?;
+    FunctionNode errorFunction?;
 };
 
 type VariableDefinitionStatementNode record {

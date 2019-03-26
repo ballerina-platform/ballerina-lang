@@ -5,8 +5,8 @@ import ballerina/log;
 OperatorStack oprStack = new();
 ExprStack expStack = new();
 boolean recovered = true;
-//tokenRecovery for token insertion
-boolean tokenRecovery = true;
+//keeps track on error recovery
+boolean errorRecovered = true;
 //keep track of error tokens
 Token[] errTokens = [];
 //error token counter
@@ -25,8 +25,30 @@ type Parser object {
 			Token currToken = self.parserBuffer.consumeToken();
 			if (currToken.tokenType == FUNCTION) {
 				FunctionNode function1 = self.parseFunction(currToken);
-				fnList[pos] = function1;
-				pos += 1;
+				if(errorRecovered == false){
+					if(errTokens.length()>0){
+						Token errTkn  =  errTokens[0];
+						ErrorNode fnErNode = {nodeKind: ERROR_NODE,tokenList:[errTkn],errorFunction:function1};
+						int fnCount = 0;
+						while(fnCount < errTokens.length()){
+							fnErNode.tokenList[fnCount] = errTokens[fnCount];
+							fnCount += 1;
+						}
+						fnList[pos] = function1;
+						pos += 1;
+						errorRecovered = true;
+					}
+					else{
+						ErrorNode erNode = {nodeKind: ERROR_NODE,errorFunction:function1};
+						fnList[pos] = function1;
+						pos += 1;
+						errorRecovered = true;
+					}
+				}
+				else{
+					fnList[pos] = function1;
+					pos += 1;
+				}
 			}
 		}
 		Token currToken = self.parserBuffer.consumeToken();
@@ -35,45 +57,75 @@ type Parser object {
 	}
 
 	//method to consume the token from the token buffer
-	function matchToken(int mToken) returns Token{
+	function matchToken(int mToken , NodeKind rule) returns Token{
 		if (self.LAToken(1) == mToken) {
 			Token currToken = self.parserBuffer.consumeToken();
 			io:println(tokenNames[currToken.tokenType]);
 			return currToken;
 		} else {
-			tokenRecovery = false;
 			string capturedErr = tokenNames[self.LAToken(1)];
-			//Token insertedToken = self.insertToken(mToken);
-			Token panicToken = self.panicRecovery(mToken);
-			//Token errorToken = self.getLAToken();
+			Token panicToken = self.panicRecovery(mToken, rule);
 			log:printError("Expected " + tokenNames[mToken] + ";found " + capturedErr);
-			//io:println(errorToken);
 			return panicToken;
 		}
 	}
 
 	//error recovery token insertion
 	function insertToken(int mToken) returns Token {
-		tokenRecovery = true;
 		return { tokenType: mToken, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
 	}
 	//panic recovery
-	function panicRecovery(int mToken) returns Token {
-		int[] exprPanic = [SEMICOLON,RBRACE];
+	function panicRecovery(int mToken,NodeKind rule) returns Token {
 		boolean panicMode = true;
-		while(panicMode){
-			if(self.LAToken(1) == exprPanic[0]){
-				panicMode = false;
+		if(rule == "variableDefinitionStatement"){
+			if(mToken == SEMICOLON){
+				Token insertSemi = self.insertToken(mToken);
+				return insertSemi;
 			}
-			else if (self.LAToken(1) == exprPanic[1]){
-				break;
+			else{
+				int[] exprPanic = [SEMICOLON,RBRACE];
+				while(panicMode){
+					if(self.LAToken(1) == exprPanic[0]){
+						panicMode = false;
+					}
+					else if (self.LAToken(1) == exprPanic[1]){
+						break;
+					}
+					Token currToken1 = self.parserBuffer.consumeToken();
+					errTokens[errCount] = currToken1;
+					errCount += 1;
+				}
+				return { tokenType: mToken, text: "<unexpected Token: " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+					lineNumber: 0, index: -1, whiteSpace: "" };
 			}
-			Token currToken1 = self.parserBuffer.consumeToken();
-			errTokens[errCount] = currToken1;
-			errCount += 1;
 		}
-		return { tokenType: mToken, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+		else if(rule == "function"){
+			errorRecovered = false;
+			//check if the expected token is a lBrace, then insert
+			if(mToken == RBRACE){
+				Token insertRbrace = self.insertToken(mToken);
+				return insertRbrace;
+			}
+			else{
+				int[] functionPanic = [RBRACE,EOF];
+				while(panicMode){
+					if(self.LAToken(1) == functionPanic[0]){
+						panicMode = false;
+					}
+					else if (self.LAToken(1) == functionPanic[1]){
+						break;
+					}
+					Token currToken1 = self.parserBuffer.consumeToken();
+					errTokens[errCount] = currToken1;
+					errCount += 1;
+				}
+				return { tokenType: mToken, text: "<unexpected Token: " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+					lineNumber: 0, index: -1, whiteSpace: "" };
+			}
+		}
+		//this return statement will be in a else statement
+		return { tokenType: mToken, text: "<unexpected " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
 
 	}
@@ -104,9 +156,9 @@ type Parser object {
 	//Callable Unit Signature
 	//    | IDENTIFIER () make this a callableUnitSignatureNode
 	function parseCallableUnitSignature() returns FunctionSignatureNode {
-		Token identifier = self.matchToken(IDENTIFIER);
-		Token lParen = self.matchToken(LPAREN);
-		Token rParen = self.matchToken(RPAREN);
+		Token identifier = self.matchToken(IDENTIFIER,FUNCTION_NODE);
+		Token lParen = self.matchToken(LPAREN,FUNCTION_NODE);
+		Token rParen = self.matchToken(RPAREN,FUNCTION_NODE);
 		IdentifierNode idNode = { nodeKind: IDENTIFIER_NODE, tokenList: [identifier], identifier: identifier.text };
 		FunctionSignatureNode signature1 = { nodeKind: FN_SIGNATURE_NODE, tokenList: [lParen, rParen],
 			functionIdentifier: idNode };
@@ -117,26 +169,35 @@ type Parser object {
 	function parseCallableUnitBody() returns BlockNode {
 		StatementNode[] stsList = [];
 		int pos = 0;
-		Token lBrace = self.matchToken(LBRACE);
+		Token lBrace = self.matchToken(LBRACE,FUNCTION_NODE);
 		while (self.LAToken(1) != RBRACE) {
 			StatementNode stNode = self.parseStatement();
 			if(recovered == false){
-				Token errTkn  =  errTokens[0];
-				ErrorNode erNode = {nodeKind: ERROR_NODE,tokenList:[errTkn],errorStatement:stNode};
-				int listCount = 0;
-				while(listCount < errTokens.length()){
-					erNode.tokenList[listCount] = errTokens[listCount];
-					listCount += 1;
+				if(errTokens.length()>0){
+					Token errTkn  =  errTokens[0];
+					ErrorNode erNode = {nodeKind: ERROR_NODE,tokenList:[errTkn],errorStatement:stNode};
+					int listCount = 0;
+					while(listCount < errTokens.length()){
+						erNode.tokenList[listCount] = errTokens[listCount];
+						listCount += 1;
+					}
+					stsList[pos] = erNode;
+					pos += 1;
+					recovered = true;
 				}
-				stsList[pos] = erNode;
-				pos += 1;
-				recovered = true;
+				else{
+					ErrorNode erNode = {nodeKind: ERROR_NODE,errorStatement:stNode};
+					stsList[pos] = erNode;
+					pos += 1;
+					recovered = true;
+				}
+
 			}else{
 				stsList[pos] = stNode;
 				pos += 1;
 			}
 		}
-		Token rBrace = self.matchToken(RBRACE);
+		Token rBrace = self.matchToken(RBRACE,FUNCTION_NODE);
 		BlockNode blNode = { nodeKind: BLOCK_NODE, tokenList: [lBrace, rBrace], statementList: stsList };
 		return blNode;
 	}
@@ -153,26 +214,25 @@ type Parser object {
 	function parseVariableDefinitionStatementNode() returns VariableDefinitionStatementNode {
 		Token valueTypeTkn = self.parseValueTypeName();
 		ValueKind valueKind1 = self.matchValueType(valueTypeTkn);
-		Token identifier = self.matchToken(IDENTIFIER);
+		Token identifier = self.matchToken(IDENTIFIER,VAR_DEF_STATEMENT_NODE);
 		VarRefIdentifier vRef = { nodeKind: VAR_REF_NODE, tokenList: [identifier], varIdentifier: identifier.text };
 		if (self.LAToken(1) == SEMICOLON) {
-			Token semiC = self.matchToken(SEMICOLON);
+			Token semiC = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
 			VariableDefinitionStatementNode vDef = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn, semiC],
 				valueKind: valueKind1, varIdentifier: vRef, expression: null };
 			return vDef;
 		} else {
-			Token assign = self.matchToken(ASSIGN);
+			Token assign = self.matchToken(ASSIGN,VAR_DEF_STATEMENT_NODE);
 			ExpressionNode exprNode = self.expressionBuilder();
 			if(exprNode == null){
 				log:printError("Expected Expression" + ";found null");
 			}
-			Token semiC2 = self.matchToken(SEMICOLON);
+			Token semiC2 = self.matchToken(SEMICOLON,VAR_DEF_STATEMENT_NODE);
 			VariableDefinitionStatementNode vDef2 = { nodeKind: VAR_DEF_STATEMENT_NODE, tokenList: [valueTypeTkn,assign, semiC2],
 				valueKind: valueKind1, varIdentifier: vRef, expression: exprNode };
 			return vDef2;
 		}
 	}
-
 	function expressionBuilder() returns ExpressionNode {
 		boolean isExpr = true;
 		while (self.LAToken(1) != SEMICOLON && isExpr == true) {
@@ -202,17 +262,17 @@ type Parser object {
 	//expression is parsed using shunting yard algorithm
 	function parseExpression2() returns boolean{
 		if (self.LAToken(1) == LPAREN) {
-			Token lParen = self.matchToken(LPAREN);
+			Token lParen = self.matchToken(LPAREN,EXPRESSION_NODE);
 			oprStack.push(lParen);
 			return true;
 		} else if (self.LAToken(1) == NUMBER){
-			Token number = self.matchToken(NUMBER);
+			Token number = self.matchToken(NUMBER,EXPRESSION_NODE);
 			IntegerLiteralNode intLit = { nodeKind: INTEGER_LITERAL, tokenList: [number], number: number.text };
 			SimpleLiteral sLit = intLit;
 			expStack.push(sLit);
 			return true;
 		} else if (self.LAToken(1) == IDENTIFIER){
-			Token identifier = self.matchToken(IDENTIFIER);
+			Token identifier = self.matchToken(IDENTIFIER,EXPRESSION_NODE);
 			VarRefIdentifier varRef = { nodeKind: VAR_REF_NODE, tokenList: [identifier], varIdentifier: identifier.text };
 			expStack.push(varRef);
 			//check whether the next token is also an identifier
@@ -232,18 +292,19 @@ type Parser object {
 				expStack.push(bExpr);
 			}
 			if (self.LAToken(1) == ADD) {
-				Token add = self.matchToken(ADD);
+				//Check if the next token is Not an operator
+				Token add = self.matchToken(ADD,EXPRESSION_NODE);
 				oprStack.push(add);
 			} else if (self.LAToken(1) == MULTIPLICATION){
-				Token multply = self.matchToken(MULTIPLICATION);
+				Token multply = self.matchToken(MULTIPLICATION,EXPRESSION_NODE);
 				oprStack.push(multply);
 			} else if (self.LAToken(1) == SUBSTRACTION){
-				Token subs = self.matchToken(SUBSTRACTION);
+				Token subs = self.matchToken(SUBSTRACTION,EXPRESSION_NODE);
 				oprStack.push(subs);
 			}
 			return true;
 		} else if (self.LAToken(1) == RPAREN){
-			Token rParen = self.matchToken(RPAREN);
+			Token rParen = self.matchToken(RPAREN,EXPRESSION_NODE);
 			while (oprStack.peek() != LPAREN) {
 				Token operator = oprStack.pop();
 				OperatorKind opKind = self.matchOperatorType(operator);
@@ -273,10 +334,10 @@ type Parser object {
 	//    | STRING
 	function parseValueTypeName() returns Token {
 		if (self.LAToken(1) == INT) {
-			Token int1 = self.matchToken(INT);
+			Token int1 = self.matchToken(INT,STATEMENT_NODE);
 			return int1;
 		} else {
-			Token string1 = self.matchToken(STRING);
+			Token string1 = self.matchToken(STRING,STATEMENT_NODE);
 			return string1;
 		}
 	}

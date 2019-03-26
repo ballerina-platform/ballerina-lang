@@ -39,7 +39,6 @@ public type Lexer object {
     public function __init(BufferReader buffer) {
         self.buffer = buffer;
     }
-
     public function nextLexeme() returns string {
         return self.buffer.consume();
     }
