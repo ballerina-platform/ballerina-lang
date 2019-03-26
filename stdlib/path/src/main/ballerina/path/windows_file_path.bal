@@ -115,7 +115,7 @@ function getWindowsRoot(string input) returns (string, int)|error {
     return (root, offset);
 }
 
-function getWindowsOffsetIndex(string path) returns int[] {
+function getWindowsOffsetIndex(string path) returns int[]|error {
     int[] offsetIndexes = [];
     int index = 0;
     int count = 0;
@@ -123,6 +123,7 @@ function getWindowsOffsetIndex(string path) returns int[] {
         offsetIndexes[count] = 0;
         count = count + 1;
     } else {
+        (_, index) = check getRootComponent(path);
         byte[] pathValues = path.toByteArray("UTF-8");
         while(index < pathValues.length()) {
             byte c = pathValues[index];

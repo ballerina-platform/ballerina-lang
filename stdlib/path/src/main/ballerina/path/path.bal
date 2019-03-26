@@ -90,7 +90,7 @@ public function isAbsolute(string path) returns boolean|error {
 # + return - Returns the name of the file
 public function filename(string path) returns string|error {
     string validatedPath = check parse(path);
-    int[] offsetIndexes = getOffsetIndexes(validatedPath);
+    int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     log:printInfo("Validated file path: " + validatedPath);
     int count = offsetIndexes.length();
     if (count == 0) {
@@ -115,7 +115,7 @@ public function filename(string path) returns string|error {
 # + return - Path of parent folder or error occurred while getting parent directory
 public function parent(string path) returns string|error {
     string validatedPath = check parse(path);
-    int[] offsetIndexes = getOffsetIndexes(validatedPath);
+    int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
     if (count == 0) {
         return "";
@@ -142,7 +142,7 @@ public function parent(string path) returns string|error {
 # + return - Normalized file path
 public function normalize(string path) returns string|error {
     string filepath = check parse(path);
-    int[] offsetIndexes = getOffsetIndexes(filepath);
+    int[] offsetIndexes = check getOffsetIndexes(filepath);
     int count = offsetIndexes.length();
         io:println("filepath (normalize) : " + filepath);
         io:println(offsetIndexes);
@@ -227,7 +227,8 @@ public function normalize(string path) returns string|error {
 # + path - String value of file path.
 # + return - String array of part components
 public function split(string path) returns string[]|error {
-    int[] offsetIndexes = getOffsetIndexes(path);
+    string filepath = check parse(path);
+    int[] offsetIndexes = check getOffsetIndexes(filepath);
     int count = offsetIndexes.length();
 
     string[] parts = [];
@@ -236,11 +237,11 @@ public function split(string path) returns string[]|error {
         int begin = offsetIndexes[i];
         int length;
         if (i == (count - 1)) {
-            length = path.length() - begin;
-            parts[i] = check parse(path.substring(begin, path.length()));
+            length = filepath.length() - begin;
+            parts[i] = check parse(filepath.substring(begin, filepath.length()));
         } else {
             length = offsetIndexes[i + 1] - begin - 1;
-            parts[i] = check parse(path.substring(begin, offsetIndexes[i + 1] - 1));
+            parts[i] = check parse(filepath.substring(begin, offsetIndexes[i + 1] - 1));
         }
         i = i + 1;
     }
@@ -584,9 +585,9 @@ function isEmpty(string path) returns boolean {
     return path.length() == 0;
 }
 
-function getOffsetIndexes(string path) returns int[] {
+function getOffsetIndexes(string path) returns int[]|error {
     if (IS_WINDOWS) {
-        return getWindowsOffsetIndex(path);
+        return check getWindowsOffsetIndex(path);
     } else {
         return getUnixOffsetIndex(path);
     }

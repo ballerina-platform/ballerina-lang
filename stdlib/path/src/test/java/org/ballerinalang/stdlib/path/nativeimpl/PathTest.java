@@ -494,14 +494,14 @@ public class PathTest {
                 // windows paths
                 {"//server", "server", "error"},
                 {"\\\\server", "\\\\server", "error"},
-                {"C:/foo/..", "C:,foo,..", "C:\\,foo,.."},
-                {"C:\\foo\\..", "C:\\foo\\..", "C:\\,foo,.."},
-                {"C:\\..\\foo", "C:\\..\\foo", "C:\\,..,foo"},
-                {"D;\\bar\\baz", "D;\\bar\\baz", "D;\\,bar,baz"},
+                {"C:/foo/..", "C:,foo,..", "foo,.."},
+                {"C:\\foo\\..", "C:\\foo\\..", "foo,.."},
+                {"C:\\..\\foo", "C:\\..\\foo", "..,foo"},
+                {"D;\\bar\\baz", "D;\\bar\\baz", "D;,bar,baz"},
                 {"bar\\baz", "bar\\baz", "bar,baz"},
                 {"bar/baz", "bar,baz", "bar,baz"},
                 {"C:\\\\\\\\", "C:\\\\\\\\", "C:\\"},
-                {"\\..\\A\\B", "\\..\\A\\B", "\\..,A,B"}
+                {"\\..\\A\\B", "\\..\\A\\B", "..,A,B"}
         };
     }
 
