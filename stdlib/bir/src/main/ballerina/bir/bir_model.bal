@@ -35,6 +35,7 @@ public type TypeDef record {
     Name name = {};
     Visibility visibility = "PACKAGE_PRIVATE";
     BType typeValue = "()";
+    Function?[]? attachedFuncs = ();
 };
 
 public type Function record {|

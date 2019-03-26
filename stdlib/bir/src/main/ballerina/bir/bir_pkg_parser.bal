@@ -142,6 +142,7 @@ public type PackageParser object {
         string name = self.reader.readStringCpRef();
         Visibility visibility = parseVisibility(self.reader);
         var bType = self.typeParser.parseType();
+        Function?[]? attachedFuncs = ();
         if (bType is BObjectType || bType is BRecordType) {
             Function?[] funcs = [];
             var numFuncs = self.reader.readInt32();
@@ -150,9 +151,10 @@ public type PackageParser object {
                 funcs[i] = self.parseFunction([]);
                 i += 1;
             }
+            attachedFuncs = funcs;
         }
 
-        return { name:{ value: name}, visibility: visibility, typeValue: bType};
+        return { name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: attachedFuncs };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       

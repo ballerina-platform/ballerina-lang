@@ -183,7 +183,7 @@ public class BIRGen extends BLangNodeVisitor {
             BTypeSymbol tsymbol = astFunc.receiver.type.tsymbol;
             typeDefs.get(tsymbol).attachedFuncs.add(birFunc);
         } else {
-        this.env.enclPkg.functions.add(birFunc);
+            this.env.enclPkg.functions.add(birFunc);
         }
 
         this.env.enclFunc = birFunc;

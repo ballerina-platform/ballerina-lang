@@ -181,9 +181,9 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     /**
      * A new instruction.
      * <p>
-     * e.g., map a = {}
+     * e.g., object{int i;}  a = new;
      *
-     * @since 0.980.0
+     * @since 0.995.0
      */
     public static class NewInstance extends BIRNonTerminator {
         public BIRTypeDefinition def;

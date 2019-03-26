@@ -97,9 +97,9 @@ public type BirEmitter object {
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {");
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs="\t");
+            self.typeEmitter.emitType(v.typeValue, tabs = "\t");
             print(" ");
-            if(v.name.value == "%0"){
+            if (v.name.value == "%0") {
                 print("%ret");
             } else {
                 print(v.name.value);
@@ -260,7 +260,7 @@ type TerminalEmitter object {
 
 type OperandEmitter object {
     function emitOp(VarRef op, string tabs = "") {
-        if(op.variableDcl.name.value == "%0"){ // TODO: make var names ints, real name should be metadata
+        if (op.variableDcl.name.value == "%0") {
             print("%ret");
         } else {
             print(op.variableDcl.name.value);

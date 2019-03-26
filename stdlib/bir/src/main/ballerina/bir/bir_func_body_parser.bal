@@ -94,8 +94,8 @@ public type FuncBodyParser object {
             var defIndex = self.reader.readInt32();
             kind = INS_KIND_NEW_INST;
             var lhsOp = self.parseVarRef();
-            NewInstance newBhv = {kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
-            return newBhv;
+            NewInstance newInst = {kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
+            return newInst;
         } else if (kindTag == INS_TYPE_CAST) {
             kind = INS_KIND_TYPE_CAST;
             var lhsOp = self.parseVarRef();
