@@ -8,7 +8,7 @@ listener http:Listener ep0 = new(80, config = {host: "petstore.openapi.io"});
 listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
 
 @openapi:ServiceInfo {
-    title: "Swagger Petstore",
+    title: "OpenApi Petstore",
     serviceVersion: "1.0.0",
     license: {name: "MIT", url: ""},
     tags: [
@@ -23,7 +23,7 @@ listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
 @http:ServiceConfig {
     basePath: "/v1"
 }
-service SwaggerPetstore on ep0, ep1 {
+service OpenApiPetstore on ep0, ep1 {
     resource function action (http:Caller outboundEp, http:Request _actionReq) {
         http:Response _actionRes = new;
         string _actionPayload = "Sample action Response";
