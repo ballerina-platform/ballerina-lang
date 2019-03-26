@@ -120,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -301,6 +302,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
             analyzeDef(typeDefinition.typeNode, env);
         }
@@ -380,6 +382,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
         analyzeDef(recordTypeNode.initFunction, recordEnv);
         validateDefaultable(recordTypeNode);
+    }
+
+    @Override
+    public void visit(BLangErrorType errorType) {
+        BType reasonType = errorType.reasonType.type;
+
+        if (!types.isAssignable(reasonType, symTable.stringType)) {
+            dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
+        }
+
+
+        if (errorType.detailType == null) {
+            return;
+        }
+
+        BType detailType = errorType.detailType.type;
+        if (!types.isValidErrorDetailType(detailType)) {
+            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -1427,11 +1448,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BMapType getRestParamType(BRecordType recordType)  {
         return new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordType) ?
-                BUnionType.create(null,
-                                  new LinkedHashSet<BType>() {{
-                                      add(symTable.anyType);
-                                      add(symTable.errorType); }}) :
-                symTable.pureType, null);
+                BUnionType.create(null, symTable.anyType, symTable.errorType) : symTable.pureType, null);
     }
 
     private boolean recordHasAnyTypeField(BRecordType recordType) {

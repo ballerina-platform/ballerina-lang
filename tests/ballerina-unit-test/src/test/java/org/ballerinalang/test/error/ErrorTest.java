@@ -201,11 +201,21 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 7);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
+        BAssertUtil.validateError(negativeCompileResult, 2,
+                                  "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
+        BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', " +
+                "expected a subtype of 'record { }' or 'map<anydata|error>'", 40, 33);
+        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean'," +
+                " expected a subtype of 'record { }' or 'map<anydata|error>'", 41, 36);
+        BAssertUtil.validateError(negativeCompileResult, 5,
+                                  "invalid error reason type '1.0', expected a subtype of 'string'", 44, 7);
+        BAssertUtil.validateError(negativeCompileResult, 6,
+                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")

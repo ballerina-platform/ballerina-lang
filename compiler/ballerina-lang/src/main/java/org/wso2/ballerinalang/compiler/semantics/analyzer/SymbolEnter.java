@@ -1116,9 +1116,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.mapType);
+                                        .orElse(symTable.pureTypeConstrainedMap);
 
-            if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }

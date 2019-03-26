@@ -37,6 +37,8 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
+    INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
+    INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),

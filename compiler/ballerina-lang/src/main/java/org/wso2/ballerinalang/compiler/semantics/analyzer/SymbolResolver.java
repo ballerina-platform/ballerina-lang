@@ -944,8 +944,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.mapType);
-        if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.pureTypeConstrainedMap);
+
+        if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
             resultType = symTable.errorType;
             return;
         }

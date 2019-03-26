@@ -2104,10 +2104,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType errConstDetailExprType = errorConstructorExpr.detailsExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR ?
-                symTable.pureTypeConstrainedMap :
-                checkExpr(errorConstructorExpr.detailsExpr, env, symTable.noType);
+                ((BErrorType) expType).detailType : checkExpr(errorConstructorExpr.detailsExpr, env, symTable.noType);
 
-        if (types.isStampingAllowed(errConstDetailExprType, ((BErrorType) expType).detailType)) {
+        if (types.isValidErrorDetailType(errConstDetailExprType) &&
+                types.isStampingAllowed(errConstDetailExprType, ((BErrorType) expType).detailType)) {
             checkExpr(errorConstructorExpr.detailsExpr, env, errConstDetailExprType);
         } else {
             checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
