@@ -200,8 +200,15 @@ public class ErrorTest {
     }
 
     @Test
+    public void testCustomErrorWithMappingOfSelf() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -216,6 +223,9 @@ public class ErrorTest {
                                   "invalid error reason type '1.0', expected a subtype of 'string'", 44, 7);
         BAssertUtil.validateError(negativeCompileResult, 6,
                                   "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
+        BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 42);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 41);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")

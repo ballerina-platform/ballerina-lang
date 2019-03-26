@@ -167,8 +167,19 @@ function testErrorConstrWithConstForConstReason() returns error {
     return e;
 }
 
-
 function testErrorConstrWithConstLiteralForConstReason() returns error {
     UserDefErrorTwo e = error("reason one", { message: "error detail message" });
     return e;
+}
+
+type MyError error<string, map<MyError>>;
+
+function testCustomErrorWithMappingOfSelf() returns boolean {
+    MyError e1 = error(ERROR_REASON_ONE, {});
+    MyError e2 = error(ERROR_REASON_TWO, { err: e1 });
+
+    boolean errOneInitSuccesful = e1.reason() == ERROR_REASON_ONE && e1.detail().length() == 0;
+    boolean errTwoInitSuccesful = e2.reason() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
+                e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
+    return errOneInitSuccesful && errTwoInitSuccesful;
 }
