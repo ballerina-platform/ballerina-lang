@@ -82,6 +82,14 @@ public class BError implements BRefType {
      * {@inheritDoc}
      */
     @Override
+    public void attemptFreeze(BVM.FreezeStatus freezeStatus) {
+        // do nothing, since error types are always frozen
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isFrozen() {
         return true;
     }
