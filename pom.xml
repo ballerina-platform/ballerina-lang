@@ -737,22 +737,22 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-swagger -->
+            <!-- ballerina-openapi -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-swagger</artifactId>
+                <artifactId>ballerina-openapi</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-swagger</artifactId>
+                <artifactId>ballerina-openapi</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-swagger</artifactId>
+                <artifactId>ballerina-openapi</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1009,17 +1009,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>swagger-ballerina-generator</artifactId>
+                <artifactId>openapi-to-ballerina-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>swagger-to-ballerina-generator</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-to-swagger</artifactId>
+                <artifactId>ballerina-to-openapi-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1770,7 +1765,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
-                <module>stdlib/swagger</module>
+                <module>stdlib/openapi</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
@@ -1819,7 +1814,7 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/swagger-ballerina</module>
+                <module>misc/openapi-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1859,7 +1854,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
-                <module>stdlib/swagger</module>
+                <module>stdlib/openapi</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
@@ -1910,7 +1905,7 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <module>misc/swagger-ballerina</module>
+                <module>misc/openapi-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1948,7 +1943,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/encoding</module>
                 <module>stdlib/file</module>
-                <module>stdlib/swagger</module>
+                <module>stdlib/openapi</module>
                 <module>stdlib/io</module>
                 <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
@@ -2000,7 +1995,7 @@
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
-                <module>misc/swagger-ballerina</module>
+                <module>misc/openapi-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
