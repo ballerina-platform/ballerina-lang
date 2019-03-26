@@ -4807,8 +4807,9 @@ public class BVM {
             return false;
         }
 
-        return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.detailType, unresolvedValues);
+        return checkIsLikeType(new BString(((BError) sourceValue).getReason()),
+                               targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((BError) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
@@ -5081,8 +5082,7 @@ public class BVM {
         }
 
         // All the value types are immutable
-        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG ||
-                value.getType().getTag() == TypeTags.ERROR_TAG) { // to be removed once error is frozen
+        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 

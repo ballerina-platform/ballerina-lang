@@ -523,7 +523,7 @@ public class CloneOperationTest {
         Assert.assertNotNull(results);
         Assert.assertNotSame(results[0], results[1]);
         Assert.assertSame(results[1].getType().getTag(), TypeTags.ERROR_TAG);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[1]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[1]).getDetails()).get("message").stringValue(),
                 "'clone()' not allowed on '(Employee,any)'");
     }
 
