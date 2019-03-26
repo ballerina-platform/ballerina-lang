@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -278,8 +277,6 @@ public class CompiledPackageSymbolEnter {
                 return new UTF8CPEntry(strValue);
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
-            case CP_ENTRY_BYTE:
-                return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_STRING:
@@ -353,6 +350,7 @@ public class CompiledPackageSymbolEnter {
         BInvokableType funcType = createInvokableType(funcSig);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.retType = funcType.retType;
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
@@ -582,14 +580,10 @@ public class CompiledPackageSymbolEnter {
                 litExpr.value = dataInStream.readBoolean();
                 break;
             case TypeDescriptor.SIG_INT:
+            case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = integerCPEntry.getValue();
-                break;
-            case TypeDescriptor.SIG_BYTE:
-                valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = byteCPEntry.getValue();
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
@@ -636,7 +630,8 @@ public class CompiledPackageSymbolEnter {
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
             varSymbol.type = type;
             varSymbol.varIndex = new RegIndex(memIndex, type.tag);
-            BField structField = new BField(varSymbol.name, varSymbol);
+            // Here the field doesn't need the position as it comes from a compiled package.
+            BField structField = new BField(varSymbol.name, null, varSymbol);
             objectType.fields.add(structField);
         });
 
@@ -699,14 +694,10 @@ public class CompiledPackageSymbolEnter {
                 literal.value = documentDataStream.readBoolean();
                 break;
             case TypeDescriptor.SIG_INT:
+            case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = documentDataStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = integerCPEntry.getValue();
-                break;
-            case TypeDescriptor.SIG_BYTE:
-                valueCPIndex = documentDataStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = byteCPEntry.getValue();
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = documentDataStream.readInt();
@@ -872,8 +863,8 @@ public class CompiledPackageSymbolEnter {
                 return new DefaultValueLiteral(integerCPEntry.getValue(), TypeTags.INT);
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                return new DefaultValueLiteral(byteCPEntry.getValue(), TypeTags.BYTE);
+                IntegerCPEntry byteEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                return new DefaultValueLiteral(byteEntry.getValue(), TypeTags.BYTE);
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];

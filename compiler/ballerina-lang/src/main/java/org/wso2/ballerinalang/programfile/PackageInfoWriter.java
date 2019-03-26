@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -88,10 +87,6 @@ public class PackageInfoWriter {
                 case CP_ENTRY_INTEGER:
                     long longVal = ((IntegerCPEntry) cpEntry).getValue();
                     dataOutStream.writeLong(longVal);
-                    break;
-                case CP_ENTRY_BYTE:
-                    byte byteVal = ((ByteCPEntry) cpEntry).getValue();
-                    dataOutStream.writeByte(byteVal);
                     break;
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();

@@ -19,11 +19,10 @@ type Age record {
     string format;
 };
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
-    !...;
-};
+|};
 
 function simpleDefinition() returns (string, boolean) {
     Person p = {name: "Peter", married: true};

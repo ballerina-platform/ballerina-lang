@@ -6,21 +6,19 @@ type Person record {
     string country;
 };
 
-type Employee record {
+type Employee record {|
     string name;
     int age;
-    !...;
-};
+|};
 
 type Country record {
     string name;
     Capital capital;
 };
 
-type Capital record {
+type Capital record {|
     string name;
-    !...;
-};
+|};
 
 public function main() {
     // This record type binding pattern will destructure a `record` of type `Person` and create three variables as follows:
@@ -51,14 +49,14 @@ public function main() {
     // Type of `vOtherDetails` will be `map<anydata>`.
     io:println("Other Details: " + io:sprintf("%s", vOtherDetails));
 
-    // The `!...` symbol will specify that there should not be any other fields other than `name` and `age`, hence
+    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
     // `Employee` should be a closed record.
-    Employee { name: empName, age: empAge, !... } = getEmployee();
+    Employee {| name: empName, age: empAge |} = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 
     // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
-    var { name: countryName, capital: { name: capitalName, !... } } = getCountry();
+    var { name: countryName, capital: {| name: capitalName |} } = getCountry();
     io:println("Country Name: " + countryName);
     io:println("Capital Name: " + capitalName);
 }

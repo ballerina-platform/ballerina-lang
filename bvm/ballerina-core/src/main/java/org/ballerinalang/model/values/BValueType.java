@@ -44,13 +44,13 @@ public abstract class BValueType implements BValue {
     public abstract long intValue();
 
     /**
-     * Returns the value of the specified number as an {@code byte},
+     * Returns the value of the specified number as a {@code byte},
      * which may involve rounding or truncation.
      *
      * @return  the numeric value represented by this object after conversion
      *          to type {@code byte}.
      */
-    public abstract byte byteValue();
+    public abstract long byteValue();
 
     /**
      * Returns the value of the specified number as a {@code float},

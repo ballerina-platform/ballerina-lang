@@ -160,12 +160,11 @@ function Listener.sendSubscriptionRequests() {
 # + host - The host name/IP of the endpoint
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
-public type SubscriberServiceEndpointConfiguration record {
+public type SubscriberServiceEndpointConfiguration record {|
     string host = "";
     http:ServiceSecureSocket? httpServiceSecureSocket = ();
     ExtensionConfig? extensionConfig = ();
-    !...;
-};
+|};
 
 # The extension configuration to introduce custom subscriber services.
 #
@@ -174,7 +173,7 @@ public type SubscriberServiceEndpointConfiguration record {
 # + headerResourceMap - The mapping between header value and resource details
 # + payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
 # + headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
-public type ExtensionConfig record {
+public type ExtensionConfig record {|
     TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
 
     // TODO: make `Link` the default header and special case `Link` to extract the topic (rel="self").
@@ -208,8 +207,7 @@ public type ExtensionConfig record {
     //    }
     //  };
     map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap = ();
-    !...;
-};
+|};
 
 # The function called to discover hub and topic URLs defined by a resource URL.
 #

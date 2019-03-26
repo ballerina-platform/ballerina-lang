@@ -6,21 +6,19 @@ type Person record {
     string country;
 };
 
-type Employee record {
+type Employee record {|
     string name;
     int age;
-    !...;
-};
+|};
 
 type Country record {
     string name;
     Capital capital;
 };
 
-type Capital record {
+type Capital record {|
     string name;
-    !...;
-};
+|};
 
 public function main() {
 
@@ -50,16 +48,16 @@ public function main() {
 
     string empName;
     int empAge;
-    // The `!...` symbol will specify that there should not be any other fields other than `name` and `age`, hence
+    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
     // `Employee` should be a closed record.
-    { name: empName, age: empAge, !... } = getEmployee();
+    {| name: empName, age: empAge |} = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 
     string countryName;
     string capitalName;
     // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
-    { name: countryName, capital: {name: capitalName, !... }} = getCountry();
+    { name: countryName, capital: {| name: capitalName |}} = getCountry();
     io:println("Country Name: " + countryName);
     io:println("Capital Name: " + capitalName);
 }

@@ -22,11 +22,14 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.BooleanCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -39,10 +42,12 @@ import java.util.List;
  */
 public class BIRInstructionWriter extends BIRVisitor {
     private ByteBuf buf;
+    private BIRTypeWriter typeWriter;
     private ConstantPool cp;
 
-    public BIRInstructionWriter(ByteBuf buf, ConstantPool cp) {
+    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp) {
         this.buf = buf;
+        this.typeWriter = typeWriter;
         this.cp = cp;
     }
 
@@ -57,7 +62,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
-        birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
+            birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
         if (birBasicBlock.terminator == null) {
             throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
         }
@@ -116,6 +121,28 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birCall.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        buf.writeByte(birAsyncCall.kind.getValue());
+        PackageID calleePkg = birAsyncCall.calleePkg;
+        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
+        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
+        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
+        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeInt(pkgIndex);
+        buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
+        buf.writeInt(birAsyncCall.args.size());
+        for (BIROperand arg : birAsyncCall.args) {
+            arg.accept(this);
+        }
+        if (birAsyncCall.lhsOp != null) {
+            buf.writeByte(1);
+            birAsyncCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
+        addCpAndWriteString(birAsyncCall.thenBB.id.value);
+    }
+
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);
@@ -129,7 +156,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         buf.writeByte(birConstantLoad.kind.getValue());
-        addCpAndWriteString(birConstantLoad.type.getDesc());
+        birConstantLoad.type.accept(typeWriter);
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
@@ -138,7 +165,16 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeInt(cp.addCPEntry(new BooleanCPEntry((Boolean) birConstantLoad.value)));
+                // Not adding to constant pool as it increases the size (bit vs integer)
+                buf.writeBoolean((Boolean) birConstantLoad.value);
+                break;
+            case TypeTags.STRING:
+                buf.writeInt(cp.addCPEntry(new StringCPEntry((String) birConstantLoad.value)));
+                break;
+            case TypeTags.FLOAT:
+                double value = birConstantLoad.value instanceof Double ? (double) birConstantLoad.value
+                        : Double.parseDouble((String) birConstantLoad.value);
+                buf.writeInt(cp.addCPEntry(new FloatCPEntry(value)));
                 break;
             case TypeTags.NIL:
                 break;
@@ -147,10 +183,59 @@ public class BIRInstructionWriter extends BIRVisitor {
         }
     }
 
+    public void visit(NewStructure birNewStructure) {
+        buf.writeByte(birNewStructure.kind.getValue());
+        birNewStructure.type.accept(typeWriter);
+        birNewStructure.lhsOp.accept(this);
+    }
+
+    public void visit(NewArray birNewArray) {
+        buf.writeByte(birNewArray.kind.getValue());
+        birNewArray.type.accept(typeWriter);
+        birNewArray.lhsOp.accept(this);
+        birNewArray.sizeOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
+        buf.writeByte(birFieldAccess.kind.getValue());
+        birFieldAccess.lhsOp.accept(this);
+        birFieldAccess.keyOp.accept(this);
+        birFieldAccess.rhsOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.TypeCast birTypeCast) {
+        buf.writeByte(birTypeCast.kind.getValue());
+        birTypeCast.lhsOp.accept(this);
+        birTypeCast.rhsOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.IsLike birIsLike) {
+        buf.writeByte(birIsLike.kind.getValue());
+        birIsLike.type.accept(typeWriter);
+        birIsLike.lhsOp.accept(this);
+        birIsLike.rhsOp.accept(this);
+    }
+
+    public void visit(BIRNonTerminator.TypeTest birTypeTest) {
+        buf.writeByte(birTypeTest.kind.getValue());
+        birTypeTest.type.accept(typeWriter);
+        birTypeTest.lhsOp.accept(this);
+        birTypeTest.rhsOp.accept(this);
+    }
+
     // Operands
-    public void visit(BIROperand.BIRVarRef birVarRef) {
+    public void visit(BIROperand birOperand) {
+        buf.writeByte(birOperand.variableDcl.kind.getValue());
+        buf.writeByte(birOperand.variableDcl.scope.getValue());
         // TODO use the integer index of the variable.
-        addCpAndWriteString(birVarRef.variableDcl.name.value);
+        addCpAndWriteString(birOperand.variableDcl.name.value);
+    }
+
+    public void visit(BIRNonTerminator.NewError birNewError) {
+        buf.writeByte(birNewError.kind.getValue());
+        birNewError.lhsOp.accept(this);
+        birNewError.reasonOp.accept(this);
+        birNewError.detailOp.accept(this);
     }
 
 

@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -71,7 +71,7 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 19, msg4 , 27, 15);
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
         BAssertUtil.validateError(result, 22, msg5, 35, 60);
-        BAssertUtil.validateError(result, 25, msg6, 45, 22);
+        BAssertUtil.validateError(result, 25, msg6, 45, 16);
     }
 
     @Test(description = "Test byte shift operators negative")

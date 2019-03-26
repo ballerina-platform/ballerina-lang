@@ -4,11 +4,10 @@ public type Person record {
     string name;
     int age;
     // This is an anonymous record type descriptor.
-    record {
+    record {|
         string city;
         string country;
-        !...;
-    } address;
+    |} address;
 };
 
 public function main() {
@@ -24,11 +23,10 @@ public function main() {
     // Since anonymous records do not have a type name associated with them,
     // the record descriptor itself has to be specified when declaring
     // variables of an anonymous record type.
-    record {
+    record {|
         string city;
         string country;
-        !...;
-    } adr = { city: "London", country: "UK" };
+    |} adr = { city: "London", country: "UK" };
 
     Person jane = { name: "Jane Doe", age: 20, address: adr };
     io:println(jane);

@@ -144,7 +144,6 @@ public enum DiagnosticCode {
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
     REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
-    INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
     INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
 

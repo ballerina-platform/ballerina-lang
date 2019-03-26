@@ -417,15 +417,13 @@ function updateRecordBazField(record{} rec, anydata value) {
     rec.bazFieldTwo = value;
 }
 
-public type FooRecordThirteen record {
+public type FooRecordThirteen record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordThirteen record {
+public type BarRecordThirteen record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectThirteen object {
     public string fooFieldOne;
