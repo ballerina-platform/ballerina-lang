@@ -246,7 +246,7 @@ public type ClientEndpointConfig record {|
 extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
                     returns Client;
 
-# Provides configurations for controlling the retry behaviour in failure scenarios.
+# Provides configurations for controlling the retrying behavior in failure scenarios.
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
@@ -338,7 +338,7 @@ public type BasicAuthConfig record {|
 # OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
 #
 # + grantType - OAuth2 grant type
-# + config - Configurations for given grant type
+# + config - Configurations for the given grant type
 public type OAuth2AuthConfig record {|
     OAuth2GrantType grantType;
     ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
@@ -346,13 +346,13 @@ public type OAuth2AuthConfig record {|
 
 # ClientCredentialsGrantConfig record can be used to configue OAuth2 client credentials grant type
 #
-# + tokenUrl - Token URL for authorization server
-# + clientId - Client ID for client credentials grant authentication
-# + clientSecret - Client secret for client credentials grant authentication
+# + tokenUrl - Token URL for the authorization server
+# + clientId - Client ID of the client credentials to grant authentication
+# + clientSecret - Client secret of the client credentials to grant authentication
 # + scopes - Scope of the access request
 # + clockSkew - Clock skew in seconds
-# + retryRequest - Retry the request if the initial request gets a 401 response
-# + credentialBearer - How authentication credentials are sent to authorization server
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
 public type ClientCredentialsGrantConfig record {|
     string tokenUrl;
     string clientId;
@@ -365,7 +365,7 @@ public type ClientCredentialsGrantConfig record {|
 
 # PasswordGrantConfig record can be used to configue OAuth2 password grant type
 #
-# + tokenUrl - Token URL for authorization server
+# + tokenUrl - Token URL for the authorization server
 # + username - Username for password grant authentication
 # + password - Password for password grant authentication
 # + clientId - Client ID for password grant authentication
@@ -373,8 +373,8 @@ public type ClientCredentialsGrantConfig record {|
 # + scopes - Scope of the access request
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkew - Clock skew in seconds
-# + retryRequest - Retry the request if the initial request gets a 401 response
-# + credentialBearer - How authentication credentials are sent to authorization server
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
 public type PasswordGrantConfig record {|
     string tokenUrl;
     string username;
@@ -388,13 +388,13 @@ public type PasswordGrantConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# DirectTokenConfig record can be used to configue access token directly.
+# The `DirectTokenConfig` record configures the access token directly.
 #
-# + accessToken - Access token for authorization server
+# + accessToken - Access token for the authorization server
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkew - Clock skew in seconds
-# + retryRequest - Retry the request if the initial request gets a 401 response
-# + credentialBearer - How authentication credentials are sent to authorization server
+# + retryRequest - Retry the request if the initial request returns a 401 response
+# + credentialBearer - How authentication credentials are sent to the authorization server
 public type DirectTokenConfig record {|
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
@@ -405,24 +405,24 @@ public type DirectTokenConfig record {|
 
 # RefreshConfig record can be used to pass the configurations for refreshing the access token at password grant type.
 #
-# + refreshUrl - Refresh token URL for refresh token server
+# + refreshUrl - Refresh token URL for the refresh token server
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization server
 public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# DirectTokenRefreshConfig record can be used to pass the configurations for refreshing the access token at
-# direct token grant type.
+# The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for 
+# the grant type of the direct token grant type.
 #
-# + refreshUrl - Refresh token URL for refresh token server
-# + refreshToken - Refresh token fro refresh token server
-# + clientId - Client ID for authentication with authorization server
-# + clientSecret - Client secret for authentication with authorization server
+# + refreshUrl - Refresh token URL for the refresh token server
+# + refreshToken - Refresh token for the refresh token server
+# + clientId - Client ID for authentication with the authorization server
+# + clientSecret - Client secret for authentication with the authorization server
 # + scopes - Scope of the access request
-# + credentialBearer - How authentication credentials are sent to authorization server
+# + credentialBearer - How authentication credentials are sent to the authorization server
 public type DirectTokenRefreshConfig record {|
     string refreshUrl;
     string refreshToken;

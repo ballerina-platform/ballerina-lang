@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 // Define the OAuth2 client endpoint to call the backend services.
-// OAuth2 authentication is enabled by setting the `scheme: http:OAUTH2`.
+// Setting the `scheme: http:OAUTH2` enables OAuth2 authentication.
 // OAuth2 client credentials grant type is configured by setting
 // `grantType: http:CLIENT_CREDENTIALS_GRANT`.
 http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
@@ -20,10 +20,10 @@ http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
     });
 
 // Define the OAuth2 client endpoint to call the backend services.
-// OAuth2 authentication is enabled by setting the `scheme: http:OAUTH2`.
+// Setting the `scheme: http:OAUTH2` to enable OAuth2 authentication.
 // OAuth2 password grant type is configured by setting
 // `grantType: http:PASSWORD_GRANT`.
-// If access-token get expired or invalid the it will be automatically
+// If the access token expires or become invalid, then it will be automatically
 // refreshed with the provided `refreshUrl`.
 http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
         auth: {
@@ -45,12 +45,12 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
     });
 
 // Define the OAuth2 client endpoint to call the backend services.
-// OAuth2 authentication is enabled by setting the `scheme: http:OAUTH2`.
-// OAuth2 direct token mode is configured by setting
+// Setting the `scheme: http:OAUTH2`enables OAuth2 authentication.
+// Setting the `grantType: http:DIRECT_TOKEN` configures the OAuth2 direct token mode.
 // `grantType: http:DIRECT_TOKEN`.
-// If `accessToken` is invalid or not provided, it will be automatically
+// If the`accessToken` is invalid or not provided, it will be automatically
 // refreshed with the provided `clientId`, `clientSecret`, `refreshToken`,
-// `refreshUrl`.
+// and `refreshUrl`.
 http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", config = {
         auth: {
             scheme: http:OAUTH2,
