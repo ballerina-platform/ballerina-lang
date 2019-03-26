@@ -640,16 +640,6 @@ public class FormattingNodeTree {
     }
 
     /**
-     * format Compensate node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatCompensateNode(JsonObject node) {
-        // TODO: fix formatting for check expression.
-        this.skipFormatting(node, true);
-    }
-
-    /**
      * format Compilation Unit node.
      *
      * @param node {JsonObject} node as json object
@@ -2071,8 +2061,41 @@ public class FormattingNodeTree {
      * @param node {JsonObject} node as json object
      */
     public void formatIndexBasedAccessExprNode(JsonObject node) {
-        // TODO: fix formatting for index based access expression.
-        this.skipFormatting(node, true);
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+
+            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
+                    ? indentationOfParent : indentation);
+
+            // Iterate and update index based access expr.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals("[") || text.equals("]")) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    }
+                }
+            }
+
+            // Handle formatting for the expression.
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                node.getAsJsonObject(FormattingConstants.EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
+                        formatConfig);
+            }
+
+            // Handle formatting for the index.
+            if (node.has("index")) {
+                node.getAsJsonObject("index").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 0, 0, false,
+                                this.getWhiteSpaceCount(formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                                        .getAsBoolean() ? indentationOfParent : indentation), true));
+            }
+        }
     }
 
     /**
@@ -2193,16 +2216,6 @@ public class FormattingNodeTree {
                         argumentExpressions);
             }
         }
-    }
-
-    /**
-     * format Is Like node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatIsLikeNode(JsonObject node) {
-        // TODO: fix formatting for Is Like.
-        this.skipFormatting(node, true);
     }
 
     /**
@@ -4076,16 +4089,6 @@ public class FormattingNodeTree {
                                 this.getWhiteSpaceCount(indentationOfParent), true));
             }
         }
-    }
-
-    /**
-     * format Throw node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatThrowNode(JsonObject node) {
-        // TODO: fix formatting for throw.
-        this.skipFormatting(node, true);
     }
 
     /**

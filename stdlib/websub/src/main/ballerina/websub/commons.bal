@@ -480,15 +480,15 @@ public type RemotePublishConfig record {|
 public function startHub(http:Listener hubServiceListener, HubConfiguration? hubConfiguration = ())
                                                                     returns WebSubHub|HubStartedUpError {
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = hubConfiguration.leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
+                                      defaultValue = hubConfiguration.leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                    default = hubConfiguration.topicRegistrationRequired ?: true);
+                                    defaultValue = hubConfiguration.topicRegistrationRequired ?: true);
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", defaultValue = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
     hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
     if (hubPersistenceStoreImpl is HubPersistenceStore) {
