@@ -134,7 +134,7 @@ public class IterableCodeDesugar {
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(ctx.collectionExpr.pos,
                 ctx.iteratorFuncSymbol, Collections.emptyList(), symResolver);
         iExpr.requiredArgs.add(ctx.collectionExpr);
-        // Pass the lambda expressions as arguments
+        // Pass the lambda expressions as arguments.
         for (Operation operation : ctx.operations) {
             if (operation.iExpr.argExprs.size() > 0) {
                 iExpr.requiredArgs.add(operation.argExpression);
@@ -237,7 +237,7 @@ public class IterableCodeDesugar {
         // Cache the parameter symbols of the operations.
         int operationIndex = 0;
         for (BLangSimpleVariable reqParam : funcNode.requiredParams) {
-            // Ignore the collection var
+            // Ignore the collection variable.
             if (reqParam.symbol == ctx.collectionVar.symbol) {
                 continue;
             }

@@ -146,6 +146,8 @@ import java.util.TreeMap;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
+ * Closure desugar for closure related scenarios.
+ *
  * @since 0.990.5
  */
 public class ClosureDesugar extends BLangNodeVisitor {
@@ -185,7 +187,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA))).forEach(
                 topLevelNode -> rewrite((BLangNode) topLevelNode, pkgEnv));
 
-        // Reverse the lambdas
+        // Reverse the lambdas since in Desugar they are visited from inner to outer lambdas.
         List<BLangLambdaFunction> lambdasCollected = new ArrayList<>(pkgNode.lambdaFunctions);
         Collections.reverse(lambdasCollected);
         pkgNode.lambdaFunctions = new LinkedList<>(lambdasCollected);
@@ -195,7 +197,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             lambdaFunction.function = rewrite(lambdaFunction.function, lambdaFunction.cachedEnv);
         }
 
-        // Update function parameters
+        // Update function parameters.
         pkgNode.functions.forEach(this::updateFunctionParams);
 
         result = pkgNode;
@@ -206,13 +208,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.originalFuncSymbol.scope, env);
         funClosureMapCount++;
 
-        // Check if function parameters are exposed as parameters
+        // Check if function parameters are exposed as parameters.
         Optional<BVarSymbol> paramsExposed = funcNode.symbol.params.stream().filter(bVarSymbol -> bVarSymbol.closure)
                 .findAny();
         int position = 1;
         if (paramsExposed.isPresent()) {
             createFunctionMap(funcNode, funcEnv);
-            // Add the parameters of the functions that are exposed as closures to the function map
+            // Add the parameters of the functions that are exposed as closures to the function map.
             for (BVarSymbol paramSymbol : funcNode.symbol.params) {
                 if (!paramSymbol.closure) {
                     continue;
@@ -222,7 +224,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
 
-        // For attached functions add the receiver to the function map if it has been exposed as a closure
+        // For attached functions add the receiver to the function map if it has been exposed as a closure.
         BLangSimpleVariable receiver = funcNode.receiver;
         if (receiver != null && receiver.symbol.closure && funcNode.flagSet.contains(Flag.ATTACHED)) {
             if (funcNode.mapSymbol == null) {
@@ -243,9 +245,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 funcNode.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(funcNode.pos, mapVar);
-        // Add the map variable to the top of the statements in the block node
+        // Add the map variable to the top of the statements in the block node.
         mapVarDef = desugar.rewrite(mapVarDef, funcEnv);
-        // Add the map variable to the top of the statements in the block node
+        // Add the map variable to the top of the statements in the block node.
         if (funcNode.body == null) {
             funcNode.body = ASTBuilderUtil.createBlockStmt(funcNode.pos);
         }
@@ -253,7 +255,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     private void updateFunctionParams(BLangFunction funcNode) {
-        // Add closure params to the required param list if there are any
+        // Add closure params to the required param list if there are any.
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
         BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
@@ -288,7 +290,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         blockClosureMapCount++;
         blockNode.stmts = rewriteStmt(blockNode.stmts, blockEnv);
 
-        // Add block map to the 0th position if a block map symbol is there
+        // Add block map to the 0th position if a block map symbol is there.
         if (blockNode.mapSymbol != null) {
             BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(blockNode.pos, symTable.mapType);
             BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(blockNode.pos,
@@ -296,7 +298,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     blockNode.mapSymbol);
             mapVar.typeNode = ASTBuilderUtil.createTypeNode(blockNode.mapSymbol.type);
             BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(blockNode.pos, mapVar);
-            // Add the map variable to the top of the statements in the block node
+            // Add the map variable to the top of the statements in the block node.
             mapVarDef = desugar.rewrite(mapVarDef, blockEnv);
             blockNode.stmts.add(0, mapVarDef);
         }
@@ -317,26 +319,26 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        // If its a closure
+        // If its a variable that is a closure.
         BLangAssignment stmt = createAssignment(varDefNode);
         result = rewrite(stmt, env);
     }
 
     private BLangAssignment createAssignment(BLangSimpleVariableDef varDefNode) {
-        // 1) create a map for the function or block node
+        // Create a map for the function or block node.
         BLangBlockStmt blockStmt = (BLangBlockStmt) env.node;
         if (blockStmt.mapSymbol == null) {
             // create a map symbol
             blockStmt.mapSymbol = createMapSymbol("$map$block$" + blockClosureMapCount, env);
         }
 
-        // 2) add the variable to the created map
+        // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.type,
                 blockStmt.mapSymbol, ASTBuilderUtil.createLiteral(varDefNode.pos, symTable.stringType,
                         varDefNode.var.name.value));
         accessExpr.type = ((BMapType) blockStmt.mapSymbol.type).constraint;
         accessExpr.lhsVar = true;
-        // map["x"] = 8;
+        // Written to: 'map["x"] = 8'.
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
     }
 
@@ -570,7 +572,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        // Process the key-val pairs in the record literal
+        // Process the key-val pairs in the record literal.
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             keyValue.key.expr = rewriteExpr(keyValue.key.expr);
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
@@ -688,10 +690,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv,
                                                                   BLangLambdaFunction bLangLambdaFunction) {
-        // save param closure map of the encl invokable
+        // Save param closure map of the encl invokable.
         bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = ((BLangFunction) symbolEnv.enclInvokable).paramClosureMap;
 
-        // Recursively iterate back to the encl invokable and get all map symbols visited
+        // Recursively iterate back to the encl invokable and get all map symbols visited.
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
         while (symbolEnv != null && symbolEnv.enclInvokable == bLangLambdaFunction.cachedEnv.enclInvokable) {
             if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
@@ -807,19 +809,19 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        // If it is marked as a closure variable
-        // 1) find the resolved level i.e. the absolute level : level the var was resolved from
+        // If it is marked as a closure variable then the following calculations are carried out.
+        // 1) Find the resolved level i.e. the absolute level : level the variable was resolved from.
         int absoluteLevel = findResolvedLevel(env, localVarRef.varSymbol);
 
-        // self absolute level : level I'm currently in
+        // self absolute level : level I'm currently in.
         int selfAbsoluteLevel = env.envCount;
 
-        // self relative count : block nodes above me in the same function
+        // self relative count : block nodes above me in the same function.
         int selfRelativeCount = env.relativeEnvCount;
 
-        // 2) Update the variable reference
+        // 2) Update the variable reference.
 
-        // selfRelativeCount >= selfAbsoluteLevel - absoluteLevel ==> resolved within the same function
+        // selfRelativeCount >= selfAbsoluteLevel - absoluteLevel ==> resolved within the same function.
         if (selfRelativeCount >= selfAbsoluteLevel - absoluteLevel) {
 
             // Go up within the block node
@@ -846,17 +848,17 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 symbolEnv = symbolEnv.enclEnv;
             }
         } else {
-            // It is resolved from a parameter map
-            // Add parameter map symbol if one is not added
+            // It is resolved from a parameter map.
+            // Add parameter map symbol if one is not added.
             ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent(absoluteLevel, createMapSymbol(
                     "$paramMap$" + absoluteLevel, env));
 
-            // Update the closure vars
+            // Update the closure vars.
             updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
 
         }
 
-        // 3) Add the resolved level of the closure variable to the preceding function maps
+        // 3) Add the resolved level of the closure variable to the preceding function maps.
         updatePrecedingFunc(env, absoluteLevel);
     }
 
@@ -900,14 +902,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
-        // Get type of the index based access expression
+        // Get type of the index based access expression.
         BType typeOfExpr = isSimpleType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
-        // Create the index based access expression
+        // Create the index based access expression.
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
                 varRefExpr.varSymbol.name.value);
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos, typeOfExpr,
                 mapSymbol, indexExpr);
-        // If its in the LHS of an assignment
+        // If its in the LHS of an assignment.
         if (varRefExpr.lhsVar) {
             // x = 1 ==> $innerMap$1["x"] = <any> 1
             result = rewriteExpr(accessExpr);

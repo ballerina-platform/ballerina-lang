@@ -1162,7 +1162,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangSimpleVariable inputStreamLambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingInput.pos,
                     getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
             inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
-            // Tag variables as closures
+            // Tag variables as closures.
             nextProcessInvokableTypeVarSymbol.closure = true;
             TypeNode returnType = ASTBuilderUtil.createTypeNode(symTable.nilType);
 

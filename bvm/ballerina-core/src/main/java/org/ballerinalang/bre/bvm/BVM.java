@@ -1040,12 +1040,12 @@ public class BVM {
             return invokeCallable(ctx, functionInfo, argRegs, funcCallCPEntry.getRetRegs()[0], flags);
         }
 
-        // If there are closure variables
+        // There are closure variables.
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];
         System.arraycopy(argRegs, 0, newArgRegs, closureVars.size(), argRegs.length);
         int argRegIndex = 0;
         // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
-        // registry
+        // registry.
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -1082,12 +1082,12 @@ public class BVM {
             return;
         }
 
-        //or else, this is a closure related scenario
+        //or else, this is a closure related scenario.
         for (int i = 0; i < h; i++) {
             int operandIndex = i + 4;
             int index = operands[operandIndex];
             // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
-            // registry
+            // registry.
             fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
         }
     }
@@ -1095,11 +1095,11 @@ public class BVM {
     private static void findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(StackFrame sf, int[] operands,
                                                                                   BFunctionPointer fp) {
         int h = operands[3];
-        //if '0', then there are no additional indexes needs to be processed
+        //if '0', then there are no additional indexes needs to be processed.
         if (h == 0) {
             return;
         }
-        //or else, this is a closure related scenario
+        //or else, this is a closure related scenario.
         for (int i = 0; i < h; i++) {
             int operandIndex = i + 4;
             int type = operands[operandIndex];
