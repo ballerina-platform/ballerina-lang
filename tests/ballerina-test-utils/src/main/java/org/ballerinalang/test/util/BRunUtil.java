@@ -24,11 +24,13 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -212,12 +214,7 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
-        BValue[] response;
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            response = invokeOnJBallerina(compileResult, functionName, args);
-        } else {
-            response = invokeFunction(compileResult, functionName, args);
-        }
+        BValue[] response = invokeFunction(compileResult, functionName, args);
         return spreadToBValueArray(response);
     }
 
@@ -315,12 +312,16 @@ public class BRunUtil {
                 }
                 return new BValueArray(tupleValues, getBVMType(jvmTuple.getType()));
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
+            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 MapValue jvmMap = (MapValue) value;
                 BMap bmap = new BMap(getBVMType(jvmMap.getType()));
                 for (Object key : jvmMap.keySet()) {
                     bmap.put(key, getBVMValue(jvmMap.get(key)));
                 }
                 return bmap;
+            case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
+                return null;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -352,6 +353,11 @@ public class BRunUtil {
                 return BTypes.typeAnydata;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 return BTypes.typeMap;
+            case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
+                return BTypes.typeJSON;
+            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
+                org.ballerinalang.jvm.types.BMapType mapType = (org.ballerinalang.jvm.types.BMapType) jvmType;
+                return new BMapType(getBVMType(mapType.getConstrainedType()));
             default:
                 throw new RuntimeException("Unsupported jvm type: " + jvmType + "' ");
         }
@@ -379,6 +385,10 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invokeFunction(CompileResult compileResult, String functionName, BValue[] args) {
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            return invokeOnJBallerina(compileResult, functionName, args);
+        }
+
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }
