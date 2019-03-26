@@ -2459,7 +2459,7 @@
         <jaeger.version>0.27.0</jaeger.version>
         <libthrift.version>0.12.0</libthrift.version>
         <okhttp.version>3.14.0</okhttp.version>
-        <okio.version>1.13.0</okio.version>
+        <okio.version>2.2.2</okio.version>
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
         <!-- JMS Connector -->
