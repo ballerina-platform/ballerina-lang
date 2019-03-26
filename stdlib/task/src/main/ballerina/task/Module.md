@@ -9,6 +9,8 @@ There are two types of configurations for a Listener.
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
+#### The Timer configuration
+
 If a task is needed to be run periodically, `TimerConfiguration` can be used. `TimerConfiguration` consists of three fields, from which two are optional.
 - `interval` - Timer interval by which the listener should trigger. This should be given in milliseconds.
 - `initialDelay` - [Optional] Initial delay before the task should trigger. If this is set to `0`, task will run immediately. If the field is not set, interval will be taken as the initial delay. This should be given in milliseconds.
@@ -29,7 +31,9 @@ The following code snippet creates a listener which have an initial delay of 500
     }
 ```
 
-`Listener` can be used to schedule an appointment, like the appointments we see in real world. Listener configuration has two main fields.
+#### The Appointment configuration
+
+The `AppointmentConfiguration` can be used to schedule an appointment, like the appointments we see in real world. This Listener configuration has two main fields.
   - `appointmentDetails`
   - `noOfRecurrences`
   
