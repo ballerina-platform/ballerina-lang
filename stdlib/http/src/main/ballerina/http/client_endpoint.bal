@@ -317,7 +317,7 @@ public type ProxyConfig record {|
     string password = "";
 |};
 
-# AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
+# The `AuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
 # + scheme - Authentication scheme
 # + config - Configuration related to the selected authenticator.
@@ -326,7 +326,7 @@ public type AuthConfig record {|
     BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
 |};
 
-# BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.
+# The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.
 #
 # + username - Username for Basic authentication
 # + password - Password for Basic authentication
@@ -335,7 +335,7 @@ public type BasicAuthConfig record {|
     string password;
 |};
 
-# OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
+# The `OAuth2AuthConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
 #
 # + grantType - OAuth2 grant type
 # + config - Configurations for the given grant type
@@ -344,11 +344,11 @@ public type OAuth2AuthConfig record {|
     ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig config;
 |};
 
-# ClientCredentialsGrantConfig record can be used to configue OAuth2 client credentials grant type
+# The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.
 #
 # + tokenUrl - Token URL for the authorization server
-# + clientId - Client ID of the client credentials to grant authentication
-# + clientSecret - Client secret of the client credentials to grant authentication
+# + clientId - Client ID for the client credentials grant authentication
+# + clientSecret - Client secret for the client credentials grant authentication
 # + scopes - Scope of the access request
 # + clockSkew - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
@@ -363,7 +363,7 @@ public type ClientCredentialsGrantConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# PasswordGrantConfig record can be used to configue OAuth2 password grant type
+# The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type
 #
 # + tokenUrl - Token URL for the authorization server
 # + username - Username for password grant authentication
@@ -403,7 +403,7 @@ public type DirectTokenConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# RefreshConfig record can be used to pass the configurations for refreshing the access token at password grant type.
+# The `RefreshConfig` record can be used to pass the configurations for refreshing the access token of password grant type.
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + scopes - Scope of the access request
@@ -432,7 +432,7 @@ public type DirectTokenRefreshConfig record {|
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
 |};
 
-# JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.
+# The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.
 #
 # + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
 public type JwtAuthConfig record {|

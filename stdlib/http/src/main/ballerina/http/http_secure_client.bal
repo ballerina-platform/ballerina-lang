@@ -402,7 +402,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
     return false;
 }
 
-# Process the auth token for basic auth
+# Process the auth token for basic auth.
 #
 # + authConfig - Basic auth configurations
 # + return - Auth token or `error` if an error occured during validation
@@ -776,7 +776,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 
 # Prepare the request to be sent to the authorization server by adding the relevant headers and payloads.
 #
-# + config - Request configurations record
+# + config - `RequestConfig` record
 # + return - Prepared HTTP request object
 function prepareRequest(RequestConfig config) returns Request|error {
     Request req = new;

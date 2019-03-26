@@ -3,8 +3,8 @@ import ballerina/log;
 
 // Define the OAuth2 client endpoint to call the backend services.
 // Setting the `scheme: http:OAUTH2` enables OAuth2 authentication.
-// OAuth2 client credentials grant type is configured by setting
-// `grantType: http:CLIENT_CREDENTIALS_GRANT`.
+// Setting the `grantType: http:CLIENT_CREDENTIALS_GRANT` configures the
+// OAuth2 client credentials grant type.
 http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
         auth: {
             scheme: http:OAUTH2,
@@ -21,8 +21,8 @@ http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
 
 // Define the OAuth2 client endpoint to call the backend services.
 // Setting the `scheme: http:OAUTH2` to enable OAuth2 authentication.
-// OAuth2 password grant type is configured by setting
-// `grantType: http:PASSWORD_GRANT`.
+// Setting the `grantType: http:PASSWORD_GRANT` configures the
+// OAuth2 password grant type.
 // If the access token expires or become invalid, then it will be automatically
 // refreshed with the provided `refreshUrl`.
 http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
@@ -46,8 +46,8 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
 
 // Define the OAuth2 client endpoint to call the backend services.
 // Setting the `scheme: http:OAUTH2`enables OAuth2 authentication.
-// Setting the `grantType: http:DIRECT_TOKEN` configures the OAuth2 direct token mode.
-// `grantType: http:DIRECT_TOKEN`.
+// Setting the `grantType: http:DIRECT_TOKEN` configures the
+// OAuth2 direct token mode.
 // If the`accessToken` is invalid or not provided, it will be automatically
 // refreshed with the provided `clientId`, `clientSecret`, `refreshToken`,
 // and `refreshUrl`.
