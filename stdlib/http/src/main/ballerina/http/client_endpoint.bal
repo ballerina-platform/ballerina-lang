@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/io;
 
 ////////////////////////////////
@@ -282,8 +283,8 @@ public type RetryConfig record {
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
 public type SecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
