@@ -1011,34 +1011,39 @@ public class CommonUtil {
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
     }
+    
+    public static String getPlainTextSnippet(String snippet) {
+        return snippet
+                .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d\\})", "");
+    }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         String signature = "";
         SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {
             case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_MAP_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             default: {
-                signature = operation.getString(isSnippet);
+                signature = operation.getString();
                 break;
             }
         }
@@ -1051,12 +1056,11 @@ public class CommonUtil {
 
     private static String getIterableOpLambdaParam(BType bType, LSContext context) {
         String params = "";
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         if (bType instanceof BMapType) {
             BMapType bMapType = (BMapType) bType;
             String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bMapType.constraint);
-            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet)
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString()
                     .replace(UtilSymbolKeys.ITR_OP_LAMBDA_KEY_REPLACE_TOKEN, "string")
                     .replace(UtilSymbolKeys.ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN, valueType);
         } else if (bType instanceof BArrayType) {
@@ -1064,9 +1068,9 @@ public class CommonUtil {
             String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bArrayType.eType);
             params = valueType + " value";
         } else if (bType instanceof BJSONType) {
-            params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
+            params = Snippet.ITR_ON_JSON_PARAMS.get().getString();
         } else if (bType instanceof BXMLType) {
-            params = Snippet.ITR_ON_XML_PARAMS.get().getString(isSnippet);
+            params = Snippet.ITR_ON_XML_PARAMS.get().getString();
         }
 
         return params;
