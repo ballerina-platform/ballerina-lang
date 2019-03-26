@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -38,7 +38,7 @@ public class EndpointDefContextItemSorter extends CompletionItemSorter {
      * @param completionItems List of initial completion items
      */
     @Override
-    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
         BLangSimpleVariable bLangVariable = (BLangSimpleVariable) ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         if (!(bLangVariable.typeNode instanceof BLangEndpointTypeNode)) {

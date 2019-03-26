@@ -71,7 +71,7 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 19, msg4 , 27, 15);
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
         BAssertUtil.validateError(result, 22, msg5, 35, 60);
-        BAssertUtil.validateError(result, 25, msg6, 45, 22);
+        BAssertUtil.validateError(result, 25, msg6, 45, 16);
     }
 
     @Test(description = "Test byte shift operators negative")

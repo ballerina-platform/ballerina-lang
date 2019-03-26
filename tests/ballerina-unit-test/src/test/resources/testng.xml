@@ -81,11 +81,12 @@ under the License.
         </packages>
     </test>
 
-    <!--<test name="jballerina-test" parallel="false">-->
-        <!--<parameter name="enableJBallerinaTests" value="true"/>-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.jvm.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.integer"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="jballerina-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.test.jvm.*"/>
+            <package name="org.ballerinalang.test.types.integer"/>
+            <package name="org.ballerinalang.test.types.floattype"/>
+        </packages>
+    </test>
 </suite>

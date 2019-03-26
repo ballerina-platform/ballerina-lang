@@ -23,8 +23,8 @@ final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
 const string registrationPath = "/register";
 final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", default = getHostAddress());
-final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", default = getAvailablePort());
+final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", defaultValue = getHostAddress());
+final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", defaultValue = getAvailablePort());
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
