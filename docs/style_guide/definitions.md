@@ -1,7 +1,8 @@
 # Top Level definitions
 
-* No indentation applied for the top level constructs.
+* Do not apply indentation for the top-level constructs.
 
+  Example,
   ```ballerina
   import ballerina/http;
 
@@ -16,81 +17,90 @@
 
 ## Imports
 
-* No spaces between org name , divider(`/`) and module name.
+* Do not keep spaces between the org name, divider(`/`), and module name.
 
+  Example,
   ```ballerina
   import ballerina/http;
   ```
-* Identifiers such as version and alias is fronted with single space.
+* Front the identifiers such as version and alias with a single space.
 
+  Example,
   ```ballerina
   import wso2/twitter version 0.9.0 as twitter;
 
   import abc/foo.bar version 0.1 as foo;
   ```
 
-## Function Definition
-* No space between function name and the open parentheses `(` of function signature.
+## Function definition
+* Do not keep spaces between the function name and the open parentheses `(` of the function signature.
 
+  Example,
   ```ballerina
   function func1() {}
   ```
-* Closing brace `}` of the function should indent and align with function start position.
+* Indent and align the closing brace `}` of the function with the starting position of the function.
   
+  Example,
   ```ballerina
   function getName() returns string {
       return "john";
   }
   ```
-* If function body has at least on statement, closing brace `}` should fronted with a new line
-  and indent accordingly.
+* If the function body has at least one statement, front the closing brace `}` with a new line
+  and indent it accordingly.
   
+  Example,
   ```ballerina
   function func1() {
       int a = 0;
   }
   ```
-* First parameter should not fronted with a space. 
-* `,` comma which separate the parameters followed by a single space.
-* No spaces between last parameter and the closing parentheses.
+* Do not front the first parameter with a space. 
+* Add a single space before the `,` comma, which separates the parameters.
+* Do not keep spaces between the last parameter and the closing parentheses.
 
+  Example,
   ```ballerina
 
   function func1(int param1, string param2) {}
 
   ```
  
-* If function is an object attached function there is no space around the `.`
-  and should have single space between `function` keyword and the object name.
+* If the function has an object attached to it, do not keep spaces around the `.`. Also, 
+keep a single space between the `function` keyword and the name of the object.
 
+  Example,
   ```ballerina
   function Person.getName() {}
   ```
 
-* Should have a single space between closing parentheses and the `returns` keyword.
+* Keep a single space between the closing parentheses and the `returns` keyword.
 
+  Example,
   ```ballerina
   function getName() returns string {
       return "john";
   }
   ``` 
 
-## Service Definition
+## Service definition
 
-* Listeners should always front with a single space.
-* No spaces applied before a comma `,` which used in listener list.
+* Front the listeners with a single space.
+* Do not keep spaces before a comma `,`, which is used in a list of listeners.
   
+  Example,
   ```ballerina
   service hello on ep1, ep2 {}
   ```
 
-### Resource Function
+### Resource function
 
-* Resource functions should block-indent inside service body.
-* Function definitions, which are defined in the Service definition, should block-indent.
-* Resource functions and function definitions in service definition should follow [function formatting guidelines](#function-definition) for
-  parameter, return type and function body formatting.
+* Block indent resource functions inside the service body.
+* Also, block indent the function definitions, which are defined in the service definition.
+* For the parameter, return type, and function body formatting, of resource functions and function definitions in the service definition, follow [function formatting guidelines](#function-definition).
 
+  Example,
   ```ballerina
   service hello on ep1, ep2 {
       resource function sayHello(http:Caller caller, http:Request req) returns error? {
@@ -105,21 +115,22 @@
   }
   ```
 
-## Global Variable Definition
+## Global variable definition
 
-* When defining type definition there should be only single spaces around pipe operator `|`.
+* When defining type definition, keep only single spaces around pipe operator `|`.
 
+  Example,
   ```ballerina
   type method "POST" | "GET" | "PUT";
   ```
 
-## Object Definition
+## Object definition
 
-* Field definitions, each should block-indent on their own line.
-* Function definitions, which are defined in the object, should block-indent.
-* Function definitions in object definition should follow [function formatting guidelines](#function-definition) for 
-  parameter, return type and function body formatting.
+* Block indent each field definition in their own line.
+* Also, block indent \function definitions, which are defined in the object.
+* For parameter, return type, and function body formatting, of function definitions in the object definition, follow [function formatting guidelines](#function-definition).
 
+  Example,
   ```ballerina
   type Person object {
       // Object field definitions.
@@ -147,10 +158,12 @@
       }
   };
   ```
-* For type reference formatting refer to [type reference](#referencing-record-or-abstract-object) section.
-## Record Definition
-* Field definitions (including Rest field), each should block-indent on their own line.
+* For type reference formatting, see [referencing](#referencing-record-or-abstract-object).
 
+## Record definition
+* Block indent each of the field definitions (including the Rest field) in their own line.
+
+  Example,
   ```ballerina
   type Person record {
       string name;
@@ -165,11 +178,12 @@
       !...;
   }
   ```
-* For type reference formatting refer to [referencing](#referencing-record-or-abstract-object) section.
+* For type reference formatting, see [referencing](#referencing-record-or-abstract-object) section.
 
-## Referencing Record or Abstract Object 
-* No spaces between `*` and abstract object name or record name.
+## Referencing record or abstract object 
+* Do not keep spaces between the `*`, and abstract object name or record name.
   
+  Example,
   ```ballerina
   *Person;
   ```

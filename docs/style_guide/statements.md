@@ -1,24 +1,26 @@
 # Statements
 
-## Flow Control
+## Flow control
 
-### If Statement
+### If statement
 
-* Condition in If statement should have enclosing parentheses all the time.
-* There shouldn't be any spaces between condition expression and parentheses.
-* Statements in if block, each should block-indent on its own line.
+* Always, enclose the condition with parentheses in the If statement.
+* Do not keep spaces between the condition expression and parentheses.
+* Block indent each statement of the if statemnt in its own line.
 
+  Example,
   ```ballerina
   if (age >= 20 && age < 25) {
       inSallaryRange = true;
   } 
   ```
-* `else` and `else if` keyword should be on the same line of previous `if` or `else if` block's
+* Keep the `else` and `else if` keywords in the same line with the previous `if` or `else if` block's
   closing brace `}`.
   
-  - Single space between closing brace and `else` keyword.
-  - Each statements should block-indented on its own line.
+  - Keep a single space between the closing brace and `else` keyword.
+  - Block indent each statement in its own line.
   
+    Example,
     ```ballerina
   
     if (sallary >= 2000 && sallary < 2500) {
@@ -31,9 +33,9 @@
   
     ```
 
-* To have `if` or `else if` block without condition enclosing parentheses 
-  condition should be a simple expression.
+* To have an `if` or `else if` block without a condition, keep a simple expression as the condition within the enclosing parentheses.
   
+    Example,
     ```ballerina
     if inProperSallaryRange {
         return 1;
@@ -42,18 +44,19 @@
     }
     
     ```
-#### Empty Block
+#### Empty block
 
-* There shouldn't be any empty `if`, `else if` and `else` blocks.
-* But if there are empty `if`, `else` and `else if` blocks
-  - There should be a single space before opening brace.
-  - There should be a empty line between opening and closing brace.
-  - Closing brace should be indented and aligned
-    - If brace is related to `if` block then the brace should indented to align with
-      `if` keyword position.
-    - If brace if related to `else` or `else if` block then the brace should indented to align with 
-      previous block's closing brace.
+* Do not have any empty `if`, `else if`, or `else` blocks.
+* Howevber, if there are empty `if`, `else`, or `else if` blocks,
+  - keep a single space before the opening brace.
+  - add an empty line between the opening and closing braces.
+  - indent the closing brace and align it as follows.
+    - If the brace is related to the`if` block, then indent the brace to align it with the position of the
+      `if` keyword.
+    - If the brace if related to an `else` or `else if` block, then indent the brace to align it with 
+      the closing brace of the previous block.
       
+  Example,
   ```ballerina
   if (inProperSallaryRange) {
       
@@ -63,15 +66,19 @@
       
   }
   ```
-  Above guidelines for empty blocks are valid even if only a `if` block is available.
+  >**Info:** Above guidelines for empty blocks are valid if only an `if` block is available.
+  
+  Example,
   ```ballerina
   if (inProperSallaryRange) {
   
   }
   ```
-## Match Statement
-* Closing brace of a match statement should indent and align with the start position of the match statement.
 
+## Match statement
+* Indent the closing brace of a match statement to align it with the starting position of the match statement.
+
+  Example,
   ```ballerina
   function foo(string | int | boolean a) returns string {
       match a {
@@ -87,13 +94,14 @@
   }
   ```
 
-### Match Patterns Clause
+### Match patterns clause
 
-* Each pattern clause should be block-indented on its own line.
-* There should be a single space before and after `=>`.
-* If a pattern clause only contains one statement it should be placed on the same line as the 
-  pattern clause without any curly braces enclosing it.
+* Block indent each pattern clause in its own line.
+* Keep a single space before and after the `=>` sign.
+* If a pattern clause contains only one statement, place it in the same line as the 
+  pattern clause without curly braces enclosing it.
 
+  Example,
   ```ballerina
   function foo(string | int | boolean a) returns string {
       match a {
@@ -103,11 +111,12 @@
       return "Value is 'Default'";
   }
   ```
-* If a pattern clause has more than one statement then
-  - Before the opening brace there should be a single space and it should be on the same line as the pattern clause. 
-  - Each statement then should be block-indented on its own line.
-  - Closing brace should be on its own line and indented to align with the pattern clause start position.
+* If a pattern clause has more than one statement, then
+  - add a single space in the same line as the pattern clause (before the opening brace). 
+  - block indent each statement in its own line.
+  - indent the closing brace in its own line to align with the starting position of the pattern clause.
   
+    Example,
     ```ballerina
     function typeGuard1((string, int) | (int, boolean) | int | float x) returns string {
         match x {
@@ -124,9 +133,10 @@
         return "";
     }
     ```
-* If the pattern clause block is empty then both braces should be on the same line and there shouldn't be any spaces
+* If the pattern clause block is empty, then keep both braces in the same line and do not keep spaces
   between them.
   
+  Example,
   ```ballerina
     function typeGuard1((string, int) | (int, boolean) | int | float x) returns string {
         match x {
@@ -137,12 +147,13 @@
         return "";
     }
   ```
-## Transaction Statement
+## Transaction statement
 
-* Each optional clause(`onretry`, `committed` and `aborted`) should start on the same line 
+* Start each optional clause(`onretry`, `committed` and `aborted`) in the same line 
   as the closing brace of the previous clause.
-* If blocks are empty there should be an empty line between braces. 
+* If blocks are empty, add an empty line between the braces. 
   
+  Example,
   ```ballerina
   function func1() {
       transaction with retries = 2 {
