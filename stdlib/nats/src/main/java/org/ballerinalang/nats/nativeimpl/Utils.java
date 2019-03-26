@@ -29,15 +29,11 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utilities for producing and consuming via NATS sever.
  */
 public class Utils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
-
     /**
      * Message which will be propagated.
      */
@@ -51,7 +47,6 @@ public class Utils {
      * @param throwable the exception stacktrace.
      */
     public static void throwBallerinaException(String message, Context context, Throwable throwable) {
-        LOGGER.error(message, throwable);
         throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
     }
 
