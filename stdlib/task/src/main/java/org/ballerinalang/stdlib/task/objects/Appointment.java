@@ -46,7 +46,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Appointment extends AbstractTask {
 
     private String cronExpression;
-    private static final Logger log = LoggerFactory.getLogger(Appointment.class);
 
     /**
      * Creates an Appointment object with provided cron expression.

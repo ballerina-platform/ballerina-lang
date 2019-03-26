@@ -42,7 +42,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Timer extends AbstractTask {
 
     private long interval, delay;
-    private static final Logger log = LoggerFactory.getLogger(Timer.class);
 
     /**
      * Creates a Timer object.
