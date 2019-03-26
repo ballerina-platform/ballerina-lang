@@ -35,7 +35,7 @@ public interface BallerinaDocumentService {
     CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
 
     @JsonRequest
-    CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request);
+    CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request);
 
     @JsonNotification
     void apiDesignDidChange(ApiDesignDidChangeParams params);

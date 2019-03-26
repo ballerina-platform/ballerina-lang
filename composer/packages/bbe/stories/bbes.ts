@@ -754,7 +754,7 @@ export default function(): Promise<BallerinaExampleCategory[]> {
         ],
     },
      {
-        title: "Swagger",
+        title: "OpenApi",
         column: 2,
         category: "Working over the network",
         samples: [{
@@ -762,12 +762,12 @@ export default function(): Promise<BallerinaExampleCategory[]> {
                 url: "client-generation",
             },
             {
-                name: "Ballerina To Swagger",
-                url: "ballerina-to-swagger",
+                name: "Ballerina To OpenAPi",
+                url: "ballerina-to-openapi",
             },
             {
-                name: "Swagger To Ballerina",
-                url: "swagger-to-ballerina",
+                name: "OpenApi To Ballerina",
+                url: "openapi-to-ballerina",
             },
         ],
     },
