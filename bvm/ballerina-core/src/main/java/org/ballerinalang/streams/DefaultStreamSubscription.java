@@ -19,12 +19,13 @@
 package org.ballerinalang.streams;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BValue;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The {@link DefaultStreamSubscription} represents a stream subscription in Ballerina.
@@ -36,14 +37,16 @@ public class DefaultStreamSubscription extends StreamSubscription {
     private BStream stream;
     private BFunctionPointer functionPointer;
 
-    DefaultStreamSubscription(BStream stream, BFunctionPointer functionPointer, StreamSubscrptionManager streamSubscrptionManager) {
+    DefaultStreamSubscription(BStream stream, BFunctionPointer functionPointer,
+                              StreamSubscrptionManager streamSubscrptionManager) {
         super(streamSubscrptionManager);
         this.stream = stream;
         this.functionPointer = functionPointer;
     }
 
     public void execute(BValue value) {
-        List<BValue> argsList = new ArrayList<>(functionPointer.getClosureVars());
+        List<BValue> argsList =
+                functionPointer.getClosureVars().stream().map(BClosure::value).collect(Collectors.toList());
         argsList.add(value);
         BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
                                     functionPointer.value(), argsList.toArray(new BValue[0]));

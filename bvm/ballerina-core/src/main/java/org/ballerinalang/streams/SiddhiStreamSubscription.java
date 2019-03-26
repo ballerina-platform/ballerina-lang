@@ -41,7 +41,8 @@ public class SiddhiStreamSubscription extends StreamSubscription {
     private BStream stream;
     private final InputHandler inputHandler;
 
-    SiddhiStreamSubscription(BStream stream, InputHandler inputHandler, StreamSubscrptionManager streamSubscrptionManager) {
+    SiddhiStreamSubscription(BStream stream, InputHandler inputHandler,
+                             StreamSubscrptionManager streamSubscrptionManager) {
         super(streamSubscrptionManager);
         this.stream = stream;
         this.inputHandler = inputHandler;
@@ -79,8 +80,8 @@ public class SiddhiStreamSubscription extends StreamSubscription {
         try {
             inputHandler.send(event);
         } catch (InterruptedException e) {
-            throw new BallerinaException("Error while sending events to stream: " + stream.getStreamId() + ": " + e.getMessage()
-                    , e);
+            throw new BallerinaException("Error while sending events to stream: " + stream.getStreamId() + ": " +
+                    e.getMessage(), e);
         }
     }
 
