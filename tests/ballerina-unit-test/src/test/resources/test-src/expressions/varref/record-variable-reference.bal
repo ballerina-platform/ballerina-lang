@@ -19,13 +19,12 @@ type Age record {
     string format;
 };
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
     Age age;
     (string, int) extra?;
-    !...;
-};
+|};
 
 function testVariableAssignment() returns (string, boolean, int, string) {
     string fName;

@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -199,22 +199,22 @@ public class RecordAccessWithIndexTest {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'dpt1'", 3, 5);
         BAssertUtil.validateError(negativeResult, i++, "undefined field 'id' in record 'Department'", 9, 5);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 21, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 20, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'string|int?'", 27, 16);
+                "incompatible types: expected 'string', found 'string|int?'", 26, 16);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 57, 40);
+                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 55, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found '0|1'", 58, 40);
+                "incompatible types: expected 'string', found '0|1'", 56, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 61, 40);
+                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 59, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected 'string', found '0|1'", 62, 40);
+                "incompatible types: expected 'string', found '0|1'", 60, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range", 63, 40);
+                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range", 61, 40);
         BAssertUtil.validateError(negativeResult, i,
                 "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree|fieldFour' out of range",
-                64, 18);
+                62, 18);
     }
 
     @Test(description = "Test accessing an field of a noninitialized record",

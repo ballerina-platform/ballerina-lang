@@ -18,9 +18,6 @@
 
 package org.ballerinalang.test.balo.globalvar;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -29,6 +26,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -124,7 +124,7 @@ public class GlobalVarFunctionInBaloTest {
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByte");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[0]).byteValue(), (byte) 234);
+        Assert.assertEquals(((BByte) returns[0]).byteValue(), 234);
     }
 
     @Test(description = "Test global variable byte array1")

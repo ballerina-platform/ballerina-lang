@@ -1045,7 +1045,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1546,7 +1546,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1610,7 +1610,7 @@ public class Types {
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1730,11 +1730,9 @@ public class Types {
         // with the same value.
         switch (baseLiteral.type.tag) {
             case TypeTags.BYTE:
-                if (candidateTypeTag == TypeTags.BYTE) {
-                    return (byte) baseValue == (byte) candidateValue;
-                } else if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
-                        isByteLiteralValue((Long) candidateValue)) {
-                    return (byte) baseValue == ((Long) candidateValue).byteValue();
+                if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
+                        !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
+                    return (long) baseValue == (long) candidateValue;
                 }
                 break;
             case TypeTags.INT:
@@ -2282,6 +2280,10 @@ public class Types {
     }
 
     public boolean hasImplicitInitialValue(BType type) {
+        return hasImplicitInitialValue(type, new ArrayList<>());
+    }
+
+    public boolean hasImplicitInitialValue(BType type, List<BType> unanalyzedTypes) {
         if (type.tag < TypeTags.RECORD) {
             return true;
         }
@@ -2298,8 +2300,7 @@ public class Types {
             case TypeTags.OBJECT:
                 return analyzeObjectType((BObjectType) type);
             case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                return recordType.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type));
+                return analyzeRecordType((BRecordType) type, unanalyzedTypes);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.tupleTypes.stream().allMatch(this::hasImplicitInitialValue);
@@ -2308,6 +2309,14 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    public boolean includesErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
+        }
+
+        return type.tag == TypeTags.ERROR;
     }
 
     private boolean analyzeUnionType(BUnionType type) {
@@ -2326,6 +2335,14 @@ public class Types {
         }
         // Control reaching this point means there is only one type in the union.
         return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+    }
+
+    private boolean analyzeRecordType(BRecordType type, List<BType> unanalyzedTypes) {
+        if (unanalyzedTypes.contains(type)) {
+            return true;
+        }
+        unanalyzedTypes.add(type);
+        return type.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type, unanalyzedTypes));
     }
 
     private boolean analyzeObjectType(BObjectType type) {

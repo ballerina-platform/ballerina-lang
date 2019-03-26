@@ -18,7 +18,11 @@
 package org.ballerinalang.stdlib.time.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -30,28 +34,34 @@ import java.time.zone.ZoneRulesException;
 import java.util.Date;
 import java.util.TimeZone;
 
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+
 /**
  * A util class for the time package's native implementation.
  *
  * @since 0.95.4
  */
 public class TimeUtils {
+    private static final String TIME_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "time";
+    private static final String STRUCT_TYPE_TIME = "Time";
+    private static final String STRUCT_TYPE_TIMEZONE = "TimeZone";
 
-    public static final String PACKAGE_TIME = "ballerina/time";
-    public static final String STRUCT_TYPE_TIME = "Time";
-    public static final String STRUCT_TYPE_TIMEZONE = "TimeZone";
-    public static final int READABLE_BUFFER_SIZE = 8192; //8KB
+    private static final String TIME_ERROR_RECORD = "TimeError";
+    private static final String TIME_ERROR_CODE = "{ballerina/time}TimeError";
 
     public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
-        String zoneIdName;
+        ZoneId zoneId = getTimeZone(zoneIdValue);
+        //Get offset in seconds
+        TimeZone tz = TimeZone.getTimeZone(zoneId);
+        int offsetInMills = tz.getOffset(new Date().getTime());
+        int offset = offsetInMills / 1000;
+        return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdValue, offset);
+
+    }
+
+    public static ZoneId getTimeZone(String zoneIdValue) {
         try {
-            ZoneId zoneId = ZoneId.of(zoneIdValue);
-            zoneIdName = zoneId.toString();
-            //Get offset in seconds
-            TimeZone tz = TimeZone.getTimeZone(zoneId);
-            int offsetInMills = tz.getOffset(new Date().getTime());
-            int offset = offsetInMills / 1000;
-            return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdName, offset);
+            return ZoneId.of(zoneIdValue);
         } catch (ZoneRulesException e) {
             throw new BallerinaException("invalid timezone id: " + zoneIdValue);
         }
@@ -65,7 +75,7 @@ public class TimeUtils {
     }
 
     public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
+        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE_PATH);
         if (timePackageInfo == null) {
             return null;
         }
@@ -73,10 +83,16 @@ public class TimeUtils {
     }
 
     public static StructureTypeInfo getTimeStructInfo(Context context) {
-        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
+        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(TIME_PACKAGE_PATH);
         if (timePackageInfo == null) {
             return null;
         }
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
+    }
+
+    public static BError getTimeError(Context context, String message) {
+        BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
+                .createBStruct(context, TIME_PACKAGE_PATH, TIME_ERROR_RECORD, message);
+        return BLangVMErrors.createError(context, true, BTypes.typeError, TIME_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 }
