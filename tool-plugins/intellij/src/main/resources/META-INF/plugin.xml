@@ -184,7 +184,7 @@
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
         </action>
 
-        <action class="com.github.lsp4intellij.actions.LSPShowReformatDialogAction" id="ReformatCode"
+        <action class="com.github.lsp4intellij.actions.LSPReformatAction" id="ReformatCode"
                 use-shortcut-of="ReformatCode"
                 overrides="true" text="Reformat Code"/>
         <action class="com.github.lsp4intellij.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
