@@ -362,7 +362,7 @@ public class XMLAttributesTest {
                 "{http://sample.com/wso2/c1}ns0\":\"http://sample.com/wso2/a1\", \"" +
                 "{http://sample.com/wso2/c1}ns1\":\"http://sample.com/wso2/b1\", \"" +
                 "{http://sample.com/wso2/c1}ns3\":\"http://sample.com/wso2/d1\", \"" +
-                "{http://sample.com/wso2/c1}foo\":\"bar\", \"" +
+                "foo\":\"bar\", \"" +
                 "tracer\":\"1\"}");
     }
 
@@ -374,7 +374,7 @@ public class XMLAttributesTest {
                 "{http://sample.com/wso2/c1}ns0\", \"" +
                 "{http://sample.com/wso2/c1}ns1\", \"" +
                 "{http://sample.com/wso2/c1}ns3\", \"" +
-                "{http://sample.com/wso2/c1}foo\"]");
+                "foo\"]");
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
