@@ -84,7 +84,7 @@ public type Client client object {
 # + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-public type ClientEndpointConfig record {
+public type ClientEndpointConfig record {|
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     string httpVersion = "2.0";
@@ -94,8 +94,7 @@ public type ClientEndpointConfig record {
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
-    !...;
-};
+|};
 
 # Proxy server configurations to be used with the HTTP client endpoint.
 #
@@ -103,13 +102,12 @@ public type ClientEndpointConfig record {
 # + port - Proxy server port
 # + userName - Proxy server username
 # + password - proxy server password
-public type ProxyConfig record {
+public type ProxyConfig record {|
     string host = "";
     int port = 0;
     string userName = "";
     string password = "";
-    !...;
-};
+|};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
@@ -126,7 +124,7 @@ public type ProxyConfig record {
 # + verifyHostname - Enable/disable host name verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
-public type SecureSocket record {
+public type SecureSocket record {|
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
     string certFile = "";
@@ -139,5 +137,4 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...;
-};
+|};

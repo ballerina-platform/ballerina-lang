@@ -358,6 +358,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
@@ -365,6 +366,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
@@ -388,7 +390,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 35, 0, new ArrayList<>(), false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 37, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
