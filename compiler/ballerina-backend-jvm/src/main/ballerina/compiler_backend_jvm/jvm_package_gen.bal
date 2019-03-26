@@ -22,6 +22,13 @@ function lookupFullQualifiedClassName(string key) returns string {
     if (result is string) {
         return result;
     } else {
+        string pkgName = key.substring(0, key.lastIndexOf("/"));
+        string functionName = key.substring(key.lastIndexOf("/") + 1, key.length());
+        result = jvm:lookupExternClassName(pkgName, functionName);
+        if (result is string) {
+            fullQualifiedClassNames[key] = result;
+            return result;
+        }
         error err = error("cannot find full qualified class for : " + key);
         panic err;
     }
