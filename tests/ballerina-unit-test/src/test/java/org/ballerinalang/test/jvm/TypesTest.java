@@ -107,4 +107,11 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "anyDataTest");
         Assert.assertEquals((result[0]).stringValue(), "1000");
     }
+
+    @Test
+    public void testFutures() {
+        BValue[] result = BRunUtil.invoke(compileResult, "futuresTest");
+        Assert.assertTrue(result[0].stringValue().equals("0") || result[0].stringValue().equals("100") ||
+                result[0].stringValue().equals("200"));
+    }
 }

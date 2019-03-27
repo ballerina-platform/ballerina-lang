@@ -153,3 +153,27 @@ function acceptAnydata(anydata data) returns anydata {
    ia[1] = 1000;
    return ia[1];
 }
+
+int global = 0;
+
+function futuresTest() returns anydata {
+   future<int> p = start foo("abc", 7);
+	future<string> p2 = start foo2("yy");
+    future<string> p3 = acceptFuture(p2);
+   return global;
+}
+
+public function foo(string r, int j) returns int {
+	global = global + 100;
+   return 700;
+}
+
+public function foo2(string k) returns string {
+	global = global + 100;
+    return k;
+}
+
+public function acceptFuture(future<string> pp) returns future<string> {
+	future<string> p2 = pp;
+	return p2;
+}

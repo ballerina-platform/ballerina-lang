@@ -61,7 +61,8 @@ type TerminatorGenerator object {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType) {
+                bType is bir:BTupleType ||
+                bType is bir:BFutureType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -130,6 +131,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", OBJECT_VALUE);
+            } else if (bType is bir:BFutureType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+                methodDesc = methodDesc + io:sprintf("L%s;", FUTURE_VALUE);
             } else if (bType is bir:BErrorType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", ERROR_VALUE);
@@ -180,7 +184,8 @@ type TerminatorGenerator object {
                         bType is bir:BObjectType ||
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType || 
-                        bType is bir:BTupleType) {
+                        bType is bir:BTupleType ||
+                        bType is bir:BFutureType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +
@@ -203,7 +208,7 @@ type TerminatorGenerator object {
     function genAsyncCallTerm(bir:Call callIns, string funcName) {
 
         //create a object array of args
-        self.mv.visitVarInsn(BIPUSH, callIns.args.length() + 1);
+        self.mv.visitIntInsn(BIPUSH, callIns.args.length() + 1);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
         self.mv.visitInsn(DUP);
 
@@ -214,7 +219,7 @@ type TerminatorGenerator object {
         int paramIndex = 1;
         foreach var arg in callIns.args {
             self.mv.visitInsn(DUP);
-            self.mv.visitVarInsn(BIPUSH, paramIndex);
+            self.mv.visitIntInsn(BIPUSH, paramIndex);
             
             int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
             bir:BType bType = arg.typeValue;
@@ -252,6 +257,7 @@ type TerminatorGenerator object {
             }
             generateObjectCast(bType, self.mv);
             self.mv.visitInsn(AASTORE);
+            paramIndex += 1;
         }
 
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
@@ -264,26 +270,10 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/Scheduler", "schedule", 
             "([Ljava/lang/Object;Ljava/util/function/Function;)Lorg/ballerinalang/jvm/Strand;", false);
 
-        //TODO: revisit when bir is there for futures.
-        self.mv.visitInsn(POP); //pops the returned strand for now
-        self.mv.visitVarInsn(BIPUSH,100); // for now always retun a int
         // store return
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
         // store the returned strand as the future
-        // self.mv.visitVarsInsn(ASTORE, self.getJVMIndexOfVarRef(lhsOpVarDcl));
-
-        if (lhsOpVarDcl is bir:VariableDcl) {
-            int lhsLndex = self.getJVMIndexOfVarRef(lhsOpVarDcl);
-            bir:BType? bType = callIns.lhsOp.typeValue;
-
-            if (bType is bir:BTypeInt) {
-                self.mv.visitVarInsn(LSTORE, lhsLndex);
-            } else {
-                    error err = error( "JVM generation in ASYNC is not supported for type " +
-                                            io:sprintf("%s", callIns.lhsOp.typeValue));
-                panic err;
-            }
-        }
+        self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(getVariableDcl(lhsOpVarDcl)));
 
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");

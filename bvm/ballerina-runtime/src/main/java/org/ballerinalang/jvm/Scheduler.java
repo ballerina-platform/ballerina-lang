@@ -24,18 +24,29 @@ import java.util.function.Function;
 
 /**
  * Simple scheduler for JBallerina.
+ * @since 0.995.0
  */
 public class Scheduler {
+
+    public static ExecutorService executorService = null;
 
 
     public static Strand schedule(Object[] params, Function function) {
         Strand strand = new Strand();
         // find the return type based on type
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        if (executorService == null) {
+            executorService = Executors.newFixedThreadPool(3);
+        }
         AsyncExecutor async = new AsyncExecutor(function, params);
         strand.future = executorService.submit(async);
 
         return strand;
+    }
+
+    public static void shutDown() {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
     }
 
 }
@@ -53,6 +64,5 @@ class AsyncExecutor<T> implements Callable<T> {
     @Override
     public T call() {
         return (T) function.apply(params);
-
     }
 }

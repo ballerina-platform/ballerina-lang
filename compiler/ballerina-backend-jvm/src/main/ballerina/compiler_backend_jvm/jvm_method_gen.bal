@@ -181,9 +181,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         bir:Terminator terminator = bb.terminator;
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
-        } else if (terminator is bir:Call) {
-            // termGen.genCallTerm(terminator, funcName);
-            termGen.genAsyncCallTerm(terminator, funcName);
+        } else if (terminator is bir:Call || terminator is bir:AsyncCall) {
+            if (terminator.kind == "CALL") {
+                termGen.genCallTerm(terminator, funcName);
+            } else if (terminator.kind == "ASYNC_CALL") {
+                termGen.genAsyncCallTerm(terminator, funcName);
+            }
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -245,6 +248,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BErrorType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", ERROR_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BFutureType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
@@ -308,6 +315,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", ERROR_VALUE));
+        } else if (bType is bir:BFutureType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", FUTURE_VALUE));
         } else if (bType is bir:BObjectType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -358,32 +369,45 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 }
 
 function generateLambdaMethod(bir:Call callIns, jvm:ClassWriter cw, string className, string lambdaName) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, lambdaName, 
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
                                 "([Ljava/lang/Object;)Ljava/lang/Object;", (), ());
     mv.visitCode();
-    mv.visitVarInsn(ALOAD, 0);
 
-    bir:BType[] paramTypes = callIns.args;
+    bir:VarRef?[] paramTypes = callIns.args;
 
     //load strand as first arg
-    mv.visitVarInsn(ALOAD, 1);
-    mv.visitIntInsn(BIPUSH, 0);
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
+    mv.visitTypeInsn(CHECKCAST, FUTURE_VALUE);
 
     // load and cast param values
+    bir:BType[] paramBTypes = []; 
     int paramIndex = 1;
     foreach var paramType in paramTypes {
-        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        checkCastFromObject(paramType, mv);
+        checkCastFromObject(paramType.typeValue, mv);
+        paramBTypes[paramIndex -1] = paramType.typeValue;
         paramIndex += 1;
     }
 
-    mv.visitMethodInsn(INVOKEVIRTUAL, className, callIns.name.value, getMethodDesc(paramTypes, callIns.lhsOp.typeValue), false);
-    generateObjectCast(callIns.lhsOp.typeValue, mv);
+    bir:BType lhsType = callIns.lhsOp.typeValue;
+    bir:BType returnType;
+    if (lhsType is bir:BFutureType) {
+        returnType = lhsType.returnType;
+    } else {
+        error err = error( "JVM generation is not supported for async return type " +
+                                        io:sprintf("%s", lhsType));
+        panic err;
+    }
+
+    mv.visitMethodInsn(INVOKESTATIC, className, callIns.name.value, getMethodDesc(paramBTypes, returnType), false);
+    
+    generateObjectCast(returnType, mv);
     mv.visitInsn(ARETURN);
-    mv.visitMaxs(paramTypes.length() + 2, 2);
+    mv.visitMaxs(0,0);
     mv.visitEnd();
 }
 
@@ -412,7 +436,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType) {
+                bType is bir:BTupleType ||
+                bType is bir:BFutureType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -456,6 +481,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BMapType || bType is bir:BRecordType || bType is bir:BTypeAny) {
         return io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BFutureType) {
+        return io:sprintf("L%s;", FUTURE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -485,6 +512,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BErrorType) {
         return io:sprintf(")L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        return io:sprintf(")L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BUnionType) {
@@ -564,6 +593,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         }
     }
 
+    mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/Scheduler", "shutDown", "()V", false);
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(paramTypes.length() + 5, 10);
     mv.visitEnd();
@@ -578,15 +609,15 @@ function checkCastFromObject(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
     } else if (targetType is bir:BTypeFloat) {
         mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "()D", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, "parseDouble", "()D", false);
     } else if (targetType is bir:BTypeString) {
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else if (targetType is bir:BTypeBoolean) {
         mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "()Z", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "parseBoolean", "()Z", false);
     } else if (targetType is bir:BTypeByte) {
         mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "parseByte", "()B", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, BYTE_VALUE, "parseByte", "()B", false);
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
@@ -609,7 +640,7 @@ function checkCastFromObject(bir:BType targetType, jvm:MethodVisitor mv) {
 # + mv - method visitor
 function generateObjectCast(bir:BType targetType, jvm:MethodVisitor mv) {  
     if (targetType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", "(J)Ljava/lang/Long;", false);
     } else if (targetType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", "(D)Ljava/lang/Double;", false);
     } else if (targetType is bir:BTypeBoolean) {
@@ -775,6 +806,9 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 fv.visitEnd();
             } else if (bType is bir:BMapType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
+                fv.visitEnd();
+            } else if (bType is bir:BFutureType) {
+                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", FUTURE_VALUE));
                 fv.visitEnd();
             } else if (bType is bir:BRecordType) {
                 jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));

@@ -420,6 +420,8 @@ type InstructionGenerator object {
                 self.mv.visitFieldInsn(GETSTATIC, className, varName, "J");
             } else if (bType is bir:BMapType) {
                 self.mv.visitFieldInsn(GETSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
+            } else if (bType is bir:BTypeString) {
+                self.mv.visitFieldInsn(GETSTATIC, className, varName, io:sprintf("L%s;", STRING_VALUE));
             } else {
                 error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
                 panic err;
@@ -441,7 +443,8 @@ type InstructionGenerator object {
                           bType is bir:BUnionType ||
                           bType is bir:BTupleType ||
                           bType is bir:BRecordType ||
-                          bType is bir:BErrorType) {
+                          bType is bir:BErrorType ||
+                          bType is bir:BFutureType) {
                 self.mv.visitVarInsn(ALOAD, valueIndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -461,6 +464,8 @@ type InstructionGenerator object {
                 self.mv.visitFieldInsn(PUTSTATIC, className, varName, "J");
             } else if (bType is bir:BMapType) {
                 self.mv.visitFieldInsn(PUTSTATIC, className, varName, io:sprintf("L%s;", MAP_VALUE));
+            } else if (bType is bir:BTypeString) {
+                self.mv.visitFieldInsn(PUTSTATIC, className, varName, io:sprintf("L%s;", STRING_VALUE));
             } else {
                 error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
                 panic err;
@@ -482,7 +487,8 @@ type InstructionGenerator object {
                             bType is bir:BUnionType ||
                             bType is bir:BTupleType ||
                             bType is bir:BRecordType ||
-                            bType is bir:BErrorType) {
+                            bType is bir:BErrorType ||
+                            bType is bir:BFutureType) {
                 self.mv.visitVarInsn(ASTORE, valueIndex);
             } else {
                 error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));

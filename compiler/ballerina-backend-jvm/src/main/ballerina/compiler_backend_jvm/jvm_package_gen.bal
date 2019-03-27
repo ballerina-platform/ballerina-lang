@@ -153,6 +153,9 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     } else if (bType is bir:BMapType) {
         jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, varName, io:sprintf("L%s;", MAP_VALUE));
         fv.visitEnd();
+    } else if (bType is bir:BTypeString) {
+        jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, varName, io:sprintf("L%s;", STRING_VALUE));
+        fv.visitEnd();
     } else {
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
         panic err;
