@@ -261,12 +261,21 @@ public class PathTest {
         }
     }
 
-    @Test(description = "Test build path function for paths", dataProvider = "file_parts")
-    public void testBuildPath(String... parts) {
-        validateBuildPath(parts);
+    @Test(description = "Test build path function for posix paths", dataProvider = "posix_file_parts")
+    public void testPosixBuildPath(String[] parts, String expected) {
+        if (!IS_WINDOWS) {
+            validateBuildPath(parts, expected);
+        }
     }
 
-    private void validateBuildPath(String[] parts) {
+    @Test(description = "Test build path function for windows paths", dataProvider = "windows_file_parts")
+    public void testBuildPath(String[] parts, String expected) {
+        if (IS_WINDOWS) {
+            validateBuildPath(parts, expected);
+        }
+    }
+
+    private void validateBuildPath(String[] parts, String expected) {
         BValueArray valueArray = new BValueArray(BTypes.typeString);
         int i = 0;
         for (String part: parts) {
@@ -276,9 +285,9 @@ public class PathTest {
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testBuildPath", args);
         BString resultPath = (BString) returns[0];
         log.info("{ballerina/path}:build(). Input: " + Arrays.asList(parts) + " | Return: " + resultPath);
-        Path expectedPath = Paths.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
-        String expectedValue =  expectedPath != null ? expectedPath.toString() : "";
-        assertEquals(resultPath.stringValue(), expectedValue);
+        //Path expectedPath = Paths.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
+        //String expectedValue =  expectedPath != null ? expectedPath.toString() : "";
+        assertEquals(resultPath.stringValue(), expected);
     }
 
     //@Test(description = "Test extension path function for posix paths", dataProvider = "ext_parts")
@@ -505,24 +514,57 @@ public class PathTest {
         };
     }
 
-    @DataProvider(name = "file_parts")
-    public Object[][] getFileParts() {
+    @DataProvider(name = "posix_file_parts")
+    public Object[][] getPosixFileParts() {
         return new Object[][] {
-                {"", ""},
-                {"/"},
-                {"a"},
-                {"A", "B", "C"},
-                {"a", ""},
-                {"", "b"},
-                {"/", "a"},
-                {"/", "a/b"},
-                {"/", ""},
-                {"//", "a"},
-                {"/a", "b"},
-                {"a/", "b"},
-                {"a/", ""},
-                {"/", "a", "b"},
-                {"C:\\", "test", "data\\eat"}
+                {new String[] {}, ""},
+                {new String[] {""}, ""},
+                {new String[] {"/"}, "/"},
+                {new String[] {"a"}, "a"},
+                {new String[] {"A", "B", "C"}, "A/B/C"},
+                {new String[] {"a", ""}, "a"},
+                {new String[] {"", "b"}, "b"},
+                {new String[] {"/", "a"}, "/a"},
+                {new String[] {"/", "a/b"}, "/a/b"},
+                {new String[] {"/", ""}, "/"},
+                {new String[] {"//", "a"}, "/a"},
+                {new String[] {"/a", "b"}, "/a/b"},
+                {new String[] {"a/", "b"}, "a/b"},
+                {new String[] {"a/", ""}, "a"},
+                {new String[] {"", ""}, ""},
+                {new String[] {"/", "a", "b"}, "/a/b"},
+                {new String[] {"C:\\", "test", "data\\eat"}, "C:\\/test/data\\eat"},
+                {new String[] {"C:", "test", "data\\eat"}, "C:/test/data\\eat"}
+        };
+    }
+
+    @DataProvider(name = "windows_file_parts")
+    public Object[][] getWindowsFileParts() {
+        return new Object[][] {
+                {new String[] {"directory", "file"}, "directory\\file"},
+                {new String[] {"C:\\Windows\\", "System32"}, "C:\\Windows\\System32"},
+                {new String[] {"C:\\Windows\\", ""}, "C:\\Windows"},
+                {new String[] {"C:\\", "Windows"}, "C:\\Windows"},
+                {new String[] {"C:", "a"}, "C:a"},
+                {new String[] {"C:", "a\\b"}, "C:a\\b"},
+                {new String[] {"C:", "a", "b"}, "C:a\\b"},
+                {new String[] {"C:", "", "b"}, "C:b"},
+                {new String[] {"C:", "", "", "b"}, "C:b"},
+                {new String[] {"C:", ""}, "C:."},
+                {new String[] {"C:", "", ""}, "C:."},
+                {new String[] {"C:.", "a"}, "C:a"},
+                {new String[] {"C:a", "b"}, "C:a\\b"},
+                {new String[] {"C:a", "b", "d"}, "C:a\\b\\d"},
+                {new String[] {"\\\\host\\share", "foo"}, "\\\\host\\share\\foo"},
+                {new String[] {"\\\\host\\share\\foo"}, "\\\\host\\share\\foo"},
+                {new String[] {"//host/share", "foo/bar"}, "\\\\host\\share\\foo\\bar"},
+                {new String[] {"\\"}, "\\"},
+                {new String[] {"\\", ""}, "\\"},
+                {new String[] {"\\", "a"}, "\\a"},
+                {new String[] {"\\", "a", "b"}, "\\a\\b"},
+                {new String[] {"\\", "\\\\a\\b", "c"}, "\\a\\b\\c"},
+                {new String[] {"\\\\a", "b", "c"}, "\\a\\b\\c"},
+                {new String[] {"\\\\a\\", "b", "c"}, "\\a\\b\\c"},
         };
     }
 
