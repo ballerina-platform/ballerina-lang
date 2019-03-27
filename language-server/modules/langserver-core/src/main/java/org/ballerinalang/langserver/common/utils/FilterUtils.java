@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -145,6 +146,20 @@ public class FilterUtils {
                             resultList.add(new SymbolInfo(entryName.getValue(), attachedScopeEntry));
                         }
                     });
+                } else if (scopeEntry.symbol instanceof BServiceSymbol
+                        && scopeEntry.symbol.getName().getValue().equals(variableName)) {
+                    Map<Name, Scope.ScopeEntry> attachedEntries =
+                            ((BObjectTypeSymbol) scopeEntry.symbol.type.tsymbol).scope.entries;
+                    Map<Name, Scope.ScopeEntry> methodEntries =
+                            ((BObjectTypeSymbol) scopeEntry.symbol.type.tsymbol).methodScope.entries;
+                    methodEntries.forEach((entryName, functionEntry) -> {
+                        if ((functionEntry.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+                            return;
+                        }
+                        resultList.add(new SymbolInfo(functionEntry.symbol.getName().value, functionEntry));
+                    });
+                    attachedEntries.forEach((entryName, fieldEntry) -> 
+                            resultList.add(new SymbolInfo(fieldEntry.symbol.getName().value, fieldEntry)));
                 }
             });
             if (addBuiltIn) {
@@ -213,11 +228,12 @@ public class FilterUtils {
         }
         symbolInfos.forEach(symbolInfo -> {
             if (!CommonUtil.isInvalidSymbol(symbolInfo.getScopeEntry().symbol) 
-                    && (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
+                    && ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
                     && symbolInfo.getScopeEntry().symbol.getType() != null 
                     && symbolInfo.getScopeEntry().symbol.getType().toString().equals(modifiedBType.toString())) 
                     || (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
-                    && CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol))) {
+                    && CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol))
+                    || (symbolInfo.getScopeEntry().symbol instanceof BServiceSymbol))) {
                 returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
             }
         });

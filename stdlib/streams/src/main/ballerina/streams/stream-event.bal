@@ -78,9 +78,8 @@ public type StreamEvent object {
 };
 
 # This record represents a stream event which can be persisted.
-public type SnapshottableStreamEvent record {
+public type SnapshottableStreamEvent record {|
     EventType eventType = "CURRENT";
     int timestamp = 0;
     map<anydata> data = {};
-    !...;
-};
+|};

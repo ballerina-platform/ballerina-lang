@@ -57,39 +57,35 @@ public const OAEPwithSHA512andMGF1 = "OAEPwithSHA512andMGF1";
 #
 # + path - Path to the key store file
 # + password - Key store password
-public type KeyStore record {
+public type KeyStore record {|
     string path = "";
     string password = "";
-    !...;
-};
+|};
 
 # Record for providing trust store related configurations.
 #
 # + path - Path to the key store file
 # + password - Key store password
-public type TrustStore record {
+public type TrustStore record {|
     string path = "";
     string password = "";
-    !...;
-};
+|};
 
 # Private key used in cryptographic operations.
 #
 # + algorithm - Key algorithm
-public type PrivateKey record {
+public type PrivateKey record {|
     KeyAlgorithm algorithm;
-    !...;
-};
+|};
 
 # Public key used in cryptographic operations.
 #
 # + algorithm - Key algorithm
 # + certificate - Public key certificate
-public type PublicKey record {
+public type PublicKey record {|
     KeyAlgorithm algorithm;
     Certificate? certificate;
-    !...;
-};
+|};
 
 # X509 public key certificate information.
 #
@@ -101,7 +97,7 @@ public type PublicKey record {
 # + notAfter - Not after validity period of certificate
 # + signature - Raw signature bits
 # + signingAlgorithm - Signature algorithm
-public type Certificate record {
+public type Certificate record {|
     int version0;
     int serial;
     string issuer;
@@ -110,16 +106,14 @@ public type Certificate record {
     time:Time notAfter;
     byte[] signature;
     string signingAlgorithm;
-    !...;
-};
+|};
 
 # Error relevant to crypto operations.
 #
 # + message - Error message
-public type CryptoError record {
+public type CryptoError record {|
     string message = "";
-    !...;
-};
+|};
 
 # Returns the MD5 hash of the given data.
 #

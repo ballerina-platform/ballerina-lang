@@ -30,7 +30,6 @@ public class Scheduler {
 
     public static ExecutorService executorService = null;
 
-
     public static Strand schedule(Object[] params, Function function) {
         Strand strand = new Strand();
         // find the return type based on type
@@ -51,6 +50,10 @@ public class Scheduler {
 
 }
 
+/**
+ * A callable implementation to invoke a given ballerina function asynchronously.
+ * @param <T>
+ */
 class AsyncExecutor<T> implements Callable<T> {
 
     Function function;

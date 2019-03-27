@@ -16,7 +16,6 @@
 
 import ballerina/crypto;
 import ballerina/encoding;
-import ballerina/internal;
 import ballerina/io;
 import ballerina/log;
 import ballerina/time;
@@ -28,15 +27,14 @@ import ballerina/time;
 # + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed public key certificate alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
-public type JWTValidatorConfig record {
+public type JWTValidatorConfig record {|
     string issuer?;
     string[] audience?;
     int clockSkew = 0;
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
-    !...;
-};
+|};
 
 # Validity given JWT string.
 #

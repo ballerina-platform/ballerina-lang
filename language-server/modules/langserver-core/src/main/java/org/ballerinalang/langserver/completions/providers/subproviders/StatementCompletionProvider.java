@@ -63,24 +63,20 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
     }
 
     private List<CompletionItem> getStaticCompletionItems(LSContext context) {
-        boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem()
-                .getSnippetSupport();
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Add the xmlns snippet
-        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context, supportSnippet));
+        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context));
         // Add the var keyword
-        completionItems.add(Snippet.KW_VAR.get().build(context, supportSnippet));
+        completionItems.add(Snippet.KW_VAR.get().build(context));
         // Add the error snippet
-        completionItems.add(Snippet.DEF_ERROR.get().build(context, supportSnippet));
+        completionItems.add(Snippet.DEF_ERROR.get().build(context));
 
         return completionItems;
     }
 
     private List<CompletionItem> getTypeguardDestructuredItems(List<SymbolInfo> symbolInfoList, LSContext ctx) {
-        boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         return symbolInfoList.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BUnionType)
                 .map(symbolInfo -> {
@@ -98,7 +94,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
 
                     return new SnippetBlock(label, snippet, detail,
-                            SnippetBlock.SnippetType.SNIPPET).build(ctx, isSnippet);
+                            SnippetBlock.SnippetType.SNIPPET).build(ctx);
                 }).collect(Collectors.toList());
     }
 }

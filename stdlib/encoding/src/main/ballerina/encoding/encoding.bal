@@ -17,10 +17,9 @@
 # Error relevant to encoding operations.
 #
 # + message - Error message
-public type EncodingError record {
+public type EncodingError record {|
     string message = "";
-    !...;
-};
+|};
 
 # Returns the Base64 encoded `string` value of the given byte array.
 #

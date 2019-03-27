@@ -1,13 +1,12 @@
 import ballerina/io;
 import ballerina/log;
 
-public type Person record {
+public type Person record {|
     string name = "";
     int age = 0;
     float income = 0.0;
     boolean isMarried = false;
-    !...;
-};
+|};
 
 // Serialize record into binary.
 function serialize(Person p, io:WritableByteChannel byteChannel) {

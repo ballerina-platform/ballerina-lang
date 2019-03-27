@@ -20,11 +20,10 @@ type Person record {
 };
 
 // Assignable to Person type
-type Employee record {
+type Employee record {|
     string name = "";
     boolean intern = false;
-    !...;
-};
+|};
 
 //  Negative scenarios
 function mismatchingCovariace() {

@@ -51,7 +51,6 @@ public type Listener object {
 # Represents the socket server configuration.
 #
 # + interface - the interface that server with to bind
-public type ListenerConfig record {
+public type ListenerConfig record {|
     string? interface = ();
-    !...;
-};
+|};
