@@ -43,8 +43,8 @@ import java.util.stream.Stream;
 public class BMainInstance implements BMain {
     private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
+    private String agentArgs = "";
     private BalServer balServer;
-    private String agentArgs;
 
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -181,6 +181,9 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
+        if ("".equals(javaOpts)) {
+            return;
+        }
         envProperties.put(JAVA_OPTS, javaOpts);
     }
 

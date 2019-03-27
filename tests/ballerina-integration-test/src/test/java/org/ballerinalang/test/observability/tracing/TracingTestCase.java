@@ -62,9 +62,10 @@ public class TracingTestCase extends BaseTest {
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
-
+        // TODO: Remove use of "target" directory once maven build is removed
+        String baseDir = BASEDIR.contains("build") ? BASEDIR : BASEDIR + File.separator + "target";
         FileUtils.copyDirectoryToDirectory(
-                new File(BASEDIR + File.separator + "target" + File.separator + "lib" + File.separator + "repo" +
+                new File(baseDir + File.separator + "lib" + File.separator + "repo" +
                         File.separator + "ballerina" + File.separator + "testobserve"),
                 new File(serverInstance.getServerHome()
                         + File.separator + "lib" + File.separator + "repo" + File.separator + "ballerina"));

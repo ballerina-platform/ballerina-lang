@@ -49,8 +49,6 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     private static BServerInstance serverInstance;
     private final int servicePort = Constant.DEFAULT_HTTP_PORT;
     private TestDatabase testDatabase;
-    private static final String DB_DIRECTORY =
-            Paths.get("target", "tempdb").toAbsolutePath().toString() + File.separator;
 
     @BeforeClass(alwaysRun = true)
     private void setup() throws Exception {
@@ -65,9 +63,13 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     }
 
     private void setUpDatabase() throws SQLException {
+        // TODO: Remove use of "target" directory once maven build is removed
+        String baseDir = System.getProperty("basedir");
+        String dbDirectory = Paths.get(baseDir.contains("build") ? baseDir : "target", "tempdb")
+                .toAbsolutePath().toString() + File.separator;
         String dbScriptPath = Paths
                 .get("data", "streaming", "datafiles", "streaming_test_data.sql").toString();
-        testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, DB_DIRECTORY,
+        testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, dbDirectory,
                 "STREAMING_XML_TEST_DB");
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }
