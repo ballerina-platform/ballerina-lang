@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.command;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.command.executors.ChangeReturnTypeExecutor;
+import org.ballerinalang.langserver.command.executors.FixReturnTypeExecutor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -224,7 +224,7 @@ public class CommandUtil {
                 CommandArgument typeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, foundType);
                 List<Object> args = Arrays.asList(lineArg, colArg, typeArg, uriArg);
                 String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType;
-                commands.add(Either.forLeft(new Command(commandTitle, ChangeReturnTypeExecutor.COMMAND, args)));
+                commands.add(Either.forLeft(new Command(commandTitle, FixReturnTypeExecutor.COMMAND, args)));
             }
         }
         return commands;

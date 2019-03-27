@@ -55,7 +55,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdi
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
-public class ChangeReturnTypeExecutor implements LSCommandExecutor {
+public class FixReturnTypeExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CHANGE_RETURN_TYPE";
 
