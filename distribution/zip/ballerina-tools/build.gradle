@@ -76,6 +76,10 @@ dependencies {
     distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
+
+    balSource project(path: ':ballerina-bir', configuration: 'balSource')
+    balSource project(path: ':ballerina-jvm', configuration: 'balSource')
+    balSource project(path: ':ballerina-llvm', configuration: 'balSource')
 }
 
 def basePath = '/' + project.name + '-' + project.version
