@@ -89,7 +89,7 @@ public class ClientSocketTest {
     }
 
     @Test(description = "Write some content, then shutdown the write and try to write it again",
-          dependsOnMethods = "testOneWayWrite")
+          dependsOnMethods = "testOneWayWrite", enabled = false)
     public void testShutdownWrite() {
         String firstMsg = "Hello Ballerina1";
         String secondMsg = "Hello Ballerina2";
