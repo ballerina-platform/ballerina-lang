@@ -28,8 +28,6 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerUtils;
 import org.quartz.impl.calendar.BaseCalendar;
 import org.quartz.spi.OperableTrigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
