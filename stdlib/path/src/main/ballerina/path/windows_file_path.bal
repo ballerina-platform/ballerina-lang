@@ -58,8 +58,9 @@ function buildWindowsPath(string... parts) returns string|error {
             string tail = "";
             if (i < count) {
                 tail = parts[i];
+                i = i + 1;
             } else {
-                return firstNonEmptyPart;
+                return parse(firstNonEmptyPart);
             }
 
             while(i < count) {
@@ -85,13 +86,20 @@ function buildWindowsPath(string... parts) returns string|error {
     string tail = "";
     if (i < count) {
         tail = parts[i];
+        i = i + 1;
     } else {
-        return firstNonEmptyPart;
+        return parse(firstNonEmptyPart);
     }
 
     while(i < count) {
-        tail = tail + "\\" + parts[i];
+        if (parts[i] != "") {
+            tail = tail + "\\" + parts[i];
+        }
         i = i + 1;
+    }
+
+    if (tail == "") {
+        return head;
     }
     if check charAt(head, head.length() - 1) == PATH_SEPARATOR {
 		return head + check parse(tail);
