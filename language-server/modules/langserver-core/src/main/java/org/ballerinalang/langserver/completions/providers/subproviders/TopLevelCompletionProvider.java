@@ -35,9 +35,6 @@ public class TopLevelCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        boolean snippetSupport = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem()
-                .getSnippetSupport();
 
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
@@ -46,7 +43,7 @@ public class TopLevelCompletionProvider extends AbstractSubCompletionProvider {
             completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
             // Completion after the extern keyword. Only the signature of function should suggest
-            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx, snippetSupport));
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx));
         } else {
             completionItems.addAll(addTopLevelItems(ctx));
             completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
