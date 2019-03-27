@@ -130,7 +130,10 @@ function testTableFreezeOnContainer() {
 # + tableVal - the table to which the member should be added
 # + member - the member to be added
 public function insertMemberToTable(table<record{}> tableVal, record{} member) {
-    _ = tableVal.add(member);
+    error? err = tableVal.add(member);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -382,7 +385,10 @@ function testMapFrozenContainerShapeAndType() {
     test:assertTrue(!(a7 is map<string>|float),
         msg = "expected value's type to not be of same type or sub type");
 
-    _ = a7.freeze();
+    any|error? err = a7.freeze();
+    if err is error {
+        test:assertFail(msg = "failed in executing freeze operation");
+    }
     result = trap insertMemberToMap(a5, "three", a7);
     test:assertTrue(a7 is map<string>|float,
         msg = "expected value's type to match shape after freezing");

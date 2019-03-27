@@ -85,7 +85,7 @@ import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
-import org.wso2.ballerinalang.compiler.TypeCreater;
+import org.wso2.ballerinalang.compiler.TypeCreator;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -814,7 +814,7 @@ public class PackageInfoReader {
     private BFunctionType getFunctionType(PackageInfo packageInfo, String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(new RuntimeTypeCreater(packageInfo), chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new RuntimeTypeCreator(packageInfo), chars, 0, typeStack);
         return (BFunctionType) typeStack.pop();
     }
 
@@ -823,7 +823,7 @@ public class PackageInfoReader {
         Stack<BType> typeStack = new Stack<>();
         char[] chars = signature.toCharArray();
         while (index < chars.length) {
-            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreater(packageInfo), chars, index, typeStack);
+            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreator(packageInfo), chars, index, typeStack);
         }
 
         return typeStack.toArray(new BType[0]);
@@ -1899,7 +1899,7 @@ public class PackageInfoReader {
     }
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
-        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
+        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreator(packageInfo), desc);
     }
 
     private String getPackagePath(String orgName, String pkgName, String version) {
@@ -1924,11 +1924,11 @@ public class PackageInfoReader {
      *
      * @since 0.975.0
      */
-    private class RuntimeTypeCreater implements TypeCreater<BType> {
+    private class RuntimeTypeCreator implements TypeCreator<BType> {
 
         PackageInfo packageInfo;
 
-        public RuntimeTypeCreater(PackageInfo packageInfo) {
+        public RuntimeTypeCreator(PackageInfo packageInfo) {
             this.packageInfo = packageInfo;
         }
 

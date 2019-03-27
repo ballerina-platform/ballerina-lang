@@ -124,7 +124,13 @@ function foo5(any|error e) returns string {
         var (a, b) => return "Matched with tuple var : " + io:sprintf("%s", a);
         var { a, b } => return "Matched with record var : " + io:sprintf("%s", a);
         var error (reason, _) => return "Matched with error var : " + io:sprintf("%s", reason);
-        var x => return "Matched nothing : " + io:sprintf("%s", x);
+        var x => {
+            if x is any {
+                return "Matched nothing : " + io:sprintf("%s", x);
+            } else {
+                return "Matched nothing";
+            }
+        }
     }
 }
 

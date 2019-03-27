@@ -534,6 +534,6 @@ service initiatorService on new http:Listener(8888) {
         }
 
         var stt = res.setTextPayload(untaint s);
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 }

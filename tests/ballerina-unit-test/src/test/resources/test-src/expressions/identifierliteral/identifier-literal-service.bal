@@ -22,7 +22,7 @@ service ^"sample Service" on testEP{
         http:Response res = new;
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -33,7 +33,7 @@ service ^"sample Service" on testEP{
         http:Response res = new;
         string ^"a a" = "hello";
         res.setTextPayload(^"a a");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

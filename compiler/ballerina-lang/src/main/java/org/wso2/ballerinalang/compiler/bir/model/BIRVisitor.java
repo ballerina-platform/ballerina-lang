@@ -126,6 +126,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        throw new AssertionError();
+    }
+
     public void visit(IsLike birIsLike) {
         throw new AssertionError();
     }

@@ -213,6 +213,29 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Else If Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getElseIfStatementSnippet() {
+        String snippet = "else if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ELSE_IF, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                                SnippetType.STATEMENT);
+    }
+
+    /**
+     * Get Else Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getElseStatementSnippet() {
+        String snippet = "else {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ELSE, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                                SnippetType.STATEMENT);
+    }
+
+    /**
      * Get Lengthof Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

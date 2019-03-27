@@ -71,7 +71,10 @@ function testFrozenTableUpdateBroken() {
     table<BarRecordThirteen> a5 = table{};
     BarRecordThirteen b1 = { barFieldOne: 100 };
     _ = a5.freeze();
-    _ = a5.add(b1);
+    error? err = a5.add(b1);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -85,7 +88,10 @@ function testFrozenStructureMembersFrozennessBroken() {
     table<BarRecordThirteen> a13 = table{};
     test:assertFalse(a13.isFrozen(), msg = "exected value to not be frozen");
     BarRecordThirteen a14 = { barFieldOne: 100 };
-    _ = a13.add(a14);
+    error? err = a13.add(a14);
+    if err is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     _ = a13.freeze();
     test:assertTrue(a13.isFrozen(), msg = "exected value to be frozen");
     //test:assertTrue(a14.isFrozen(), msg = "expected value to be frozen");

@@ -42,7 +42,7 @@ service participant2 on participant2EP02 {
         http:Response res = new;
         res.setTextPayload(state2.toString());
         state2.reset();
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     resource function task1 (http:Caller conn, http:Request req) {
@@ -113,7 +113,7 @@ service participant2 on participant2EP02 {
            res.setTextPayload(untaint payload);
         }
 
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 }
 

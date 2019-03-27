@@ -1016,7 +1016,7 @@ public class CompiledPackageSymbolEnter {
     private BInvokableType createInvokableType(String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(new CompilerTypeCreater(), chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new CompilerTypeCreator(), chars, 0, typeStack);
         return (BInvokableType) typeStack.pop();
     }
 
@@ -1100,7 +1100,7 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BType getBTypeFromDescriptor(String typeSig) {
-        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreater(), typeSig);
+        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreator(), typeSig);
     }
 
     private BLangLiteral createLiteralBasedOnDescriptor(String typeSig) {
@@ -1142,7 +1142,7 @@ public class CompiledPackageSymbolEnter {
      *
      * @since 0.975.0
      */
-    private class CompilerTypeCreater implements TypeCreater<BType> {
+    private class CompilerTypeCreator implements TypeCreator<BType> {
 
         @Override
         public BType getBasicType(char typeChar) {
