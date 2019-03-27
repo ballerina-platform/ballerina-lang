@@ -19,7 +19,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
-import org.ballerinalang.langserver.command.executors.ChangeReturnTypeExecutor;
+import org.ballerinalang.langserver.command.executors.FixReturnTypeExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
@@ -266,7 +266,7 @@ public class CommandUtil {
                 String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType;
                 CodeAction action = new CodeAction(commandTitle);
                 action.setKind(CodeActionKind.QuickFix);
-                action.setCommand(new Command(commandTitle, ChangeReturnTypeExecutor.COMMAND, args));
+                action.setCommand(new Command(commandTitle, FixReturnTypeExecutor.COMMAND, args));
                 action.setDiagnostics(diagnostics);
                 actions.add(action);
             }
