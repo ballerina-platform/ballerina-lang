@@ -118,28 +118,27 @@ public class FixReturnTypeExecutor implements LSCommandExecutor {
                                                          LSContext context) {
         List<TextEdit> edits = new ArrayList<>();
         Node bLangNode = CommandUtil.getBLangNodeByPosition(line, column, uri, documentManager, lsCompiler, context);
-        Position start = new Position(0, 0);
-        Position end = new Position(0, 0);
-
-        // Parse full-qualified BType name  eg. ballerina/http:Client
-        Matcher matcher = FQ_TYPE_PATTERN.matcher(type);
-        String editText = type;
-        if (matcher.find() && matcher.groupCount() > 2) {
-            String orgName = matcher.group(1);
-            String alias = matcher.group(2);
-            String typeName = matcher.group(3);
-            String pkgId = orgName + "/" + alias;
-            PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-            if (pkgId.equals(currentPkgId.toString()) || ("ballerina".equals(orgName) && "builtin".equals(alias))) {
-                editText = typeName;
-            } else {
-                edits.addAll(CommonUtil.getAutoImportTextEdits(context, orgName, alias));
-                editText = alias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + typeName;
-            }
-        }
-
-        // Add return type text edit
         if (bLangNode instanceof BLangFunction) {
+            // Process full-qualified BType name  eg. ballerina/http:Client and if required; add an auto-import
+            Matcher matcher = FQ_TYPE_PATTERN.matcher(type);
+            String editText = type;
+            if (matcher.find() && matcher.groupCount() > 2) {
+                String orgName = matcher.group(1);
+                String alias = matcher.group(2);
+                String typeName = matcher.group(3);
+                String pkgId = orgName + "/" + alias;
+                PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+                if (pkgId.equals(currentPkgId.toString()) || ("ballerina".equals(orgName) && "builtin".equals(alias))) {
+                    editText = typeName;
+                } else {
+                    edits.addAll(CommonUtil.getAutoImportTextEdits(context, orgName, alias));
+                    editText = alias + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + typeName;
+                }
+            }
+
+            // Process function node
+            Position start = new Position(0, 0);
+            Position end = new Position(0, 0);
             BLangFunction func = (BLangFunction) bLangNode;
             if (func.returnTypeNode instanceof BLangValueType
                     && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
