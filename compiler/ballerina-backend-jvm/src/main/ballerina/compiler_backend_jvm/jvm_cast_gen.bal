@@ -65,7 +65,7 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
 }
 
 function generateCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeInt) {
+    if (sourceType is bir:BTypeInt || sourceType is bir:BTypeByte) {
         // do nothing
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitInsn(D2L);
@@ -121,12 +121,12 @@ function generateCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeByte) {
+    if (sourceType is bir:BTypeInt || sourceType is bir:BTypeByte) {
         // do nothing
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)B", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));
         panic err;
@@ -134,14 +134,12 @@ function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToAny(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeInt) {
+    if (sourceType is bir:BTypeInt || sourceType is bir:BTypeByte) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
     } else if (sourceType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-    } else if (sourceType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
     } else {
         // do nothing
         return;

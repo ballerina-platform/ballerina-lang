@@ -140,17 +140,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
     string varName = globalVar.name.value;
     bir:BType bType = globalVar.typeValue;
-
-    if (bType is bir:BTypeInt) {
-        jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, varName, "J");
-        fv.visitEnd();
-    } else if (bType is bir:BMapType) {
-        jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, varName, io:sprintf("L%s;", MAP_VALUE));
-        fv.visitEnd();
-    } else {
-        error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
-        panic err;
-    }
+    generateField(cw, bType, varName);
 }
 
 function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
