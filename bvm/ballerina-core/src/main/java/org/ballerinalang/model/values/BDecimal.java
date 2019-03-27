@@ -77,7 +77,8 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     }
 
     private boolean isHexValueString(String value) {
-        return value.startsWith("0x") || value.startsWith("0X") || value.startsWith("-0x") || value.startsWith("-0X");
+        String upperCaseValue = value.toUpperCase();
+        return upperCaseValue.startsWith("0X") || upperCaseValue.startsWith("-0X");
     }
 
     /**
@@ -85,15 +86,15 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
      * BigDecimal does not support hexadecimal numbers. Hence, we need to convert the hexadecimal number to a
      * decimal floating point number before passing the string value to the BigDecimal constructor.
      *
-     * @param value Hexadecimal value that needs to be converted.
+     * @param value Hexadecimal string value that needs to be converted.
      * @return BigDecimal corresponds to the hexadecimal number provided.
      */
     private BigDecimal hexToDecimalFloatingPointNumber(String value) {
-        boolean isNegative = value.startsWith("-");
+        String upperCaseValue = value.toUpperCase();
         // Remove the hexadecimal indicator prefix.
-        String hexValue = value.split("x|X")[1];
+        String hexValue = upperCaseValue.replace("0X", "");
         // Isolate the binary exponent and the number.
-        String[] splitAtExponent = hexValue.split("p|P");
+        String[] splitAtExponent = hexValue.split("P");
         int binaryExponent = Integer.parseInt(splitAtExponent[1]);
         String numberWithoutExp = splitAtExponent[0];
         String intComponent;
@@ -124,9 +125,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         }
         // Convert the hexadecimal whole number(without exponent) to decimal big integer.
         BigInteger hexEquivalentNumber = new BigInteger(intComponent, 16);
-        if (isNegative) {
-            hexEquivalentNumber = hexEquivalentNumber.negate();
-        }
+
         // Calculate and return the final decimal floating point number equivalent to the hex number provided.
         return new BigDecimal(hexEquivalentNumber).multiply(exponentValue, MathContext.DECIMAL128);
     }
