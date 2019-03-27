@@ -1100,16 +1100,6 @@
                 <version>${transport.http.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.secvault</groupId>
-                <artifactId>org.wso2.carbon.secvault</artifactId>
-                <version>${carbon.securevault.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.secvault</groupId>
-                <artifactId>org.wso2.carbon.secvault.ciphertool</artifactId>
-                <version>${carbon.securevault.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon.utils</groupId>
                 <artifactId>carbon-utils</artifactId>
                 <version>${carbon.utils.version}</version>
@@ -1138,11 +1128,6 @@
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-c14n</artifactId>
                 <version>${axiom.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>${jaxen.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -1275,11 +1260,6 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.jcraft</groupId>
-                <artifactId>jzlib</artifactId>
-                <version>${jzlib.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-pool.wso2</groupId>
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
@@ -1304,11 +1284,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>gson-fragment</artifactId>
-                <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.jknack</groupId>
@@ -1340,16 +1315,6 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-codegen</artifactId>
                 <version>${swagger.codegen.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>airline</artifactId>
-                <version>${airline.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.googlecode.lambdaj</groupId>
-                <artifactId>lambdaj</artifactId>
-                <version>${lambdaj.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1405,16 +1370,6 @@
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>javax.ws.rs-api</artifactId>
                 <version>${rs-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.msf4j</groupId>
-                <artifactId>msf4j-core</artifactId>
-                <version>${msf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${servlet-api-version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.transaction</groupId>
@@ -1592,11 +1547,6 @@
             </dependency>
             <!-- JMS connector dependencies -->
             <dependency>
-                <groupId>org.wso2.transport.jms</groupId>
-                <artifactId>transport-jms</artifactId>
-                <version>${wso2.transport.jms.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.jms</groupId>
                 <artifactId>javax.jms-api</artifactId>
                 <version>${javax.jms.version}</version>
@@ -1606,11 +1556,7 @@
                 <artifactId>llvm-platform</artifactId>
                 <version>${javacpp.llvm.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.andes.wso2</groupId>
-                <artifactId>andes-client</artifactId>
-                <version>${andes.client.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
                 <artifactId>org.wso2.securevault</artifactId>
@@ -2361,20 +2307,12 @@
 
     <properties>
         <ballerina.version>0.990.4-SNAPSHOT</ballerina.version>
-        <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
-        <cobertura.version>2.7</cobertura.version>
 
-        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
-        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
-        <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
-        </ballerina.package.repository.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-
 
         <testng.version>6.14.3</testng.version>
         <commons.io.version>2.6</commons.io.version>
@@ -2383,7 +2321,6 @@
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
         <transport.http.version>6.0.275</transport.http.version>
-        <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
@@ -2393,7 +2330,6 @@
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <axiom.version>1.2.22</axiom.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
-        <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
@@ -2402,7 +2338,6 @@
         <mockito.version>1.10.19</mockito.version>
         <javassist.version>3.24.1-GA</javassist.version>
         <netty.version>4.1.34.Final</netty.version>
-        <jzlib.version>1.1.3</jzlib.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <picocli.version>3.9.5</picocli.version>
@@ -2411,11 +2346,9 @@
         <h2.version>1.4.199</h2.version>
         <gson.version>2.8.5</gson.version>
         <maven.wagon.ssh.version>3.3.2</maven.wagon.ssh.version>
-        <lambdaj.version>2.3.3</lambdaj.version>
         <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
         <maven.plugin.annotation.version>3.6.0</maven.plugin.annotation.version>
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
-        <airline.version>0.8</airline.version>
         <io.swagger.version>1.5.22</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
@@ -2425,8 +2358,6 @@
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.1.1</rs-api.version>
-        <msf4j.version>2.7.0</msf4j.version>
-        <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.3</javax-transaction-version>
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
@@ -2494,10 +2425,8 @@
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
         <!-- JMS Connector -->
-        <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.87</andes.client.version>
         <wso2.securevault.version>1.1.1</wso2.securevault.version>
 
         <!-- Artemis connector -->
