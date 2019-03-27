@@ -70,7 +70,7 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
      * @since 0.94
      */
     public static class BLangLocalVarRef extends BLangSimpleVarRef {
-
+        // This is used for closure desugar purposes.
         public boolean closureDesugared = false;
 
         public BLangLocalVarRef(BVarSymbol varSymbol) {

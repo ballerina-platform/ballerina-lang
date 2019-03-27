@@ -1397,7 +1397,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyVal.keyExpr != null) {
             BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode
                             (((BLangSimpleVarRef) keyVal.keyExpr).variableName), SymTag.VARIABLE);
-            keyVal.keyExprSymbol = symbol;
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;
         } else {

@@ -237,12 +237,17 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = funcNode;
     }
 
+    /**
+     * Create a function map to add parameters of the function that are used as closures.
+     *
+     * @param funcNode function node
+     * @param funcEnv  function environment
+     */
     private void createFunctionMap(BLangFunction funcNode, SymbolEnv funcEnv) {
         funcNode.mapSymbol = createMapSymbol("$map$func$" + funClosureMapCount, funcEnv);
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
-        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos,
-                funcNode.mapSymbol.name.value, funcNode.mapSymbol.type, emptyRecord,
-                funcNode.mapSymbol);
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.value,
+                funcNode.mapSymbol.type, emptyRecord, funcNode.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(funcNode.pos, mapVar);
         // Add the map variable to the top of the statements in the block node.
@@ -254,6 +259,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
         funcNode.body.stmts.add(0, mapVarDef);
     }
 
+    /**
+     * Update the function parameters with closure parameter maps passed.
+     *
+     * @param funcNode function node
+     */
     private void updateFunctionParams(BLangFunction funcNode) {
         // Add closure params to the required param list if there are any.
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
@@ -269,9 +279,19 @@ public class ClosureDesugar extends BLangNodeVisitor {
         }
     }
 
+    /**
+     * Add function parameters exposed as closures to the function map.
+     *
+     * @param funcNode    function node
+     * @param symbolEnv   symbol environment
+     * @param position    position to be added
+     * @param paramSymbol parameter symbol
+     * @param type        parameter type
+     */
     private void addToFunctionMap(BLangFunction funcNode, SymbolEnv symbolEnv, int position, BVarSymbol paramSymbol,
                                   BType type) {
         BLangSimpleVarRef.BLangLocalVarRef localVarRef = new BLangSimpleVarRef.BLangLocalVarRef(paramSymbol);
+        // Added the flag so it will not be desugared again.
         localVarRef.closureDesugared = true;
         localVarRef.type = type;
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(funcNode.pos, type,
@@ -324,6 +344,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = rewrite(stmt, env);
     }
 
+    /**
+     * Replace the variable definition statement with as assignment statement for closures.
+     *
+     * @param varDefNode variable definition node
+     * @return assignment statement created
+     */
     private BLangAssignment createAssignment(BLangSimpleVariableDef varDefNode) {
         // Create a map for the function or block node.
         BLangBlockStmt blockStmt = (BLangBlockStmt) env.node;
@@ -797,6 +823,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
+        // Chek
         if (!localVarRef.symbol.closure || localVarRef.closureDesugared) {
             result = localVarRef;
             return;
@@ -888,19 +915,23 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 return;
             }
 
-            // If the node is a function, update it accordingly.
-            if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) symbolEnv.node;
-                if (symbolEnv.enclInvokable == env.enclInvokable) {
-                    symbolEnv = symbolEnv.enclEnv;
-                    continue;
-                }
-                if (bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
-                    return;
-                }
-                bLangFunction.paramClosureMap.put(resolvedLevel, createMapSymbol("$paramMap$" + resolvedLevel,
-                        symbolEnv));
+            // If the node is not a function, then get its enclosing env and continue.
+            if (symbolEnv.node.getKind() != NodeKind.FUNCTION) {
+                symbolEnv = symbolEnv.enclEnv;
+                continue;
             }
+
+            // If the node is a function, update it accordingly.
+            BLangFunction bLangFunction = (BLangFunction) symbolEnv.node;
+            if (symbolEnv.enclInvokable == env.enclInvokable) {
+                symbolEnv = symbolEnv.enclEnv;
+                continue;
+            }
+            if (bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
+                return;
+            }
+            bLangFunction.paramClosureMap.put(resolvedLevel, createMapSymbol("$paramMap$" + resolvedLevel,
+                    symbolEnv));
 
             symbolEnv = symbolEnv.enclEnv;
         }
