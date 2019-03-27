@@ -55,31 +55,39 @@ function buildWindowsPath(string... parts) returns string|error {
         if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
             // First element is driver letter without terminating slash.
             i = i + 1;
-            string tail = "";
+            while (i < count) {
+                if (parts[i] != "") {
+                    break;
+                }
+                i = i + 1;
+            }
+            string tail;
             if (i < count) {
                 tail = parts[i];
                 i = i + 1;
             } else {
-                return parse(firstNonEmptyPart);
+                return normalize(firstNonEmptyPart);
             }
 
             while(i < count) {
-                tail = tail + "\\" + parts[i];
+                if (parts[i] != "") {
+                    tail = tail + "\\" + parts[i];
+                }
                 i = i + 1;
             }
-            return parse(firstNonEmptyPart + tail);
+            return firstNonEmptyPart + check normalize(tail);
         }
     }
 
     // UNC only allowed when the first element is a UNC path.
-    string head = check parse(firstNonEmptyPart);
+    string head = firstNonEmptyPart;
     if (check isUNC(head)) {
         string finalPath = firstNonEmptyPart;
         while(i < count) {
             finalPath = finalPath + "\\" + parts[i];
             i = i + 1;
         }
-        return parse(finalPath);
+        return normalize(finalPath);
     }
 
     i = i + 1;
@@ -88,7 +96,7 @@ function buildWindowsPath(string... parts) returns string|error {
         tail = parts[i];
         i = i + 1;
     } else {
-        return parse(firstNonEmptyPart);
+        return normalize(firstNonEmptyPart);
     }
 
     while(i < count) {
@@ -97,14 +105,15 @@ function buildWindowsPath(string... parts) returns string|error {
         }
         i = i + 1;
     }
-
+    string normalizedHead = check normalize(head);
+    string normalizedTail = check normalize(tail);
     if (tail == "") {
-        return head;
+        return normalizedHead;
     }
-    if check charAt(head, head.length() - 1) == PATH_SEPARATOR {
-		return head + check parse(tail);
+    if check charAt(normalizedHead, normalizedHead.length() - 1) == PATH_SEPARATOR {
+		return normalizedHead + normalizedTail;
 	}
-	return head + PATH_SEPARATOR + check parse(tail);
+	return normalizedHead + PATH_SEPARATOR + normalizedTail;
 }
 
 function getWindowsRoot(string input) returns (string, int)|error {
