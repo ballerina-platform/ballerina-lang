@@ -41,7 +41,6 @@ public class ExecuteTestsNegativeTestCase extends BaseTest {
     private Path projectPath;
     private String moduleName = "test";
 
-
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
         projectPath = Files.createTempDirectory("bal-test-integration-project-");
@@ -67,7 +66,6 @@ public class ExecuteTestsNegativeTestCase extends BaseTest {
                 projectPath.toString(), true);
 
         Assert.assertEquals(expectedMsg, loggedMsg);
-
     }
 
     @Test(description = "Test executing tests in a project which is not a ballerina project")
