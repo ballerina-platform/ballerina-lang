@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/config;
+import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/runtime;
 
 const string CONFIG_USER_SECTION = "b7a.users";
@@ -44,15 +46,32 @@ public type ConfigAuthStoreProvider object {
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
-        boolean isAuthenticated = password == self.readPassword(user);
-            if(isAuthenticated){
-                runtime:Principal principal = runtime:getInvocationContext().principal;
-                principal.userId = user;
-                // By default set userId as username.
-                principal.username = user;
-            }
-            return isAuthenticated;
+        string passwordFromConfig = self.readPassword(user);
+        boolean isAuthenticated = false;
+        if (passwordFromConfig.indexOf("@sha256:") == 0) {
+            isAuthenticated = encoding:encodeHex(crypto:hashSha256(password)) == extractHash(passwordFromConfig);
+        } else if (passwordFromConfig.indexOf("@sha384:") == 0) {
+            isAuthenticated = encoding:encodeHex(crypto:hashSha384(password)) == extractHash(passwordFromConfig);
+        } else if (passwordFromConfig.indexOf("@sha512:") == 0) {
+            isAuthenticated = encoding:encodeHex(crypto:hashSha512(password)) == extractHash(passwordFromConfig);
+        } else {
+            isAuthenticated = password == passwordFromConfig;
         }
+        if(isAuthenticated){
+            runtime:Principal principal = runtime:getInvocationContext().principal;
+            principal.userId = user;
+            // By default set userId as username.
+            principal.username = user;
+        }
+        return isAuthenticated;
+    }
+
+    # Extract password hash from the configuration file.
+    #
+    # + configValue - config value to extract the password from
+    public function extractHash(string configValue) {
+        return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}") - 1);
+    }
 
     # Reads the scope(s) for the user with the given username
     #
