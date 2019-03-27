@@ -76,7 +76,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         this.valueKind = valueKind;
     }
 
-    private boolean isHexValueString(String value) {
+    private static boolean isHexValueString(String value) {
         String upperCaseValue = value.toUpperCase();
         return upperCaseValue.startsWith("0X") || upperCaseValue.startsWith("-0X");
     }
@@ -89,7 +89,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
      * @param value Hexadecimal string value that needs to be converted.
      * @return BigDecimal corresponds to the hexadecimal number provided.
      */
-    private BigDecimal hexToDecimalFloatingPointNumber(String value) {
+    private static BigDecimal hexToDecimalFloatingPointNumber(String value) {
         String upperCaseValue = value.toUpperCase();
         // Remove the hexadecimal indicator prefix.
         String hexValue = upperCaseValue.replace("0X", "");
