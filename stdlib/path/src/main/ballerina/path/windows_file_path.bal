@@ -48,21 +48,55 @@ function buildWindowsPath(string... parts) returns string|error {
         return "";
     }
     string firstNonEmptyPart = parts[i];
-    string root = "";
-    int offset;
-    (root, offset) = check getWindowsRoot(firstNonEmptyPart);
-    string finalPath = "";
-    if (root != "" && firstNonEmptyPart.length() <= offset) {
-        finalPath = finalPath + root;
-    } else {
-        finalPath = finalPath + firstNonEmptyPart;
+
+    if (firstNonEmptyPart.length() == 2) {
+        string c0 = check charAt(firstNonEmptyPart, 0);
+        string c1 = check charAt(firstNonEmptyPart, 1);
+        if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
+            // First element is driver letter without terminating slash.
+            i = i + 1;
+            string tail = "";
+            if (i < count) {
+                tail = parts[i];
+            } else {
+                return firstNonEmptyPart;
+            }
+
+            while(i < count) {
+                tail = tail + "\\" + parts[i];
+                i = i + 1;
+            }
+            return parse(firstNonEmptyPart + tail);
+        }
     }
+
+    // UNC only allowed when the first element is a UNC path.
+    string head = check parse(firstNonEmptyPart);
+    if (check isUNC(head)) {
+        string finalPath = firstNonEmptyPart;
+        while(i < count) {
+            finalPath = finalPath + "\\" + parts[i];
+            i = i + 1;
+        }
+        return parse(finalPath);
+    }
+
     i = i + 1;
-    while (i < count) {
-        finalPath = finalPath + "\\" + parts[i];
+    string tail = "";
+    if (i < count) {
+        tail = parts[i];
+    } else {
+        return firstNonEmptyPart;
+    }
+
+    while(i < count) {
+        tail = tail + "\\" + parts[i];
         i = i + 1;
     }
-    return parse(finalPath);
+    if check charAt(head, head.length() - 1) == PATH_SEPARATOR {
+		return head + check parse(tail);
+	}
+	return head + PATH_SEPARATOR + check parse(tail);
 }
 
 function getWindowsRoot(string input) returns (string, int)|error {
