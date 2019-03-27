@@ -48,7 +48,29 @@ public type JWTAuthProvider object {
             }
         }
 
-        var payload = validateJwt(jwtToken, self.jwtAuthProviderConfig);
+        JWTValidatorConfig jwtValidatorConfig = { clockSkew: self.jwtAuthProviderConfig.clockSkew };
+        var issuer = self.jwtAuthProviderConfig["issuer"];
+        if (issuer is string) {
+            jwtValidatorConfig.issuer = issuer;
+        }
+        var audience = self.jwtAuthProviderConfig["audience"];
+        if (audience is string[]) {
+            jwtValidatorConfig.audience = audience;
+        }
+        var trustStore = self.jwtAuthProviderConfig["trustStore"];
+        if (trustStore is crypto:TrustStore) {
+            jwtValidatorConfig.trustStore = trustStore;
+        }
+        var certificateAlias = self.jwtAuthProviderConfig["certificateAlias"];
+        if (certificateAlias is string) {
+            jwtValidatorConfig.certificateAlias = certificateAlias;
+        }
+        var validateCertificateConfig = self.jwtAuthProviderConfig["validateCertificate"];
+        if (validateCertificateConfig is boolean) {
+            jwtValidatorConfig.validateCertificate = validateCertificateConfig;
+        }
+
+        var payload = validateJwt(jwtToken, jwtValidatorConfig);
         if (payload is JwtPayload) {
             self.setAuthenticationContext(payload, jwtToken);
             self.addToAuthenticationCache(jwtToken, payload.exp, payload);
@@ -69,7 +91,7 @@ public type JWTAuthProvider object {
                 });
                 return payload;
             } else {
-                self.authCache.remove(jwtToken);
+                self.jwtAuthProviderConfig.jwtCache.remove(jwtToken);
             }
         }
         return ();
@@ -132,6 +154,10 @@ public type JWTAuthProviderConfig record {|
     cache:Cache jwtCache = new;
 |};
 
+# Represents parsed and cached JWT
+#
+# + jwtPayload - Parsed JWT payload
+# + expiryTime - Expiry time of the JWT
 public type CachedJwt record {|
     JwtPayload jwtPayload;
     int expiryTime;

@@ -49,23 +49,17 @@ public type ConfigAuthStoreProvider object {
         if (user == "" || password == "") {
             return false;
         }
-        boolean isAuthenticated = password == self.readPassword(user);
-            if(isAuthenticated){
-                runtime:Principal principal = runtime:getInvocationContext().principal;
-                principal.userId = user;
-                // By default set userId as username.
-                principal.username = user;
-            }
-            return isAuthenticated;
-        }
         string passwordFromConfig = self.readPassword(user);
         boolean isAuthenticated = false;
         if (passwordFromConfig.indexOf("@sha256:") == 0) {
-            isAuthenticated = encoding:encodeHex(crypto:hashSha256(password)) == extractHash(passwordFromConfig);
+            isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
+                                .equalsIgnoreCase(self.extractHash(passwordFromConfig));
         } else if (passwordFromConfig.indexOf("@sha384:") == 0) {
-            isAuthenticated = encoding:encodeHex(crypto:hashSha384(password)) == extractHash(passwordFromConfig);
+            isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
+                                .equalsIgnoreCase(self.extractHash(passwordFromConfig));
         } else if (passwordFromConfig.indexOf("@sha512:") == 0) {
-            isAuthenticated = encoding:encodeHex(crypto:hashSha512(password)) == extractHash(passwordFromConfig);
+            isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
+                                .equalsIgnoreCase(self.extractHash(passwordFromConfig));
         } else {
             isAuthenticated = password == passwordFromConfig;
         }
@@ -81,8 +75,9 @@ public type ConfigAuthStoreProvider object {
     # Extract password hash from the configuration file.
     #
     # + configValue - config value to extract the password from
-    public function extractHash(string configValue) {
-        return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}") - 1);
+    # + return - password hash extracted from the configuration field
+    public function extractHash(string configValue) returns string {
+        return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}"));
     }
 
     # Reads the scope(s) for the user with the given username
