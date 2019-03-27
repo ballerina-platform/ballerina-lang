@@ -33,10 +33,9 @@ public class FunctionCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext context) {
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         if (parserRuleContext == null) {
             List<CompletionItem> completionItems = new ArrayList<>();
-            CompletionItem workerItem = Snippet.DEF_WORKER.get().build(context, isSnippet);
+            CompletionItem workerItem = Snippet.DEF_WORKER.get().build(context);
             completionItems.add(workerItem);
             return completionItems;
         }

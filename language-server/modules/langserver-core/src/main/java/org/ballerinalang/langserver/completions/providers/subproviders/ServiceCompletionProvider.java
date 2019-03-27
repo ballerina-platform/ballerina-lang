@@ -42,12 +42,10 @@ public class ServiceCompletionProvider extends AbstractSubCompletionProvider {
             ItemSorters.get(ActionAndFieldAccessContextItemSorter.class).sortItems(ctx, completionItems);
         } else if (parserRuleContext == null ||
                 parserRuleContext instanceof BallerinaParser.ObjectFieldDefinitionContext) {
-            boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                    .getCompletionItem().getSnippetSupport();
             completionItems.addAll(this.getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             completionItems.addAll(this.getPackagesCompletionItems(ctx));
-            completionItems.add(Snippet.DEF_RESOURCE.get().build(ctx, isSnippet));
-            completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx, isSnippet));
+            completionItems.add(Snippet.DEF_RESOURCE.get().build(ctx));
+            completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
         }
         return completionItems;
     }

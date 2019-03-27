@@ -75,12 +75,9 @@ public class ParserRuleFunctionDefinitionCompletionProvider extends AbstractSubC
         List<String> consumedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        boolean snippetSupport = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem()
-                .getSnippetSupport();
         if (consumedTokens.size() >= 1 && consumedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
             // Completion after the extern keyword. Only the signature of function should suggest
-            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context, snippetSupport));
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context));
         } else if (consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)
                 && CommonUtil.getLastItem(consumedTokens).equals(".")) {
             String objectName = consumedTokens.get(1);
