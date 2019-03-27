@@ -134,11 +134,14 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             return new BValueArray(new byte[0]);
         }
-        try {
-            return constructBlobDataSource(byteChannel.getInputStream());
-        } finally {
-            closeByteChannel(byteChannel);
-        }
+//        try {
+        BValueArray dataSource = constructBlobDataSource(byteChannel.getInputStream());
+        closeByteChannel(byteChannel);
+        return dataSource;
+
+//        } finally {
+//            closeByteChannel(byteChannel);
+//        }
     }
 
     /**
@@ -168,11 +171,12 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             return null;
         }
-        try {
-            return constructJsonDataSource(entityObj, byteChannel.getInputStream());
-        } finally {
-            closeByteChannel(byteChannel);
-        }
+//        try {
+        BRefType<?> dataSource = constructJsonDataSource(entityObj, byteChannel.getInputStream());
+        closeByteChannel(byteChannel);
+        return dataSource;
+//        } finally {
+//        }
     }
 
     /**
@@ -209,11 +213,12 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             throw new BallerinaIOException("Empty xml payload");
         }
-        try {
-            return constructXmlDataSource(entityObj, byteChannel.getInputStream());
-        } finally {
-            closeByteChannel(byteChannel);
-        }
+//        try {
+        BXML dataSource = constructXmlDataSource(entityObj, byteChannel.getInputStream());
+        closeByteChannel(byteChannel);
+        return dataSource;
+//        } finally {
+//        }
     }
 
     /**
@@ -250,11 +255,12 @@ public class EntityBodyHandler {
         if (byteChannel == null) {
             throw new BallerinaIOException("String payload is null");
         }
-        try {
-            return constructStringDataSource(entityObj, byteChannel.getInputStream());
-        } finally {
-            closeByteChannel(byteChannel);
-        }
+//        try {
+        BString dataSource = constructStringDataSource(entityObj, byteChannel.getInputStream());
+        closeByteChannel(byteChannel);
+        return dataSource;
+//        } finally {
+//        }
     }
 
     /**
