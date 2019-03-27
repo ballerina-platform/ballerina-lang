@@ -12,7 +12,7 @@ endpoint http:Listener listener {
 service<http:Service> testDocService bind { port: 9090 } {
     testDocResource (endpoint caller, http:Request request) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

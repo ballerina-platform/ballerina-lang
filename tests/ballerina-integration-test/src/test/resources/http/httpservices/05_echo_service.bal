@@ -32,7 +32,7 @@ service echo1 on echoEP1 {
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
-            _ = caller -> respond(untaint payload);
+            checkpanic caller->respond(untaint payload);
         } else {
             resp.statusCode = 500;
             string errMsg = <string> payload.detail().message;

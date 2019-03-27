@@ -175,8 +175,8 @@ public type ServiceEndpointConfiguration record {|
 # + sessionTimeout - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
 public type ServiceSecureSocket record {|
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

@@ -19,6 +19,6 @@ service echo on passthruEP {
     resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"common service"});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

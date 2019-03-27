@@ -35,4 +35,4 @@ public function println((any|error)... values) = external;
 # + format - A format string
 # + args   - Arguments referenced by the format specifiers in the format string.
 # + return - Formatted string
-public function sprintf(string format, any... args) returns string = external;
+public function sprintf(string format, (any|error)... args) returns string = external;
