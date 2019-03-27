@@ -158,7 +158,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     }
 
     @Override
-    public byte byteValue() {
+    public long byteValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
                 throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
@@ -171,12 +171,12 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
                                              "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'byte'");
         }
 
-        long intVal = Math.round(Math.round(decimalValue().doubleValue()));
+        long intVal = Math.round(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                          "'decimal' value '" + value + "' cannot be converted to 'byte'");
         }
-        return  (byte) intVal;
+        return intVal;
     }
 
     @Override

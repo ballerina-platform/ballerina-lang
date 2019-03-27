@@ -46,12 +46,11 @@ function errorTrapTest(int i) returns string|error {
 
 type TrxError error<string, TrxErrorData>;
 
-type TrxErrorData record {
+type TrxErrorData record {|
     string message = "";
     error? cause = ();
     string data = "";
-    !...;
-};
+|};
 
 public function testCustomErrorDetails() returns error {
     TrxError err = error("trxErr", { data: "test" });

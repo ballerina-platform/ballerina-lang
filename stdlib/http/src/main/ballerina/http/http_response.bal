@@ -135,12 +135,6 @@ public type Response object {
     # + return - The string representation of the message payload or `error` in case of errors
     public function getTextPayload() returns string|error;
 
-    # Gets the response payload as a `string`. Content type is not checked during payload construction which
-    # makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error;
-
     # Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
     # `getBodyParts()`.
     #
@@ -293,10 +287,6 @@ public function Response.getTextPayload() returns string|error {
     return self.getEntity()!getText();
 }
 
-public function Response.getPayloadAsString() returns string|error {
-    return self.getEntity()!getBodyAsString();
-}
-
 public function Response.getBinaryPayload() returns byte[]|error {
     return self.getEntity()!getByteArray();
 }
@@ -316,8 +306,14 @@ public function Response.setETag(json|xml|string|byte[] payload) {
 
 public function Response.setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
-    self.setHeader(LAST_MODIFIED, lastModified);
+    var lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
+    if (lastModified is string) {
+        self.setHeader(LAST_MODIFIED, lastModified);
+    } else {
+        //This error is unlikely as the format is a constant and time is
+        //the current time which  does not returns an error.
+        panic lastModified;
+    }
 }
 
 public function Response.setJsonPayload(json payload, string contentType = "application/json") {

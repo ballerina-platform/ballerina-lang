@@ -2,19 +2,18 @@ import ballerina/io;
 import ballerina/task;
 
 // Define a custom record type to use in timer.
-public type Person record {
+public type Person record {|
     string name;
     int age;
     int maxAge;
-    !...;
-};
+|};
 
 public function main() {
     // Interval in which the timer should trigger.
     int interval = 1000;
 
-    // Initialize the timer scheduler using the interval value.
-    // Delay will be equal to the interval as we do not mention the delay here.
+    // Initializes the timer scheduler using the interval value.
+    // The delay will be equal to the interval as we do not provide an initial delay here.
     task:Scheduler timer = new({ interval: interval });
 
     // Define a person object

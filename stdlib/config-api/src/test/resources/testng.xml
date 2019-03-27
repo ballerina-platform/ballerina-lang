@@ -22,7 +22,6 @@ under the License.
 <suite name="ballerina-config-test-suite">
     <test name="ballerina-config-test" parallel="false">
         <classes >
-            <class name="org.ballerinalang.stdlib.config.AESCipherToolNegativeTest"/>
             <class name="org.ballerinalang.stdlib.config.AESCipherToolTest"/>
             <class name="org.ballerinalang.stdlib.config.ComplexConfigKeyTest"/>
             <class name="org.ballerinalang.stdlib.config.ConfigProcessorTest"/>

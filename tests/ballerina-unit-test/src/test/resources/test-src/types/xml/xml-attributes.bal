@@ -93,21 +93,18 @@ function testAddAttributeWithEmptyNamespace() returns (xml) {
 function testAddNamespaceAsAttribute() returns (xml, xml) {
     var x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@["{http://www.w3.org/2000/xmlns/}ns4"] = "http://wso2.com";
-    
+
     var x2 = xml `<root xmlns="http://ballerinalang.org/" xmlns:ns3="http://sample.com/wso2/f"></root>`;
-    x2@["{http://ballerinalang.org/}ns4"] = "http://wso2.com";
-    
+    x2@["{http://ballerinalang.org/}att"] = "http://wso2.com";
+
     return (x1, x2);
 }
 
-function testUpdateNamespaceAsAttribute() returns (xml, xml) {
+function testUpdateNamespaceAsAttribute() returns (xml) {
     var x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@["{http://www.w3.org/2000/xmlns/}ns3"] = "http://wso2.com";
     
-    var x2 = xml `<root xmlns="http://ballerinalang.org/" xmlns:ns3="http://sample.com/wso2/f"></root>`;
-    x2@["{http://ballerinalang.org/}ns3"] = "http://wso2.com";
-    
-    return (x1, x2);
+    return (x1);
 }
 
 function testUpdateAttributeWithString() returns (xml) {

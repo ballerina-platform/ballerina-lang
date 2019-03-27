@@ -18,55 +18,50 @@
 #
 # + path - File path to trust store file
 # + password - Trust store password
-public type TrustStore record {
+public type TrustStore record {|
     string path = "";
     string password = "";
-    !...;
-};
+|};
 
 # KeyStore record represents key store related options to be used for HTTP client/service invocation.
 #
 # + path - File path to key store file
 # + password - Key store password
-public type KeyStore record {
+public type KeyStore record {|
     string path = "";
     string password = "";
-    !...;
-};
+|};
 
 # Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation.
 #
 # + name - SSL Protocol to be used. eg TLS1.2
 # + versions - SSL/TLS protocols to be enabled. eg TLSv1,TLSv1.1,TLSv1.2
-public type Protocols record {
+public type Protocols record {|
     string name = "";
     string[] versions = [];
-    !...;
-};
+|};
 
 # ValidateCert record represents options related to check whether a certificate is revoked or not.
 #
 # + enable - The status of validateCertEnabled
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - Time duration of cache validity period
-public type ValidateCert record {
+public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # OcspStapling record represents options related to check whether a certificate is revoked or not.
 #
 # + enable - The status of OcspStapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - Time duration of cache validity period
-public type ServiceOcspStapling record {
+public type ServiceOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
