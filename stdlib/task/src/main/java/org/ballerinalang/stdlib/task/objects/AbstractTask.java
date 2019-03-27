@@ -136,7 +136,7 @@ public abstract class AbstractTask implements Task {
      */
     public void stop() throws SchedulingException {
         try {
-            this.scheduler.shutdown(true);
+            this.scheduler.shutdown();
         } catch (SchedulerException e) {
             throw new SchedulingException("Failed to stop the task.", e);
         }
