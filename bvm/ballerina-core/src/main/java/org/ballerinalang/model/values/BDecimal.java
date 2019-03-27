@@ -93,6 +93,9 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         String upperCaseValue = value.toUpperCase();
         // Remove the hexadecimal indicator prefix.
         String hexValue = upperCaseValue.replace("0X", "");
+        if (!hexValue.contains("P")) {
+            hexValue = hexValue.concat("P0");
+        }
         // Isolate the binary exponent and the number.
         String[] splitAtExponent = hexValue.split("P");
         int binaryExponent = Integer.parseInt(splitAtExponent[1]);
