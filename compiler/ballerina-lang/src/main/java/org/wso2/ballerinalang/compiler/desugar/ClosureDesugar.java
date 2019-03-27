@@ -557,16 +557,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        for (BLangExpression expr : arrayLiteral.exprs) {
-            // Added for SQL parameters which come as array literals. These literals already have an implicit cast on
-            // them so if allowed they result in a stackoverflow error.
-            if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR &&
-                    (((BLangTypeConversionExpr) expr).expr.getKind() == NodeKind.LITERAL ||
-                            ((BLangTypeConversionExpr) expr).expr.getKind() == NodeKind.NUMERIC_LITERAL)) {
-                continue;
-            }
-            arrayLiteral.exprs.set(arrayLiteral.exprs.indexOf(expr), rewriteExpr(expr));
-        }
+        arrayLiteral.exprs = rewriteExprs(arrayLiteral.exprs);
         result = arrayLiteral;
     }
 
@@ -672,6 +663,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
+        // If there is an implicit cast on the expr of the type conversion expr already we do not rewrite it. This is
+        // to avoid stackoverflow error.
         if (conversionExpr.expr.impConversionExpr != null) {
             result = conversionExpr;
             return;
@@ -827,6 +820,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             // Go up within the block node
             SymbolEnv symbolEnv = env;
             while (symbolEnv != null && symbolEnv.node.getKind() != NodeKind.PACKAGE) {
+                // Check if the node is a block statement.
                 if (symbolEnv.envCount == absoluteLevel && symbolEnv.node.getKind() == NodeKind.BLOCK) {
                     if (((BLangBlockStmt) symbolEnv.node).mapSymbol == null) {
                         ((BLangBlockStmt) symbolEnv.node).mapSymbol =
@@ -835,7 +829,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     updateClosureVars(localVarRef, ((BLangBlockStmt) symbolEnv.node).mapSymbol);
                     return;
                 }
-
+                // Check if the node is a function.
                 if (symbolEnv.envCount == absoluteLevel && symbolEnv.node.getKind() == NodeKind.FUNCTION) {
                     if (((BLangFunction) symbolEnv.node).mapSymbol == null) {
                         ((BLangFunction) symbolEnv.node).mapSymbol =
@@ -862,6 +856,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
         updatePrecedingFunc(env, absoluteLevel);
     }
 
+    /**
+     * Find the resolved level of the closure variable.
+     *
+     * @param symbolEnv symbol environment
+     * @param varSymbol symbol of the closure
+     * @return level it was resolved
+     */
     private int findResolvedLevel(SymbolEnv symbolEnv, BVarSymbol varSymbol) {
         while (symbolEnv != null && symbolEnv.node.getKind() != NodeKind.PACKAGE) {
             Scope.ScopeEntry entry = symbolEnv.scope.lookup(varSymbol.name);
@@ -870,40 +871,63 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
             symbolEnv = symbolEnv.enclEnv;
         }
+        // 0 is returned if it was not found.
         return 0;
     }
 
+    /**
+     * Update the preceeding functions.
+     *
+     * @param symbolEnv     symbol environment
+     * @param resolvedLevel resolved level of the closure variable
+     */
     private void updatePrecedingFunc(SymbolEnv symbolEnv, int resolvedLevel) {
         while (symbolEnv != null && symbolEnv.node.getKind() != NodeKind.PACKAGE) {
+            // If the symbol env count equals to the resolved level then return.
             if (symbolEnv.envCount == resolvedLevel) {
                 return;
-            } else {
-                if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
-                    BLangFunction bLangFunction = (BLangFunction) symbolEnv.node;
-                    if (symbolEnv.enclInvokable == env.enclInvokable) {
-                        symbolEnv = symbolEnv.enclEnv;
-                        continue;
-                    }
-                    if (bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
-                        return;
-                    }
-                    bLangFunction.paramClosureMap.put(resolvedLevel, createMapSymbol("$paramMap$" + resolvedLevel,
-                            symbolEnv));
-                }
             }
+
+            // If the node is a function, update it accordingly.
+            if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction bLangFunction = (BLangFunction) symbolEnv.node;
+                if (symbolEnv.enclInvokable == env.enclInvokable) {
+                    symbolEnv = symbolEnv.enclEnv;
+                    continue;
+                }
+                if (bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
+                    return;
+                }
+                bLangFunction.paramClosureMap.put(resolvedLevel, createMapSymbol("$paramMap$" + resolvedLevel,
+                        symbolEnv));
+            }
+
             symbolEnv = symbolEnv.enclEnv;
         }
     }
 
+    /**
+     * Create the map symbol required for the function node and block statements.
+     *
+     * @param mapName   name of the map to be created
+     * @param symbolEnv symbol environment
+     * @return map symbol created
+     */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
         BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType);
         return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
                 new BMapType(TypeTags.MAP, unionType, null), symbolEnv.scope.owner);
     }
 
+    /**
+     * Update the closure maps with the relevant map access expression.
+     *
+     * @param varRefExpr closure variable reference to be updated
+     * @param mapSymbol  map symbol to be used
+     */
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
         // Get type of the index based access expression.
-        BType typeOfExpr = isSimpleType(varRefExpr.type) ? ((BMapType) mapSymbol.type).constraint : varRefExpr.type;
+        BType typeOfExpr = getTypeOfIndexBasedAccessExpr(varRefExpr.type);
         // Create the index based access expression.
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
                 varRefExpr.varSymbol.name.value);
@@ -919,10 +943,26 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = rewriteExpr(desugar.addConversionExprIfRequired(accessExpr, varRefExpr.type));
     }
 
-    private boolean isSimpleType(BType bType) {
-        return bType.tag != TypeTags.ARRAY && bType.tag != TypeTags.JSON && bType.tag != TypeTags.MAP &&
-                bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.RECORD && bType.tag != TypeTags.TUPLE &&
-                bType.tag != TypeTags.XML;
+    /**
+     * Get type of the index based access expression.
+     *
+     * @param bType type of the closure variable
+     * @return type of the index based access expression
+     */
+    private BType getTypeOfIndexBasedAccessExpr(BType bType) {
+        switch (bType.tag) {
+            case TypeTags.ARRAY:
+            case TypeTags.JSON:
+            case TypeTags.MAP:
+            case TypeTags.OBJECT:
+            case TypeTags.RECORD:
+            case TypeTags.TUPLE:
+            case TypeTags.XML:
+                return bType;
+            default:
+                // If its any other type return the any|error.
+                return BUnionType.create(null, symTable.anyType, symTable.errorType);
+        }
     }
 
     @Override
