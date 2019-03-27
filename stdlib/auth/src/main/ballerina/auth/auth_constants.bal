@@ -14,8 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Constant for the auth error code
+# Constant for the auth error code.
 public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
 
-# Default charset to be used with password hashing
+# Default charset to be used with password hashing.
 public const string DEFAULT_CHARSET = "UTF-8";
+
+# Prefix used to denote special configuration values.
+public const string CONFIG_PREFIX = "@";
+
+# Prefix used to denote that the config value is a SHA-256 hash.
+public const string CONFIG_PREFIX_SHA256 = "@sha256:";
+
+# Prefix used to denote that the config value is a SHA-384 hash.
+public const string CONFIG_PREFIX_SHA384 = "@sha384:";
+
+# Prefix used to denote that the config value is a SHA-512 hash.
+public const string CONFIG_PREFIX_SHA512 = "@sha512:";

@@ -26,7 +26,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 public type ConfigAuthProviderConfig record {|
 |};
 
-# Represents Ballerina configuration file based auth store provider
+# Represents Ballerina configuration file based auth store provider.
 #
 # + configAuthProviderConfig - Config auth store configurations
 public type ConfigAuthStoreProvider object {
@@ -40,7 +40,7 @@ public type ConfigAuthStoreProvider object {
         self.configAuthProviderConfig = configAuthProviderConfig;
     }
 
-    # Attempts to authenticate with username and password
+    # Attempts to authenticate with username and password.
     #
     # + user - user name
     # + password - password
@@ -51,22 +51,26 @@ public type ConfigAuthStoreProvider object {
         }
         string passwordFromConfig = self.readPassword(user);
         boolean isAuthenticated = false;
-        if (passwordFromConfig.indexOf("@sha256:") == 0) {
-            isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
-                                .equalsIgnoreCase(self.extractHash(passwordFromConfig));
-        } else if (passwordFromConfig.indexOf("@sha384:") == 0) {
-            isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
-                                .equalsIgnoreCase(self.extractHash(passwordFromConfig));
-        } else if (passwordFromConfig.indexOf("@sha512:") == 0) {
-            isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
-                                .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+        // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
+        if (passwordFromConfig.indexOf(CONFIG_PREFIX) == 0) {
+            if (passwordFromConfig.indexOf(CONFIG_PREFIX_SHA256) == 0) {
+                isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
+                                    .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+            } else if (passwordFromConfig.indexOf(CONFIG_PREFIX_SHA384) == 0) {
+                isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
+                                    .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+            } else if (passwordFromConfig.indexOf(CONFIG_PREFIX_SHA512) == 0) {
+                isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
+                                    .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+            } else {
+                isAuthenticated = password == passwordFromConfig;
+            }
         } else {
             isAuthenticated = password == passwordFromConfig;
         }
-        if(isAuthenticated){
+        if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = user;
-            // By default set userId as username.
             principal.username = user;
         }
         return isAuthenticated;
@@ -80,7 +84,7 @@ public type ConfigAuthStoreProvider object {
         return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}"));
     }
 
-    # Reads the scope(s) for the user with the given username
+    # Reads the scope(s) for the user with the given username.
     #
     # + username - username
     # + return - array of groups for the user denoted by the username
@@ -90,7 +94,7 @@ public type ConfigAuthStoreProvider object {
         return self.getArray(self.getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
     }
 
-    # Reads the password hash for a user
+    # Reads the password hash for a user.
     #
     # + username - username
     # + return - password hash read from userstore, or nil if not found
@@ -104,7 +108,7 @@ public type ConfigAuthStoreProvider object {
         return config:getAsString(instanceId + "." + property, defaultValue = "");
     }
 
-    # Construct an array of groups from the comma separed group string passed
+    # Construct an array of groups from the comma separed group string passed.
     #
     # + groupString - comma separated string of groups
     # + return - array of groups, nil if the groups string is empty/nil
