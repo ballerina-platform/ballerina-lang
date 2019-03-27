@@ -1887,7 +1887,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (xmlAttributeAccessExpr.lhsVar) {
                 dlog.error(xmlAttributeAccessExpr.pos, DiagnosticCode.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
             } else {
-                actualType = symTable.xmlAttributesType;
+                actualType = BUnionType.create(null, symTable.mapStringType, symTable.nilType);
             }
             resultType = types.checkType(xmlAttributeAccessExpr, actualType, expType);
             return;
