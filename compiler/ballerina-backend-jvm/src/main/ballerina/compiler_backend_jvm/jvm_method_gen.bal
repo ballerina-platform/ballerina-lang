@@ -806,6 +806,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
         typeSig = io:sprintf("L%s;", ARRAY_VALUE);
     } else if (bType is bir:BErrorType) {
         typeSig = io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        typeSig = io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BObjectType) {
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
