@@ -12,6 +12,10 @@ dependencies {
 
 description = 'Ballerina - Observability - Tracing Test Utils'
 
+jar {
+    dependsOn shadowJar
+}
+
 shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {
@@ -20,5 +24,3 @@ shadowJar {
         exclude('META-INF/*.RSA')
     }
 }
-
-build.dependsOn shadowJar

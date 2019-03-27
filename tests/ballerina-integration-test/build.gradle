@@ -31,7 +31,6 @@ dependencies {
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-transactions')
-    implementation project(':observability-test-utils')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
