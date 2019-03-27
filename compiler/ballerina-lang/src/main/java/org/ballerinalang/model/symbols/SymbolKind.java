@@ -38,6 +38,7 @@ public enum SymbolKind {
     TRANSFORMER,
     TYPE_DEF,
     ERROR,
+    JCLASS,
 
     PARAMETER,
     LOCAL_VARIABLE,
