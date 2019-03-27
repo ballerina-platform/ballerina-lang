@@ -2316,7 +2316,6 @@
         <commons.lang3.version>3.8.1</commons.lang3.version>
         <jackson.version>2.9.8</jackson.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.8</com.fasterxml.jackson.dataformat.yaml.version>
-        <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <axiom.version>1.2.22</axiom.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <geronimo.activation>1.1</geronimo.activation>
@@ -2339,7 +2338,6 @@
         <maven.plugin.annotation.version>3.6.0</maven.plugin.annotation.version>
         <swagger.codegen.version>2.4.2</swagger.codegen.version>
         <io.swagger.version>1.5.22</io.swagger.version>
-        <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.18</swagger.models.version>
         <swagger.v3.parser.version>2.0.9</swagger.v3.parser.version>
@@ -2357,7 +2355,6 @@
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
         <sourceReleaseAssemblyDescriptor>source-release</sourceReleaseAssemblyDescriptor>
-        <project.scm.id>ballerina-scm-server</project.scm.id>
 
         <!-- Maven plugin versions -->
         <maven.antrun.plugin.version>1.8</maven.antrun.plugin.version>
@@ -2387,7 +2384,6 @@
         <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
-        <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
         <maven.jacoco.plugin.version>0.8.3</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.13</apache.rat.plugin.version>
