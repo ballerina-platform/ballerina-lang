@@ -1,4 +1,5 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply plugin: 'com.github.johnrengelman.shadow'
 
 configurations {
     distBal {
@@ -27,6 +28,28 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
     implementation 'org.slf4j:slf4j-jdk14:1.7.22'
     testCompile project(':language-server:language-server-compiler')
+}
+
+jar {
+    enabled = false
+    dependsOn(shadowJar { classifier = null })
+    manifest {
+        attributes(
+            'Main-Class': 'org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain'
+        )
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.runtimeClasspath]
+    dependencies {
+        include(dependency('com.github.jknack:handlebars'))
+        include(dependency('com.atlassian.commonmark:commonmark'))
+        include(dependency('com.atlassian.commonmark:commonmark-ext-gfm-tables'))
+        exclude('META-INF/*.SF')
+        exclude('META-INF/*.DSA')
+        exclude('META-INF/*.RSA')
+    }
 }
 
 task copyBalo(type: org.gradle.api.tasks.Copy) {
