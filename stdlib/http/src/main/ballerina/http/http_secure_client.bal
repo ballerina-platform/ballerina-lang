@@ -47,13 +47,13 @@ public const PASSWORD_GRANT = "PASSWORD_GRANT";
 # Indicates `direct token` as a grant type, where this is considered as a custom way of providing access tokens by the user
 public const DIRECT_TOKEN = "DIRECT_TOKEN";
 
-#The `CachedTokenConfig` stores the values received from the authroization/token server to use them
+#The `CachedToken` stores the values received from the authorization/token server to use them
 # for the latter requests without requesting tokens again.
 #
 # + accessToken - Access token for the  authorization server
 # + refreshToken - Refresh token for the refresh token server
 # + expiryTime - Expiry time of the access token in milliseconds
-public type CachedTokenConfig record {
+public type CachedToken record {
     string accessToken;
     string refreshToken;
     int expiryTime;
@@ -87,7 +87,7 @@ public type HttpSecureClient client object {
     public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
-    public CachedTokenConfig tokenCache;
+    public CachedToken tokenCache;
 
     public function __init(string url, ClientEndpointConfig config) {
         self.url = url;
@@ -352,8 +352,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # + tokenCache - Cached token configurations
 # + return - Whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation
-function generateSecureRequest(Request req, ClientEndpointConfig config,
-                               CachedTokenConfig tokenCache) returns boolean|error {
+function generateSecureRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns boolean|error {
     var auth = config.auth;
     if (auth is AuthConfig) {
         var authConfig = auth["config"];
@@ -420,7 +419,7 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 # + updateRequest - Check if the request is updated after a 401 response
 # + return - Auth token with the status whether retrying is required for a 401 response or returns
 # `error` if the validation fails
-function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig tokenCache,
+function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedToken tokenCache,
                                boolean updateRequest) returns (string, boolean)|error {
     var grantType = authConfig.grantType;
     var grantTypeConfig = authConfig.config;
@@ -456,7 +455,7 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
-                                            CachedTokenConfig tokenCache) returns (string, boolean)|error {
+                                            CachedToken tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -497,7 +496,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     CachedTokenConfig tokenCache) returns (string, boolean)|error {
+                                                     CachedToken tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
@@ -539,7 +538,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + return - Auth token with the status whether retrying is required for a 401 response or
 # `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
-                                              CachedTokenConfig tokenCache) returns (string, boolean)|error {
+                                              CachedToken tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
         var directAccessToken = grantTypeConfig["accessToken"];
@@ -615,7 +614,7 @@ function getAuthTokenForJWTAuth(JwtAuthConfig authConfig) returns string|error {
 #
 # + tokenCache - Cached token configurations
 # + return - Whether the access token is valid or not
-function isCachedTokenValid(CachedTokenConfig tokenCache) returns boolean {
+function isCachedTokenValid(CachedToken tokenCache) returns boolean {
     int expiryTime = tokenCache.expiryTime;
     if (expiryTime == 0) {
         log:printDebug(function () returns string {
@@ -642,7 +641,7 @@ function isCachedTokenValid(CachedTokenConfig tokenCache) returns boolean {
 # + tokenCache - Cached token configurations
 # + return - Access token received or `error` if an error occurred during the HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
-                                                CachedTokenConfig tokenCache) returns string|error {
+                                                CachedToken tokenCache) returns string|error {
     Client authorizationClient;
     RequestConfig requestConfig;
     int clockSkew;
@@ -718,7 +717,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 # + tokenCache - Cached token configurations
 # + return - Access token received or `error` if an error occurred during HTTP client invocation
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
-                                          CachedTokenConfig tokenCache) returns string|error {
+                                          CachedToken tokenCache) returns string|error {
     Client refreshClient;
     RequestConfig requestConfig;
     int clockSkew;
@@ -837,8 +836,7 @@ function prepareRequest(RequestConfig config) returns Request|error {
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - Extracted access token or `error` if an error occurred during the HTTP client invocation
-function extractAccessTokenFromResponse(Response response, CachedTokenConfig tokenCache,
-                                        int clockSkew) returns string|error {
+function extractAccessTokenFromResponse(Response response, CachedToken tokenCache, int clockSkew) returns string|error {
     if (response.statusCode == OK_200) {
         var payload = response.getJsonPayload();
         if (payload is json) {
@@ -877,7 +875,7 @@ function prepareError(string message, error? err = ()) returns error {
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
 # + return - `error` if an error occurred during the conversion of the parameters
-function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache, int clockSkew) returns error? {
+function updateTokenCache(json responsePayload, CachedToken tokenCache, int clockSkew) returns error? {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     tokenCache.accessToken = accessToken;
@@ -933,7 +931,7 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
 # + config - Client endpoint configurations
 # + tokenCache - Cached token configurations
 # + return - Returns `error` if an error occurred during the HTTP client invocation
-function updateRequest(Request req, ClientEndpointConfig config, CachedTokenConfig tokenCache) returns error? {
+function updateRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns error? {
     var auth = config.auth;
     if (auth is AuthConfig) {
         var authConfig = auth.config;
