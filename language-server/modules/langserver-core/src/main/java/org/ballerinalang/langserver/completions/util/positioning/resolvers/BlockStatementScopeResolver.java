@@ -91,10 +91,6 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                     (line > nodeELine || (line == nodeELine && col > nodeECol));
 
-            if (isWithinScope) {
-                treeVisitor.setPreviousNode((BLangNode) node);
-            }
-
             return isWithinScope;
         }
     }
