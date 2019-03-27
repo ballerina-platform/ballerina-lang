@@ -110,7 +110,7 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testErrorReturningInitializer");
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).reason, "failed to create Person object");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
     }
 
     @Test(description = "Test initializer with rest args")
@@ -130,13 +130,13 @@ public class ObjectInitializerTest {
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(returns[0].getType().getName(), "Err");
-        Assert.assertEquals(((BError) returns[0]).reason, "Failed to create object");
-        Assert.assertEquals(((BError) returns[0]).details.stringValue(), "{id:100}");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Failed to create object");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{id:100}");
 
         Assert.assertEquals(returns[1].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(returns[1].getType().getName(), "Err");
-        Assert.assertEquals(((BError) returns[1]).reason, "Failed to create object");
-        Assert.assertEquals(((BError) returns[1]).details.stringValue(), "{id:100}");
+        Assert.assertEquals(((BError) returns[1]).getReason(), "Failed to create object");
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(), "{id:100}");
     }
 
     @Test(description = "Test value returned from initializer with a type guard")
@@ -150,12 +150,12 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMultipleErrorReturn");
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).reason, "Foo Error");
-        Assert.assertEquals(((BError) returns[0]).details.stringValue(), "{f:\"foo\"}");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Foo Error");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
 
         Assert.assertEquals(returns[1].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[1]).reason, "Bar Error");
-        Assert.assertEquals(((BError) returns[1]).details.stringValue(), "{b:\"bar\"}");
+        Assert.assertEquals(((BError) returns[1]).getReason(), "Bar Error");
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(), "{b:\"bar\"}");
     }
 
     @Test(description = "Test assigning to a variable declared with var")
@@ -163,7 +163,7 @@ public class ObjectInitializerTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAssigningToVar");
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).reason, "failed to create Person object");
-        Assert.assertEquals(((BError) returns[0]).details.stringValue(), "{\"f\":\"foo\"}");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{\"f\":\"foo\"}");
     }
 }

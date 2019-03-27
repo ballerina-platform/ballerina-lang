@@ -3674,6 +3674,10 @@ public class BVM {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
+    public static boolean isPureType(BType type) {
+        return isPureType(type,  new HashSet<>());
+    }
+
     private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
         if (type.getTag() == TypeTags.UNION_TAG) {
             return ((BUnionType) type).getMemberTypes().stream()
