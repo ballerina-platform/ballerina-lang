@@ -1100,11 +1100,6 @@
                 <version>${transport.http.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.utils</groupId>
-                <artifactId>carbon-utils</artifactId>
-                <version>${carbon.utils.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${antlr4.runtime.version}</version>
@@ -1365,11 +1360,6 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>${com.fasterxml.jackson.core.annotations.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-                <version>${rs-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.transaction</groupId>
@@ -2321,7 +2311,6 @@
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
         <transport.http.version>6.0.275</transport.http.version>
-        <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.8.1</commons.lang3.version>
@@ -2357,7 +2346,6 @@
         <swagger.v3.models.version>2.0.7</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
-        <rs-api.version>2.1.1</rs-api.version>
         <javax-transaction-version>1.3</javax-transaction-version>
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
