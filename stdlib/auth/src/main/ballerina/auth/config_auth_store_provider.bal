@@ -52,14 +52,14 @@ public type ConfigAuthStoreProvider object {
         string passwordFromConfig = self.readPassword(user);
         boolean isAuthenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
-        if (passwordFromConfig.indexOf(CONFIG_PREFIX) == 0) {
-            if (passwordFromConfig.indexOf(CONFIG_PREFIX_SHA256) == 0) {
+        if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
+            if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA256)) {
                 isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
                                     .equalsIgnoreCase(self.extractHash(passwordFromConfig));
-            } else if (passwordFromConfig.indexOf(CONFIG_PREFIX_SHA384) == 0) {
+            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA384)) {
                 isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
                                     .equalsIgnoreCase(self.extractHash(passwordFromConfig));
-            } else if (passwordFromConfig.indexOf(CONFIG_PREFIX_SHA512) == 0) {
+            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA512)) {
                 isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
                                     .equalsIgnoreCase(self.extractHash(passwordFromConfig));
             } else {
