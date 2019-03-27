@@ -558,4 +558,16 @@ public class CloneOperationTest {
         Assert.assertNull(results[0]);
         Assert.assertNull(results[1]);
     }
+
+    @Test
+    public void testCloneArrayWithError() {
+        BValue[] results = BRunUtil.invoke(result, "testCloneArrayWithError");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
+
+    @Test
+    public void testCloneMapWithError() {
+        BValue[] results = BRunUtil.invoke(result, "testCloneMapWithError");
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+    }
 }
