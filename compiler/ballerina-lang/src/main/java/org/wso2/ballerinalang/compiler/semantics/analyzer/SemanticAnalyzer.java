@@ -392,7 +392,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
         }
 
-
         if (errorType.detailType == null) {
             return;
         }
