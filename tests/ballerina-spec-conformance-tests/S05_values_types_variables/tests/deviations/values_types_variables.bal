@@ -25,7 +25,10 @@ import utils;
 function testNonSimpleValuesStoredInStructuresBroken() {
     table<QuuzRecord> t1 = table{};
     QuuzRecord b4 = { quuzFieldOne: 100 };
-    _ = t1.add(b4);
+    error? err = t1.add(b4);
+    if err is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     b4.quuzFieldOne = I;
     
     QuuzRecord b5;
@@ -45,10 +48,18 @@ function testDistinctStructureMembersReferringToSameValueBroken() {
     table<QuuzRecord> t1 = table{};
     QuuzRecord b4 = { quuzFieldOne: 100 };
     QuuzRecord b5 = { quuzFieldOne: 200 };
-    _ = t1.add(b4);
-    _ = t1.add(b5);
-    _ = t1.add(b4);
-    
+    error? err1 = t1.add(b4);
+    error? err2 = t1.add(b5);
+    error? err3 = t1.add(b4);
+    if err1 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+    if err2 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+    if err3 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     QuuzRecord? b6 = ();
     QuuzRecord? b7 = ();
     int count = 0;

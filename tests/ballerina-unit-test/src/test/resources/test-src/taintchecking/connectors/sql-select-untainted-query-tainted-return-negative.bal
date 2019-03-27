@@ -27,7 +27,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
             testFunction(rs.name);
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return;
 }
 

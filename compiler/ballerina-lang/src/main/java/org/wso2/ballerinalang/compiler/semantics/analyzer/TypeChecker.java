@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -715,7 +716,7 @@ public class TypeChecker extends BLangNodeVisitor {
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
             if (varRefExpr.lhsVar) {
-                varRefExpr.type = this.symTable.noType;
+                varRefExpr.type = this.symTable.anyType;
             } else {
                 varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
@@ -2042,6 +2043,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr) {
+        String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         boolean firstVisit = checkedExpr.expr.type == null;
         BType exprExpType;
         if (expType == symTable.noType) {
@@ -2064,9 +2075,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (exprType.tag != TypeTags.UNION) {
             if (types.isAssignable(exprType, symTable.errorType)) {
-                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+                dlog.error(checkedExpr.expr.pos,
+                        DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS, operatorType);
             } else if (exprType != symTable.semanticError) {
-                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+                dlog.error(checkedExpr.expr.pos,
+                        DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
             }
             checkedExpr.type = symTable.semanticError;
             return;
@@ -2082,7 +2095,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (checkedExpr.equivalentErrorTypeList == null ||
                 checkedExpr.equivalentErrorTypeList.size() == 0) {
             // No member types in this union is equivalent to the error type
-            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            dlog.error(checkedExpr.expr.pos,
+                    DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
             checkedExpr.type = symTable.semanticError;
             return;
         }
@@ -2091,7 +2105,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (nonErrorTypeList == null || nonErrorTypeList.size() == 0) {
             // All member types in the union are equivalent to the error type.
             // Checked expression requires at least one type which is not equivalent to the error type.
-            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            dlog.error(checkedExpr.expr.pos,
+                    DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS, operatorType);
             checkedExpr.type = symTable.semanticError;
             return;
         }
