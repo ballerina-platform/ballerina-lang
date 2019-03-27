@@ -69,139 +69,40 @@ service oauth2 on oauth2Server {
         if (bearer == HEADER_BEARER) {
             var authorizationHeader = trap req.getHeader("Authorization");
             if (authorizationHeader is string) {
-                string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-                string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
-                if (authorizationHeader == expectedAuthorizationHeader) {
-                    var payload = req.getTextPayload();
-                    if (payload is string) {
-                        string[] params = payload.split("&");
-                        string grantType = "";
-                        string scopes = "";
-                        string username = "";
-                        string password = "";
-                        foreach string param in params {
-                            if (param.contains("grant_type")) {
-                                grantType = param.split("=")[1];
-                            } else if (param.contains("scope")) {
-                                scopes = param.split("=")[1];
-                            } else if (param.contains("username")) {
-                                username = param.split("=")[1];
-                            } else if (param.contains("password")) {
-                                password = param.split("=")[1];
-                            }
-                        }
-                        res = prepareResponse(res, grantType, scopes, username, password, bearer);
-                        _ = caller->respond(res);
-                    } else {
-                        // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                        res.statusCode = http:BAD_REQUEST_400;
-                        json errMsg = { "error": "invalid_request" };
-                        io:println(errMsg);
-                        res.setPayload(errMsg);
-                        _ = caller->respond(res);
-                    }
-                } else {
-                    // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                    res.statusCode = http:UNAUTHORIZED_401;
-                    json errMsg = { "error": "invalid_client" };
-                    io:println(errMsg);
-                    res.setPayload(errMsg);
-                    _ = caller->respond(res);
-                }
+                res = getResponseForHeaderBearerRequest(req, authorizationHeader, bearer);
             } else {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:UNAUTHORIZED_401;
                 json errMsg = { "error": "invalid_client" };
                 io:println(errMsg);
                 res.setPayload(errMsg);
-                _ = caller->respond(res);
             }
         } else if (bearer == BODY_BEARER) {
             // If there is not an authorization header present with the base64-encoded `client_id` and `client_secret` with colon delimiter,
             // then, the `client_id` and `client_secret` should be in the text payload of the request.
             var payload = req.getTextPayload();
             if (payload is string) {
-                if (payload.contains("client_id") && payload.contains("client_secret")) {
-                    string[] params = payload.split("&");
-                    string grantType = "";
-                    string scopes = "";
-                    string username = "";
-                    string password = "";
-                    string clientId = "";
-                    string clientSecret = "";
-                    foreach string param in params {
-                        if (param.contains("grant_type")) {
-                            grantType = param.split("=")[1];
-                        } else if (param.contains("scope")) {
-                            scopes = param.split("=")[1];
-                        } else if (param.contains("username")) {
-                            username = param.split("=")[1];
-                        } else if (param.contains("password")) {
-                            password = param.split("=")[1];
-                        } else if (param.contains("client_id")) {
-                            clientId = param.split("=")[1];
-                        } else if (param.contains("client_secret")) {
-                            clientSecret = param.split("=")[1];
-                        }
-                    }
-
-                    if (clientId == CLIENT_ID && clientSecret == CLIENT_SECRET) {
-                        res = prepareResponse(res, grantType, scopes, username, password, bearer);
-                        _ = caller->respond(res);
-                    } else {
-                        // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                        res.statusCode = http:UNAUTHORIZED_401;
-                        json errMsg = { "error": "invalid_client" };
-                        io:println(errMsg);
-                        res.setPayload(errMsg);
-                        _ = caller->respond(res);
-                    }
-                } else {
-                    // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                    res.statusCode = http:UNAUTHORIZED_401;
-                    json errMsg = { "error": "invalid_client" };
-                    io:println(errMsg);
-                    res.setPayload(errMsg);
-                    _ = caller->respond(res);
-                }
+                res = getResponseForPostBodyBearerRequest(payload, bearer);
             } else {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:UNAUTHORIZED_401;
                 json errMsg = { "error": "invalid_client" };
                 io:println(errMsg);
                 res.setPayload(errMsg);
-                _ = caller->respond(res);
             }
         } else if (bearer == NO_BEARER) {
             var payload = req.getTextPayload();
             if (payload is string) {
-                string[] params = payload.split("&");
-                string grantType = "";
-                string scopes = "";
-                string username = "";
-                string password = "";
-                foreach string param in params {
-                    if (param.contains("grant_type")) {
-                        grantType = param.split("=")[1];
-                    } else if (param.contains("scope")) {
-                        scopes = param.split("=")[1];
-                    } else if (param.contains("username")) {
-                        username = param.split("=")[1];
-                    } else if (param.contains("password")) {
-                        password = param.split("=")[1];
-                    }
-                }
-                res = prepareResponse(res, grantType, scopes, username, password, bearer);
-                _ = caller->respond(res);
+                res = getResponseForNoBearerRequest(payload, bearer);
             } else {
                 // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
                 res.statusCode = http:BAD_REQUEST_400;
                 json errMsg = { "error": "invalid_request" };
                 io:println(errMsg);
                 res.setPayload(errMsg);
-                _ = caller->respond(res);
             }
         }
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -214,84 +115,193 @@ service oauth2 on oauth2Server {
         http:Response res = new;
         var authorizationHeader = trap req.getHeader("Authorization");
         if (authorizationHeader is string) {
-            string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-            string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
-            if (authorizationHeader == expectedAuthorizationHeader) {
-                var payload = req.getTextPayload();
-                if (payload is string) {
-                    string[] params = payload.split("&");
-                    string grantType = "";
-                    string refreshToken = "";
-                    string scopes = "";
-                    foreach string param in params {
-                        if (param.contains("grant_type")) {
-                            grantType = param.split("=")[1];
-                        } else if (param.contains("refresh_token")) {
-                            refreshToken = param.split("=")[1];
-                            // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
-                            // the String split breaks all those into separate parts.
-                            if (param.hasSuffix("==")) {
-                                refreshToken += "==";
-                            }
-                        } else if (param.contains("scope")) {
-                            scopes = param.split("=")[1];
-                        }
-                    }
-
-                    if (grantType == GRANT_TYPE_REFRESH_TOKEN) {
-                        if (refreshToken == refreshTokenHash) {
-                            string input = CLIENT_ID + CLIENT_SECRET + refreshToken + scopes;
-                            string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
-                            addToAccessTokenStore(accessToken);
-                            json response = {
-                                "access_token": accessToken,
-                                "token_type": "example",
-                                "expires_in": 3600,
-                                "example_parameter": "example_value"
-                            };
-                            res.setPayload(response);
-                            _ = caller->respond(res);
-                        } else {
-                            // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                            res.statusCode = http:BAD_REQUEST_400;
-                            json errMsg = { "error": "invalid_grant" };
-                            io:println(errMsg);
-                            res.setPayload(errMsg);
-                            _ = caller->respond(res);
-                        }
-                    } else {
-                        // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                        res.statusCode = http:BAD_REQUEST_400;
-                        json errMsg = { "error": "invalid_grant" };
-                        io:println(errMsg);
-                        res.setPayload(errMsg);
-                        _ = caller->respond(res);
-                    }
-                } else {
-                    // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                    res.statusCode = http:BAD_REQUEST_400;
-                    json errMsg = { "error": "invalid_request" };
-                    io:println(errMsg);
-                    res.setPayload(errMsg);
-                    _ = caller->respond(res);
-                }
-            } else {
-                // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                res.statusCode = http:UNAUTHORIZED_401;
-                json errMsg = { "error": "invalid_client" };
-                io:println(errMsg);
-                res.setPayload(errMsg);
-                _ = caller->respond(res);
-            }
+            res = getResponseForRefreshRequest(req, authorizationHeader);
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
             json errMsg = { "error": "invalid_client" };
             io:println(errMsg);
             res.setPayload(errMsg);
-            _ = caller->respond(res);
+        }
+        _ = caller->respond(res);
+    }
+}
+
+function getResponseForHeaderBearerRequest(http:Request req, string authorizationHeader, string bearer) returns http:Response {
+    http:Response res = new;
+    string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
+    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+    if (authorizationHeader == expectedAuthorizationHeader) {
+        var payload = req.getTextPayload();
+        if (payload is string) {
+            string[] params = payload.split("&");
+            string grantType = "";
+            string scopes = "";
+            string username = "";
+            string password = "";
+            foreach string param in params {
+                if (param.contains("grant_type")) {
+                    grantType = param.split("=")[1];
+                } else if (param.contains("scope")) {
+                    scopes = param.split("=")[1];
+                } else if (param.contains("username")) {
+                    username = param.split("=")[1];
+                } else if (param.contains("password")) {
+                    password = param.split("=")[1];
+                }
+            }
+            res = prepareResponse(res, grantType, scopes, username, password, bearer);
+        } else {
+            // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:BAD_REQUEST_400;
+            json errMsg = { "error": "invalid_request" };
+            io:println(errMsg);
+            res.setPayload(errMsg);
+        }
+    } else {
+        // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+        res.statusCode = http:UNAUTHORIZED_401;
+        json errMsg = { "error": "invalid_client" };
+        io:println(errMsg);
+        res.setPayload(errMsg);
+    }
+    return res;
+}
+
+function getResponseForPostBodyBearerRequest(string payload, string bearer) returns http:Response {
+    http:Response res = new;
+    if (payload.contains("client_id") && payload.contains("client_secret")) {
+        string[] params = payload.split("&");
+        string grantType = "";
+        string scopes = "";
+        string username = "";
+        string password = "";
+        string clientId = "";
+        string clientSecret = "";
+        foreach string param in params {
+            if (param.contains("grant_type")) {
+                grantType = param.split("=")[1];
+            } else if (param.contains("scope")) {
+                scopes = param.split("=")[1];
+            } else if (param.contains("username")) {
+                username = param.split("=")[1];
+            } else if (param.contains("password")) {
+                password = param.split("=")[1];
+            } else if (param.contains("client_id")) {
+                clientId = param.split("=")[1];
+            } else if (param.contains("client_secret")) {
+                clientSecret = param.split("=")[1];
+            }
+        }
+
+        if (clientId == CLIENT_ID && clientSecret == CLIENT_SECRET) {
+            res = prepareResponse(res, grantType, scopes, username, password, bearer);
+        } else {
+            // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:UNAUTHORIZED_401;
+            json errMsg = { "error": "invalid_client" };
+            io:println(errMsg);
+            res.setPayload(errMsg);
+        }
+    } else {
+        // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+        res.statusCode = http:UNAUTHORIZED_401;
+        json errMsg = { "error": "invalid_client" };
+        io:println(errMsg);
+        res.setPayload(errMsg);
+    }
+    return res;
+}
+
+function getResponseForNoBearerRequest(string payload, string bearer) returns http:Response {
+    http:Response res = new;
+    string[] params = payload.split("&");
+    string grantType = "";
+    string scopes = "";
+    string username = "";
+    string password = "";
+    foreach string param in params {
+        if (param.contains("grant_type")) {
+            grantType = param.split("=")[1];
+        } else if (param.contains("scope")) {
+            scopes = param.split("=")[1];
+        } else if (param.contains("username")) {
+            username = param.split("=")[1];
+        } else if (param.contains("password")) {
+            password = param.split("=")[1];
         }
     }
+    res = prepareResponse(res, grantType, scopes, username, password, bearer);
+    return res;
+}
+
+function getResponseForRefreshRequest(http:Request req, string authorizationHeader) returns http:Response {
+    http:Response res = new;
+    string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
+    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+    if (authorizationHeader == expectedAuthorizationHeader) {
+        var payload = req.getTextPayload();
+        if (payload is string) {
+            string[] params = payload.split("&");
+            string grantType = "";
+            string refreshToken = "";
+            string scopes = "";
+            foreach string param in params {
+                if (param.contains("grant_type")) {
+                    grantType = param.split("=")[1];
+                } else if (param.contains("refresh_token")) {
+                    refreshToken = param.split("=")[1];
+                    // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
+                    // the String split breaks all those into separate parts.
+                    if (param.hasSuffix("==")) {
+                        refreshToken += "==";
+                    }
+                } else if (param.contains("scope")) {
+                    scopes = param.split("=")[1];
+                }
+            }
+
+            if (grantType == GRANT_TYPE_REFRESH_TOKEN) {
+                if (refreshToken == refreshTokenHash) {
+                    string input = CLIENT_ID + CLIENT_SECRET + refreshToken + scopes;
+                    string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                    addToAccessTokenStore(accessToken);
+                    json response = {
+                        "access_token": accessToken,
+                        "token_type": "example",
+                        "expires_in": 3600,
+                        "example_parameter": "example_value"
+                    };
+                    res.setPayload(response);
+                } else {
+                    // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                    res.statusCode = http:BAD_REQUEST_400;
+                    json errMsg = { "error": "invalid_grant" };
+                    io:println(errMsg);
+                    res.setPayload(errMsg);
+                }
+            } else {
+                // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+                res.statusCode = http:BAD_REQUEST_400;
+                json errMsg = { "error": "invalid_grant" };
+                io:println(errMsg);
+                res.setPayload(errMsg);
+            }
+        } else {
+            // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+            res.statusCode = http:BAD_REQUEST_400;
+            json errMsg = { "error": "invalid_request" };
+            io:println(errMsg);
+            res.setPayload(errMsg);
+        }
+    } else {
+        // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
+        res.statusCode = http:UNAUTHORIZED_401;
+        json errMsg = { "error": "invalid_client" };
+        io:println(errMsg);
+        res.setPayload(errMsg);
+    }
+    return res;
 }
 
 function prepareResponse(http:Response res, string grantType, string scopes, string username, string password,
