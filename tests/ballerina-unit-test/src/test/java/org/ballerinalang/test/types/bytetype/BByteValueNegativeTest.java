@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,7 +48,7 @@ public class BByteValueNegativeTest {
         String msg3 = "incompatible types: expected 'byte', found 'string'";
         String msg4 = "incompatible types: expected 'byte', found 'byte|error'";
         String msg5 = "unnecessary condition: expression will always evaluate to 'true'";
-        String msg6 = "invalid usage of the checked expression operator: no error type return in enclosing invokable";
+        String msg6 = "invalid usage of the 'check' expression operator: no error type return in enclosing invokable";
         BAssertUtil.validateError(result, 0, msg1 , 2, 15);
         BAssertUtil.validateError(result, 1, msg1 , 3, 15);
         BAssertUtil.validateError(result, 2, msg1 , 4, 15);
@@ -71,7 +71,7 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 19, msg4 , 27, 15);
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
         BAssertUtil.validateError(result, 22, msg5, 35, 60);
-        BAssertUtil.validateError(result, 25, msg6, 45, 22);
+        BAssertUtil.validateError(result, 25, msg6, 45, 16);
     }
 
     @Test(description = "Test byte shift operators negative")

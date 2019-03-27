@@ -76,7 +76,10 @@ service backEndService on new http:Listener(9091) {
         path: "/greeting"
     }
     resource function replyText(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello");
+        error? result = caller->respond("Hello");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 
     @http:ResourceConfig {
@@ -183,7 +186,7 @@ function handleResponse(http:Response|error response) {
                     log:printError("Error in parsing json data", err = payload);
                 }
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                var payload = response.getPayloadAsString();
+                var payload = response.getTextPayload();
                 if (payload is string) {
                     log:printInfo("Response contains binary data: " + payload);
                 } else {

@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test cases for file functions in the ballerina/internal package.
@@ -41,7 +42,8 @@ public class InternalFileTest {
     
     @BeforeClass
     public void setup() throws IOException {
-        fileOperationProgramFile = BCompileUtil.compile("test-src/file/file-test.bal");
+        Path balPath = Paths.get("src", "test", "resources", "test-src", "file", "file-test.bal");
+        fileOperationProgramFile = BCompileUtil.compile(balPath.toAbsolutePath().toString());
         workingDirPath = Files.createTempDirectory("internal-package-file-test-");
         File workingDir = new File(workingDirPath.toString());
         FileUtils.deleteQuietly(workingDir);

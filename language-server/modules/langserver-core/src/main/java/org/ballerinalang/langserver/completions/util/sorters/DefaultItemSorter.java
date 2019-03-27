@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class DefaultItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
+    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
     }
 }

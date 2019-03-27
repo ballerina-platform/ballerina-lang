@@ -3,6 +3,7 @@ import ballerina/bir;
 function writeSample(string path) {
 
     bir:Package ifSample = {
+        importModules:[],
         functions: [
             {
                 argsCount: 0,
@@ -507,6 +508,8 @@ function writeSample(string path) {
             value: "$anon"
         },
         types: [
+        ],
+        typeDefs: [
         ],
         versionValue: {
             value: "0.0.0"

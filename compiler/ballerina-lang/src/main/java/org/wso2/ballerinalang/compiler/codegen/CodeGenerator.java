@@ -213,7 +213,6 @@ import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -580,9 +579,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
             case TypeTags.INT:
-                return InstructionCodes.IRET;
             case TypeTags.BYTE:
-                return InstructionCodes.BRET;
+                return InstructionCodes.IRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.DECIMAL:
@@ -607,6 +605,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 long longVal = (Long) literalExpr.value;
                 if (longVal >= 0 && longVal <= 5) {
                     opcode = InstructionCodes.ICONST_0 + (int) longVal;
@@ -615,12 +614,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
-                break;
-
-            case TypeTags.BYTE:
-                byte byteVal = (Byte) literalExpr.value;
-                int byteCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(byteVal));
-                emit(InstructionCodes.BICONST, getOperand(byteCPEntryIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -793,23 +786,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit an instruction to create a new record.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct default values init function here.
-        if (structSymbol.defaultsValuesInitFunc != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
-            // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[6];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(false);
-            operands[2] = getOperand(1);
-            operands[3] = structRegIndex;
-            // Earlier, init function did not return any value. But now all functions should return a value. So we add
-            // new two operands to indicate the return value of the init function. The first one is the number of
-            // return values and the second one is the type of the return value.
-            operands[4] = getOperand(1);
-            operands[5] = getRegIndex(TypeTags.NIL);
-            emit(InstructionCodes.CALL, operands);
-        }
 
         // Invoke the struct initializer here.
         if (structLiteral.initializer != null) {
@@ -1300,7 +1276,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        BSymbol structSymbol = cIExpr.type.tsymbol;
+        BSymbol structSymbol = extractObjectTypeSymbol(cIExpr.type);
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
@@ -1309,18 +1285,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Emit an instruction to create a new struct.
         RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct initializer here.
-        Operand[] operands = getFuncOperands(cIExpr.initInvocation);
-
-        Operand[] callOperands = new Operand[operands.length + 1];
-        callOperands[0] = operands[0];
-        callOperands[1] = operands[1];
-        callOperands[2] = getOperand(operands[2].value + 1);
-        callOperands[3] = structRegIndex;
-
-        System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
-        emit(InstructionCodes.CALL, callOperands);
     }
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
@@ -1518,10 +1482,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         int index;
         switch (typeTag) {
             case TypeTags.INT:
-                index = ++indexes.tInt;
-                break;
             case TypeTags.BYTE:
-                index = ++indexes.tBoolean;
+                index = ++indexes.tInt;
                 break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
@@ -1544,6 +1506,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 opcode = baseOpcode;
                 break;
             case TypeTags.FLOAT:
@@ -1552,7 +1515,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.STRING:
                 opcode = baseOpcode + STRING_OFFSET;
                 break;
-            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
                 break;
@@ -1875,10 +1837,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (RegIndex regIndex : regIndexList) {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
-                    break;
                 case TypeTags.BYTE:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -2054,8 +2014,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
                 break;
             case TypeTags.BYTE:
-                defaultValue.byteValue = (Byte) value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
+                defaultValue.byteValue = (Long) value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
@@ -3854,5 +3814,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             }
         }
+    }
+
+    private BTypeSymbol extractObjectTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
     }
 }
