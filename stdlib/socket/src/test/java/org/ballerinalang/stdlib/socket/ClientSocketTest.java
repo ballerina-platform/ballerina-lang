@@ -101,7 +101,7 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior", dependsOnMethods = "testShutdownWrite")
+    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite")
     public void testClientEcho() {
         String msg = "Hello Ballerina echo";
         BValue[] args = { new BString(msg) };
