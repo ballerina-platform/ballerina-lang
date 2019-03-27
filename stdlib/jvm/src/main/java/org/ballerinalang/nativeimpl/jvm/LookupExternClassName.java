@@ -51,7 +51,7 @@ public class LookupExternClassName extends BlockingNativeCallableUnit {
         String pkgName = context.getStringArgument(0);
         String functionName = context.getStringArgument(1);
 
-        String className = NativeUnitLoader.getInstance().loadNativeFunctionClass(pkgName, functionName);
+        String className = NativeUnitLoader.getInstance().loadNativeFunctionClassName(pkgName, functionName);
         if (className != null) {
             context.setReturnValues(new BString(className));
         }

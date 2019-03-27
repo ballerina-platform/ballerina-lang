@@ -69,7 +69,7 @@ public class NativeUnitLoader {
         return result;
     }
 
-    public String loadNativeFunctionClass(String pkgName, String functionName) {
+    public String loadNativeFunctionClassName(String pkgName, String functionName) {
         String result = null;
         NativeFunctionDef functionDef = this.nativeElementRepo.lookupNativeFunction(pkgName, functionName);
         if (functionDef != null) {
