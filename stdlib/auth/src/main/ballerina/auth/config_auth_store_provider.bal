@@ -46,7 +46,7 @@ public type ConfigAuthStoreProvider object {
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
-        if (user == "" || password == "") {
+        if (user == EMPTY_STRING || password == EMPTY_STRING) {
             return false;
         }
         string passwordFromConfig = self.readPassword(user);

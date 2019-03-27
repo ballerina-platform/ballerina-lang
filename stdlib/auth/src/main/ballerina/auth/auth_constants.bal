@@ -17,6 +17,9 @@
 # Constant for the auth error code.
 public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
 
+# Constant for empty string.
+const string EMPTY_STRING = "";
+
 # Default charset to be used with password hashing.
 public const string DEFAULT_CHARSET = "UTF-8";
 
