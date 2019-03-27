@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.StringJoiner;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
@@ -1645,8 +1646,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
-                .expression() != null);
+        String workerName = ctx.peerWorker().DEFAULT() != null ?
+                ctx.peerWorker().DEFAULT().getText() : ctx.peerWorker().workerName().getText();
+
+        this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), workerName, ctx.expression() != null);
     }
 
     @Override
@@ -1664,8 +1667,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                                          ctx.expression().size() > 1);
+        String workerName = ctx.peerWorker().DEFAULT() != null ?
+                ctx.peerWorker().DEFAULT().getText() : ctx.peerWorker().workerName().getText();
+
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), workerName, ctx.expression().size() > 1);
     }
 
     @Override
@@ -1674,7 +1679,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        String workerName = ctx.peerWorker().DEFAULT() != null ?
+                ctx.peerWorker().DEFAULT().getText() : ctx.peerWorker().workerName().getText();
+
+        this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), workerName);
     }
 
     @Override
@@ -2470,7 +2478,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLCommentTemplateText());
         String endingString = getTemplateEndingStr(ctx.XMLCommentText());
-        endingString = endingString.substring(0, endingString.length() - 3);
         this.pkgBuilder.createXMLCommentLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingString);
 
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
@@ -2620,10 +2627,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) {
         if (isInErrorState) {
-            return;
-        }
-
-        if (ctx.expression() != null) {
             return;
         }
 
@@ -3346,6 +3349,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private String getTemplateEndingStr(TerminalNode node) {
         return node == null ? null : node.getText();
+    }
+
+    private String getTemplateEndingStr(List<TerminalNode> nodes) {
+        StringJoiner joiner = new StringJoiner("");
+        nodes.forEach(node -> joiner.add(node.getText()));
+        return joiner.toString();
     }
 
     private String getNodeValue(ParserRuleContext ctx, TerminalNode node) {

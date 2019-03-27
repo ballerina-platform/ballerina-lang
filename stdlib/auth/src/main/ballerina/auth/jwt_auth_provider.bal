@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
@@ -69,6 +68,8 @@ public type JWTAuthProvider object {
                     return "Authenticate user :" + payload.sub + " from cache";
                 });
                 return payload;
+            } else {
+                self.authCache.remove(jwtToken);
             }
         }
         return ();
