@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.task.utils;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * Task related constants.
  */
@@ -25,7 +27,7 @@ public class TaskConstants {
 
     // Package related constants
     public static final String PATH_SEPARATOR = "/";
-    public static final String ORGANIZATION_NAME = "ballerina";
+    public static final String ORGANIZATION_NAME = BALLERINA_BUILTIN_PKG_PREFIX;
     public static final String PACKAGE_NAME = "task";
     public static final String OBJECT_NAME_LISTENER = "Listener";
     public static final String PACKAGE_STRUCK_NAME = ORGANIZATION_NAME + PATH_SEPARATOR + PACKAGE_NAME;
