@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.javainterop.JPackageSymbol;
 import org.wso2.ballerinalang.compiler.javainterop.JScope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -65,9 +64,9 @@ public class Symbols {
         return pkgSymbol;
     }
 
-    public static BPackageSymbol createJPackageSymbol(PackageID packageID,
+    public static JPackageSymbol createJPackageSymbol(PackageID packageID,
                                                       SymbolTable symTable) {
-        BPackageSymbol pkgSymbol = new JPackageSymbol(packageID, symTable.rootPkgSymbol);
+        JPackageSymbol pkgSymbol = new JPackageSymbol(packageID, symTable.rootPkgSymbol);
         pkgSymbol.scope = new JScope(pkgSymbol);
         return pkgSymbol;
     }

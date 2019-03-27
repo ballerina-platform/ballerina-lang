@@ -32,7 +32,23 @@ public class JScope extends Scope {
         super(owner);
     }
 
+    // 1) Check whether it is already defined if yes, then return it.
+    // 2) Attempt to load the class, if CNF, return NOT_FOUND_ENTRY
+    // 3) Now, inspect the loaded class for public instance variables and public method signatures,
+    //      and create a object symbol and a type based on this information.
     public ScopeEntry lookup(Name name) {
+
+        String qualifiedClassName = this.owner.pkgID.name.value + "." + name.value;
+        try {
+            Class clazz = Class.forName(qualifiedClassName);
+            System.out.println(clazz.getCanonicalName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // TODO use the JPkgClassLoader
+
+
         return NOT_FOUND_ENTRY;
     }
 }

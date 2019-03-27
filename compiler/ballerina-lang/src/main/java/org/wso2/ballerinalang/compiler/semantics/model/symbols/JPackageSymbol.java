@@ -15,11 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.javainterop;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 // TODO We need to introduce a common package symbol interface/class
 // TODO Then define BallerinaPackageSymbol and JavaPackageSymbol from the base interface/class
