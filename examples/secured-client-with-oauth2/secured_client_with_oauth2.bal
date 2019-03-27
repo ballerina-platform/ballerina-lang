@@ -33,7 +33,7 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
                 config: {
                     tokenUrl: "https://bitbucket.org/site/oauth2/access_token",
                     username: "b7a.demo@gmail.com",
-                    password: "39^R3ODx",
+                    password: "ballerina",
                     clientId: "mMNWS9PLmM93V5WHjC",
                     clientSecret: "jLY6xPY3ER4bNTspaGu6fb7kahhs7kUa",
                     refreshConfig: {
