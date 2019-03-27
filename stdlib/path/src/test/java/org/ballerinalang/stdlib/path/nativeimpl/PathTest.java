@@ -313,7 +313,7 @@ public class PathTest {
         assertEquals(extension.stringValue(), expected);
     }
 
-    //@Test(description = "Test relative path function for posix paths", dataProvider = "relative_tests")
+    @Test(description = "Test relative path function for posix paths", dataProvider = "relative_tests")
     public void testPosixRelativePath(String basePath, String targetPath, String expected) {
         validateRelativePath(basePath, targetPath, expected);
     }
