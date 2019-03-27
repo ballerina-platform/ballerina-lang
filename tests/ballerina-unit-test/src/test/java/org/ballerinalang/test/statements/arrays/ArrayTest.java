@@ -21,14 +21,17 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import static java.lang.String.format;
 
@@ -136,6 +139,40 @@ public class ArrayTest {
         BXMLItem[] xmlArray = { new BXMLItem("<foo> </foo>"), new BXMLItem("<bar>hello</bar>") };
         BValueArray bXmlArray = new BValueArray(xmlArray, BTypes.typeXML);
         Assert.assertEquals(bXmlArray.stringValue(), "[<foo> </foo>, <bar>hello</bar>]");
+    }
+
+    @Test
+    public void testElementTypesWithoutImplicitInitVal() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testElementTypesWithoutImplicitInitVal");
+        BValueArray arr = (BValueArray) retVals[0];
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(arr.stringValue(), "[1, 2]");
+    }
+
+    @Test
+    public void testArrayFieldInRecord() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayFieldInRecord");
+        BMap barRec = (BMap) retVals[0];
+        BValueArray arr = (BValueArray) barRec.get("fArr");
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(arr.stringValue(), "[1, 2]");
+    }
+
+    @Test
+    public void testArrayFieldInObject() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayFieldInObject");
+        BMap barRec = (BMap) retVals[0];
+        BValueArray arr = (BValueArray) barRec.get("fArr");
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(arr.stringValue(), "[1, 2]");
+    }
+
+    @Test
+    public void testArraysAsFuncParams() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysAsFuncParams");
+        BValueArray arr = (BValueArray) retVals[0];
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(arr.stringValue(), "[1, 3]");
     }
 
     @Test(description = "Test arrays with errors")
