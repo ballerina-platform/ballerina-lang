@@ -28,9 +28,9 @@ public class CommandConstants {
     public static final String UNRESOLVED_MODULE = "cannot resolve module";
     public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile("cannot resolve module '(.*)'");
     public static final Pattern UNDEFINED_FUNCTION_PATTERN = Pattern.compile("undefined function '(.*)'");
-    public static final String INCOMPATIBLE_TYPES = "incompatible types";
+    public static final String INCOMPATIBLE_TYPES = "incompatible return types";
     public static final Pattern INCOMPATIBLE_TYPE_PATTERN = Pattern.compile(
-            "incompatible types: expected '(.*)', found '(.*)'");
+            "incompatible return types: expected '(.*)', found '(.*)'");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
