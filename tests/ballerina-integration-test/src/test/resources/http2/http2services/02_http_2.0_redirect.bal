@@ -54,6 +54,7 @@ service testRedirect on serviceEndpoint1 {
             _ = caller->respond(response.resolvedRequestedURI);
         } else {
             io:println("Connector error!");
+            _ = caller->respond(<string> response.detail().message);
         }
     }
 
