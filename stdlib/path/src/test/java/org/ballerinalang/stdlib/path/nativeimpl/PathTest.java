@@ -283,16 +283,26 @@ public class PathTest {
         }
         BValue[] args = {valueArray};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testBuildPath", args);
-        BString resultPath = (BString) returns[0];
-        log.info("{ballerina/path}:build(). Input: " + Arrays.asList(parts) + " | Return: " + resultPath);
-        //Path expectedPath = Paths.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
-        //String expectedValue =  expectedPath != null ? expectedPath.toString() : "";
-        assertEquals(resultPath.stringValue(), expected);
+        if ("error".equals(expected)) {
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            log.info("Ballerina error: " + error.getDetails().stringValue());
+        } else {
+            assertTrue(returns[0] instanceof BString);
+            BString resultPath = (BString) returns[0];
+            log.info("{ballerina/path}:build(). Input: " + Arrays.asList(parts) + " | Return: " + resultPath);
+            assertEquals(resultPath.stringValue(), expected);
+        }
     }
 
-    //@Test(description = "Test extension path function for posix paths", dataProvider = "ext_parts")
-    public void testPathExtension(String path, String expected) {
-        validateFileExtension(path, expected);
+    @Test(description = "Test extension path function for paths", dataProvider = "ext_parts")
+    public void testPathExtension(String path, String posixOutput, String windowsOutput) {
+        if (IS_WINDOWS) {
+            validateFileExtension(path, windowsOutput);
+        } else {
+            validateFileExtension(path, posixOutput);
+        }
     }
 
     private void validateFileExtension(String input, String expected) {
@@ -564,21 +574,21 @@ public class PathTest {
                 {new String[] {"\\", "a"}, "\\a"},
                 {new String[] {"\\", "a", "b"}, "\\a\\b"},
                 {new String[] {"\\", "\\\\a\\b", "c"}, "\\a\\b\\c"},
-                {new String[] {"\\\\a", "b", "c"}, "\\a\\b\\c"},
-                {new String[] {"\\\\a\\", "b", "c"}, "\\a\\b\\c"},
+                {new String[] {"\\\\a", "b", "c"}, "error"},
+                {new String[] {"\\\\a\\", "b", "c"}, "error"},
         };
     }
 
     @DataProvider(name = "ext_parts")
     public Object[] getExtensionsSet() {
         return new Object[][] {
-                {"path.bal", "bal"},
-                {"path.pb.bal", "bal"},
-                {"a.pb.bal/b", ""},
-                {"a.toml/b.bal", "bal"},
-                {"a.pb.bal/", "bal"},
-                {"\\..\\A\\B.foo", "foo"},
-                {"C:\\foo\\..\\bar", "\\bar"}
+                {"path.bal", "bal", "bal"},
+                {"path.pb.bal", "bal", "bal"},
+                {"a.pb.bal/b", "", ""},
+                {"a.toml/b.bal", "bal", "bal"},
+                {"a.pb.bal/", "bal", "bal"},
+                {"\\..\\A\\B.foo", "foo", "foo"},
+                {"C:\\foo\\..\\bar", "\\bar", ""}
         };
     }
 

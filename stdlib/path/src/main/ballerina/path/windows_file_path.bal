@@ -83,6 +83,7 @@ function buildWindowsPath(string... parts) returns string|error {
     string head = firstNonEmptyPart;
     if (check isUNC(head)) {
         string finalPath = firstNonEmptyPart;
+        i = i + 1;
         while(i < count) {
             finalPath = finalPath + "\\" + parts[i];
             i = i + 1;
@@ -91,7 +92,7 @@ function buildWindowsPath(string... parts) returns string|error {
     }
 
     i = i + 1;
-    string tail = "";
+    string tail;
     if (i < count) {
         tail = parts[i];
         i = i + 1;
@@ -107,9 +108,15 @@ function buildWindowsPath(string... parts) returns string|error {
     }
     string normalizedHead = check normalize(head);
     string normalizedTail = check normalize(tail);
+
     if (tail == "") {
         return normalizedHead;
     }
+    int index = nextNonSlashIndex(normalizedTail, 0, normalizedTail.length());
+    if (index > 0) {
+        normalizedTail = normalizedTail.substring(index, normalizedTail.length());
+    }
+
     if check charAt(normalizedHead, normalizedHead.length() - 1) == PATH_SEPARATOR {
 		return normalizedHead + normalizedTail;
 	}
