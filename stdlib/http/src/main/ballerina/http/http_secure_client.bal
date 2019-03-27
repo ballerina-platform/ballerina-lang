@@ -82,8 +82,8 @@ type RequestConfig record {|
 # + httpClient - The underlying `HttpActions` instance, which will make the actual network calls
 # + tokenCache - Cached token configurations
 public type HttpSecureClient client object {
-    //These properties are populated from the init call and sent to the client connector as these will be needed at a later stage
-    //for retrying and in other few places.
+    //These properties are populated from the init call and sent to the client connector as these will be needed at a
+    //later stage for retrying and in other few places.
     public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
@@ -344,13 +344,14 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     }
 }
 
-# Prepare an HTTP request with the required headers for authentication based on the scheme and return a flag saying whether
-# retrying is required if the response will be 401.
+# Prepare an HTTP request with the required headers for authentication based on the scheme and return a flag saying
+# whether retrying is required if the response will be 401.
 #
 # + req - An HTTP outbound request message
 # + config - Client endpoint configurations
 # + tokenCache - Cached token configurations
-# + return - Whether retrying is required for a 401 response or `error` if an error occurred during the HTTP client invocation
+# + return - Whether retrying is required for a 401 response or
+# `error` if an error occurred during the HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config,
                                CachedTokenConfig tokenCache) returns boolean|error {
     var auth = config.auth;
@@ -423,7 +424,8 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
 # + authConfig - OAuth2 configurations
 # + tokenCache - Cached token configurations
 # + updateRequest - Check if the request is updated after a 401 response
-# + return - Auth token with the status whether retrying is required for a 401 response or returns `error` if the validation fails
+# + return - Auth token with the status whether retrying is required for a 401 response or returns
+# `error` if the validation fails
 function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig tokenCache,
                                boolean updateRequest) returns (string, boolean)|error {
     var grantType = authConfig.grantType;
@@ -460,8 +462,8 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
 #
 # + grantTypeConfig - Password grant configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token with the status whether retrying is required for a 401 response or returns `error` if an error occurred during the
-# HTTP client invocation or validation
+# + return - Auth token with the status whether retrying is required for a 401 response or
+# `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                                             CachedTokenConfig tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -501,8 +503,8 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 #
 # + grantTypeConfig - Client credentials grant configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token with the status whether retrying is required for a 401 response or `error` if an error occurred during the
-# HTTP client invocation or validation
+# + return - Auth token with the status whether retrying is required for a 401 response or
+# `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
                                                      CachedTokenConfig tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -543,8 +545,8 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 #
 # + grantTypeConfig - Direct token configurations
 # + tokenCache - Cached token configurations
-# + return - Auth token with the status whether retrying is required for a 401 response or `error` if an error occurred during the
-# HTTP client invocation or validation
+# + return - Auth token with the status whether retrying is required for a 401 response or
+# `error` if an error occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               CachedTokenConfig tokenCache) returns (string, boolean)|error {
     string cachedAccessToken = tokenCache.accessToken;
@@ -864,9 +866,9 @@ function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache, in
     return ();
 }
 
-# Check whether retrying is required for the response. This returns 'true' if the scheme is OAuth and the response status
-# is 401. That implies that the user has given an expired access token or the retrieved access token from the cache is expired.
-# Thus, the client should update it with the given refresh configurations.
+# Check whether retrying is required for the response. This returns 'true' if the scheme is OAuth and the response
+# status is 401. That implies that the user has given an expired access token or the retrieved access token from the
+# cache is expired. Thus, the client should update it with the given refresh configurations.
 #
 # + retryRequired - Whether retrying is required or not
 # + res - Request object
