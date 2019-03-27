@@ -22,6 +22,9 @@ try {
     fs.ensureDirSync(outPath);
     fs.writeFileSync(path.join(outPath, "index.html"), indexTemplate(model));
     buildModules(model.modules);
+    fs.copy(path.join(__dirname, "styles"), path.join(outPath, "styles"));
+    fs.copy(path.join(__dirname, "images"), path.join(outPath, "images"));
+    
 } catch(e) {
     console.log("Error" + e.message);
 }

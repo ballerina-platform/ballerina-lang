@@ -15,20 +15,5 @@
 
 <body>
   <div class="content-wrapper">
-    <div>
-      <img class="logo" src="images/ballerina-logo.png">
-    </div>
     <h1>{{name}}</h1>
     <p>{{description}}</p>
-    {{#if modules}}
-    <div class="module-list">
-      {{#each modules}}
-      <div class="module-title">
-        <a href="{{id}}/index.html">{{id}}</a>
-        </div>
-      <div class="module-desc">{{description}}</div>
-      {{/each}}
-    </div>
-    {{/if}}
-  </div>
-</body>
