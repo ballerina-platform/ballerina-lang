@@ -363,8 +363,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + authToken);
                 return false;
             } else {
-                error err = error(HTTP_ERROR_CODE, { message: "Basic auth config not provided." });
-                return err;
+                return prepareError("Basic auth config not provided.");
             }
         } else if (auth.scheme == OAUTH2) {
             if (authConfig is OAuth2AuthConfig) {
@@ -374,24 +373,20 @@ function generateSecureRequest(Request req, ClientEndpointConfig config,
                 req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
                 return retryRequired;
             } else {
-                error err = error(HTTP_ERROR_CODE, { message: "OAuth2 config not provided." });
-                return err;
+                return prepareError("OAuth2 config not provided.");
             }
         } else if (auth.scheme == JWT_AUTH) {
             string authToken = EMPTY_STRING;
             if (authConfig is JwtAuthConfig) {
                 authToken = check getAuthTokenForJWTAuth(authConfig);
             } else if (authConfig is OAuth2AuthConfig || authConfig is BasicAuthConfig) {
-                error err = error(HTTP_ERROR_CODE, { message: "JWT auth config not provided." });
-                return err;
+                return prepareError("JWT auth config not provided.");
             } else {
                 authToken = runtime:getInvocationContext().authenticationContext.authToken;
             }
             if (authToken == EMPTY_STRING) {
-                error err = error(HTTP_ERROR_CODE,
-                            { message: "JWT was not used during inbound authentication.
-                              Provide InferredJwtIssuerConfig to issue new token." });
-                return err;
+                return prepareError("JWT was not used during inbound authentication.
+                                    Provide InferredJwtIssuerConfig to issue new token.");
             }
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
             return false;
@@ -408,8 +403,7 @@ function getAuthTokenForBasicAuth(BasicAuthConfig authConfig) returns string|err
     string username = authConfig.username;
     string password = authConfig.password;
     if (username == EMPTY_STRING || password == EMPTY_STRING) {
-        error err = error(HTTP_ERROR_CODE, { message: "Username or password cannot be empty." });
-        return err;
+        return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;
     string token = encoding:encodeBase64(str.toByteArray("UTF-8"));
@@ -434,15 +428,13 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
         if (grantTypeConfig is PasswordGrantConfig) {
             return getAuthTokenForOAuth2PasswordGrant(grantTypeConfig, tokenCache);
         } else {
-            error err = error(HTTP_ERROR_CODE, { message: "Invalid config is provided for the password grant type." });
-            return err;
+            return prepareError("Invalid config is provided for the password grant type.");
         }
     } else if (grantType is CLIENT_CREDENTIALS_GRANT) {
         if (grantTypeConfig is ClientCredentialsGrantConfig) {
             return getAuthTokenForOAuth2ClientCredentialsGrant(grantTypeConfig, tokenCache);
         } else {
-            error err = error(HTTP_ERROR_CODE, { message: "Invalid config is provided for the password grant type." });
-            return err;
+            return prepareError("Invalid config is provided for the password grant type.");
         }
     } else {
         // Within this code block, the grant type is DIRECT_TOKEN
@@ -452,8 +444,7 @@ function getAuthTokenForOAuth2(OAuth2AuthConfig authConfig, CachedTokenConfig to
             }
             return getAuthTokenForOAuth2DirectTokenMode(grantTypeConfig, tokenCache);
         } else {
-            error err = error(HTTP_ERROR_CODE, { message: "Invalid config is provided for the direct token mode." });
-            return err;
+            return prepareError("Invalid config is provided for the direct token mode.");
         }
     }
 }
@@ -655,12 +646,20 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     Client authorizationClient;
     RequestConfig requestConfig;
     int clockSkew;
+    string tokenUrl;
+
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
-            error err = error(HTTP_ERROR_CODE, { message: "Client id or client secret cannot be empty." });
-            return err;
+            return prepareError("Client id or client secret cannot be empty.");
         }
-        authorizationClient = check createClient(config.tokenUrl, {});
+        tokenUrl = config.tokenUrl;
+        var clientCreation = createClient(tokenUrl, {});
+        if (clientCreation is Client) {
+            authorizationClient = clientCreation;
+        }  else {
+            return prepareError("Failed to create the authorization client with the URL: " + tokenUrl,
+                                err = clientCreation);
+        }
         requestConfig = {
             payload: "grant_type=client_credentials",
             clientId: config.clientId,
@@ -670,13 +669,19 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         };
         clockSkew = config.clockSkew;
     } else {
-        authorizationClient = check createClient(config.tokenUrl, {});
+        tokenUrl = config.tokenUrl;
+        var clientCreation = createClient(tokenUrl, {});
+        if (clientCreation is Client) {
+            authorizationClient = clientCreation;
+        } else {
+            return prepareError("Failed to create the authorization client with the URL: " + tokenUrl,
+                                err = clientCreation);
+        }
         var clientId = config["clientId"];
         var clientSecret = config["clientSecret"];
         if (clientId is string && clientSecret is string) {
             if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
-                error err = error(HTTP_ERROR_CODE, { message: "Client id or client secret cannot be empty." });
-                return err;
+                return prepareError("Client id or client secret cannot be empty.");
             }
             requestConfig = {
                 payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
@@ -694,12 +699,17 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         }
         clockSkew = config.clockSkew;
     }
+
     Request authorizationRequest = check prepareRequest(requestConfig);
-    log:printDebug(function () returns string {
-        return "Sending authorization request.";
-    });
-    Response authorizationResponse = check authorizationClient->post(EMPTY_STRING, authorizationRequest);
-    return extractAccessTokenFromResponse(authorizationResponse, tokenCache, clockSkew);
+    var authorizationResponse = authorizationClient->post(EMPTY_STRING, authorizationRequest);
+    if (authorizationResponse is Response) {
+        log:printDebug(function () returns string {
+            return "Authorization request sent successfully to URL: " + tokenUrl;
+        });
+        return extractAccessTokenFromResponse(authorizationResponse, tokenCache, clockSkew);
+    } else {
+        return prepareError("Failed to send authorization request to URL: " + tokenUrl, err = authorizationResponse);
+    }
 }
 
 # Request an access token from the authorization server using the provided refresh configurations.
@@ -712,14 +722,22 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     Client refreshClient;
     RequestConfig requestConfig;
     int clockSkew;
+    string refreshUrl;
+
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is RefreshConfig) {
             if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
-                error err = error(HTTP_ERROR_CODE, { message: "Client id or client secret cannot be empty." });
-                return err;
+                return prepareError("Client id or client secret cannot be empty.");
             }
-            refreshClient = check createClient(refreshConfig.refreshUrl, {});
+            refreshUrl = refreshConfig.refreshUrl;
+            var clientCreation = createClient(refreshUrl, {});
+            if (clientCreation is Client) {
+                refreshClient = clientCreation;
+            }  else {
+                return prepareError("Failed to create the refresh client with the URL: " + refreshUrl,
+                                    err = clientCreation);
+            }
             requestConfig = {
                 payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
                 clientId: config.clientId,
@@ -728,19 +746,24 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 credentialBearer: refreshConfig.credentialBearer
             };
         } else {
-            error err = error(HTTP_ERROR_CODE,
-                        { message: "Failed to refresh access token since RefreshTokenConfig is not provided." });
-            return err;
+            return prepareError("Failed to refresh access token since RefreshTokenConfig is not provided.");
         }
         clockSkew = config.clockSkew;
     } else {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is DirectTokenRefreshConfig) {
             if (refreshConfig.clientId == EMPTY_STRING || refreshConfig.clientSecret == EMPTY_STRING) {
-                error err = error(HTTP_ERROR_CODE, { message: "Client id or client secret cannot be empty." });
-                return err;
+                string errMsg = "Client id or client secret cannot be empty.";
+                return prepareError(errMsg);
             }
-            refreshClient = check createClient(refreshConfig.refreshUrl, {});
+            refreshUrl = refreshConfig.refreshUrl;
+            var clientCreation = createClient(refreshUrl, {});
+            if (clientCreation is Client) {
+                refreshClient = clientCreation;
+            }  else {
+                return prepareError("Failed to create the refresh client with the URL: " + refreshUrl,
+                                    err = clientCreation);
+            }
             requestConfig = {
                 payload: "grant_type=refresh_token&refresh_token=" + refreshConfig.refreshToken,
                 clientId: refreshConfig.clientId,
@@ -749,18 +772,21 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 credentialBearer: refreshConfig.credentialBearer
             };
         } else {
-            error err = error(HTTP_ERROR_CODE,
-                        { message: "Failed to refresh access token since RefreshTokenConfig is not provided." });
-            return err;
+            return prepareError("Failed to refresh access token since DirectRefreshTokenConfig is not provided.");
         }
         clockSkew = config.clockSkew;
     }
+
     Request refreshRequest = check prepareRequest(requestConfig);
-    log:printDebug(function () returns string {
-        return "Sending refresh request.";
-    });
-    Response refreshResponse = check refreshClient->post(EMPTY_STRING, refreshRequest);
-    return extractAccessTokenFromResponse(refreshResponse, tokenCache, clockSkew);
+    var refreshResponse = refreshClient->post(EMPTY_STRING, refreshRequest);
+    if (refreshResponse is Response) {
+        log:printDebug(function () returns string {
+            return "Refresh request sent successfully to URL: " + refreshUrl;
+        });
+        return extractAccessTokenFromResponse(refreshResponse, tokenCache, clockSkew);
+    } else {
+        return prepareError("Failed to send refresh request to URL: " + refreshUrl, err = refreshResponse);
+    }
 }
 
 # Prepare the request to be sent to the authorization server by adding the relevant headers and payloads.
@@ -792,17 +818,13 @@ function prepareRequest(RequestConfig config) returns Request|error {
             req.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE +
                     encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
         } else {
-            error err = error(HTTP_ERROR_CODE,
-                        { message: "Client ID or client secret is not provided for client authentication." });
-            return err;
+            return prepareError("Client ID or client secret is not provided for client authentication.");
         }
     } else if (config.credentialBearer == POST_BODY_BEARER) {
         if (clientId is string && clientSecret is string) {
             textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
         } else {
-            error err = error(HTTP_ERROR_CODE,
-                        { message: "Client ID or client secret is not provided for client authentication." });
-            return err;
+            return prepareError("Client ID or client secret is not provided for client authentication.");
         }
     }
     req.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
@@ -821,25 +843,32 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
         var payload = response.getJsonPayload();
         if (payload is json) {
             log:printDebug(function () returns string {
-                return "Received an valid response. Extracting access token from the payload: " + <string> payload;
+                return "Received an valid response. Extracting access token from the payload";
             });
             check updateTokenCache(payload, tokenCache, clockSkew);
             return payload.access_token.toString();
         } else {
-            error err = error(HTTP_ERROR_CODE,
-                        { message: "Failed to retrieve access token since the response payload is not a JSON.",
-                          details: payload.reason() });
-            return err;
+            return prepareError("Failed to retrieve access token since the response payload is not a JSON.", err = payload);
         }
     } else {
-        string errMsg = "Received an invalid response. StatusCode: " + response.statusCode;
-        var textPayload = response.getTextPayload();
-        if (textPayload is string) {
-            errMsg = " Payload: " + textPayload;
+        var payload = response.getTextPayload();
+        if (payload is string) {
+            return prepareError("Received an invalid response. StatusCode: " + response.statusCode + " Payload: " + payload);
+        } else {
+            return prepareError("Received an invalid response. StatusCode: " + response.statusCode, err = payload);
         }
-        error err = error(HTTP_ERROR_CODE, { message: errMsg });
-        return err;
     }
+}
+
+# Log, prepare and return the `error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `error` instance
+function prepareError(string message, error? err = ()) returns error {
+    log:printDebug(function () returns string { return message; });
+    error preparedError = error(HTTP_ERROR_CODE, { message: message, reason: err.reason() });
+    return preparedError;
 }
 
 # Update the token cache with the received JSON payload of the response.
@@ -847,13 +876,13 @@ function extractAccessTokenFromResponse(Response response, CachedTokenConfig tok
 # + responsePayload - Payload of the response
 # + tokenCache - Cached token configurations
 # + clockSkew - Clock skew in seconds
-# + return - Returns `error` if an error occurred during the conversion of the parameters
+# + return - `error` if an error occurred during the conversion of the parameters
 function updateTokenCache(json responsePayload, CachedTokenConfig tokenCache, int clockSkew) returns error? {
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     tokenCache.accessToken = accessToken;
-    if (responsePayload["expires_in"] is int) {
-        int expiresIn = check int.convert(responsePayload.expires_in);
+    var expiresIn = responsePayload["expires_in"];
+    if (expiresIn is int) {
         tokenCache.expiryTime = issueTime + (expiresIn - clockSkew) * 1000;
     }
     if (responsePayload["refresh_token"] is string) {
