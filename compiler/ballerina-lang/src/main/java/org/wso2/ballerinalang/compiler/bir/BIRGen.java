@@ -509,7 +509,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONAccessExpr astJSONFieldAccessExpr) {
-        if(astJSONFieldAccessExpr.indexExpr.type.tag == TypeTags.INT) {
+        if (astJSONFieldAccessExpr.indexExpr.type.tag == TypeTags.INT) {
             generateArrayAccess(astJSONFieldAccessExpr);
             return;
         }

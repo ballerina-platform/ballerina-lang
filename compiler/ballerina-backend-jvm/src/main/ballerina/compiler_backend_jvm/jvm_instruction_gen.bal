@@ -137,8 +137,13 @@ type InstructionGenerator object {
         if (opType is bir:BTypeInt) {
             self.mv.visitInsn(LCMP);
             self.mv.visitJumpInsn(IFNE, label1);
-        } else if (opType is bir:BTypeFloat) {
-            // self.mv.visitInsn(DCMP);
+        } else if (opType is bir:BTypeFloat ||
+                    opType is bir:BTypeString ||
+                    opType is bir:BTypeBoolean ||
+                    opType is bir:BTypeByte ) {
+            error err = error( "equal operator is not supported for type " +
+                    io:sprintf("%s", opType));
+            panic err;
         } else {
             self.mv.visitJumpInsn(IF_ACMPNE, label1);
         }
@@ -365,16 +370,9 @@ type InstructionGenerator object {
     function generateArrayNewIns(bir:NewArray inst) {
         self.mv.visitTypeInsn(NEW, ARRAY_VALUE);
         self.mv.visitInsn(DUP);
-        bir:BType arrayType = inst.typeValue;
-        if (arrayType is bir:BArrayType) {
-            loadType(self.mv, arrayType.eType);
-            self.generateVarLoad(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
-        } else if (arrayType is bir:BTupleType) {
-            loadType(self.mv, arrayType);
-            self.generateVarLoad(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
-        }
+        loadType(self.mv, inst.typeValue);
+        self.generateVarLoad(inst.sizeOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
         self.generateVarStore(inst.lhsOp.variableDcl);
     }
 

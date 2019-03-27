@@ -660,8 +660,8 @@ public class JSONUtils {
     private static ArrayValue convertBooleanArrayToJSON(ArrayValue booleanArray) {
         ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
-            int value = booleanArray.getBoolean(i);
-            json.append(new Boolean(value == 1));
+            boolean value = booleanArray.getBoolean(i);
+            json.append(new Boolean(value));
         }
         return json;
     }
