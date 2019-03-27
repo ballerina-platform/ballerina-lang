@@ -77,6 +77,7 @@ public enum DiagnosticCode {
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
+    INCOMPATIBLE_TYPES_EXP_RETURN("incompatible.types.exp.return"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),

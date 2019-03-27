@@ -1921,7 +1921,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.type);
+        this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.type,
+                                   DiagnosticCode.INCOMPATIBLE_TYPES_EXP_RETURN);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
