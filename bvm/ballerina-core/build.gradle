@@ -31,3 +31,9 @@ dependencies {
 }
 
 description = 'Ballerina - Core'
+
+configurations {
+    implementation {
+        exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
+    }
+}

@@ -32,8 +32,6 @@ shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {
         exclude(dependency('org.slf4j:slf4j-api'))
-        exclude(dependency('org.slf4j:slf4j-api'))
-        exclude(dependency('org.slf4j:slf4j-api'))
         exclude(dependency('org.apache.commons:commons-lang3'))
         exclude(dependency('org.wso2.transport.http:org.wso2.transport.http.netty'))
         exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi'))
