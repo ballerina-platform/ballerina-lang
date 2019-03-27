@@ -513,15 +513,51 @@ function isLetter(string c) returns boolean {
     }
 }
 
+function getRootOffset(string path) returns int|error {
+	if path.length() < 2 {
+		return 0;
+	}
+	// check driver
+	string c0 = check charAt(path, 0);
+	string c1 = check charAt(path, 1);
+	if (c1 == ":" && isLetter(c0)) {
+		return 2;
+	}
+	int size = path.length();
+	string c2 = check charAt(path, 2);
+	if (size >= 5 && isSlash(c0) && isSlash(c1) && !isSlash(c2) && c2 != ".") {
+		// first, leading `\\` and next shouldn't be `\`. its server name.
+		int n = 3;
+		while (n < size-1) {
+			// second, next '\' shouldn't be repeated.
+			string cn = check charAt(path, n);
+			if isSlash(cn) {
+				n = n + 1;
+				cn = check charAt(path, n);
+				// third, share name.
+				if !isSlash(cn) {
+					if cn == "." {
+						break;
+					}
+
+					while(n < size) {
+						if isSlash(cn) {
+							break;
+						}
+						n = n + 1;
+					}
+					return n;
+				}
+				break;
+			}
+			n = n + 1;
+		}
+	}
+	return 0;
+}
+
 function isUNC(string path) returns boolean|error {
-    string regEx = "\\\\[a-zA-Z0-9.-_]{1,}(\\[a-zA-Z0-9-_]{1,}){1,}[$]{0,1}";
-    boolean|error output = path.matches(regEx);
-    if (output is error) {
-        error err = error("{ballerina/path}INVALID_UNC_PATH", output.detail());
-        return err;
-    } else {
-        return output;
-    }
+    return check getRootOffset(path) > 2;
 }
 
 function isEmpty(string path) returns boolean {
