@@ -22,11 +22,12 @@ const int STRING = 17;
 const int SUBSTRACTION = 18;
 const int DIVISION = 19;
 const int MULTIPLICATION = 20;
-const int ERROR_TOKEN = 21;
+const int LEXER_ERROR_TOKEN = 21;
 const int COLON = 22;
+const int PARSER_ERROR_TOKEN = 23;
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
 "EOF", "NUMBER", "EQUAL_TO", "STRICT_EQAULITY", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
-"SUBSTRACTION", "DIVISION", "MULTIPLICATION","ERROR_TOKEN","COLON"];
+"SUBSTRACTION", "DIVISION", "MULTIPLICATION","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN"];
 
 int position = 0;
 int lineNum = 1;
@@ -152,7 +153,7 @@ public type Lexer object {
                         completeStr = false;
                         //error err = error("string expected, found incomplete string");
                         //panic err;
-						return { tokenType: ERROR_TOKEN, text: str, startPos: position - strPos , endPos:
+						return { tokenType: LEXER_ERROR_TOKEN, text: str, startPos: position - strPos , endPos:
 						position, lineNumber: lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
 
                     }
@@ -178,7 +179,7 @@ public type Lexer object {
 					//error err = error("Unexpected identifier after numeric literal");
 					//panic err;
 					tokenIndex += 1;
-					return { tokenType: ERROR_TOKEN, text: numb, startPos: position - digitPos , endPos:position, lineNumber:
+					return { tokenType: LEXER_ERROR_TOKEN, text: numb, startPos: position - digitPos , endPos:position, lineNumber:
 					lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
 				}
 				if(validNum){

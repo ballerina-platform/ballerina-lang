@@ -72,7 +72,7 @@ type Parser object {
 
 	//error recovery token insertion
 	function insertToken(int mToken) returns Token {
-		return { tokenType: mToken, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+		return { tokenType: PARSER_ERROR_TOKEN, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
 	}
 	//panic recovery
@@ -96,7 +96,7 @@ type Parser object {
 					errTokens[errCount] = currToken1;
 					errCount += 1;
 				}
-				return { tokenType: mToken, text: "<unexpected Token: " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+				return { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected Token: " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 					lineNumber: 0, index: -1, whiteSpace: "" };
 			}
 		}
@@ -125,7 +125,7 @@ type Parser object {
 			}
 		}
 		//this return statement will be in a else statement
-		return { tokenType: mToken, text: "<unexpected " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
+		return { tokenType: PARSER_ERROR_TOKEN, text: "<unexpected " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
 
 	}

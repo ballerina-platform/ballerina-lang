@@ -1,5 +1,4 @@
 function main (){
-	int a = 5 + b;
+	int a = 5 + b
 	int c;
-	int d;
 }
