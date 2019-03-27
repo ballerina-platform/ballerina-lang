@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
+import org.ballerinalang.langserver.command.executors.FixReturnTypeExecutor;
 import org.ballerinalang.langserver.command.executors.IgnoreReturnExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -197,6 +198,24 @@ public class CommandExecutionTest {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
         JsonObject responseJson = getCommandResponse(args, IgnoreReturnExecutor.COMMAND);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
+    }
+
+    @Test(dataProvider = "fix-return-type-data-provider")
+    public void testFixReturnType(String config, String source) {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, arguments.get("node.type").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, FixReturnTypeExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
@@ -386,6 +405,16 @@ public class CommandExecutionTest {
         log.info("Test workspace/executeCommand for command {}", IgnoreReturnExecutor.COMMAND);
         return new Object[][] {
                 {"ignoreReturnValue.json", "createVariable.bal"},
+        };
+    }
+
+    @DataProvider(name = "fix-return-type-data-provider")
+    public Object[][] fixReturnTypeDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", FixReturnTypeExecutor.COMMAND);
+        return new Object[][] {
+                {"fixReturnType1.json", "fixReturnType.bal"},
+                {"fixReturnType2.json", "fixReturnType.bal"},
+                {"fixReturnType3.json", "fixReturnType.bal"},
         };
     }
 
