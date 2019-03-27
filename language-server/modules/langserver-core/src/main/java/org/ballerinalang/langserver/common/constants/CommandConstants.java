@@ -28,6 +28,9 @@ public class CommandConstants {
     public static final String UNRESOLVED_MODULE = "cannot resolve module";
     public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile("cannot resolve module '(.*)'");
     public static final Pattern UNDEFINED_FUNCTION_PATTERN = Pattern.compile("undefined function '(.*)'");
+    public static final String INCOMPATIBLE_TYPES = "incompatible types";
+    public static final Pattern INCOMPATIBLE_TYPE_PATTERN = Pattern.compile(
+            "incompatible types: expected '(.*)', found '(.*)'");
 
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
@@ -68,4 +71,6 @@ public class CommandConstants {
     public static final String CREATE_INITIALIZER_TITLE = "Create Initializer";
 
     public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
+
+    public static final String CHANGE_RETURN_TYPE_TITLE = "Change Return Type to ";
 }
