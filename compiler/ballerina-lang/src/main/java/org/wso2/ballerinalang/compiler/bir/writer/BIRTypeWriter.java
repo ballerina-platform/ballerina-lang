@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -61,6 +62,8 @@ public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
+    private final BMapType anydataMapType =
+            new BMapType(TypeTags.MAP, new BAnydataType(TypeTags.ANYDATA, null), null);
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -93,7 +96,8 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BErrorType bErrorType) {
         buff.writeByte(bErrorType.tag);
         bErrorType.reasonType.accept(this);
-        bErrorType.detailType.accept(this);
+        // Temporary fix to avoid recursive call, detail type needs to be visited once fixed
+        anydataMapType.accept(this);
     }
 
     @Override
