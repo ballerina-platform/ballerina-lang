@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.command.executors.ChangeReturnTypeExecutor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -33,6 +34,8 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -51,18 +54,21 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
@@ -211,6 +217,15 @@ public class CommandUtil {
                 String commandTitle = CommandConstants.PULL_MOD_TITLE;
                 commands.add(Either.forLeft(new Command(commandTitle, CommandConstants.CMD_PULL_MODULE, args)));
             }
+        } else if (isIncompatibleTypes(diagnosticMessage)) {
+            Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
+            if (matcher.find() && matcher.groupCount() > 1) {
+                String foundType = matcher.group(2);
+                CommandArgument typeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, foundType);
+                List<Object> args = Arrays.asList(lineArg, colArg, typeArg, uriArg);
+                String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType;
+                commands.add(Either.forLeft(new Command(commandTitle, ChangeReturnTypeExecutor.COMMAND, args)));
+            }
         }
         return commands;
     }
@@ -319,6 +334,60 @@ public class CommandUtil {
         }
     }
 
+    public static Node getBLangNodeByPosition(int line, int column, String uri,
+                                              WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
+                                              LSContext context) {
+        Position position = new Position();
+        position.setLine(line);
+        position.setCharacter(column + 1);
+        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
+        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
+        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, documentManager, false,
+                                                                       LSCustomErrorStrategy.class, true);
+
+        // Get the current package.
+        BLangPackage currentPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, uri);
+
+        if (currentPackage == null) {
+            return null;
+        }
+        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, currentPackage);
+
+        // If package is testable package process as tests
+        // else process normally
+        String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangCompilationUnit compilationUnit;
+        if (relativeFilePath.startsWith("tests" + File.separator)) {
+            compilationUnit = currentPackage.getTestablePkg().getCompilationUnits().stream().
+                    filter(compUnit -> (relativeFilePath).equals(compUnit.getName()))
+                    .findFirst().orElse(null);
+        } else {
+            compilationUnit = currentPackage.getCompilationUnits().stream().
+                    filter(compUnit -> relativeFilePath.equals(compUnit.getName())).findFirst().orElse(null);
+        }
+        if (compilationUnit == null) {
+            return null;
+        }
+        Iterator<TopLevelNode> nodeIterator = compilationUnit.getTopLevelNodes().iterator();
+        Node result = null;
+        TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
+        while (next != null) {
+            int sLine = next.getPosition().getStartLine();
+            int eLine = next.getPosition().getEndLine();
+            int sCol = next.getPosition().getStartColumn();
+            int eCol = next.getPosition().getEndColumn();
+            if ((line > sLine || (line == sLine && column >= sCol)) &&
+                    (line < eLine || (line == eLine && column <= eCol))) {
+                result = next;
+                break;
+            }
+            //TODO: visit functions inside objects as well
+            next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
+        }
+        return result;
+    }
+
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
                                                        WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
                                                        LSContext context) {
@@ -354,6 +423,10 @@ public class CommandUtil {
 
     private static boolean isUnresolvedPackage(String diagnosticMessage) {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNRESOLVED_MODULE);
+    }
+
+    private static boolean isIncompatibleTypes(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES);
     }
 
     private static Either<Command, CodeAction> getDocGenerationCommand(String nodeType, String docUri, int line) {
