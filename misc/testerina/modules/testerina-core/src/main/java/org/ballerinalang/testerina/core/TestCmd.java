@@ -100,7 +100,7 @@ public class TestCmd implements BLauncherCmd {
         SourceDirectory srcDirectory = null;
         if (sourceFileList == null || sourceFileList.isEmpty()) {
             // Check if the source root is a project. If the source root is not a project, then throw an error.
-            if (isNotABallerinaProject(sourceRootPath)) {
+            if (!isBallerinaProject(sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to execute tests in a directory that is " +
                         "not a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                         "project and then execute the tests.");
@@ -122,7 +122,7 @@ public class TestCmd implements BLauncherCmd {
             sourceFileList.add(fileName.toString());
         } else {
             // Check if the source root is a project. If the source root is not a project, then throw an error.
-            if (isNotABallerinaProject(sourceRootPath)) {
+            if (!isBallerinaProject(sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to execute tests in a module that is not " +
                         "inside a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                         "project and then execute the tests.");
@@ -181,9 +181,9 @@ public class TestCmd implements BLauncherCmd {
      * @param projectPath project path.
      * @return true if its a project else false.
      */
-    private boolean isNotABallerinaProject(Path projectPath) {
+    private boolean isBallerinaProject(Path projectPath) {
         return Files.isDirectory(projectPath) &&
-                !Files.exists(projectPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME));
+                Files.exists(projectPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME));
     }
 
     @Override
