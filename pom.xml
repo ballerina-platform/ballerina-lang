@@ -2442,7 +2442,7 @@
 
         <!-- Maven plugin versions -->
         <maven.antrun.plugin.version>1.8</maven.antrun.plugin.version>
-        <maven.assembly.plugin.version>2.6</maven.assembly.plugin.version>
+        <maven.assembly.plugin.version>3.1.1</maven.assembly.plugin.version>
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
         <maven.checkstyle.version>7.8.2</maven.checkstyle.version>
