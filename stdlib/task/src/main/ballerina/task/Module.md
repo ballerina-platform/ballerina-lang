@@ -53,7 +53,7 @@ service timerService on timer {
 
 The `AppointmentConfiguration` can be used to schedule an appointment. This Listener configuration consists of two main fields.
 
-  - `appointmentDetails` - Appointment details is a union of `task:AppointmentData` and `string`. `AppointmentDetails` can be given as either a `cronExpression`, a `string`, or an `AppointmentData` record type. An `AppointmentData` record includes seven fields to provide the appointment details.
+  - `appointmentDetails` - Appointment details is a union of `task:AppointmentData` and `string`. `AppointmentDetails` can be given as either a CRON Expression (as a `string`), or an `AppointmentData` record type. An `AppointmentData` record includes seven fields to provide the appointment details.
   - `noOfRecurrences` - The number of times a particular task needs to be executed. This is optional and should be given as an `int`.
   
 The following example creates a task appointment, which registers a service using a CRON expression to execute the task every 5 seconds for 11 times. The `count` variable is incremented by the task.
@@ -101,7 +101,7 @@ A `Scheduler` consists of the following APIs.
 - `pause()` - Pauses the scheduler. This will temporarily halt the execution of the task.
 - `resume()` - Resumes a task, which has been paused.
 - `attach()` - Attaches a service to the Scheduler. An optional `attachment`parameter can be passed to the function so that it will propagate into the resource.
-- `detach()` - Detaches any services that are attached to the task.
+- `detach()` - Detaches any service(s) that is/are attached to the task.
 
 Similar to Task Listeners, below are the two types of configurations that an be used to configure a Task Scheduler, either as a timer or as an appointment.
 
@@ -112,7 +112,7 @@ Similar to Task Listeners, below are the two types of configurations that an be 
 
 #### The Timer configuration for a Scheduler
 
-The following example creates a timer `task:Scheduler`.
+The following example creates a `task:Scheduler` as a timer. The `createTimer()` function uses its input values to create a task Scheduler dynamically. Then it attaches the service `timerService` to the `timer` scheduler it created. You can call `timer.start()` to start the timer.
 
 ```ballerina
 public function createTimer(int interval, int delay, int recurrences) {
@@ -144,4 +144,32 @@ service timerService = service {
 
 #### The Appointment configuration for a Scheduler
 
-A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`.
+A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. The following example creates a task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. Then you can attach a service to the scheduler using `attach()` function. Then the scheduler can be started using `start()` function.
+
+```ballerina
+public function createAppointment(string cronExpression, int recurrences) {
+    task:AppointmentConfiguration appointmentConfiguration = {
+            appointmentDetails: cronExpression,
+            noOfRecurrences: recurrences
+    };
+    task:Scheduler appointment = new(appointmentConfiguration);
+    
+    var result  = appointment.attach(appointmentService);
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
+    result = appointment.start();
+    if (result is error) {
+        log:printError("Error attaching service: ", err = result);
+        return;
+    }
+}
+
+service appointmentService = service {
+    resource function onTrigger() {
+        // Task to run when the appointment triggers.
+    }
+};
+```
+
