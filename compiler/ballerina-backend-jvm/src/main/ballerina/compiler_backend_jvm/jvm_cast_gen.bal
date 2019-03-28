@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
     if (targetType is bir:BTypeInt) {
         generateCastToInt(mv, sourceType);
@@ -49,7 +65,7 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
 }
 
 function generateCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeInt) {
+    if (sourceType is bir:BTypeInt || sourceType is bir:BTypeByte) {
         // do nothing
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitInsn(D2L);
@@ -105,12 +121,12 @@ function generateCastToBoolean(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeByte) {
+    if (sourceType is bir:BTypeInt || sourceType is bir:BTypeByte) {
         // do nothing
     } else if (sourceType is bir:BTypeAny ||
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType) {
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)B", OBJECT), false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'byte'", sourceType));
         panic err;
@@ -118,14 +134,12 @@ function generateCastToByte(jvm:MethodVisitor mv, bir:BType sourceType) {
 }
 
 function generateCastToAny(jvm:MethodVisitor mv, bir:BType sourceType) {
-    if (sourceType is bir:BTypeInt) {
+    if (sourceType is bir:BTypeInt || sourceType is bir:BTypeByte) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
     } else if (sourceType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-    } else if (sourceType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
     } else {
         // do nothing
         return;

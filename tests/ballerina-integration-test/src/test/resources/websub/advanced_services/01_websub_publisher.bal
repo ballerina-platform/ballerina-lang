@@ -178,7 +178,7 @@ service helperService on publisherServiceEP {
             log:printError("hub shutdown failed!");
         }
         webSubHub = startHubAndRegisterTopic();
-        _ = caller->accepted();
+        checkpanic caller->accepted();
     }
 }
 

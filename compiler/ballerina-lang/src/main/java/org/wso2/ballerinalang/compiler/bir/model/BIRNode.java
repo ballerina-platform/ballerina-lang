@@ -246,6 +246,9 @@ public abstract class BIRNode {
          */
         public Name name;
 
+
+        public List<BIRFunction> attachedFuncs;
+
         /**
          * Visibility of this type definition.
          * 0 - package_private
@@ -256,11 +259,19 @@ public abstract class BIRNode {
 
         public BType type;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility, BType type) {
+        /**
+         * this is not serialized. it's used to keep the index of the def in the list.
+         * otherwise the writer has to *find* it in the list.
+         */
+        public int index;
+
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility,
+                                 BType type, List<BIRFunction> attachedFuncs) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
             this.type = type;
+            this.attachedFuncs = attachedFuncs;
         }
 
         @Override

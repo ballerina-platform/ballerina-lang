@@ -46,7 +46,7 @@ public class ParserRuleDefinitionCompletionProvider extends AbstractSubCompletio
                 .map(Token::getText)
                 .collect(Collectors.toList());
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
-        if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
+        if (poppedTokens.size() >= 1) {
             // Provides completions after public keyword
             completionItems.addAll(addTopLevelItems(ctx));
             completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
@@ -55,6 +55,8 @@ public class ParserRuleDefinitionCompletionProvider extends AbstractSubCompletio
         if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
             return completionItems;
         }
+
+        // If the first token we found is the function token, then we suggest the Object Types
         return ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                 .map(symbolInfo -> {

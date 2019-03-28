@@ -237,6 +237,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -1276,7 +1277,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        BSymbol structSymbol = cIExpr.type.tsymbol;
+        BSymbol structSymbol = extractObjectTypeSymbol(cIExpr.type);
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
@@ -1285,18 +1286,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Emit an instruction to create a new struct.
         RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct initializer here.
-        Operand[] operands = getFuncOperands(cIExpr.initInvocation);
-
-        Operand[] callOperands = new Operand[operands.length + 1];
-        callOperands[0] = operands[0];
-        callOperands[1] = operands[1];
-        callOperands[2] = getOperand(operands[2].value + 1);
-        callOperands[3] = structRegIndex;
-
-        System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
-        emit(InstructionCodes.CALL, callOperands);
     }
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
@@ -3352,7 +3341,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
-            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr), funcRefCPIndex, nextIndex,
                     typeCPIndex);
         } else {
             operands = new Operand[4];
@@ -3385,18 +3374,30 @@ public class CodeGenerator extends BLangNodeVisitor {
      * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
-    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+    private Operand[] calcClosureOperands(BLangLambdaFunction lambdaFunction, int funcRefCPIndex, RegIndex nextIndex,
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        for (BVarSymbol symbol : function.symbol.params) {
-            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
-                continue;
-            }
-            Operand type = new Operand(symbol.type.tag);
+        // Order the closures variable maps.
+        Set<BVarSymbol> closureMapSymbols = new LinkedHashSet<>();
+
+        // First add the parameter closure maps.
+        if (!lambdaFunction.function.paramClosureMap.isEmpty()) {
+            // Check if the levels of the parameters are same. If same add them to the closure var map.
+            TreeMap<Integer, BVarSymbol> paramClosureMap = lambdaFunction.function.paramClosureMap;
+
+            lambdaFunction.paramMapSymbolsOfEnclInvokable.forEach((integer, bVarSymbol) -> {
+                if (paramClosureMap.containsKey(integer)) {
+                    closureMapSymbols.add(bVarSymbol);
+                }
+            });
+            // Afterwards add all the enclosing block symbol maps.
+           closureMapSymbols.addAll(lambdaFunction.enclMapSymbols.values());
+        }
+
+        for (BVarSymbol symbol : closureMapSymbols) {
             Operand index = new Operand(symbol.varIndex.value);
-            closureOperandList.add(type);
             closureOperandList.add(index);
         }
         Operand[] operands;
@@ -3826,5 +3827,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             }
         }
+    }
+
+    private BTypeSymbol extractObjectTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
     }
 }

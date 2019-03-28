@@ -27,16 +27,14 @@ function testValueTypeInUnion() returns string {
     }
 }
 
-type A record {
+type A record {|
     string a;
-    !...;
-};
+|};
 
-type B record {
+type B record {|
     string b;
     string c;
-    !...;
-};
+|};
 
 function testSimpleRecordTypes_1() returns string {
     A x = {a:"foo"};

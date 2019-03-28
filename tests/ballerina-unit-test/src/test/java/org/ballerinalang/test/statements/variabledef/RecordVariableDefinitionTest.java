@@ -297,38 +297,38 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 54, 13);
+                "invalid closed record binding pattern on opened record type 'Person'", 54, 12);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'Person', found 'PersonWithAge'", 62, 37);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 80, 13);
+                "invalid closed record binding pattern on opened record type 'Person'", 78, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedFoo'", 83, 16);
+                "not enough fields to match to closed record type 'ClosedFoo'", 81, 15);
         BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedBar'", 84, 27);
+                "not enough fields to match to closed record type 'ClosedBar'", 82, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'int'", 97, 13);
+                "incompatible types: expected 'string', found 'int'", 95, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'string'", 98, 11);
+                "incompatible types: expected 'int', found 'string'", 96, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'boolean'", 99, 14);
+                "incompatible types: expected 'string', found 'boolean'", 97, 14);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'boolean', found 'string'", 100, 15);
+                "incompatible types: expected 'boolean', found 'string'", 98, 15);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 143, 66);
+                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 141, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 144, 25);
+                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 142, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int|float', found 'int|float?'", 144, 31);
+                "incompatible types: expected 'int|float', found 'int|float?'", 142, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'anydata'", 154, 13);
+                "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'string?'", 154, 31);
+                "incompatible types: expected 'string', found 'string?'", 152, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 159, 20);
+                "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 159, 20);
+                "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 160, 20);
+                "no new variables on left side", 158, 19);
     }
 }

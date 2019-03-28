@@ -1,3 +1,19 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
@@ -18,7 +34,7 @@ type TerminatorGenerator object {
         bir:BType bType = func.typeValue.retType;
         if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);
-        } else if (bType is bir:BTypeInt) {
+        } else if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             self.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             self.mv.visitInsn(LRETURN);
         } else if (bType is bir:BTypeFloat) {
@@ -28,9 +44,6 @@ type TerminatorGenerator object {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-            self.mv.visitInsn(IRETURN);
-        } else if (bType is bir:BTypeByte) {
             self.mv.visitVarInsn(ILOAD, returnVarRefIndex);
             self.mv.visitInsn(IRETURN);
         } else if (bType is bir:BMapType ||
@@ -82,7 +95,7 @@ type TerminatorGenerator object {
 
             bir:BType bType = arg.typeValue;
 
-            if (bType is bir:BTypeInt) {
+            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(LLOAD, argIndex);
                 methodDesc = methodDesc + "J";
             } else if (bType is bir:BTypeFloat) {
@@ -94,9 +107,6 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeBoolean) {
                 self.mv.visitVarInsn(ILOAD, argIndex);
                 methodDesc = methodDesc + "Z";
-            } else if (bType is bir:BTypeByte) {
-                self.mv.visitVarInsn(ILOAD, argIndex);
-                methodDesc = methodDesc + "I";
             } else if (bType is bir:BArrayType ||
                         bType is bir:BTupleType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
@@ -141,15 +151,13 @@ type TerminatorGenerator object {
             int lhsLndex = self.getJVMIndexOfVarRef(lhsOpVarDcl);
             bir:BType? bType = callIns.lhsOp.typeValue;
 
-            if (bType is bir:BTypeInt) {
+            if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(LSTORE, lhsLndex);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitVarInsn(DSTORE, lhsLndex);
             } else if (bType is bir:BTypeString) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else if (bType is bir:BTypeBoolean) {
-                self.mv.visitVarInsn(ISTORE, lhsLndex);
-            } else if (bType is bir:BTypeByte) {
                 self.mv.visitVarInsn(ISTORE, lhsLndex);
             } else if (bType is bir:BArrayType ||
                         bType is bir:BMapType ||
