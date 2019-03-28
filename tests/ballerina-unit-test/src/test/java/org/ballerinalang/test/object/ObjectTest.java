@@ -381,7 +381,7 @@ public class ObjectTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
     }
 
     @Test(description = "Test object any type field as a constructor parameter")
