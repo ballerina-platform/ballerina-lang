@@ -1,23 +1,23 @@
 import {
     ASTUtil, Function as FunctionNode, Identifier,
-    Lambda, Literal, Variable, VariableDef, VisibleEndpoint
+    Literal, Variable, VariableDef, VisibleEndpoint
 } from "@ballerina/ast-model";
 import { BallerinaEndpoint } from "@ballerina/lang-service";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
-import { DiagramContext, IDiagramContext } from "../../diagram/index";
+import { DiagramContext } from "../../diagram/index";
 import { FunctionViewState } from "../../view-model/index";
-import { WorkerViewState } from "../../view-model/worker";
 import { AddWorkerOrEndpointMenu } from "./add-worker-or-endpoint-menu";
 import { Block } from "./block";
 import { LifeLine } from "./life-line";
 import { Panel } from "./panel";
 import { StartInvocation } from "./start-invocation";
+import { Worker } from "./worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
-export const Function = (props: { model: FunctionNode }, context: IDiagramContext) => {
+export const Function = (props: { model: FunctionNode }) => {
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
     if (model.lambda || model.body === undefined) { return <g />; }
@@ -29,19 +29,10 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}
                 astModel={model} />
             {model.body!.statements.filter((statement) => ASTUtil.isWorker(statement)).map((worker) => {
-                const workerViewState: WorkerViewState = worker.viewState;
-                const variable: Variable = ((worker as VariableDef).variable as Variable);
-                const lambda: Lambda = (variable.initialExpression as Lambda);
-                const functionNode = lambda.functionNode;
                 const startY = viewState.defaultWorker.initHeight + viewState.defaultWorker.bBox.y
-                + config.lifeLine.header.height - config.statement.height;
-                return <g>
-                    <StartInvocation client={viewState.defaultWorker.lifeline} worker={workerViewState.lifeline}
-                        y={startY} label="start" />
-                    <LifeLine title={workerViewState.name} icon="worker"
-                        model={workerViewState.lifeline.bBox} astModel={worker} />
-                    {functionNode.body && <Block model={functionNode.body} />}
-                </g>;
+                    + config.lifeLine.header.height - config.statement.height;
+                return <Worker
+                    model={worker as VariableDef} startY={startY} client={viewState.defaultWorker.lifeline} />;
             })}
             {model.resource ?
                 <StartInvocation

@@ -857,7 +857,7 @@
         ]
     },
  	{
-        "title": "Swagger",
+        "title": "OpenAPI",
         "column": 2,
         "category": "Working over the network",
         "samples": [{
@@ -865,12 +865,12 @@
                 "url": "client-generation"
             },
             {
-                "name": "Ballerina To Swagger",
-                "url": "ballerina-to-swagger"
+                "name": "Ballerina To OpenAPI",
+                "url": "ballerina-to-openapi"
             },
             {
-                "name": "Swagger To Ballerina",
-                "url": "swagger-to-ballerina"
+                "name": "OpenAPI To Ballerina",
+                "url": "openapi-to-ballerina"
             }
         ]
     },
@@ -939,6 +939,15 @@
                 "url": "send-jms-message-to-http-endpoint"
             }
         ]
+    },
+    {
+        "title": "NATS",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "NATS Basic Example",
+            "url": "nats-basic-client"
+        }]
     },
     {
         "title": "Socket",

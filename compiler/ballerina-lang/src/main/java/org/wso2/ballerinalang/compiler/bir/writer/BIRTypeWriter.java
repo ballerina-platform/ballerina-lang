@@ -118,7 +118,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BJSONType bjsonType) {
-        throwUnimplementedError(bjsonType);
+        buff.writeByte(bjsonType.tag);
     }
 
     @Override

@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.providers.subproviders;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -32,9 +31,7 @@ public class ResourceCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext context) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
-        completionItems.add(Snippet.DEF_WORKER.get().build(context, isSnippet));
+        completionItems.add(Snippet.DEF_WORKER.get().build(context));
         return completionItems;
     }
 }

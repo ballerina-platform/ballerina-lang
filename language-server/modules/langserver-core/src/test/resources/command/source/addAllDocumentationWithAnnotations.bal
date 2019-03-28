@@ -14,7 +14,7 @@ service testDocService on new http:Listener(8080) {
     }
     resource function testDocResource(http:Caller caller, http:Request request) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

@@ -47,6 +47,32 @@
     <dependency>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-builtin</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-runtime-api</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-utils</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>artemis-core-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-launcher</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+    <!--Balo deependencies-->
+    <dependency>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-runtime-api</artifactId>
         <type>zip</type>
         <classifier>ballerina-binary-repo</classifier>
     </dependency>
@@ -58,13 +84,15 @@
     </dependency>
     <dependency>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina-io</artifactId>
+        <artifactId>ballerina-builtin</artifactId>
         <type>zip</type>
         <classifier>ballerina-binary-repo</classifier>
     </dependency>
     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-core-client</artifactId>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-io</artifactId>
+        <type>zip</type>
+        <classifier>ballerina-binary-repo</classifier>
     </dependency>
 </dependencies>
 
@@ -215,12 +243,28 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8 ${jacoco.agent.argLine}</argLine>
+                    <systemPropertyVariables>
+                        <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties
+                        </java.util.logging.config.file>
+                        <java.util.logging.manager>org.ballerinalang.logging.BLogManager</java.util.logging.manager>
+                        <ballerina.home>${project.build.directory}</ballerina.home>
+                    </systemPropertyVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+            <!-- Since artemis balo is needed by tests, here it is copied to target/lib where other balos
+                    are copied to -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
-                    <!-- Since  balo is needed by tests, here it is copied to target/lib where other balos
-                    are copied to -->
                     <execution>
-                        <id>copy-file-balo</id>
+                        <id>copy-artemis-balo</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>copy-resources</goal>

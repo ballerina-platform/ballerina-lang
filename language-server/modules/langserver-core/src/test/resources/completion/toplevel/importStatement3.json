@@ -54,10 +54,10 @@
       "insertText": "runtime"
     },
     {
-      "label": "swagger",
+      "label": "openapi",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "swagger"
+      "insertText": "openapi"
     },
     {
       "label": "file",
