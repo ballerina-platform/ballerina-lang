@@ -22,7 +22,8 @@ type TerminatorGenerator object {
     bir:Package module;
 
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen, bir:Package module) {
+    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen, 
+        bir:Package module) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.labelGen = labelGen;
@@ -259,8 +260,8 @@ type TerminatorGenerator object {
         lambdas[lambdaName] = (callIns, methodClass);
         self.lambdaIndex += 1;
         
-        self.mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/Scheduler", "schedule", 
-            "([Ljava/lang/Object;Ljava/util/function/Function;)Lorg/ballerinalang/jvm/Strand;", false);
+        self.mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;Ljava/util/function/Function;)L%s;", OBJECT, FUTURE_VALUE), false);
 
         // store return
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;

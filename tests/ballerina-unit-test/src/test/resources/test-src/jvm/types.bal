@@ -219,7 +219,7 @@ int global = 0;
 function futuresTest() returns anydata {
    future<int> p = start foo("abc", 7);
 	future<string> p2 = start foo2("yy");
-    future<string> p3 = acceptFuture(p2);
+   future<string> p3 = acceptFuture(p2);
    return global;
 }
 
@@ -230,7 +230,7 @@ public function foo(string r, int j) returns int {
 
 public function foo2(string k) returns string {
 	global = global + 100;
-    return k;
+   return k;
 }
 
 public function acceptFuture(future<string> pp) returns future<string> {

@@ -366,7 +366,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
 function generateLambdaMethod(bir:Call callIns, jvm:ClassWriter cw, string className, string lambdaName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
-                                "([Ljava/lang/Object;)Ljava/lang/Object;", (), ());
+                                io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
     mv.visitCode();
 
     bir:VarRef?[] paramTypes = callIns.args;
@@ -580,7 +580,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         }
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/Scheduler", "shutDown", "()V", false);
+    mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "shutdown", "()V", false);
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(paramTypes.length() + 5, 10);
@@ -592,18 +592,18 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 # + mv - method visitor
 function checkCastFromObject(bir:BType targetType, jvm:MethodVisitor mv) {
     if (targetType is bir:BTypeInt) {
-        mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
+        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
     } else if (targetType is bir:BTypeFloat) {
-        mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
+        mv.visitTypeInsn(CHECKCAST, DOUBLE_VALUE);
         mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, "parseDouble", "()D", false);
     } else if (targetType is bir:BTypeString) {
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else if (targetType is bir:BTypeBoolean) {
-        mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+        mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
         mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "parseBoolean", "()Z", false);
     } else if (targetType is bir:BTypeByte) {
-        mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
+        mv.visitTypeInsn(CHECKCAST, BYTE_VALUE);
         mv.visitMethodInsn(INVOKEVIRTUAL, BYTE_VALUE, "parseByte", "()B", false);
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
@@ -627,13 +627,13 @@ function checkCastFromObject(bir:BType targetType, jvm:MethodVisitor mv) {
 # + mv - method visitor
 function generateObjectCast(bir:BType targetType, jvm:MethodVisitor mv) {  
     if (targetType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", "(J)Ljava/lang/Long;", false);
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
     } else if (targetType is bir:BTypeFloat) {
-        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", "(D)Ljava/lang/Double;", false);
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
     } else if (targetType is bir:BTypeBoolean) {
-        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", "(Z)Ljava/lang/Boolean;", false);
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
     } else if (targetType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", "(B)Ljava/lang/Byte;", false);
+        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||

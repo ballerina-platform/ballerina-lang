@@ -30,11 +30,16 @@ import org.objectweb.asm.Type;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.FUNCTION_DESC;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_TYPE_DESC;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.OBJECT_DESC;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.STRING_DESC;
 
 /**
  * Code generation for invoke dynamic instruction.
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
@@ -56,14 +61,14 @@ public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
 
         //Function<Object[], Object> - create a dynamic lambda invocation with object[] param and returns object
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        mv.visitInvokeDynamicInsn("apply", "()Ljava/util/function/Function;",
+        mv.visitInvokeDynamicInsn("apply", "()" + FUNCTION_DESC,
                 new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
                         "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;"
-                        + "Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;"
-                        + "Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-                        false), new Object[]{Type.getType("(Ljava/lang/Object;)Ljava/lang/Object;"),
+                        + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
+                        + METHOD_TYPE_DESC + ")Ljava/lang/invoke/CallSite;", false),
+                new Object[]{Type.getType("(" + OBJECT_DESC + ")" + OBJECT_DESC),
                         new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
-                                "([Ljava/lang/Object;)Ljava/lang/Object;", false),
-                        Type.getType("([Ljava/lang/Object;)Ljava/lang/Object;")});
+                                "([" + OBJECT_DESC + ")" + OBJECT_DESC, false),
+                        Type.getType("([" + OBJECT_DESC + ")" + OBJECT_DESC)});
     }
 }

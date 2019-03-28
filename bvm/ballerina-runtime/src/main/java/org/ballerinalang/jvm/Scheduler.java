@@ -28,24 +28,18 @@ import java.util.function.Function;
  */
 public class Scheduler {
 
-    public static ExecutorService executorService = null;
+    public static ExecutorService executorService = Executors.newFixedThreadPool(3);;
 
     public static Strand schedule(Object[] params, Function function) {
         Strand strand = new Strand();
-        // find the return type based on type
-        if (executorService == null) {
-            executorService = Executors.newFixedThreadPool(3);
-        }
         AsyncExecutor async = new AsyncExecutor(function, params);
         strand.future = executorService.submit(async);
 
         return strand;
     }
 
-    public static void shutDown() {
-        if (executorService != null) {
-            executorService.shutdown();
-        }
+    public static void shutdown() {
+        executorService.shutdown();
     }
 
 }
@@ -53,6 +47,7 @@ public class Scheduler {
 /**
  * A callable implementation to invoke a given ballerina function asynchronously.
  * @param <T>
+ * @since 0.995.0
  */
 class AsyncExecutor<T> implements Callable<T> {
 
