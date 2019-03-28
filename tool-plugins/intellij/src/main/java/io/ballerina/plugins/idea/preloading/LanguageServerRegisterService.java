@@ -15,8 +15,8 @@
  */
 package io.ballerina.plugins.idea.preloading;
 
-import com.github.lsp4intellij.IntellijLanguageClient;
-import com.github.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
+import org.wso2.lsp4intellij.IntellijLanguageClient;
+import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
 
 /**
  * Language Server Definition Register Service.
