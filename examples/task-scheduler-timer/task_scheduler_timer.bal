@@ -48,7 +48,7 @@ public function main() {
     while (person.age < person.maxAge) {
         // Wait until person age reaches max age.
     }
-    
+
     // Additional sleep to finish onTrigger function.
     runtime:sleep(1000);
 
@@ -69,8 +69,10 @@ service service1 = service {
     // Note the usage of Person object passing inside the function, which we
     // attached with the timer.
     resource function onTrigger(Person person) {
-        person.age = person.age + 1;
-        io:println("Hi " + person.name + " you are " + person.age + " years old now.");
+        if (person.age < person.maxAge) {
+            person.age = person.age + 1;
+            io:println("Hi " + person.name + " you are " + person.age + " years old now.");
+        }
     }
 };
 
