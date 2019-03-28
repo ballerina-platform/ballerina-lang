@@ -95,12 +95,12 @@ service productMaterialService on productMaterialListener {
             http:Response res = new;
             res.setJsonPayload({"message": "Raw material request"
                     + " successfully received"});
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         } else if (jsonMsg is error) {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
     }
 
@@ -118,13 +118,13 @@ service productMaterialService on productMaterialListener {
             http:Response res = new;
             res.setJsonPayload({"message": "Production input " +
                     "request successfully received"});
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
 
         } else if (jsonMsg is error) {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
     }
 
@@ -135,6 +135,6 @@ service productMaterialService on productMaterialListener {
     resource function alerts(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(getAlerts());
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

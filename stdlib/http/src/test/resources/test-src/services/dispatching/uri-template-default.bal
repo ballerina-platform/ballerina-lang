@@ -19,7 +19,7 @@ service serviceName on testEP {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to service name"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -32,7 +32,7 @@ service serviceEmptyName on testEP {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -42,7 +42,7 @@ service serviceEmptyName on testEP {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to a proxy service"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -52,13 +52,13 @@ service serviceWithNoAnnotation on testEP {
         http:Response res = new;
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
 service on mockEP1 {
     resource function testResource(http:Caller caller, http:Request req) {
-        _ = caller->respond({"echo":"dispatched to the service that neither has an explicitly defined basepath nor a name"});
+        checkpanic caller->respond({"echo":"dispatched to the service that neither has an explicitly defined basepath nor a name"});
     }
 }
 
@@ -67,6 +67,6 @@ service on mockEP1 {
 }
 service on mockEP2 {
     resource function testResource(http:Caller caller, http:Request req) {
-        _ = caller->respond("dispatched to the service that doesn't have a name but has a config without a basepath");
+        checkpanic caller->respond("dispatched to the service that doesn't have a name but has a config without a basepath");
     }
 }

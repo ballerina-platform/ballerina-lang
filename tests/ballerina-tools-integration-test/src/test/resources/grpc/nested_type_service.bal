@@ -28,7 +28,7 @@ service HelloWorld on new grpc:Listener(9090) {
         } else {
             io:println("Server send response : " + message);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testOutputNestedStruct(grpc:Caller caller, string name) {
@@ -39,7 +39,7 @@ service HelloWorld on new grpc:Listener(9090) {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

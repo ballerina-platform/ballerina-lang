@@ -132,6 +132,7 @@ UNTAINT     : 'untaint' ;
 START       : 'start' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
+CHECKPANIC  : 'checkpanic' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;

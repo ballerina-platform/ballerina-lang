@@ -38,11 +38,6 @@ function testRedeclareNamespaces() {
     }
 }
 
-function testXMlAttributesMapInvalidUsage() {
-    var x1 = xml `<root foo1="bar1" foo2="bar2"/>`;
-    map<any> m1 = x1@;
-}
-
 function foo() {
     xmlns "http:wso2.com/" as x;
 }

@@ -27,6 +27,8 @@ public class ItemResolverConstants {
     public static final String BUT = "but";
     public static final String RETURN = "return";
     public static final String IF = "if";
+    public static final String ELSE = "else";
+    public static final String ELSE_IF = "else if";
     public static final String FORK = "fork";
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
