@@ -409,37 +409,6 @@ type InstructionGenerator object {
         self.generateVarStore(newErrorIns.lhsOp.variableDcl);
     }
 
-    function generatePanicIns(bir:Panic panicIns) {
-        int errorIndex = self.getJVMIndexOfVarRef(panicIns.errorOp.variableDcl);
-        self.mv.visitVarInsn(ALOAD, errorIndex);
-        self.mv.visitInsn(ATHROW);
-    }
-
-    function generateTryIns(TryCatchBlock tryCatch, jvm:Label endLabel, jvm:Label handlerLabel,
-                            jvm:Label jumpLabel) {
-        jvm:Label startLabel = new;
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        if (tryCatch.handleError) {
-            jvm:Label temp = new;
-            self.mv.visitLabel(temp);
-            int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>tryCatch.errorOp.variableDcl);
-            self.mv.visitVarInsn(ALOAD, lhsIndex);
-            self.mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
-            self.mv.visitJumpInsn(IFNE, jumpLabel);
-        }
-        self.mv.visitLabel(startLabel);
-    }
-
-    function generateCatchIns(TryCatchBlock tryCatch, jvm:Label endLabel, jvm:Label handlerLabel,
-                              jvm:Label jumpLabel) {
-        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>tryCatch.errorOp.variableDcl);
-        self.mv.visitLabel(endLabel);
-        self.mv.visitJumpInsn(GOTO, jumpLabel);
-        self.mv.visitLabel(handlerLabel);
-        self.mv.visitVarInsn(ASTORE, lhsIndex);
-        self.mv.visitLabel(jumpLabel);
-    }
-
     function generateVarLoad(bir:VariableDcl varDcl) {
         bir:BType bType = varDcl.typeValue;
 

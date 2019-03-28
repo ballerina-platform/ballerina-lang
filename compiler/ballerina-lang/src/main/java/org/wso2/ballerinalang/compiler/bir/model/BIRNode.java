@@ -283,19 +283,13 @@ public abstract class BIRNode {
      */
     public static class BIRErrorEntry extends BIRNode {
 
-        public Name fromBlockId;
-        public int fromIp;
-        public Name toBlockId;
-        public int toIp;
+        public BIRBasicBlock trapBB;
+
         public BIROperand errorOp;
 
-        public BIRErrorEntry(Name fromBlockId, int fromIp, Name toBlockId,
-                             int toIp, BIROperand errorOp) {
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp) {
             super(null);
-            this.fromBlockId = fromBlockId;
-            this.fromIp = fromIp;
-            this.toBlockId = toBlockId;
-            this.toIp = toIp;
+            this.trapBB = trapBB;
             this.errorOp = errorOp;
         }
 

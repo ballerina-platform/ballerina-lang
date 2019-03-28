@@ -43,10 +43,7 @@ public type FuncBodyParser object {
     }
 
     public function parseEE() returns ErrorEntry {
-        return { fromBlockId: { value: self.reader.readStringCpRef() },
-                 fromIp:  self.reader.readInt32(),
-                 toBlockId: { value: self.reader.readStringCpRef() },
-                 toIp: self.reader.readInt32(),
+        return { trapBB: self.parseBBRef(),
                  errorOp: self.parseVarRef() };
     }
 
@@ -146,11 +143,6 @@ public type FuncBodyParser object {
             var detailsOp = self.parseVarRef();
             NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
             return newError;
-        } else if (kindTag == INS_PANIC) {
-            kind = INS_KIND_NEW_PANIC;
-            var errorOp = self.parseVarRef();
-            Panic panicStmt = {kind:kind, errorOp:errorOp};
-            return panicStmt;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }
@@ -213,6 +205,11 @@ public type FuncBodyParser object {
             BasicBlock thenBB = self.parseBBRef();
             AsyncCall call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
+        } else if (kindTag == INS_PANIC) {
+            TerminatorKind kind = TERMINATOR_PANIC;
+            var errorOp = self.parseVarRef();
+            Panic panicStmt = { kind:kind, errorOp:errorOp };
+            return panicStmt;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;

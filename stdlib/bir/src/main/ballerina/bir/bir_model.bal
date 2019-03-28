@@ -55,10 +55,7 @@ public type BasicBlock record {|
 |};
 
 public type ErrorEntry record {|
-    Name fromBlockId;
-    int fromIp;
-    Name toBlockId;
-    int toIp;
+    BasicBlock trapBB;
     VarRef errorOp;
 |};
 
@@ -95,12 +92,10 @@ public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
 public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
-public const INS_KIND_NEW_PANIC = "PANIC";
 
 public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|INS_KIND_NEW_PANIC
-                                |BinaryOpInstructionKind;
+                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -108,9 +103,10 @@ public const TERMINATOR_CALL = "CALL";
 public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
+public const TERMINATOR_PANIC = "PANIC";
 
-public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL;
-
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
+                                |TERMINATOR_PANIC;
 
 //TODO try to make below details meta
 public type LocalVarKind "LOCAL";
@@ -290,6 +286,13 @@ public type NewArray record {|
     BType typeValue;
 |};
 
+public type NewError record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef reasonOp;
+    VarRef detailsOp;
+|};
+
 public type FieldAccess record {|
     InstructionKind kind;
     VarRef lhsOp;
@@ -369,14 +372,7 @@ public type Return record {|
     TerminatorKind kind;
 |};
 
-public type NewError record {|
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef reasonOp;
-    VarRef detailsOp;
-|};
-
 public type Panic record {|
-    InstructionKind kind;
+    TerminatorKind kind;
     VarRef errorOp;
 |};

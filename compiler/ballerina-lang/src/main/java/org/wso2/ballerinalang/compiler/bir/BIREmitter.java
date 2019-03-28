@@ -88,7 +88,7 @@ public class BIREmitter extends BIRVisitor {
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
         sb.deleteCharAt(sb.lastIndexOf("\n"));
         if (!birFunction.errorTable.isEmpty()) {
-            sb.append("\tError Table \n\t\tfromBB\t|fromIp\t|toBB\t|toIp\t|errorOp\n");
+            sb.append("\tError Table \n\t\tBB\t|errorOp\n");
             birFunction.errorTable.forEach(entry -> {
                 entry.accept(this);
             });
@@ -97,9 +97,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
-        sb.append("\t\t").append(errorEntry.fromBlockId).append("\t|").append(errorEntry.fromIp)
-          .append("\t|").append(errorEntry.toBlockId).append("\t|").append(errorEntry.toIp)
-         .append("\t|");
+        sb.append("\t\t").append(errorEntry.trapBB.id).append("\t|");
         errorEntry.errorOp.accept(this);
         sb.append("\n");
     }
@@ -266,7 +264,7 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
-    public void visit(BIRNonTerminator.Panic birPanic) {
+    public void visit(BIRTerminator.Panic birPanic) {
         sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birPanic.errorOp.accept(this);
         sb.append(";\n");
