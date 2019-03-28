@@ -87,7 +87,7 @@ function testBasicErrorVariableWithRecordDetails() returns (string, string, stri
     return (res1, res2, message, fatal, rec);
 }
 
-function testErrorInTuple() returns (int, string, string, any, boolean) {
+function testErrorInTuple() returns (int, string, string, anydata|error, boolean) {
     Foo f = { message: "fooMsg", fatal: true };
     (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", { message: "Something Wrong" }),
                                                                 (error("Err2", { message: "Something Wrong2" }), f));
@@ -95,7 +95,7 @@ function testErrorInTuple() returns (int, string, string, any, boolean) {
     return (intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal);
 }
 
-function testErrorInTupleWithVar() returns (int, string, string, any, boolean) {
+function testErrorInTupleWithVar() returns (int, string, string, anydata|error, boolean) {
     Foo f = { message: "fooMsg", fatal: false };
     (int, string, error, (error, Foo)) t1 = (12, "Bal", error("Err", { message: "Something Wrong" }),
                                                                 (error("Err2", { message: "Something Wrong2" }), f));
@@ -110,7 +110,7 @@ function testErrorInTupleWithDestructure() returns (int, string, string, map<any
     return (intVar, stringVar, reasonVar, detailVar, booleanVar);
 }
 
-function testErrorInTupleWithDestructure2() returns (int, string, string, any, boolean) {
+function testErrorInTupleWithDestructure2() returns (int, string, string, anydata|error, boolean) {
     (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", { message: "Something Wrong2" }), true));
     (int, string, (error, boolean)) (intVar, stringVar, (error(reasonVar, { message }), booleanVar)) = t1;
     return (intVar, stringVar, reasonVar, message, booleanVar);
@@ -121,7 +121,7 @@ type Bar record {
     error e;
 };
 
-function testErrorInRecordWithDestructure() returns (int, string, any) {
+function testErrorInRecordWithDestructure() returns (int, string, anydata|error) {
     Bar b = { x: 1000, e: error("Err3", { message: "Something Wrong3" }) };
     Bar { x, e: error(reason, detail) } = b;
     return (x, reason, detail.message);

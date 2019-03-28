@@ -120,7 +120,7 @@ function getAgeRecord() returns Age {
     return a;
 }
 
-function testRestParameter() returns map<any> {
+function testRestParameter() returns map<anydata|error> {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
     PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;

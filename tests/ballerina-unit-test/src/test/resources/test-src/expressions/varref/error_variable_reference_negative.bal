@@ -96,6 +96,6 @@ function testErrorInRecordWithDestructure2() {
     int x;
     string reason;
     string? message;
-    any extra;
+    anydata|error extra;
     { x, e: error (reason, { message, extra }) } = b;
 }
