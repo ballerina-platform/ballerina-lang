@@ -105,3 +105,107 @@ function testIntLiteralAssignment() returns (decimal, decimal) {
     decimal d = 12;
     return (d, 15);
 }
+
+// Test assigning positive hexadecimal literal without power and floating point.
+function testHexAssignment1() returns decimal {
+    decimal d = 0x123F0;
+    return d;
+}
+
+// Test assigning positive hexadecimal literal with floating point but without power.
+function testHexAssignment2() returns decimal {
+    decimal d = 0x1A2B.3F0;
+    return d;
+}
+
+// Test assigning positive hexadecimal literal with positive power but without floating point.
+function testHexAssignment3() returns (decimal, decimal) {
+    decimal d1 = 0x1A2Fp5;
+    decimal d2 = 0x1A2FP5;
+    return (d1, d2);
+}
+
+// Test assigning positive hexadecimal literal with negative power but without floating point.
+function testHexAssignment4() returns (decimal, decimal) {
+    decimal d1 = 0x1A2Fp-2;
+    decimal d2 = 0x1A2FP-2;
+    return (d1, d2);
+}
+
+// Test assigning positive hexadecimal literal with floating point and positive power.
+function testHexAssignment5() returns (decimal, decimal) {
+    decimal d1 = 0x1A2F.1C2p2;
+    decimal d2 = 0x1A2F.1C2P2;
+    return (d1, d2);
+}
+
+// Test assigning positive hexadecimal literal with floating point and negative power.
+function testHexAssignment6() returns (decimal, decimal) {
+    decimal d1 = 0x1A2F.1C2p-2;
+    decimal d2 = 0x1A2F.1C2P-2;
+    return (d1, d2);
+}
+
+// Test assigning negative hexadecimal literal without power and floating point.
+function testHexAssignment7() returns decimal {
+    decimal d = -0x123F0;
+    return d;
+}
+
+// Test assigning negative hexadecimal literal with floating point but without power.
+function testHexAssignment8() returns decimal {
+    decimal d = -0x1A2B.3F0;
+    return d;
+}
+
+// Test assigning negative hexadecimal literal with positive power but without floating point.
+function testHexAssignment9() returns (decimal, decimal) {
+    decimal d1 = -0X1A2Fp5;
+    decimal d2 = -0x1A2FP5;
+    return (d1, d2);
+}
+
+// Test assigning negative hexadecimal literal with negative power but without floating point.
+function testHexAssignment10() returns (decimal, decimal) {
+    decimal d1 = -0x1A2Fp-2;
+    decimal d2 = -0X1A2FP-2;
+    return (d1, d2);
+}
+
+// Test assigning negative hexadecimal literal with floating point and positive power.
+function testHexAssignment11() returns (decimal, decimal) {
+    decimal d1 = -0x1A2F.1C2p2;
+    decimal d2 = -0x1A2F.1C2P2;
+    return (d1, d2);
+}
+
+// Test assigning negative hexadecimal literal with floating point and negative power.
+function testHexAssignment12() returns (decimal, decimal) {
+    decimal d1 = -0x1A2F.1C2p-2;
+    decimal d2 = -0x1A2F.1C2P-2;
+    return (d1, d2);
+}
+
+// Test assigning a hexadecimal literal with extra whitespaces
+function testHexWithAdditionalWhiteSpaces() returns decimal {
+    decimal d =     -    0X1A2F.1C2p-2;
+    return d;
+}
+
+// Test a complex expression including hexadecimal literals
+function testHexComplexExpression() returns decimal {
+    decimal d1 = -0x123F0;
+    decimal d2 = -200.5;
+    decimal d3 = (-1 * <decimal>0x1A2F.1C2p-2 + d1) / d2;
+    return d3;
+}
+
+// Test positively signed literal assignment
+function testPositivelySignedLiteralAssignment() returns (decimal, decimal, decimal, decimal) {
+    decimal d1 = +12.23;
+    decimal d2 = + 0.0;
+    decimal d3 = +0X1A2F.1C2p-2;
+    decimal d4 = -12.23;
+    decimal d5 = d1 + d4;
+    return (d1, d2, d3, d5);
+}

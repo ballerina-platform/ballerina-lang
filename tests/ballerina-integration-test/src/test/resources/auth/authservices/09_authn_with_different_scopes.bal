@@ -47,6 +47,6 @@ listener http:Listener listener09 = new(9100, config = {
 service echo9 on listener09 {
 
     resource function test9(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

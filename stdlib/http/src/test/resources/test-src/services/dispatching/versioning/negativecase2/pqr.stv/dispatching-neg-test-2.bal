@@ -18,6 +18,6 @@ service hello6 on passthruEP {
     resource function sample (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only match major but no major"});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

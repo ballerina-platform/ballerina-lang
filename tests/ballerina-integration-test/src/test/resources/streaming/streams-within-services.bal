@@ -68,7 +68,7 @@ service StoreService bind storeServiceEndpoint {
 
         http:Response res = new;
         res.setJsonPayload("{'message' : 'request successfully received'}");
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     @http:ResourceConfig {
@@ -78,7 +78,7 @@ service StoreService bind storeServiceEndpoint {
     hosts (endpoint conn, http:Request req) {
         http:Response res = new;
         res.setJsonPayload("{'message' : '" + alertedHostName + "'}");
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 

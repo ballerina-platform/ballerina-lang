@@ -223,6 +223,15 @@ public class Types {
         return isBasicNumericType(type);
     }
 
+    private boolean containsErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(this::containsErrorType);
+        }
+
+        return type.tag == TypeTags.ERROR;
+    }
+
     public boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }
@@ -514,11 +523,11 @@ public class Types {
         }
 
         // TODO: Remove the isValueType() check
-        if (target.tag == TypeTags.ANY && !isValueType(source)) {
+        if (target.tag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+        if (target.tag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
             return true;
         }
 

@@ -143,6 +143,49 @@ public class ConfigAuthProviderTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test case for successful authentication with sha-256 hashed password")
+    public void testAuthenticationSha256() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha256");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for successful authentication with sha-384 hashed password")
+    public void testAuthenticationSha384() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha384");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for successful authentication with sha-512 hashed password")
+    public void testAuthenticationSha512() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for successful authentication with plain text password")
+    public void testAuthenticationPlain() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlain");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for unsuccessful authentication with sha-512 hashed password, using invalid " +
+            "password")
+    public void testAuthenticationSha512Negative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationSha512Negative");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test case for unsuccessful authentication with plain text password, using invalid password")
+    public void testAuthenticationPlainNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAuthenticationPlainNegative");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(secretCopyPath);

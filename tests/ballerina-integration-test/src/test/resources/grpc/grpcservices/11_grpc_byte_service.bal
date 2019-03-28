@@ -27,8 +27,8 @@ listener grpc:Listener ep11 = new (8557, config = {
 }
 service byteService on ep11 {
     resource function checkBytes(grpc:Caller caller, byte[] value) {
-        _ = caller->send(value);
-        _ = caller->complete();
+        checkpanic caller->send(value);
+        checkpanic caller->complete();
     }
 }
 
