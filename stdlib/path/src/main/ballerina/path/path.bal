@@ -355,8 +355,8 @@ public function relative(string base, string target) returns string|error {
     }
     if (b0 != bl) {
         string remainder = cleanBase.substring(b0, bl);
-        string[] parts = remainder.split(PATH_SEPARATOR);
-        int noSeparators = parts.length() - 1;
+        int[] offsets = check getOffsetIndexes(remainder);
+        int noSeparators = offsets.length() - 1;
         string relativePath = "..";
         int i = 0;
         while (i < noSeparators) {
