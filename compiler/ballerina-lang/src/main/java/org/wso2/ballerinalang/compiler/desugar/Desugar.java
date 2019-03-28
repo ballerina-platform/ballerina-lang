@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -2969,7 +2970,15 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr, false);
+    }
 
+    @Override
+    public void visit(BLangCheckPanickedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr, true);
+    }
+
+    private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, boolean isCheckPanic) {
         //
         //  person p = bar(check foo()); // foo(): person | error
         //
@@ -2995,8 +3004,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatchTypedBindingPatternClause patternSuccessCase =
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                         checkedExprVar.symbol, null);
-        BLangMatchTypedBindingPatternClause patternErrorCase =
-                getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList);
+        BLangMatchTypedBindingPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos,
+                this.env.scope.owner, checkedExpr.equivalentErrorTypeList, isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
@@ -3021,6 +3030,7 @@ public class Desugar extends BLangNodeVisitor {
         statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
     }
+
     @Override
     public void visit(BLangErrorConstructorExpr errConstExpr) {
         if (errConstExpr.reasonExpr.impConversionExpr != null &&
@@ -3796,7 +3806,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(
-            DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes) {
+            DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes, boolean isCheckPanicExpr) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
@@ -3825,7 +3835,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
         patternBlockFailureCase.pos = pos;
-        if (returnOnError) {
+        if (!isCheckPanicExpr && returnOnError) {
             //return e;
             BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
             returnStmt.pos = pos;

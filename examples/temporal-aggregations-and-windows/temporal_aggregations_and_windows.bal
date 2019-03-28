@@ -67,7 +67,10 @@ service requestService on ep {
         http:Response res = new;
         res.setJsonPayload("{'message' : 'request successfully " +
                                 "received'}");
-        _ = conn->respond(res);
+        error? result = conn->respond(res);
+        if (result is error) {
+            io:println("Error in responding to caller", result);
+        }
     }
 }
 

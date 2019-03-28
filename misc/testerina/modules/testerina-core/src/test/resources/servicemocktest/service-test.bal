@@ -26,7 +26,7 @@ service<http:Service> EventServiceMock bind eventEP {
         http:Response res = new;
         json j = {"a":"b"};
         res.setJsonPayload(j);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

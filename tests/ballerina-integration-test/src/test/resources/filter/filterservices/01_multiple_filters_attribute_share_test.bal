@@ -68,7 +68,7 @@ public type Filter2 object {
             http:Response response = new;
             response.statusCode = 401;
             response.setTextPayload("attribute missing in context");
-            _ = caller->respond(response);
+            checkpanic caller->respond(response);
             return false;
         }
     }
@@ -92,7 +92,7 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

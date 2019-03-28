@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/http;
+import ballerina/log;
 import ballerina/mime;
 
 listener http:Listener serviceEndpoint1 = new(9092, config = { httpVersion: "2.0" });
@@ -51,14 +51,20 @@ service testRedirect on serviceEndpoint1 {
     resource function redirectClient(http:Caller caller, http:Request req) {
         var response = endPoint1->get("/redirect1");
         if (response is http:Response) {
-            _ = caller->respond(response.resolvedRequestedURI);
+            var responseToCaller  = caller->respond(response.resolvedRequestedURI);
+            if (responseToCaller is error) {
+                log:printError("Error sending response from redirectClient", err = responseToCaller);
+            }
         } else {
             io:println("Connector error!");
             http:Response resp = new;
             resp.statusCode = 500;
             string errMsg = <string> response.detail().message;
             resp.setPayload(errMsg);
-            _ = caller->respond(resp);
+            var responseToCaller = caller->respond(resp);
+            if (responseToCaller is error) {
+                log:printError("Error sending error response from redirectClient", err = responseToCaller);
+            }
         }
     }
 
@@ -74,7 +80,7 @@ service testRedirect on serviceEndpoint1 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            _ = caller->respond(untaint value);
+            checkpanic caller->respond(untaint value);
         } else {
             io:println("Connector error!");
         }
@@ -90,7 +96,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                checkpanic caller->respond(untaint value);
             } else {
                 panic value;
             }
@@ -109,7 +115,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                checkpanic caller->respond(untaint value);
             } else {
                 panic value;
             }
@@ -128,7 +134,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                checkpanic caller->respond(untaint value);
             } else {
                 panic value;
             }
@@ -147,7 +153,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                checkpanic caller->respond(untaint value);
             } else {
                 panic value;
             }
@@ -166,7 +172,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                checkpanic caller->respond(untaint value);
             } else {
                 panic value;
             }
@@ -185,7 +191,7 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
+                checkpanic caller->respond(untaint value);
             } else {
                 panic value;
             }
@@ -205,8 +211,12 @@ service redirect1 on serviceEndpoint2 {
         path: "/"
     }
     resource function redirect1(http:Caller caller, http:Request req) {
+        log:printInfo("Redirect1 is invoked");
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9094/redirect2"]);
+        var responseToCaller = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9094/redirect2"]);
+        if (responseToCaller is error) {
+            log:printError("Error sending response from redirect1", err = responseToCaller);
+        }
     }
 
     @http:ResourceConfig {
@@ -215,7 +225,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function round1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
     }
 
     @http:ResourceConfig {
@@ -224,7 +234,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function round2(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
+        checkpanic caller->redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
     }
 
     @http:ResourceConfig {
@@ -233,7 +243,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function round3(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
+        checkpanic caller->redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
     }
 
     @http:ResourceConfig {
@@ -242,7 +252,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function round4(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
+        checkpanic caller->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
     }
 
     @http:ResourceConfig {
@@ -251,7 +261,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function round5(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9094/redirect2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9094/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -260,7 +270,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function qpWithRelativePath(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
+        checkpanic caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
                 ["/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
@@ -270,7 +280,7 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function qpWithAbsolutePath(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
+        checkpanic caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
                 ["http://localhost:9093/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
@@ -281,7 +291,7 @@ service redirect1 on serviceEndpoint2 {
     resource function processQP(http:Caller caller, http:Request req) {
         map<string> paramsMap = req.getQueryParams();
         string returnVal = paramsMap.key + ":" + paramsMap.lang;
-        _ = caller->respond(untaint returnVal);
+        checkpanic caller->respond(untaint returnVal);
     }
 }
 
@@ -295,7 +305,11 @@ service redirect2 on serviceEndpoint3 {
         path: "/"
     }
     resource function redirect2(http:Caller caller, http:Request req) {
-        _ = caller->respond("hello world");
+        log:printInfo("Redirect2 is invoked");
+        var responseToCaller = caller->respond("hello world");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from redirect2", err = responseToCaller);
+        }
     }
 
     @http:ResourceConfig {
@@ -304,6 +318,6 @@ service redirect2 on serviceEndpoint3 {
     }
     resource function test303(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
     }
 }
