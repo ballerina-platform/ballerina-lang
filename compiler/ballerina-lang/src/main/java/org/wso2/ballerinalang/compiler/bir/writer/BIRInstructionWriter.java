@@ -76,10 +76,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
-        addCpAndWriteString(errorEntry.fromBlockId.value);
-        buf.writeInt(errorEntry.fromIp);
-        addCpAndWriteString(errorEntry.toBlockId.value);
-        buf.writeInt(errorEntry.toIp);
+        addCpAndWriteString(errorEntry.trapBB.id.value);
         errorEntry.errorOp.accept(this);
     }
 
@@ -252,7 +249,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
 
-    public void visit(BIRNonTerminator.Panic birPanic) {
+    public void visit(BIRTerminator.Panic birPanic) {
         buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
     }
