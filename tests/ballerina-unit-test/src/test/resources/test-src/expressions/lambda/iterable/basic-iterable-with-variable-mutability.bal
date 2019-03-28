@@ -169,7 +169,7 @@ function recordTest() returns (int, string[]) {
 function testIgnoredValue() returns (string) {
     string str = "The start-";
     string[] s = ["abc", "cde", "pqr", "xy"];
-    _ = s.filter(function (string s) returns boolean {
+    string [] filteredArr = s.filter(function (string s) returns boolean {
             return s.length() == 3;
           })
          .map(function (string s) returns string {

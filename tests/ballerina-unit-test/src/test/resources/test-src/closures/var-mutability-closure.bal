@@ -321,6 +321,6 @@ function test13() returns AccountNotFoundError {
         };
         return addFunc2.call();
     };
-    _ = addFunc1.call();
+    error? err = addFunc1.call();
     return accountNotFoundError;
 }
