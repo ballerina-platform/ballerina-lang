@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 /**
  * Simple scheduler for JBallerina.
+ *
  * @since 0.995.0
  */
 public class Scheduler {
@@ -47,6 +48,7 @@ public class Scheduler {
 /**
  * A callable implementation to invoke a given ballerina function asynchronously.
  * @param <T>
+ *
  * @since 0.995.0
  */
 class AsyncExecutor<T> implements Callable<T> {

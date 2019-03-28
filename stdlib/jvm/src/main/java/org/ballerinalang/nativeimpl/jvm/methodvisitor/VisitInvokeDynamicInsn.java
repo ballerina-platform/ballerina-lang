@@ -39,6 +39,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.STRING_DESC;
 
 /**
  * Code generation for invoke dynamic instruction.
+ *
  * @since 0.995.0
  */
 @BallerinaFunction(
