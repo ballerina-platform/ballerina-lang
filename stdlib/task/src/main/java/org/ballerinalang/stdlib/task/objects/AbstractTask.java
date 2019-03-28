@@ -25,8 +25,6 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +43,6 @@ public abstract class AbstractTask implements Task {
     protected Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
     Scheduler scheduler;
-    private static final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
@@ -57,10 +54,7 @@ public abstract class AbstractTask implements Task {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Initializing the task/scheduler failed." + e.getMessage());
-            }
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
         }
     }
 
@@ -77,10 +71,7 @@ public abstract class AbstractTask implements Task {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
-            }
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
         }
     }
 
@@ -141,66 +132,35 @@ public abstract class AbstractTask implements Task {
     }
 
     /**
-     * Stops the scheduled Appointment.
-     *
-     * @param taskId ID of the task which should be stopped.
-     * @throws SchedulingException if failed to stop the task.
+     * {@inheritDoc}
      */
-    public void stop(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.deleteJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                throw new SchedulingException("Cannot cancel the task. ");
-            }
-        } else {
-            throwTaskNotFoundException();
+    public void stop() throws SchedulingException {
+        try {
+            this.scheduler.shutdown();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to stop the task.", e);
         }
     }
 
     /**
-     * Pauses the scheduled Appointment.
-     *
-     * @param taskId ID of the task to be paused.
-     * @throws SchedulingException if failed to pause the task.
+     * {@inheritDoc}
      */
-    public void pause(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.pauseJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot pause the task. " + e.getMessage());
-                }
-                throw new SchedulingException("Cannot pause the task.");
-            }
-        } else {
-            throwTaskNotFoundException();
+    public void pause() throws SchedulingException {
+        try {
+            this.scheduler.pauseAll();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot pause the task.", e);
         }
     }
 
     /**
-     * Resumes a paused Task.
-     *
-     * @param taskId ID of the task to be resumed.
-     * @throws SchedulingException if failed to resume the task.
+     * {@inheritDoc}
      */
-    public void resume(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.resumeJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot resume the task. " + e.getMessage());
-                }
-                throw new SchedulingException("Cannot resume the task.");
-            }
-        } else {
-            throwTaskNotFoundException();
+    public void resume() throws SchedulingException {
+        try {
+            this.scheduler.resumeAll();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot resume the task.", e);
         }
-    }
-
-    private void throwTaskNotFoundException() throws SchedulingException {
-        throw new SchedulingException("Task not found");
     }
 }
