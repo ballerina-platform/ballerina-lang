@@ -556,14 +556,6 @@
       ]
     },
     {
-      "label": "ballerina/builtin",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "builtin",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "ballerina/openapi",
       "kind": "Module",
       "detail": "Package",
