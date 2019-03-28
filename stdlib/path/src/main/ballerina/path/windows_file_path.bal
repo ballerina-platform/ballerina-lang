@@ -232,6 +232,9 @@ function getVolumnNameLength(string path) returns int|error {
 		return 2;
 	}
 	int size = path.length();
+	if (size < 5) {
+		return 0;
+	}
 	string c2 = check charAt(path, 2);
 	if (size >= 5 && isSlash(c0) && isSlash(c1) && !isSlash(c2) && c2 != ".") {
 		// first, leading `\\` and next shouldn't be `\`. its server name.
