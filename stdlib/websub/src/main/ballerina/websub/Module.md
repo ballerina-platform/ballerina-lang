@@ -10,16 +10,17 @@ This implementation supports introducing all WebSub components: subscribers, pub
 is updated by the topic's publisher.
  
  
-#### Basic Flow with WebSub
+### Basic Flow with WebSub
 1. Subscriber discovers the topics it needs to subscribe to in order to receive updates/content and discovers the hub(s) where it can subscribe.
 
 2. Subscriber sends a subscription request to a hub, specifying the topic it needs to receive notifications for along 
  with other subscription parameters, such as:
-      - The callback URL where content is expected to be delivered
-      - (Optional) A lease seconds value indicating how long the subscriber wants the subscription to stay active
-      - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content)
+    - The callback URL where content is expected to be delivered
+    - (Optional) A lease seconds value indicating how long the subscriber wants the subscription to stay active
+    - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content)
   
-3. The hub sends an intent verification request to the specified callback URL, and if the response indicates verification
+3. The hub sends an intent verification request to the specified callback URL, and if the response indicates 
+verification
  (by echoing a challenge specified in the request) by the subscriber, the subscription is added for the topic at the 
  hub.
    
@@ -27,23 +28,68 @@ is updated by the topic's publisher.
 
 5. The hub delivers the identified content to the subscribers of the topic.
 
-#### Features
+### Features
+
+#### Subscriber
+
 This module allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
  - Subscription Requests are sent at service start time for the hub and topic, which are either specified as annotations or discovered based on the resource URL specified as an annotation.
  - Auto Intent Verification against the topic specified as an annotation, or discovered based on the resource URL specified as an annotation, if `onIntentVerification` is not specified.
  - Signature Validation for authenticated content distribution if a secret is specified for the subscription.
   
+#### Hub
+
 A WebSub compliant hub based on the Ballerina Message Broker is also available for use as a remote hub or to be used by publishers who want to have their own internal hub. Ballerina's WebSub Hub honors specified lease periods and supports authenticated content distribution.
+
+##### Enabling Data Persistence for the Hub
+
+The Ballerina WebSub Hub supports persistence of topic and subscription data that needs to be restored when the hub is 
+restarted.
+ 
+Users can introduce their own persistence implementation, by introducing an object type structurally 
+equivalent to the `websub:HubPersistenceStore` abstract object. Alternatively, the H2 based 
+`websub:H2HubPersistenceStore` object made available in the `ballerina/websub` module could be used to persist data.
+
+Persistence can be enabled by setting a suitable `websub:HubPersistenceStore` value for the `hubPersistenceStore` field 
+in the `HubConfiguration` record passed to the `websub:startHub()` function.
+
+```ballerina
+import ballerina/h2;
+import ballerina/http;
+import ballerina/websub;
+
+// Define an `h2:Client` to use with the `websub:H2HubPersistenceStore`.
+h2:Client h2Client = new({
+    path: "./target/hubDB",
+    name: "hubdb",
+    username: "user1",
+    password: "pass1"
+});
+
+// Define a `websub:H2HubPersistenceStore` as a `websub:HubPersistenceStore`.
+websub:HubPersistenceStore hubPersistenceStore = new websub:H2HubPersistenceStore(h2Client);
+// Set the defined persistence store as the `hubPersistenceStore` in the `hubConfig` record.
+websub:HubConfiguration hubConfig = {
+    hubPersistenceStore: hubPersistenceStore
+};
+
+// Pass the `hubConfig` record when starting up the hub to enable persistence.
+var result = websub:startHub(new http:Listener(8080), hubConfiguration = hubConfig);
+```
+
+Any subscriptions added at the hub will now be available even when the hub is restarted.
+
+#### Publisher
 
 Ballerina WebSub publishers can use utility functions to add WebSub link headers indicating the hub and topic 
 URLs, which facilitates WebSub discovery.
 
 A hub client endpoint is also made available to publishers and subscribers to perform the following:
- 1. Publishers
-    - Register a topic at the Hub
-    - Publish to the hub, indicating an update of the topic
- 2. Subscribers
-    - Subscribe/Unsubscribe to topics at a hub
+- Publishers
+  - Register a topic at the Hub
+  - Publish to the hub, indicating an update of the topic
+- Subscribers
+  - Subscribe/Unsubscribe to topics at a hub
 
 ## Samples
 This sample demonstrates a Subscriber Service with `subscribeOnStartUp` set to true, which will result in a
