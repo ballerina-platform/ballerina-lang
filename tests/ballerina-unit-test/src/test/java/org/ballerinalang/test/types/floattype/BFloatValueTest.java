@@ -42,12 +42,14 @@ public class BFloatValueTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
     private CompileResult negativeResult;
+    private CompileResult negativeDiscrimination;
 
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
         result = BCompileUtil.compile("test-src/types/float/float-value.bal");
         negativeResult = BCompileUtil.compile("test-src/types/float/float-value-negative.bal");
+        negativeDiscrimination = BCompileUtil.compile("test-src/types/float/float-value-negative-discrimination.bal");
     }
 
     @Test(description = "Test double value assignment")
@@ -165,5 +167,12 @@ public class BFloatValueTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
         String expectedError = "extraneous input '10.1'";
         BAssertUtil.validateError(negativeResult, 0, expectedError, 3, 10);
+    }
+
+    @Test(description = "Test float literal discrimination error")
+    public void testFloatLiteralDiscriminationError() {
+        Assert.assertEquals(negativeDiscrimination.getErrorCount(), 1);
+        BAssertUtil.validateError(negativeDiscrimination, 0, "incompatible types: expected 'float', found 'decimal'",
+                18, 15);
     }
 }

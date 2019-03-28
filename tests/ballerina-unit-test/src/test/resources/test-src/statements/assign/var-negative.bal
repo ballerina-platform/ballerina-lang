@@ -61,7 +61,7 @@ function test7 () {
 }
 
 function test8 () {
-    float|error|() x = 10f;
+    float|error|() x = <float>10;
 }
 
 function test9(){

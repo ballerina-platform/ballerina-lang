@@ -282,29 +282,41 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check whether this belongs to decimal type or float type
-        if (literalType.tag == TypeTags.FLOAT || literalType.tag == TypeTags.DECIMAL) {
-            if (expType.tag == TypeTags.FLOAT && literalType.tag == TypeTags.DECIMAL) {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
-            }
-
+        if (literalType.tag == TypeTags.FLOAT) {
             String numericLiteral = String.valueOf(literalValue);
             char lastChar = getLastChar(numericLiteral);
 
-            if (expType.tag == TypeTags.DECIMAL && (lastChar == 'f' || lastChar == 'F')) {
-                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, literalType, expType);
+            numericLiteral = stripFloatDecimalDiscriminator(numericLiteral, lastChar);
+
+            boolean isDiscriminatedFloat = lastChar == 'f' || lastChar == 'F';
+            if (expType.tag == TypeTags.DECIMAL) {
+                if (isDiscriminatedFloat) {
+                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.floatType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                literalType = symTable.decimalType;
+                literalExpr.type = literalType;
             }
 
-            if (expType.tag == TypeTags.DECIMAL && !(lastChar == 'f' || lastChar == 'F')) {
-                literalType = symTable.decimalType;
+            boolean isDiscriminatedDecimal = lastChar == 'd' || lastChar == 'D';
+            if (expType.tag == TypeTags.FLOAT) {
+                if (isDiscriminatedDecimal) {
+                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.decimalType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
             }
 
-            numericLiteral = stripFloatDecimalDescriminater(numericLiteral, lastChar);
-
-            if (literalType.tag == TypeTags.DECIMAL) {
-                literalType = symTable.decimalType;
+            if (literalType.tag == TypeTags.DECIMAL || isDiscriminatedDecimal) {
                 literalExpr.value = numericLiteral;
+                literalType = symTable.decimalType; // var a = 33.3d
             } else if (literalType.tag == TypeTags.FLOAT) {
                 literalExpr.value = Double.parseDouble(numericLiteral);
+            }
+
+            if (expType.tag == TypeTags.NONE) {
+                expType = literalType;
             }
         }
 
@@ -331,7 +343,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(literalExpr, literalType, expType);
     }
 
-    private String stripFloatDecimalDescriminater(String numericLiteral, char lastChar) {
+    private String stripFloatDecimalDiscriminator(String numericLiteral, char lastChar) {
         if (lastChar == 'd' || lastChar == 'D' || lastChar == 'f' || lastChar == 'F') {
             numericLiteral = numericLiteral.substring(0, numericLiteral.length() - 1);
         }

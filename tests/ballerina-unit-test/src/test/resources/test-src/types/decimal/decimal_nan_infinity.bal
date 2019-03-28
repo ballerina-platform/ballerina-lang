@@ -23,7 +23,7 @@ final decimal NEGATIVE_INF = (-2.1d) / 0.0;
 // Test decimal zero divided by zero
 function testZeroDividedByZero() returns decimal {
     decimal d1 = 0;
-    decimal d2 = 0d/0;
+    decimal d2 = 0.0d/0;
     return d2;
 }
 
@@ -119,7 +119,7 @@ function testPositiveInfinityMultiplication() returns (decimal, decimal, decimal
 // Test division with LHS operand positive infinity
 function testPositiveInfinityDivision() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
     decimal d1 = POSITIVE_INF / 45.4d;
-    decimal d2 = POSITIVE_INF / (-45.4)d;
+    decimal d2 = POSITIVE_INF / (-45.4d);
     decimal d3 = POSITIVE_INF / 0.0d;
     decimal d4 = POSITIVE_INF / POSITIVE_INF;
     decimal d5 = POSITIVE_INF / NEGATIVE_INF;
@@ -130,7 +130,7 @@ function testPositiveInfinityDivision() returns (decimal, decimal, decimal, deci
 // Test modulo with LHS operand positive infinity
 function testPositiveInfinityModulo() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
     decimal d1 = POSITIVE_INF % 45.4d;
-    decimal d2 = POSITIVE_INF % (-45.4)d;
+    decimal d2 = POSITIVE_INF % (-45.4d);
     decimal d3 = POSITIVE_INF % 0.0d;
     decimal d4 = POSITIVE_INF % POSITIVE_INF;
     decimal d5 = POSITIVE_INF % NEGATIVE_INF;
@@ -160,7 +160,7 @@ function testNegativeInfinitySubtraction() returns (decimal, decimal, decimal, d
 // Test multiplication with LHS operand negative infinity
 function testNegativeInfinityMultiplication() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
     decimal d1 = NEGATIVE_INF * 45.4d;
-    decimal d2 = NEGATIVE_INF * (-45.4)d;
+    decimal d2 = NEGATIVE_INF * (-45.4d);
     decimal d3 = NEGATIVE_INF * 0.0d;
     decimal d4 = NEGATIVE_INF * POSITIVE_INF;
     decimal d5 = NEGATIVE_INF * NEGATIVE_INF;
@@ -171,7 +171,7 @@ function testNegativeInfinityMultiplication() returns (decimal, decimal, decimal
 // Test division with LHS operand negative infinity
 function testNegativeInfinityDivision() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
     decimal d1 = NEGATIVE_INF / 45.4d;
-    decimal d2 = NEGATIVE_INF / (-45.4)d;
+    decimal d2 = NEGATIVE_INF / (-45.4d);
     decimal d3 = NEGATIVE_INF / 0.0d;
     decimal d4 = NEGATIVE_INF / POSITIVE_INF;
     decimal d5 = NEGATIVE_INF / NEGATIVE_INF;
@@ -182,7 +182,7 @@ function testNegativeInfinityDivision() returns (decimal, decimal, decimal, deci
 // Test modulo with LHS operand negative infinity
 function testNegativeInfinityModulo() returns (decimal, decimal, decimal, decimal, decimal, decimal) {
     decimal d1 = NEGATIVE_INF % 45.4d;
-    decimal d2 = NEGATIVE_INF % (-45.4)d;
+    decimal d2 = NEGATIVE_INF % (-45.4d);
     decimal d3 = NEGATIVE_INF % 0.0d;
     decimal d4 = NEGATIVE_INF % POSITIVE_INF;
     decimal d5 = NEGATIVE_INF % NEGATIVE_INF;

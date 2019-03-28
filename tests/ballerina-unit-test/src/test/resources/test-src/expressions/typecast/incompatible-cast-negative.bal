@@ -32,7 +32,7 @@ function intToFloatImpCast() {
     int c = 889;
     numbers = [a, b, c];
     float val1 = 160.0;
-    float val2 = 160f;
+    float val2 = 160;
     int d = 0;
     float val3 = d;
 }

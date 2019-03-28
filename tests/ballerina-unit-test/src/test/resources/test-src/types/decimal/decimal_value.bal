@@ -100,7 +100,7 @@ function testDecimalParameter(decimal a, decimal b) returns (decimal, decimal) {
     return (c, d);
 }
 
-// Test int literal assingment for a decimal variable.
+// Test int literal assignment for a decimal variable.
 function testIntLiteralAssignment() returns (decimal, decimal) {
     decimal d = 12;
     return (d, 15);
