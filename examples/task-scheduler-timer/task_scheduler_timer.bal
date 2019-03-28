@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/task;
 
 // Define a custom record type to use in timer.
@@ -47,6 +48,9 @@ public function main() {
     while (person.age < person.maxAge) {
         // Wait until person age reaches max age.
     }
+    
+    // Additional sleep to finish onTrigger function.
+    runtime:sleep(1000);
 
     // Cancel the timer. This will stop the timer and all the services
     // attached to it.
