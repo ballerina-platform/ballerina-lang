@@ -44,14 +44,14 @@ import javax.jms.Topic;
 /**
  * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
                    functionName = "createTopic",
-                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                                        structPackage = "ballerina/jms"),
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = { @Argument(name = "name", type = TypeKind.STRING) },
                    returnType = {
-                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms",
-                                        structType = "Destination")
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                        structType = JmsConstants.DESTINATION_OBJ_NAME)
                    },
                    isPublic = true)
 public class CreateTopic extends AbstractBlockingAction {

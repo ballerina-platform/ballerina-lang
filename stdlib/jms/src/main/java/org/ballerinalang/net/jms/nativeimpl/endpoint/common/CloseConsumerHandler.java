@@ -37,6 +37,7 @@ public class CloseConsumerHandler {
     }
 
     public static void handle(Context context) {
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> connectorBObject = (BMap<String, BValue>) context.getRefArgument(1);
         if (connectorBObject.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT) != null) {
             MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
