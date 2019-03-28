@@ -98,9 +98,9 @@ public class ServiceScopeResolver extends CursorPositionResolver {
                 && (curLine < serviceEndLine || (curLine == serviceEndLine && curCol < serviceEndCol))
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
 
-        if (isWithinScope) {
-            treeVisitor.setPreviousNode((BLangNode) node);
-        }
+//        if (isWithinScope) {
+//            treeVisitor.setPreviousNode((BLangNode) node);
+//        }
 
         return isWithinScope;
     }

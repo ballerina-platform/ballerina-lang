@@ -39,8 +39,7 @@ public type TypeParser object {
     // All the above types are branded types
     public int TYPE_TAG_ANY = TYPE_TAG_INVOKABLE + 1;
     public int TYPE_TAG_ENDPOINT = TYPE_TAG_ANY + 1;
-    public int TYPE_TAG_SERVICE = TYPE_TAG_ENDPOINT + 1;
-    public int TYPE_TAG_ARRAY = TYPE_TAG_SERVICE + 1;
+    public int TYPE_TAG_ARRAY = TYPE_TAG_ENDPOINT + 1;
     public int TYPE_TAG_UNION = TYPE_TAG_ARRAY + 1;
     public int TYPE_TAG_PACKAGE = TYPE_TAG_UNION + 1;
     public int TYPE_TAG_NONE = TYPE_TAG_PACKAGE + 1;
@@ -59,6 +58,8 @@ public type TypeParser object {
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
     public int TYPE_TAG_CHANNEL = TYPE_TAG_BYTE_ARRAY + 1;
+
+    public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
 
     public function __init(BirChannelReader reader) {
         self.reader = reader;
@@ -100,6 +101,8 @@ public type TypeParser object {
             return self.parseObjectType();
         } else if (typeTag == self.TYPE_TAG_ERROR){
             return self.parseErrorType();
+        } else if (typeTag == self.TYPE_TAG_FUTURE){
+            return self.parseFutureType();
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -111,6 +114,10 @@ public type TypeParser object {
 
     function parseMapType() returns BMapType {
         return { constraint:self.parseType() };
+    }
+
+    function parseFutureType() returns BFutureType {
+        return { returnType:self.parseType() };
     }
 
     function parseUnionType() returns BUnionType {

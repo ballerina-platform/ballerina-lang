@@ -48,6 +48,6 @@ service echo02 on listener02 {
         }
     }
     resource function echo(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

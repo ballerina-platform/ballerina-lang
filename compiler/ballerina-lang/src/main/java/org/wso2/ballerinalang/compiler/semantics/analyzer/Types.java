@@ -223,6 +223,15 @@ public class Types {
         return isBasicNumericType(type);
     }
 
+    private boolean containsErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(this::containsErrorType);
+        }
+
+        return type.tag == TypeTags.ERROR;
+    }
+
     public boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }
@@ -514,11 +523,11 @@ public class Types {
         }
 
         // TODO: Remove the isValueType() check
-        if (target.tag == TypeTags.ANY && !isValueType(source)) {
+        if (target.tag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+        if (target.tag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
             return true;
         }
 
@@ -2280,6 +2289,10 @@ public class Types {
     }
 
     public boolean hasImplicitInitialValue(BType type) {
+        return hasImplicitInitialValue(type, new ArrayList<>());
+    }
+
+    public boolean hasImplicitInitialValue(BType type, List<BType> unanalyzedTypes) {
         if (type.tag < TypeTags.RECORD) {
             return true;
         }
@@ -2296,8 +2309,7 @@ public class Types {
             case TypeTags.OBJECT:
                 return analyzeObjectType((BObjectType) type);
             case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                return recordType.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type));
+                return analyzeRecordType((BRecordType) type, unanalyzedTypes);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.tupleTypes.stream().allMatch(this::hasImplicitInitialValue);
@@ -2306,6 +2318,14 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    public boolean includesErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
+        }
+
+        return type.tag == TypeTags.ERROR;
     }
 
     private boolean analyzeUnionType(BUnionType type) {
@@ -2324,6 +2344,14 @@ public class Types {
         }
         // Control reaching this point means there is only one type in the union.
         return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+    }
+
+    private boolean analyzeRecordType(BRecordType type, List<BType> unanalyzedTypes) {
+        if (unanalyzedTypes.contains(type)) {
+            return true;
+        }
+        unanalyzedTypes.add(type);
+        return type.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type, unanalyzedTypes));
     }
 
     private boolean analyzeObjectType(BObjectType type) {

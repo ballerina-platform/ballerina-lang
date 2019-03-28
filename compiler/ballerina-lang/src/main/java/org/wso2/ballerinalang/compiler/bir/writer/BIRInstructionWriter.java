@@ -121,6 +121,28 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birCall.thenBB.id.value);
     }
 
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        buf.writeByte(birAsyncCall.kind.getValue());
+        PackageID calleePkg = birAsyncCall.calleePkg;
+        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
+        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
+        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
+        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeInt(pkgIndex);
+        buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
+        buf.writeInt(birAsyncCall.args.size());
+        for (BIROperand arg : birAsyncCall.args) {
+            arg.accept(this);
+        }
+        if (birAsyncCall.lhsOp != null) {
+            buf.writeByte(1);
+            birAsyncCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
+        addCpAndWriteString(birAsyncCall.thenBB.id.value);
+    }
+
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);
@@ -140,6 +162,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BOOLEAN:
@@ -166,6 +189,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewStructure.type.accept(typeWriter);
         birNewStructure.lhsOp.accept(this);
     }
+
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        buf.writeByte(newInstance.kind.getValue());
+        buf.writeInt(newInstance.def.index);
+        newInstance.lhsOp.accept(this);
+    }
+
 
     public void visit(NewArray birNewArray) {
         buf.writeByte(birNewArray.kind.getValue());

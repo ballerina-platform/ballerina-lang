@@ -22,11 +22,14 @@ public type FuncBodyParser object {
     TypeParser typeParser;
     map<VariableDcl> localVarMap;
     map<VariableDcl> globalVarMap;
-    public function __init(BirChannelReader reader,  TypeParser typeParser, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap) {
+    TypeDef?[] typeDefs;
+
+    public function __init(BirChannelReader reader,  TypeParser typeParser, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, TypeDef?[] typeDefs) {
         self.reader = reader;
         self.typeParser = typeParser;
         self.localVarMap = localVarMap;
         self.globalVarMap = globalVarMap;
+        self.typeDefs = typeDefs;
     }
 
     public function parseBB() returns BasicBlock {
@@ -45,7 +48,7 @@ public type FuncBodyParser object {
     public function parseInstruction() returns Instruction {
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;
-        // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
+        // this is hacky to init to a fake val, but ballerina dosn't support un intialized vars
         if (kindTag == INS_ARRAY_STORE) {
             kind = INS_KIND_ARRAY_STORE;
             var lhsOp = self.parseVarRef();
@@ -87,6 +90,12 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             NewMap newMap = {kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
+        } else if (kindTag == INS_NEW_INST) {
+            var defIndex = self.reader.readInt32();
+            kind = INS_KIND_NEW_INST;
+            var lhsOp = self.parseVarRef();
+            NewInstance newInst = {kind:kind, lhsOp:lhsOp, typeDef: self.findTypeDef(defIndex)};
+            return newInst;
         } else if (kindTag == INS_TYPE_CAST) {
             kind = INS_KIND_TYPE_CAST;
             var lhsOp = self.parseVarRef();
@@ -114,7 +123,7 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
 
             int | string | boolean | float value = 0;
-            if (bType is BTypeInt) {
+            if (bType is BTypeInt || bType is BTypeByte) {
                 value = self.reader.readIntCpRef();
             } else if (bType is BTypeString) {
                 value = self.reader.readStringCpRef();
@@ -182,6 +191,26 @@ public type FuncBodyParser object {
             BasicBlock thenBB = self.parseBBRef();
             Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
+        } else if (kindTag == INS_ASYNC_CALL){
+            TerminatorKind kind = TERMINATOR_ASYNC_CALL;
+            var pkgId = self.reader.readModuleIDCpRef();
+            var name = self.reader.readStringCpRef();
+            var argsCount = self.reader.readInt32();
+            VarRef?[] args = [];
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = self.parseVarRef();
+                i += 1;
+            }
+            var hasLhs = self.reader.readBoolean();
+            VarRef? lhsOp = ();
+            if (hasLhs){
+                lhsOp = self.parseVarRef();
+            }
+
+            BasicBlock thenBB = self.parseBBRef();
+            AsyncCall call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            return call;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
@@ -235,6 +264,16 @@ public type FuncBodyParser object {
         return binaryOp;
     }
 
+    function findTypeDef(int defIndex) returns TypeDef {
+        var typeDef = self.typeDefs[defIndex];
+        if(typeDef is TypeDef){
+            return typeDef;
+        } else {
+            error err = error("can't find type def for index : " + defIndex);
+            panic err;
+        }
+    }
+
 };
 
 function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName) returns VariableDcl {
@@ -255,3 +294,4 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
         panic err;
     }
 }
+
