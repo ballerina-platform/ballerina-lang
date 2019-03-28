@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -1526,6 +1527,14 @@ public class BLangPackageBuilder {
         checkedExpr.addWS(ws);
         checkedExpr.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(checkedExpr);
+    }
+
+    void createCheckPanickedExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangCheckPanickedExpr checkPanicExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
+        checkPanicExpr.pos = pos;
+        checkPanicExpr.addWS(ws);
+        checkPanicExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(checkPanicExpr);
     }
 
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {

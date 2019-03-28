@@ -43,6 +43,6 @@ service echo07 on  echoEP07 {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

@@ -118,6 +118,10 @@ public class BIRBinaryWriter {
         // Visibility
         buf.writeByte(typeDef.visibility.value());
         typeDef.type.accept(typeWriter);
+
+        if (typeDef.attachedFuncs != null) {
+            writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
+        }
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {

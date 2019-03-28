@@ -548,7 +548,16 @@ returnStatement
     ;
 
 workerSendAsyncStatement
-    :   expression RARROW Identifier (COMMA expression)? SEMICOLON
+    :   expression RARROW peerWorker (COMMA expression)? SEMICOLON
+    ;
+
+peerWorker
+    : workerName
+    | DEFAULT
+    ;
+
+workerName
+    : Identifier
     ;
 
 flushWorker
@@ -692,6 +701,7 @@ expression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression             # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |   CHECK expression                                                    # checkedExpression
+    |   CHECKPANIC expression                                               # checkPanickedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -704,11 +714,11 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
+    |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
+    |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     ;
@@ -847,7 +857,7 @@ content
     ;
 
 comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
+    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)*? XMLCommentText*? XML_COMMENT_END
     ;
 
 element
@@ -868,14 +878,14 @@ emptyTag
     ;
 
 procIns
-    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
+    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression RIGHT_BRACE)* XMLPIText
     ;
 
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
 text
-    :   (XMLTemplateText expression ExpressionEnd)+ XMLText?
+    :   (XMLTemplateText expression RIGHT_BRACE)+ XMLText?
     |   XMLText
     ;
 
@@ -885,16 +895,15 @@ xmlQuotedString
     ;
 
 xmlSingleQuotedString
-    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression ExpressionEnd)* XMLSingleQuotedString? SINGLE_QUOTE_END
+    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression RIGHT_BRACE)* XMLSingleQuotedString? SINGLE_QUOTE_END
     ;
 
 xmlDoubleQuotedString
-    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression ExpressionEnd)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
+    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression RIGHT_BRACE)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
     ;
 
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
-    |   XMLTagExpressionStart expression ExpressionEnd
     ;
 
 stringTemplateLiteral

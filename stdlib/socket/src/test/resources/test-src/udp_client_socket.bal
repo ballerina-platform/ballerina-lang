@@ -39,7 +39,7 @@ function echo(string msg) returns string {
     } else {
         io:println(result);
     }
-    _ = socketClient->close();
+    checkpanic socketClient->close();
     return returnStr;
 }
 
@@ -58,7 +58,7 @@ function contentReceive() returns string {
     } else {
         io:println(result);
     }
-    _ = socketClient->close();
+    checkpanic socketClient->close();
     return returnStr;
 }
 
@@ -77,7 +77,7 @@ function contentReceiveWithLength() returns string {
     } else {
         io:println(result);
     }
-    _ = socketClient->close();
+    checkpanic socketClient->close();
     return returnStr;
 }
 

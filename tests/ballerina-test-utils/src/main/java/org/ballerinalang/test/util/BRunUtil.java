@@ -258,23 +258,23 @@ public class BRunUtil {
         for (int i = 0; i < bvmParamTypes.size(); i++) {
             org.wso2.ballerinalang.compiler.semantics.model.types.BType type = bvmParamTypes.get(i);
             Class<?> typeClazz;
-            Object argument;
+            Object argument = getJVMValue(type, bvmArgs[i]);
             switch (type.tag) {
                 case TypeTags.INT_TAG:
+                case TypeTags.BYTE_TAG:
                     typeClazz = long.class;
-                    argument = ((BInteger) bvmArgs[i]).intValue();
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     typeClazz = boolean.class;
-                    argument = ((BBoolean) bvmArgs[i]).booleanValue();
                     break;
                 case TypeTags.STRING_TAG:
                     typeClazz = String.class;
-                    argument = bvmArgs[i].stringValue();
                     break;
                 case TypeTags.FLOAT_TAG:
                     typeClazz = double.class;
-                    argument = ((BFloat) bvmArgs[i]).floatValue();
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    typeClazz = ArrayValue.class;
                     break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
@@ -297,6 +297,67 @@ public class BRunUtil {
         return new BValue[] { result };
     }
 
+    private static Object getJVMValue(org.wso2.ballerinalang.compiler.semantics.model.types.BType type, BValue value) {
+        switch (type.tag) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+                return ((BInteger) value).intValue();
+            case TypeTags.BOOLEAN_TAG:
+                return ((BBoolean) value).booleanValue();
+            case TypeTags.STRING_TAG:
+                return value.stringValue();
+            case TypeTags.FLOAT_TAG:
+                return ((BFloat) value).floatValue();
+            case TypeTags.ARRAY_TAG:
+                org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
+                        (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
+                BValueArray array = (BValueArray) value;
+                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType.eType));
+                for (int i = 0; i < array.size(); i++) {
+                    switch (arrayType.eType.tag) {
+                        case TypeTags.INT_TAG:
+                            jvmArray.add(i, array.getInt(i));
+                            break;
+                        case TypeTags.BYTE_TAG:
+                            jvmArray.add(i, array.getByte(i));
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            jvmArray.add(i, array.getBoolean(i));
+                            break;
+                        case TypeTags.STRING_TAG:
+                            jvmArray.add(i, array.getString(i));
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            jvmArray.add(i, array.getFloat(i));
+                            break;
+                        default:
+                            throw new RuntimeException("Function signature type '" + type + "' is not supported");
+                    }
+                }
+                return jvmArray;
+            default:
+                throw new RuntimeException("Function signature type '" + type + "' is not supported");
+        }
+    }
+
+    private static org.ballerinalang.jvm.types.BType
+            getJVMType(org.wso2.ballerinalang.compiler.semantics.model.types.BType type) {
+        switch (type.tag) {
+            case TypeTags.INT_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeInt;
+            case TypeTags.BYTE_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeByte;
+            case TypeTags.BOOLEAN_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeBoolean;
+            case TypeTags.STRING_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeString;
+            case TypeTags.FLOAT_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            default:
+                throw new RuntimeException("Function argument for type '" + type + "' is not supported");
+        }
+    }
+
     private static BRefType<?> getBVMValue(Object value) {
         org.ballerinalang.jvm.types.BType type = TypeChecker.getType(value);
         switch (type.getTag()) {
@@ -309,13 +370,40 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
                 return new BString((String) value);
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
                 BRefType<?>[] tupleValues = new BRefType<?>[jvmTuple.size()];
                 for (int i = 0; i < jvmTuple.size(); i++) {
                     tupleValues[i] = getBVMValue(jvmTuple.getRefValue(i));
                 }
                 return new BValueArray(tupleValues, getBVMType(jvmTuple.getType()));
+            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+                org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) type;
+
+                ArrayValue array = ((ArrayValue) value);
+                BValueArray bvmArray = new BValueArray(getBVMType(arrayType.getElementType()));
+                for (int i = 0; i < array.size(); i++) {
+                    switch (arrayType.getElementType().getTag()) {
+                        case TypeTags.INT_TAG:
+                            bvmArray.add(i, array.getInt(i));
+                            break;
+                        case TypeTags.BYTE_TAG:
+                            bvmArray.add(i, array.getByte(i));
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            bvmArray.add(i, array.getBoolean(i));
+                            break;
+                        case TypeTags.STRING_TAG:
+                            bvmArray.add(i, array.getString(i));
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            bvmArray.add(i, array.getFloat(i));
+                            break;
+                        default:
+                            bvmArray.add(i, getBVMValue(array.getRefValue(i)));
+                            break;
+                    }
+                }
+                return bvmArray;
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 MapValue jvmMap = (MapValue) value;
@@ -343,6 +431,8 @@ public class BRunUtil {
                 return BTypes.typeString;
             case org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG:
                 return BTypes.typeBoolean;
+            case org.ballerinalang.jvm.types.TypeTags.BYTE_TAG:
+                return BTypes.typeByte;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 org.ballerinalang.jvm.types.BTupleType tupleType = (org.ballerinalang.jvm.types.BTupleType) jvmType;
                 List<BType> memberTypes = new ArrayList<>();
@@ -363,7 +453,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 return BTypes.typeError;
             default:
-                throw new RuntimeException("Unsupported jvm type: " + jvmType + "' ");
+                throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
     }
 

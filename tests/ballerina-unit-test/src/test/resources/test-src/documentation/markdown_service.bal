@@ -10,7 +10,7 @@ service PizzaService on echoEP {
     # + req - In request.
     resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 
     # Check status resource.
@@ -18,6 +18,6 @@ service PizzaService on echoEP {
     # + req - In request.
     resource function checkStatus(http:Caller conn, http:Request req) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }

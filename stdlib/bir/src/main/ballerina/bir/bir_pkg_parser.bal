@@ -37,7 +37,7 @@ public type PackageParser object {
         return dcl;
     }
 
-    public function parseFunction() returns Function {
+    public function parseFunction(TypeDef?[] typeDefs) returns Function {
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
         var visibility = parseVisibility(self.reader);
@@ -59,7 +59,7 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap);
+        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         return {
@@ -83,15 +83,14 @@ public type PackageParser object {
         Function?[] funcs = [];
         int i = 0;
         while (i < numFuncs) {
-            funcs[i] = self.parseFunction();
+            funcs[i] = self.parseFunction(typeDefs);
             i += 1;
         }
 
-//       BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
-//                                    functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
-//                                    versionValue: {value: pkgId.modVersion}});
-//       emitter.emitPackage();
-
+       //BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
+       //                             functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
+       //                             versionValue: {value: pkgId.modVersion}});
+       //emitter.emitPackage();
 
         return { importModules : importModules, 
                     typeDefs : typeDefs, 
@@ -153,7 +152,20 @@ public type PackageParser object {
     function parseTypeDef() returns TypeDef {
         string name = self.reader.readStringCpRef();
         Visibility visibility = parseVisibility(self.reader);
-        return { name:{ value: name}, visibility: visibility, typeValue: self.typeParser.parseType()};
+        var bType = self.typeParser.parseType();
+        Function?[]? attachedFuncs = ();
+        if (bType is BObjectType || bType is BRecordType) {
+            Function?[] funcs = [];
+            var numFuncs = self.reader.readInt32();
+            int i = 0;
+            while (i < numFuncs) {
+                funcs[i] = self.parseFunction([]);
+                i += 1;
+            }
+            attachedFuncs = funcs;
+        }
+
+        return { name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: attachedFuncs };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       

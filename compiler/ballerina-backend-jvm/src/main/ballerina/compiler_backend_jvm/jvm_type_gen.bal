@@ -597,7 +597,7 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
 }
 
 function getTypeDesc(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt) {
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         return "J";
     } else if (bType is bir:BTypeFloat) {
         return "D";
@@ -605,8 +605,6 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
-    } else if (bType is bir:BTypeByte) {
-        return "B";
     } else if (bType is bir:BTypeNil) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BArrayType || bType is bir:BTupleType) {

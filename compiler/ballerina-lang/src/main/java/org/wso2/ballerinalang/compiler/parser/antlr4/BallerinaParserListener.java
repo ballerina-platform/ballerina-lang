@@ -1236,6 +1236,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#peerWorker}.
+	 * @param ctx the parse tree
+	 */
+	void enterPeerWorker(BallerinaParser.PeerWorkerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#peerWorker}.
+	 * @param ctx the parse tree
+	 */
+	void exitPeerWorker(BallerinaParser.PeerWorkerContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#workerName}.
+	 * @param ctx the parse tree
+	 */
+	void enterWorkerName(BallerinaParser.WorkerNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#workerName}.
+	 * @param ctx the parse tree
+	 */
+	void exitWorkerName(BallerinaParser.WorkerNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#flushWorker}.
 	 * @param ctx the parse tree
 	 */
@@ -1781,6 +1801,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCheckedExpression(BallerinaParser.CheckedExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code checkPanickedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code checkPanickedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code bitwiseExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

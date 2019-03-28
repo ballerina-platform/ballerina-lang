@@ -1,0 +1,4 @@
+// NATS client could be referred to either produce a message to a subject or consume a message from a subject
+// In order to run this sample it is required that a NATS server is up and running on its default host, port and cluster
+// Please refer https://nats.io/documentation/streaming/nats-streaming-install/ for installation instructions for
+// NATS streaming server.

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -65,10 +67,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -86,7 +90,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Lower the AST to BIR.
@@ -104,6 +110,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
+    private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -145,9 +152,22 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangTypeDefinition astTypeDefinition) {
         Visibility visibility = getVisibility(astTypeDefinition.symbol);
+
+        List<BIRFunction> attachedFuncs;
+        int typeTag = astTypeDefinition.symbol.type.tag;
+        if (typeTag == TypeTags.OBJECT || typeTag == TypeTags.RECORD) { // TODO: records shouldn't have attached funcs
+            attachedFuncs = new ArrayList<>();
+        } else {
+            attachedFuncs = null;
+        }
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
-                astTypeDefinition.symbol.name, visibility, astTypeDefinition.typeNode.type);
+                                                          astTypeDefinition.symbol.name,
+                                                          visibility,
+                                                          astTypeDefinition.typeNode.type,
+                                                          attachedFuncs);
+        typeDefs.put(astTypeDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
+        typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
     }
 
     public void visit(BLangImportPackage impPkg) {
@@ -162,8 +182,13 @@ public class BIRGen extends BLangNodeVisitor {
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.argsCount = astFunc.requiredParams.size() +
                             astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
+        if (astFunc.flagSet.contains(Flag.ATTACHED)) {
+            BTypeSymbol tsymbol = astFunc.receiver.type.tsymbol;
+            typeDefs.get(tsymbol).attachedFuncs.add(birFunc);
+        } else {
+            this.env.enclPkg.functions.add(birFunc);
+        }
 
-        this.env.enclPkg.functions.add(birFunc);
         this.env.enclFunc = birFunc;
 
         if (astFunc.symbol.retType != null && astFunc.symbol.retType.tag != TypeTags.NIL) {
@@ -519,6 +544,23 @@ public class BIRGen extends BLangNodeVisitor {
                     InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
         }
         this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(connectorInitExpr.type, this.env.nextLocalVarId(names),
+                                                       VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        emit(new BIRNonTerminator.NewInstance(connectorInitExpr.pos,
+                                              typeDefs.get(connectorInitExpr.type.tsymbol),
+                                              toVarRef));
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
     }
 
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {

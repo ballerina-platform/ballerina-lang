@@ -33,6 +33,7 @@ public const int INS_NEW_ERROR = 28;
 public const int INS_TYPE_CAST = 29;
 public const int INS_IS_LIKE = 30;
 public const int INS_TYPE_TEST = 31;
+public const int INS_NEW_INST = 32;
 
 public const int INS_PANIC = 19;
 
