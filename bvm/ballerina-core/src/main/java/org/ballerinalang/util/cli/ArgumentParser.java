@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
@@ -203,19 +204,21 @@ public class ArgumentParser {
     }
 
     private static BValue getDefaultValue(BType type, DefaultValue value) {
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
+        switch (value.getTypeDesc()) {
+            case TypeSignature.SIG_INT:
                 return new BInteger(value.getIntValue());
-            case TypeTags.STRING_TAG:
+            case TypeSignature.SIG_STRING:
                 return new BString(value.getStringValue());
-            case TypeTags.FLOAT_TAG:
+            case TypeSignature.SIG_FLOAT:
                 return new BFloat(value.getFloatValue());
-            case TypeTags.DECIMAL_TAG:
+            case TypeSignature.SIG_DECIMAL:
                 return new BDecimal(value.getDecimalValue());
-            case TypeTags.BOOLEAN_TAG:
+            case TypeSignature.SIG_BOOLEAN:
                 return new BBoolean(value.getBooleanValue());
-            case TypeTags.BYTE_TAG:
+            case TypeSignature.SIG_BYTE:
                 return new BByte(value.getByteValue());
+            case TypeSignature.SIG_NULL:
+                return null; // for optional defaultable types
             default: //shouldn't reach here
                 throw new BLangUsageException("unsupported type specified as defaultable param: " + type);
         }
