@@ -1820,6 +1820,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1911,6 +1912,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
