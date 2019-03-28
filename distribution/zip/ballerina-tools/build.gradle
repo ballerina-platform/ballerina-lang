@@ -27,6 +27,7 @@ configurations {
     balo
     resourceFiles
     staticFiles
+    balx
 }
 
 dependencies {
@@ -80,6 +81,8 @@ dependencies {
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
+
+    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
 
 def basePath = '/' + project.name + '-' + project.version
@@ -92,6 +95,11 @@ CopySpec copyJarSpec = copySpec {
 CopySpec copyBaloSpec = copySpec {
     from configurations.distBal
     into(basePath + '/lib')
+}
+
+CopySpec copyBalxSpec = copySpec {
+    from configurations.balx
+    into(basePath + '/lib/balx')
 }
 
 CopySpec copyBinSpec = copySpec {
@@ -181,6 +189,7 @@ task createApiDocsZip(type: Zip) {
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
+    with copyBalxSpec
     with copyBinSpec
     with copyToolsSpec
     with copyToolsZipSpec
