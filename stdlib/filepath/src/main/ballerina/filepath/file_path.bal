@@ -296,8 +296,8 @@ public function relative(string base, string target) returns string|error {
     int targetOffset;
     (targetRoot, targetOffset) = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
-        error err = error("{ballerina/path}RELATIVE_PATH_ERROR", { message: "Can't make: " + target + " relative to " +
-            base});
+        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", { message: "Can't make: " + target
+        + " relative to " + base});
         return err;
     }
     int b0 = baseOffset;
@@ -326,8 +326,8 @@ public function relative(string base, string target) returns string|error {
         t0 = ti;
     }
     if (cleanBase.substring(b0, bi) == "..") {
-        error err = error("{ballerina/path}RELATIVE_PATH_ERROR", { message: "Can't make: " + target + " relative to " +
-            base});
+        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", { message: "Can't make: " + target
+        + " relative to " + base});
         return err;
     }
     if (b0 != bl) {
@@ -444,7 +444,7 @@ function getOffsetIndexes(string path) returns int[]|error {
 function charAt(string input, int index) returns string|error {
     int length = input.length();
     if (index > length) {
-        error err = error("{ballerina/path}INVALID_OPERATION",
+        error err = error("{ballerina/filepath}INVALID_OPERATION",
         { message: io:sprintf("Character index %d is greater then path string length %d", index, length) });
         return err;
     }

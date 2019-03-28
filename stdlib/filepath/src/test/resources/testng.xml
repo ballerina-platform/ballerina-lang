@@ -22,8 +22,8 @@ under the License.
 <suite name="ballerina-path-test-suite">
     <test name="ballerina-path-test" parallel="false">
         <classes >
-            <class name="org.ballerinalang.stdlib.path.UtilsTest"/>
-            <class name="org.ballerinalang.stdlib.path.nativeimpl.PathTest"/>
+            <class name="org.ballerinalang.stdlib.filepath.UtilsTest"/>
+            <class name="org.ballerinalang.stdlib.filepath.nativeimpl.PathTest"/>
         </classes>
     </test>
 </suite>

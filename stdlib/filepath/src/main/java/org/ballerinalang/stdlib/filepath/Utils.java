@@ -16,15 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.path;
+package org.ballerinalang.stdlib.filepath;
 
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-
-import static org.ballerinalang.stdlib.path.Constants.ERROR_REASON_PREFIX;
 
 /**
  * A utility class for OS Path related tasks.
@@ -49,9 +47,9 @@ public class Utils {
     public static BError getPathError(String reason, Throwable error) {
         BMap<String, BValue> refData = new BMap<>(BTypes.typeError.detailsType);
         if (reason != null) {
-            reason = ERROR_REASON_PREFIX + reason;
+            reason = Constants.ERROR_REASON_PREFIX + reason;
         } else {
-            reason = ERROR_REASON_PREFIX + UNKNOWN_REASON;
+            reason = Constants.ERROR_REASON_PREFIX + UNKNOWN_REASON;
         }
         if (error != null) {
             if (error.getMessage() == null) {

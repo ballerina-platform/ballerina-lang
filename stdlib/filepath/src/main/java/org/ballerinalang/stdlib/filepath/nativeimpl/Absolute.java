@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.path.nativeimpl;
+package org.ballerinalang.stdlib.filepath.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.path.Constants;
-import org.ballerinalang.stdlib.path.Utils;
+import org.ballerinalang.stdlib.filepath.Constants;
+import org.ballerinalang.stdlib.filepath.Utils;
 
 import java.nio.file.FileSystems;
 import java.nio.file.InvalidPathException;

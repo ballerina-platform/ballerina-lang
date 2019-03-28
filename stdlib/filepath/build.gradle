@@ -24,7 +24,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime', configuration: 'baloImplementation')
 }
 
-description = 'Ballerina - Path Implementation'
+description = 'Ballerina - File Path Implementation'
 
 test {
     doFirst {

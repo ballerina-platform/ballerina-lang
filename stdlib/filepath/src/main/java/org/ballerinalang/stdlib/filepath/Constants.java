@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.path;
+package org.ballerinalang.stdlib.filepath;
 
 import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
@@ -34,12 +34,12 @@ public class Constants {
     /**
      * Package name.
      */
-    public static final String PACKAGE_NAME = "path";
+    public static final String PACKAGE_NAME = "filepath";
 
     /**
      * Package path to path package.
      */
     public static final String PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
-    public static final String ERROR_REASON_PREFIX = "{ballerina/path}";
+    public static final String ERROR_REASON_PREFIX = "{ballerina/filepath}";
 }

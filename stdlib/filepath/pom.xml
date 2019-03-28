@@ -28,9 +28,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-path</artifactId>
+    <artifactId>ballerina-filepath</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Path Implementation</name>
+    <name>Ballerina - File Path Implementation</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
@@ -205,7 +205,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.path.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.filepath.generated.providers</nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
@@ -273,7 +273,7 @@
                     <!-- Since balo is needed by tests, here it is copied to target/lib where other balos
                     are copied to -->
                     <execution>
-                        <id>copy-path-balo</id>
+                        <id>copy-filepath-balo</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>copy-resources</goal>

@@ -14,48 +14,48 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/path;
+import ballerina/filepath;
 
 function testGetAbsolutePath(string path) returns string|error {
-    return path:absolute(path);
+    return filepath:absolute(path);
 }
 
 function testGetPathSeparator() returns string {
-    return path:getPathSeparator();
+    return filepath:getPathSeparator();
 }
 
 function testGetPathListSeparator() returns string {
-    return path:getPathListSeparator();
+    return filepath:getPathListSeparator();
 }
 
 function testIsAbsolutePath(string path) returns boolean|error {
-    return path:isAbsolute(path);
+    return filepath:isAbsolute(path);
 }
 
 function testGetFilename(string path) returns string|error {
-    return path:filename(path);
+    return filepath:filename(path);
 }
 
 function testGetParent(string path) returns string|error {
-    return path:parent(path);
+    return filepath:parent(path);
 }
 
 function testNormalizePath(string path) returns string|error {
-    return path:normalize(path);
+    return filepath:normalize(path);
 }
 
 function testSplitPath(string path) returns string[]|error {
-    return path:split(path);
+    return filepath:split(path);
 }
 
 function testBuildPath(string[] paths) returns string|error {
-    return path:build(...paths);
+    return filepath:build(...paths);
 }
 
 function testPathExtension(string path) returns string|error {
-    return path:extension(path);
+    return filepath:extension(path);
 }
 
 function testRelativePath(string base, string target) returns string|error {
-    return path:relative(base, target);
+    return filepath:relative(base, target);
 }
