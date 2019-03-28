@@ -74,7 +74,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 LOG.error("Failed to send the request : " + ex.getMessage(), ex);
                 http2Content.getOutboundMsgHolder().getResponseFuture().notifyHttpListener(ex);
             }
-
         } else if (msg instanceof Http2Reset) {
             Http2Reset resetMsg = (Http2Reset) msg;
             resetStream(ctx, resetMsg.getStreamId(), resetMsg.getError());
