@@ -552,7 +552,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMapSnippet() {
-        String snippet = "map(function(%params%) returns (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "map(function (%params%) returns any {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "})";
 
         return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", SnippetType.SNIPPET);
