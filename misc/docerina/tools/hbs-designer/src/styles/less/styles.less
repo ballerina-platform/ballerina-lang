@@ -1,6 +1,8 @@
 body {
     background: #fff;
     color: #464646;
+    height:100vh;
+    position: fixed;
 
     p {
         font-size: 16px;
@@ -11,18 +13,32 @@ body {
         font-weight: 600;
     }
 
-    .ui.grid {
+    .ui.grid {              
+        height: 100vh;
+        
         .header-wrapper {
             position: fixed;
             height: auto;
+
+            .logo {
+                width: 200px;
+                height: auto;
+                float: left;
+            }
+            
         }
+
         .navi-wrapper {
             margin-left: 20px;
             background: #f5f7f8;
-            position: fixed;
             height:100vh;
-            overflow-y: scroll;
+            overflow-y: hidden;
+            position: fixed;
 
+            &:hover {
+                overflow-y: scroll ;
+                position: inherit;
+            }
 
             .search {
                 input {
@@ -47,8 +63,22 @@ body {
 
         .content-wrapper {
             margin: 20px;
+            height: 82vh;
             text-align: justify;
-            overflow-y: scroll;
+            overflow-y: hidden;
+            position: fixed;
+
+            .breadcrumb {
+                a {
+                    color: #aaa;
+                    font-weight: 300 !important; 
+                }
+            }
+
+            &:hover {
+                overflow-y: auto;
+                position: inherit;
+            }
 
             p {
                 line-height: 24px !important;
@@ -59,23 +89,25 @@ body {
                 font-style: italic;
             }
 
-            .logo {
-                width: 200px;
-                height: auto;
-                float: left;
+            .records {
+                color: #2c9ea1;
+                font-weight: 600;
+            }
+            .objects {
+                color: #93bd54;
+                font-weight: 600;
             }
 
             .module-list {
                 line-height: 20px;
+                float: left;
 
                 .module-title {
-                    width: 120px;
                     float: left;
                     margin-left: 20px;
                 }
 
                 .module-desc {
-                    width: 1080px;
                     margin-left: 10px;
                     float: left;
                     word-wrap: break-word;

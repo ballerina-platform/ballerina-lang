@@ -1,6 +1,8 @@
 body {
   background: #fff;
   color: #464646;
+  height: 100vh;
+  position: fixed;
 }
 body p {
   font-size: 16px;
@@ -9,16 +11,28 @@ body a {
   color: #333;
   font-weight: 600;
 }
+body .ui.grid {
+  height: 100vh;
+}
 body .ui.grid .header-wrapper {
   position: fixed;
   height: auto;
 }
+body .ui.grid .header-wrapper .logo {
+  width: 200px;
+  height: auto;
+  float: left;
+}
 body .ui.grid .navi-wrapper {
   margin-left: 20px;
   background: #f5f7f8;
-  position: fixed;
   height: 100vh;
-  overflow-y: scroll;
+  overflow-y: hidden;
+  position: fixed;
+}
+body .ui.grid .navi-wrapper:hover {
+  overflow-y: scroll ;
+  position: inherit;
 }
 body .ui.grid .navi-wrapper .search input {
   border-radius: 0;
@@ -36,8 +50,18 @@ body .ui.grid .navi-wrapper .primary-list ul li {
 }
 body .ui.grid .content-wrapper {
   margin: 20px;
+  height: 82vh;
   text-align: justify;
-  overflow-y: scroll;
+  overflow-y: hidden;
+  position: fixed;
+}
+body .ui.grid .content-wrapper .breadcrumb a {
+  color: #aaa;
+  font-weight: 300 !important;
+}
+body .ui.grid .content-wrapper:hover {
+  overflow-y: auto;
+  position: inherit;
 }
 body .ui.grid .content-wrapper p {
   line-height: 24px !important;
@@ -46,21 +70,23 @@ body .ui.grid .content-wrapper code {
   color: #ea8792;
   font-style: italic;
 }
-body .ui.grid .content-wrapper .logo {
-  width: 200px;
-  height: auto;
-  float: left;
+body .ui.grid .content-wrapper .records {
+  color: #2c9ea1;
+  font-weight: 600;
+}
+body .ui.grid .content-wrapper .objects {
+  color: #93bd54;
+  font-weight: 600;
 }
 body .ui.grid .content-wrapper .module-list {
   line-height: 20px;
+  float: left;
 }
 body .ui.grid .content-wrapper .module-list .module-title {
-  width: 120px;
   float: left;
   margin-left: 20px;
 }
 body .ui.grid .content-wrapper .module-list .module-desc {
-  width: 1080px;
   margin-left: 10px;
   float: left;
   word-wrap: break-word;

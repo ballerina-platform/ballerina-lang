@@ -29,7 +29,13 @@
       <div class="primary-list">
         <h4>http Module</h4>
         <ul>
-          <li>Records</li>
+          {{#each constructs}}
+          <li>
+            <a href="#{{@key}}">{{@key}}</a>
+          </li>
+          {{/each}}
+
+          <li><a href="record.html">Records</a></li>
           <li>Objects</li>
           <li>Endpoints</li>
           <li>Functions</li>
@@ -83,12 +89,12 @@
             <li>ballerina/websub</li>
           </ul>
 
-           {{#if modules}}
+          {{#if modules}}
           <div class="module-list">
             {{#each modules}}
             <div class="module-title">
               <a href="{{id}}/index.html">{{id}}</a>
-              </div>
+            </div>
             <div class="module-desc">{{description}}</div>
             {{/each}}
           </div>
@@ -129,8 +135,46 @@
         <code>Client</code> endpoints support Certificate Revocation List (CRL), Online Certificate Status Protocol
         (OCSP) and OCSP Stapling for SSL/TLS connection. They also support HTTP2, keep-alive, chunking, HTTP caching,
         and data compression/decompression.<br><br></p>
-        
-      <p>See <b><u>Client Endpoint Example, Circuit Breaker Example, HTTP Redirects Example</u></b></p>
+
+      <p>See <b><u>Client Endpoint Example</u></b>,
+        <b><u>Circuit Breaker Example</u></b>,
+        <b><u> HTTP Redirects Example</u></b>
+      </p>
+
+      <h3>Listener endpoints</h3>
+      <p>
+        A Service represents a collection of network-accessible <br>entry points and can be exposed via a
+        <code>Listener</code> endpoint.
+        A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and
+        'produces' content types, CORS headers, etc. In resources, <code>endpoint</code> and <code>http:Request</code>
+        are mandatory parameters
+        while <code>path</code> and <code>body</code> are optional.
+      </p>
+      <p>When a <code>Service</code> receives a request, it is dispatched to the best-matched resource.</p>
+      <p>See
+        <b><u>Listener Endpoint Example</u></b> ,
+        <b><u>HTTP CORS Example</u></b> ,
+        <b><u>HTTP Failover Example</u></b> ,
+        <b><u>HTTP Load Balancer Example</u></b>
+      </p>
+      <p>
+        <code>Listener</code> endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and Server Name
+        Indication (SNI) and Application Layer Protocol Negotiation (ALPN). <code>Listener</code> endpoints also support Certificate
+        Revocation List (CRL), Online Certificate Status Protocol (OCSP), OCSP Stapling, HTTP2, keep-alive, chunking,
+        HTTP caching, and data compression/decompression.
+      </p>
+      <p>See <u><b>Mutual SSL Example.</u></b></p>
+      <p> See <u><b> Caching Example</u></b>, <u><b> HTTP Disable Chunking Example.</u></b></p>
+      
+      <div class="ui divider"></div>
+      <h3><a name="records">Records</a></h3> 
+      <div class="two wide column records">{{records.name}}</div>
+      <div class="eleven wide column">{{records.description}}</div>
+      <div class="ui divider"></div>
+      <h3><a name="objects">Objects</a></h3> 
+      <div class="ui divider"></div>
+      <div class="two wide column objects">{{constructs/records/name}}</div>
+      <div class="eleven wide column">{{records.description}}</div>
     </div>
   </div>
 </body>
