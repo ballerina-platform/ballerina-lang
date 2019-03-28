@@ -338,6 +338,7 @@ public type Call record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    boolean isVirtual;
     BasicBlock thenBB;
 |};
 

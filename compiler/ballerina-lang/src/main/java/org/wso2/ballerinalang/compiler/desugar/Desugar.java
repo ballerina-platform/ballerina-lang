@@ -2264,6 +2264,7 @@ public class Desugar extends BLangNodeVisitor {
                         new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs,
                                 iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
                 attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
+                attachedFunctionInvocation.name = iExpr.name;
                 result = attachedFunctionInvocation;
                 break;
         }
@@ -2299,6 +2300,7 @@ public class Desugar extends BLangNodeVisitor {
         if (typeInitExpr.initInvocation.type.tag == TypeTags.NIL) {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitExpr.initInvocation;
+            typeInitExpr.initInvocation.name.value = Names.OBJECT_INIT_SUFFIX.value;
             BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, objVarRef);
             stmtExpr.type = objVarRef.symbol.type;
             return stmtExpr;
