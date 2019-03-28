@@ -85,7 +85,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
                     String symbolName = symbolInfo.getScopeEntry().symbol.name.getValue();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
-                    String snippet = IntStream.range(0, members.size()).mapToObj(value -> {
+                    String snippet = IntStream.range(0, members.size() - 1).mapToObj(value -> {
                         BType bType = members.get(value);
                         String placeHolder = "\t${" + (value + 1) + "}";
                         return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx) + ") {"

@@ -26,7 +26,10 @@ import org.ballerinalang.langserver.completions.providers.subproviders.AbstractS
 import org.ballerinalang.langserver.completions.providers.subproviders.TopLevelCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
@@ -48,6 +51,7 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends Abstra
         }
         if (poppedTokens.size() <= 2) {
             String firstToken = poppedTokens.get(0);
+            String lastToken = CommonUtil.getLastItem(poppedTokens);
             if (poppedTokens.contains(ItemResolverConstants.LISTENER_KEYWORD)) {
                 completionItems.addAll(this.getListenersAndPackages(ctx));
             } else if (this.isAccessModifierToken(firstToken)) {
@@ -65,8 +69,14 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends Abstra
                     default:
                         break;
                 }
+            } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)
+                    && UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(lastToken)) {
+                Either<List<CompletionItem>, List<SymbolInfo>> pkgContent = SymbolFilters
+                        .get(DelimiterBasedContentFilter.class).filterItems(ctx);
+                completionItems.addAll(this.getCompletionItemList(pkgContent, ctx));
             } else {
                 completionItems.addAll(this.getAllTopLevelItems(ctx));
+                completionItems.addAll(this.getPackagesCompletionItems(ctx));
             }
         } else if (this.isInvocationOrInteractionOrFieldAccess(ctx)
                 && poppedTokens.contains(ItemResolverConstants.LISTENER_KEYWORD)) {

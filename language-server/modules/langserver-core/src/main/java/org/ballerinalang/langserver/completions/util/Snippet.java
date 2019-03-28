@@ -147,6 +147,16 @@ public enum Snippet {
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
 
+    BUILTIN_HAS_KEY(SnippetGenerator.getBuiltinHasKeySnippet()),
+
+    BUILTIN_REMOVE(SnippetGenerator.getBuiltinRemoveSnippet()),
+
+    BUILTIN_VALUES(SnippetGenerator.getBuiltinValuesSnippet()),
+
+    BUILTIN_KEYS(SnippetGenerator.getBuiltinKeysSnippet()),
+
+    BUILTIN_CLEAR(SnippetGenerator.getBuiltinClearSnippet()),
+
     BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),

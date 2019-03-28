@@ -910,6 +910,22 @@ public class CommonUtil {
                     ItemResolverConstants.BUILTIN_REASON_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(detail, reason));
         }
+        
+        if (bType.tag == TypeTags.MAP) {
+            SymbolInfo hasKey = getIterableOpSymbolInfo(Snippet.BUILTIN_HAS_KEY.get(), bType,
+                    ItemResolverConstants.BUILTIN_HASKEY_LABEL, context);
+            SymbolInfo remove = getIterableOpSymbolInfo(Snippet.BUILTIN_REMOVE.get(), bType,
+                    ItemResolverConstants.BUILTIN_REMOVE_LABEL, context);
+            SymbolInfo clear = getIterableOpSymbolInfo(Snippet.BUILTIN_CLEAR.get(), bType,
+                    ItemResolverConstants.BUILTIN_CLEAR_LABEL, context);
+            SymbolInfo keys = getIterableOpSymbolInfo(Snippet.BUILTIN_KEYS.get(), bType,
+                    ItemResolverConstants.BUILTIN_KEYS_LABEL, context);
+            SymbolInfo values = getIterableOpSymbolInfo(Snippet.BUILTIN_VALUES.get(), bType,
+                    ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(hasKey, remove, clear, keys, values));
+        }
+        
+        
     }
 
     /**
@@ -1031,7 +1047,7 @@ public class CommonUtil {
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
-        String signature = "";
+        String signature;
         SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {

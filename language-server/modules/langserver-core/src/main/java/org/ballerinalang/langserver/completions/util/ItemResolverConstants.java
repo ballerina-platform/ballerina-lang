@@ -116,6 +116,11 @@ public class ItemResolverConstants {
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
+    public static final String BUILTIN_HASKEY_LABEL = "hasKey(string s)";
+    public static final String BUILTIN_REMOVE_LABEL = "remove(string s)";
+    public static final String BUILTIN_KEYS_LABEL = "keys()";
+    public static final String BUILTIN_GET_VALUES_LABEL = "values()";
+    public static final String BUILTIN_CLEAR_LABEL = "clear()";
     public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
     public static final String BUILTIN_DETAIL_LABEL = "detail()";
     public static final String BUILTIN_REASON_LABEL = "reason()";

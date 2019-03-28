@@ -625,6 +625,51 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get hasKey Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinHasKeySnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_HASKEY_LABEL, "hasKey(${1})", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get remove Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinRemoveSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_REMOVE_LABEL, "remove(${1})", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get values Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinValuesSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, "values()", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get keys Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinKeysSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_KEYS_LABEL, "keys()", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get clear Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinClearSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLEAR_LABEL, "clear()", "", SnippetType.SNIPPET);
+    }
+
+    /**
      * Get convert Builtin Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
