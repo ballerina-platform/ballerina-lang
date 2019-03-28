@@ -137,7 +137,7 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() throws BallerinaTestException {
         String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
-                balServer.getServerHome());
+                balServer.getServerHome(), false);
 
         // Check if the search results contains the following.
         Assert.assertTrue(actualMsg.contains("Ballerina Central"));
