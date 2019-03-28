@@ -352,7 +352,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Check whether this function already has a returnBB.
         // A given function can have only one BB that has a return instruction.
-      
         if (this.env.returnBB == null) {
             // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -362,7 +361,6 @@ public class BIRGen extends BLangNodeVisitor {
         if (this.env.enclBB.terminator == null) {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(astReturnStmt.pos, this.env.returnBB);
         }
-        
     }
 
     public void visit(BLangPanic panicNode) {
@@ -827,8 +825,8 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangTrapExpr trapExpr) {
-        // We need to move instructions inside trap expression for new basic block unless current block does not have 
-        // any instructions or already the current trap block.
+        // This will move instructions inside trap expression for a new basic block unless current block does not have 
+        // any instructions or already in the current trap block.
         if (!this.env.enclBB.instructions.isEmpty() && this.env.trapBB != this.env.enclBB) {
             this.env.trapBB = new BIRBasicBlock(this.env.nextBBId(names));
             env.enclFunc.basicBlocks.add(this.env.trapBB);

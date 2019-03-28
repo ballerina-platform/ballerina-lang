@@ -179,6 +179,7 @@ type TerminatorGenerator object {
 
         }
         
+        // handle trapped function calls.
         if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
             self.generateCatchIns(currentEE, endLabel, handlerLabel, jumpLabel);
         }

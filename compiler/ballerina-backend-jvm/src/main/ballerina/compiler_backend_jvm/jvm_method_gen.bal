@@ -123,6 +123,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     jvm:Label yieldLable = labelGen.getLabel(funcName + "yield");
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
     
+    // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
     jvm:Label endLabel = new;
@@ -136,7 +137,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         //io:println("Basic Block Is : ", bb.id.value);
         string currentBBName = io:sprintf("%s", bb.id.value);
-        
+
         // create jvm label
         jvm:Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
         mv.visitLabel(bbLabel);
@@ -145,6 +146,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
+        // start a try block if current block is trapped
         if (isTrapped) {
             endLabel = new;
             handlerLabel = new;
@@ -191,6 +193,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         }
 
         bir:Terminator terminator = bb.terminator;
+        // close the started try block with a catch statement if current block is trapped.
+        // if we have a call terminator, we need to generate the catch during call code.gen hence skipping that.
         if (isTrapped && !(terminator is bir:Call)) {
             termGen.generateCatchIns(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
@@ -201,7 +205,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         mv.visitVarInsn(ISTORE, stateVarIndex);
 
         // process terminator
-       
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
@@ -213,7 +216,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (terminator is bir:Panic) {
             termGen.genPanicIns(terminator);
         }
-
+        // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
             if (errorEntries.length() > errorEntryCnt) {

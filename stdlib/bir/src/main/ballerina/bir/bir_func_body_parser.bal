@@ -46,8 +46,7 @@ public type FuncBodyParser object {
     }
 
     public function parseEE() returns ErrorEntry {
-        return { trapBB: self.parseBBRef(),
-                 errorOp: self.parseVarRef() };
+        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef() };
     }
 
     public function parseInstruction() returns Instruction {

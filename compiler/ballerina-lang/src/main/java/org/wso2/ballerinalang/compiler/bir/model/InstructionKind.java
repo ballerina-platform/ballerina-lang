@@ -31,7 +31,6 @@ public enum InstructionKind {
     ASYNC_CALL((byte) 5),
 
     // Non-terminating instructions
-    PANIC((byte) 19),
     MOVE((byte) 20),
     CONST_LOAD((byte) 21),
     NEW_STRUCTURE((byte) 22),
@@ -45,6 +44,7 @@ public enum InstructionKind {
     IS_LIKE((byte) 30),
     TYPE_TEST((byte) 31),
     NEW_INSTANCE((byte) 32),
+    PANIC((byte) 33),
 
     // Binary expression related instructions.
     ADD((byte) 50),
