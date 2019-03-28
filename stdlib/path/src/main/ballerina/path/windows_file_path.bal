@@ -189,7 +189,7 @@ function getWindowsOffsetIndex(string path) returns int[]|error {
         offsetIndexes[count] = 0;
         count = count + 1;
     } else {
-        (_, index) = check getRootComponent(path);
+        (_, index) = check getWindowsRoot(path);
         byte[] pathValues = path.toByteArray("UTF-8");
         while(index < pathValues.length()) {
             byte c = pathValues[index];
@@ -214,4 +214,78 @@ function isWindowsSlash(string|byte c) returns boolean {
     } else {
         return (c == 92 || c == 47);
     }
+}
+
+# Returns length of windows volumn length.
+# If volumn doesn't exist, return 0
+#
+# + path - string path value
+# + return - windows volumn length
+function getVolumnNameLength(string path) returns int|error {
+	if path.length() < 2 {
+		return 0;
+	}
+	// check driver
+	string c0 = check charAt(path, 0);
+	string c1 = check charAt(path, 1);
+	if (isLetter(c0) && c1 == ":") {
+		return 2;
+	}
+	int size = path.length();
+	string c2 = check charAt(path, 2);
+	if (size >= 5 && isSlash(c0) && isSlash(c1) && !isSlash(c2) && c2 != ".") {
+		// first, leading `\\` and next shouldn't be `\`. its server name.
+		int n = 3;
+		while (n < size-1) {
+			// second, next '\' shouldn't be repeated.
+			string cn = check charAt(path, n);
+			if isSlash(cn) {
+				n = n + 1;
+				cn = check charAt(path, n);
+				// third, share name.
+				if !isSlash(cn) {
+					if cn == "." {
+						break;
+					}
+
+					while(n < size) {
+						if isSlash(cn) {
+							break;
+						}
+						n = n + 1;
+					}
+					return n;
+				}
+				break;
+			}
+			n = n + 1;
+		}
+	}
+	return 0;
+}
+
+function parseWindowsPath(string path, int off) returns string|error {
+    string normalizedPath = "";
+    int length = path.length();
+    int offset = nextNonSlashIndex(path, off, length);
+    int startIndex = offset;
+    string lastC = "";
+    while (offset < length) {
+        string c = check charAt(path, offset);
+        if (isSlash(c)) {
+            normalizedPath = normalizedPath + path.substring(startIndex, offset);
+            offset = nextNonSlashIndex(path, offset, length);
+            if (offset != length) {
+                normalizedPath = normalizedPath + "\\";
+            }
+            startIndex = offset;
+        } else {
+            lastC = c;
+            offset = offset + 1;
+        }
+    }
+    if (startIndex != offset) {
+        normalizedPath = normalizedPath + path.substring(startIndex, offset);
+    }
+    return normalizedPath;
 }

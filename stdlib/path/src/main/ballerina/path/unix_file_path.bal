@@ -82,3 +82,31 @@ function isPosixSlash(string|byte c) returns boolean {
         return c == 47;
     }
 }
+
+function parsePosixPath(string input, int off) returns string|error {
+    int n = input.length();
+    byte[] bytes = input.toByteArray("UTF-8");
+    while((n > 0) && (bytes[n-1] == 47)) {
+        n = n-1;
+    }
+    if (n == 0) {
+        return "/";
+    }
+    string normalizedPath = "";
+    if (off > 0) {
+        normalizedPath = normalizedPath + input.substring(0, off);
+    }
+    string prevC = "";
+    int i = off;
+    while(i < n) {
+        string c = check charAt(input, i);
+        if (c == "/" && prevC == "/") {
+            i = i + 1;
+            continue;
+        }
+        normalizedPath = normalizedPath + c;
+        prevC = c;
+        i = i + 1;
+    }
+    return normalizedPath;
+}

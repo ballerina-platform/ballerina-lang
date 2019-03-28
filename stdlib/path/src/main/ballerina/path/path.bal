@@ -20,7 +20,6 @@ import ballerina/system;
 
 boolean IS_WINDOWS = system:getEnv("OS") != "";
 string PATH_SEPARATOR = IS_WINDOWS ? "\\" : "/";
-byte PATH_SEPARATOR_UTF8 = IS_WINDOWS ? 92 : 47;
 string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
 
 # Retrieves the absolute path from the provided location.
@@ -47,7 +46,6 @@ public function getPathListSeparator() returns string {
 # A path is absolute if it is independent of the current directory.
 # On Unix, a path is absolute if it starts with the root.
 # On Windows, a path is absolute if it has a prefix and starts with the root: c:\windows is absolute
-# Refer implementation: https://github.com/frohoff/jdk8u-jdk/blob/master/src/windows/classes/sun/nio/fs/WindowsPathParser.java#L94
 #
 # + path - String value of file path.
 # + return - True if path is absolute, else false
@@ -56,30 +54,11 @@ public function isAbsolute(string path) returns boolean|error {
         return false;
     }
     if (IS_WINDOWS) {
-        if (path.length() <= 1) {
-            return false;
-        }
-        string c0 = check charAt(path, 0);
-        string c1 = check charAt(path, 1);
-        if (isSlash(c0) && isSlash(c1)) {
-            return isUNC(path);
-        } else {
-            if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
-                if (path.length() <= 2) {
-                    return false;
-                }
-                string c2 = check charAt(path, 2);
-                if (isSlash(c2)) {
-                    return true;
-                }
-                return false;
-            }
-        }
+        return check getVolumnNameLength(path) > 0;
     } else {
         byte[] bytes = path.toByteArray("UTF-8");
         return bytes[0] == 47;
     }
-    return false;
 }
 
 # Retrieves the base name of the file from the provided location.
@@ -91,7 +70,6 @@ public function isAbsolute(string path) returns boolean|error {
 public function filename(string path) returns string|error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
-    log:printInfo("Validated file path: " + validatedPath);
     int count = offsetIndexes.length();
     if (count == 0) {
         return "";
@@ -100,6 +78,8 @@ public function filename(string path) returns string|error {
         if !(check isAbsolute(validatedPath)) {
             return validatedPath;
         } else if (IS_WINDOWS) {
+            // if windows path is absolute and doesn't contain path separator, 
+            // there is no filename. 
             return "";
         }
     }
@@ -108,7 +88,7 @@ public function filename(string path) returns string|error {
 }
 
 # Get the enclosing parent directory.
-# If the path is empty, Dir returns ".".
+# If the path is empty, parent returns ".".
 # The returned path does not end in a separator unless it is the root directory.
 #
 # + path - String value of file path.
@@ -126,7 +106,7 @@ public function parent(string path) returns string|error {
     }
     int offset;
     string root;
-    (root, offset) = check getRootComponent(validatedPath);
+    (root, offset) = check getRoot(validatedPath);
     if (len < offset) {
         return root;
     }
@@ -141,19 +121,16 @@ public function parent(string path) returns string|error {
 # + path - String value of file path.
 # + return - Normalized file path
 public function normalize(string path) returns string|error {
-    string filepath = check parse(path);
-    int[] offsetIndexes = check getOffsetIndexes(filepath);
+    string validatedPath = check parse(path);
+    int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
-        io:println("filepath (normalize) : " + filepath);
-        io:println(offsetIndexes);
-    if (count == 0 || isEmpty(filepath)) {
-        return filepath;
+    if (count == 0 || isEmpty(validatedPath)) {
+        return validatedPath;
     }
 
-    boolean abs = check isAbsolute(filepath);
     string root;
     int offset;
-    (root, offset) = check getRootComponent(filepath);
+    (root, offset) = check getRoot(validatedPath);
     string c0 = check charAt(path, 0);
 
     int i = 0;
@@ -167,17 +144,17 @@ public function normalize(string path) returns string|error {
         ignore[i] = false;
         parentRef[i] = false;
         if (i == (count - 1)) {
-            length = filepath.length() - begin;
-            parts[i] = filepath.substring(begin, filepath.length());
+            length = validatedPath.length() - begin;
+            parts[i] = validatedPath.substring(begin, validatedPath.length());
         } else {
             length = offsetIndexes[i + 1] - begin - 1;
-            parts[i] = filepath.substring(begin, offsetIndexes[i + 1] - 1);
+            parts[i] = validatedPath.substring(begin, offsetIndexes[i + 1] - 1);
         }
-        if (check charAt(filepath, begin) == ".") {
+        if (check charAt(validatedPath, begin) == ".") {
             if (length == 1) {
                 ignore[i] = true;
                 remaining = remaining - 1;
-            } else if (length == 2 && check charAt(filepath, begin + 1) == ".") {
+            } else if (length == 2 && check charAt(validatedPath, begin + 1) == ".") {
                 parentRef[i] = true;
                 int j = i - 1;
                 boolean hasPrevious = false;
@@ -191,7 +168,7 @@ public function normalize(string path) returns string|error {
                     }
                     j = j - 1;
                 }
-                if (hasPrevious || abs || isSlash(c0)) {
+                if (hasPrevious || (offset > 0) || isSlash(c0)) {
                     ignore[i] = true;
                     remaining = remaining - 1;
                 }  
@@ -201,7 +178,7 @@ public function normalize(string path) returns string|error {
     }
 
     if (remaining == count) {
-        return filepath;
+        return validatedPath;
     }
 
     if (remaining == 0) {
@@ -227,8 +204,8 @@ public function normalize(string path) returns string|error {
 # + path - String value of file path.
 # + return - String array of part components
 public function split(string path) returns string[]|error {
-    string filepath = check parse(path);
-    int[] offsetIndexes = check getOffsetIndexes(filepath);
+    string validatedPath = check parse(path);
+    int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
 
     string[] parts = [];
@@ -237,11 +214,11 @@ public function split(string path) returns string[]|error {
         int begin = offsetIndexes[i];
         int length;
         if (i == (count - 1)) {
-            length = filepath.length() - begin;
-            parts[i] = check parse(filepath.substring(begin, filepath.length()));
+            length = validatedPath.length() - begin;
+            parts[i] = check parse(validatedPath.substring(begin, validatedPath.length()));
         } else {
             length = offsetIndexes[i + 1] - begin - 1;
-            parts[i] = check parse(filepath.substring(begin, offsetIndexes[i + 1] - 1));
+            parts[i] = check parse(validatedPath.substring(begin, offsetIndexes[i + 1] - 1));
         }
         i = i + 1;
     }
@@ -280,19 +257,19 @@ public function isReservedName(string name) returns boolean {
 # + path - String value of file path.
 # + return - Returns the extension of the file. Empty string if no extension.
 public function extension(string path) returns string|error {
-    string filepath = check parse(path);
-    int count = filepath.length();
+    string validatedPath = check parse(path);
+    int count = validatedPath.length();
     if (count == 0) {
-        return filepath;
+        return validatedPath;
     }
     int i = count - 1;
     while (i >= 0) {
-        string char = check charAt(filepath, i);
+        string char = check charAt(validatedPath, i);
         if (char == PATH_SEPARATOR) {
             break;
         }
         if (char == ".") {
-            return filepath.substring(i + 1, count);
+            return validatedPath.substring(i + 1, count);
         }
         i = i - 1;
     }
@@ -314,10 +291,10 @@ public function relative(string base, string target) returns string|error {
     }
     string baseRoot;
     int baseOffset;
-    (baseRoot, baseOffset) = check getRootComponent(cleanBase);
+    (baseRoot, baseOffset) = check getRoot(cleanBase);
     string targetRoot;
     int targetOffset;
-    (targetRoot, targetOffset) = check getRootComponent(cleanTarget);
+    (targetRoot, targetOffset) = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
         error err = error("{ballerina/path}RELATIVE_PATH_ERROR", { message: "Can't make: " + target + " relative to " +
             base});
@@ -371,17 +348,6 @@ public function relative(string base, string target) returns string|error {
     return cleanTarget.substring(t0, tl);
 }
 
-# Reports whether all of filename matches the provided pattern, not just a substring.
-# An error is returned if the pattern is malformed.
-#
-# + path - String value of the file path.
-# + pattern - String value of the target file path.
-# + return - True if filename of the path matches with the pattern, else false
-public function matches(string path, string pattern) returns boolean|error {
-    
-    return false;
-}
-
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value
@@ -393,8 +359,8 @@ function parse(string input) returns string|error {
     if (IS_WINDOWS) {
         int offset = 0;
         string root = "";
-        (root, offset) = check getRootComponent(input);
-        return root + check normalizeWindowsPath(input, offset);
+        (root, offset) = check getRoot(input);
+        return root + check parseWindowsPath(input, offset);
     } else {
         int n = input.length();
         string prevC = "";
@@ -402,78 +368,24 @@ function parse(string input) returns string|error {
         while (i < n) {
             string c = check charAt(input, i);
             if ((c == "/") && (prevC == "/")) {
-                return normalizePosixPath(input, i - 1);
+                return parsePosixPath(input, i - 1);
             }
             prevC = c;
             i = i + 1;
         }
         if (prevC == "/") {
-            return normalizePosixPath(input, n - 1);
+            return parsePosixPath(input, n - 1);
         }
         return input;
     }
 }
 
-function getRootComponent(string input) returns (string,int)|error {
+function getRoot(string input) returns (string,int)|error {
     if (IS_WINDOWS) {
         return getWindowsRoot(input);
     } else {
         return getUnixRoot(input);
     }
-}
-
-function normalizeWindowsPath(string path, int off) returns string|error {
-    string normalizedPath = "";
-    int length = path.length();
-    int offset = nextNonSlashIndex(path, off, length);
-    int startIndex = offset;
-    string lastC = "";
-    while (offset < length) {
-        string c = check charAt(path, offset);
-        if (isSlash(c)) {
-            normalizedPath = normalizedPath + path.substring(startIndex, offset);
-            offset = nextNonSlashIndex(path, offset, length);
-            if (offset != length) {
-                normalizedPath = normalizedPath + "\\";
-            }
-            startIndex = offset;
-        } else {
-            lastC = c;
-            offset = offset + 1;
-        }
-    }
-    if (startIndex != offset) {
-        normalizedPath = normalizedPath + path.substring(startIndex, offset);
-    }
-    return normalizedPath;
-}
-
-function normalizePosixPath(string input, int off) returns string|error {
-    int n = input.length();
-    byte[] bytes = input.toByteArray("UTF-8");
-    while((n > 0) && (bytes[n-1] == 47)) {
-        n = n-1;
-    }
-    if (n == 0) {
-        return "/";
-    }
-    string normalizedPath = "";
-    if (off > 0) {
-        normalizedPath = normalizedPath + input.substring(0, off);
-    }
-    string prevC = "";
-    int i = off;
-    while(i < n) {
-        string c = check charAt(input, i);
-        if (c == "/" && prevC == "/") {
-            i = i + 1;
-            continue;
-        }
-        normalizedPath = normalizedPath + c;
-        prevC = c;
-        i = i + 1;
-    }
-    return normalizedPath;
 }
 
 function isSlash(string|byte c) returns boolean {
@@ -513,51 +425,8 @@ function isLetter(string c) returns boolean {
     }
 }
 
-function getRootOffset(string path) returns int|error {
-	if path.length() < 2 {
-		return 0;
-	}
-	// check driver
-	string c0 = check charAt(path, 0);
-	string c1 = check charAt(path, 1);
-	if (c1 == ":" && isLetter(c0)) {
-		return 2;
-	}
-	int size = path.length();
-	string c2 = check charAt(path, 2);
-	if (size >= 5 && isSlash(c0) && isSlash(c1) && !isSlash(c2) && c2 != ".") {
-		// first, leading `\\` and next shouldn't be `\`. its server name.
-		int n = 3;
-		while (n < size-1) {
-			// second, next '\' shouldn't be repeated.
-			string cn = check charAt(path, n);
-			if isSlash(cn) {
-				n = n + 1;
-				cn = check charAt(path, n);
-				// third, share name.
-				if !isSlash(cn) {
-					if cn == "." {
-						break;
-					}
-
-					while(n < size) {
-						if isSlash(cn) {
-							break;
-						}
-						n = n + 1;
-					}
-					return n;
-				}
-				break;
-			}
-			n = n + 1;
-		}
-	}
-	return 0;
-}
-
 function isUNC(string path) returns boolean|error {
-    return check getRootOffset(path) > 2;
+    return check getVolumnNameLength(path) > 2;
 }
 
 function isEmpty(string path) returns boolean {
