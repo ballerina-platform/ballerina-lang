@@ -29,6 +29,10 @@ service HelloWorld on ep {
         }
 
         // Send the `completed` notification to the caller.
-        _ = caller->complete();
+        error? result = caller->complete();
+        if (result is error) {
+            log:printError("Error in sending completed notification to caller",
+                err = result);
+        }
     }
 }

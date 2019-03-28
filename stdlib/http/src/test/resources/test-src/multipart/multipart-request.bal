@@ -31,7 +31,7 @@ service test on mockEP {
             }
         }
 
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -50,7 +50,7 @@ service test on mockEP {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -69,7 +69,7 @@ service test on mockEP {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -88,7 +88,7 @@ service test on mockEP {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -109,7 +109,7 @@ service test on mockEP {
             }
             response.setTextPayload(untaint content);
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -125,7 +125,7 @@ service test on mockEP {
         } else {
             response.setPayload(untaint <string>bodyParts.detail().message);
         }
-        _ = caller->respond(response);
+        checkpanic caller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -146,7 +146,7 @@ service test on mockEP {
             }
             response.setTextPayload(untaint payload);
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 }
 
