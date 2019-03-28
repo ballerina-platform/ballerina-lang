@@ -314,8 +314,13 @@ public class PathTest {
     }
 
     @Test(description = "Test relative path function for posix paths", dataProvider = "relative_tests")
-    public void testPosixRelativePath(String basePath, String targetPath, String expected) {
-        validateRelativePath(basePath, targetPath, expected);
+    public void testRelativePath(String basePath, String targetPath, String posixOutput, String windowsOutput) {
+        if (IS_WINDOWS) {
+            validateRelativePath(basePath, targetPath, windowsOutput);
+        } else {
+            validateRelativePath(basePath, targetPath, posixOutput);
+        }
+
     }
 
     private void validateRelativePath(String basePath, String targetPath, String expected) {
@@ -595,46 +600,46 @@ public class PathTest {
     @DataProvider(name = "relative_tests")
     public  Object[][] getRelativeSet() {
         return new Object[][] {
-                {"a/b", "a/b", "."},
-                {"a/b/.", "a/b", "."},
-                {"a/b", "a/b/.", "."},
-                {"./a/b", "a/b", "."},
-                {"a/b", "./a/b", "."},
-                {"ab/cd", "ab/cde", "../cde"},
-                {"ab/cd", "ab/c", "../c"},
-                {"a/b", "a/b/c/d", "c/d"},
-                {"a/b", "a/b/../c", "../c"},
-                {"a/b/../c", "a/b", "../b"},
-                {"a/b/c", "a/c/d", "../../c/d"},
-                {"a/b", "c/d", "../../c/d"},
-                {"a/b/c/d", "a/b", "../.."},
-                {"a/b/c/d", "a/b/", "../.."},
-                {"a/b/c/d/", "a/b", "../.."},
-                {"a/b/c/d/", "a/b/", "../.."},
-                {"../../a/b", "../../a/b/c/d", "c/d"},
-                {"/a/b", "/a/b", "."},
-                {"/a/b/.", "/a/b", "."},
-                {"/a/b", "/a/b/.", "."},
-                {"/ab/cd", "/ab/cde", "../cde"},
-                {"/ab/cd", "/ab/c", "../c"},
-                {"/a/b", "/a/b/c/d", "c/d"},
-                {"/a/b", "/a/b/../c", "../c"},
-                {"/a/b/../c", "/a/b", "../b"},
-                {"/a/b/c", "/a/c/d", "../../c/d"},
-                {"/a/b", "/c/d", "../../c/d"},
-                {"/a/b/c/d", "/a/b", "../.."},
-                {"/a/b/c/d", "/a/b/", "../.."},
-                {"/a/b/c/d/", "/a/b", "../.."},
-                {"/a/b/c/d/", "/a/b/", "../.."},
-                {"/../../a/b", "/../../a/b/c/d", "c/d"},
-                {".", "a/b", "a/b"},
-                {".", "..", ".."},
+                {"a/b", "a/b", ".", "."},
+                {"a/b/.", "a/b", ".", "."},
+                {"a/b", "a/b/.", ".", "."},
+                {"./a/b", "a/b", ".", "."},
+                {"a/b", "./a/b", ".", "."},
+                {"ab/cd", "ab/cde", "../cde", "..\\cde"},
+                {"ab/cd", "ab/c", "../c", "..\\c"},
+                {"a/b", "a/b/c/d", "c/d", "c\\d"},
+                {"a/b", "a/b/../c", "../c", "..\\c"},
+                {"a/b/../c", "a/b", "../b", "..\\b"},
+                {"a/b/c", "a/c/d", "../../c/d", "..\\..\\c\\d"},
+                {"a/b", "c/d", "../../c/d", "..\\..\\c\\d"},
+                {"a/b/c/d", "a/b", "../..", "..\\.."},
+                {"a/b/c/d", "a/b/", "../..", "..\\.."},
+                {"a/b/c/d/", "a/b", "../..", "..\\.."},
+                {"a/b/c/d/", "a/b/", "../..", "..\\.."},
+                {"../../a/b", "../../a/b/c/d", "c/d", "c\\d"},
+                {"/a/b", "/a/b", ".", "."},
+                {"/a/b/.", "/a/b", ".", "."},
+                {"/a/b", "/a/b/.", ".", "."},
+                {"/ab/cd", "/ab/cde", "../cde", "..\\cde"},
+                {"/ab/cd", "/ab/c", "../c", "..\\c"},
+                {"/a/b", "/a/b/c/d", "c/d", "c\\d"},
+                {"/a/b", "/a/b/../c", "../c", "..\\c"},
+                {"/a/b/../c", "/a/b", "../b", "..\\b"},
+                {"/a/b/c", "/a/c/d", "../../c/d", "..\\..\\c\\d"},
+                {"/a/b", "/c/d", "../../c/d", "..\\..\\c\\d"},
+                {"/a/b/c/d", "/a/b", "../..", "..\\.."},
+                {"/a/b/c/d", "/a/b/", "../..", "..\\.."},
+                {"/a/b/c/d/", "/a/b", "../..", "..\\.."},
+                {"/a/b/c/d/", "/a/b/", "../..", "..\\.."},
+                {"/../../a/b", "/../../a/b/c/d", "c/d", "c\\d"},
+                {".", "a/b", "a/b", "a\\b"},
+                {".", "..", "..", ".."},
 
-                {"..", ".", "error"},
-                {"..", "a", "error"},
-                {"../..", "..", "error"},
-                {"a", "/a", "error"},
-                {"/a", "a", "error"},
+                {"..", ".", "error", "error"},
+                {"..", "a", "error", "error"},
+                {"../..", "..", "error", "error"},
+                {"a", "/a", "error", "error"},
+                {"/a", "a", "error", "error"},
         };
     }
 }
