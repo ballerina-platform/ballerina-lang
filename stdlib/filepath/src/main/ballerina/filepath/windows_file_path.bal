@@ -222,49 +222,49 @@ function isWindowsSlash(string|byte c) returns boolean {
 # + path - string path value
 # + return - windows volumn length
 function getVolumnNameLength(string path) returns int|error {
-	if path.length() < 2 {
-		return 0;
-	}
-	// check driver
-	string c0 = check charAt(path, 0);
-	string c1 = check charAt(path, 1);
-	if (isLetter(c0) && c1 == ":") {
-		return 2;
-	}
-	int size = path.length();
-	if (size < 5) {
-		return 0;
-	}
-	string c2 = check charAt(path, 2);
-	if (size >= 5 && isSlash(c0) && isSlash(c1) && !isSlash(c2) && c2 != ".") {
-		// first, leading `\\` and next shouldn't be `\`. its server name.
-		int n = 3;
-		while (n < size-1) {
-			// second, next '\' shouldn't be repeated.
-			string cn = check charAt(path, n);
-			if isSlash(cn) {
-				n = n + 1;
-				cn = check charAt(path, n);
-				// third, share name.
-				if !isSlash(cn) {
-					if cn == "." {
-						break;
-					}
-
-					while(n < size) {
-						if isSlash(cn) {
-							break;
-						}
-						n = n + 1;
-					}
-					return n;
-				}
-				break;
-			}
-			n = n + 1;
-		}
-	}
-	return 0;
+    if path.length() < 2 {
+        return 0;
+    }
+    // check driver
+    string c0 = check charAt(path, 0);
+    string c1 = check charAt(path, 1);
+    if (isLetter(c0) && c1 == ":") {
+        return 2;
+    }
+    int size = path.length();
+    if (size < 5) {
+        return 0;
+    }
+    string c2 = check charAt(path, 2);
+    if (size >= 5 && isSlash(c0) && isSlash(c1) && !isSlash(c2) && c2 != ".") {
+        // first, leading `\\` and next shouldn't be `\`. its server name.
+        int n = 3;
+        while (n < size-1) {
+            // second, next '\' shouldn't be repeated.
+            string cn = check charAt(path, n);
+            if isSlash(cn) {
+                n = n + 1;
+                cn = check charAt(path, n);
+                // third, share name.
+                if !isSlash(cn) {
+                    if cn == "." {
+					    break;
+                    }
+                    
+                    while(n < size) {
+					    if isSlash(cn) {
+						    break;
+					    }
+					    n = n + 1;
+                    }
+                    return n;
+                }
+                break;
+            }
+            n = n + 1;
+        }
+    }
+    return 0;
 }
 
 function parseWindowsPath(string path, int off) returns string|error {
