@@ -13,7 +13,7 @@ function ${testServiceFunctionName} () {
             readyOnConnect: false
     });
     // Send a message
-    _ = ${endpointName}->pushText("hey");
+    checkpanic ${endpointName}->pushText("hey");
     // Receive message via channel
     string wsReply = <- ${wsReplyChannel};
     // Test reply

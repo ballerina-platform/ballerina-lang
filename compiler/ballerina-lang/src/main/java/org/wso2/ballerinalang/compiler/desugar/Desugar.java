@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -2761,7 +2762,38 @@ public class Desugar extends BLangNodeVisitor {
             ((BLangXMLQName) xmlAttributeAccessExpr.indexExpr).isUsedInXML = true;
         }
 
-        result = xmlAttributeAccessExpr;
+        xmlAttributeAccessExpr.desugared = true;
+
+        // When XmlAttributeAccess expression is not a LHS target of a assignment and not a part of a index access
+        // it will be converted to a 'map<string>.convert(xmlRef@)'
+        if (xmlAttributeAccessExpr.lhsVar || xmlAttributeAccessExpr.indexExpr != null) {
+            result = xmlAttributeAccessExpr;
+        } else {
+            result = rewriteExpr(createXmlAttrToMapStrConvertInvocation(xmlAttributeAccessExpr));
+        }
+    }
+
+    private BLangInvocation createXmlAttrToMapStrConvertInvocation(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
+        DiagnosticPos pos = xmlAttributeAccessExpr.pos;
+
+        BLangTypedescExpr mapStringTypeDescExpr = new BLangTypedescExpr();
+        mapStringTypeDescExpr.resolvedType = symTable.mapStringType;
+        mapStringTypeDescExpr.type = symTable.typeDesc;
+        mapStringTypeDescExpr.pos = pos;
+
+        BSymbol convSymbol = symResolver.resolveConversionOperator(symTable.xmlAttributesType, symTable.mapStringType);
+
+        BLangInvocation convertExpr = (BLangInvocation) TreeBuilder.createInvocationNode();
+        convertExpr.pos = pos;
+        convertExpr.name = ASTBuilderUtil.createIdentifier(pos, "convert");
+        convertExpr.builtinMethodInvocation = true;
+        convertExpr.builtInMethod = BLangBuiltInMethod.CONVERT;
+        convertExpr.expr = mapStringTypeDescExpr;
+        convertExpr.symbol = convSymbol;
+        convertExpr.type = symTable.mapStringType;
+        convertExpr.originalType = symTable.mapStringType;
+        convertExpr.requiredArgs.add(xmlAttributeAccessExpr);
+        return convertExpr;
     }
 
     // Generated expressions. Following expressions are not part of the original syntax
@@ -2938,7 +2970,15 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr, false);
+    }
 
+    @Override
+    public void visit(BLangCheckPanickedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr, true);
+    }
+
+    private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, boolean isCheckPanic) {
         //
         //  person p = bar(check foo()); // foo(): person | error
         //
@@ -2964,8 +3004,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatchTypedBindingPatternClause patternSuccessCase =
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                         checkedExprVar.symbol, null);
-        BLangMatchTypedBindingPatternClause patternErrorCase =
-                getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList);
+        BLangMatchTypedBindingPatternClause patternErrorCase = getSafeAssignErrorPattern(checkedExpr.pos,
+                this.env.scope.owner, checkedExpr.equivalentErrorTypeList, isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
@@ -2990,6 +3030,7 @@ public class Desugar extends BLangNodeVisitor {
         statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
     }
+
     @Override
     public void visit(BLangErrorConstructorExpr errConstExpr) {
         if (errConstExpr.reasonExpr.impConversionExpr != null &&
@@ -3765,7 +3806,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangMatchTypedBindingPatternClause getSafeAssignErrorPattern(
-            DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes) {
+            DiagnosticPos pos, BSymbol invokableSymbol, List<BType> equivalentErrorTypes, boolean isCheckPanicExpr) {
         // From here onwards we assume that this function has only one return type
         // Owner of the variable symbol must be an invokable symbol
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
@@ -3794,7 +3835,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
         patternBlockFailureCase.pos = pos;
-        if (returnOnError) {
+        if (!isCheckPanicExpr && returnOnError) {
             //return e;
             BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
             returnStmt.pos = pos;

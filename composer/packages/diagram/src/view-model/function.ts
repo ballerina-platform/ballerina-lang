@@ -1,3 +1,4 @@
+import { VisibleEndpoint } from "@ballerina/ast-model";
 import { ReturnViewState } from "./return";
 import { SimpleBBox } from "./simple-bbox";
 import { SimplePoint } from "./simple-point";
@@ -12,6 +13,9 @@ export class FunctionViewState extends ViewState {
     public menuTrigger: SimplePoint = new SimplePoint();
     public icon: string = "function";
     public implicitReturn: ReturnViewState = new ReturnViewState();
+    public isExpandedFunction: boolean = false;
+    public containingVisibleEndpoints: VisibleEndpoint[] = []; // The endpoints visible to
+    // functions expanded within this function
 
     constructor() {
         super();

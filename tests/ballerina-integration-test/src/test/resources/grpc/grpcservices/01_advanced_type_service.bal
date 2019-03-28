@@ -35,7 +35,7 @@ service HelloWorld on ep {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testOutputNestedStruct(grpc:Caller caller, string name) {
@@ -46,7 +46,7 @@ service HelloWorld on ep {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testInputStructOutputStruct(grpc:Caller caller, StockRequest req) {
@@ -58,7 +58,7 @@ service HelloWorld on ep {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testInputStructNoOutput(grpc:Caller caller, StockQuote req) {
@@ -78,7 +78,7 @@ service HelloWorld on ep {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testNoInputOutputArray(grpc:Caller caller) {
@@ -88,7 +88,7 @@ service HelloWorld on ep {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

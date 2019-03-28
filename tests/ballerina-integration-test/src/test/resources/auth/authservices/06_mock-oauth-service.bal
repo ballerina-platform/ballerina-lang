@@ -102,7 +102,7 @@ service oauth2 on oauth2Server {
                 res.setPayload(errMsg);
             }
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -123,7 +123,7 @@ service oauth2 on oauth2Server {
             io:println(errMsg);
             res.setPayload(errMsg);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -395,20 +395,20 @@ service foo on apiEndpoint {
                 json payload = { "success": "access_granted" };
                 io:println(payload);
                 res.setPayload(payload);
-                _ = caller->respond(res);
+                checkpanic caller->respond(res);
             } else {
                 res.statusCode = http:UNAUTHORIZED_401;
                 json payload = { "error": "access_denied" };
                 io:println(payload);
                 res.setPayload(payload);
-                _ = caller->respond(res);
+                checkpanic caller->respond(res);
             }
         } else {
             res.statusCode = http:UNAUTHORIZED_401;
             json payload = { "error": "authorization_header_not_provided" };
             io:println(payload);
             res.setPayload(payload);
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
     }
 }

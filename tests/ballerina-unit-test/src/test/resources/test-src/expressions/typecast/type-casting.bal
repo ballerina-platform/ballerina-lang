@@ -508,8 +508,8 @@ function testAnyToTable() returns table<Employee>|error {
 
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
-    _ = tb.add(e1);
-    _ = tb.add(e2);
+    checkpanic tb.add(e1);
+    checkpanic tb.add(e2);
 
     any anyValue = tb;
     var casted = check trap <table<Employee>> anyValue;

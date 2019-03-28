@@ -130,7 +130,10 @@ function testTableFreezeOnContainer() {
 # + tableVal - the table to which the member should be added
 # + member - the member to be added
 public function insertMemberToTable(table<record{}> tableVal, record{} member) {
-    _ = tableVal.add(member);
+    error? err = tableVal.add(member);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
