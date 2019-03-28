@@ -77,3 +77,5 @@ public type Label object {
 public type FieldVisitor object {
     public function visitEnd() = external;
 };
+
+public extern function lookupExternClassName(string pkgName, string functionName) returns string?;

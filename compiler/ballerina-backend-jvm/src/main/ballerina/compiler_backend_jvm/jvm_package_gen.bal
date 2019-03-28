@@ -22,6 +22,12 @@ function lookupFullQualifiedClassName(string key) returns string {
     if (result is string) {
         return result;
     } else {
+        (string, string) (pkgName, functionName) = getPackageAndFunctionName(key);
+        result = jvm:lookupExternClassName(pkgName, functionName);
+        if (result is string) {
+            fullQualifiedClassNames[key] = result;
+            return result;
+        }
         error err = error("cannot find full qualified class for : " + key);
         panic err;
     }
@@ -175,4 +181,12 @@ function getPackageName(string orgName, string moduleName) returns string {
     }
 
     return name;
+}
+
+function getPackageAndFunctionName(string key) returns (string, string) {
+    int index = key.lastIndexOf("/");
+    string pkgName = key.substring(0, index);
+    string functionName = key.substring(index + 1, key.length());
+
+    return (pkgName, functionName);
 }
