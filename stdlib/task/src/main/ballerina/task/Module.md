@@ -4,7 +4,7 @@ Task Listeners and Task Schedulers can be used to perform tasks periodically. Th
 
 ### Task Listeners
 
-A Task `Listener` can be used to create a service listener, which will trigger at specified times.
+A Task `Listener` can be used to create a service listener, which will be triggered at specified times.
 
 Below are the two types of configurations that an be used to configure a Task Listener, either as a timer or as an appointment.
 
@@ -16,7 +16,7 @@ Below are the two types of configurations that an be used to configure a Task Li
 The `TimerConfiguration` can be used to configure a task that needs to be executed periodically. The `TimerConfiguration` consists of three fields out of which two are optional.
 
 - `interval` - The time interval to wait for the listener to get triggered. This should be given in milliseconds.
-- `initialDelay` - The initial delay before the task gets triggered first. If this is set to `0`, the task will run immediately. If the field is not set, the `interval` will be applied as the initial delay by default. This is optional and should be given in milliseconds.
+- `initialDelay` - The initial delay before the task gets triggered first. If this is set to `0`, the task will execute immediately. If the field is not set, the `interval` will be applied as the initial delay by default. This is optional and should be given in milliseconds.
 - `noOfRecurrences` - The number of times a particular task needs to be executed. This is optional and should be given as an `int`.
 
 The following example creates a listener, which registers a task with an initial delay of 3000 milliseconds and is executed every 1000 milliseconds for 10 times. The `onTrigger ` resource function is triggered when the clock goes off. The `count` variable is incremented by the task.
@@ -92,15 +92,15 @@ service appointmentService on appointment {
 
 ### Task Scheduler
 
-A Task `Scheduler` can be used to create timers/appointments dynamically. Service(s) can be attached to the `Scheduler`, so that they can be invoked when the Scheduler goes off. 
+A Task `Scheduler` can be used to create timers/appointments dynamically. Service(s) can be attached to the `Scheduler`, so that they can be invoked when the Scheduler is triggered. 
 
 A `Scheduler` consists of the following APIs.
 
 - `start()` - Starts the Task Scheduler and executes the services attached to it.
 - `stop()` - Stops the task. This will shutdown all the processes scheduled on the Scheduler.
-- `pause()` - Pauses the scheduler. This will temporarily halt the execution of the task.
+- `pause()` - Pauses the Scheduler. This will temporarily halt the execution of the task.
 - `resume()` - Resumes a task, which has been paused.
-- `attach()` - Attaches a service to the Scheduler. An optional `attachment`parameter can be passed to the function so that it will propagate into the resource.
+- `attach()` - Attaches a service to the Scheduler. An optional `attachment` parameter can be passed to the function so that it will propagate into the resource.
 - `detach()` - Detaches any service(s) that is/are attached to the task.
 
 Similar to Task Listeners, below are the two types of configurations that an be used to configure a Task Scheduler, either as a timer or as an appointment.
@@ -108,11 +108,13 @@ Similar to Task Listeners, below are the two types of configurations that an be 
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
->**Info:** The configurations are as same as of the [`Task Listener`](#task_listener).
+>**Info:** The configurations are as same as of the [`Task Listener`](#task_listeners).
 
 #### The Timer configuration for a Scheduler
 
-The following example creates a `task:Scheduler` as a timer. The `createTimer()` function uses its input values to create a task Scheduler dynamically. Then it attaches the service `timerService` to the `timer` scheduler it created. You can call `timer.start()` to start the timer.
+A `Scheduler` can be used to create timers via its `TimerConfiguration`.
+
+The following example creates a `task:Scheduler` as a timer. The `createTimer()` function uses its input values to create a Task Scheduler dynamically. It attaches the `timerService` to the `timer` Scheduler it created. Calling the `timer.start()` function starts the `timer` Scheduler.
 
 ```ballerina
 public function createTimer(int interval, int delay, int recurrences) {
@@ -144,7 +146,9 @@ service timerService = service {
 
 #### The Appointment configuration for a Scheduler
 
-A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. The following example creates a task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. Then you can attach a service to the scheduler using `attach()` function. Then the scheduler can be started using `start()` function.
+A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. 
+
+The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached  to the Scheduler using the `attach()` function. Calling the `appointment.start()` function strats the `appointment` Scheduler.
 
 ```ballerina
 public function createAppointment(string cronExpression, int recurrences) {
@@ -172,4 +176,3 @@ service appointmentService = service {
     }
 };
 ```
-
