@@ -186,8 +186,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
-                   /* activeHttp2ClientChannel.getChannel().eventLoop().execute(
-                        () -> activeHttp2ClientChannel.getChannel().write(outboundMsgHolder));*/
                     new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
@@ -256,9 +254,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
                                                                  new TimeoutHandler(socketIdleTimeout,
                                                                                     freshHttp2ClientChannel));
-
-                   /* freshHttp2ClientChannel.getChannel().eventLoop().execute(
-                        () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));*/
                     new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
