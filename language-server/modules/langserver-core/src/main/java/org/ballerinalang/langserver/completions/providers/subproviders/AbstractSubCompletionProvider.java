@@ -198,8 +198,6 @@ public abstract class AbstractSubCompletionProvider {
      * @return {@link List}     List of populated completion items
      */
     protected List<CompletionItem> addTopLevelItems(LSContext context) {
-//        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-//                .getSnippetSupport();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(getStaticItem(context, Snippet.KW_IMPORT));
         completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
@@ -221,7 +219,7 @@ public abstract class AbstractSubCompletionProvider {
         return completionItems;
     }
 
-    private CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
+    protected CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
         return snippet.get().build(ctx);
     }
 

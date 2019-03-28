@@ -1016,7 +1016,13 @@ public class CommonUtil {
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
     }
-    
+
+    /**
+     * Convert the Snippet to a plain text snippet by removing the place holders.
+     * 
+     * @param snippet           Snippet string to alter
+     * @return {@link String}   Converted Snippet
+     */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
                 .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
