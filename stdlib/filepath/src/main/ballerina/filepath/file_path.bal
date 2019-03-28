@@ -26,7 +26,7 @@ string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
 #
 # + path - String value of file path.
 # + return - The absolute path reference or an error if the path cannot be derived
-public extern function absolute(string path) returns string|error;
+public extern function absolute(@sensitive string path) returns string|error;
 
 # Returns path separator of underline operating system.
 #
@@ -87,7 +87,7 @@ public function filename(string path) returns string|error {
     return validatedPath.substring(lastOffset, validatedPath.length());
 }
 
-# Get the enclosing parent directory.
+# Returns the enclosing parent directory.
 # If the path is empty, parent returns ".".
 # The returned path does not end in a separator unless it is the root directory.
 #
@@ -250,7 +250,7 @@ public function isReservedName(string name) returns boolean {
     return false;
 }
 
-# Retrieves the extension of the file from the provided location.
+# Retrieves the extension of the file path.
 # The extension is the suffix beginning at the final dot in the final element of path.
 # it is empty if there is no dot.
 #

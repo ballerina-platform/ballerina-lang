@@ -452,18 +452,25 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-path -->
+            <!-- ballerina-filepath -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-path</artifactId>
+                <artifactId>ballerina-filepath</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-path</artifactId>
+                <artifactId>ballerina-filepath</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-filepath</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
             <!-- ballerina-http -->
@@ -1794,7 +1801,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
-                <module>stdlib/path</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
@@ -1885,7 +1892,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
-                <module>stdlib/path</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
@@ -1975,7 +1982,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/http</module>
                 <module>stdlib/grpc</module>
-                <module>stdlib/path</module>
+                <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>

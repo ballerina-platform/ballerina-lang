@@ -17,7 +17,8 @@
 import ballerina/filepath;
 
 function testGetAbsolutePath(string path) returns string|error {
-    return filepath:absolute(path);
+    string untaintPath = untaint path;
+    return filepath:absolute(untaintPath);
 }
 
 function testGetPathSeparator() returns string {
