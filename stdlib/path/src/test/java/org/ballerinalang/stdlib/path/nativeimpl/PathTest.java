@@ -640,6 +640,13 @@ public class PathTest {
                 {"../..", "..", "error", "error"},
                 {"a", "/a", "error", "error"},
                 {"/a", "a", "error", "error"},
+
+                {"C:a\\b\\c", "C:a/b/d", "../C:a/b/d", "..\\d"},
+                {"C:\\", "D:\\", "../D:\\", "error"},
+                {"C:", "D:", "../D:", "error"},
+                {"C:\\Projects", "c:\\projects\\src", "../c:\\projects\\src", "src"},
+                {"C:\\Projects", "c:\\projects", "../c:\\projects", "."},
+                {"C:\\Projects\\a\\..", "c:\\projects", "../c:\\projects", "."},
         };
     }
 }
