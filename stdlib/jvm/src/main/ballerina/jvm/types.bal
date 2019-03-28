@@ -78,4 +78,4 @@ public type FieldVisitor object {
     public function visitEnd() = external;
 };
 
-public extern function lookupExternClassName(string pkgName, string functionName) returns string?;
+public function lookupExternClassName(string pkgName, string functionName) returns string? = external;
