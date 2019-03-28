@@ -34,7 +34,6 @@ function testFunc() {
     // Invoking the main function
     main();
     test:assertTrue(outputs[0] == "{9356828d-6797-496f-975e-3fabaf677214}");
-    // We skip the error logged at `ballerina/http` module. So, that the `output[1]` is ignored.
-    test:assertTrue(outputs[2].contains("Failed to call the endpoint"));
-    test:assertTrue(outputs[3] == "tasks#taskLists");
+    test:assertTrue(outputs[1].contains("Failed to call the endpoint"));
+    test:assertTrue(outputs[2] == "tasks#taskLists");
 }
