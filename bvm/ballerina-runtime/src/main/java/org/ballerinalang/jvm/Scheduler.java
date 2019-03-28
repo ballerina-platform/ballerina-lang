@@ -56,8 +56,8 @@ class AsyncExecutor<T> implements Callable<T> {
     Function function;
     Object[] params;
 
-    public AsyncExecutor(Function f, Object[] params) {
-        this.function = f;
+    public AsyncExecutor(Function function, Object[] params) {
+        this.function = function;
         this.params = params;
     }
 
