@@ -19,17 +19,15 @@ type Foo record {
     anydata...; // TODO: Remove this line once the default rest field type is changed to anydata
 };
 
-type ClosedFoo record {
+type ClosedFoo record {|
     int ca;
-    !...;
-};
+|};
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type ValueType int|float|string|boolean|byte;
 type DataType ValueType|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();

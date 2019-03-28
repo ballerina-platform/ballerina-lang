@@ -213,6 +213,29 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Else If Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getElseIfStatementSnippet() {
+        String snippet = "else if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ELSE_IF, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                                SnippetType.STATEMENT);
+    }
+
+    /**
+     * Get Else Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getElseStatementSnippet() {
+        String snippet = "else {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ELSE, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                                SnippetType.STATEMENT);
+    }
+
+    /**
      * Get Lengthof Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -334,7 +357,7 @@ public class SnippetGenerator {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.RESOURCE_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET, httpImport);
     }
 
@@ -530,7 +553,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableMapSnippet() {
         String snippet = "map(function(%params%) returns (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-                + CommonUtil.LINE_SEPARATOR + "});";
+                + CommonUtil.LINE_SEPARATOR + "})";
 
         return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", SnippetType.SNIPPET);
     }
@@ -542,7 +565,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableFilterSnippet() {
         String snippet = "filter(function(%params%) returns (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-                + CommonUtil.LINE_SEPARATOR + "});";
+                + CommonUtil.LINE_SEPARATOR + "})";
 
         return new SnippetBlock(ItemResolverConstants.ITR_FILTER_LABEL, snippet, "", SnippetType.SNIPPET);
     }
@@ -553,7 +576,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableCountSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_COUNT_LABEL, "count();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_COUNT_LABEL, "count()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -562,7 +585,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinLengthSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -571,7 +594,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsCloneSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLONE_LABEL, "clone();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLONE_LABEL, "clone()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -580,7 +603,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinFreezeSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -589,7 +612,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsFrozenSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -598,7 +621,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinStampSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1});", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1})", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -607,7 +630,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinConvertSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_CONVERT_LABEL, "convert(${1});", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CONVERT_LABEL, "convert(${1})", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -616,7 +639,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsNaNSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_NAN_LABEL, "isNaN();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_NAN_LABEL, "isNaN()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -625,7 +648,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsFiniteSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, "isFinite();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, "isFinite()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -634,7 +657,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinIsInFiniteSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, "isInfinite();", "",
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, "isInfinite()", "",
                 SnippetType.SNIPPET);
     }
 
@@ -644,7 +667,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinDetailSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_DETAIL_LABEL, "detail();", "",
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_DETAIL_LABEL, "detail()", "",
                 SnippetType.SNIPPET);
     }
 
@@ -654,7 +677,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getBuiltinReasonSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_REASON_LABEL, "reason();", "",
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_REASON_LABEL, "reason()", "",
                 SnippetType.SNIPPET);
     }
 
@@ -664,7 +687,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableSelectSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_SELECT_LABEL, "select(${1:functionReference});", "",
+        return new SnippetBlock(ItemResolverConstants.ITR_SELECT_LABEL, "select(${1:functionReference})", "",
                 SnippetType.SNIPPET);
     }
 
@@ -674,7 +697,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMinSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_MIN_LABEL, "min();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_MIN_LABEL, "min()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -683,7 +706,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMaxSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_MAX_LABEL, "max();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_MAX_LABEL, "max()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -692,7 +715,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableAverageSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_AVERAGE_LABEL, "average();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_AVERAGE_LABEL, "average()", "", SnippetType.SNIPPET);
     }
 
     /**
@@ -701,7 +724,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableSumSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ITR_SUM_LABEL, "sum();", "", SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.ITR_SUM_LABEL, "sum()", "", SnippetType.SNIPPET);
     }
 
     // Iterable operators' lambda function parameters

@@ -15,5 +15,5 @@ All notable changes to this project will be documented in this file. When sendin
 
 ### Tooling
 
--
+- Added feature of function invocation collapsing to the diagram editor
 -

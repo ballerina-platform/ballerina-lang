@@ -29,8 +29,8 @@ function tableReturnFunction () returns (table<any>) {
     table <Employee> tb = table{};
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
-    _ = tb.add(e1);
-    _ = tb.add(e2);
+    checkpanic tb.add(e1);
+    checkpanic tb.add(e2);
 
     return tb;
 }
@@ -41,7 +41,7 @@ type Employee record {
 };
 
 
-function anyMethodParameter() returns (any) {
+function anyMethodParameter() returns (any|error) {
   int i = 9;
   return anyParam(i);
 }

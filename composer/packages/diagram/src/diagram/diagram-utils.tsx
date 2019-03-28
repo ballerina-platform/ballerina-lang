@@ -14,6 +14,7 @@ const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text
 svg.appendChild(textElement);
 document.body.appendChild(svg);
 
+const ellipsesLength = getEllipsesLength();
 export class DiagramUtils {
 
     public static getComponents(nodeArray: any): React.ReactNode[] {
@@ -51,7 +52,8 @@ export class DiagramUtils {
         text = text.trim();
         textElement.innerHTML = _.escape(text);
 
-        let width = paddingLeft + textElement.getComputedTextLength() + paddingRight;
+        let labelWidth = textElement.getComputedTextLength();
+        let width = paddingLeft + labelWidth + paddingRight;
 
         // if the width is more then max width crop the text
         if (width <= minWidth) {
@@ -72,10 +74,12 @@ export class DiagramUtils {
             }
             // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
             text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
-
+            labelWidth = textElement.getSubStringLength(
+                0, (possibleCharactersCount - ellipses.length)) + ellipsesLength;
             width = maxWidth;
         }
         return {
+            labelWidth,
             text,
             w: width,
         };
@@ -87,4 +91,9 @@ export class DiagramUtils {
     public static getConfig(): DiagramConfig {
         return DefaultConfig;
     }
+}
+
+function getEllipsesLength() {
+    textElement.textContent = "...";
+    return textElement.getComputedTextLength();
 }
