@@ -248,14 +248,14 @@ function getVolumnNameLength(string path) returns int|error {
                 // third, share name.
                 if !isSlash(cn) {
                     if cn == "." {
-					    break;
+                        break;
                     }
-                    
+
                     while(n < size) {
-					    if isSlash(cn) {
-						    break;
-					    }
-					    n = n + 1;
+                        if isSlash(cn) {
+                            break;
+                        }
+                        n = n + 1;
                     }
                     return n;
                 }
