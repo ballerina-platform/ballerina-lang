@@ -309,7 +309,7 @@ public function extension(string path) returns string|error {
 public function relative(string base, string target) returns string|error {
     string cleanBase = check normalize(base);
     string cleanTarget = check normalize(target);
-    if (cleanBase == cleanTarget) {
+    if (isSamePath(cleanBase, cleanTarget)) {
         return ".";
     }
     string baseRoot;
@@ -318,7 +318,7 @@ public function relative(string base, string target) returns string|error {
     string targetRoot;
     int targetOffset;
     (targetRoot, targetOffset) = check getRootComponent(cleanTarget);
-    if (baseRoot != targetRoot) {
+    if (!isSamePath(baseRoot, targetRoot)) {
         error err = error("{ballerina/path}RELATIVE_PATH_ERROR", { message: "Can't make: " + target + " relative to " +
             base});
         return err;
@@ -336,7 +336,7 @@ public function relative(string base, string target) returns string|error {
         while (ti < tl && !isSlash(check charAt(cleanTarget, ti))) {
             ti = ti + 1;
         }
-        if (cleanBase.substring(b0, bi) != cleanTarget.substring(t0, ti)) {
+        if (!isSamePath(cleanBase.substring(b0, bi), cleanTarget.substring(t0, ti))) {
             break;
         }
         if (bi < bl) {
@@ -580,4 +580,12 @@ function charAt(string input, int index) returns string|error {
         return err;
     }
     return input.substring(index, index + 1);
+}
+
+function isSamePath(string base, string target) returns boolean {
+    if (IS_WINDOWS) {
+        return base.equalsIgnoreCase(target);
+    } else {
+        return base == target;
+    }
 }
