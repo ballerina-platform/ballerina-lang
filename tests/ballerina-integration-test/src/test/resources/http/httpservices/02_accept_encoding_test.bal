@@ -58,7 +58,7 @@ service passthrough on passthroughEP2 {
         } else if (req.getHeader("AcceptValue") == "enable") {
             var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {
-                _ = caller -> respond(clientResponse);
+                checkpanic caller->respond(clientResponse);
             } else  {
                 http:Response res = new;
                 res.statusCode = 500;
@@ -71,7 +71,7 @@ service passthrough on passthroughEP2 {
         } else if (req.getHeader("AcceptValue") == "disable") {
             var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
             if (clientResponse is http:Response) {
-                _ = caller->respond(clientResponse);
+                checkpanic caller->respond(clientResponse);
             } else {
                 http:Response res = new;
                 res.statusCode =500;
@@ -107,6 +107,6 @@ service hello on passthroughEP2 {
             payload = {acceptEncoding:"Accept-Encoding hdeaer not present."};
         }
         res.setJsonPayload(untaint payload);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }

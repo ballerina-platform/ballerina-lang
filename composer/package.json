@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@ballerina/composer",
-  "version": "0.990.3-SNAPSHOT",
+  "version": "0.990.4-SNAPSHOT",
   "description": "",
   "scripts": {
     "prebuild": "npm i && lerna bootstrap",
@@ -10,7 +10,8 @@
     "clean": "lerna run clean --stream",
     "test-coverage": "lerna run test-coverage && node scripts/create-coverage-report.js",
     "fix-versions": "node scripts/fix-version.js",
-    "reset-pkg-jsons": "node scripts/reset-pkg-json.js"
+    "reset-pkg-jsons": "node scripts/reset-pkg-json.js",
+    "bump-version": "lerna version --no-git-tag-version"
   },
   "author": "ballerina.io",
   "license": "Apache-2.0",

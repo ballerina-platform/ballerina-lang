@@ -8,6 +8,6 @@ service DummyService on new http:MockListener(9090) {
         json responseJson = {"dummy":"dummy"};
         http:Response res = new;
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

@@ -94,5 +94,5 @@ service MyService on testEP {
 }
 
 function closeConnectionPool() {
-    _ = testDB.stop();
+    checkpanic testDB.stop();
 }

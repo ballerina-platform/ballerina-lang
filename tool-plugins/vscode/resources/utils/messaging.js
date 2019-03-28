@@ -119,6 +119,13 @@ function getLangClient() {
                     resolve(resp.samples);
                 });
             })
+        },
+        getDefinitionPosition: (params) => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getDefinitionPosition', [params], (resp) => {
+                    resolve(resp);
+                });
+            })
         }
     }
 }

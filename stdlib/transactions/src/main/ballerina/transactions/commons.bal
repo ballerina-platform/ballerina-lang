@@ -40,7 +40,7 @@ listener task:Listener timer = new({
 
 service scheduleTimer on timer {
     resource function onTrigger() {
-        _ = cleanupTransactions();
+        checkpanic cleanupTransactions();
     }
 }
 

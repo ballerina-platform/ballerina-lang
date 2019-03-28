@@ -325,6 +325,6 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 # Cleanup service which cleans the cache periodically.
 service cacheCleanupService = service {
     resource function onTrigger() {
-        _ = runCacheExpiry();
+        checkpanic runCacheExpiry();
     }
 };
