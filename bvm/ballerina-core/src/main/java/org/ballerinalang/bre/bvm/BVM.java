@@ -212,7 +212,7 @@ public class BVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     String decimalVal = ((UTF8CPEntry) sf.constPool[cpIndex]).getValue();
-                    sf.refRegs[i] = new BDecimal(new BigDecimal(decimalVal, MathContext.DECIMAL128));
+                    sf.refRegs[i] = new BDecimal(decimalVal);
                     break;
                 case InstructionCodes.SCONST:
                     cpIndex = operands[0];
