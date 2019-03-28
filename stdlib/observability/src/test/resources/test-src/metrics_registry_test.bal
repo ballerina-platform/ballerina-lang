@@ -9,7 +9,7 @@ function getAllMetricsSize() returns (int) {
 function registerAngGetMetrics() returns (int) {
     map<string> tags = { "method": "PUT" };
     observe:Counter counter1 = new("service_requests_total", desc = "Total requests.", tags = tags);
-    _ = counter1.register();
+    checkpanic counter1.register();
     counter1.increment(amount = 5);
     return getAllMetricsSize();
 }

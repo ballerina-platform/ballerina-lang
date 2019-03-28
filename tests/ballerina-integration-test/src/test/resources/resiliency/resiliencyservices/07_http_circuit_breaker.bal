@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-public int counter = 1;
+int counter = 1;
 
 listener http:Listener circuitBreakerEP00 = new(9306);
 

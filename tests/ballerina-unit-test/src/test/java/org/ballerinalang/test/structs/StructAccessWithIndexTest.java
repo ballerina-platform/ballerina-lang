@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -136,10 +136,8 @@ public class StructAccessWithIndexTest {
     @Test(description = "Test accesing a struct with a dynamic index")
     public void testExpressionAsStructIndex() {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-access-dynamic-index-negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                "invalid index expression: expected string literal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
+        Assert.assertEquals(result[0].stringValue(), "Jack");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

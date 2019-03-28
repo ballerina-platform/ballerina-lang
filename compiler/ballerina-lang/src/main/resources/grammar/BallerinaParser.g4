@@ -99,7 +99,6 @@ fieldDefinition
 
 recordRestFieldDefinition
     :   typeName restDescriptorPredicate ELLIPSIS SEMICOLON
-    |   sealedLiteral SEMICOLON
     ;
 
 sealedLiteral
@@ -121,8 +120,8 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
-    |   PUBLIC? FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
@@ -168,11 +167,21 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
+    |   openRecordTypeDescriptor                                                                # openRecordTypeNameLabel
+    |   closedRecordTypeDescriptor                                                              # closedRecordTypeNameLabel
     ;
 
-recordFieldDefinitionList
-    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
+openRecordTypeDescriptor
+    :   RECORD LEFT_BRACE fieldDescriptor* recordRestFieldDefinition? RIGHT_BRACE
+    ;
+
+closedRecordTypeDescriptor
+    :   RECORD LEFT_BRACE PIPE fieldDescriptor* PIPE RIGHT_BRACE
+    ;
+
+fieldDescriptor
+    :   fieldDefinition
+    |   typeReference
     ;
 
 // Temporary production rule name
@@ -408,7 +417,16 @@ tupleBindingPattern
     ;
 
 recordBindingPattern
+    :   openRecordBindingPattern
+    |   closedRecordBindingPattern
+    ;
+
+openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordBindingPattern
+    :   LEFT_BRACE PIPE fieldBindingPattern (COMMA fieldBindingPattern)* PIPE RIGHT_BRACE
     ;
 
 entryBindingPattern
@@ -422,7 +440,6 @@ fieldBindingPattern
 
 restBindingPattern
     :   ELLIPSIS Identifier
-    |   sealedLiteral
     ;
 
 bindingRefPattern
@@ -441,7 +458,16 @@ tupleRefBindingPattern
     ;
 
 recordRefBindingPattern
+    :   openRecordRefBindingPattern
+    |   closedRecordRefBindingPattern
+    ;
+
+openRecordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+closedRecordRefBindingPattern
+    :   LEFT_BRACE PIPE fieldRefBindingPattern (COMMA fieldRefBindingPattern)* PIPE RIGHT_BRACE
     ;
 
 errorRefBindingPattern
@@ -522,7 +548,16 @@ returnStatement
     ;
 
 workerSendAsyncStatement
-    :   expression RARROW Identifier (COMMA expression)? SEMICOLON
+    :   expression RARROW peerWorker (COMMA expression)? SEMICOLON
+    ;
+
+peerWorker
+    : workerName
+    | DEFAULT
+    ;
+
+workerName
+    : Identifier
     ;
 
 flushWorker
@@ -666,6 +701,7 @@ expression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression             # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |   CHECK expression                                                    # checkedExpression
+    |   CHECKPANIC expression                                               # checkPanickedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -678,11 +714,11 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
+    |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
+    |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     ;
@@ -821,7 +857,7 @@ content
     ;
 
 comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
+    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)*? XMLCommentText*? XML_COMMENT_END
     ;
 
 element
@@ -842,14 +878,14 @@ emptyTag
     ;
 
 procIns
-    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
+    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression RIGHT_BRACE)* XMLPIText
     ;
 
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
 text
-    :   (XMLTemplateText expression ExpressionEnd)+ XMLText?
+    :   (XMLTemplateText expression RIGHT_BRACE)+ XMLText?
     |   XMLText
     ;
 
@@ -859,16 +895,15 @@ xmlQuotedString
     ;
 
 xmlSingleQuotedString
-    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression ExpressionEnd)* XMLSingleQuotedString? SINGLE_QUOTE_END
+    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression RIGHT_BRACE)* XMLSingleQuotedString? SINGLE_QUOTE_END
     ;
 
 xmlDoubleQuotedString
-    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression ExpressionEnd)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
+    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression RIGHT_BRACE)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
     ;
 
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
-    |   XMLTagExpressionStart expression ExpressionEnd
     ;
 
 stringTemplateLiteral

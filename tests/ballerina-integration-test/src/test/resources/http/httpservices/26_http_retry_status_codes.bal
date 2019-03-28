@@ -74,7 +74,7 @@ service retryStatusService on new http:Listener(9225) {
     }
 }
 
-public int retryCounter = 0;
+int retryCounter = 0;
 
 @http:ServiceConfig { basePath: "/status" }
 service mockStatusCodeService on new http:Listener(8080) {

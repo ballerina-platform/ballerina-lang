@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.types.finaltypes;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,22 +44,19 @@ public class FinalAccessTest {
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/final-field-test-negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 14);
-        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to final 'globalFinalInt'", 9, 5);
-        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to final 'bar:globalBarInt'", 11, 5);
-        BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to final 'bar:globalBarString'",
-                13, 5);
-        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to function argument 'a'", 25, 5);
-        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 'a'", 31, 5);
-        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'f'", 36, 5);
-        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 's'", 37, 5);
-        BAssertUtil.validateError(compileResultNegative, 7, "cannot assign a value to function argument 'b'", 38, 5);
-        BAssertUtil.validateError(compileResultNegative, 8, "cannot assign a value to function argument 'j'", 39, 5);
-        BAssertUtil.validateError(compileResultNegative, 9, "cannot assign a value to function argument 'a'", 52, 5);
-        BAssertUtil.validateError(compileResultNegative, 10, "cannot assign a value to final 'name'", 59, 5);
-        BAssertUtil.validateError(compileResultNegative, 11, "cannot assign a value to final 'name'", 64, 5);
-        BAssertUtil.validateError(compileResultNegative, 12, "cannot assign a value to final 'name'", 69, 5);
-        BAssertUtil.validateError(compileResultNegative, 13, "cannot assign a value to final 'name'", 74, 5);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 12);
+        BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to final 'globalFinalInt'", 8, 5);
+        BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 19, 5);
+        BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'a'", 25, 5);
+        BAssertUtil.validateError(compileResultNegative, 3, "cannot assign a value to function argument 'f'", 30, 5);
+        BAssertUtil.validateError(compileResultNegative, 4, "cannot assign a value to function argument 's'", 31, 5);
+        BAssertUtil.validateError(compileResultNegative, 5, "cannot assign a value to function argument 'b'", 32, 5);
+        BAssertUtil.validateError(compileResultNegative, 6, "cannot assign a value to function argument 'j'", 33, 5);
+        BAssertUtil.validateError(compileResultNegative, 7, "cannot assign a value to function argument 'a'", 46, 5);
+        BAssertUtil.validateError(compileResultNegative, 8, "cannot assign a value to final 'name'", 53, 5);
+        BAssertUtil.validateError(compileResultNegative, 9, "cannot assign a value to final 'name'", 58, 5);
+        BAssertUtil.validateError(compileResultNegative, 10, "cannot assign a value to final 'name'", 63, 5);
+        BAssertUtil.validateError(compileResultNegative, 11, "cannot assign a value to final 'name'", 68, 5);
     }
 
     @Test(description = "Test final global variable")

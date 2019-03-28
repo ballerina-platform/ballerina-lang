@@ -180,13 +180,15 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     return response;
 }
 
-# Function to validate signature for requests received at the callback.
+# Function to build the data source and validate the signature for requests received at the callback.
 #
 # + request - The request received
 # + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, service serviceType) returns error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
+    // Build the data source before responding to the content delivery requests automatically
+    var payload = request.getTextPayload();
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
@@ -204,10 +206,8 @@ function processWebSubNotification(http:Request request, service serviceType) re
         return;
     }
 
-    string stringPayload = "";
-    var payload = request.getPayloadAsString();
     if (payload is string) {
-        stringPayload = payload;
+        return validateSignature(xHubSignature, payload, secret);
     } else {
         string errCause = <string> payload.detail().message;
         map<any> errorDetail = { message : "Error extracting notification payload as string " +
@@ -215,8 +215,6 @@ function processWebSubNotification(http:Request request, service serviceType) re
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
-
-    return validateSignature(xHubSignature, stringPayload, secret);
 }
 
 # Function to validate the signature header included in the notification.
@@ -335,14 +333,6 @@ public type Notification object {
         return self.request.getTextPayload();
     }
 
-    # Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
-    # construction which makes this different from `getTextPayload()` function.
-    #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getPayloadAsString() returns string|error {
-        return self.request.getPayloadAsString();
-    }
-
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
@@ -427,25 +417,23 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
 # + callback - The callback which should be registered/unregistered for the subscription/unsubscription request sent
 # + leaseSeconds - The lease period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution with this subscription
-public type SubscriptionChangeRequest record {
+public type SubscriptionChangeRequest record {|
     string topic = "";
     string callback = "";
     int leaseSeconds = 0;
     string secret = "";
-    !...;
-};
+|};
 
 # Record representing subscription/unsubscription details if a subscription/unsubscription request is successful.
 #
 # + hub - The hub at which the subscription/unsubscription was successful
 # + topic - The topic for which the subscription/unsubscription was successful
 # + response - The response from the hub to the subscription/unsubscription request
-public type SubscriptionChangeResponse record {
+public type SubscriptionChangeResponse record {|
     string hub = "";
     string topic = "";
     http:Response response;
-    !...;
-};
+|};
 
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
@@ -461,7 +449,7 @@ public type SubscriptionChangeResponse record {
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 # + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
-public type HubConfiguration record {
+public type HubConfiguration record {|
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
     RemotePublishConfig remotePublish?;
@@ -469,8 +457,7 @@ public type HubConfiguration record {
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
-    !...;
-};
+|};
 
 # Record representing remote publishing allowance.
 #
@@ -478,11 +465,10 @@ public type HubConfiguration record {
 # + mode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
 #                          the notification payload specified or `fetch` - the hub fetches the topic URL
 #                          specified in the "publish" request to identify the payload
-public type RemotePublishConfig record {
+public type RemotePublishConfig record {|
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
-    !...;
-};
+|};
 
 # Starts up the Ballerina Hub.
 #
@@ -494,15 +480,15 @@ public type RemotePublishConfig record {
 public function startHub(http:Listener hubServiceListener, HubConfiguration? hubConfiguration = ())
                                                                     returns WebSubHub|HubStartedUpError {
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = hubConfiguration.leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
+                                      defaultValue = hubConfiguration.leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                    default = hubConfiguration.topicRegistrationRequired ?: true);
+                                    defaultValue = hubConfiguration.topicRegistrationRequired ?: true);
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", defaultValue = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
     hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
     if (hubPersistenceStoreImpl is HubPersistenceStore) {
@@ -644,14 +630,13 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
 # + secret - The secret to be used for authenticated content distribution
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
-public type SubscriptionDetails record {
+public type SubscriptionDetails record {|
     string topic = "";
     string callback = "";
     string secret = "";
     int leaseSeconds = 0;
     int createdAt = 0;
-    !...;
-};
+|};
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
@@ -672,11 +657,10 @@ function retrieveSubscriberServiceAnnotations(service serviceType) returns Subsc
 #
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
-type WebSubContent record {
+type WebSubContent record {|
     string|xml|json|byte[]|io:ReadableByteChannel payload = "";
     string contentType = "";
-    !...;
-};
+|};
 
 function isSuccessStatusCode(int statusCode) returns boolean {
     return (200 <= statusCode && statusCode < 300);
@@ -687,24 +671,22 @@ function isSuccessStatusCode(int statusCode) returns boolean {
 # + message - The error message
 # + cause - The cause of the `HubStartedUpError`, if available
 # + startedUpHub - The `WebSubHub` object representing the started up Hub
-public type HubStartedUpError record {
+public type HubStartedUpError record {|
     string message = "";
     error? cause = ();
     WebSubHub startedUpHub;
-    !...;
-};
+|};
 
 # Record to represent Subscriber Details.
 #
 # + callback - The callback specified for the particular subscription
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
-public type SubscriberDetails record {
+public type SubscriberDetails record {|
     string callback = "";
     int leaseSeconds = 0;
     int createdAt = 0;
-    !...;
-};
+|};
 
 type WebSubError record {
     string message = "";

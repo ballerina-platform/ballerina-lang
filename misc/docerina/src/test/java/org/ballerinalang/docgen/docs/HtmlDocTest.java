@@ -106,7 +106,7 @@ public class HtmlDocTest {
         Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
         Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
-        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int) | error<>", "Invalid return " +
+        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int)|error<>", "Invalid return " +
                 "type");
         Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string,primitive-types" + "" +
                 ".html#int,builtin.html#error", "Invalid link to return type");
@@ -345,7 +345,7 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.name, "test2", "Invalid function name test2");
         Assert.assertEquals(functionDoc2.parameters.size(), 0);
         Assert.assertEquals(functionDoc2.icon, "fw-function", "test2 function is not detected as a function");
-        Assert.assertEquals(functionDoc2.returnParams.get(0).dataType, "string | error<>", "Invalid return type");
+        Assert.assertEquals(functionDoc2.returnParams.get(0).dataType, "string|error<>", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>returns the string or an error</p>\n");
     }
 
@@ -358,16 +358,6 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 2);
         Assert.assertEquals(page.constructs.get(0).name, "ParameterInfo");
         Assert.assertEquals(page.constructs.get(1).name, "ReturnInfo");
-    }
-
-    @Test(description = "Annotation in a module should be shown in the constructs")
-    public void testGlobalVariables() {
-        BLangPackage bLangPackage = createPackage("public int total = 98;" +
-                "public string content = \"Name\";");
-        Page page = generatePage(bLangPackage);
-        Assert.assertEquals(page.constructs.size(), 2);
-        Assert.assertEquals(page.constructs.get(0).name, "total");
-        Assert.assertEquals(page.constructs.get(1).name, "content");
     }
 
     @Test(description = "Annotation in a module should be shown in the constructs")
@@ -547,16 +537,17 @@ public class HtmlDocTest {
         Assert.assertEquals(enumDoc.valueSet, "POST | GET | FORWARD", "values should be extracted");
     }
 
-    @Test(description = "Global variables should be available via construct with new docerina syntax")
-    public void testGlobalVariablePropertiesExtracted() {
+    @Test(description = "Global final variables should be available via construct with new docerina syntax")
+    public void testFinalVariablePropertiesExtracted() {
         BLangPackage bLangPackage = createPackage("# The Read Append access mode\n" +
-                "public final string RA = \"RA\";");
+                "final string RA = \"RA\";");
 
-        GlobalVariableDoc globalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
-        Assert.assertEquals(globalVariableDoc.name, "RA", "Global variable name should be extracted");
-        Assert.assertEquals(globalVariableDoc.dataType, "string", "Global variable type should be extracted");
-        Assert.assertEquals(globalVariableDoc.description, "<p>The Read Append access mode</p>\n", "Description of " +
-                "the global variable should be extracted");
+        GlobalVariableDoc globalFinalVariableDoc = Generator.createDocForNode(bLangPackage.getGlobalVariables().get(0));
+        Assert.assertEquals(globalFinalVariableDoc.name, "RA", "Global final variable name should be extracted");
+        Assert.assertEquals(globalFinalVariableDoc.dataType, "string",
+                            "Global final variable type should be extracted");
+        Assert.assertEquals(globalFinalVariableDoc.description, "<p>The Read Append access mode</p>\n",
+                            "Description of the global final variable should be extracted");
     }
 
     @Test(description = "Annotation properties should be available via construct", enabled = false)

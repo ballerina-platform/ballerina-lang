@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {
+type Person record {|
     int id;
     string name;
     int age;
-    !...;
-};
+|};
 
 function testTableLiteralDataAndAddWithObject() returns (int) {
     //Object types cannot be included in the literal

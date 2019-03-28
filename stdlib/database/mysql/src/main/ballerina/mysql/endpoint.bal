@@ -25,7 +25,7 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfig record {
+public type ClientEndpointConfig record {|
     string host;
     int port = 3306;
     string name = "";
@@ -33,8 +33,7 @@ public type ClientEndpointConfig record {
     string password = "";
     sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
-    !...;
-};
+|};
 
 # Represents an MySQL client endpoint.
 #
@@ -48,7 +47,7 @@ public type Client client object {
 
     # Gets called when the MySQL client is instantiated.
     public function __init(ClientEndpointConfig c) {
-        self.sqlClient = createClient(c, sql:globalPoolConfigContainer.getGlobalPoolConfig());
+        self.sqlClient = createClient(c, sql:getGlobalPoolConfigContainer().getGlobalPoolConfig());
     }
 
     # The call remote function implementation for MySQL Client to invoke stored procedures/functions.

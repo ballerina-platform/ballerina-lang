@@ -71,7 +71,10 @@ function testFrozenTableUpdateBroken() {
     table<BarRecordThirteen> a5 = table{};
     BarRecordThirteen b1 = { barFieldOne: 100 };
     _ = a5.freeze();
-    _ = a5.add(b1);
+    error? err = a5.add(b1);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -85,7 +88,10 @@ function testFrozenStructureMembersFrozennessBroken() {
     table<BarRecordThirteen> a13 = table{};
     test:assertFalse(a13.isFrozen(), msg = "exected value to not be frozen");
     BarRecordThirteen a14 = { barFieldOne: 100 };
-    _ = a13.add(a14);
+    error? err = a13.add(a14);
+    if err is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     _ = a13.freeze();
     test:assertTrue(a13.isFrozen(), msg = "exected value to be frozen");
     //test:assertTrue(a14.isFrozen(), msg = "expected value to be frozen");
@@ -114,51 +120,19 @@ function testTableShapeOfContainters() {
     groups: ["deviation"]
 }
 function testFrozenContainerShapeAndTypeBroken() {
-    int[][] a1 = [[1, 2], [1]];
-    (int|string)?[] a2 = [11, 12];
-    var result = trap insertMemberToArray(a1, a1.length() - 1, a2);
-    test:assertTrue(result is error, 
-                    msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a2 is int[]), 
-                    msg = "expected value's type to not be of same type or sub type");
-
-    _ = a2.freeze();
-    result = trap insertMemberToArray(a1, a1.length() - 1, a2);
-    test:assertTrue(a2 is int[], 
-                    msg = "expected value's type to match shape after freezing");
-    // test:assertTrue(!(result is error),
-    //                 msg = "expected to be able to add a frozen value that conforms to shape");
-    test:assertTrue((result is error),
-                    msg = "expected to not be able to add a frozen value that conforms to shape");
-
-    ((int, string), int) a3 = ((1, "test string 1"), 2);
-    (int|float, string) a4 = (2, "test string 2");
-    result = trap insertMemberToTuple(a3, a4);
-    // https://github.com/ballerina-platform/ballerina-lang/issues/13230
-    // test:assertTrue(result is error,
-    //                 msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(result is error),
-                    msg = "expected to be able to add a value that violates shape");
-    test:assertTrue(!(a4 is (int, string)),
-                    msg = "expected value's type to not be of same type or sub type");
-
-    _ = a4.freeze();
-    result = trap insertMemberToTuple(a3, a4);
-    test:assertTrue(a4 is (int, string),
-                    msg = "expected value's type to match shape after freezing");
-    test:assertTrue(!(result is error),
-                    msg = "expected to be able to add a frozen value that conforms to shape");
-
     map<map<string>|float> a5 = { one: { a: "a", bc: "b c" }, two: 1.0 };
     map<string|boolean> a6 = { three: "3", four: "4" };
     any a7 = a6;
-    result = trap insertMemberToMap(a5, "three", a7);
+    var result = trap insertMemberToMap(a5, "three", a7);
     test:assertTrue(result is error,
                     msg = "expected to not be able to add a value that violates shape");
     test:assertTrue(!(a7 is map<string>|float),
                     msg = "expected value's type to not be of same type or sub type");
 
-    _ = a7.freeze();
+    any|error? err = a7.freeze();
+    if err is error {
+        test:assertFail(msg = "failed in executing freeze operation");
+    }
     result = trap insertMemberToMap(a5, "three", a7);
     test:assertTrue(a7 is map<string>|float,
                     msg = "expected value's type to match shape after freezing");

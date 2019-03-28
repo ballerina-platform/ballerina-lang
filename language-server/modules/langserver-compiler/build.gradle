@@ -12,7 +12,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.5'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     implementation project(':ballerina-http')
-    implementation project(':ballerina-swagger')
+    implementation project(':ballerina-openapi')
     implementation project(':ballerina-h2')
     implementation project(':ballerina-mysql')
     implementation project(':ballerina-sql')
@@ -20,12 +20,15 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-grpc')
+    implementation project(':ballerina-activemq-artemis')
+    implementation project(':ballerina-nats')
     testCompile 'org.testng:testng:6.13.1'
 }
 
 description = 'Ballerina - Language server - Compiler'
 
 test {
+    exclude '**/*'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

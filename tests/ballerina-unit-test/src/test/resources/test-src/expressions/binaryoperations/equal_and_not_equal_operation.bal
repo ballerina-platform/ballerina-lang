@@ -23,11 +23,10 @@ type OpenPerson record {
     string name;
 };
 
-type ClosedEmployee record {
+type ClosedEmployee record {|
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
 type OpenEmployeeTwo record {
     string name;
@@ -44,17 +43,15 @@ type OpenRecordWithOptionalFieldTwo record {
     int two?;
 };
 
-type ClosedRecordWithOptionalFieldOne record {
+type ClosedRecordWithOptionalFieldOne record {|
     string name;
     int one?;
-    !...;
-};
+|};
 
-type ClosedRecordWithOptionalFieldTwo record {
+type ClosedRecordWithOptionalFieldTwo record {|
     string name;
     int two?;
-    !...;
-};
+|};
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
     return (a == b) && !(a != b);
@@ -428,7 +425,7 @@ function check2DStringArrayEqualityNegative() returns boolean {
 
 function checkComplex2DArrayEqualityPositive() returns boolean {
     (int, float)[][] a = [];
-    (int|string, float)[][] b = [];
+    (int|string, float)?[][] b = [];
 
     boolean equals = a == b && !(a != b);
 
@@ -441,7 +438,7 @@ function checkComplex2DArrayEqualityPositive() returns boolean {
 
 function checkComplex2DArrayEqualityNegative() returns boolean {
     (int, float)[][] a = [[(123, 65.4), (234, 23.22)]];
-    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+    (int|string, float)?[][] b = [[(124, 65.4), (234, 23.22)]];
 
     boolean equals = a == b || !(a != b);
 
@@ -728,7 +725,7 @@ function testIntByteEqualityPositive() returns boolean {
     equals = equals && (c == d) && !(c != d);
 
     byte[][] e = [[23, 45], [123, 43, 68]];
-    (int|float)[][] f = [[23, 45], [123, 43, 68]];
+    (int|float)?[][] f = [[23, 45], [123, 43, 68]];
 
     equals = equals && (e == f) && !(e != f);
 
@@ -761,7 +758,7 @@ function testIntByteEqualityNegative() returns boolean {
 
     equals = equals || (c == d) || !(c != d);
 
-    (int|float)[][] e = [[2.3, 45], [124, 43, 68]];
+    (int|float)?[][] e = [[2.3, 45], [124, 43, 68]];
     byte[][] f = [[23, 45], [123, 43, 68]];
 
     equals = equals || (e == f) || !(e != f);

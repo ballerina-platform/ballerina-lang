@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -56,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -815,7 +813,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 Name varName = names.fromIdNode(simpleVar.name);
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
-                    simpleVar.type = symTable.noType;
+                    simpleVar.type = symTable.anyType;
+                    types.checkType(varNode.pos, tupleTypeNode.tupleTypes.get(i), simpleVar.type,
+                            DiagnosticCode.INCOMPATIBLE_TYPES);
                     continue;
                 }
             }
@@ -935,22 +935,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         boolean validRecord = true;
         int ignoredCount = 0;
-        for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
+        for (BLangRecordVariableKeyValue variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
-            if (names.fromIdNode((BLangIdentifier) variable.getKey()) == Names.IGNORE) {
+            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
                 dlog.error(recordVar.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
                 continue;
             }
 
-            BLangVariable value = (BLangVariable) variable.getValue();
+            BLangVariable value = variable.getValue();
             if (value.getKind() == NodeKind.VARIABLE) {
-                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
+                // '_' is allowed in record variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
                 Name varName = names.fromIdNode(simpleVar.name);
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
-                    simpleVar.type = symTable.noType;
+                    simpleVar.type = symTable.anyType;
+                    if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+                        continue;
+                    }
+                    types.checkType(variable.valueBindingPattern.pos,
+                            recordVarTypeFields.get((variable.getKey().getValue())).type, simpleVar.type,
+                            DiagnosticCode.INCOMPATIBLE_TYPES);
                     continue;
                 }
             }
@@ -1101,7 +1107,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BType fieldType = memberTypes.size() > 1 ?
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
-            fields.add(new BField(names.fromString(fieldName),
+            fields.add(new BField(names.fromString(fieldName), recordVar.pos,
                     new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                             fieldType, recordSymbol)));
         }
@@ -1118,9 +1124,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        //TODO check below field position
         List<BField> fields = recordVar.variableList.stream()
                 .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
-                .map(fieldName -> new BField(names.fromString(fieldName), new BVarSymbol(0,
+                .map(fieldName -> new BField(names.fromString(fieldName), recordVar.pos, new BVarSymbol(0,
                         names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldType, recordSymbol)))
                 .collect(Collectors.toList());
 
@@ -1661,11 +1668,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
                 // only support "_" in static match
                 Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
-                if (varName != Names.IGNORE) {
-                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                if (varName == Names.IGNORE) {
+                    expression.type = symTable.noType;
+                    return expression.type;
                 }
-                expression.type = symTable.noType;
-                return expression.type;
+                BType exprType = typeChecker.checkExpr(expression, env);
+                if (exprType.tag == TypeTags.SEMANTIC_ERROR ||
+                        ((BLangSimpleVarRef) expression).symbol.getKind() != SymbolKind.CONSTANT) {
+                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                    expression.type = symTable.noType;
+                    return expression.type;
+                }
+                return exprType;
             default:
                 dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                 expression.type = symTable.errorType;

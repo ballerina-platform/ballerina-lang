@@ -54,10 +54,10 @@ public class BLangVMUtils {
                 break;
             case TypeTags.BYTE_TAG:
                 if (val == null) {
-                    data.intRegs[regIndex] = 0;
+                    data.longRegs[regIndex] = 0;
                     break;
                 }
-                data.intRegs[regIndex] = ((BByte) val).byteValue();
+                data.longRegs[regIndex] = ((BByte) val).byteValue();
                 break;
             case TypeTags.FLOAT_TAG:
                 if (val == null) {
@@ -110,10 +110,8 @@ public class BLangVMUtils {
             callersRetRegIndex = regIndexes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
-                    targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
-                    break;
                 case TypeTags.BYTE_TAG:
-                    targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
+                    targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
                     break;
                 case TypeTags.FLOAT_TAG:
                     targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];

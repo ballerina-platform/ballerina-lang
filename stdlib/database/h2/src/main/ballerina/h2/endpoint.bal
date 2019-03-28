@@ -23,14 +23,13 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type InMemoryConfig record {
+public type InMemoryConfig record {|
     string name;
     string username;
     string password;
     sql:PoolOptions poolOptions?;
     map<any> dbOptions = {};
-    !...;
-};
+|};
 
 # The Client endpoint configuration for the server mode of h2 databases.
 #
@@ -41,12 +40,11 @@ public type InMemoryConfig record {
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ServerModeConfig record {
+public type ServerModeConfig record {|
     string host;
     int port = 9092;
     *InMemoryConfig;
-    !...;
-};
+|};
 
 # The Client endpoint configuration for the embedded mode of h2 databases.
 #
@@ -56,11 +54,10 @@ public type ServerModeConfig record {
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type EmbeddedModeConfig record {
+public type EmbeddedModeConfig record {|
     string path;
     *InMemoryConfig;
-    !...;
-};
+|};
 
 # Represents an H2 client endpoint.
 #
@@ -72,7 +69,7 @@ public type Client client object {
 
     # Gets called when the H2 client is instantiated.
     public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
-        self.sqlClient = createClient(c, sql:globalPoolConfigContainer.getGlobalPoolConfig());
+        self.sqlClient = createClient(c, sql:getGlobalPoolConfigContainer().getGlobalPoolConfig());
     }
 
     # The call remote function implementation for H2 Client to invoke stored procedures/functions.

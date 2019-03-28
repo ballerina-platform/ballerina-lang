@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -295,6 +296,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
+        this.currDependentSymbol.push(service.serviceTypeDefinition.symbol);
+        for (BLangExpression attachedExpr : service.attachedExprs) {
+            analyzeNode(attachedExpr, env);
+        }
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -591,6 +597,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
+        if (this.currDependentSymbol.peek() != null) {
+            addDependency(this.currDependentSymbol.peek(), typeInitExpr.type.tsymbol);
+        }
     }
 
     @Override
@@ -739,6 +748,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeNode(checkedExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanicExpr) {
+        analyzeNode(checkPanicExpr.expr, env);
     }
 
     @Override
@@ -906,6 +920,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        this.currDependentSymbol.push(objectTypeNode.symbol);
+
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         objectTypeNode.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
@@ -936,6 +952,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -1183,6 +1200,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // Global variable ref from non package level.
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
             addDependency(invokableOwnerSymbol, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.OBJECT && isGlobalVarSymbol(symbol)) {
+            // Global variable reference from a field assignment of an object or a service.
+            // Or global variable reference from a __init function of an object or a service.
+            addDependency(ownerSymbol, symbol);
         }
     }
 

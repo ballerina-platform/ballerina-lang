@@ -23,16 +23,15 @@ public function main() {
                   </book>`;
     io:println(x2);
 
-    // XML interpolated with expressions using the `{{}}` notation. 
+    // XML interpolated with expressions using the `${}` notation.
     // The expression can be a previously defined variable, arithmetic expressions, or even a function call. 
     // These expressions get evaluated during runtime.
-    string rootTag = "{http://ballerina.com/aa}newBook";
     string title = "(Sir)";
 
-    xml x3 = xml `<{{rootTag}}>
+    xml x3 = xml `<ns0:newBook>
                     <name>Sherlock Holmes</name>
-                    <author>{{title}} Arthur Conan Doyle</author>
-                    <!--Price: ${{ 40 / 5 + 4 }}-->
-                  </{{rootTag}}>`;
+                    <author>${title} Arthur Conan Doyle</author>
+                    <!--Price: $${ 40 / 5 + 4 }-->
+                  </ns0:newBook>`;
     io:println(x3);
 }
