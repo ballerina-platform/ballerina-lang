@@ -141,7 +141,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Generate compilation unit for provided Open Api Sep JSON
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
-            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.MOCK,
+            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.GEN_SERVICE,
                     tempOasJsonFile.getPath());
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()

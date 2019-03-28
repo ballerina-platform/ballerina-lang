@@ -114,6 +114,9 @@ public class VMDebuggerTest {
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 5, STEP_IN, 1));
+        // Add another debug point. For closure variables at desugar we add a map for every function and every block
+        // node and this has the same position as the function node.
+        debugPoints.add(Util.createDebugPoint(".", FILE, 11, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 12, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, STEP_IN, 1));
