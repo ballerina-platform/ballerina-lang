@@ -63,6 +63,9 @@ service echo on ep {
         path: "/sayHello"
     }
     resource function hello(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        error? result = caller->respond("Hello, World!!!");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 }

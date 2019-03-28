@@ -47,11 +47,6 @@ exclude=("proto-to-ballerina"
         "docker-deployment"
         "kubernetes-deployment"
         "awslambda-deployment"
-        "transactions-distributed"
-        "local-transactions"
-        "local-transactions-with-participants"
-        "xa-transactions"
-        "secured-client-with-oauth2"
         )
 
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))

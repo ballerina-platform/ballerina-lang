@@ -6,16 +6,313 @@
   "source": "toplevel/source/globalVarDefPackageContent.bal",
   "items": [
     {
+      "label":"import",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"import ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"public main function",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"public function main(string... args) {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service/http",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+
+      ]
+    },
+    {
+      "label":"service/webSocket",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"service ${1:serviceName} on new http:WebSocketListener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+
+      ]
+    },
+    {
+      "label":"service/webSub",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"service ${1:websubSubscriber} on new websub:Listener(9092) {\n\tresource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tresource function onNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":2,
+              "character":0
+            },
+            "end":{
+              "line":2,
+              "character":0
+            }
+          },
+          "newText":"import ballerina/websub;\n"
+        }
+      ]
+    },
+    {
+      "label":"annotation",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xmlns",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cObjectName\u003e object",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"type ${1:ObjectName} object {\n\t${2}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type \u003cRecordName\u003e record",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"type ${1:RecordName} record {\n\t${2}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"type",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"type ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"public",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"public ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"final",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"final ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"const",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"const ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"extern",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"extern ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"error",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"listener",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "insertText":"listener ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"channel",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"channel",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xml",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"xml",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"TableConfig",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
+      "insertText":"TableConfig",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"byte",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"byte",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stream",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"stream",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"AbstractListener",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"map",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"map",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"table",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"table",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"anydata",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"future",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"future",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"typedesc",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"typedesc",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"float",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"float",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"null",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"null",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"decimal",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"string",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"string",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"pkg1Obj1",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"pkg1Obj1",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"error",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"error",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"json",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"json",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"any",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"any",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"int",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"int",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"boolean",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"boolean",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"service",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"extractBasicAuthHeaderValue(http:Request req)(string?)",
       "kind":"Function",
       "detail":"Function",
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nExtracts the basic authentication header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nExtracts the basic authentication header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"extractBasicAuthHeaderValue(${1:req})",
       "insertTextFormat":"Snippet"
     },
@@ -26,10 +323,10 @@
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"createHttpCachingClient(${1:url}, ${2:config}, ${3:cacheConfig})",
       "insertTextFormat":"Snippet"
     },
@@ -40,10 +337,10 @@
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"parseHeader(${1:headerValue})",
       "insertTextFormat":"Snippet"
     },
@@ -54,10 +351,10 @@
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient})",
       "insertTextFormat":"Snippet"
     },
@@ -68,10 +365,10 @@
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"createHttpSecureClient(${1:url}, ${2:config})",
       "insertTextFormat":"Snippet"
     },
@@ -82,10 +379,10 @@
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"encode(${1:url}, ${2:charset})",
       "insertTextFormat":"Snippet"
     },
@@ -96,10 +393,10 @@
       "documentation":{
         "right":{
           "kind":"markdown",
-          "value":"**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n"
+          "value":"markdown**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \nballerina/http:"
         }
       },
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"decode(${1:url}, ${2:charset})",
       "insertTextFormat":"Snippet"
     },
@@ -110,8 +407,9 @@
       "documentation":{
         "left":"Contains the configurations for an HTTP service.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpServiceConfig"
+      "sortText":"171",
+      "insertText":"HttpServiceConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CorsConfig",
@@ -120,8 +418,9 @@
       "documentation":{
         "left":"Configurations for CORS support.\n"
       },
-      "sortText":"170",
-      "insertText":"CorsConfig"
+      "sortText":"171",
+      "insertText":"CorsConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Versioning",
@@ -130,8 +429,9 @@
       "documentation":{
         "left":"Configurations for service versioning.\n"
       },
-      "sortText":"170",
-      "insertText":"Versioning"
+      "sortText":"171",
+      "insertText":"Versioning",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"WSServiceConfig",
@@ -140,8 +440,9 @@
       "documentation":{
         "left":"Configurations for a WebSocket service.\n"
       },
-      "sortText":"170",
-      "insertText":"WSServiceConfig"
+      "sortText":"171",
+      "insertText":"WSServiceConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpResourceConfig",
@@ -150,8 +451,9 @@
       "documentation":{
         "left":"Configuration for an HTTP resource.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpResourceConfig"
+      "sortText":"171",
+      "insertText":"HttpResourceConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"WebSocketUpgradeConfig",
@@ -160,8 +462,9 @@
       "documentation":{
         "left":"Resource configuration to upgrade from HTTP to WebSocket.\n"
       },
-      "sortText":"170",
-      "insertText":"WebSocketUpgradeConfig"
+      "sortText":"171",
+      "insertText":"WebSocketUpgradeConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ListenerAuthConfig",
@@ -170,8 +473,9 @@
       "documentation":{
         "left":"Configures the authentication scheme for a service or a resource.\n"
       },
-      "sortText":"170",
-      "insertText":"ListenerAuthConfig"
+      "sortText":"171",
+      "insertText":"ListenerAuthConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Authentication",
@@ -180,8 +484,9 @@
       "documentation":{
         "left":"Can be used for enabling/disabling authentication in an HTTP service.\n"
       },
-      "sortText":"170",
-      "insertText":"Authentication"
+      "sortText":"171",
+      "insertText":"Authentication",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CacheConfig",
@@ -190,8 +495,9 @@
       "documentation":{
         "left":"Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"CacheConfig"
+      "sortText":"171",
+      "insertText":"CacheConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"TargetService",
@@ -200,8 +506,9 @@
       "documentation":{
         "left":"Represents a single service and its related configurations.\n"
       },
-      "sortText":"170",
-      "insertText":"TargetService"
+      "sortText":"171",
+      "insertText":"TargetService",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ClientEndpointConfig",
@@ -210,8 +517,9 @@
       "documentation":{
         "left":"Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"ClientEndpointConfig"
+      "sortText":"171",
+      "insertText":"ClientEndpointConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RetryConfig",
@@ -220,8 +528,9 @@
       "documentation":{
         "left":"Provides configurations for controlling the retry behaviour in failure scenarios.\n"
       },
-      "sortText":"170",
-      "insertText":"RetryConfig"
+      "sortText":"171",
+      "insertText":"RetryConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"SecureSocket",
@@ -230,8 +539,9 @@
       "documentation":{
         "left":"Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"SecureSocket"
+      "sortText":"171",
+      "insertText":"SecureSocket",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"FollowRedirects",
@@ -240,8 +550,9 @@
       "documentation":{
         "left":"Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
       },
-      "sortText":"170",
-      "insertText":"FollowRedirects"
+      "sortText":"171",
+      "insertText":"FollowRedirects",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ProxyConfig",
@@ -250,8 +561,9 @@
       "documentation":{
         "left":"Proxy server configurations to be used with the HTTP client endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"ProxyConfig"
+      "sortText":"171",
+      "insertText":"ProxyConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthConfig",
@@ -260,8 +572,9 @@
       "documentation":{
         "left":"AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"AuthConfig"
+      "sortText":"171",
+      "insertText":"AuthConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"BasicAuthConfig",
@@ -270,8 +583,9 @@
       "documentation":{
         "left":"BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"BasicAuthConfig"
+      "sortText":"171",
+      "insertText":"BasicAuthConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"OAuth2AuthConfig",
@@ -280,8 +594,9 @@
       "documentation":{
         "left":"OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"OAuth2AuthConfig"
+      "sortText":"171",
+      "insertText":"OAuth2AuthConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"JwtAuthConfig",
@@ -290,8 +605,9 @@
       "documentation":{
         "left":"JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"JwtAuthConfig"
+      "sortText":"171",
+      "insertText":"JwtAuthConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpTimeoutError",
@@ -300,8 +616,9 @@
       "documentation":{
         "left":"Defines a timeout error occurred during service invocation.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpTimeoutError"
+      "sortText":"171",
+      "insertText":"HttpTimeoutError",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"PoolConfiguration",
@@ -310,28 +627,9 @@
       "documentation":{
         "left":"Configurations for managing HTTP client connection pool.\n"
       },
-      "sortText":"170",
-      "insertText":"PoolConfiguration"
-    },
-    {
-      "label":"TrustStore",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":{
-        "left":"A record for providing trust store related configurations.\n"
-      },
-      "sortText":"170",
-      "insertText":"TrustStore"
-    },
-    {
-      "label":"KeyStore",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":{
-        "left":"A record for providing key store related configurations.\n"
-      },
-      "sortText":"170",
-      "insertText":"KeyStore"
+      "sortText":"171",
+      "insertText":"PoolConfiguration",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Protocols",
@@ -340,8 +638,9 @@
       "documentation":{
         "left":"A record for configuring SSL/TLS protocol and version to be used.\n"
       },
-      "sortText":"170",
-      "insertText":"Protocols"
+      "sortText":"171",
+      "insertText":"Protocols",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ValidateCert",
@@ -350,8 +649,9 @@
       "documentation":{
         "left":"A record for providing configurations for certificate revocation status checks.\n"
       },
-      "sortText":"170",
-      "insertText":"ValidateCert"
+      "sortText":"171",
+      "insertText":"ValidateCert",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ServiceOcspStapling",
@@ -360,8 +660,9 @@
       "documentation":{
         "left":"A record for providing configurations for certificate revocation status checks.\n"
       },
-      "sortText":"170",
-      "insertText":"ServiceOcspStapling"
+      "sortText":"171",
+      "insertText":"ServiceOcspStapling",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CompressionConfig",
@@ -370,8 +671,20 @@
       "documentation":{
         "left":"A record for providing configurations for content compression.\n"
       },
-      "sortText":"170",
-      "insertText":"CompressionConfig"
+      "sortText":"171",
+      "insertText":"CompressionConfig",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"MutualSslHandshake",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":{
+        "left":"A record for providing mutual ssl handshake results.\n"
+      },
+      "sortText":"171",
+      "insertText":"MutualSslHandshake",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"FailoverConfig",
@@ -380,8 +693,9 @@
       "documentation":{
         "left":"Provides a set of configurations for controlling the failover behaviour of the endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"FailoverConfig"
+      "sortText":"171",
+      "insertText":"FailoverConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"FailoverInferredConfig",
@@ -390,8 +704,9 @@
       "documentation":{
         "left":"Inferred failover configurations passed into the failover client.\n"
       },
-      "sortText":"170",
-      "insertText":"FailoverInferredConfig"
+      "sortText":"171",
+      "insertText":"FailoverInferredConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"FailoverClientEndpointConfiguration",
@@ -400,8 +715,9 @@
       "documentation":{
         "left":"Provides a set of HTTP related configurations and failover related configurations.\n"
       },
-      "sortText":"170",
-      "insertText":"FailoverClientEndpointConfiguration"
+      "sortText":"171",
+      "insertText":"FailoverClientEndpointConfiguration",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CircuitHealth",
@@ -410,8 +726,9 @@
       "documentation":{
         "left":"Maintains the health of the Circuit Breaker.\n"
       },
-      "sortText":"170",
-      "insertText":"CircuitHealth"
+      "sortText":"171",
+      "insertText":"CircuitHealth",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CircuitBreakerConfig",
@@ -420,8 +737,9 @@
       "documentation":{
         "left":"Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
       },
-      "sortText":"170",
-      "insertText":"CircuitBreakerConfig"
+      "sortText":"171",
+      "insertText":"CircuitBreakerConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RollingWindow",
@@ -430,8 +748,9 @@
       "documentation":{
         "left":"Represents a rolling window in the Circuit Breaker.\n"
       },
-      "sortText":"170",
-      "insertText":"RollingWindow"
+      "sortText":"171",
+      "insertText":"RollingWindow",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Bucket",
@@ -440,8 +759,9 @@
       "documentation":{
         "left":"Represents a discrete sub-part of the time window (Bucket).\n"
       },
-      "sortText":"170",
-      "insertText":"Bucket"
+      "sortText":"171",
+      "insertText":"Bucket",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CircuitBreakerInferredConfig",
@@ -450,8 +770,9 @@
       "documentation":{
         "left":"Derived set of configurations from the `CircuitBreakerConfig`.\n"
       },
-      "sortText":"170",
-      "insertText":"CircuitBreakerInferredConfig"
+      "sortText":"171",
+      "insertText":"CircuitBreakerInferredConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RetryInferredConfig",
@@ -460,8 +781,9 @@
       "documentation":{
         "left":"Derived set of configurations from the `RetryConfig`.\n"
       },
-      "sortText":"170",
-      "insertText":"RetryInferredConfig"
+      "sortText":"171",
+      "insertText":"RetryInferredConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"LoadBalanceActionErrorData",
@@ -470,8 +792,9 @@
       "documentation":{
         "left":"Represents an error occurred in an remote function of the Load Balance connector.\n"
       },
-      "sortText":"170",
-      "insertText":"LoadBalanceActionErrorData"
+      "sortText":"171",
+      "insertText":"LoadBalanceActionErrorData",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"LoadBalanceClientEndpointConfiguration",
@@ -480,8 +803,9 @@
       "documentation":{
         "left":"The configurations related to the load balance client endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"LoadBalanceClientEndpointConfiguration"
+      "sortText":"171",
+      "insertText":"LoadBalanceClientEndpointConfiguration",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Remote",
@@ -490,8 +814,9 @@
       "documentation":{
         "left":"Presents a read-only view of the remote address.\n"
       },
-      "sortText":"170",
-      "insertText":"Remote"
+      "sortText":"171",
+      "insertText":"Remote",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Local",
@@ -500,8 +825,9 @@
       "documentation":{
         "left":"Presents a read-only view of the local address.\n"
       },
-      "sortText":"170",
-      "insertText":"Local"
+      "sortText":"171",
+      "insertText":"Local",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RequestLimits",
@@ -510,8 +836,9 @@
       "documentation":{
         "left":"Configures limits for requests. If these limits are violated, the request is rejected.\n"
       },
-      "sortText":"170",
-      "insertText":"RequestLimits"
+      "sortText":"171",
+      "insertText":"RequestLimits",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ServiceEndpointConfiguration",
@@ -520,8 +847,9 @@
       "documentation":{
         "left":"Provides a set of configurations for HTTP service endpoints.\n"
       },
-      "sortText":"170",
-      "insertText":"ServiceEndpointConfiguration"
+      "sortText":"171",
+      "insertText":"ServiceEndpointConfiguration",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ServiceSecureSocket",
@@ -530,8 +858,9 @@
       "documentation":{
         "left":"Configures the SSL/TLS options to be used for HTTP service.\n"
       },
-      "sortText":"170",
-      "insertText":"ServiceSecureSocket"
+      "sortText":"171",
+      "insertText":"ServiceSecureSocket",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthCacheConfig",
@@ -540,8 +869,9 @@
       "documentation":{
         "left":"Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"AuthCacheConfig"
+      "sortText":"171",
+      "insertText":"AuthCacheConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthProvider",
@@ -550,8 +880,9 @@
       "documentation":{
         "left":"Configuration for authentication providers.\n"
       },
-      "sortText":"170",
-      "insertText":"AuthProvider"
+      "sortText":"171",
+      "insertText":"AuthProvider",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"WebSocketClientEndpointConfig",
@@ -560,8 +891,9 @@
       "documentation":{
         "left":"Configuration for the WebSocket client endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"WebSocketClientEndpointConfig"
+      "sortText":"171",
+      "insertText":"WebSocketClientEndpointConfig",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthHandlerRegistry",
@@ -570,8 +902,9 @@
       "documentation":{
         "left":"Representation of the Http Auth Handler Registry.\n"
       },
-      "sortText":"170",
-      "insertText":"AuthHandlerRegistry"
+      "sortText":"171",
+      "insertText":"AuthHandlerRegistry",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthnFilter",
@@ -580,8 +913,9 @@
       "documentation":{
         "left":"Representation of the Authentication filter.\n"
       },
-      "sortText":"170",
-      "insertText":"AuthnFilter"
+      "sortText":"171",
+      "insertText":"AuthnFilter",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpAuthnHandler",
@@ -590,8 +924,9 @@
       "documentation":{
         "left":"Representation of Authentication handler for HTTP traffic.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpAuthnHandler"
+      "sortText":"171",
+      "insertText":"HttpAuthnHandler",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthnHandlerChain",
@@ -600,8 +935,9 @@
       "documentation":{
         "left":"Representation of Authentication handler chain\n"
       },
-      "sortText":"170",
-      "insertText":"AuthnHandlerChain"
+      "sortText":"171",
+      "insertText":"AuthnHandlerChain",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthzFilter",
@@ -610,8 +946,9 @@
       "documentation":{
         "left":"Representation of the Authorization filter\n"
       },
-      "sortText":"170",
-      "insertText":"AuthzFilter"
+      "sortText":"171",
+      "insertText":"AuthzFilter",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpAuthzHandler",
@@ -620,8 +957,9 @@
       "documentation":{
         "left":"Representation of Authorization Handler for HTTP\n"
       },
-      "sortText":"170",
-      "insertText":"HttpAuthzHandler"
+      "sortText":"171",
+      "insertText":"HttpAuthzHandler",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpBasicAuthnHandler",
@@ -630,8 +968,9 @@
       "documentation":{
         "left":"Defines Basic Auth handler for HTTP traffic.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpBasicAuthnHandler"
+      "sortText":"171",
+      "insertText":"HttpBasicAuthnHandler",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpJwtAuthnHandler",
@@ -640,8 +979,9 @@
       "documentation":{
         "left":"Representation of JWT Auth handler for HTTP traffic\n"
       },
-      "sortText":"170",
-      "insertText":"HttpJwtAuthnHandler"
+      "sortText":"171",
+      "insertText":"HttpJwtAuthnHandler",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RequestCacheControl",
@@ -650,8 +990,9 @@
       "documentation":{
         "left":"Configures cache control directives for a `Request`.\n"
       },
-      "sortText":"170",
-      "insertText":"RequestCacheControl"
+      "sortText":"171",
+      "insertText":"RequestCacheControl",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ResponseCacheControl",
@@ -660,15 +1001,17 @@
       "documentation":{
         "left":"Configures cache control directives for a `Response`.\n"
       },
-      "sortText":"170",
-      "insertText":"ResponseCacheControl"
+      "sortText":"171",
+      "insertText":"ResponseCacheControl",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpCache",
       "kind":"Class",
       "detail":"BType",
-      "sortText":"170",
-      "insertText":"HttpCache"
+      "sortText":"171",
+      "insertText":"HttpCache",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpFuture",
@@ -677,8 +1020,9 @@
       "documentation":{
         "left":"Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
-      "sortText":"170",
-      "insertText":"HttpFuture"
+      "sortText":"171",
+      "insertText":"HttpFuture",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"PushPromise",
@@ -687,8 +1031,9 @@
       "documentation":{
         "left":"Represents an HTTP/2 `PUSH_PROMISE` frame.\n"
       },
-      "sortText":"170",
-      "insertText":"PushPromise"
+      "sortText":"171",
+      "insertText":"PushPromise",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Filter",
@@ -697,8 +1042,9 @@
       "documentation":{
         "left":"Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object."
       },
-      "sortText":"170",
-      "insertText":"Filter"
+      "sortText":"171",
+      "insertText":"Filter",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"FilterContext",
@@ -707,8 +1053,9 @@
       "documentation":{
         "left":"Representation of request filter Context.\n"
       },
-      "sortText":"170",
-      "insertText":"FilterContext"
+      "sortText":"171",
+      "insertText":"FilterContext",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Request",
@@ -717,8 +1064,9 @@
       "documentation":{
         "left":"Represents an HTTP request.\n"
       },
-      "sortText":"170",
-      "insertText":"Request"
+      "sortText":"171",
+      "insertText":"Request",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Response",
@@ -727,8 +1075,9 @@
       "documentation":{
         "left":"Represents an HTTP response.\n"
       },
-      "sortText":"170",
-      "insertText":"Response"
+      "sortText":"171",
+      "insertText":"Response",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"MockListener",
@@ -737,8 +1086,9 @@
       "documentation":{
         "left":"Mock server endpoint which does not open a listening port."
       },
-      "sortText":"170",
-      "insertText":"MockListener"
+      "sortText":"171",
+      "insertText":"MockListener",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CircuitBreakerClient",
@@ -747,8 +1097,9 @@
       "documentation":{
         "left":"A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
       },
-      "sortText":"170",
-      "insertText":"CircuitBreakerClient"
+      "sortText":"171",
+      "insertText":"CircuitBreakerClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"LoadBalancerRule",
@@ -757,8 +1108,9 @@
       "documentation":{
         "left":"\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
       },
-      "sortText":"170",
-      "insertText":"LoadBalancerRule"
+      "sortText":"171",
+      "insertText":"LoadBalancerRule",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"LoadBalancerRounRobinRule",
@@ -767,8 +1119,9 @@
       "documentation":{
         "left":"Implementation of round robin load balancing strategy.\n"
       },
-      "sortText":"170",
-      "insertText":"LoadBalancerRounRobinRule"
+      "sortText":"171",
+      "insertText":"LoadBalancerRounRobinRule",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Listener",
@@ -777,8 +1130,9 @@
       "documentation":{
         "left":"This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
-      "sortText":"170",
-      "insertText":"Listener"
+      "sortText":"171",
+      "insertText":"Listener",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"WebSocketListener",
@@ -787,8 +1141,9 @@
       "documentation":{
         "left":"Represents a WebSocket service endpoint."
       },
-      "sortText":"170",
-      "insertText":"WebSocketListener"
+      "sortText":"171",
+      "insertText":"WebSocketListener",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpCachingClient",
@@ -797,8 +1152,9 @@
       "documentation":{
         "left":"An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpCachingClient"
+      "sortText":"171",
+      "insertText":"HttpCachingClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Client",
@@ -807,8 +1163,9 @@
       "documentation":{
         "left":"The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText":"170",
-      "insertText":"Client"
+      "sortText":"171",
+      "insertText":"Client",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpCaller",
@@ -817,8 +1174,9 @@
       "documentation":{
         "left":"Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpCaller"
+      "sortText":"171",
+      "insertText":"HttpCaller",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Caller",
@@ -827,18 +1185,20 @@
       "documentation":{
         "left":"The caller actions for responding to client requests.\n"
       },
-      "sortText":"170",
-      "insertText":"Caller"
+      "sortText":"171",
+      "insertText":"Caller",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpSecureClient",
       "kind":"Class",
       "detail":"BType",
       "documentation":{
-        "left":"Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication schemes\nconfigured in the HTTP client endpoint to secure the HTTP requests.\n"
+        "left":"Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication\nschemes configured in the HTTP client endpoint to secure the HTTP requests.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpSecureClient"
+      "sortText":"171",
+      "insertText":"HttpSecureClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpClient",
@@ -847,8 +1207,9 @@
       "documentation":{
         "left":"Provides the HTTP remote functions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP remote functions implementation.\n"
       },
-      "sortText":"170",
-      "insertText":"HttpClient"
+      "sortText":"171",
+      "insertText":"HttpClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RedirectClient",
@@ -857,8 +1218,9 @@
       "documentation":{
         "left":"Provides redirect functionality for HTTP client remote functions.\n"
       },
-      "sortText":"170",
-      "insertText":"RedirectClient"
+      "sortText":"171",
+      "insertText":"RedirectClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"FailoverClient",
@@ -867,8 +1229,9 @@
       "documentation":{
         "left":"An HTTP client endpoint which provides failover support over multiple HTTP clients.\n"
       },
-      "sortText":"170",
-      "insertText":"FailoverClient"
+      "sortText":"171",
+      "insertText":"FailoverClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RetryClient",
@@ -877,8 +1240,9 @@
       "documentation":{
         "left":"Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n"
       },
-      "sortText":"170",
-      "insertText":"RetryClient"
+      "sortText":"171",
+      "insertText":"RetryClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"LoadBalanceClient",
@@ -887,8 +1251,9 @@
       "documentation":{
         "left":"LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n"
       },
-      "sortText":"170",
-      "insertText":"LoadBalanceClient"
+      "sortText":"171",
+      "insertText":"LoadBalanceClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"WebSocketCaller",
@@ -897,8 +1262,9 @@
       "documentation":{
         "left":"Represents a WebSocket caller.\n"
       },
-      "sortText":"170",
-      "insertText":"WebSocketCaller"
+      "sortText":"171",
+      "insertText":"WebSocketCaller",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"WebSocketClient",
@@ -907,8 +1273,9 @@
       "documentation":{
         "left":"Represents a WebSocket client endpoint.\n"
       },
-      "sortText":"170",
-      "insertText":"WebSocketClient"
+      "sortText":"171",
+      "insertText":"WebSocketClient",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"InboundAuthScheme",
@@ -918,7 +1285,8 @@
         "left":"Inbound authentication schemes."
       },
       "sortText":"171",
-      "insertText":"InboundAuthScheme"
+      "insertText":"InboundAuthScheme",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"OutboundAuthScheme",
@@ -928,7 +1296,8 @@
         "left":"Outbound authentication schemes."
       },
       "sortText":"171",
-      "insertText":"OutboundAuthScheme"
+      "insertText":"OutboundAuthScheme",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"AuthStoreProvider",
@@ -938,7 +1307,8 @@
         "left":"Authentication storage providers for BasicAuth scheme."
       },
       "sortText":"171",
-      "insertText":"AuthStoreProvider"
+      "insertText":"AuthStoreProvider",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CachingPolicy",
@@ -947,8 +1317,9 @@
       "documentation":{
         "left":"Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour."
       },
-      "sortText":"170",
-      "insertText":"CachingPolicy"
+      "sortText":"171",
+      "insertText":"CachingPolicy",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Chunking",
@@ -957,8 +1328,9 @@
       "documentation":{
         "left":"Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
       },
-      "sortText":"170",
-      "insertText":"Chunking"
+      "sortText":"171",
+      "insertText":"Chunking",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"Compression",
@@ -967,8 +1339,9 @@
       "documentation":{
         "left":"Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
       },
-      "sortText":"170",
-      "insertText":"Compression"
+      "sortText":"171",
+      "insertText":"Compression",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"HttpOperation",
@@ -977,8 +1350,9 @@
       "documentation":{
         "left":"Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed"
       },
-      "sortText":"170",
-      "insertText":"HttpOperation"
+      "sortText":"171",
+      "insertText":"HttpOperation",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RedirectCode",
@@ -987,8 +1361,20 @@
       "documentation":{
         "left":"Defines the HTTP redirect codes as a type."
       },
-      "sortText":"170",
-      "insertText":"RedirectCode"
+      "sortText":"171",
+      "insertText":"RedirectCode",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"MutualSslStatus",
+      "kind":"Enum",
+      "detail":"BType",
+      "documentation":{
+        "left":"Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is succesful.\n`failed`: Mutual SSL handshake has failed."
+      },
+      "sortText":"171",
+      "insertText":"MutualSslStatus",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CredentialBearer",
@@ -997,8 +1383,9 @@
       "documentation":{
         "left":"Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token"
       },
-      "sortText":"170",
-      "insertText":"CredentialBearer"
+      "sortText":"171",
+      "insertText":"CredentialBearer",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"CircuitState",
@@ -1007,8 +1394,9 @@
       "documentation":{
         "left":"A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state."
       },
-      "sortText":"170",
-      "insertText":"CircuitState"
+      "sortText":"171",
+      "insertText":"CircuitState",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"KeepAlive",
@@ -1017,8 +1405,9 @@
       "documentation":{
         "left":"Defines the possible values for the keep-alive configuration in service and client endpoints."
       },
-      "sortText":"170",
-      "insertText":"KeepAlive"
+      "sortText":"171",
+      "insertText":"KeepAlive",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"RequestMessage",
@@ -1027,8 +1416,9 @@
       "documentation":{
         "left":"The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText":"170",
-      "insertText":"RequestMessage"
+      "sortText":"171",
+      "insertText":"RequestMessage",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"ResponseMessage",
@@ -1037,8 +1427,9 @@
       "documentation":{
         "left":"The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText":"170",
-      "insertText":"ResponseMessage"
+      "sortText":"171",
+      "insertText":"ResponseMessage",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

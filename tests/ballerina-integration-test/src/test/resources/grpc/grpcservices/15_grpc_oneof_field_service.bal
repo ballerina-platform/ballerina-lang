@@ -36,13 +36,13 @@ service OneofFieldService on new grpc:Listener(9105) {
             }
         }
         Response1 response = {message: "Hello " + request};
-        _ = caller->send(response);
-        _ = caller->complete();
+        checkpanic caller->send(response);
+        checkpanic caller->complete();
     }
 
     resource function testOneofField(grpc:Caller caller, ZZZ req) {
-        _ = caller->send(req);
-        _ = caller->complete();
+        checkpanic caller->send(req);
+        checkpanic caller->complete();
     }
 }
 

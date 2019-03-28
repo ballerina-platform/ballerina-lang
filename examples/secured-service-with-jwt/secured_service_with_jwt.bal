@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/log;
 
 // Create a JWT authentication provider with the relevant configuration
 // parameters. 
@@ -60,6 +61,9 @@ service echo on ep {
     // The hello resource would inherit the `authentication:{enabled:true}` flag
     // from the service level, and define `hello` as the scope for the resource.
     resource function hello(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        error? result = caller->respond("Hello, World!!!");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 }

@@ -23,7 +23,7 @@ service HelloWorld on server1 {
     resource function invalidReqType(grpc:Caller caller, string? name) {
         string input = name ?: "";
         string message = "Hello " + input;
-        _ = caller->send(message);
-        _ = caller->complete();
+        checkpanic caller->send(message);
+        checkpanic caller->complete();
     }
 }

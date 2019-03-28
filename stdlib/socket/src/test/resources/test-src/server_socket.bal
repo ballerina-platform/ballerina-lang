@@ -33,7 +33,7 @@ service echoServer on server {
         if (result is (byte[], int)) {
             var (content, length) = result;
             if (length > 0) {
-                _ = caller->write(content);
+                _ = checkpanic caller->write(content);
                 io:println("Server write");
             } else {
                 io:println("Client close: ", caller.remotePort);
@@ -63,7 +63,7 @@ service helloServer on new socket:Listener(59153) {
         process(result, caller);
         string msg = "Hello Client";
         byte[] msgByteArray = msg.toByteArray("utf-8");
-        _ = caller->write(msgByteArray);
+        _ = checkpanic caller->write(msgByteArray);
     }
 
     resource function onError(socket:Caller caller, error er) {
@@ -81,7 +81,7 @@ function getString(byte[] content) returns string|error {
     return characterChannel.read(50);
 }
 
-function process(any result, socket:Caller caller) {
+function process(any|error result, socket:Caller caller) {
     if (result is (byte[], int)) {
         var (content, length) = result;
         if (length > 0) {
@@ -106,7 +106,7 @@ service BlockingReadServer on new socket:Listener(59154) {
         if (result is (byte[], int)) {
             var (content, length) = result;
             if (length > 0) {
-                _ = caller->write(content);
+                _ = checkpanic caller->write(content);
                 io:println("Server write");
             } else {
                 io:println("Client close: ", caller.remotePort);
