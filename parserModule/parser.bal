@@ -12,6 +12,10 @@ Token[] errTokens = [];
 //error token counter
 int errCount = 0;
 
+//keep track of next valid occurence
+boolean expOperand = true;
+//if invalid occurence is captured in an expression
+boolean invalidOccurence = false;
 
 type Parser object {
 	private ParserBufferReader parserBuffer;
@@ -74,6 +78,15 @@ type Parser object {
 	function insertToken(int mToken) returns Token {
 		return { tokenType: PARSER_ERROR_TOKEN, text: "<missing " + tokenNames[mToken] + ">" , startPos: -1 , endPos:-1,
 			lineNumber: 0, index: -1, whiteSpace: "" };
+	}
+	//error recovery delete token
+	function deleteToken() returns Token{
+		Token currToken2 = self.parserBuffer.consumeToken();
+		log:printError("unexpected Token: " + tokenNames[currToken2.tokenType]);
+		//log:printError("Expected " + tokenNames[mToken] + ";found " + tokenNames[currToken2.tokenType]);
+		return { tokenType: PARSER_ERROR_TOKEN, text: "<invalid token: " + tokenNames[currToken2.tokenType] + ">" , startPos: currToken2.startPos , endPos:currToken2.endPos,
+			lineNumber: currToken2.lineNumber, index: currToken2.index, whiteSpace: "" };
+
 	}
 	//panic recovery
 	function panicRecovery(int mToken,NodeKind rule) returns Token {
@@ -141,8 +154,6 @@ type Parser object {
 		Token laToken2 = self.parserBuffer.lookAheadToken(lookAheadCount = 1);
 		return laToken2;
 	}
-
-
 	//Function definition
 	//    | FUNCTION <callable Unit Signature> <callable Unit body>
 	function parseFunction(Token currToken) returns FunctionNode {
@@ -172,7 +183,7 @@ type Parser object {
 		Token lBrace = self.matchToken(LBRACE,FUNCTION_NODE);
 		while (self.LAToken(1) != RBRACE) {
 			StatementNode stNode = self.parseStatement();
-			if(recovered == false){
+			if(recovered == false || invalidOccurence == true){
 				if(errTokens.length()>0){
 					Token errTkn  =  errTokens[0];
 					ErrorNode erNode = {nodeKind: ERROR_NODE,tokenList:[errTkn],errorStatement:stNode};
@@ -184,14 +195,15 @@ type Parser object {
 					stsList[pos] = erNode;
 					pos += 1;
 					recovered = true;
+					invalidOccurence = false;
 				}
 				else{
 					ErrorNode erNode = {nodeKind: ERROR_NODE,errorStatement:stNode};
 					stsList[pos] = erNode;
 					pos += 1;
 					recovered = true;
+					invalidOccurence = false;
 				}
-
 			}else{
 				stsList[pos] = stNode;
 				pos += 1;
@@ -243,90 +255,148 @@ type Parser object {
 		}
 		while (oprStack.peek() != -1) {
 			Token operator = oprStack.pop();
-			OperatorKind opKind = self.matchOperatorType(operator);
+			if(operator.tokenType == LPAREN){
+				log:printError("<Missing RPAREN>" );
+				invalidOccurence = true;
+				OperatorKind opKind = self.matchOperatorType(operator);
 			ExpressionNode expr2 = expStack.pop();
 			ExpressionNode expr1 = expStack.pop();
 			BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
 				leftExpr: expr1, rightExpr: expr2 };
 			expStack.push(bExpr);
+			}else{
+				OperatorKind opKind = self.matchOperatorType(operator);
+				ExpressionNode expr2 = expStack.pop();
+				ExpressionNode expr1 = expStack.pop();
+				BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
+					leftExpr: expr1, rightExpr: expr2 };
+				expStack.push(bExpr);
+			}
+
 		}
 		ExpressionNode exp2 = expStack.pop();
 		return exp2;
 	}
-
 	//Expression
 	//    | <simple literal>
 	//    | <varaiable reference>
 	//    | expression ( ADD | SUB ) expression
 	//    | expression (DIVISION | MULTIPLICATION) expression
 	//expression is parsed using shunting yard algorithm
-	function parseExpression2() returns boolean{
+	function parseExpression2() returns boolean {
 		if (self.LAToken(1) == LPAREN) {
-			Token lParen = self.matchToken(LPAREN,EXPRESSION_NODE);
-			oprStack.push(lParen);
-			return true;
-		} else if (self.LAToken(1) == NUMBER){
-			Token number = self.matchToken(NUMBER,EXPRESSION_NODE);
-			IntegerLiteralNode intLit = { nodeKind: INTEGER_LITERAL, tokenList: [number], number: number.text };
-			SimpleLiteral sLit = intLit;
-			expStack.push(sLit);
-			return true;
-		} else if (self.LAToken(1) == IDENTIFIER){
-			Token identifier = self.matchToken(IDENTIFIER,EXPRESSION_NODE);
-			VarRefIdentifier varRef = { nodeKind: VAR_REF_NODE, tokenList: [identifier], varIdentifier: identifier.text };
-			expStack.push(varRef);
-			//check whether the next token is also an identifier
-			if(self.LAToken(1) == IDENTIFIER){
-				return false;
+			if (expOperand == false) {
+				Token invalidToken = self.deleteToken();
+				errTokens[errCount] = invalidToken;
+				errCount += 1;
+				invalidOccurence = true;
+				return true;
+			} else {
+				Token lParen = self.matchToken(LPAREN, EXPRESSION_NODE);
+				oprStack.push(lParen);
+				expOperand = true;
+				return true;
 			}
-			return true;
+		} else if (self.LAToken(1) == NUMBER){
+			if (expOperand == false) {
+				Token invalidToken = self.deleteToken();
+				errTokens[errCount] = invalidToken;
+				errCount += 1;
+				invalidOccurence = true;
+				return true;
+			} else {
+				Token number = self.matchToken(NUMBER, EXPRESSION_NODE);
+				IntegerLiteralNode intLit = { nodeKind: INTEGER_LITERAL, tokenList: [number], number: number.text };
+				SimpleLiteral sLit = intLit;
+				expStack.push(sLit);
+				expOperand = false;
+				return true;
+			}
+		} else if (self.LAToken(1) == IDENTIFIER){
+			if (expOperand == false) {
+				Token invalidToken = self.deleteToken();
+				errTokens[errCount] = invalidToken;
+				errCount += 1;
+				invalidOccurence = true;
+				return true;
+			} else {
+				Token identifier = self.matchToken(IDENTIFIER, EXPRESSION_NODE);
+				VarRefIdentifier varRef = { nodeKind: VAR_REF_NODE, tokenList: [identifier], varIdentifier: identifier.
+				text };
+				expStack.push(varRef);
+				expOperand = false;
+				return true;
+			}
 		} else if (self.LAToken(1) == ADD || self.LAToken(1) == SUBSTRACTION || self.LAToken(1) == DIVISION || self.
 			LAToken(1) == MULTIPLICATION) {
-			while (oprStack.opPrecedence(oprStack.peek()) >= oprStack.opPrecedence(self.LAToken(1))) {
-				Token operator = oprStack.pop();
-				OperatorKind opKind = self.matchOperatorType(operator);
-				ExpressionNode expr2 = expStack.pop();
-				ExpressionNode expr1 = expStack.pop();
-				BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
-					leftExpr: expr1, rightExpr: expr2 };
-				expStack.push(bExpr);
+			if (expOperand == true) {
+				Token invalidToken = self.deleteToken();
+				errTokens[errCount] = invalidToken;
+				errCount += 1;
+				invalidOccurence = true;
+				return true;
+			} else {
+				while (oprStack.opPrecedence(oprStack.peek()) >= oprStack.opPrecedence(self.LAToken(1))) {
+					Token operator = oprStack.pop();
+					OperatorKind opKind = self.matchOperatorType(operator);
+					ExpressionNode expr2 = expStack.pop();
+					ExpressionNode expr1 = expStack.pop();
+					BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind:
+					opKind,
+						leftExpr: expr1, rightExpr: expr2 };
+					expStack.push(bExpr);
+				}
+				if (self.LAToken(1) == ADD) {
+					//Check if the next token is Not an operator
+					Token add = self.matchToken(ADD, EXPRESSION_NODE);
+					oprStack.push(add);
+				} else if (self.LAToken(1) == MULTIPLICATION){
+					Token multply = self.matchToken(MULTIPLICATION, EXPRESSION_NODE);
+					oprStack.push(multply);
+				} else if (self.LAToken(1) == SUBSTRACTION){
+					Token subs = self.matchToken(SUBSTRACTION, EXPRESSION_NODE);
+					oprStack.push(subs);
+				}
+				expOperand = true;
+				return true;
 			}
-			if (self.LAToken(1) == ADD) {
-				//Check if the next token is Not an operator
-				Token add = self.matchToken(ADD,EXPRESSION_NODE);
-				oprStack.push(add);
-			} else if (self.LAToken(1) == MULTIPLICATION){
-				Token multply = self.matchToken(MULTIPLICATION,EXPRESSION_NODE);
-				oprStack.push(multply);
-			} else if (self.LAToken(1) == SUBSTRACTION){
-				Token subs = self.matchToken(SUBSTRACTION,EXPRESSION_NODE);
-				oprStack.push(subs);
-			}
-			return true;
 		} else if (self.LAToken(1) == RPAREN){
-			Token rParen = self.matchToken(RPAREN,EXPRESSION_NODE);
-			while (oprStack.peek() != LPAREN) {
-				Token operator = oprStack.pop();
-				OperatorKind opKind = self.matchOperatorType(operator);
-				ExpressionNode expr2 = expStack.pop();
-				ExpressionNode expr1 = expStack.pop();
-				BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind: opKind,
-					leftExpr: expr1, rightExpr: expr2 };
-				expStack.push(bExpr);
+			if (expOperand == true) {
+				Token invalidToken = self.deleteToken();
+				errTokens[errCount] = invalidToken;
+				errCount += 1;
+				invalidOccurence = true;
+				return true;
+			} else {
+				Token rParen = self.matchToken(RPAREN, EXPRESSION_NODE);
+				while (oprStack.peek() != LPAREN) {
+					Token operator = oprStack.pop();
+					if(operator.tokenType == PARSER_ERROR_TOKEN){
+					log:printError("<missing token>");
+					invalidOccurence = true;
+					break;
+					}
+					OperatorKind opKind = self.matchOperatorType(operator);
+					ExpressionNode expr2 = expStack.pop();
+					ExpressionNode expr1 = expStack.pop();
+					BinaryExpressionNode bExpr = { nodeKind: BINARY_EXP_NODE, tokenList: [operator], operatorKind:
+					opKind,
+						leftExpr: expr1, rightExpr: expr2 };
+					expStack.push(bExpr);
+				}
+				//popping the lParen
+				Token leftToken = oprStack.pop();
+
+				ExpressionNode parenExpr = expStack.topExpr();
+				if (parenExpr is BinaryExpressionNode) {
+					Token finalOperator = parenExpr.tokenList[0];
+					parenExpr.tokenList = [finalOperator, rParen, leftToken];
+				}
+				expOperand = false;
+				return true;
 			}
-			//popping the lParen
-			Token leftToken = oprStack.pop();
 
-			ExpressionNode parenExpr = expStack.topExpr();
-			if(parenExpr is BinaryExpressionNode){
-				Token finalOperator = parenExpr.tokenList[0];
-				parenExpr.tokenList = [finalOperator,rParen,leftToken];
-
-
-			}
-			return true;
 		}
-
 		return false;
 	}
 	//valueTypeName
@@ -350,8 +420,6 @@ type Parser object {
 			return STRING_TYPE;
 		}
 	}
-
-
 	//check the operator kind of the operator token
 	function matchOperatorType(Token operator) returns OperatorKind {
 		if (tokenNames[operator.tokenType] == "ADD") {
@@ -360,13 +428,13 @@ type Parser object {
 			return MINUS_OP;
 		} else if (tokenNames[operator.tokenType] == "DIVISION"){
 			return DIVISION_OP;
-		} else {
+		} else if (tokenNames[operator.tokenType] == "MULTIPLICATION") {
 			return MULTIPLICATION_OP;
+		}else{
+			return ERROR_OP;
 		}
 	}
 };
-
-
 //operator stack to store the operators
 type OperatorStack object {
 	Token[] opStack = [];
@@ -379,9 +447,14 @@ type OperatorStack object {
 		self.top = self.top + 1;
 	}
 	function pop() returns Token {
-		self.top = self.top - 1;
-		Token operatorToken = self.opStack[self.top];
-		return operatorToken;
+		if(self.top != 0){
+			self.top = self.top - 1;
+			Token operatorToken = self.opStack[self.top];
+			return operatorToken;
+		}else{
+		return { tokenType: PARSER_ERROR_TOKEN, text: "<missing operator>" , startPos: -1 , endPos:-1,
+			lineNumber: 0, index: -1, whiteSpace: "" };
+		}
 	}
 	function peek() returns int {
 		int topTkn2 = -1;
@@ -391,6 +464,7 @@ type OperatorStack object {
 		}
 		return topTkn2;
 	}
+	//ToDo: add the operatory associativity
 	function opPrecedence(int opToken) returns int {
 		if (opToken == ADD || opToken == SUBSTRACTION) {
 			return 0;
@@ -423,7 +497,6 @@ type ExprStack object {
 		return topExpr;
 	}
 };
-
 
 //Grammar
 //Function definition

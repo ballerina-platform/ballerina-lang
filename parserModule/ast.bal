@@ -27,8 +27,9 @@ const PLUS_OP = "+";
 const MINUS_OP = "-";
 const DIVISION_OP = "/";
 const MULTIPLICATION_OP = "*";
+const ERROR_OP = "invalidOperator";
 
-type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP;
+type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP;
 
 type Node record {
     NodeKind nodeKind;

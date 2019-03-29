@@ -1,4 +1,3 @@
 function main (){
-	int a = 5 + b
-	int c;
+	int a = (4 + 3 - (2 -1);
 }

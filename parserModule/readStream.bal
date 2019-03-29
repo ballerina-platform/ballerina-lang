@@ -15,6 +15,10 @@ public function main() {
         Parser parser = new(pBuffer);
         PackageNode pkgNode = parser.parse();
         io:println(pkgNode);
+        //json|error j = json.convert(pkgNode);
+        //if (j is json) {
+        //    io:println(j);
+        //}
     }
     closeRc(sourceChannel);
 }
