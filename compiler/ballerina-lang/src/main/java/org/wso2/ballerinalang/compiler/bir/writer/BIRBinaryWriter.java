@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -119,7 +120,8 @@ public class BIRBinaryWriter {
         buf.writeByte(typeDef.visibility.value());
         typeDef.type.accept(typeWriter);
 
-        if (typeDef.attachedFuncs != null) {
+        int defType = typeDef.type.tag;
+        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
             writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
         }
     }

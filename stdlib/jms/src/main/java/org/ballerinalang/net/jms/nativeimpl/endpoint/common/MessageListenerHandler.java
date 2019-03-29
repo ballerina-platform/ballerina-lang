@@ -46,6 +46,7 @@ public class MessageListenerHandler {
 
     public static void createAndRegister(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> consumerConnector =
                 (BMap<String, BValue>) ((BMap<String, BValue>) context.getRefArgument(0)).get("consumerActions");
 

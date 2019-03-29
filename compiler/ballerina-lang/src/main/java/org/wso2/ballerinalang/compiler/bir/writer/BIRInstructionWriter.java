@@ -116,6 +116,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int nameCPIndex = addStringCPEntry(calleePkg.name.value);
         int versionCPIndex = addStringCPEntry(calleePkg.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
