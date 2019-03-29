@@ -21,7 +21,6 @@ axiom-api-1.2.20.jar                                                            
 axiom-dom-1.2.20.jar                                                            bundle         apache2   2219
 axiom-impl-1.2.20.jar                                                           bundle         apache2   2110
 ballerina-auth-0.990.3.jar                                                      jar            apache2   3723
-ballerina-backend-llvm-0.990.3.jar                                              jar            apache2   3722
 ballerina-builtin-0.990.3.jar                                                   jar            apache2   3721
 ballerina-cli-utils-0.990.3.jar                                                 jar            apache2   3720
 ballerina-codegen-0.990.3.jar                                                   jar            apache2   3719
@@ -40,7 +39,6 @@ ballerina-jaeger-extension-0.990.3.jar                                          
 ballerina-jms-0.990.3.jar                                                       jar            apache2   3706
 ballerina-lang-0.990.3.jar                                                      jar            apache2   3705
 ballerina-launcher-0.990.3.jar                                                  jar            apache2   3704
-ballerina-llvm-0.990.3.jar                                                      jar            apache2   3703
 ballerina-log-api-0.990.3.jar                                                   jar            apache2   3702
 ballerina-logging-0.990.3.jar                                                   jar            apache2   3701
 ballerina-math-0.990.3.jar                                                      jar            apache2   3700
@@ -98,13 +96,6 @@ language-server-compiler-0.990.3.jar                                            
 language-server-core-0.990.3.jar                                                jar            apache2   3728
 language-server-stdio-launcher-0.990.3.jar                                      jar            apache2   3727
 libthrift-0.10.0.jar                                                            bundle         apache2   3179
-llvm-6.0.1-1.4.2-linux-x86.jar                                                  jar            apache2   3670
-llvm-6.0.1-1.4.2-linux-x86_64.jar                                               jar            apache2   3669
-llvm-6.0.1-1.4.2-macosx-x86_64.jar                                              jar            apache2   3668
-llvm-6.0.1-1.4.2-windows-x86.jar                                                jar            apache2   3667
-llvm-6.0.1-1.4.2-windows-x86_64.jar                                             jar            apache2   3666
-llvm-6.0.1-1.4.2.jar                                                            jar            apache2   3665
-llvm-platform-6.0.1-1.4.2.jar                                                   jar            apache2   3664
 metrics-core-3.1.0.jar                                                          bundle         apache2   3178
 netty-buffer-4.1.19.Final.jar                                                   bundle         apache2   2770
 netty-codec-4.1.19.Final.jar                                                    bundle         apache2   2769
