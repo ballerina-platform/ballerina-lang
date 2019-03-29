@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.harbby.gradle.serviceloader" version "1.1.5"
+}
+
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
@@ -36,4 +40,10 @@ configurations {
     implementation {
         exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
     }
+}
+
+serviceLoader {
+    serviceInterface 'org.ballerinalang.util.LaunchListener'
+    serviceInterface 'org.ballerinalang.util.tracer.TracingLaunchListener'
+    serviceInterface 'org.ballerinalang.util.metrics.MetricsLaunchListener'
 }
