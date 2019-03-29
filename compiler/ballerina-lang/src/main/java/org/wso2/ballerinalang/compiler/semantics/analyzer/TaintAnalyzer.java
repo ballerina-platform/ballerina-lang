@@ -2207,7 +2207,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * XML access expressions do not have a variable symbol attached. Therefore, such simple variable references are not
      * updated. Since such expressions only result in simple values, this does not affect the accuracy of the analyzer.
      *
-     * @param varRefExpr       argument expressions
+     * @param varRefExpr argument expressions
      * @param varTaintedStatus tainted status of the argument
      */
     private void updateArgTaintedStatus(BLangExpression varRefExpr, TaintedStatus varTaintedStatus) {
