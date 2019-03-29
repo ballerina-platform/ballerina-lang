@@ -63,9 +63,6 @@ public class ParserRuleGlobalVariableDefinitionCompletionProvider extends Abstra
                     case ItemResolverConstants.CONST_KEYWORD:
                         completionItems.addAll(this.getTypesAndPackages(ctx));
                         break;
-                    case ItemResolverConstants.EXTERN_KEYWORD:
-                        completionItems.add(getStaticItem(ctx, Snippet.DEF_FUNCTION_SIGNATURE));
-                        break;
                     default:
                         break;
                 }

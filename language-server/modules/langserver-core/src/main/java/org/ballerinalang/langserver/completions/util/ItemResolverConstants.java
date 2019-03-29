@@ -70,7 +70,6 @@ public class ItemResolverConstants {
     public static final String PACKAGE_TYPE = "Package";
     public static final String CONSTANT_TYPE = "Constant";
     public static final String FUNCTION_TYPE = "Function";
-    public static final String RESOURCE_TYPE = "Resource";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
     public static final String STATEMENT_TYPE = "Statement";
@@ -88,7 +87,6 @@ public class ItemResolverConstants {
     public static final String VAR_KEYWORD = "var";
     public static final String CHECK_KEYWORD = "check";
     public static final String WAIT_KEYWORD = "wait";
-    public static final String EXTERN_KEYWORD = "extern";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";

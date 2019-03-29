@@ -66,8 +66,6 @@ public enum Snippet {
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
-    KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
-
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),

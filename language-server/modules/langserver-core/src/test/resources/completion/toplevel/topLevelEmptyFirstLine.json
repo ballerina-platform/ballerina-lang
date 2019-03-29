@@ -163,14 +163,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"extern",
-      "kind":"Keyword",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"extern ",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"error",
       "kind":"Snippet",
       "detail":"Snippet",

@@ -213,7 +213,6 @@ public abstract class AbstractSubCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC));
         completionItems.add(getStaticItem(context, Snippet.KW_FINAL));
         completionItems.add(getStaticItem(context, Snippet.KW_CONST));
-        completionItems.add(getStaticItem(context, Snippet.KW_EXTERN));
         completionItems.add(getStaticItem(context, Snippet.DEF_ERROR));
         completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
         return completionItems;
@@ -292,7 +291,7 @@ public abstract class AbstractSubCompletionProvider {
     protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)
+            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
                     || (UtilSymbolKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
                     && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
         };

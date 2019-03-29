@@ -50,7 +50,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
-        filteredList.removeIf(CommonUtil.invalidSymbolsPredicate().or(attachedOrSelfKeywordFilter()));
+        filteredList.removeIf(this.attachedOrSelfKeywordFilter());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));

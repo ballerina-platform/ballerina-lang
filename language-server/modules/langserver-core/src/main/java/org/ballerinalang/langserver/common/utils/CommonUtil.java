@@ -1134,7 +1134,8 @@ public class CommonUtil {
                 || symbolName.contains(UtilSymbolKeys.GT_SYMBOL_KEY)
                 || symbolName.contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
                 || symbolName.equals("main")
-                || symbolName.endsWith(".new");
+                || symbolName.endsWith(".new")
+                || symbolName.startsWith("0");
     }
 
     private static boolean builtinLengthFunctionAllowed(BType bType) {

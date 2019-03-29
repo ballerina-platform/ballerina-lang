@@ -149,13 +149,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "extern",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "extern ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error",
       "kind": "Snippet",
       "detail": "Snippet",
