@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
@@ -42,9 +43,10 @@ import javax.jms.TextMessage;
  * Get text content of the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "getTextMessageContent",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
@@ -55,6 +57,7 @@ public class GetTextMessageContent extends AbstractBlockingAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> messageStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
         Message jmsMessage = JmsUtils.getJMSMessage(messageStruct);
 

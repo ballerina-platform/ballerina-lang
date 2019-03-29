@@ -1587,8 +1587,9 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = function.pos;
         }
-
         if (isReceiverAttached) {
             //Get type node for this attached function
             TypeNode typeNode = this.typeNodeStack.pop();
@@ -1991,6 +1992,8 @@ public class BLangPackageBuilder {
                 function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
+        } else {
+            function.body.pos = pos;
         }
 
         function.attachedFunction = true;
@@ -2043,6 +2046,8 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = pos;
         }
 
         // Create an user defined type with object type
@@ -2506,14 +2511,18 @@ public class BLangPackageBuilder {
         ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
-        ifNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        ifNode.setBody(blockNode);
     }
 
     void addElseIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode elseIfNode = ifElseStatementStack.pop();
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
-        elseIfNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        elseIfNode.setBody(blockNode);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();

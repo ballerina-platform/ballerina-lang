@@ -240,6 +240,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -3358,7 +3359,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
-            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr), funcRefCPIndex, nextIndex,
                     typeCPIndex);
         } else {
             operands = new Operand[4];
@@ -3391,18 +3392,30 @@ public class CodeGenerator extends BLangNodeVisitor {
      * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
-    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+    private Operand[] calcClosureOperands(BLangLambdaFunction lambdaFunction, int funcRefCPIndex, RegIndex nextIndex,
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        for (BVarSymbol symbol : function.symbol.params) {
-            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
-                continue;
-            }
-            Operand type = new Operand(symbol.type.tag);
+        // Order the closures variable maps.
+        Set<BVarSymbol> closureMapSymbols = new LinkedHashSet<>();
+
+        // First add the parameter closure maps.
+        if (!lambdaFunction.function.paramClosureMap.isEmpty()) {
+            // Check if the levels of the parameters are same. If same add them to the closure var map.
+            TreeMap<Integer, BVarSymbol> paramClosureMap = lambdaFunction.function.paramClosureMap;
+
+            lambdaFunction.paramMapSymbolsOfEnclInvokable.forEach((integer, bVarSymbol) -> {
+                if (paramClosureMap.containsKey(integer)) {
+                    closureMapSymbols.add(bVarSymbol);
+                }
+            });
+            // Afterwards add all the enclosing block symbol maps.
+           closureMapSymbols.addAll(lambdaFunction.enclMapSymbols.values());
+        }
+
+        for (BVarSymbol symbol : closureMapSymbols) {
             Operand index = new Operand(symbol.varIndex.value);
-            closureOperandList.add(type);
             closureOperandList.add(index);
         }
         Operand[] operands;

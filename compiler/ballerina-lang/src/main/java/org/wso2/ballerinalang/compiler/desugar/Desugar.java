@@ -250,6 +250,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
+    private ClosureDesugar closureDesugar;
     private StreamingCodeDesugar streamingCodeDesugar;
     private AnnotationDesugar annotationDesugar;
     private InMemoryTableQueryBuilder inMemoryTableQueryBuilder;
@@ -290,6 +291,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
+        this.closureDesugar = ClosureDesugar.getInstance(context);
         this.streamingCodeDesugar = StreamingCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.inMemoryTableQueryBuilder = InMemoryTableQueryBuilder.getInstance(context);
@@ -446,6 +448,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+
+        // Invoke closure desugar.
+        closureDesugar.visit(pkgNode);
+
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
@@ -553,24 +559,11 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.originalFuncSymbol = funcNode.symbol;
         BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(funcNode.symbol);
         funcNode.symbol = dupFuncSymbol;
-        BInvokableType dupFuncType = (BInvokableType) dupFuncSymbol.type;
-
-        //write closure vars
-        funcNode.closureVarSymbols.stream()
-                .filter(symbol -> !isFunctionArgument(symbol, funcNode.symbol.params))
-                .forEach(symbol -> {
-                    symbol.closure = true;
-                    dupFuncSymbol.params.add(0, symbol);
-                    dupFuncType.paramTypes.add(0, symbol.type);
-                });
 
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
-        result = funcNode;
-    }
 
-    private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
-        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.tag == symbol.type.tag));
+        result = funcNode;
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -584,6 +577,12 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             result = streamingCodeDesugar.desugar(foreverStatement);
             result = rewrite(result, env);
+
+            // The result will be a block statement. All variable definitions in the block statement are defined in its
+            // scope.
+            ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
+                    .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
+                    ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
         }
     }
 
@@ -2108,6 +2107,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (varRefExpr.lhsVar ||
                 (!types.isValueType(genVarRefExpr.type) && !types.isValueType(genVarRefExpr.symbol.type))) {
+            genVarRefExpr.lhsVar = varRefExpr.lhsVar;
             result = genVarRefExpr;
             return;
         }
@@ -2160,14 +2160,12 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         } else if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
-                    stringLit);
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.JSON) {
-            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
-                    stringLit);
+            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
         } else if (varRefType.tag == TypeTags.XML) {
-            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr,
-                    stringLit, fieldAccessExpr.fieldKind);
+            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                    fieldAccessExpr.fieldKind);
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
@@ -2606,6 +2604,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        // Collect all the lambda functions.
+        env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         result = bLangLambdaFunction;
     }
 
@@ -2629,23 +2629,41 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.parent = bLangArrowFunction.parent;
         lambdaFunction.type = bLangArrowFunction.funcType;
 
-        // Create function symbol
-        BLangFunction function = lambdaFunction.function;
-        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(lambdaFunction.function.flagSet),
-                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
-        functionSymbol.retType = function.returnTypeNode.type;
-        functionSymbol.params = function.requiredParams.stream()
-                .map(param -> param.symbol)
-                .collect(Collectors.toList());
-        functionSymbol.scope = env.scope;
-        functionSymbol.type = bLangArrowFunction.funcType;
-        function.symbol = functionSymbol;
+        // Create function symbol.
+        BLangFunction funcNode = lambdaFunction.function;
+        BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                new Name(funcNode.name.value), env.enclPkg.symbol.pkgID, bLangArrowFunction.funcType,
+                env.enclEnv.enclVarSym, true);
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
 
-        lambdaFunction.function.closureVarSymbols = bLangArrowFunction.closureVarSymbols;
+        List<BVarSymbol> paramSymbols = funcNode.requiredParams.stream().peek(varNode -> {
+            Scope enclScope = invokableEnv.scope;
+            varNode.symbol.kind = SymbolKind.FUNCTION;
+            varNode.symbol.owner = invokableEnv.scope.owner;
+            enclScope.define(varNode.symbol.name, varNode.symbol);
+        }).map(varNode -> varNode.symbol).collect(Collectors.toList());
+
+        funcSymbol.params = paramSymbols;
+        funcSymbol.retType = funcNode.returnTypeNode.type;
+
+        // Create function type.
+        List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
+        funcNode.type = new BInvokableType(paramTypes, funcNode.returnTypeNode.type, null);
+
+        lambdaFunction.function.pos = bLangArrowFunction.pos;
+        lambdaFunction.function.body.pos = bLangArrowFunction.pos;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
-        result = lambdaFunction;
+        result = rewriteExpr(lambdaFunction);
+    }
+
+    private void defineInvokableSymbol(BLangInvokableNode invokableNode, BInvokableSymbol funcSymbol,
+                                       SymbolEnv invokableEnv) {
+        invokableNode.symbol = funcSymbol;
+        funcSymbol.scope = new Scope(funcSymbol);
+        invokableEnv.scope = funcSymbol.scope;
     }
 
     @Override
@@ -3534,7 +3552,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             safe = ((BConversionOperatorSymbol) iExpr.symbol).safe;
         }
-        // TODO: We need to cast the conversion input and output values because simple convert method use anydata. 
+        // TODO: We need to cast the conversion input and output values because simple convert method use anydata.
         // We can improve code by adding specific convert function so we can get rid of those below casting.
         BLangExpression inputTypeCastExpr = iExpr.requiredArgs.get(0);
         if (types.isValueType(iExpr.requiredArgs.get(0).type)) {
@@ -3556,12 +3574,12 @@ public class Desugar extends BLangNodeVisitor {
         utilMethod.type = iExpr.type;
         return utilMethod;
     }
-    
+
     private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
                                                           BLangExpression typeDesc, BLangExpression valExpr) {
         return visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr));
     }
-    
+
     private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
         if (iExpr.expr.type.tag == TypeTags.STRING) {
             // Builtin module provides string.length() function hence reusing it.
@@ -3610,14 +3628,18 @@ public class Desugar extends BLangNodeVisitor {
             result = null;
             return;
         }
-        iContext.operations.forEach(operation -> rewrite(operation.iExpr.argExprs, env));
+        for (Operation operation : iContext.operations) {
+            if (operation.iExpr.argExprs.size() > 0) {
+                operation.argExpression = rewrite(operation.iExpr.argExprs.get(0), env);
+            }
+        }
         iterableCodeDesugar.desugar(iContext);
         result = rewriteExpr(iContext.iteratorCaller);
     }
 
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
+    <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
         if (node == null) {
             return null;
         }
@@ -3639,7 +3661,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangExpression> E rewriteExpr(E node) {
+    <E extends BLangExpression> E rewriteExpr(E node) {
         if (node == null) {
             return null;
         }
@@ -3662,7 +3684,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangStatement> E rewrite(E statement, SymbolEnv env) {
+    <E extends BLangStatement> E rewrite(E statement, SymbolEnv env) {
         if (statement == null) {
             return null;
         }
