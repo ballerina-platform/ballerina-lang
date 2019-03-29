@@ -1,5 +1,6 @@
 import ballerina/nats;
 import ballerina/io;
+import ballerina/log;
 
 // Represent escape character
 const string ESCAPE = "!q";
@@ -24,4 +25,7 @@ public function main() {
     }
     // Close the publisher connection.
     var result = producer.close();
+    if (result is error) {
+        log:printError("Error occurred while closing the connection", err = result);
+    }
 }
