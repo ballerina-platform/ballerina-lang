@@ -34,7 +34,7 @@ public function main() {
     string[] parts = checkpanic filepath:split("/A/B/C");
     io:println(parts); // returns {"A", "B", "C"} 
     
-    // Join any number of path elements into a single path
+    // Join any number of path elements into a single path.
     string path = checkpanic filepath:build("/", "foo", "bar");
     io:println(path); // On Unix : returns /foo/bar
     
