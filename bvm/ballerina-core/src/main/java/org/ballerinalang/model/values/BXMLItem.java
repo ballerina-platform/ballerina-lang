@@ -668,6 +668,10 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     public long size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
         return this.omNode == null ? 0 : 1;
     }
 

@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -445,7 +446,17 @@ public final class BXMLSequence extends BXML<BValueArray> {
      * @return length of this XML sequence.
      */
     public long size() {
-        return this.sequence.size;
+        int size = 0;
+        for (int i = 0; i < this.sequence.size; i++) {
+            BRefType<?> refValue = sequence.getRefValue(i);
+            if (refValue.getType().getTag() == TypeTags.XML_TAG) {
+                BXML xmlItem = (BXML) refValue;
+                size += xmlItem.size();
+            } else {
+                size += 1;
+            }
+        }
+        return size;
     }
 
     /**
