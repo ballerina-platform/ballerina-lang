@@ -433,7 +433,7 @@ public class XMLUtils {
             return false;
         }
 
-        for (int i = 0; i < xmlSequenceOne.size(); i++) {
+        for (int i = 0; i < xmlSequenceOne.value().size(); i++) {
             if (!isEqual((BXML<?>) xmlSequenceOne.value().getRefValue(i), (BXML<?>) xmlSequenceTwo.value().
                     getRefValue(i))) {
                 return false;
