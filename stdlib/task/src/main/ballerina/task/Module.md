@@ -6,7 +6,7 @@ Task Listeners and Task Schedulers can be used to perform tasks periodically. Th
 
 A Task `Listener` can be used to create a service listener, which will be triggered at specified times.
 
-Below are the two types of configurations that an be used to configure a Task Listener, either as a timer or as an appointment.
+Below are the two types of configurations that can be used to configure a Task Listener, either as a timer or as an appointment.
 
 - `TimerConfiguration`
 - `AppointmentConfiguration`
