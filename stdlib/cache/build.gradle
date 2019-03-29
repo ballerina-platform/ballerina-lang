@@ -5,7 +5,8 @@ description = 'Ballerina - Cache'
 dependencies {
 
     implementation project(':lib-creator')
-    implementation 'commons-logging:commons-logging:1.1.1'
+    implementation 'commons-logging:commons-logging'
+    implementation 'org.slf4j:slf4j-jdk14'
 
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
