@@ -1,2 +1,2 @@
-// Ballerina File Path API contains utility functions to manipulate filepath in a way compatible with the target
-operating system.
+// The Ballerina File Path API contains utility functions to manipulate the file path in a way compatible with the
+target operating system.

@@ -21,7 +21,7 @@ public function main() {
     string normalizedPath = checkpanic filepath:normalize("foo/../bar");
     io:println("Normalized path of foo/../bar: " + normalizedPath); // returns bar
 
-    // Get list of path elements joined by the OS-specific Path Separator.
+    // Get the list of path elements joined by the OS-specific Path Separator.
     string[] parts = checkpanic filepath:split("/A/B/C");
     io:println(io:sprintf("Path elements of /A/B/C: %s", parts)); // returns {"A", "B", "C"}
 
@@ -33,7 +33,7 @@ public function main() {
     string ext = checkpanic filepath:extension("path.bal");
     io:println("Extension of path.bal: " + ext); // returns bal
 
-    // Returns a relative path that is logically equivalent to target path when joined to base path.
+    // Returns a relative path that is logically equivalent to the target path when joined to the base path.
     string relPath = checkpanic filepath:relative("a/b/c", "a/c/d");
     io:println("Relative path between 'a/b/c' and 'a/c/d': " + relPath); // On Unix : returns ../../c/d
 
