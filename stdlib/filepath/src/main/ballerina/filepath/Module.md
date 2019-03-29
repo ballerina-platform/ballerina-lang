@@ -30,7 +30,7 @@ public function main() {
     string normalizedPath = checkpanic filepath:normalize("foo/../bar");
     io:println(normalizedPath); // returns bar
     
-    // Get list of path elements joined by the OS-specific Path Separator.
+    // Get the list of path elements joined by the OS-specific Path Separator.
     string[] parts = checkpanic filepath:split("/A/B/C");
     io:println(parts); // returns {"A", "B", "C"} 
     
