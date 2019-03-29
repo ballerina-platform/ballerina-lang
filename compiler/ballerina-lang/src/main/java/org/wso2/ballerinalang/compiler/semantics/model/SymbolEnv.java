@@ -64,6 +64,10 @@ public class SymbolEnv {
 
     public boolean logErrors;
 
+    public int envCount;
+
+    public int relativeEnvCount;
+
     public SymbolEnv(BLangNode node, Scope scope) {
         this.scope = scope;
         this.node = node;
@@ -87,10 +91,12 @@ public class SymbolEnv {
         target.enclVarSym = this.enclVarSym;
         target.logErrors = this.logErrors;
         target.enclEnv = this;
+        target.envCount = this.envCount;
     }
 
     public static SymbolEnv createPkgEnv(BLangPackage node, Scope scope, SymbolEnv builtinEnv) {
         SymbolEnv env = new SymbolEnv(node, scope);
+        env.envCount = 0;
         env.enclPkg = node;
         env.enclEnv = builtinEnv;
         env.logErrors = false;
@@ -100,18 +106,22 @@ public class SymbolEnv {
     public static SymbolEnv createPkgLevelSymbolEnv(BLangNode node,
                                                     Scope scope, SymbolEnv pkgEnv) {
         SymbolEnv symbolEnv = duplicate(node, scope, pkgEnv);
+        symbolEnv.envCount = 1;
         symbolEnv.enclPkg = pkgEnv.enclPkg;
         return symbolEnv;
     }
 
     public static SymbolEnv createFunctionEnv(BLangFunction node, Scope scope, SymbolEnv env) {
         SymbolEnv funcEnv = createPkgLevelSymbolEnv(node, scope, env);
+        funcEnv.envCount = env.envCount + 1;
+        funcEnv.relativeEnvCount = 0;
         funcEnv.enclInvokable = node;
         return funcEnv;
     }
 
     public static SymbolEnv createTypeEnv(BLangType node, Scope scope, SymbolEnv env) {
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
+        objectEnv.envCount = env.envCount;
         objectEnv.enclType = node;
         return objectEnv;
     }
@@ -122,29 +132,34 @@ public class SymbolEnv {
             objSymbol.methodScope = new Scope(objSymbol);
         }
         SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        symbolEnv.envCount = env.envCount + 1;
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
 
     public static SymbolEnv createDummyEnv(BLangNode node, Scope scope, SymbolEnv env) {
         SymbolEnv dummyEnv = createPkgLevelSymbolEnv(node, scope, env);
+        dummyEnv.envCount = env.envCount + 1;
         return dummyEnv;
     }
 
     public static SymbolEnv createAnnotationEnv(BLangAnnotation node, Scope scope, SymbolEnv env) {
         SymbolEnv annotationEnv = createPkgLevelSymbolEnv(node, scope, env);
+        annotationEnv.envCount = 0;
         annotationEnv.enclAnnotation = node;
         return annotationEnv;
     }
 
     public static SymbolEnv createServiceEnv(BLangService node, Scope scope, SymbolEnv env) {
         SymbolEnv serviceEnv = createPkgLevelSymbolEnv(node, scope, env);
+        serviceEnv.envCount = 0;
         serviceEnv.enclService = node;
         return serviceEnv;
     }
 
     public static SymbolEnv createResourceActionSymbolEnv(BLangInvokableNode node, Scope scope, SymbolEnv env) {
         SymbolEnv symbolEnv = duplicate(node, scope, env);
+        symbolEnv.envCount = 0;
         symbolEnv.enclInvokable = node;
         return symbolEnv;
     }
@@ -173,11 +188,14 @@ public class SymbolEnv {
 
         SymbolEnv symbolEnv = new SymbolEnv(block, scope);
         env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
         return symbolEnv;
     }
 
     public static SymbolEnv createVarInitEnv(BLangVariable node, SymbolEnv env, BVarSymbol enclVarSym) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         symbolEnv.enclVarSym = enclVarSym;
         return symbolEnv;
@@ -185,6 +203,7 @@ public class SymbolEnv {
 
     public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
@@ -192,6 +211,7 @@ public class SymbolEnv {
     public static SymbolEnv createFolkJoinEnv(BLangForkJoin forkJoin, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(forkJoin, scope);
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
@@ -203,6 +223,7 @@ public class SymbolEnv {
             node.scope = scope;
         }
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
@@ -210,18 +231,21 @@ public class SymbolEnv {
     public static SymbolEnv createTypeNarrowedEnv(BLangNode node, SymbolEnv env) {
         Scope scope = new Scope(env.scope.owner);
         SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
 
     public static SymbolEnv getXMLAttributeEnv(BLangXMLAttribute node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
     }
 
     public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         symbolEnv.node = node;
         return symbolEnv;
@@ -238,6 +262,7 @@ public class SymbolEnv {
         this.copyTo(symbolEnv);
         symbolEnv.enclEnv = this.enclEnv != null ? this.enclEnv.createClone() : null;
         symbolEnv.enclPkg = this.enclPkg;
+        symbolEnv.envCount = this.envCount;
         return symbolEnv;
     }
 

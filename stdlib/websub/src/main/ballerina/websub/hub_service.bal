@@ -383,11 +383,9 @@ function persistSubscriptionChange(string mode, SubscriptionDetails subscription
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubPersistenceStoreImpl is HubPersistenceStore) {
-            // always true since already checked
-            addTopicRegistrationsOnStartup(hubPersistenceStoreImpl);
-            addSubscriptionsOnStartup(hubPersistenceStoreImpl); //TODO:verify against topics
-        }
+        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
     }
     return;
 }
