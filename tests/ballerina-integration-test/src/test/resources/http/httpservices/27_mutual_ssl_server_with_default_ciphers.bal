@@ -45,7 +45,7 @@ service strongService on strongCipher {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
         io:println("successful");
     }
 }
@@ -78,7 +78,7 @@ service weakService on weakCipher {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
         io:println("successful");
     }
 }

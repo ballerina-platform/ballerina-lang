@@ -49,10 +49,10 @@ service echo08 on echoEP08 {
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         if (attributeValue == <string>runtime:getInvocationContext().attributes[attributeName]) {
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         } else {
             res.statusCode = 500;
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
     }
 }

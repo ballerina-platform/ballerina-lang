@@ -77,7 +77,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         generator.setSrcPackage(moduleName);
 
         try {
-            generator.generate(GeneratorConstants.GenType.MOCK, openApiFilePath, rootDir.toString());
+            generator.generate(GeneratorConstants.GenType.GEN_SERVICE, openApiFilePath, rootDir.toString());
 
         } catch (IOException | BallerinaOpenApiException e) {
             throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "

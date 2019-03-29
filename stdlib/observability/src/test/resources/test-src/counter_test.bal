@@ -17,7 +17,7 @@ function testCounterIncrement() returns (int) {
 function testCounterError() returns (float) {
     map<string> tags = { "method": "PUT" };
     observe:Counter counter1 = new("requests_total", desc = "Total requests.", tags = tags);
-    _ = counter1.register();
+    checkpanic counter1.register();
     counter1.increment(amount = 5);
     observe:Gauge gauge = new("requests_total", desc = "Total requests.", tags = tags);
     error? err = gauge.register();
@@ -39,7 +39,7 @@ function testCounterWithoutTags() returns (int) {
 function testReset() returns (boolean) {
     map<string> tags = { "method": "PUT" };
     observe:Counter counter1 = new("requests_total", desc = "Total requests.", tags = tags);
-    _ = counter1.register();
+    checkpanic counter1.register();
     int value = counter1.getValue();
     counter1.reset();
     int newValue = counter1.getValue();

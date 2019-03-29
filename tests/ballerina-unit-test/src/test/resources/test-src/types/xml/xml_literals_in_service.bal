@@ -18,6 +18,6 @@ service TestServiceLevelNamespaces on testEP {
     resource function getXML (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setXmlPayload(self.person);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }

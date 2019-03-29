@@ -124,7 +124,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
-        //io:println("Basic Block Is : ", bb.id.value);
         string currentBBName = io:sprintf("%s", bb.id.value);
 
         // create jvm label
@@ -255,7 +254,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
@@ -322,7 +322,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -430,7 +431,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
-                bType is bir:BFutureType) {
+                bType is bir:BFutureType ||
+                bType is bir:BJSONType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -468,9 +470,13 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAnyData || bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAnyData ||
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType || bType is bir:BRecordType || bType is bir:BTypeAny) {
+    } else if (bType is bir:BMapType ||
+                bType is bir:BRecordType ||
+                bType is bir:BTypeAny) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf("L%s;", FUTURE_VALUE);
@@ -505,7 +511,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType) {
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         return io:sprintf(")L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -715,7 +722,8 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType) {
+                targetType is bir:BUnionType ||
+                targetType is bir:BJSONType) {
         // do nothing
         return;
     } else {
@@ -812,7 +820,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType) {
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         typeSig = io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " +

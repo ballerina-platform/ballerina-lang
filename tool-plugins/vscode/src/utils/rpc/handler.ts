@@ -89,7 +89,14 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 return langClient.fetchExamples();
             });
         }
-    }];
+    },
+    {
+        methodName: 'getDefinitionPosition',
+        handler: (args: any[]) => {
+            return langClient.getDefinitionPosition(args[0]);
+        }
+    }
+    ];
 };
 
 const undoRedoMethods = [{
@@ -125,9 +132,9 @@ export class WebViewRPCHandler {
     private _getMethod(methodName: string) {
         return this.methods.find(method => (method.methodName === methodName));
     }
-    
+
     private _onRemoteMessage(msg: WebViewRPCMessage) {
-        if (msg.id) {
+        if (msg.id !== undefined) {
             // this is a request from remote
             const method = this._getMethod(msg.methodName);
             if (method) {
@@ -139,7 +146,7 @@ export class WebViewRPCHandler {
                         });
                     });
             }
-        } else if (msg.originId) {
+        } else if (msg.originId !== undefined) {
             // this is a response from remote to one of our requests
             const callback = this._callbacks.get(msg.originId);
             if (callback) {
