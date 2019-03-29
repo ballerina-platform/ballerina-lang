@@ -25,8 +25,6 @@ import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -42,7 +40,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Timer extends AbstractTask {
 
     private long interval, delay;
-    private static final Logger log = LoggerFactory.getLogger(Timer.class);
 
     /**
      * Creates a Timer object.
@@ -79,38 +76,12 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void stop() throws SchedulingException {
-        this.stop(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void pause() throws SchedulingException {
-        this.pause(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void resume() throws SchedulingException {
-        this.resume(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run(Context context) throws SchedulingException {
+    public void start(Context context) throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to schedule Task. " + e.getMessage());
-            }
-            throw new SchedulingException("Failed to schedule Task.");
+            throw new SchedulingException("Failed to schedule Task.", e);
         }
     }
 
