@@ -88,7 +88,7 @@ public class PathTest {
         BValue[] args = {new BString(inputPath)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
         BString absPath = (BString) returns[0];
-        log.info("{ballerina/path}:absolute(). Return value: " + absPath.stringValue());
+        log.info("{ballerina/filepath}:absolute(). Return value: " + absPath.stringValue());
         assertEquals(absPath.stringValue(), Paths.get(inputPath).toAbsolutePath().toString());
     }
 
@@ -98,7 +98,7 @@ public class PathTest {
         BValue[] args = {new BString(inputPath)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testGetAbsolutePath", args);
         BString absPath = (BString) returns[0];
-        log.info("{ballerina/path}:absolute(). Return value: " + absPath.stringValue());
+        log.info("{ballerina/filepath}:absolute(). Return value: " + absPath.stringValue());
         assertEquals(absPath.stringValue(), Paths.get(inputPath).toAbsolutePath().toString());
     }
 
@@ -111,10 +111,10 @@ public class PathTest {
         if (IS_WINDOWS) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.reason, "{ballerina/path}INVALID_PATH");
+            assertEquals(error.reason, "{ballerina/filepath}INVALID_PATH");
         } else {
             BString absPath = (BString) returns[0];
-            log.info("{ballerina/path}:absolute(). Return value: " + absPath.stringValue());
+            log.info("{ballerina/filepath}:absolute(). Return value: " + absPath.stringValue());
             assertEquals(absPath.stringValue(), Paths.get(illegal).toAbsolutePath().toString());
         }
     }
@@ -134,7 +134,7 @@ public class PathTest {
         assertTrue(returns[0] instanceof BBoolean);
         BBoolean isAbs = (BBoolean) returns[0];
         boolean actual = isAbs.booleanValue();
-        log.info("{ballerina/path}:isAbsolute(). Input: " + input + " is absolute: " + actual);
+        log.info("{ballerina/filepath}:isAbsolute(). Input: " + input + " is absolute: " + actual);
         assertEquals(actual, expected, "Path: " + input + " isAbsolute()");
         try {
             assertEquals(actual, Paths.get(input).isAbsolute(), "Assert with Java | Path: " + input + " isAbsolute()");
@@ -159,12 +159,12 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString filename = (BString) returns[0];
-            log.info("{ballerina/path}:filename(). Input: " + path + " | Return: " + filename.stringValue());
+            log.info("{ballerina/filepath}:filename(). Input: " + path + " | Return: " + filename.stringValue());
             assertEquals(filename.stringValue(), expected, "Path: " + path + " filename()");
             String expectedValue = Paths.get(path).getFileName() != null ? 
                                     Paths.get(path).getFileName().toString() : "";
@@ -187,12 +187,12 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString parent = (BString) returns[0];
-            log.info("{ballerina/path}:parent(). Input: " + input + " | Return: " + parent.stringValue());
+            log.info("{ballerina/filepath}:parent(). Input: " + input + " | Return: " + parent.stringValue());
             assertEquals(parent.stringValue(), expected, "Path: " + input + " filename()");
             String expectedValue = Paths.get(input).getParent() != null ?
                     Paths.get(input).getParent().toString() : "";
@@ -216,12 +216,12 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString filepath = (BString) returns[0];
-            log.info("{ballerina/path}:normalize(). Input: " + input + " | Return: " + filepath.stringValue());
+            log.info("{ballerina/filepath}:normalize(). Input: " + input + " | Return: " + filepath.stringValue());
             assertEquals(filepath.stringValue(), expected, "Path: " + input + " normalize()");
             String expectedValue = Paths.get(input).normalize() != null ? Paths.get(input).normalize().toString() : "";
             assertEquals(filepath.stringValue(), expectedValue, "Assert with Java | Path: " + input + " normalize()");
@@ -244,12 +244,12 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BValueArray);
             BValueArray parts = (BValueArray) returns[0];
-            log.info("{ballerina/path}:split(). Input: " + input + " | Return: " + parts.stringValue());
+            log.info("{ballerina/filepath}:split(). Input: " + input + " | Return: " + parts.stringValue());
             String[] expectedValues = expected.split(",");
             for (int i = 0; i < parts.size(); i++) {
                 assertEquals(parts.getBValue(i).stringValue(), expectedValues[i], "Path: " + input + " normalize()");
@@ -286,12 +286,12 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/path}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
             BString resultPath = (BString) returns[0];
-            log.info("{ballerina/path}:build(). Input: " + Arrays.asList(parts) + " | Return: " + resultPath);
+            log.info("{ballerina/filepath}:build(). Input: " + Arrays.asList(parts) + " | Return: " + resultPath);
             assertEquals(resultPath.stringValue(), expected);
         }
     }
@@ -309,7 +309,7 @@ public class PathTest {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testPathExtension", args);
         BString extension = (BString) returns[0];
-        log.info("{ballerina/path}:extension(). Input: " + input + " | Return: " + extension.stringValue());
+        log.info("{ballerina/filepath}:extension(). Input: " + input + " | Return: " + extension.stringValue());
         assertEquals(extension.stringValue(), expected);
     }
 
@@ -335,8 +335,8 @@ public class PathTest {
         } else {
             assertTrue(returns[0] instanceof BString);
             BString relative = (BString) returns[0];
-            log.info("{ballerina/path}:relative(). Input: Base " + basePath + ", Target " + targetPath + " | Return: "
-                    + relative.stringValue());
+            log.info("{ballerina/filepath}:relative(). Input: Base " + basePath + ", Target " + targetPath + " | " +
+                    "Return: " + relative.stringValue());
             assertEquals(relative.stringValue(), expected);
         }
     }
