@@ -645,7 +645,8 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     Client authorizationClient;
     RequestConfig requestConfig;
     int clockSkew;
-    string tokenUrl;
+    // TODO: Remove EMPTY_STRING initialization after fixing https://github.com/ballerina-platform/ballerina-lang/issues/14779
+    string tokenUrl = EMPTY_STRING;
 
     if (config is ClientCredentialsGrantConfig) {
         if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
@@ -721,7 +722,8 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     Client refreshClient;
     RequestConfig requestConfig;
     int clockSkew;
-    string refreshUrl;
+    // TODO: Remove EMPTY_STRING initialization after fixing https://github.com/ballerina-platform/ballerina-lang/issues/14779
+    string refreshUrl = EMPTY_STRING;
 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
