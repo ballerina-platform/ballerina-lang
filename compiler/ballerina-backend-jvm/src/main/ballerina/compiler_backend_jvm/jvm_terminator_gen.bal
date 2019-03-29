@@ -201,7 +201,7 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genAsyncCallTerm(bir:Call callIns, string funcName) {
+    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
 
         //create a object array of args
         self.mv.visitIntInsn(BIPUSH, callIns.args.length() + 1);

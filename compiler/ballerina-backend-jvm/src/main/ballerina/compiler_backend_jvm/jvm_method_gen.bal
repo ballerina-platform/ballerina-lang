@@ -182,12 +182,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         bir:Terminator terminator = bb.terminator;
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
-        } else if (terminator is bir:Call || terminator is bir:AsyncCall) {
-            if (terminator.kind == "CALL") {
-                termGen.genCallTerm(terminator, funcName);
-            } else if (terminator.kind == "ASYNC_CALL") {
-                termGen.genAsyncCallTerm(terminator, funcName);
-            }
+        } else if (terminator is bir:Call) {
+            termGen.genCallTerm(terminator, funcName);
+        } else if (terminator is bir:AsyncCall) {
+            termGen.genAsyncCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -365,7 +363,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
-function generateLambdaMethod(bir:Call callIns, jvm:ClassWriter cw, string className, string lambdaName) {
+function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string className, string lambdaName) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
                                 io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
     mv.visitCode();
