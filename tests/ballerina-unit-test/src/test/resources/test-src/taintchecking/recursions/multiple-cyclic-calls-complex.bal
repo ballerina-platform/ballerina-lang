@@ -23,7 +23,7 @@ public type Sched object {
 
     public function sendTimerEvents() returns error? {
         self.processFunc.call();
-         _ = self.sendTimerEvents();
+        var val = self.sendTimerEvents();
         return ();
     }
 };
