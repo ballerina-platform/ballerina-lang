@@ -26,8 +26,11 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Map;
+
+import static org.ballerinalang.bre.bvm.BVM.isByteLiteral;
 
 /**
  * The {@code BDecimal} represents a decimal value in Ballerina.
@@ -56,9 +59,78 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
         }
     }
 
+    public BDecimal(String value) {
+        // Check whether the number provided is a hexadecimal value.
+        if (isHexValueString(value)) {
+            this.value = hexToDecimalFloatingPointNumber(value);
+        } else {
+            this.value = new BigDecimal(value, MathContext.DECIMAL128);
+        }
+        if (!this.booleanValue()) {
+            this.valueKind = DecimalValueKind.ZERO;
+        }
+    }
+
     public BDecimal(String value, DecimalValueKind valueKind) {
-        this.value = new BigDecimal(value, MathContext.DECIMAL128);
+        this(value);
         this.valueKind = valueKind;
+    }
+
+    private static boolean isHexValueString(String value) {
+        String upperCaseValue = value.toUpperCase();
+        return upperCaseValue.startsWith("0X") || upperCaseValue.startsWith("-0X");
+    }
+
+    /**
+     * Method used to convert the hexadecimal number to decimal floating point number.
+     * BigDecimal does not support hexadecimal numbers. Hence, we need to convert the hexadecimal number to a
+     * decimal floating point number before passing the string value to the BigDecimal constructor.
+     *
+     * @param value Hexadecimal string value that needs to be converted.
+     * @return BigDecimal corresponds to the hexadecimal number provided.
+     */
+    private static BigDecimal hexToDecimalFloatingPointNumber(String value) {
+        String upperCaseValue = value.toUpperCase();
+        // Remove the hexadecimal indicator prefix.
+        String hexValue = upperCaseValue.replace("0X", "");
+        if (!hexValue.contains("P")) {
+            hexValue = hexValue.concat("P0");
+        }
+        // Isolate the binary exponent and the number.
+        String[] splitAtExponent = hexValue.split("P");
+        int binaryExponent = Integer.parseInt(splitAtExponent[1]);
+        String numberWithoutExp = splitAtExponent[0];
+        String intComponent;
+
+        // Check whether the hex number has a decimal part.
+        // If there is a decimal part, turn the hex floating point number to a whole number by multiplying it by a
+        // power of 16.
+        // i.e: 23FA2.123 = 23FA2123 * 16^(-3)
+        if (numberWithoutExp.contains(".")) {
+            String[] numberComponents = numberWithoutExp.split("\\.");
+            intComponent = numberComponents[0];
+            String decimalComponent = numberComponents[1];
+            // Change the base of the hex power to 2 and calculate the binary exponent.
+            // i.e: 23FA2123 * 16^(-3) = 23FA2123 * (2^4)^(-3) = 23FA2123 * 2^(-12)
+            binaryExponent += 4 * (-1) * decimalComponent.length();
+            intComponent = intComponent.concat(decimalComponent);
+        } else {
+            intComponent = numberWithoutExp;
+        }
+
+        BigDecimal exponentValue;
+        // Find the value corresponding to the binary exponent.
+        if (binaryExponent >= 0) {
+            exponentValue = new BigDecimal(2).pow(binaryExponent);
+        } else {
+            //If negative exponent e, then the corresponding value equals to (1 / 2^(-e)).
+            exponentValue = BigDecimal.ONE.divide(new BigDecimal(2).pow(-binaryExponent), MathContext.DECIMAL128);
+        }
+        // Convert the hexadecimal whole number(without exponent) to decimal big integer.
+        BigInteger hexEquivalentNumber = new BigInteger(intComponent, 16);
+
+        // Calculate and return the final decimal floating point number equivalent to the hex number provided.
+        return new BigDecimal(hexEquivalentNumber).multiply(exponentValue, MathContext.DECIMAL128);
     }
 
     @Override
@@ -68,7 +140,19 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public long intValue() {
-        if (this.valueKind == DecimalValueKind.NOT_A_NUMBER || !BVM.isDecimalWithinIntRange(value)) {
+        switch (valueKind) {
+            case NOT_A_NUMBER:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NaN + "' cannot be converted to 'int'");
+            case NEGATIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NEGATIVE_INF + "' cannot be converted to 'int'");
+            case POSITIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'int'");
+        }
+
+        if (!BVM.isDecimalWithinIntRange(value)) {
             throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                     "out of range 'decimal' value '" + this.stringValue() + "' cannot be converted to 'int'");
         }
@@ -76,8 +160,25 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
     }
 
     @Override
-    public byte byteValue() {
-        return value.byteValue();
+    public long byteValue() {
+        switch (valueKind) {
+            case NOT_A_NUMBER:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NaN + "' cannot be converted to 'byte'");
+            case NEGATIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + NEGATIVE_INF + "' cannot be converted to 'byte'");
+            case POSITIVE_INFINITY:
+                throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                             "'decimal' value '" + POSITIVE_INF + "' cannot be converted to 'byte'");
+        }
+
+        long intVal = Math.round(this.value.doubleValue());
+        if (!isByteLiteral(intVal)) {
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'decimal' value '" + value + "' cannot be converted to 'byte'");
+        }
+        return intVal;
     }
 
     @Override

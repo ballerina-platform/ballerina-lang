@@ -128,6 +128,17 @@ public class FormattingTest {
                 {"expectedErrorConstructor.bal", "errorConstructor.bal"},
                 {"expectedForever.bal", "forever.bal"},
                 {"expectedRecordLiteralExpr.bal", "recordLiteralExpr.bal"},
+                {"expectedStreamingQuery.bal", "streamingQuery.bal"},
+                {"expectedTableQuery.bal", "tableQuery.bal"},
+                {"expectedTypeGuard.bal", "typeGuard.bal"},
+                {"expectedTernaryExpr.bal", "ternaryExpr.bal"},
+                {"expectedStringTemplateLiteral.bal", "stringTemplateLiteral.bal"},
+                {"expectedTrap.bal", "trap.bal"},
+                {"expectedPanic.bal", "panic.bal"},
+                {"expectedErrorVariableDefinition.bal", "errorVariableDefinition.bal"},
+                {"expectedErrorVariableReference.bal", "errorVariableReference.bal"},
+                {"expectedErrorType.bal", "errorType.bal"},
+                {"expectedIndexBasedAccess.bal", "indexBasedAccess.bal"},
 //                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }

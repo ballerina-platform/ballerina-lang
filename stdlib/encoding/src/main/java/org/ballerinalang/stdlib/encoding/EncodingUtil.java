@@ -32,7 +32,7 @@ import java.util.Formatter;
 /**
  * Utility functions relevant to encoding operations.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 public class EncodingUtil {
 

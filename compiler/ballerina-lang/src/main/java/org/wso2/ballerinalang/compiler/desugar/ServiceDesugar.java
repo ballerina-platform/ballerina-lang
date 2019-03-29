@@ -60,7 +60,7 @@ public class ServiceDesugar {
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
     private static final String START_METHOD = "__start";
-    private static final String STOP_METHOD = "__start";
+    private static final String STOP_METHOD = "__stop";
     private static final String ATTACH_METHOD = "__attach";
     private static final String LISTENER = "$LISTENER";
 
@@ -186,7 +186,7 @@ public class ServiceDesugar {
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
         if (((BInvokableType) methodInvocationSymbol.type).retType.tag == TypeTags.UNION
-                && ((BUnionType) ((BInvokableType) methodInvocationSymbol.type).retType).memberTypes.stream()
+                && ((BUnionType) ((BInvokableType) methodInvocationSymbol.type).retType).getMemberTypes().stream()
                 .anyMatch(type -> type.tag == TypeTags.ERROR)) {
             final BLangCheckedExpr checkExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.anyType);
             checkExpr.equivalentErrorTypeList.add(symTable.errorType);

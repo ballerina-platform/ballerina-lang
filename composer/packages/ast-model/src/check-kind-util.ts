@@ -1,485 +1,649 @@
 // This is an auto-generated file. Do not edit.
 // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-ast-utils' to generate.
-import { ASTNode } from "./ast-interfaces";
+import * as Ballerina from "./ast-interfaces";
 
 export class ASTKindChecker {
-  public static isAbort(node: ASTNode) {
+  public static isAbort(node: Ballerina.ASTNode): node is Ballerina.Abort {
     return node.kind === "Abort";
   }
 
-  public static isAnnotation(node: ASTNode) {
+  public static isAnnotation(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Annotation {
     return node.kind === "Annotation";
   }
 
-  public static isAnnotationAttachment(node: ASTNode) {
+  public static isAnnotationAttachment(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.AnnotationAttachment {
     return node.kind === "AnnotationAttachment";
   }
 
-  public static isArrayLiteralExpr(node: ASTNode) {
+  public static isArrayLiteralExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ArrayLiteralExpr {
     return node.kind === "ArrayLiteralExpr";
   }
 
-  public static isArrayType(node: ASTNode) {
+  public static isArrayType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ArrayType {
     return node.kind === "ArrayType";
   }
 
-  public static isArrowExpr(node: ASTNode) {
+  public static isArrowExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ArrowExpr {
     return node.kind === "ArrowExpr";
   }
 
-  public static isAssignment(node: ASTNode) {
+  public static isAssignment(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Assignment {
     return node.kind === "Assignment";
   }
 
-  public static isBinaryExpr(node: ASTNode) {
+  public static isBinaryExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.BinaryExpr {
     return node.kind === "BinaryExpr";
   }
 
-  public static isBlock(node: ASTNode) {
+  public static isBlock(node: Ballerina.ASTNode): node is Ballerina.Block {
     return node.kind === "Block";
   }
 
-  public static isBracedTupleExpr(node: ASTNode) {
+  public static isBracedTupleExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.BracedTupleExpr {
     return node.kind === "BracedTupleExpr";
   }
 
-  public static isBreak(node: ASTNode) {
+  public static isBreak(node: Ballerina.ASTNode): node is Ballerina.Break {
     return node.kind === "Break";
   }
 
-  public static isBuiltInRefType(node: ASTNode) {
+  public static isBuiltInRefType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.BuiltInRefType {
     return node.kind === "BuiltInRefType";
   }
 
-  public static isCatch(node: ASTNode) {
-    return node.kind === "Catch";
-  }
-
-  public static isCheckExpr(node: ASTNode) {
+  public static isCheckExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.CheckExpr {
     return node.kind === "CheckExpr";
   }
 
-  public static isCompilationUnit(node: ASTNode) {
+  public static isCheckPanicExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.CheckPanicExpr {
+    return node.kind === "CheckPanicExpr";
+  }
+
+  public static isCompilationUnit(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.CompilationUnit {
     return node.kind === "CompilationUnit";
   }
 
-  public static isCompoundAssignment(node: ASTNode) {
+  public static isCompoundAssignment(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.CompoundAssignment {
     return node.kind === "CompoundAssignment";
   }
 
-  public static isConstant(node: ASTNode) {
+  public static isConstant(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Constant {
     return node.kind === "Constant";
   }
 
-  public static isConstrainedType(node: ASTNode) {
+  public static isConstrainedType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ConstrainedType {
     return node.kind === "ConstrainedType";
   }
 
-  public static isDeprecated(node: ASTNode) {
+  public static isDeprecated(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Deprecated {
     return node.kind === "Deprecated";
   }
 
-  public static isDocumentationDescription(node: ASTNode) {
+  public static isDocumentationDescription(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.DocumentationDescription {
     return node.kind === "DocumentationDescription";
   }
 
-  public static isDocumentationParameter(node: ASTNode) {
+  public static isDocumentationParameter(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.DocumentationParameter {
     return node.kind === "DocumentationParameter";
   }
 
-  public static isElvisExpr(node: ASTNode) {
+  public static isElvisExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ElvisExpr {
     return node.kind === "ElvisExpr";
   }
 
-  public static isErrorConstructor(node: ASTNode) {
+  public static isErrorConstructor(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorConstructor {
     return node.kind === "ErrorConstructor";
   }
 
-  public static isErrorType(node: ASTNode) {
+  public static isErrorDestructure(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorDestructure {
+    return node.kind === "ErrorDestructure";
+  }
+
+  public static isErrorType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorType {
     return node.kind === "ErrorType";
   }
 
-  public static isExpressionStatement(node: ASTNode) {
+  public static isErrorVariableRef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorVariableRef {
+    return node.kind === "ErrorVariableRef";
+  }
+
+  public static isExpressionStatement(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ExpressionStatement {
     return node.kind === "ExpressionStatement";
   }
 
-  public static isFieldBasedAccessExpr(node: ASTNode) {
+  public static isFieldBasedAccessExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.FieldBasedAccessExpr {
     return node.kind === "FieldBasedAccessExpr";
   }
 
-  public static isFiniteTypeNode(node: ASTNode) {
+  public static isFiniteTypeNode(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.FiniteTypeNode {
     return node.kind === "FiniteTypeNode";
   }
 
-  public static isForeach(node: ASTNode) {
+  public static isForeach(node: Ballerina.ASTNode): node is Ballerina.Foreach {
     return node.kind === "Foreach";
   }
 
-  public static isForever(node: ASTNode) {
+  public static isForever(node: Ballerina.ASTNode): node is Ballerina.Forever {
     return node.kind === "Forever";
   }
 
-  public static isForkJoin(node: ASTNode) {
+  public static isForkJoin(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ForkJoin {
     return node.kind === "ForkJoin";
   }
 
-  public static isFunction(node: ASTNode) {
+  public static isFunction(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Function {
     return node.kind === "Function";
   }
 
-  public static isFunctionType(node: ASTNode) {
+  public static isFunctionType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.FunctionType {
     return node.kind === "FunctionType";
   }
 
-  public static isGroupBy(node: ASTNode) {
+  public static isGroupBy(node: Ballerina.ASTNode): node is Ballerina.GroupBy {
     return node.kind === "GroupBy";
   }
 
-  public static isHaving(node: ASTNode) {
+  public static isHaving(node: Ballerina.ASTNode): node is Ballerina.Having {
     return node.kind === "Having";
   }
 
-  public static isIdentifier(node: ASTNode) {
+  public static isIdentifier(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Identifier {
     return node.kind === "Identifier";
   }
 
-  public static isIf(node: ASTNode) {
+  public static isIf(node: Ballerina.ASTNode): node is Ballerina.If {
     return node.kind === "If";
   }
 
-  public static isImport(node: ASTNode) {
+  public static isImport(node: Ballerina.ASTNode): node is Ballerina.Import {
     return node.kind === "Import";
   }
 
-  public static isIndexBasedAccessExpr(node: ASTNode) {
+  public static isIndexBasedAccessExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.IndexBasedAccessExpr {
     return node.kind === "IndexBasedAccessExpr";
   }
 
-  public static isIntRangeExpr(node: ASTNode) {
-    return node.kind === "IntRangeExpr";
-  }
-
-  public static isInvocation(node: ASTNode) {
+  public static isInvocation(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Invocation {
     return node.kind === "Invocation";
   }
 
-  public static isJoinStreamingInput(node: ASTNode) {
+  public static isJoinStreamingInput(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.JoinStreamingInput {
     return node.kind === "JoinStreamingInput";
   }
 
-  public static isLambda(node: ASTNode) {
+  public static isLambda(node: Ballerina.ASTNode): node is Ballerina.Lambda {
     return node.kind === "Lambda";
   }
 
-  public static isLimit(node: ASTNode) {
-    return node.kind === "Limit";
-  }
-
-  public static isLiteral(node: ASTNode) {
+  public static isLiteral(node: Ballerina.ASTNode): node is Ballerina.Literal {
     return node.kind === "Literal";
   }
 
-  public static isLock(node: ASTNode) {
+  public static isLock(node: Ballerina.ASTNode): node is Ballerina.Lock {
     return node.kind === "Lock";
   }
 
-  public static isMarkdownDocumentation(node: ASTNode) {
+  public static isMarkdownDocumentation(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.MarkdownDocumentation {
     return node.kind === "MarkdownDocumentation";
   }
 
-  public static isMatch(node: ASTNode) {
+  public static isMatch(node: Ballerina.ASTNode): node is Ballerina.Match {
     return node.kind === "Match";
   }
 
-  public static isMatchStaticPatternClause(node: ASTNode) {
+  public static isMatchStaticPatternClause(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.MatchStaticPatternClause {
     return node.kind === "MatchStaticPatternClause";
   }
 
-  public static isMatchStructuredPatternClause(node: ASTNode) {
+  public static isMatchStructuredPatternClause(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.MatchStructuredPatternClause {
     return node.kind === "MatchStructuredPatternClause";
   }
 
-  public static isNamedArgsExpr(node: ASTNode) {
+  public static isNamedArgsExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.NamedArgsExpr {
     return node.kind === "NamedArgsExpr";
   }
 
-  public static isNext(node: ASTNode) {
+  public static isNext(node: Ballerina.ASTNode): node is Ballerina.Next {
     return node.kind === "Next";
   }
 
-  public static isObjectType(node: ASTNode) {
+  public static isNumericLiteral(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.NumericLiteral {
+    return node.kind === "NumericLiteral";
+  }
+
+  public static isObjectType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ObjectType {
     return node.kind === "ObjectType";
   }
 
-  public static isOrderBy(node: ASTNode) {
+  public static isOrderBy(node: Ballerina.ASTNode): node is Ballerina.OrderBy {
     return node.kind === "OrderBy";
   }
 
-  public static isOrderByVariable(node: ASTNode) {
+  public static isOrderByVariable(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.OrderByVariable {
     return node.kind === "OrderByVariable";
   }
 
-  public static isOutputRateLimit(node: ASTNode) {
-    return node.kind === "OutputRateLimit";
-  }
-
-  public static isPanic(node: ASTNode) {
+  public static isPanic(node: Ballerina.ASTNode): node is Ballerina.Panic {
     return node.kind === "Panic";
   }
 
-  public static isPatternClause(node: ASTNode) {
-    return node.kind === "PatternClause";
-  }
-
-  public static isPatternStreamingEdgeInput(node: ASTNode) {
-    return node.kind === "PatternStreamingEdgeInput";
-  }
-
-  public static isPatternStreamingInput(node: ASTNode) {
-    return node.kind === "PatternStreamingInput";
-  }
-
-  public static isRecordDestructure(node: ASTNode) {
+  public static isRecordDestructure(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RecordDestructure {
     return node.kind === "RecordDestructure";
   }
 
-  public static isRecordLiteralExpr(node: ASTNode) {
+  public static isRecordLiteralExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RecordLiteralExpr {
     return node.kind === "RecordLiteralExpr";
   }
 
-  public static isRecordLiteralKeyValue(node: ASTNode) {
+  public static isRecordLiteralKeyValue(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RecordLiteralKeyValue {
     return node.kind === "RecordLiteralKeyValue";
   }
 
-  public static isRecordType(node: ASTNode) {
+  public static isRecordType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RecordType {
     return node.kind === "RecordType";
   }
 
-  public static isRecordVariable(node: ASTNode) {
+  public static isRecordVariable(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RecordVariable {
     return node.kind === "RecordVariable";
   }
 
-  public static isRecordVariableRef(node: ASTNode) {
+  public static isRecordVariableRef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RecordVariableRef {
     return node.kind === "RecordVariableRef";
   }
 
-  public static isRestArgsExpr(node: ASTNode) {
+  public static isRestArgsExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.RestArgsExpr {
     return node.kind === "RestArgsExpr";
   }
 
-  public static isRetry(node: ASTNode) {
+  public static isRetry(node: Ballerina.ASTNode): node is Ballerina.Retry {
     return node.kind === "Retry";
   }
 
-  public static isReturn(node: ASTNode) {
+  public static isReturn(node: Ballerina.ASTNode): node is Ballerina.Return {
     return node.kind === "Return";
   }
 
-  public static isSelectClause(node: ASTNode) {
+  public static isSelectClause(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.SelectClause {
     return node.kind === "SelectClause";
   }
 
-  public static isSelectExpression(node: ASTNode) {
+  public static isSelectExpression(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.SelectExpression {
     return node.kind === "SelectExpression";
   }
 
-  public static isService(node: ASTNode) {
+  public static isService(node: Ballerina.ASTNode): node is Ballerina.Service {
     return node.kind === "Service";
   }
 
-  public static isServiceConstructor(node: ASTNode) {
+  public static isServiceConstructor(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ServiceConstructor {
     return node.kind === "ServiceConstructor";
   }
 
-  public static isSimpleVariableRef(node: ASTNode) {
+  public static isSimpleVariableRef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.SimpleVariableRef {
     return node.kind === "SimpleVariableRef";
   }
 
-  public static isStreamAction(node: ASTNode) {
+  public static isStreamAction(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.StreamAction {
     return node.kind === "StreamAction";
   }
 
-  public static isStreamingInput(node: ASTNode) {
+  public static isStreamingInput(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.StreamingInput {
     return node.kind === "StreamingInput";
   }
 
-  public static isStreamingQuery(node: ASTNode) {
+  public static isStreamingQuery(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.StreamingQuery {
     return node.kind === "StreamingQuery";
   }
 
-  public static isStringTemplateLiteral(node: ASTNode) {
+  public static isStringTemplateLiteral(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.StringTemplateLiteral {
     return node.kind === "StringTemplateLiteral";
   }
 
-  public static isTable(node: ASTNode) {
+  public static isTable(node: Ballerina.ASTNode): node is Ballerina.Table {
     return node.kind === "Table";
   }
 
-  public static isTableColumn(node: ASTNode) {
+  public static isTableColumn(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TableColumn {
     return node.kind === "TableColumn";
   }
 
-  public static isTableQuery(node: ASTNode) {
+  public static isTableQuery(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TableQuery {
     return node.kind === "TableQuery";
   }
 
-  public static isTableQueryExpression(node: ASTNode) {
+  public static isTableQueryExpression(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TableQueryExpression {
     return node.kind === "TableQueryExpression";
   }
 
-  public static isTernaryExpr(node: ASTNode) {
+  public static isTernaryExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TernaryExpr {
     return node.kind === "TernaryExpr";
   }
 
-  public static isTransaction(node: ASTNode) {
+  public static isTransaction(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Transaction {
     return node.kind === "Transaction";
   }
 
-  public static isTrapExpr(node: ASTNode) {
+  public static isTrapExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TrapExpr {
     return node.kind === "TrapExpr";
   }
 
-  public static isTry(node: ASTNode) {
-    return node.kind === "Try";
-  }
-
-  public static isTupleDestructure(node: ASTNode) {
+  public static isTupleDestructure(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TupleDestructure {
     return node.kind === "TupleDestructure";
   }
 
-  public static isTupleTypeNode(node: ASTNode) {
+  public static isTupleTypeNode(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TupleTypeNode {
     return node.kind === "TupleTypeNode";
   }
 
-  public static isTupleVariable(node: ASTNode) {
+  public static isTupleVariable(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TupleVariable {
     return node.kind === "TupleVariable";
   }
 
-  public static isTupleVariableRef(node: ASTNode) {
+  public static isTupleVariableRef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TupleVariableRef {
     return node.kind === "TupleVariableRef";
   }
 
-  public static isTypeConversionExpr(node: ASTNode) {
+  public static isTypeConversionExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TypeConversionExpr {
     return node.kind === "TypeConversionExpr";
   }
 
-  public static isTypeDefinition(node: ASTNode) {
+  public static isTypeDefinition(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TypeDefinition {
     return node.kind === "TypeDefinition";
   }
 
-  public static isTypeInitExpr(node: ASTNode) {
+  public static isTypeInitExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TypeInitExpr {
     return node.kind === "TypeInitExpr";
   }
 
-  public static isTypeTestExpr(node: ASTNode) {
+  public static isTypeTestExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TypeTestExpr {
     return node.kind === "TypeTestExpr";
   }
 
-  public static isTypedescExpression(node: ASTNode) {
+  public static isTypedescExpression(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.TypedescExpression {
     return node.kind === "TypedescExpression";
   }
 
-  public static isUnaryExpr(node: ASTNode) {
+  public static isUnaryExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.UnaryExpr {
     return node.kind === "UnaryExpr";
   }
 
-  public static isUnionTypeNode(node: ASTNode) {
+  public static isUnionTypeNode(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.UnionTypeNode {
     return node.kind === "UnionTypeNode";
   }
 
-  public static isUserDefinedType(node: ASTNode) {
+  public static isUserDefinedType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.UserDefinedType {
     return node.kind === "UserDefinedType";
   }
 
-  public static isValueType(node: ASTNode) {
+  public static isValueType(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ValueType {
     return node.kind === "ValueType";
   }
 
-  public static isVariable(node: ASTNode) {
+  public static isVariable(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.Variable {
     return node.kind === "Variable";
   }
 
-  public static isVariableDef(node: ASTNode) {
+  public static isVariableDef(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.VariableDef {
     return node.kind === "VariableDef";
   }
 
-  public static isVisibleEndpoint(node: ASTNode) {
+  public static isVisibleEndpoint(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.VisibleEndpoint {
     return node.kind === "VisibleEndpoint";
   }
 
-  public static isWaitExpr(node: ASTNode) {
+  public static isWaitExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WaitExpr {
     return node.kind === "WaitExpr";
   }
 
-  public static isWaitLiteralKeyValue(node: ASTNode) {
+  public static isWaitLiteralKeyValue(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WaitLiteralKeyValue {
     return node.kind === "WaitLiteralKeyValue";
   }
 
-  public static isWhere(node: ASTNode) {
+  public static isWhere(node: Ballerina.ASTNode): node is Ballerina.Where {
     return node.kind === "Where";
   }
 
-  public static isWhile(node: ASTNode) {
+  public static isWhile(node: Ballerina.ASTNode): node is Ballerina.While {
     return node.kind === "While";
   }
 
-  public static isWindowClause(node: ASTNode) {
+  public static isWindowClause(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WindowClause {
     return node.kind === "WindowClause";
   }
 
-  public static isWithin(node: ASTNode) {
-    return node.kind === "Within";
-  }
-
-  public static isWorkerFlush(node: ASTNode) {
+  public static isWorkerFlush(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WorkerFlush {
     return node.kind === "WorkerFlush";
   }
 
-  public static isWorkerReceive(node: ASTNode) {
+  public static isWorkerReceive(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WorkerReceive {
     return node.kind === "WorkerReceive";
   }
 
-  public static isWorkerSend(node: ASTNode) {
+  public static isWorkerSend(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WorkerSend {
     return node.kind === "WorkerSend";
   }
 
-  public static isWorkerSyncSend(node: ASTNode) {
+  public static isWorkerSyncSend(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.WorkerSyncSend {
     return node.kind === "WorkerSyncSend";
   }
 
-  public static isXmlAttribute(node: ASTNode) {
+  public static isXmlAttribute(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlAttribute {
     return node.kind === "XmlAttribute";
   }
 
-  public static isXmlAttributeAccessExpr(node: ASTNode) {
+  public static isXmlAttributeAccessExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlAttributeAccessExpr {
     return node.kind === "XmlAttributeAccessExpr";
   }
 
-  public static isXmlCommentLiteral(node: ASTNode) {
+  public static isXmlCommentLiteral(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlCommentLiteral {
     return node.kind === "XmlCommentLiteral";
   }
 
-  public static isXmlElementLiteral(node: ASTNode) {
+  public static isXmlElementLiteral(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlElementLiteral {
     return node.kind === "XmlElementLiteral";
   }
 
-  public static isXmlPiLiteral(node: ASTNode) {
+  public static isXmlPiLiteral(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlPiLiteral {
     return node.kind === "XmlPiLiteral";
   }
 
-  public static isXmlQname(node: ASTNode) {
+  public static isXmlQname(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlQname {
     return node.kind === "XmlQname";
   }
 
-  public static isXmlQuotedString(node: ASTNode) {
+  public static isXmlQuotedString(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlQuotedString {
     return node.kind === "XmlQuotedString";
   }
 
-  public static isXmlTextLiteral(node: ASTNode) {
+  public static isXmlTextLiteral(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.XmlTextLiteral {
     return node.kind === "XmlTextLiteral";
   }
 
-  public static isXmlns(node: ASTNode) {
+  public static isXmlns(node: Ballerina.ASTNode): node is Ballerina.Xmlns {
     return node.kind === "Xmlns";
   }
 }

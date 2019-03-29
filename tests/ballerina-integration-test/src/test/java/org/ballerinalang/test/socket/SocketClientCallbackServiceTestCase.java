@@ -48,8 +48,8 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test(description = "Test socket clinet callback service read ready")
-    public void testSocketClinetCallbackServerEcho() throws Exception {
+    @Test(description = "Test socket client callback service read ready")
+    public void testSocketClientCallbackServerEcho() throws Exception {
         String requestMessage = "Hello Ballerina";
         LogLeecher serverLeecher = new LogLeecher(requestMessage);
         serverInstance.addLogLeecher(serverLeecher);
@@ -66,9 +66,7 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
     @Test(description = "Check numbers of joinees and leavers")
     public void testSocketServerJoinLeave() throws BallerinaTestException {
         LogLeecher joineeServerLeecher = new LogLeecher("Join: 5");
-        LogLeecher leaverServerLeecher = new LogLeecher("Leave: 5");
         serverInstance.addLogLeecher(joineeServerLeecher);
-        serverInstance.addLogLeecher(leaverServerLeecher);
         for (int i = 0; i < 5; i++) {
             try (SocketChannel socketChannel = SocketChannel.open()) {
                 socketChannel.configureBlocking(true);
@@ -85,7 +83,6 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
             }
         }
         joineeServerLeecher.waitForText(20000);
-        leaverServerLeecher.waitForText(20000);
         serverInstance.removeAllLeechers();
     }
 }

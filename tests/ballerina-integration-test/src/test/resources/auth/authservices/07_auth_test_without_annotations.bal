@@ -17,8 +17,8 @@
 import ballerina/http;
 
 http:AuthProvider basicAuthProvider07 = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 listener http:Listener listener07 = new(9098, config = {
@@ -34,6 +34,6 @@ listener http:Listener listener07 = new(9098, config = {
 service echo7 on listener07 {
 
     resource function test7(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

@@ -117,69 +117,45 @@ public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChann
 # `NONE`: No operation should be performed
 public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD|HTTP_NONE;
 
-# A record for providing trust store related configurations.
-#
-# + path - Path to the trust store file
-# + password - Trust store password
-public type TrustStore record {
-    string path = "";
-    string password = "";
-    !...;
-};
-
-# A record for providing key store related configurations.
-#
-# + path - Path to the key store file
-# + password - Key store password
-public type KeyStore record {
-    string path = "";
-    string password = "";
-    !...;
-};
-
 # A record for configuring SSL/TLS protocol and version to be used.
 #
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
-public type Protocols record {
+public type Protocols record {|
     string name = "";
     string[] versions = [];
-    !...;
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of `validateCertEnabled`
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ValidateCert record {
+public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {
+public type ServiceOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # A record for providing configurations for content compression.
 #
 # + enable - The status of compression
 # + contentTypes - Content types which are allowed for compression
-public type CompressionConfig record {
+public type CompressionConfig record {|
     Compression enable = COMPRESSION_AUTO;
     string[] contentTypes = [];
-    !...;
-};
+|};
 
 type HTTPError record {
     string message = "";
@@ -194,7 +170,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
+public extern function parseHeader(string headerValue) returns (string, map<any>)|error;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -214,7 +190,7 @@ function buildRequest(RequestMessage message) returns Request {
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;
@@ -236,7 +212,7 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         response.setBodyParts(message);
     }
     return response;

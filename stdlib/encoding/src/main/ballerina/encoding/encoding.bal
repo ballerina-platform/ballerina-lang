@@ -17,10 +17,9 @@
 # Error relevant to encoding operations.
 #
 # + message - Error message
-public type EncodingError record {
+public type EncodingError record {|
     string message = "";
-    !...;
-};
+|};
 
 # Returns the Base64 encoded `string` value of the given byte array.
 #
@@ -33,6 +32,18 @@ public extern function encodeBase64(byte[] input) returns string;
 # + input - Value to be decoded
 # + return - Decoded output or error if input is not a valid Base64 value
 public extern function decodeBase64(string input) returns byte[]|error;
+
+# Returns the Base64 URL encoded `string` value of the given byte array.
+#
+# + input - Value to be encoded
+# + return - Encoded output
+public extern function encodeBase64Url(byte[] input) returns string;
+
+# Decode Base64 URL encoded `string` into byte array.
+#
+# + input - Value to be decoded
+# + return - Decoded output or error if input is not a valid Base64 URL encoded value
+public extern function decodeBase64Url(string input) returns byte[]|error;
 
 # Returns the Hex encoded `string` value of the given byte array.
 #

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -74,7 +74,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText5", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{{");
+        Assert.assertEquals(returns[0].stringValue(), "${");
     }
 
     @Test
@@ -171,7 +171,7 @@ public class StringTemplateLiteralTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText17", args);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{{count}}");
+        Assert.assertEquals(returns[0].stringValue(), "${count}");
     }
 
     @Test
@@ -236,5 +236,70 @@ public class StringTemplateLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "concatStringTemplateExprs", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "FirstName: John. Second name: Doe");
+    }
+
+    @Test
+    public void stringTemplateEscapeChars() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateEscapeChars", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "\n\r\b\t\f\'\"`{\\");
+    }
+
+    @Test
+    public void stringTemplateStartsWithDollar() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateStartsWithDollar", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "$$$$ A 8 B");
+    }
+
+    @Test
+    public void stringTemplateEndsWithDollar() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateEndsWithDollar", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "A 8 B $$$$");
+    }
+
+    @Test
+    public void stringTemplateWithOnlyDollar() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithOnlyDollar", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "$$$$$$$$$");
+    }
+
+    @Test
+    public void stringTemplateDollarFollowedByEscapedLeftBrace() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByEscapedLeftBrace", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Hi $$$${ 25 End");
+    }
+
+    @Test
+    public void stringTemplateDollarFollowedByRightBrace() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByRightBrace", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Hi $$$$}}} 25 End");
+    }
+
+    @Test
+    public void stringTemplateWithBraces() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithBraces", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{{{{4 + 4}}}}}}}}}}");
+    }
+
+    @Test
+    public void testComplexStringTemplateExpr() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "complexStringTemplateExpr", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(),
+                "Hello \n$\\$${Dummy\tText`\\test Ballerina endText\\{{{{{innerStartText 7 }}!!!");
     }
 }

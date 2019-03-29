@@ -130,13 +130,13 @@ function Listener.sendSubscriptionRequests() {
                     var hubDecodeResponse = http:decode(retHub, "UTF-8");
                     if (hubDecodeResponse is string) {
                         retHub = hubDecodeResponse;
-                    } else if (hubDecodeResponse is error) {
+                    } else {
                         panic hubDecodeResponse;
                     }
                     var topicDecodeResponse = http:decode(retTopic, "UTF-8");
                     if (topicDecodeResponse is string) {
                         retTopic = topicDecodeResponse;
-                    } else if (topicDecodeResponse is error) {
+                    } else {
                         panic topicDecodeResponse;
                     }
                     subscriptionDetails["hub"] = retHub;
@@ -144,7 +144,7 @@ function Listener.sendSubscriptionRequests() {
                     subscriptionDetails["topic"] = retTopic;
                     string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
                     self.setTopic(webSubServiceName, retTopic);
-                } else if (discoveredDetails is error) {
+                } else {
                     string errCause = <string> discoveredDetails.detail().message;
                     log:printError("Error sending out subscription request on start up: " + errCause);
                     continue;
@@ -160,12 +160,11 @@ function Listener.sendSubscriptionRequests() {
 # + host - The host name/IP of the endpoint
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
-public type SubscriberServiceEndpointConfiguration record {
+public type SubscriberServiceEndpointConfiguration record {|
     string host = "";
     http:ServiceSecureSocket? httpServiceSecureSocket = ();
     ExtensionConfig? extensionConfig = ();
-    !...;
-};
+|};
 
 # The extension configuration to introduce custom subscriber services.
 #
@@ -174,7 +173,7 @@ public type SubscriberServiceEndpointConfiguration record {
 # + headerResourceMap - The mapping between header value and resource details
 # + payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
 # + headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
-public type ExtensionConfig record {
+public type ExtensionConfig record {|
     TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
 
     // TODO: make `Link` the default header and special case `Link` to extract the topic (rel="self").
@@ -208,8 +207,7 @@ public type ExtensionConfig record {
     //    }
     //  };
     map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap = ();
-    !...;
-};
+|};
 
 # The function called to discover hub and topic URLs defined by a resource URL.
 #
@@ -229,10 +227,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
             string[] hubs = [];
             (topic, hubs) = topicAndHubs;
             return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
-        } else if (topicAndHubs is error) {
+        } else {
             return topicAndHubs;
         }
-    } else if (discoveryResponse is error) {
+    } else {
         string errCause = <string> discoveryResponse.detail().message;
         map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
@@ -263,7 +261,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
     var convIntLeaseSeconds = int.convert(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
-    } else if (convIntLeaseSeconds is error) {
+    } else {
         string errCause = <string> convIntLeaseSeconds.detail().message;
         log:printError("Error retreiving specified lease seconds value: " + errCause);
         return;
@@ -284,7 +282,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
     if (subscriptionResponse is SubscriptionChangeResponse) {
         log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
                 "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
-    } else if (subscriptionResponse is error) {
+    } else {
         string errCause = <string> subscriptionResponse.detail().message;
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
     }

@@ -29,9 +29,9 @@ service passthroughService on passthroughEP1 {
         http:Client nyseEP1 = new("http://localhost:9113");
         var response = nyseEP1->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
-            _ = caller->respond(response);
-        } else if (response is error) {
-            _ = caller->respond({ "error": "error occurred while invoking the service" });
+            checkpanic caller->respond(response);
+        } else {
+            checkpanic caller->respond({ "error": "error occurred while invoking the service" });
         }
     }
 
@@ -43,9 +43,9 @@ service passthroughService on passthroughEP1 {
         http:Client nyseEP1 = new("http://localhost:9113");
         var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", clientRequest);
         if (response is http:Response) {
-            _ = caller->respond(response);
-        } else if (response is error) {
-            _ = caller->respond({ "error": "error occurred while invoking the service" });
+            checkpanic caller->respond(response);
+        } else {
+            checkpanic caller->respond({ "error": "error occurred while invoking the service" });
         }
     }
 }
@@ -58,7 +58,7 @@ service nyseStockQuote1 on passthroughEP1 {
         path: "/stocks"
     }
     resource function stocks(http:Caller caller, http:Request clientRequest) {
-        _ = caller->respond({ "exchange": "nyse", "name": "IBM", "value": "127.50" });
+        checkpanic caller->respond({ "exchange": "nyse", "name": "IBM", "value": "127.50" });
     }
 
     @http:ResourceConfig {
@@ -68,9 +68,9 @@ service nyseStockQuote1 on passthroughEP1 {
     resource function stocksAsMultiparts(http:Caller caller, http:Request clientRequest) {
         var bodyParts = clientRequest.getBodyParts();
         if (bodyParts is mime:Entity[]) {
-            _ = caller->respond(untaint bodyParts);
-        } else if (bodyParts is error) {
-            _ = caller->respond(untaint bodyParts.reason());
+            checkpanic caller->respond(untaint bodyParts);
+        } else {
+            checkpanic caller->respond(untaint bodyParts.reason());
         }
     }
 }

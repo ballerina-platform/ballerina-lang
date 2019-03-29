@@ -205,11 +205,10 @@ function testNilableOpenRecord() returns OpenPerson? {
 function testNilableOpenRecordArray() returns OpenPerson[]? {
 }
 
-type ClosedPerson record {
+type ClosedPerson record {|
     string name;
     int age;
-    !...;
-};
+|};
 
 function testNilableClosedRecord() returns ClosedPerson? {
 }
@@ -230,7 +229,7 @@ function testNilableObjectArray() returns PersonObj[]? {
 function testNilableUnion() returns int|string|OpenPerson|() {
 }
 
-function testNilableUnionArray() returns (int|string|OpenPerson)[]? {
+function testNilableUnionArray() returns (int|string|OpenPerson)?[]? {
 }
 
 function testNilableTuple() returns (int, string, OpenPerson)? {
@@ -248,5 +247,5 @@ function testNilableTypedescArray() returns typedesc[]? {
 function testNilableStream() returns stream<ClosedPerson>? {
 }
 
-function testNilableStreamArray() returns stream<ClosedPerson>[]? {
+function testNilableStreamArray() returns stream<ClosedPerson>?[]? {
 }

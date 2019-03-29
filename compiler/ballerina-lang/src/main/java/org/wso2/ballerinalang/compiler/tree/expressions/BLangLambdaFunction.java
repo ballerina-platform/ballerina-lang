@@ -21,8 +21,11 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.TreeMap;
 
 /**
  * Implementation of {@link LambdaFunctionNode}.
@@ -33,6 +36,8 @@ public class BLangLambdaFunction extends BLangExpression implements LambdaFuncti
 
     public BLangFunction function;
     public SymbolEnv cachedEnv;
+    public TreeMap<Integer, BVarSymbol> paramMapSymbolsOfEnclInvokable = new TreeMap<>();
+    public TreeMap<Integer, BVarSymbol>  enclMapSymbols = new TreeMap<>();
 
     @Override
     public FunctionNode getFunctionNode() {

@@ -18,10 +18,6 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -29,6 +25,10 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -268,6 +268,27 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
     }
 
+    @Test(description = "Test record variable with only a rest parameter")
+    public void testRecordVariableWithOnlyRestParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", " +
+                "year:1990}, \"married\":true, \"work\":\"SE\"}");
+    }
+
+    @Test(description = "Test record variables rest param types")
+    public void testRestParameterType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
+        Assert.assertEquals(returns.length, 7);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 19);
@@ -276,38 +297,38 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 54, 13);
+                "invalid closed record binding pattern on opened record type 'Person'", 54, 12);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'Person', found 'PersonWithAge'", 62, 37);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 80, 13);
+                "invalid closed record binding pattern on opened record type 'Person'", 78, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedFoo'", 83, 16);
+                "not enough fields to match to closed record type 'ClosedFoo'", 81, 15);
         BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedBar'", 84, 27);
+                "not enough fields to match to closed record type 'ClosedBar'", 82, 28);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'int'", 97, 13);
+                "incompatible types: expected 'string', found 'int'", 95, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'string'", 98, 11);
+                "incompatible types: expected 'int', found 'string'", 96, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'boolean'", 99, 14);
+                "incompatible types: expected 'string', found 'boolean'", 97, 14);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'boolean', found 'string'", 100, 15);
+                "incompatible types: expected 'boolean', found 'string'", 98, 15);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 143, 66);
+                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 141, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 144, 25);
+                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 142, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int|float', found 'int|float?'", 144, 31);
+                "incompatible types: expected 'int|float', found 'int|float?'", 142, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'anydata'", 154, 13);
+                "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'string?'", 154, 31);
+                "incompatible types: expected 'string', found 'string?'", 152, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 159, 20);
+                "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 159, 20);
+                "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 160, 20);
+                "no new variables on left side", 158, 19);
     }
 }

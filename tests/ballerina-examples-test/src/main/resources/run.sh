@@ -33,15 +33,13 @@ fi
 
 # List of BBEs excluded from building
 exclude=("proto-to-ballerina"
-        "swagger-to-ballerina"
+        "openapi-to-ballerina"
         "taint-checking"
         "websub-hub-client-sample"
         "websub-remote-hub-sample"
-        "counter-metrics"
         "config-api"
         "testerina-function-mocks"
         "jms-queue-message-receiver-with-client-acknowledgment"
-        "gauge-metrics"
         "jdbc-client-crud-operations"
         "jdbc-client-batch-update"
         "jdbc-client-call-procedures"

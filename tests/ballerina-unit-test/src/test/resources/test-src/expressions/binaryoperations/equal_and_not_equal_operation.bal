@@ -23,11 +23,10 @@ type OpenPerson record {
     string name;
 };
 
-type ClosedEmployee record {
+type ClosedEmployee record {|
     string name = "";
     int id = 0;
-    !...;
-};
+|};
 
 type OpenEmployeeTwo record {
     string name;
@@ -44,17 +43,15 @@ type OpenRecordWithOptionalFieldTwo record {
     int two?;
 };
 
-type ClosedRecordWithOptionalFieldOne record {
+type ClosedRecordWithOptionalFieldOne record {|
     string name;
     int one?;
-    !...;
-};
+|};
 
-type ClosedRecordWithOptionalFieldTwo record {
+type ClosedRecordWithOptionalFieldTwo record {|
     string name;
     int two?;
-    !...;
-};
+|};
 
 function checkBooleanEqualityPositive(boolean a, boolean b) returns boolean {
     return (a == b) && !(a != b);
@@ -220,7 +217,7 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     boolean[4] b2 = [false, false, false, false];
 
     boolean[3] b3 = [true, false, false];
-    boolean[!...] b4 = [true, false, false];
+    boolean[*] b4 = [true, false, false];
 
     int[5] i1 = [0, 0, 0, 0, 0];
     int[5] i2 = [0, 0, 0, 0, 0];
@@ -232,13 +229,13 @@ function check1DClosedArrayEqualityPositive() returns boolean {
     float[8] f2 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
     float[1] f3 = [12.3];
-    float[!...] f4 = [12.3];
+    float[*] f4 = [12.3];
 
     byte[3] by1 = [0, 0, 0];
     byte[3] by2 = [0, 0, 0];
 
     byte[4] by3 = [0, 10, 100, 255];
-    byte[!...] by4 = [0, 10, 100, 255];
+    byte[*] by4 = [0, 10, 100, 255];
 
     string[3] s1 = ["", "", ""];
     string[3] s2 = ["", "", ""];
@@ -268,7 +265,7 @@ function check1DClosedArrayEqualityPositive() returns boolean {
 
 function check1DClosedArrayEqualityNegative() returns boolean {
     boolean[3] b1 = [true, false, false];
-    boolean[!...] b2 = [true, false, true];
+    boolean[*] b2 = [true, false, true];
 
     int[2] i1 = [123, 45678];
     int[2] i2 = [123, 45674];
@@ -277,7 +274,7 @@ function check1DClosedArrayEqualityNegative() returns boolean {
     byte[4] by2 = [123, 45, 255, 0];
 
     float[1] f1 = [12.3];
-    float[!...] f2 = [12.2];
+    float[*] f2 = [12.2];
 
     string[3] s1 = ["hello", "from", "ballerina"];
     string[3] s2 = ["hello", "from", "ball"];
@@ -322,11 +319,11 @@ function check1DAnyArrayEqualityNegative() returns boolean {
 }
 
 function checkOpenClosedArrayEqualityPositive() returns boolean {
-    string[!...] a = ["a", "bcd", "ef"];
+    string[*] a = ["a", "bcd", "ef"];
     string[] b = ["a", "bcd", "ef"];
 
-    (int|float)[] c = [5, 4.12, 54, 23.1];
-    (float|int)[4] d = [5, 4.12, 54, 23.1];
+    (int|float)?[] c = [5, 4.12, 54, 23.1];
+    (float|int)?[4] d = [5, 4.12, 54, 23.1];
 
     return (a == b) && !(a != b) && (c == d) && !(c != d);
 }
@@ -428,7 +425,7 @@ function check2DStringArrayEqualityNegative() returns boolean {
 
 function checkComplex2DArrayEqualityPositive() returns boolean {
     (int, float)[][] a = [];
-    (int|string, float)[][] b = [];
+    (int|string, float)?[][] b = [];
 
     boolean equals = a == b && !(a != b);
 
@@ -441,7 +438,7 @@ function checkComplex2DArrayEqualityPositive() returns boolean {
 
 function checkComplex2DArrayEqualityNegative() returns boolean {
     (int, float)[][] a = [[(123, 65.4), (234, 23.22)]];
-    (int|string, float)[][] b = [[(124, 65.4), (234, 23.22)]];
+    (int|string, float)?[][] b = [[(124, 65.4), (234, 23.22)]];
 
     boolean equals = a == b || !(a != b);
 
@@ -620,7 +617,7 @@ function checkUnionConstrainedMapsNegative() returns boolean {
 }
 
 function checkUnionArrayPositive() returns boolean {
-    (string|int)[] a1 = [];
+    (string|int)?[] a1 = [];
     int[] a2 = [];
 
     boolean equals = a1 == a2 && !(a1 != a2);
@@ -630,8 +627,8 @@ function checkUnionArrayPositive() returns boolean {
 
     equals = equals && a1 == a2 && !(a1 != a2);
 
-    (string|int)[] a3 = [];
-    (int|float|string)[] a4 = [];
+    (string|int)?[] a3 = [];
+    (int|float|string)?[] a4 = [];
 
     equals = equals && a3 == a4 && !(a3 != a4);
 
@@ -643,8 +640,8 @@ function checkUnionArrayPositive() returns boolean {
 
     equals = equals && a3 == a4 && !(a3 != a4);
 
-    ((string, int)|float)[] a5 = [];
-    ((string, int|boolean)|float)[] a6 = [];
+    ((string, int)|float)?[] a5 = [];
+    ((string, int|boolean)|float)?[] a6 = [];
 
     equals = equals && a5 == a6 && !(a5 != a6);
 
@@ -656,7 +653,7 @@ function checkUnionArrayPositive() returns boolean {
 }
 
 function checkUnionArrayNegative() returns boolean {
-    (string|int)[] a1 = [];
+    (string|int)?[] a1 = [];
     int[] a2 = [];
 
     a1[0] = "true";
@@ -668,8 +665,8 @@ function checkUnionArrayNegative() returns boolean {
 
     equals = equals || a1 == a2 || !(a1 != a2);
 
-    ((string, int)|float)[] a5 = [("hi", 1), 3.0];
-    ((string, int|boolean)|float)[] a6 = [("hi", true), 3.0];
+    ((string, int)|float)?[] a5 = [("hi", 1), 3.0];
+    ((string, int|boolean)|float)?[] a6 = [("hi", true), 3.0];
 
     return equals || a5 == a6 || !(a5 != a6);
 }
@@ -728,7 +725,7 @@ function testIntByteEqualityPositive() returns boolean {
     equals = equals && (c == d) && !(c != d);
 
     byte[][] e = [[23, 45], [123, 43, 68]];
-    (int|float)[][] f = [[23, 45], [123, 43, 68]];
+    (int|float)?[][] f = [[23, 45], [123, 43, 68]];
 
     equals = equals && (e == f) && !(e != f);
 
@@ -761,7 +758,7 @@ function testIntByteEqualityNegative() returns boolean {
 
     equals = equals || (c == d) || !(c != d);
 
-    (int|float)[][] e = [[2.3, 45], [124, 43, 68]];
+    (int|float)?[][] e = [[2.3, 45], [124, 43, 68]];
     byte[][] f = [[23, 45], [123, 43, 68]];
 
     equals = equals || (e == f) || !(e != f);
@@ -799,7 +796,7 @@ function testPrimitiveAndJsonEqualityPositive() returns boolean {
     equals = equals && (a == e) && !(a != e);
 
     json[] f = [1.5, 4.23, 2.1];
-    (map<anydata>|float)[] g = [1.5, 4.23, 2.1];
+    (map<anydata>|float)?[] g = [1.5, 4.23, 2.1];
 
     equals = equals && (f == g) && !(f != g);
 
@@ -831,7 +828,7 @@ function testPrimitiveAndJsonEqualityNegative() returns boolean {
     equals = equals || (a == e) || !(a != e);
 
     json[] f = [1.5, 4.23, 2.1];
-    (map<anydata>|int|float)[] g = [1, 4];
+    (map<anydata>|int|float)?[] g = [1, 4];
 
     equals = equals || (f == g) || !(f != g);
 
@@ -996,24 +993,24 @@ public function testArrayTupleEqualityPositive() returns boolean {
     equals = equals && isEqual(b, c);
 
     OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
-    (OpenEmployeeTwo|json)[] f = [1, e, true, 3.2];
+    (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     (int, OpenEmployeeTwo, boolean, float) g = (1, e, true, 3.2);
 
     return equals && g == f && !(f != g);
 }
 
 public function testArrayTupleEqualityNegative() returns boolean {
-    (boolean|float)[] a = [true, 2.0, 1.23];
+    (boolean|float)?[] a = [true, 2.0, 1.23];
     (json, json, float) b = (false, 2.0, 1.23);
 
     boolean equals = a == b && !(b != a);
 
-    (string|boolean|float|int)[3] c = [false, 2, 1.23];
+    (string|boolean|float|int)?[3] c = [false, 2, 1.23];
     equals = equals && c == b && !(b != c);
 
     OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
     OpenEmployeeTwo e2 = { name: "Ziyad", id: 1000 };
-    (OpenEmployeeTwo|json)[] f = [1, e, true, 3.2];
+    (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     (int|OpenEmployee, OpenEmployeeTwo, boolean|string, float) g = (1, e2, true, 3.2);
 
     return equals || isEqual(g, f);

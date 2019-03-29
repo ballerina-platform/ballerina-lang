@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import { workspace, commands, window, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Uri } from 'vscode';
+import { workspace, commands, window, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Uri, Position } from 'vscode';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import * as _ from 'lodash';
 import { apiEditorRender } from './renderer';
@@ -24,8 +24,10 @@ import { BallerinaExtension } from '../core';
 import { API_DESIGNER_NO_SERVICE } from '../core/messages';
 import { WebViewRPCHandler, WebViewMethod } from '../utils';
 import { join } from "path";
+import { readFileSync } from "fs";
 
 const DEBOUNCE_WAIT = 500;
+const CMD_SHOW_API_EDITOR = "ballerina.showAPIEditor";
 
 let oasEditorPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
@@ -118,7 +120,29 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
     } else {
         langClient.getServiceListForActiveFile(activeEditor.document.uri).then(resp => {
             if (resp.services.length === 0) {
-                window.showInformationMessage(API_DESIGNER_NO_SERVICE);
+                const actions:string[] = [];
+                // Provide an action to fill up empty bal files with a default service
+                const actionAddService = "Add HTTP Service";
+                if (activeEditor && activeEditor.document.getText().trim().length === 0) {
+                    actions.push(actionAddService);
+                }
+                window.showInformationMessage(API_DESIGNER_NO_SERVICE, ...actions)
+                    .then((selection) => {
+                        if (selection === actionAddService) {
+                            const svcTemplatePath = join(context.extensionPath, "resources", 
+                                            "templates", "http-service.bal");
+                            const svcTemplate = readFileSync(svcTemplatePath).toString();
+                            if (activeEditor) {
+                                activeEditor.edit((editBuilder) => {
+                                    editBuilder.insert(new Position(0, 0), svcTemplate);
+                                }).then((insertSuccess) => {
+                                    if (insertSuccess) {
+                                        commands.executeCommand(CMD_SHOW_API_EDITOR);
+                                    }
+                                });
+                            }
+                        }
+                    });
             } else if (resp.services && resp.services.length > 1) {
                 window.showQuickPick(resp.services).then(service => {
                     if (service && activeEditor) {
@@ -151,14 +175,14 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
 
     const remoteMethods: WebViewMethod[] = [
         {
-            methodName: "getSwaggerDef",
+            methodName: "getOpenApiDef",
             handler: (args: any[]): Thenable<any> => {
                 return langClient.getBallerinaOASDef(args[0], args[1]);
             }
         },{
-            methodName: 'triggerSwaggerDefChange',
+            methodName: 'triggerOpenApiDefChange',
             handler: (args: any[]) => {
-                return langClient.triggerSwaggerDefChange(args[0], args[1]);
+                return langClient.triggerOpenApiDefChange(args[0], args[1]);
             }
         }
     ];
@@ -187,7 +211,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
     let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
-    const showAPIRenderer = commands.registerCommand('ballerina.showAPIEditor', serviceNameArg => {
+    const showAPIRenderer = commands.registerCommand(CMD_SHOW_API_EDITOR, serviceNameArg => {
         ballerinaExtInstance.onReady()
         .then(() => {
             const { experimental } = langClient.initializeResult!.capabilities;

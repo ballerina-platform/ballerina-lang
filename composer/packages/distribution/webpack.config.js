@@ -17,14 +17,7 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js', '.json']
     },
     module: {
-        rules: [{
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader']
-            },
-            {
-                test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
-                use: ['url-loader'],
-            },
+        rules: [
             {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
@@ -44,6 +37,7 @@ module.exports = {
         ]
     },
     devServer: {
+        disableHostCheck: true,
         contentBase: path.join(__dirname, 'build'),
         port: 9000
     },

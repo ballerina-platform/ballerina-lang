@@ -23,13 +23,13 @@ public function main() {
         "KE3DZgssvgPgI9PBItnkipQ3CqqXWhV-RFBkVBEGPDYXTUVGbXhdNOBSwKw5ZoVJrCU" +
         "iNG5XD0K4sgN9udVTi3EMKNMnVQaq399k6RYPAy3vIhByS6QZtRjOG8X93WJw-9GLiH" +
         "vcabuid80lnrs2-mAEcstgiHVw";
-    runtime:getInvocationContext().authContext.scheme = "jwt";
-    runtime:getInvocationContext().authContext.authToken = token;
+    runtime:getInvocationContext().authenticationContext.scheme = "jwt";
+    runtime:getInvocationContext().authenticationContext.authToken = token;
 
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
-        var result = response.getPayloadAsString();
+        var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
                                         : result);
     } else {
@@ -39,13 +39,15 @@ public function main() {
 
 // Create a JWT authentication provider with the relevant configurations.
 http:AuthProvider jwtAuthProvider = {
-    scheme: "jwt",
-    issuer: "ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    config: {
+        issuer: "ballerina",
+        audience: ["ballerina.io"],
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 
@@ -76,6 +78,9 @@ service echo on ep {
         path: "/sayHello"
     }
     resource function hello(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        error? result = caller->respond("Hello, World!!!");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 }

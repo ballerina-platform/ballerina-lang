@@ -18,19 +18,17 @@ type Foo record {
     int a = 0;
 };
 
-type ClosedFoo record {
+type ClosedFoo record {|
     int ca = 0;
-    !...;
-};
+|};
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
     
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     Person? parent = ();
@@ -41,8 +39,7 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children = ();
-    !...;
-};
+|};
 
 function testLiteralValueAssignment() returns (anydata, anydata, anydata, anydata) {
     anydata adi = 10;
@@ -242,7 +239,7 @@ function testArrayAssignment() {
                   { 3, "Jim", 330.5 }
                 ]
             };
-    table<any>[] at = [t];
+    table<Employee>[] at = [t];
     ad = at;
 
     map<anydata> m = {};
@@ -602,9 +599,9 @@ function testAnydataToTable() returns table<Employee>? {
     return convertedT;
 }
 
-function testAnydataToUnion() returns ValueType[] {
+function testAnydataToUnion() returns ValueType?[] {
     anydata ad = 10;
-    ValueType[] vt = [];
+    ValueType?[] vt = [];
     int i = 0;
 
     if (ad is ValueType) {
@@ -761,8 +758,8 @@ function testAnydataToNil() returns int? {
     return -1;
 }
 
-function testAnydataToFiniteType() returns FiniteT[] {
-    FiniteT[] ftar = [];
+function testAnydataToFiniteType() returns FiniteT?[] {
+    FiniteT?[] ftar = [];
     int i = 0;
 
     FiniteT ft = "A";

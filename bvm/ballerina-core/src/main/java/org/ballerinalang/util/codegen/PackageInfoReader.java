@@ -70,7 +70,6 @@ import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
-import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -86,7 +85,7 @@ import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
-import org.wso2.ballerinalang.compiler.TypeCreater;
+import org.wso2.ballerinalang.compiler.TypeCreator;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -172,10 +171,6 @@ public class PackageInfoReader {
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
                 return new IntegerCPEntry(longVal);
-
-            case CP_ENTRY_BYTE:
-                byte byteVal = dataInStream.readByte();
-                return new ByteCPEntry(byteVal);
 
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
@@ -797,7 +792,7 @@ public class PackageInfoReader {
     private BFunctionType getFunctionType(PackageInfo packageInfo, String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(new RuntimeTypeCreater(packageInfo), chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new RuntimeTypeCreator(packageInfo), chars, 0, typeStack);
         return (BFunctionType) typeStack.pop();
     }
 
@@ -806,7 +801,7 @@ public class PackageInfoReader {
         Stack<BType> typeStack = new Stack<>();
         char[] chars = signature.toCharArray();
         while (index < chars.length) {
-            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreater(packageInfo), chars, index, typeStack);
+            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreator(packageInfo), chars, index, typeStack);
         }
 
         return typeStack.toArray(new BType[0]);
@@ -1157,7 +1152,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.BICONST:
                 case InstructionCodes.DCONST:
                 case InstructionCodes.BACONST:
                 case InstructionCodes.IMOVE:
@@ -1174,7 +1168,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
-                case InstructionCodes.ITR_NEW:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1202,7 +1195,8 @@ public class PackageInfoReader {
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
-                case InstructionCodes.BI2I:
+                case InstructionCodes.F2BI:
+                case InstructionCodes.D2BI:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1227,11 +1221,6 @@ public class PackageInfoReader {
                 case InstructionCodes.XML2S:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
-                case InstructionCodes.REASON:
-                case InstructionCodes.DETAIL:
-                case InstructionCodes.FREEZE:
-                case InstructionCodes.IS_FROZEN:
-                case InstructionCodes.CLONE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1306,11 +1295,8 @@ public class PackageInfoReader {
                 case InstructionCodes.FLE:
                 case InstructionCodes.DLE:
                 case InstructionCodes.IAND:
-                case InstructionCodes.BIAND:
                 case InstructionCodes.IOR:
-                case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
-                case InstructionCodes.BIXOR:
                 case InstructionCodes.BILSHIFT:
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
@@ -1323,12 +1309,9 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.LENGTH:
-                case InstructionCodes.STAMP:
-                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
-                case InstructionCodes.TYPE_ASSERTION:
+                case InstructionCodes.TYPE_CAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.ANY2T:
@@ -1781,8 +1764,8 @@ public class PackageInfoReader {
                 break;
             case TypeSignature.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue.setByteValue(byteCPEntry.getValue());
+                IntegerCPEntry byteEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setByteValue(byteEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
@@ -1822,7 +1805,7 @@ public class PackageInfoReader {
                 value = new BInteger(intValue);
                 break;
             case TypeSignature.SIG_BYTE:
-                byte byteValue = defaultValue.getByteValue();
+                long byteValue = defaultValue.getByteValue();
                 value = new BByte(byteValue);
                 break;
             case TypeSignature.SIG_FLOAT:
@@ -1881,7 +1864,7 @@ public class PackageInfoReader {
     }
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
-        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
+        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreator(packageInfo), desc);
     }
 
     private String getPackagePath(String orgName, String pkgName, String version) {
@@ -1906,11 +1889,11 @@ public class PackageInfoReader {
      *
      * @since 0.975.0
      */
-    private class RuntimeTypeCreater implements TypeCreater<BType> {
+    private class RuntimeTypeCreator implements TypeCreator<BType> {
 
         PackageInfo packageInfo;
 
-        public RuntimeTypeCreater(PackageInfo packageInfo) {
+        public RuntimeTypeCreator(PackageInfo packageInfo) {
             this.packageInfo = packageInfo;
         }
 

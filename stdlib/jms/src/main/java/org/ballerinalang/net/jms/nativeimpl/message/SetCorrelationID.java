@@ -37,12 +37,12 @@ import javax.jms.Message;
  * Set correlation ID in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "setCorrelationID",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "Message",
-                             structPackage = "ballerina/jms"),
+                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {
                 @Argument(name = "value", type = TypeKind.STRING)
         },

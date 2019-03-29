@@ -41,14 +41,14 @@ function testToStringOnContentDisposition(mime:ContentDisposition contentDisposi
 function testSetMediaTypeToEntity() returns string? {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    _ = entity.setContentType(mediaType.toString());
+    checkpanic entity.setContentType(mediaType.toString());
     return entity.getContentType();
 }
 
 function testSetMediaTypeAndGetValueAsHeader() returns string {
     mime:Entity entity = new;
     mime:MediaType mediaType = getMediaTypeTestObj();
-    _ = entity.setContentType(mediaType.toString());
+    checkpanic entity.setContentType(mediaType.toString());
     return entity.getHeader(mime:CONTENT_TYPE);
 }
 
@@ -148,19 +148,19 @@ function testGetJsonMultipleTimes(json jsonContent) returns (json) {
 
     if (returnContent1 is json) {
         content1 = returnContent1;
-    } else if (returnContent1 is error) {
+    } else {
         log:printError("error in returnContent1", err = returnContent1);
     }
 
     if (returnContent2 is json) {
         content2 = returnContent2;
-    } else if (returnContent2 is error) {
+    } else {
         log:printError("error in returnContent2", err = returnContent2);
     }
 
     if (returnContent3 is json) {
         content3 = returnContent3;
-    } else if (returnContent3 is error) {
+    } else {
         log:printError("error in returnContent3", err = returnContent3);
     }
 
@@ -226,19 +226,19 @@ function testGetTextMultipleTimes(string textContent) returns (string) {
 
     if (returnContent1 is string) {
         content1 = returnContent1;
-    } else if (returnContent1 is error) {
+    } else {
         log:printError("error in returnContent1", err = returnContent1);
     }
 
     if (returnContent2 is string) {
         content2 = returnContent2;
-    } else if (returnContent2 is error) {
+    } else {
         log:printError("error in returnContent2", err = returnContent2);
     }
 
     if (returnContent3 is string) {
         content3 = returnContent3;
-    } else if (returnContent3 is error) {
+    } else {
         log:printError("error in returnContent3", err = returnContent3);
     }
 
@@ -265,19 +265,19 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
 
     if (returnContent1 is byte[]) {
         content1 = returnContent1;
-    } else if (returnContent1 is error) {
+    } else {
         log:printError("error in returnContent1", err = returnContent1);
     }
 
     if (returnContent2 is byte[]) {
         content2 = returnContent2;
-    } else if (returnContent2 is error) {
+    } else {
         log:printError("error in returnContent2", err = returnContent2);
     }
 
     if (returnContent3 is byte[]) {
         content3 = returnContent3;
-    } else if (returnContent3 is error) {
+    } else {
         log:printError("error in returnContent3", err = returnContent3);
     }
 
@@ -314,13 +314,12 @@ function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, stri
         var returnValue = characterChannel.read(30);
         if (returnValue is string) {
             return returnValue;
-        } else if (returnValue is error) {
+        } else {
             return returnValue.reason();
         }
-    } else if (result is error) {
+    } else {
         return result.reason();
     }
-    return "";
 }
 
 function testSetJsonAndGetByteChannel(json jsonContent) returns io:ReadableByteChannel|error {
@@ -338,7 +337,7 @@ function testGetTextDataSource(io:ReadableByteChannel byteChannel) returns strin
 
     if (result is io:ReadableByteChannel) {
         consumeChannel(result);
-    } else if (result is error) {
+    } else {
         log:printError("error in reading byte channel");
     }
 
@@ -354,7 +353,7 @@ function testGetJsonDataSource(io:ReadableByteChannel byteChannel) returns json|
 
     if (result is io:ReadableByteChannel) {
         consumeChannel(result);
-    } else if (result is error) {
+    } else {
         log:printError("error in reading byte channel");
     }
 
@@ -433,7 +432,7 @@ function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ReadableByteCha
 function testGetAnyStreamAsString(io:ReadableByteChannel byteChannel, string contentType) returns string|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
-    return entity.getBodyAsString();
+    return entity.getText();
 }
 
 function testByteArrayWithContentType(io:ReadableByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
@@ -501,9 +500,9 @@ function getAnyStreamAsStringFromCache(io:ReadableByteChannel byteChannel, strin
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel, contentType = contentType);
     string returnContent;
-    returnContent = check entity.getBodyAsString();
+    returnContent = check entity.getText();
     //String body should be retrieved from the cache the second time this is called
-    returnContent = returnContent + check entity.getBodyAsString();
+    returnContent = returnContent + check entity.getText();
     return returnContent;
 }
 

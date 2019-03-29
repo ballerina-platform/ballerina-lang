@@ -128,3 +128,8 @@ public extern function string.matches(string regex) returns boolean|error;
 # + encoding - Encoding to be used in the conversion
 # + return - The byte array representation of the given String
 public extern function string.toByteArray(string encoding) returns byte[];
+
+# Returns a hash code for this string.
+#
+# + return - a hash code value for this string.
+public extern function string.hashCode() returns int;

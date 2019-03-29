@@ -16,36 +16,36 @@ Once the client is created, database operations can be executed through that cli
 
 ```ballerina
 h2:Client testDB = new({
-        path: "/home/ballerina/test/",
-        name: "testdb",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
-    });
+    path: "/home/ballerina/test/",
+    name: "testdb",
+    username: "SA",
+    password: "",
+    poolOptions: { maximumPoolSize: 5 }
+});
 ```
 
 ### Creating a client in H2 Server Mode
 
 ```ballerina
 h2:Client testDB = new({
-        host: "localhost",
-        port: 9092,
-        name: "testdb",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
-    });
+    host: "localhost",
+    port: 9092,
+    name: "testdb",
+    username: "SA",
+    password: "",
+    poolOptions: { maximumPoolSize: 5 }
+});
 ```
 
 ### Creating a client in H2 In-Memory Mode
 
 ```ballerina
 h2:Client testDB = new({
-        name: "testdb",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 5 }
-    });
+    name: "testdb",
+    username: "SA",
+    password: "",
+    poolOptions: { maximumPoolSize: 5 }
+});
 ```
 
 The full list of client properties can be found in the `sql:PoolOptions` type.

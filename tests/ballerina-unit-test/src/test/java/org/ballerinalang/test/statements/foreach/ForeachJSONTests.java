@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.statements.foreach;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,8 +65,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONString() {
-        String result = "{ballerina}StampError {\"message\":\"incompatible stamp operation: 'string' value cannot be " +
-                "stamped as 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"incompatible convert operation: 'string' value " 
+                + "cannot be converted as 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -74,8 +74,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONNumber() {
-        String result = "{ballerina}StampError {\"message\":\"incompatible stamp operation: 'int' value cannot be " +
-                "stamped as 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"incompatible convert operation: 'int' value cannot" 
+                + " be converted as 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNumber");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -83,8 +83,8 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONBoolean() {
-        String result = "{ballerina}StampError {\"message\":\"incompatible stamp operation: 'boolean' value cannot be" +
-                " stamped as 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"incompatible convert operation: 'boolean' value " 
+                + "cannot be converted as 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONBoolean");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -92,7 +92,7 @@ public class ForeachJSONTests {
 
     @Test
     public void testJSONNull() {
-        String result = "{ballerina}StampError {\"message\":\"cannot stamp 'null' value to type 'map<json>'\"}";
+        String result = "{ballerina}ConversionError {\"message\":\"cannot convert 'null' value to type 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNull");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);

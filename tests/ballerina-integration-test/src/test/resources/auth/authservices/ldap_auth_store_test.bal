@@ -42,9 +42,9 @@ auth:LdapAuthProviderConfig ldapAuthProviderConfig = {
 
 http:AuthProvider basicAuthProvider = {
     id: "basic01",
-    scheme: http:AUTHN_SCHEME_BASIC,
-    authStoreProvider: http:AUTH_PROVIDER_LDAP,
-    authStoreProviderConfig: ldapAuthProviderConfig
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:LDAP_AUTH_STORE,
+    config: ldapAuthProviderConfig
 };
 
 listener http:Listener ep = new(9096, config = {
@@ -70,7 +70,7 @@ service helloService on ep {
         path: "/disableAuthz"
     }
     resource function disableAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 
     @http:ResourceConfig {
@@ -81,7 +81,7 @@ service helloService on ep {
         }
     }
     resource function enableAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 
     @http:ResourceConfig {
@@ -92,6 +92,6 @@ service helloService on ep {
         }
     }
     resource function failAuthz(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        checkpanic caller->respond("Hello, World!!!");
     }
 }

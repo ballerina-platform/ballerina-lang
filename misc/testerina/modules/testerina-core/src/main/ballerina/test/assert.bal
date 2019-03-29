@@ -68,7 +68,7 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertEquals(any actual, any expected, string msg = "Assertion Failed!") {
+public function assertEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = false;
     if (actual is anydata && expected is anydata) {
         isEqual = actual == expected;
@@ -79,7 +79,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
     if (!isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
-        string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
+        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -89,7 +89,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotEquals(any actual, any expected, string msg = "Assertion Failed!") {
+public function assertNotEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
     boolean isEqual = false;
     if (actual is anydata && expected is anydata) {
         isEqual = actual == expected;
@@ -100,7 +100,7 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
     if (isEqual) {
         string expectedStr = io:sprintf("%s", expected);
         string actualStr = io:sprintf("%s", actual);
-        string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;
+        string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }

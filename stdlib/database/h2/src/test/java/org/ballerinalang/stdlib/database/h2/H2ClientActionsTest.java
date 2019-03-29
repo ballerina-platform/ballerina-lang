@@ -89,9 +89,9 @@ public class H2ClientActionsTest {
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BString);
-        BString retValue = (BString) returns[0];
-        Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertTrue(retValue.intValue() > 0);
     }
 
     @Test(groups = H2_TEST_GROUP)
@@ -128,7 +128,7 @@ public class H2ClientActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration:Exception during pool initialization:"
+                  ".*error in sql connector configuration:Failed to initialize pool: "
                   + "Unsupported connection setting \"INVALID_PARAM\".*", groups = H2_TEST_GROUP)
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions");

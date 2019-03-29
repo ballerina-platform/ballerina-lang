@@ -1,8 +1,9 @@
 import ballerina/http;
+import ballerina/log;
 
 http:AuthProvider basicAuthProvider = {
-    scheme: "basic",
-    authStoreProvider: "config"
+    scheme: http:BASIC_AUTH,
+    authStoreProvider: http:CONFIG_AUTH_STORE
 };
 
 // The endpoint used here is `http:Listener`, which by default tries to
@@ -50,6 +51,9 @@ service echo on ep {
     // flag from the service level, and override the scope defined in the
     // service level (i.e., scope1) with scope2.
     resource function hello(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello, World!!!");
+        error? result = caller->respond("Hello, World!!!");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 }

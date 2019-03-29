@@ -118,7 +118,7 @@ public class DiagnosticsHelper {
      * @param filePath file path
      * @return diagnostics map
      */
-    private Map<String, List<Diagnostic>> getDiagnostics(BallerinaFile balFile, Path filePath) {
+    public Map<String, List<Diagnostic>> getDiagnostics(BallerinaFile balFile, Path filePath) {
         Path currentModulePath = LSCompilerUtil.getCurrentModulePath(filePath);
         List<org.ballerinalang.util.diagnostic.Diagnostic>
                 balDiagnostics = balFile.getDiagnostics().orElseGet(ArrayList::new);

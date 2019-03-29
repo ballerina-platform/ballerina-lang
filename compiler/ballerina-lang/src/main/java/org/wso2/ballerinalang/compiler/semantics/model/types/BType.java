@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.ValueType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
@@ -105,11 +106,34 @@ public class BType implements ValueType {
     }
 
     @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return getKind().typeName();
     }
 
     protected String getQualifiedTypeName() {
         return tsymbol.pkgID.toString() + ":" + tsymbol.name;
+    }
+
+    /**
+     * A data holder to hold the type associated with an expression.
+     */
+    public static class NarrowedTypes {
+        public BType trueType;
+        public BType falseType;
+
+        public NarrowedTypes(BType trueType, BType falseType) {
+            this.trueType = trueType;
+            this.falseType = falseType;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + trueType + ", " + falseType + ")";
+        }
     }
 }

@@ -37,9 +37,9 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
     boolean committedBlockExecuted = false;
     boolean abortedBlockExecuted = false;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
@@ -49,10 +49,9 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
         abortedBlockExecuted = true;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count, committedBlockExecuted, abortedBlockExecuted);
 }
 
@@ -70,9 +69,9 @@ function testTransactionRollback() returns (int, int, boolean) {
     boolean stmtAfterFailureExecuted = false;
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         stmtAfterFailureExecuted = true;
 
@@ -80,10 +79,9 @@ function testTransactionRollback() returns (int, int, boolean) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count, stmtAfterFailureExecuted);
 }
 
@@ -99,18 +97,17 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+        var e1 = testDB->update("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -127,19 +124,18 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     int count;
 
     transaction {
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers2 (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount);
 
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -156,16 +152,15 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
     int count;
 
     transaction {
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+        var e1 = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+        var e2 = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -184,8 +179,8 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     int count3;
 
     transaction {
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 629, 629);
-        _ = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), 631, 632);
+        var e1 = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 629, 629);
+        var e2 = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), 631, 632);
     } onretry {
         returnVal = -1;
     }
@@ -200,7 +195,7 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     count1 = getTableCountValColumn(dt1);
     count2 = getTableCountValColumn(dt2);
     count3 = getTableCountValColumn(dt3);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count1, count2, count3);
 }
 
@@ -222,7 +217,7 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -230,21 +225,20 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        _= testDB->batchUpdate("Insert into Customers
+        var e1 = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        _ = testDB->batchUpdate("Insert into Customers
+        var e2 = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -266,7 +260,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
     sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
     para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
@@ -274,21 +268,20 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
     para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
     para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        _ = testDB->batchUpdate("Insert into Customers
+        var e1 = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        _ = testDB->batchUpdate("Insert into Customers2
+        var e2 = testDB->batchUpdate("Insert into Customers2
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -304,10 +297,10 @@ function testTransactionAbort() returns (int, int) {
     int returnVal = -1;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')");
 
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
@@ -318,10 +311,9 @@ function testTransactionAbort() returns (int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -343,17 +335,16 @@ function testTransactionErrorPanic() returns (int, int, int) {
         catchValue = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (testTransactionErrorPanicRetVal, catchValue, count);
 }
 
 function testTransactionErrorPanicHelper(h2:Client testDB) {
     int returnVal = 0;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,
                               registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
@@ -378,7 +369,7 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
     int catchValue = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
         var ret = trap testTransactionErrorPanicAndTrapHelper(0);
         if (ret is error) {
@@ -388,10 +379,9 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, catchValue, count);
 }
 
@@ -414,18 +404,17 @@ function testTransactionCommitted() returns (int, int) {
     int returnVal = 1;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -442,27 +431,26 @@ function testTwoTransactions() returns (int, int, int) {
     int returnVal2 = 1;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal1 = 0;
     }
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal2 = 0;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal1, returnVal2, count);
 }
 
@@ -476,18 +464,17 @@ function testTransactionWithoutHandlers() returns (int) {
     });
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')");
     }
 
     int count;
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
@@ -512,7 +499,7 @@ function testLocalTransactionFailed() returns (string, int) {
     a = a + " afterTrx";
     var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
     count = getTableCountValColumn(dtRet);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (a, count);
 }
 
@@ -520,9 +507,9 @@ function testLocalTransactionFailedHelper(string status, h2:Client testDB) retur
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                         values ('James', 'Clerk', 111, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
     } onretry {
         a = a + " onRetry";
@@ -549,10 +536,9 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
         a =  a + "trapped";
     }
     a = a + " afterTrx";
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount);
     int count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (a, count);
 }
 
@@ -561,13 +547,13 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client te
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 222, 5000.75, 'USA')");
         if (i == 2) {
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         } else {
-            _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+            var e3 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                                         values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
     } onretry {
@@ -603,20 +589,20 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
     if (ret is error) {
         i = -1;
     }
-    _ = testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = checkpanic testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
-    testDB1.stop();
+    checkpanic testDB1.stop();
 
     var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
         ResultCount);
     i = getTableCountValColumn(dt);
-    testDB2.stop();
+    checkpanic testDB2.stop();
     return i;
 }
 
 function testLocalTransactionFailedWithNextupdateHelper(h2:Client testDB) {
     transaction {
-        _ = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
+        var e = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 1234, 5000.75, 'USA')");
     }
 }
@@ -633,23 +619,22 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
         testNestedTwoLevelTransactionSuccessParticipant(testDB);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 @transactions:Participant {}
 function testNestedTwoLevelTransactionSuccessParticipant(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
 }
 
@@ -665,30 +650,29 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
         testNestedThreeLevelTransactionSuccessParticipant1(testDB);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionSuccessParticipant1(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
     testNestedThreeLevelTransactionSuccessParticipant2(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionSuccessParticipant2(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
 }
 
@@ -708,17 +692,16 @@ function testNestedThreeLevelTransactionFailed() returns (int, int) {
         returnVal =  ret;
     }
     //check whether update action is performed
-    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount
-    );
+    var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns int {
     int returnVal = 0;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('James', 'Clerk', 555, 5000.75, 'USA')");
         testNestedThreeLevelTransactionFailedHelperParticipant1(testDB);
     } onretry {
@@ -729,21 +712,21 @@ function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns i
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant1(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant2(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant2(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant3(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant3(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
 }
 
@@ -756,9 +739,9 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
         poolOptions: { maximumPoolSize: 5 }
     });
 
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
 
     int returnVal = 0;
@@ -781,7 +764,7 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
     } onretry {
         returnVal = -1;
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -794,9 +777,9 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
         poolOptions: { maximumPoolSize: 5 }
     });
 
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
 
     int returnVal = 0;
@@ -811,7 +794,7 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
     } onretry {
         returnVal = -1;
     }
-    testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
@@ -827,7 +810,7 @@ function testCloseConnectionPool() returns (int) {
     int count;
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
     count = getTableCountValColumn(dt);
-    testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 

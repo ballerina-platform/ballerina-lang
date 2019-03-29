@@ -22,14 +22,17 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
@@ -40,12 +43,14 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * Function for decoding public key.
  *
- * @since 0.991.0
+ * @since 0.990.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
@@ -68,10 +73,11 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
         BMap<String, BValue> keyStore = (BMap<String, BValue>) context.getNullableRefArgument(0);
         BString keyAlias = (BString) context.getNullableRefArgument(1);
 
-        PublicKey publicKey = null;
+        PublicKey publicKey;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore != null) {
-            File keyStoreFile = new File(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).stringValue());
+            File keyStoreFile = new File(CryptoUtils
+                    .substituteVariables(keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).stringValue()));
             try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
                 KeyStore keystore = KeyStore.getInstance(Constants.KEYSTORE_TYPE_PKCS12);
                 try {
@@ -83,15 +89,47 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
                     return;
                 }
 
+                Certificate certificate = keystore.getCertificate(keyAlias.stringValue());
+                BMap<String, BValue> certificateBMap = BLangConnectorSPIUtil.createBStruct(context,
+                        Constants.CRYPTO_PACKAGE, Constants.CERTIFICATE_RECORD);
+                if (certificate instanceof X509Certificate) {
+                    X509Certificate x509Certificate = (X509Certificate) certificate;
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_ISSUER_FIELD,
+                            new BString(x509Certificate.getIssuerX500Principal().getName()));
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD,
+                            new BString(x509Certificate.getSubjectX500Principal().getName()));
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_VERSION_FIELD,
+                            new BInteger(x509Certificate.getVersion()));
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_SERIAL_FIELD,
+                            new BInteger(x509Certificate.getSerialNumber().longValue()));
+
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD, TimeUtils
+                            .createTimeStruct(TimeUtils.getTimeZoneStructInfo(context),
+                                    TimeUtils.getTimeStructInfo(context), x509Certificate.getNotBefore().getTime(),
+                                    Constants.TIMEZONE_GMT));
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD, TimeUtils
+                            .createTimeStruct(TimeUtils.getTimeZoneStructInfo(context),
+                                    TimeUtils.getTimeStructInfo(context), x509Certificate.getNotAfter().getTime(),
+                                    Constants.TIMEZONE_GMT));
+
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD,
+                            new BValueArray(x509Certificate.getSignature()));
+                    certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD,
+                            new BString(x509Certificate.getSigAlgName()));
+                }
+                publicKey = certificate.getPublicKey();
                 //TODO: Add support for DSA/ECDSA keys and associated crypto operations
-                publicKey = keystore.getCertificate(keyAlias.stringValue()).getPublicKey();
                 if (publicKey.getAlgorithm().equals("RSA")) {
-                    BMap<String, BValue> publicKeyStruct = BLangConnectorSPIUtil.createBStruct(context,
+                    BMap<String, BValue> publicKeyBMap = BLangConnectorSPIUtil.createBStruct(context,
                             Constants.CRYPTO_PACKAGE, Constants.PUBLIC_KEY_RECORD);
-                    publicKeyStruct.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
-                    publicKeyStruct.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD,
+                    publicKeyBMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
+                    publicKeyBMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE, certificate);
+                    publicKeyBMap.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD,
                             new BString(publicKey.getAlgorithm()));
-                    context.setReturnValues(publicKeyStruct);
+                    if (certificateBMap.size() > 0) {
+                        publicKeyBMap.put(Constants.PUBLIC_KEY_RECORD_CERTIFICATE_FIELD, certificateBMap);
+                    }
+                    context.setReturnValues(publicKeyBMap);
                 } else {
                     context.setReturnValues(CryptoUtils.createCryptoError(context, "not a valid RSA key"));
                 }

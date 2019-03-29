@@ -26,12 +26,12 @@ service test on mockEP {
                 mime:Entity entity = new;
                 entity.setText(untaint result);
                 response.setEntity(entity);
-            } else if (result is error) {
+            } else {
                 setErrorResponse(response, result);
             }
         }
 
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -46,11 +46,11 @@ service test on mockEP {
             var result = bodyParts[0].getJson();
             if (result is json) {
                 response.setJsonPayload(untaint result);
-            } else if (result is error) {
+            } else {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -65,11 +65,11 @@ service test on mockEP {
             var result = bodyParts[0].getXml();
             if (result is xml) {
                 response.setXmlPayload(untaint result);
-            } else if (result is error) {
+            } else {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -84,11 +84,11 @@ service test on mockEP {
             var result = bodyParts[0].getByteArray();
             if (result is byte[]) {
                 response.setBinaryPayload(untaint result);
-            } else if (result is error) {
+            } else {
                 setErrorResponse(response, result);
             }
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -109,7 +109,7 @@ service test on mockEP {
             }
             response.setTextPayload(untaint content);
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 
     @http:ResourceConfig {
@@ -122,10 +122,10 @@ service test on mockEP {
 
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
-        } else if (bodyParts is error) {
+        } else {
             response.setPayload(untaint <string>bodyParts.detail().message);
         }
-        _ = caller->respond(response);
+        checkpanic caller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -146,7 +146,7 @@ service test on mockEP {
             }
             response.setTextPayload(untaint payload);
         }
-        _ = caller->respond(untaint response);
+        checkpanic caller->respond(untaint response);
     }
 }
 
@@ -162,7 +162,7 @@ function handleNestedParts(mime:Entity parentPart) returns (string) {
                 content = content + handleContent(childPart);
                 i = i + 1;
             }
-        } else if (childParts is error) {
+        } else {
             return "Error decoding nested parts";
         }
     }
@@ -177,32 +177,32 @@ function handleContent(mime:Entity bodyPart) returns (string) {
             var payload = bodyPart.getXml();
             if (payload is xml) {
                 return payload.getTextValue();
-            } else if (payload is error) {
+            } else {
                 return "Error in getting xml payload";
             }
         } else if (mime:APPLICATION_JSON == baseType) {
             var payload = bodyPart.getJson();
             if (payload is json) {
                 return extractFieldValue(payload.bodyPart);
-            } else if (payload is error) {
+            } else {
                 return "Error in getting json payload";
             }
         } else if (mime:TEXT_PLAIN == baseType) {
             var payload = bodyPart.getText();
             if (payload is string) {
                 return payload;
-            } else if (payload is error) {
+            } else {
                 return "Error in getting string payload";
             }
         } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
             var payload = bodyPart.getByteArray();
             if (payload is byte[]) {
                 return mime:byteArrayToString(payload, mime:DEFAULT_CHARSET);
-            } else if (payload is error) {
+            } else {
                 return "Error in getting byte[] payload";
             }
         }
-    } else if (mediaType is error) {
+    } else {
         return mediaType.reason();
     }
     return "";

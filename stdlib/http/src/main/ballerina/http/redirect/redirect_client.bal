@@ -269,7 +269,7 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
                     if (resolvedURI is string) {
                         return performRedirection(resolvedURI, redirectClient, redirectMethod, request,
                             response);
-                    } else if (resolvedURI is error) {
+                    } else {
                         redirectClient.currentRedirectCount = 0;
                         return resolvedURI;
                     }
@@ -315,7 +315,7 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
         followRedirects: config.followRedirects,
         retryConfig: config.retryConfig,
         proxy: config.proxy,
-        connectionThrottling: config.connectionThrottling,
+        poolConfig: config.poolConfig,
         secureSocket: config.secureSocket,
         cache: config.cache,
         compression: config.compression,

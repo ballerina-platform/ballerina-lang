@@ -16,16 +16,16 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test streams for invalid scenarios")
     public void testConstrainedStreamNegative() {
-        Assert.assertEquals(failureResult.getErrorCount(), 5);
+        Assert.assertEquals(failureResult.getErrorCount(), 4);
         BAssertUtil.validateError(failureResult, 0, "incompatible types: expected 'stream<int>',"
                                   + " found 'stream'", 14, 12);
         BAssertUtil.validateError(failureResult, 1, "incompatible types: expected 'stream<int>',"
@@ -56,8 +56,6 @@ public class BStreamValueTest {
                                   + " 'stream<Person>', found 'stream<Employee>'", 24, 37);
         BAssertUtil.validateError(failureResult, 3, "incompatible types: expected"
                                   + " 'stream<Person>', found 'stream'", 30, 37);
-        BAssertUtil.validateError(failureResult, 4, "incompatible types: 'stream<Person>' cannot be explicitly " +
-                                          "typed as 'stream<Employee>'", 41, 26);
     }
 
     @Test(description = "Test publishing records of invalid type to a stream",

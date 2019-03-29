@@ -1,16 +1,18 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/swagger;
+import ballerina/openapi;
 
-@swagger:ClientEndpoint
+@openapi:ClientEndpoint
 listener http:Listener helloEp = new(9090);
-@swagger:ClientConfig {
+
+@openapi:ClientConfig {
     generate: true
 }
 @http:ServiceConfig {
     basePath: "/sample"
 }
-service Hello on new http:Listener(9090) {    
+service Hello on helloEp {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/hello"
@@ -18,10 +20,10 @@ service Hello on new http:Listener(9090) {
     resource function hello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello");
-        var result = caller -> respond(res);
+        var result = caller->respond(res);
         if (result is error) {
             log:printError("Error when responding", err = result);
         }
-   }
+    }
 }
 

@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -96,14 +95,11 @@ public class TextDocumentFormatUtil {
         String path = file.toAbsolutePath().toString();
         String sourceRoot = LSCompilerUtil.getSourceRoot(file);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, path);
-        String[] uriParts = path.split(Pattern.quote(File.separator));
-        String fileName = uriParts[uriParts.length - 1];
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false);
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -118,11 +114,11 @@ public class TextDocumentFormatUtil {
         // else process normally
         if (isTestablePackage(relativePath)) {
             compilationUnit = bLangPackage.getTestablePkg().getCompilationUnits().stream().
-                    filter(compUnit -> ("tests/" + fileName).equals(compUnit.getName()))
+                    filter(compUnit -> (relativePath).equals(compUnit.getName()))
                     .findFirst().orElse(null);
         } else {
             compilationUnit = bLangPackage.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElse(null);
+                    filter(compUnit -> relativePath.equals(compUnit.getName())).findFirst().orElse(null);
         }
 
         JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
@@ -226,7 +222,8 @@ public class TextDocumentFormatUtil {
             }
 
             /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
-            if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
+            if ((node.getKind() == NodeKind.LITERAL || node.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                    "value".equals(jsonName)) {
                 if (prop instanceof String) {
                     nodeJson.addProperty(jsonName, '"' + StringEscapeUtils.escapeJava((String) prop) + '"');
                     nodeJson.addProperty(UNESCAPED_VALUE, String.valueOf(prop));

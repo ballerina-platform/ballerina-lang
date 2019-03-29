@@ -20,12 +20,10 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.ErrorDestructureNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 /**
  * Implementation of {@link ErrorDestructureNode}.
@@ -37,28 +35,13 @@ public class BLangErrorDestructure extends BLangStatement implements ErrorDestru
     public BLangExpression expr;
 
     @Override
-    public BLangVariableReference getReason() {
-        return this.varRef.reason;
-    }
-
-    @Override
-    public BLangVariableReference getDetail() {
-        return this.varRef.detail;
-    }
-
-    @Override
-    public void addReasonRef(VariableReferenceNode variableReferenceNode) {
-        varRef.reason = (BLangVariableReference) variableReferenceNode;
-    }
-
-    @Override
-    public void addDetailRef(VariableReferenceNode variableReferenceNode) {
-        varRef.detail = (BLangVariableReference) variableReferenceNode;
+    public BLangErrorVarRef getVarRef() {
+        return this.varRef;
     }
 
     @Override
     public BLangExpression getExpression() {
-        return expr;
+        return this.expr;
     }
 
     @Override

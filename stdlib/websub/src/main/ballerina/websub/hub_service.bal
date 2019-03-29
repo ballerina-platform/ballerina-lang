@@ -31,7 +31,7 @@ service hubService =
     basePath: BASE_PATH,
     authConfig: {
         authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false)
         },
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
@@ -46,7 +46,7 @@ service {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = httpCaller->respond(response);
+        checkpanic httpCaller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -168,9 +168,9 @@ service {
                             if (fetchResponse.hasHeader(CONTENT_TYPE)) {
                                 contentType = fetchResponse.getHeader(CONTENT_TYPE);
                             }
-                            var fetchedPayload = fetchResponse.getPayloadAsString();
+                            var fetchedPayload = fetchResponse.getTextPayload();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
-                        } else if (fetchResponse is error) {
+                        } else {
                             string errorCause = <string> fetchResponse.detail().message;
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
@@ -182,16 +182,13 @@ service {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
                             return;
-                        } else {
-                            // should never reach here
-                            return;
                         }
                     } else {
                         binaryPayload = request.getBinaryPayload();
                         if (request.hasHeader(CONTENT_TYPE)) {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
-                        var result = request.getPayloadAsString();
+                        var result = request.getTextPayload();
                         stringPayload = result is string ? result : "";
                     }
 
@@ -199,7 +196,7 @@ service {
                     if (binaryPayload is byte[]) {
                         WebSubContent notification = { payload:binaryPayload, contentType:contentType };
                         publishStatus = publishToInternalHub(topic, notification);
-                    } else if (binaryPayload is error) {
+                    } else {
                         string errorCause = <string> binaryPayload.detail().message;
                         string errorMessage = "Error extracting payload: " + untaint errorCause;
                         log:printError(errorMessage);
@@ -296,7 +293,11 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 
     http:Request request = new;
 
-    string queryParams = HUB_MODE + "=" + mode
+    var decodedCallback = http:decode(callback, "UTF-8");
+    string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
+
+    string queryParams = (callbackToCheck.contains("?") ? "&" : "?")
+        + HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
         + "&" + HUB_CHALLENGE + "=" + challenge;
 
@@ -304,7 +305,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
+    var subscriberResponse = callbackEp->get(untaint queryParams, message = request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();
@@ -336,12 +337,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
                         + callback + "]");
             }
-        } else if (respStringPayload is error) {
+        } else {
             string errCause = <string> respStringPayload.detail().message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
-    } else if (subscriberResponse is error) {
+    } else {
         string errCause = <string> subscriberResponse.detail().message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
@@ -454,7 +455,7 @@ returns error? {
             persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        var result = request.getPayloadAsString();
+        var result = request.getTextPayload();
         string stringPayload = result is error ? "" : result;
 
         if (subscriptionDetails.secret != "") {
@@ -488,12 +489,12 @@ returns error? {
                 log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
                                 + "], topic[" + subscriptionDetails.topic + "]");
             } else {
-                log:printError("Error delievering content to callback[" + callback + "] for topic["
+                log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
-        } else if (contentDistributionResponse is error) {
+        } else {
             string errCause = <string> contentDistributionResponse.detail().message;
-            log:printError("Error delievering content to callback[" + callback + "] for topic["
+            log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
     }
@@ -504,10 +505,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...;
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #

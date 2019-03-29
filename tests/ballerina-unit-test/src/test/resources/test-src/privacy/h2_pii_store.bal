@@ -50,5 +50,5 @@ function pseudonymizePiiWithEmptyTableName (string pii) returns string|error {
 }
 
 function shutdown() {
-    testDB.stop();
+    checkpanic testDB.stop();
 }

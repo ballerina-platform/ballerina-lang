@@ -25,8 +25,8 @@ function checkEqualityOfArraysOfDifferentTypes() returns boolean {
     string[2] b = ["", ""];
     boolean bool1 = a == b && !(a != b);
 
-    (float|int)[] c = [];
-    (boolean|xml)[] d = [];
+    (float|int)?[] c = [];
+    (boolean|xml)?[] d = [];
     boolean bool2 = c == d && !(c != d);
 
     return bool1 && bool2;
@@ -130,19 +130,16 @@ type Person record {
     string id = "";
 };
 
-type ClosedDept record {
+type ClosedDept record {|
     string code;
-    !...;
-};
+|};
 
-type EmployeeWithOptionalId record {
+type EmployeeWithOptionalId record {|
     string name;
     float id?;
-    !...;
-};
+|};
 
-type PersonWithOptionalId record {
+type PersonWithOptionalId record {|
     string name;
     string id?;
-    !...;
-};
+|};

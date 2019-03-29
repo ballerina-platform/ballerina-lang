@@ -16,14 +16,14 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -125,6 +125,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         BAssertUtil.validateError(
                 resultNegative, 0, "tuple and expression size does not match", 18, 25);
         BAssertUtil.validateError(
@@ -144,7 +145,23 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, 6, "tuple and expression size does not match", 49, 30);
         BAssertUtil.validateError(resultNegative, 7, "tuple index out of range: index: '-1', size: '3'", 54, 14);
         BAssertUtil.validateError(resultNegative, 8, "tuple index out of range: index: '3', size: '3'", 55, 14);
-        BAssertUtil.validateError(resultNegative, 9, "invalid index expression: expected integer literal", 57, 18);
-        BAssertUtil.validateError(resultNegative, 10, "incompatible types: expected 'int', found 'string'", 58, 16);
+        BAssertUtil.validateError(resultNegative, 9, "incompatible types: expected 'int', found 'string'", 57, 16);
+        BAssertUtil.validateError(resultNegative, 10, "incompatible types: expected 'int', found 'string'", 63, 24);
+        BAssertUtil.validateError(resultNegative, 11,
+                "incompatible types: expected 'string|boolean|int', found 'float'", 69, 20);
+        BAssertUtil.validateError(resultNegative, 12,
+                "incompatible types: expected 'string', found 'string|boolean|int'", 70, 16);
+        BAssertUtil.validateError(resultNegative, 13,
+                "incompatible types: expected 'string|boolean', found 'string|boolean|int'", 71, 24);
+        BAssertUtil.validateError(resultNegative, 14,
+                "incompatible types: expected 'int', found 'S1|S2'", 89, 19);
+        BAssertUtil.validateError(resultNegative, 15,
+                "invalid tuple index expression: value space '3|4|5' out of range", 90, 19);
+        BAssertUtil.validateError(resultNegative, 16,
+                "incompatible types: expected 'int', found '0|1|2|S1'", 91, 19);
+        BAssertUtil.validateError(resultNegative, 17,
+                                  "incompatible types: expected 'int', found '0|1|2|S1|S2'", 92, 19);
+        BAssertUtil.validateError(resultNegative, 18,
+                                  "invalid tuple index expression: value space '3|4|5|6' out of range", 93, 19);
     }
 }

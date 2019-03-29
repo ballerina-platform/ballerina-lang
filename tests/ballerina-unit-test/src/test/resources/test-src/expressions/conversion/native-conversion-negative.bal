@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/io;
 
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     Person? parent = ();
@@ -26,53 +26,47 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...;
-};
+|};
 
-type Student record {
+type Student record {|
     string name = "";
     int age = 0;
-    !...;
-};
+|};
 
-type Person2 record {
+type Person2 record {|
     string name = "";
     int age = 0;
-    !...;
-};
+|};
 
-type StructWithDefaults record {
+type StructWithDefaults record {|
     string s = "string value";
     int a = 45;
     float f = 5.3;
     boolean b = true;
     json j = ();
     byte[] blb = [];
-    !...;
-};
+|};
 
 
-type StructWithoutDefaults record {
+type StructWithoutDefaults record {|
     string s = "";
     int a = 0;
     float f = 0.0;
     boolean b = false;
     json j = {};
     byte[] blb = [];
-    !...;
-};
+|};
 
 type T1 record {
     int x = 0;
     int y = 0;
 };
 
-type T2 record {
+type T2 record {|
     int x = 0;
     int y = 0;
     int z = 0;
-    !...;
-};
+|};
     
 public type TX record {
     int x = 0;
@@ -158,7 +152,7 @@ function testIncompatibleImplicitConversion() returns int|error {
 }
 
 function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
-    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
     Engineer e =  Engineer.convert(p); // Cyclic value will be check with isLikeType method.
@@ -166,7 +160,7 @@ function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
 }
 
 function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
-    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
     json j =  check json.convert(p); // Cyclic value will be check with isLikeType method.
@@ -174,7 +168,7 @@ function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
 }
 
 function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|error {
-    Manager p = { name: "Waruna", age: 25, parent: null };
+    Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
     anydata a = p;

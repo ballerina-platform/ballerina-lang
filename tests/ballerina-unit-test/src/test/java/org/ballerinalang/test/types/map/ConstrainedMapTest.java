@@ -18,10 +18,6 @@
 
 package org.ballerinalang.test.types.map;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -30,6 +26,10 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -63,8 +63,8 @@ public class ConstrainedMapTest {
                 "incompatible types: expected 'map<Person>', " + "found 'map<Employee>'", 35, 31);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<Person>', found 'map'", 45,
                 31);
-        BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'map<Person>' cannot be explicitly typed as 'map<Student>'", 75, 29);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: 'map<Person>' cannot be cast to" +
+                " 'map<Student>'", 75, 29);
     }
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")
@@ -255,7 +255,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<int>', found 'map<string>'"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<string>' cannot be cast to 'map<int>'"));
+
     }
 
     @Test(description = "Test cast map constrained with ref type from map any positive.")
@@ -273,7 +274,8 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<int>', found 'map<Person>'"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Person>' cannot be cast to 'map<int>'"));
+
     }
 
     @Test(description = "Test map constrained with string update.")
@@ -346,7 +348,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<Person>', found 'map<Employee>"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Employee>' cannot be cast to 'map<Person>'"));
     }
 
     @Test(description = "Test runtime cast for any map to int map.")
@@ -354,7 +356,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<int>', found 'map'"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<int>'"));
     }
 
     @Test(description = "Test runtime cast for any map to Employee map.")
@@ -362,7 +364,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
-        Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<Employee>', found 'map'"));
+        Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<Employee>'"));
     }
 
     @Test(description = "Test struct to map conversion for constrained map.")
@@ -430,7 +432,7 @@ public class ConstrainedMapTest {
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonComplexTwo'");
+                            "incompatible convert operation: 'json' value cannot be converted as 'PersonComplexTwo'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

@@ -14,58 +14,77 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The `OrderBy` object represents the desugared code of `order by` clause of a streaming query. This object takes 3
+# parameters to initialize itself. `nextProcessPointer` is the `process` method of the next processor. `fieldFuncs`
+# is an array of function pointers which returns the field values to be sorted. `sortTypes` is an array of string
+# specifying whether the sort order (ascending or descending). Internally this processor uses a `MergeSort` object
+# to sort.
 public type OrderBy object {
 
-    public function (StreamEvent[]) nextProcessorPointer;
+    public function (StreamEvent?[]) nextProcessorPointer;
 
-    public (function (map<anydata>) returns anydata)[] fieldFuncs;
+    public (function (map<anydata>) returns anydata)?[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
     public MergeSort mergeSort;
 
-    public function __init(function (StreamEvent[]) nextProcessorPointer,
-                           (function (map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
+    public function __init(function (StreamEvent?[]) nextProcessorPointer,
+                           (function (map<anydata>) returns anydata)?[] fieldFuncs, string[] sortTypes) {
         self.nextProcessorPointer = nextProcessorPointer;
         self.fieldFuncs = fieldFuncs;
         self.sortTypes = sortTypes;
         self.mergeSort = new(self.fieldFuncs, self.sortTypes);
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    # Sorts the given array of stream events according to the given parameters (fieldFuncs and sortTypes).
+    # + streamEvents - The array of stream events to be sorted.
+    public function process(StreamEvent?[] streamEvents) {
         self.mergeSort.topDownMergeSort(streamEvents);
         self.nextProcessorPointer.call(streamEvents);
     }
 };
 
-public function createOrderBy(function (StreamEvent[]) nextProcessorPointer,
-                              (function (map<anydata>) returns anydata)[] fields, string[] sortFieldMetadata)
+# Creates an `OrderBy` object and return it.
+# + nextPrcessorPointer - A function pointer to the `process` function of the next processor.
+# + fields - An array of function pointers which each returns a field by which the events are sorted. Events are
+#            sorted by the first field, if there are elements of same value, the second field is used and so on.
+# + sortFieldMetadata - sortTypes of the fields (`streams:ASCENDING` or `streams:DESCENDING`). First element is the
+#                       sort type of the first element of `fields` and so on.
+# + return - Returns a `OrderBy` object.
+public function createOrderBy(function (StreamEvent?[]) nextProcessorPointer,
+                              (function (map<anydata>) returns anydata)?[] fields, string[] sortFieldMetadata)
                     returns OrderBy {
     return new(nextProcessorPointer, fields, sortFieldMetadata);
 }
 
+# This object implements the merge sort algorithm to sort the provided value arrays. `fieldFuncs` are function pointers
+# which returns the field values of each stream event's `data` map's values. `sortTypes` are an array of (
+# streams:ASCENDING or streams:DESCENDING).
 public type MergeSort object {
 
-    public (function (map<anydata>) returns anydata)[] fieldFuncs;
+    public (function (map<anydata>) returns anydata)?[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
 
-    public function __init((function (map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
+    public function __init((function (map<anydata>) returns anydata)?[] fieldFuncs, string[] sortTypes) {
         self.fieldFuncs = fieldFuncs;
         self.sortTypes = sortTypes;
     }
 
-    public function topDownMergeSort(StreamEvent[] a) {
+    # Sorts the given stream events using the merge sort algorithm.
+    # + events - The array of stream events to be sorted.
+    public function topDownMergeSort(StreamEvent?[] events) {
         int index = 0;
-        int n = a.length();
-        StreamEvent[] b = [];
+        int n = events.length();
+        StreamEvent?[] b = [];
         while (index < n) {
-            b[index] = a[index];
+            b[index] = events[index];
             index += 1;
         }
-        self.topDownSplitMerge(b, 0, n, a);
+        self.topDownSplitMerge(b, 0, n, events);
     }
 
-    function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a) {
+    function topDownSplitMerge(StreamEvent?[] b, int iBegin, int iEnd, StreamEvent?[] a) {
         if (iEnd - iBegin < 2) {
             return;
         }
@@ -75,17 +94,17 @@ public type MergeSort object {
         self.topDownMerge(b, iBegin, iMiddle, iEnd, a);
     }
 
-    function topDownMerge(StreamEvent[] a, int iBegin, int iMiddle, int iEnd, StreamEvent[] b) {
+    function topDownMerge(StreamEvent?[] a, int iBegin, int iMiddle, int iEnd, StreamEvent?[] b) {
         int i = iBegin;
         int j = iMiddle;
 
         int k = iBegin;
         while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], 0) < 0)) {
-                b[k] = a[i];
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(<StreamEvent>a[i], <StreamEvent>a[j], 0) < 0)) {
+                b[k] = <StreamEvent>a[i];
                 i = i + 1;
             } else {
-                b[k] = a[j];
+                b[k] = <StreamEvent>a[j];
                 j = j + 1;
             }
             k += 1;
@@ -119,8 +138,8 @@ public type MergeSort object {
         int lim = len1 < len2 ? len1 : len2;
         int k = 0;
         while (k < lim) {
-            int c1 = <int>v1[k];
-            int c2 = <int>v2[k];
+            int c1 = int.convert(v1[k]);
+            int c2 = int.convert(v2[k]);
             if (c1 != c2) {
                 return c1 - c2;
             }

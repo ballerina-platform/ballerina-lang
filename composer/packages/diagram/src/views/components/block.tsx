@@ -35,8 +35,6 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
             const returnViewState: ViewState = ((model.parent as FunctionNode)
                     .viewState as FunctionViewState)
                     .implicitReturn;
-            returnViewState.bBox.x = triggerPosition.x;
-            returnViewState.bBox.y = triggerPosition.y;
             implicitReturn.viewState = returnViewState;
             if (!(implicitReturn.viewState as ReturnViewState).hidden) {
                 additionalComponents.push(<Return model={implicitReturn} />);

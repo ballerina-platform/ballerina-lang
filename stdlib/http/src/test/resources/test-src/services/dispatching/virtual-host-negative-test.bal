@@ -31,7 +31,7 @@ service Host1 on mockEP {
         http:Response res = new;
         json responseJson = { "echo": "abc.com" };
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -47,6 +47,6 @@ service Host2 on mockEP {
         http:Response res = new;
         json responseJson = { "echo": "abc.com" };
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

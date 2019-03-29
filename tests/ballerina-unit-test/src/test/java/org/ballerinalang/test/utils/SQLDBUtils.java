@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.test.utils;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -158,40 +155,6 @@ public class SQLDBUtils {
         }
 
         public abstract void stop();
-    }
-
-    /**
-     * This class represents a container based database used for testing data clients.
-     */
-    public static class ContainerizedTestDatabase extends TestDatabase {
-        private JdbcDatabaseContainer databaseContainer;
-
-        public ContainerizedTestDatabase(DBType dbType, String databaseScript) {
-            this(dbType);
-            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
-        }
-
-        public ContainerizedTestDatabase(DBType dbType) {
-            switch (dbType) {
-            case MYSQL:
-                databaseContainer = new MySQLContainer();
-                break;
-            case POSTGRES:
-                databaseContainer = new PostgreSQLContainer();
-                break;
-            default:
-                throw new UnsupportedOperationException(
-                        "Creating a containerized database is not supported for: " + dbType);
-            }
-            databaseContainer.start();
-            jdbcUrl = databaseContainer.getJdbcUrl();
-            username = databaseContainer.getUsername();
-            password = databaseContainer.getPassword();
-        }
-
-        public void stop() {
-            databaseContainer.stop();
-        }
     }
 
     /**

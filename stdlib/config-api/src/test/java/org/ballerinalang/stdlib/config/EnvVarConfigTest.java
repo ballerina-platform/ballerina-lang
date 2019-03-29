@@ -32,7 +32,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,16 +44,13 @@ public class EnvVarConfigTest {
 
     private static final ConfigRegistry registry = ConfigRegistry.getInstance();
     private CompileResult compileResult;
-    private String resourceRoot;
-    private Path sourceRoot;
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
-        sourceRoot = Paths.get(resourceRoot, "test-src");
         registry.initRegistry(null, null, null); // empty registry
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("config.bal").toString());
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
+                "config.bal");
+        compileResult = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
     }
 
     @Test
@@ -175,14 +171,16 @@ public class EnvVarConfigTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*'string' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
+                    + "converted as 'int'.*")
     public void testInvalidIntEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsInt", new BValue[]{key});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*'string' cannot be converted to 'float'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
+                    + "converted as 'float'.*")
     public void testInvalidFloatEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsFloat", new BValue[]{key});
