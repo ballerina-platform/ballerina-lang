@@ -49,13 +49,13 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     
-    dist project(':swagger-ballerina:swagger-to-ballerina-generator')
+    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-llvm')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
     dist project(':protobuf-ballerina')
-    dist project(':swagger-ballerina:swagger-to-ballerina-generator')
+    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     docerina project(':docerina-gradle-plugin')
 
     toolsZip project(path: ':language-server:language-server-core', configuration: 'dist')

@@ -14,13 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record {
+type Student record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Employee record {
     string name;
@@ -28,13 +27,12 @@ type Employee record {
     string batch;
 };
 
-type Person record {
+type Person record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Teacher record {
     string name;
@@ -133,10 +131,9 @@ function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
     return anydataArray;
 }
 
-type Foo record{
+type Foo record{|
     string [] a;
-    !...;
-};
+|};
 
 function stampJSONToRecordWithArray() returns Foo|error {
     json j1 = {a:["a", "b"]};
@@ -161,10 +158,9 @@ function stampJSONToMapNegative() returns map<string>|error {
     return mapValue;
 }
 
-type StringArray record {
+type StringArray record {|
     string[]? a;
-    !...;
-};
+|};
 
 function stampNullJSONToArrayNegative() returns StringArray|error {
 

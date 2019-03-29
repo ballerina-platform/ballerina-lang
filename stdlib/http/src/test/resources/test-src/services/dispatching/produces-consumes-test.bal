@@ -9,7 +9,7 @@ service echo66 on testEP {
         consumes: ["application/xml"]
     }
     resource function echo1(http:Caller caller, http:Request req) {
-        _ = caller->respond({ "msg": "wso2" });
+        checkpanic caller->respond({ "msg": "wso2" });
     }
 
     @http:ResourceConfig {
@@ -18,7 +18,7 @@ service echo66 on testEP {
         produces: ["text/xml", "application/xml "]
     }
     resource function echo2(http:Caller caller, http:Request req) {
-        _ = caller->respond({ "msg": "wso22" });
+        checkpanic caller->respond({ "msg": "wso22" });
     }
 
     @http:ResourceConfig {
@@ -28,7 +28,7 @@ service echo66 on testEP {
         produces: ["text/css", "application/json"]
     }
     resource function echo3(http:Caller caller, http:Request req) {
-        _ = caller->respond({ "msg": "wso222" });
+        checkpanic caller->respond({ "msg": "wso222" });
     }
 
     @http:ResourceConfig {
@@ -38,12 +38,12 @@ service echo66 on testEP {
         produces: ["Application/JsON"]
     }
     resource function echo4(http:Caller caller, http:Request req) {
-        _ = caller->respond({ "msg": "wso222" });
+        checkpanic caller->respond({ "msg": "wso222" });
     }
 }
 
 service echo67 on testEP {
     resource function echo1(http:Caller caller, http:Request req) {
-        _ = caller->respond({ "echo33": "echo1" });
+        checkpanic caller->respond({ "echo33": "echo1" });
     }
 }

@@ -44,6 +44,7 @@ public enum OperatorKind {
     INCREMENT("++"),
     DECREMENT("--"),
     CHECK("check"),
+    CHECK_PANIC("checkpanic"),
     ELVIS("?:"),
     BITWISE_AND("&"),
     BITWISE_OR("|"),

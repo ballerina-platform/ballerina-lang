@@ -33,7 +33,7 @@ service HelloWorld85 on server3 {
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

@@ -124,7 +124,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
-        //io:println("Basic Block Is : ", bb.id.value);
         string currentBBName = io:sprintf("%s", bb.id.value);
 
         // create jvm label
@@ -152,6 +151,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 instGen.generateMapNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
+            } else if (inst is bir:NewInstance) {
+                //TODO
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == "MAP_STORE") {
                     instGen.generateMapStoreIns(inst);
@@ -212,7 +213,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         bir:BType bType = localVar.typeValue;
         mv.visitInsn(DUP);
 
-        if (bType is bir:BTypeInt) {
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "J");
             mv.visitVarInsn(LSTORE, index);
         } else if (bType is bir:BTypeFloat) {
@@ -224,9 +225,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeBoolean) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType is bir:BTypeByte) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), "B");
             mv.visitVarInsn(ISTORE, index);
         } else if (bType is bir:BMapType || bType is bir:BRecordType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
@@ -248,7 +246,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
@@ -277,7 +276,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         mv.visitInsn(DUP);
 
         bir:BType bType = localVar.typeValue;
-        if (bType is bir:BTypeInt) {
+        if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
             mv.visitVarInsn(LLOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "J");
         } else if (bType is bir:BTypeFloat) {
@@ -290,9 +289,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeBoolean) {
             mv.visitVarInsn(ILOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "Z");
-        } else if (bType is bir:BTypeByte) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), "B");
         } else if (bType is bir:BMapType ||
                     bType is bir:BRecordType) {
             mv.visitVarInsn(ALOAD, index);
@@ -314,7 +310,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -357,7 +354,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 }
 
 function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
-    if (bType is bir:BTypeInt) {
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         mv.visitInsn(LCONST_0);
         mv.visitVarInsn(LSTORE, index);
     } else if (bType is bir:BTypeFloat) {
@@ -369,9 +366,6 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     } else if (bType is bir:BTypeBoolean) {
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, index);
-    } else if (bType is bir:BTypeByte) {
-        mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ISTORE, index);
     } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BErrorType ||
@@ -381,7 +375,8 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType) {
+                bType is bir:BTupleType ||
+                bType is bir:BJSONType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -405,7 +400,7 @@ function getMethodDesc(bir:Function func) returns string {
 }
 
 function getArgTypeSignature(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt) {
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         return "J";
     } else if (bType is bir:BTypeFloat) {
         return "D";
@@ -413,17 +408,19 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
-    } else if (bType is bir:BTypeByte) {
-        return "B";
     } else if (bType is bir:BTypeNil) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BArrayType || bType is bir:BTupleType) {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAnyData || bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAnyData ||
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType || bType is bir:BRecordType || bType is bir:BTypeAny) {
+    } else if (bType is bir:BMapType ||
+                bType is bir:BRecordType ||
+                bType is bir:BTypeAny) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -434,7 +431,7 @@ function getArgTypeSignature(bir:BType bType) returns string {
 function generateReturnType(bir:BType? bType) returns string {
     if (bType is ()) {
         return ")V";
-    } else if (bType is bir:BTypeInt) {
+    } else if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         return ")J";
     } else if (bType is bir:BTypeFloat) {
         return ")D";
@@ -442,8 +439,6 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return ")Z";
-    } else if (bType is bir:BTypeByte) {
-        return ")B";
     } else if (bType is bir:BTypeNil) {
         return ")V";
     } else if (bType is bir:BArrayType ||
@@ -456,7 +451,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", ERROR_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType) {
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         return io:sprintf(")L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -520,14 +516,12 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     if (!isVoidFunction) {
         bir:BType returnType = userMainFunc.typeValue.retType;
-        if (returnType is bir:BTypeInt) {
+        if (returnType is bir:BTypeInt || returnType is bir:BTypeByte) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
         } else if (returnType is bir:BTypeFloat) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
         } else if (returnType is bir:BTypeBoolean) {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
-        } else if (returnType is bir:BTypeByte) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
         }
@@ -589,7 +583,7 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     mv.visitInsn(L2I);
     mv.visitInsn(AALOAD);
 
-    if (targetType is bir:BTypeInt) {
+    if (targetType is bir:BTypeInt || targetType is bir:BTypeByte) {
         mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "parseLong", "(Ljava/lang/String;)J", false);
     } else if (targetType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "parseDouble", "(Ljava/lang/String;)D", false);
@@ -597,8 +591,6 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
         mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
     } else if (targetType is bir:BTypeBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "parseBoolean", "(Ljava/lang/String;)Z", false);
-    } else if (targetType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "parseByte", "(Ljava/lang/String;)B", false);
     } else if (targetType is bir:BArrayType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
@@ -606,7 +598,8 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType) {
+                targetType is bir:BUnionType ||
+                targetType is bir:BJSONType) {
         // do nothing
         return;
     } else {
@@ -625,7 +618,9 @@ type BalToJVMIndexMap object {
 
         bir:BType bType = varDcl.typeValue;
 
-        if (bType is bir:BTypeInt || bType is bir:BTypeFloat) {
+        if (bType is bir:BTypeInt ||
+            bType is bir:BTypeFloat ||
+            bType is bir:BTypeByte) {
             self.localVarIndex = self.localVarIndex + 2;
         } else {
             self.localVarIndex = self.localVarIndex + 1;
@@ -662,51 +657,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
             bir:VariableDcl localVar = getVariableDcl(localVars[k]);
             bir:BType bType = localVar.typeValue;
             var fieldName = localVar.name.value.replace("%","_");
-            if (bType is bir:BTypeInt) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "J");
-                fv.visitEnd();
-            } else if (bType is bir:BTypeFloat) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "D");
-                fv.visitEnd();
-            } else if (bType is bir:BTypeString) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", STRING_VALUE));
-                fv.visitEnd();
-            } else if (bType is bir:BTypeBoolean) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "Z");
-                fv.visitEnd();
-            } else if (bType is bir:BTypeByte) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, "B");
-                fv.visitEnd();
-            } else if (bType is bir:BTypeNil) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", OBJECT));
-                fv.visitEnd();
-            } else if (bType is bir:BMapType) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
-                fv.visitEnd();
-            } else if (bType is bir:BRecordType) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", MAP_VALUE));
-                fv.visitEnd();
-            } else if (bType is bir:BArrayType ||
-                        bType is bir:BTupleType) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", ARRAY_VALUE));
-                fv.visitEnd();
-            } else if (bType is bir:BErrorType) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", ERROR_VALUE));
-                fv.visitEnd();
-            } else if (bType is bir:BObjectType) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", OBJECT_VALUE));
-                fv.visitEnd();
-            } else if (bType is bir:BTypeAny ||
-                        bType is bir:BTypeAnyData ||
-                        bType is bir:BUnionType) {
-                jvm:FieldVisitor fv = cw.visitField(ACC_PUBLIC, fieldName, io:sprintf("L%s;", OBJECT));
-                fv.visitEnd();
-            } else {
-                error err = error( "JVM generation is not supported for type " +
-                                            io:sprintf("%s", bType));
-                panic err;
-            }
-
+            generateField(cw, bType, fieldName);
             k = k + 1;
         }
 
@@ -716,6 +667,44 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         cw.visitEnd();
         pkgEntries[frameClassName + ".class"] = cw.toByteArray();
     }
+}
+
+function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
+    string typeSig;
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
+        typeSig = "J";
+    } else if (bType is bir:BTypeFloat) {
+        typeSig = "D";
+    } else if (bType is bir:BTypeString) {
+        typeSig = io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeBoolean) {
+        typeSig = "Z";
+    } else if (bType is bir:BTypeNil) {
+        typeSig = io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BMapType) {
+        typeSig = io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BRecordType) {
+        typeSig = io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BArrayType ||
+                bType is bir:BTupleType) {
+        typeSig = io:sprintf("L%s;", ARRAY_VALUE);
+    } else if (bType is bir:BErrorType) {
+        typeSig = io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BObjectType) {
+        typeSig = io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BTypeAny ||
+                bType is bir:BTypeAnyData ||
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
+        typeSig = io:sprintf("L%s;", OBJECT);
+    } else {
+        error err = error( "JVM generation is not supported for type " +
+                                    io:sprintf("%s", bType));
+        panic err;
+    }
+
+    jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, typeSig);
+    fv.visitEnd();
 }
 
 function generateDefaultConstructor(jvm:ClassWriter cw) {

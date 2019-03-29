@@ -93,21 +93,18 @@ function testAddAttributeWithEmptyNamespace() returns (xml) {
 function testAddNamespaceAsAttribute() returns (xml, xml) {
     var x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@["{http://www.w3.org/2000/xmlns/}ns4"] = "http://wso2.com";
-    
+
     var x2 = xml `<root xmlns="http://ballerinalang.org/" xmlns:ns3="http://sample.com/wso2/f"></root>`;
-    x2@["{http://ballerinalang.org/}ns4"] = "http://wso2.com";
-    
+    x2@["{http://ballerinalang.org/}att"] = "http://wso2.com";
+
     return (x1, x2);
 }
 
-function testUpdateNamespaceAsAttribute() returns (xml, xml) {
+function testUpdateNamespaceAsAttribute() returns (xml) {
     var x1 = xml `<root xmlns:ns3="http://sample.com/wso2/f"></root>`;
     x1@["{http://www.w3.org/2000/xmlns/}ns3"] = "http://wso2.com";
     
-    var x2 = xml `<root xmlns="http://ballerinalang.org/" xmlns:ns3="http://sample.com/wso2/f"></root>`;
-    x2@["{http://ballerinalang.org/}ns3"] = "http://wso2.com";
-    
-    return (x1, x2);
+    return (x1);
 }
 
 function testUpdateAttributeWithString() returns (xml) {
@@ -193,18 +190,21 @@ function testUsingQNameAsString () returns (string, string) {
     return (s1, s2);
 }
 
-function testGetAttributesAsMap() returns (map<string>, map<string>, string, string) {
+function testGetAttributesAsMap() returns (map<string>|error, map<string>|error, string, string) {
     var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     
-    map<string> m1 = map<string>.convert(x1@);
-    map<string> m2 = map<string>.convert(x2@);
+    map<string>|error m1 = map<string>.convert(x1@);
+    map<string>|error m2 = map<string>.convert(x2@);
 
-    var a = m1["{http://sample.com/wso2/a1}foo1"];
-    var s1 = a is string ?  a : "";
-    a = m1[ns0:foo1];
-    var s2 =  a is string ? a : "";
-    return (m1, m2, s1, s2);
+    if (m1 is map<string>) {
+        var a = m1["{http://sample.com/wso2/a1}foo1"];
+        var s1 = a is string ?  a : "";
+        a = m1[ns0:foo1];
+        var s2 =  a is string ? a : "";
+        return (m1, m2, s1, s2);
+    }
+    return (m1, m2, "", "");
 }
 
 function testXMLAttributesToAny() returns (any) {
@@ -273,4 +273,53 @@ function testGetAttributeFromLiteral() returns (string) {
     xml x = xml `<root ns0:id="5"/>`;
     
     return x@[ns0:id];
+}
+
+function testGetAttributeMap() returns (map<string>?) {
+    var x1 = xml `<child xmlns:p1="http://wso2.com/" xmlns:p2="http://sample.com/wso2/a1/" p1:foo="bar"/>`;
+    map<string>? s = x1@;
+    return s;
+}
+
+function takeInAMap(map<string>? input) returns map<string>? {
+    if (input is map<string>) {
+        input["tracer"] = "1";
+    }
+    return input;
+}
+
+function passXmlAttrToFunction() returns map<string>? {
+    var x1 = xml `<child foo="bar"/>`;
+    return takeInAMap(x1@);
+}
+
+function mapOperationsOnXmlAttribute() returns (int?, string[]?, boolean) {
+    var x1 = xml `<child foo="bar"/>`;
+    boolean isMap = false;
+    if (x1@ is map<string>) {
+        isMap = true;
+    }
+    return (x1@.length(), x1@.keys(), isMap);
+}
+
+function mapUpdateOnXmlAttribute() returns (xml) {
+    xmlns "the{}url" as nsLocal;
+    var x1 = xml `<child foo="bar" itemCode="3344"/>`;
+    map<string> attrMap = <map<string>>x1@;
+
+    attrMap["abc"] = "xyz";
+    attrMap["{http://example.com/ns}baz"] = "value";
+    attrMap["{abc}}bak}bar"] = "theNewVal";
+    attrMap[nsLocal:foo] = "foo2";
+    return x1;
+}
+
+function nonSingletonXmlAttributeAccess() returns boolean {
+    xml x = xml `<someEle>cont</someEle>`;
+    xml y = xml `<elem>More-Stuff</elem>`;
+    xml nonSingleton = x + y;
+    if (nonSingleton@ is ()) {
+        return true;
+    }
+    return false;
 }

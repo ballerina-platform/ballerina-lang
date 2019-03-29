@@ -11,6 +11,6 @@ service alwaysCompressWithBogusContentType on mockEP {
     resource function test1 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello World!!!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

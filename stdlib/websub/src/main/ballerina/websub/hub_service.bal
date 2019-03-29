@@ -31,7 +31,7 @@ service hubService =
     basePath: BASE_PATH,
     authConfig: {
         authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
+            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false)
         },
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
@@ -46,7 +46,7 @@ service {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = httpCaller->respond(response);
+        checkpanic httpCaller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -505,10 +505,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...;
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #

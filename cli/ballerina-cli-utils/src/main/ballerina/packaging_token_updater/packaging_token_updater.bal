@@ -51,6 +51,6 @@ service update_token on new http:Listener(9295) {
         var destinationChannel = openForWriting(system:getUserHome() + "/.ballerina/Settings.toml", "UTF-8");
         var result = destinationChannel.write("[central]\naccesstoken= \"" + token  + "\"", 0);
         io:println("Token updated");
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 }

@@ -26,12 +26,11 @@ type Employee record {
     float salary;
 };
 
-type ConstrainedEmp record {
+type ConstrainedEmp record {|
     int id;
     string name;
     float salary;
-    !...;
-};
+|};
 
 type A record {
     int a;
@@ -137,8 +136,8 @@ public function cloneTable() returns (table<Employee>, table<Employee>, table<Em
     };
     table<Employee> x = a.clone();
     table<Employee> y = a.clone();
-    _ = a.add(e3);
-    _ = y.add(e3);
+    checkpanic a.add(e3);
+    checkpanic y.add(e3);
     return (a, x, y);
 }
 
@@ -339,7 +338,7 @@ public function cloneAnydata() returns (any, any, any) {
     return (a, x, y);
 }
 
-public function cloneFrozenAnydata() returns (any, any) {
+public function cloneFrozenAnydata() returns (any, any|error) {
     Person p = {id: 100, name: "Alex", salary: 300.5};
     (Person | error) r = p.freeze();
     (Person | error) q = r.clone();
@@ -353,11 +352,11 @@ public function cloneNonAnydata() returns (any, any|error) {
     return (x, q);
 }
 
-public function cloneLikeAnydata() returns (any, any) {
+public function cloneLikeAnydata() returns (any, any|error) {
     Employee p = {id: 100, name: "Alex", salary: 300.5};
     int[] q = [1, 2, 3];
     (any, any) x = (p, q);
-    any y = x.clone();
+    any|error y = x.clone();
     return (x, y);
 }
 

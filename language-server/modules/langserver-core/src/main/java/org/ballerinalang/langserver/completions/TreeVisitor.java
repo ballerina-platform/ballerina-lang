@@ -164,13 +164,20 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(bLangImportPackage, pkgEnv);
         });
 
-        topLevelNodes.stream()
+        List<TopLevelNode> filteredTopLevelNodes = topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
-                .forEach(topLevelNode -> {
-                    cursorPositionResolver = TopLevelNodeScopeResolver.class;
-                    this.blockOwnerStack.push(evalPkg);
-                    acceptNode((BLangNode) topLevelNode, pkgEnv);
-                });
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < filteredTopLevelNodes.size(); i++) {
+            cursorPositionResolver = TopLevelNodeScopeResolver.class;
+            this.blockOwnerStack.push(evalPkg);
+            acceptNode((BLangNode) filteredTopLevelNodes.get(i), pkgEnv);
+            if (this.terminateVisitor && this.previousNode == null) {
+                int nodeIndex = filteredTopLevelNodes.size() > 1 && i > 0 ? (i - 1) : 0;
+                this.previousNode = (BLangNode) filteredTopLevelNodes.get(nodeIndex);
+                lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+            }
+        }
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
@@ -326,13 +333,10 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
-        // Reset the previous node to null
-        this.setPreviousNode(null);
-        
         List<BLangStatement> statements = blockNode.stmts.stream()
                 .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
+                .sorted(new CommonUtil.BLangNodeComparator())
                 .collect(Collectors.toList());
-        statements.sort(new CommonUtil.BLangNodeComparator());
 
         if (statements.isEmpty() && CompletionVisitorUtil
                 .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
@@ -342,7 +346,14 @@ public class TreeVisitor extends LSNodeVisitor {
 
         this.blockStmtStack.push(blockNode);
         this.cursorPositionResolver = BlockStatementScopeResolver.class;
-        blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
+        for (int i = 0; i < statements.size(); i++) {
+            this.acceptNode(statements.get(i), blockEnv);
+            if (this.terminateVisitor && this.previousNode == null) {
+                int nodeIndex = statements.size() > 1 && i > 0 ? (i - 1) : 0;
+                this.previousNode = statements.get(nodeIndex);
+                lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+            }
+        }
         this.blockStmtStack.pop();
     }
 
@@ -453,8 +464,6 @@ public class TreeVisitor extends LSNodeVisitor {
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
         serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
-        // Reset the previous node
-        this.setPreviousNode(null);
         boolean cursorWithinBlock = serviceFunctions.isEmpty()
                 && serviceFields.isEmpty()
                 && CompletionVisitorUtil.isCursorWithinBlock(serviceNode.getPosition(), serviceEnv, this.lsContext,
@@ -467,10 +476,15 @@ public class TreeVisitor extends LSNodeVisitor {
 
         this.blockOwnerStack.push(serviceNode.serviceTypeDefinition.typeNode);
 
-        serviceContent.forEach(serviceField -> {
+        for (int i = 0; i < serviceContent.size(); i++) {
             this.cursorPositionResolver = ServiceScopeResolver.class;
-            this.acceptNode(serviceField, serviceEnv);
-        });
+            this.acceptNode(serviceContent.get(i), serviceEnv);
+            if (this.terminateVisitor && this.previousNode == null) {
+                int nodeIndex = serviceContent.size() > 1 && i > 0 ? (i - 1) : 0;
+                this.previousNode = serviceContent.get(nodeIndex);
+                lsContext.put(CompletionKeys.PREVIOUS_NODE_KEY, this.previousNode);
+            }
+        }
 
         this.blockOwnerStack.pop();
     }
@@ -794,7 +808,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.symbolEnv = env;
         node.accept(this);
         this.symbolEnv = prevEnv;
-        this.setPreviousNode(node);
     }
 
     private void populateSymbolEnvNode(BLangNode node) {

@@ -202,6 +202,10 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-kqueue</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-nats</artifactId>
+        </dependency>
         <!-- end of stdlib jar dependencies -->
 
         <dependency>
@@ -507,7 +511,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-swagger</artifactId>
+            <artifactId>ballerina-openapi</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -550,6 +554,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-privacy</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-nats</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -630,6 +640,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-nats</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-socket</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -702,7 +718,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-swagger</artifactId>
+            <artifactId>ballerina-openapi</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -823,7 +839,7 @@
                                 ballerina-sql,
                                 ballerina-streams,
                                 ballerina-system,
-                                ballerina-swagger,
+                                ballerina-openapi,
                                 ballerina-task,
                                 ballerina-time,
                                 ballerina-transactions,
@@ -833,6 +849,7 @@
                                 <!-- other dependencies -->
                                 ballerina-config,
                                 strip-bouncycastle,
+                                ballerina-nats
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
@@ -948,6 +965,11 @@
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-nats-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-mysql-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
@@ -978,7 +1000,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-swagger-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
