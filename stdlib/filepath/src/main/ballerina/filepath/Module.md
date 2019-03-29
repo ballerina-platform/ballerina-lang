@@ -42,7 +42,7 @@ public function main() {
     string ext = checkpanic filepath:extension("path.bal");
     io:println(ext); // returns bal
     
-    // Returns a relative path that is logically equivalent to target path when joined to base path.
+    // Returns a relative path that is logically equivalent to the target path when joined to the base path.
     string relPath = checkpanic filepath:relative("a/b/c", "a/c/d");
     io:println(relPath); // On Unix : returns ../../c/d
     
