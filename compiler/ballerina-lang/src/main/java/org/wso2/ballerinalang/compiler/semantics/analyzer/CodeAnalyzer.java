@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -1199,11 +1200,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
         BLangExpression expr = exprStmtNode.expr;
-        while (expr.getKind() == NodeKind.MATCH_EXPRESSION || expr.getKind() == NodeKind.CHECK_EXPR) {
+        while (expr.getKind() == NodeKind.MATCH_EXPRESSION ||
+                expr.getKind() == NodeKind.CHECK_EXPR ||
+                expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
             if (expr.getKind() == NodeKind.MATCH_EXPRESSION) {
                 expr = ((BLangMatchExpression) expr).expr;
             } else if (expr.getKind() == NodeKind.CHECK_EXPR) {
                 expr = ((BLangCheckedExpr) expr).expr;
+            } else if (expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
+                expr = ((BLangCheckPanickedExpr) expr).expr;
             }
         }
         // Allowed expression kinds
@@ -1511,7 +1516,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
+                    kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -1533,8 +1539,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.BRACED_TUPLE_EXPR ||
-                       kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
+                    kind == NodeKind.BRACED_TUPLE_EXPR ||
+                    kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -1898,6 +1905,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         returnTypes.peek().add(exprType);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanicExpr) {
+        analyzeExpr(checkPanicExpr.expr);
     }
 
     @Override

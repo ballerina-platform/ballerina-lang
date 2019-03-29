@@ -87,7 +87,7 @@ function testWrongOrderBlobWrongOrder() returns error? {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -114,7 +114,7 @@ function testWrongOrderBlobCorrectOrderWrongType() returns error? {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -140,7 +140,7 @@ function testGreaterNoOfParams() returns error? {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -167,7 +167,7 @@ function testLowerNoOfParams() returns error? {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }
 
@@ -193,6 +193,6 @@ function testWrongOrder(string queryStr) returns error? {
         }
         selectRet.close();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return retVal;
 }

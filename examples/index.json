@@ -941,6 +941,15 @@
         ]
     },
     {
+        "title": "NATS",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "NATS Basic Example",
+            "url": "nats-basic-client"
+        }]
+    },
+    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",

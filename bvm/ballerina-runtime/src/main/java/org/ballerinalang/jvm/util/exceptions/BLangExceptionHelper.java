@@ -28,16 +28,14 @@ import java.util.ResourceBundle;
 public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
 
-    public static BallerinaException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
+    public static BLangRuntimeException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException
-        return new BallerinaException(errorMsg);
+        return new BLangRuntimeException(errorMsg);
     }
 
     public static BallerinaException getRuntimeException(String reason, RuntimeErrors runtimeErrors, Object... params) {
         String errorDetail = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException
-        return new BallerinaException(reason, errorDetail);
+        return new BLangRuntimeException(reason, errorDetail);
     }
 
     public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {

@@ -134,6 +134,13 @@ public class IterableCodeDesugar {
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(ctx.collectionExpr.pos,
                 ctx.iteratorFuncSymbol, Collections.emptyList(), symResolver);
         iExpr.requiredArgs.add(ctx.collectionExpr);
+        // Pass the lambda expressions as arguments.
+        for (Operation operation : ctx.operations) {
+            if (operation.iExpr.argExprs.size() > 0) {
+                iExpr.requiredArgs.add(operation.argExpression);
+            }
+        }
+
         if (ctx.getLastOperation().expectedType == symTable.noType
                 || ctx.getLastOperation().expectedType == symTable.nilType) {
             ctx.iteratorCaller = iExpr;
@@ -204,6 +211,17 @@ public class IterableCodeDesugar {
         // Create and define function signature.
         final BLangFunction funcNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
         funcNode.requiredParams.add(ctx.collectionVar);
+        // Add all the lambdas in operations as a parameter to the iterator function.
+        int i = 0;
+        for (Operation operation : ctx.operations) {
+            if (operation.iExpr.argExprs.size() <= 0) {
+                continue;
+            }
+            BLangSimpleVariable paramFunc = ASTBuilderUtil.createVariable(pos, "$paramFunc" + i,
+                    operation.lambdaSymbol.type);
+            funcNode.requiredParams.add(paramFunc);
+            i++;
+        }
         final BType returnType;
         if (isReturningIteratorFunction(ctx)) {
             returnType = ctx.resultType;
@@ -215,6 +233,17 @@ public class IterableCodeDesugar {
 
         defineFunction(funcNode, ctx.env.enclPkg);
         ctx.iteratorFuncSymbol = funcNode.symbol;
+
+        // Cache the parameter symbols of the operations.
+        int operationIndex = 0;
+        for (BLangSimpleVariable reqParam : funcNode.requiredParams) {
+            // Ignore the collection variable.
+            if (reqParam.symbol == ctx.collectionVar.symbol) {
+                continue;
+            }
+            ctx.operations.get(operationIndex).paramSymbol = reqParam.symbol;
+            operationIndex++;
+        }
 
         LinkedList<Operation> streamableOperations = new LinkedList<>();
         ctx.operations.stream().filter(op -> op.kind.isLambdaRequired()).forEach(streamableOperations::add);
@@ -781,8 +810,10 @@ public class IterableCodeDesugar {
     private void generateForeach(BLangBlockStmt blockStmt, Operation operation) {
         final DiagnosticPos pos = operation.pos;
         final BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(pos, blockStmt);
-        exprStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar),
-                symResolver);
+        // Create a invocation expr with the .call.
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, operation.paramSymbol);
+        exprStmt.expr = ASTBuilderUtil.createLambdaInvocation(pos, operation.lambdaSymbol, varRef,
+                Lists.of(operation.argVar), symResolver);
     }
 
     /**
@@ -804,8 +835,10 @@ public class IterableCodeDesugar {
         notExpr.operator = OperatorKind.NOT;
         notExpr.opSymbol = (BOperatorSymbol) symResolver.resolveUnaryOperator(pos, notExpr.operator,
                 symTable.booleanType);
-        notExpr.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar),
-                symResolver);
+        // Create a invocation expr with the .call.
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, operation.paramSymbol);
+        notExpr.expr = ASTBuilderUtil.createLambdaInvocation(pos, operation.lambdaSymbol, varRef,
+                Lists.of(operation.argVar), symResolver);
         notExpr.type = symTable.booleanType;
         ifNode.expr = notExpr;
         ifNode.body = ASTBuilderUtil.createBlockStmt(pos);
@@ -825,8 +858,10 @@ public class IterableCodeDesugar {
         final DiagnosticPos pos = operation.pos;
         final BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         assignment.varRef = ASTBuilderUtil.createVariableRef(operation.pos, operation.retVar.symbol);
-        assignment.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar),
-                symResolver);
+        // Create a invocation expr with the .call.
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, operation.paramSymbol);
+        assignment.expr = ASTBuilderUtil.createLambdaInvocation(pos, operation.lambdaSymbol, varRef,
+                Lists.of(operation.argVar), symResolver);
     }
 
 

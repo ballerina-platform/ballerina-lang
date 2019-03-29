@@ -31,7 +31,7 @@ service UnsupportedJsonType on ep {
         } else {
             io:println("Server send response : " + message);
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 
     resource function testOutputJsonType(grpc:Caller caller, string msg) {
@@ -43,7 +43,7 @@ service UnsupportedJsonType on ep {
         } else {
             io:println("Server send response successfully");
         }
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

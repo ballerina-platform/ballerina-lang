@@ -20,13 +20,13 @@ package org.wso2.ballerinalang.compiler;
 import java.util.List;
 
 /**
- * Interface to implement by all type creaters.
+ * Interface to implement by all type creators.
  * 
- * @param <T> Type of the types created by the type creater.
+ * @param <T> Type of the types created by the type creator.
  * 
  * @since 0.975.0
  */
-public interface TypeCreater<T> {
+public interface TypeCreator<T> {
 
     T getBasicType(char typeChar);
 

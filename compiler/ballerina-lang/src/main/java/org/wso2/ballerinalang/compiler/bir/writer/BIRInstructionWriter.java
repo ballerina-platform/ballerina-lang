@@ -106,6 +106,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int nameCPIndex = addStringCPEntry(calleePkg.name.value);
         int versionCPIndex = addStringCPEntry(calleePkg.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
@@ -162,6 +163,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BOOLEAN:
@@ -188,6 +190,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewStructure.type.accept(typeWriter);
         birNewStructure.lhsOp.accept(this);
     }
+
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        buf.writeByte(newInstance.kind.getValue());
+        buf.writeInt(newInstance.def.index);
+        newInstance.lhsOp.accept(this);
+    }
+
 
     public void visit(NewArray birNewArray) {
         buf.writeByte(birNewArray.kind.getValue());

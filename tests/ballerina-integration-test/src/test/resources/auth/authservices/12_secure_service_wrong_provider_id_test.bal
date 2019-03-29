@@ -47,6 +47,6 @@ service echo12 on listener12 {
         path: "/test"
     }
     resource function echo(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

@@ -13,7 +13,7 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // Number of retry attempts before giving up.
             count: 3,
 
-            // Multiplier of the retry interval to exponentailly
+            // Multiplier of the retry interval to exponentially
             // increase; retry interval.
             backOffFactor: 2.0,
 
