@@ -3,6 +3,24 @@ apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 configurations {
     cliUtils 
     balx
+    generatedBalx
+}
+task genBalx(type: JavaExec) {
+    def targetDir = "$buildDir/generated-balx/prometheus/"
+    doFirst {
+        new File(targetDir).mkdirs()
+    }
+
+    systemProperty "ballerina.home", "$buildDir"
+    classpath = configurations.cliUtils
+    main = 'org.ballerinalang.cli.utils.GenerateBalx'
+
+    def src = "src/main/ballerina/prometheus/"
+    def fileName = "reporter.bal"
+    def target = "$targetDir/reporter.balx"
+    args(src, fileName, target)
+    outputs.dir("$buildDir/generated-balx")
+    outputs.cacheIf { true }
 }
 
 dependencies {
@@ -55,32 +73,10 @@ dependencies {
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
 
-
     cliUtils project(':ballerina-cli-utils')
+    generatedBalx genBalx.outputs.files
 }
 
-task genBalx(type: JavaExec) {
-    def targetDir = "$buildDir/generated-balx/prometheus/"
-    doFirst {
-        new File(targetDir).mkdirs()
-    }
-
-    systemProperty "ballerina.home", "$buildDir"
-    classpath = configurations.cliUtils
-    main = 'org.ballerinalang.cli.utils.GenerateBalx'
-
-    def src = "src/main/ballerina/prometheus/"
-    def fileName = "reporter.bal"
-    def target = "$targetDir/reporter.balx"
-    args(src, fileName, target)
-    outputs.dir("$buildDir/generated-balx")
-    outputs.cacheIf { true }
-}
-
-build {
-    dependsOn genBalx
-}
-
-artifacts.add('balx', file("$buildDir/generated-balx"))
+artifacts.add('balx', file(configurations.generatedBalx.asPath))
 
 description = 'Ballerina - Prometheus Extension for Metrics'
