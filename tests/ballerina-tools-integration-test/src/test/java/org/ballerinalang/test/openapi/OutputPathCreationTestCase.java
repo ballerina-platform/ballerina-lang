@@ -52,9 +52,9 @@ public class OutputPathCreationTestCase extends BaseTest {
     
     @Test(description = "Test if folder paths are created correctly.")
     public void testFolderStructureCreation() throws BallerinaTestException {
-        String[] clientArgsForOpenApiClientGen = {"client", OPENAPI_YAML, "-o", balProject.toString(), "-m",
+        String[] clientArgsForOpenApiClientGen = {"gen-client", OPENAPI_YAML, "-o", balProject.toString(), "-m",
                 MODULE_NAME};
-        balClient.runMain("swagger", clientArgsForOpenApiClientGen, new HashMap<>(), new String[]{},
+        balClient.runMain("openapi", clientArgsForOpenApiClientGen, new HashMap<>(), new String[]{},
                 new LogLeecher[]{}, balServer.getServerHome());
         Assert.assertTrue(Files.exists(balModule), "OpenApi client was not generated");
     }
@@ -64,9 +64,9 @@ public class OutputPathCreationTestCase extends BaseTest {
         Path tempBalFile = balModule.resolve("temp.bal");
         Files.createFile(tempBalFile);
     
-        String[] clientArgsForOpenApiClientGen = {"client", OPENAPI_YAML, "-o", balProject.toString(), "--module",
+        String[] clientArgsForOpenApiClientGen = {"gen-client", OPENAPI_YAML, "-o", balProject.toString(), "--module",
                 MODULE_NAME};
-        balClient.runMain("swagger", clientArgsForOpenApiClientGen, new String[]{});
+        balClient.runMain("openapi", clientArgsForOpenApiClientGen, new String[]{});
         Assert.assertTrue(Files.exists(balModule), "OpenApi client was not generated");
         Assert.assertTrue(Files.exists(tempBalFile), "Created temp file has been deleted");
     }

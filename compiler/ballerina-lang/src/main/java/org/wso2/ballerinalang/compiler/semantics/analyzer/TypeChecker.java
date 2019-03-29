@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -787,27 +786,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = varSym.type;
                 BLangInvokableNode encInvokable = env.enclInvokable;
                 if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        !(symbol.owner instanceof BPackageSymbol)) {
+                        !(symbol.owner instanceof BPackageSymbol) &&
+                        !isFunctionArgument(varSym, encInvokable.requiredParams)) {
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE_NAME);
-                    if (closureVarSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
-                        ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv,
+                            symbol.name, SymTag.VARIABLE);
+                    if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                        resolvedSymbol.closure = true;
                     }
                 }
                 if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
-                    // The owner of the variable ref should be an invokable symbol.
-                    // It's set here because the arrow expression changes to an invokable only at desugar
-                    // and is not an invokable at this phase.
-                    symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
-                            env.enclPkg.packageID, null, symbol.owner);
-                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE_NAME);
-                    if (closureVarSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(closureVarSymbol, ((BLangArrowFunction) env.node).params)) {
-                        ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    if (!isFunctionArgument(varSym, ((BLangArrowFunction) env.node).params)) {
+                        SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                                SymTag.VARIABLE);
+                        if (resolvedSymbol != symTable.notFoundSymbol) {
+                            resolvedSymbol.closure = true;
+                        }
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -1441,9 +1436,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
         BLangExpression expr;
         if (keyVal.keyExpr != null) {
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.keyExpr.variableName),
-                                                      SymTag.VARIABLE);
-            keyVal.keyExpr.symbol = symbol;
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode
+                            (((BLangSimpleVarRef) keyVal.keyExpr).variableName), SymTag.VARIABLE);
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;
         } else {
@@ -1728,7 +1722,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = exprType;
             }
         } else {
-            exprType = checkExpr(unaryExpr.expr, env);
+            exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
+                    checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
