@@ -32,6 +32,7 @@ dependencies {
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-test-utils')
+    testCompile project(':ballerina-runtime')
 
     balRuntime project(':ballerina-runtime')
 

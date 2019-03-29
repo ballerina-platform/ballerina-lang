@@ -20,6 +20,7 @@ configurations {
     source
     zip
     resourceFiles
+    balx
 }
 
 dependencies {
@@ -209,6 +210,8 @@ dependencies {
     dist project(':ballerina-activemq-artemis')
     dist project(':ballerina-nats')
 
+    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }
 
@@ -222,6 +225,11 @@ CopySpec copyJarSpec = copySpec {
 CopySpec copyBaloSpec = copySpec {
     from configurations.distBal
     into(basePath + '/lib')
+}
+
+CopySpec copyBalxSpec = copySpec {
+    from configurations.balx
+    into(basePath + '/lib/balx')
 }
 
 CopySpec copyBinSpec = copySpec {
@@ -253,6 +261,7 @@ task createZip(type: Zip) {
     with copyStaticSpec
     with copyResourceSpec
     with copySrcBaloSpec
+    with copyBalxSpec
 }
 
 artifacts {

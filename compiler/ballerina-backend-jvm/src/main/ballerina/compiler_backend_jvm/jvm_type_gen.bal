@@ -374,6 +374,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeAny";
     } else if (bType is bir:BTypeAnyData) {
         typeFieldName = "typeAnydata";
+    } else if (bType is bir:BJSONType) {
+        typeFieldName = "typeJSON";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -559,11 +561,13 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BMapType) {
+        return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
-               bType is bir:BMapType ||
-               bType is bir:BRecordType) {
+               bType is bir:BRecordType ||
+               bType is bir:BJSONType) {
         return io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
