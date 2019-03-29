@@ -26,7 +26,4 @@ test {
             into "$buildDir/lib/repo/ballerina"
         }
     }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
 }
