@@ -86,9 +86,8 @@ public type Client client object {
 # + host - Target service URL
 # + port - Port number of the remote service
 # + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
-public type ClientConfig record {
+public type ClientConfig record {|
     string host;
     int port;
     service callbackService?;
-    !...;
-};
+|};

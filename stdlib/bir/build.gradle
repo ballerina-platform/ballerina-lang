@@ -47,6 +47,7 @@ task genBalx(type: JavaExec) {
             into "$buildDir/lib/repo/ballerina"
         }
     }
+    dependsOn createBalo
 
     classpath = configurations.cliUtils
     main = 'org.ballerinalang.cli.utils.GenerateBalx'
@@ -55,6 +56,13 @@ task genBalx(type: JavaExec) {
     def fileName = "bir_test.bal"
     def target = "$buildDir/bir_test.balx"
     args("$src", "$fileName", "$target", "$buildDir")
+
+    def balFiles = file("src/main/ballerina/")
+    inputs.dir(balFiles)
+    inputs.files(new File(src, fileName))
+    inputs.files(configurations.baloImplementation)
+    outputs.files(target)
+    outputs.cacheIf { true }
 }
 
 test {

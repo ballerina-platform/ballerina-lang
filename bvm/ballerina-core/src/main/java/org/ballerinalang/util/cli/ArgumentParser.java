@@ -48,8 +48,6 @@ import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -231,7 +229,7 @@ public class ArgumentParser {
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
             case TypeTags.DECIMAL_TAG:
-                return new BDecimal(getDecimalValue(value));
+                return getDecimalValue(value);
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -301,9 +299,9 @@ public class ArgumentParser {
         }
     }
 
-    private static BigDecimal getDecimalValue(String argument) {
+    private static BDecimal getDecimalValue(String argument) {
         try {
-            return new BigDecimal(argument, MathContext.DECIMAL128);
+            return new BDecimal(argument);
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
         }

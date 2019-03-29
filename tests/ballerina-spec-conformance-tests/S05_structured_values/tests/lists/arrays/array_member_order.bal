@@ -98,10 +98,9 @@ function testObjectArrayMemberOrder() {
     test:assertEquals(<FooObjectThree>fooObjectArray[2], a14, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "2");
 }
 
-public type FooRecordThree record {
+public type FooRecordThree record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectThree object {
     public string fooFieldOne;

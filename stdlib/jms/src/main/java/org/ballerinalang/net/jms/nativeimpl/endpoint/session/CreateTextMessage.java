@@ -43,13 +43,14 @@ import javax.jms.Session;
 /**
  * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
                    functionName = "createTextMessage",
-                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                                        structPackage = "ballerina/jms"),
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = { @Argument(name = "content", type = TypeKind.STRING) },
                    returnType = {
-                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms", structType = "Message")
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                       structType = JmsConstants.MESSAGE_OBJ_NAME)
                    },
                    isPublic = true)
 public class CreateTextMessage extends AbstractBlockingAction {
@@ -69,7 +70,7 @@ public class CreateTextMessage extends AbstractBlockingAction {
         Message jmsMessage;
 
         BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+                                                                           JmsConstants.MESSAGE_OBJ_NAME);
         try {
             jmsMessage = session.createTextMessage(content);
             bStruct.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);

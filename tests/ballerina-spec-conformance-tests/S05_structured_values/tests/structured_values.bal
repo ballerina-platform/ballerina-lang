@@ -130,7 +130,10 @@ function testTableFreezeOnContainer() {
 # + tableVal - the table to which the member should be added
 # + member - the member to be added
 public function insertMemberToTable(table<record{}> tableVal, record{} member) {
-    _ = tableVal.add(member);
+    error? err = tableVal.add(member);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -398,15 +401,13 @@ function updateRecordBazField(record{} rec, anydata value) {
     rec.bazFieldTwo = value;
 }
 
-public type FooRecordThirteen record {
+public type FooRecordThirteen record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordThirteen record {
+public type BarRecordThirteen record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectThirteen object {
     public string fooFieldOne;

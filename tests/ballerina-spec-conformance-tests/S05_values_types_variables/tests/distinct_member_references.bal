@@ -25,10 +25,9 @@ function testDistinctArrayMembersReferringToSameValue() {
     test:assertTrue(s2[0] === s2[2], msg = EXPECTED_VALUES_TO_BE_AT_SAME_LOCATION_FAILURE_MESSAGE);
 }
 
-public type FooRecordOne record {
+public type FooRecordOne record {|
     string fooOneFieldOne;
-    !...;
-};
+|};
 
 @test:Config {}
 function testDistinctTupleMembersReferringToSameValue() {

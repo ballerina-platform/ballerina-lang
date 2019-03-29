@@ -56,7 +56,7 @@ public class ReceiveActionHandler {
             if (Objects.nonNull(message)) {
                 BMap<String, BValue> messageBObject = BLangConnectorSPIUtil.
                         createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                      JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+                                      JmsConstants.MESSAGE_OBJ_NAME);
                 messageBObject.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, message);
                 context.setReturnValues(messageBObject);
             } else {

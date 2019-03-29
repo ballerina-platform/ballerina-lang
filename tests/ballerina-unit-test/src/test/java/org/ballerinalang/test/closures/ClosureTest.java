@@ -197,7 +197,7 @@ public class ClosureTest {
     public void testIterableOperationsVarModification() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 9.9);
     }
 
     @Test(description = "Test byte and boolean")
@@ -240,5 +240,17 @@ public class ClosureTest {
         Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[7]).booleanValue());
+    }
+
+    @Test(description = "Test type guard with closures")
+    public void testBasicClosureWithTypeGuard() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test30");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+    }
+
+    @Test(description = "Test a complex scenario type guard with closures")
+    public void testComplexlosureWithTypeGuard() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test31");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 31);
     }
 }

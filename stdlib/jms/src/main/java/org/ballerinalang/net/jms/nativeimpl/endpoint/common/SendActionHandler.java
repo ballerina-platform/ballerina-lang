@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -36,8 +34,6 @@ import javax.jms.MessageProducer;
  * Message send action handler.
  */
 public class SendActionHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendActionHandler.class);
 
     private SendActionHandler() {
     }
@@ -53,6 +49,7 @@ public class SendActionHandler {
                                                                              JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                                              SessionConnector.class,
                                                                              context);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> messageBObject = ((BMap<String, BValue>) context.getRefArgument(1));
         Message message = BallerinaAdapter.getNativeObject(messageBObject,
                                                            JmsConstants.JMS_MESSAGE_OBJECT,

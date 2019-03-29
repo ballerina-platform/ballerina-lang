@@ -95,6 +95,10 @@ public enum Snippet {
 
     STMT_IF(SnippetGenerator.getIfStatementSnippet()),
 
+    STMT_ELSE_IF(SnippetGenerator.getElseIfStatementSnippet()),
+
+    STMT_ELSE(SnippetGenerator.getElseStatementSnippet()),
+
     STMT_LOCK(SnippetGenerator.getLockStatementSnippet()),
 
     STMT_MATCH(SnippetGenerator.getMatchStatementSnippet()),

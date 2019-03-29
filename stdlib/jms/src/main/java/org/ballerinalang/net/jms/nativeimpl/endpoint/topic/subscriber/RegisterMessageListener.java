@@ -36,13 +36,14 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "registerListener",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriber", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_SUBSCRIBER_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {
                 @Argument(name = "serviceType", type = TypeKind.TYPEDESC),
                 @Argument(name = JmsConstants.METHOD_FIELD_ACTIONS, type = TypeKind.OBJECT,
-                          structType = "TopicSubscriberCaller"),
+                          structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER_CALLER_OBJ_NAME),
                 @Argument(name = JmsConstants.METHOD_FIELD_DATA, type = TypeKind.MAP)
         },
         isPublic = true

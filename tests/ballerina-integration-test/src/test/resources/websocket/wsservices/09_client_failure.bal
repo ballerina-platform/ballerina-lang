@@ -34,7 +34,7 @@ service clientFailure on new http:WebSocketListener(9091) {
 service errorHandlingService = @http:WebSocketServiceConfig {} service {
     resource function onError(http:WebSocketClient caller, error err) {
         if (serverCaller is http:WebSocketCaller) {
-            var closeErr = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message, 
+            var closeErr = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message,
             timeoutInSecs = 0);
             log:printError("Failed during closing the connection", err = closeErr);
         } else {

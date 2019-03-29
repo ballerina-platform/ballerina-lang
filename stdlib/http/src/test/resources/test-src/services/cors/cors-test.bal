@@ -27,7 +27,7 @@ service echo1 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"resCors"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -38,7 +38,7 @@ service echo1 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"serCors"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -53,7 +53,7 @@ service echo1 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"moreOrigins"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -71,7 +71,7 @@ service hello2 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"resOnlyCors"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -87,7 +87,7 @@ service hello2 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"optionsOnly"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -110,7 +110,7 @@ service echo3 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"cors"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -122,7 +122,7 @@ service echo4 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"noCors"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -132,6 +132,6 @@ service echo4 on testEP {
         http:Response res = new;
         json responseJson = {"echo":"noCorsOPTIONS"};
         res.setJsonPayload(responseJson);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
