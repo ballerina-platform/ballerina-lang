@@ -134,13 +134,13 @@ function getWindowsRoot(string input) returns (string, int)|error {
         if (isSlash(c0) && isSlash(c1)) {
             boolean unc = check isUNC(input);
             if (!unc) {
-                error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Invalid UNC path: " + input });
+                error err = error("{ballerina/filepath}INVALID_UNC_PATH", { message: "Invalid UNC path: " + input });
                 return err;
             }
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
+                error err = error("{ballerina/filepath}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
                 " + input });
                 return err;
             }
@@ -148,7 +148,7 @@ function getWindowsRoot(string input) returns (string, int)|error {
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
+                error err = error("{ballerina/filepath}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
                 " + input });
                 return err;
             }
