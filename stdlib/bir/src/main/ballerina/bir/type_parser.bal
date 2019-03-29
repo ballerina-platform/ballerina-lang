@@ -103,6 +103,8 @@ public type TypeParser object {
             return self.parseErrorType();
         } else if (typeTag == self.TYPE_TAG_FUTURE){
             return self.parseFutureType();
+        } else if (typeTag == self.TYPE_TAG_JSON){
+            return TYPE_JSON;
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
