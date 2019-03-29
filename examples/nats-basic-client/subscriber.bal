@@ -17,7 +17,7 @@
 import ballerina/nats;
 import ballerina/io;
 
-// Initialize NATS listener
+// Initialize NATS listener.
 listener nats:Listener subscription = new({ host: "localhost", port: 4222,
                                             clientId: "s0" });
 
