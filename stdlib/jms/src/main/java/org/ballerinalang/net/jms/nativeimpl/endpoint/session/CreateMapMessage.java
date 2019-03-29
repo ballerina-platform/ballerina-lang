@@ -49,15 +49,16 @@ import javax.jms.Session;
 /**
  * Create JMS map message.
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "jms",
-        functionName = "createMapMessage",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                structPackage = "ballerina/jms"),
-        args = {@Argument(name = "content", type = TypeKind.MAP)},
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms", structType = "Message")
+@BallerinaFunction(orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+                   functionName = "createMapMessage",
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+                   args = {@Argument(name = "content", type = TypeKind.MAP)},
+                   returnType = {
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                       structType = JmsConstants.MESSAGE_OBJ_NAME)
         },
-        isPublic = true)
+                   isPublic = true)
 public class CreateMapMessage extends AbstractBlockingAction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(CreateMapMessage.class);
@@ -74,9 +75,10 @@ public class CreateMapMessage extends AbstractBlockingAction {
         MapMessage jmsMessage;
 
         BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.JMS_MESSAGE_STRUCT_NAME);
+                                                                           JmsConstants.MESSAGE_OBJ_NAME);
         try {
             jmsMessage = session.createMapMessage();
+            @SuppressWarnings(JmsConstants.UNCHECKED)
             Map<String, BValue> contentMap = content.getMap();
 
             contentMap.forEach((key, value) -> {
@@ -92,7 +94,7 @@ public class CreateMapMessage extends AbstractBlockingAction {
                     } else if (value instanceof BFloat) {
                         jmsMessage.setDouble(key, ((BFloat) value).floatValue());
                     } else {
-                        LOGGER.error("Couldn't set invalid data type to MapMessage : " + value.getType().getName());
+                        LOGGER.error("Couldn't set invalid data type to MapMessage : {}", value.getType().getName());
                     }
                 } catch (JMSException e) {
                     BallerinaAdapter.returnError("Failed to create map message", context, e);

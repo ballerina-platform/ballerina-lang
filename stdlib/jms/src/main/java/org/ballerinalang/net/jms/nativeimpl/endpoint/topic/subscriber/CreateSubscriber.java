@@ -47,11 +47,12 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "createSubscriber",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriber", structPackage = "ballerina/jms"),
-        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_SUBSCRIBER_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        args = {@Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
                 @Argument(name = "messageSelector", type = TypeKind.STRING),
                 @Argument(name = "destination", type = TypeKind.OBJECT)
         },
@@ -61,8 +62,10 @@ public class CreateSubscriber extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> topicSubscriberBObject = (BMap<String, BValue>) context.getRefArgument(0);
 
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
@@ -85,6 +88,7 @@ public class CreateSubscriber extends AbstractBlockingAction {
             Destination topic = destinationObject != null ? destinationObject :
                     JmsUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createConsumer(topic, messageSelector);
+            @SuppressWarnings(JmsConstants.UNCHECKED)
             BMap<String, BValue> consumerConnectorBObject =
                     (BMap<String, BValue>) topicSubscriberBObject.get(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
