@@ -41,13 +41,13 @@ public type Listener object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     function initEndpoint() returns error? = external;
 
-    function register(service serviceType, map<any> annotationData) returns error? = external;
+    function register(service serviceType, string? name) returns error? = external;
 
     function start() returns error? = external;
 };

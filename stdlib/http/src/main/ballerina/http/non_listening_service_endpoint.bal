@@ -31,8 +31,8 @@ public type MockListener object {
         return self.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
@@ -43,7 +43,7 @@ public type MockListener object {
 
     public function init(ServiceEndpointConfiguration c);
     public function initEndpoint() returns error? = external;
-    public function register(service s, map<any> annotationData) returns error? = external;
+    public function register(service s, string? name) returns error? = external;
     public function start() = external;
     public function stop() = external;
 };

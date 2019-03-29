@@ -58,14 +58,13 @@ public type DurableTopicSubscriber object {
     # + serviceType - Type descriptor of the service
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    function registerListener(service serviceType, DurableTopicSubscriberCaller actions,
- map<any> data) returns error? = external;
+    function registerListener(service serviceType, DurableTopicSubscriberCaller actions, string? name) returns error? = external;
 
-    function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector) 
+    function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector)
         returns error? = external;
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint

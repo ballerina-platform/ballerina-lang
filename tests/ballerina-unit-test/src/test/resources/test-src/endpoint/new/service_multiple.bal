@@ -25,7 +25,7 @@ public type ABC object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) {
+    public function __attach(service s, string? name = ()) {
         attachCount += 1;
     }
 };
@@ -45,7 +45,7 @@ public type PQR object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) {
+    public function __attach(service s, string? name = ()) {
         attachCount += 1;
     }
 };

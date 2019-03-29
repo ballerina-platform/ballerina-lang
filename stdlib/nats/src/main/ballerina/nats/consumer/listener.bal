@@ -36,11 +36,11 @@ public type Listener object {
     # + serviceType - Type descriptor of the service.
     # + data - Service annotations.
     # + return - Nil or error upon failure to register listener.
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.create(serviceType, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.create(serviceType, name);
     }
 
-    function create(service serviceType, map<any> data) returns error? = external;
+    function create(service serviceType, string? name) returns error? = external;
 
     # Starts the listener in the lifecyle.
     #

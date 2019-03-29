@@ -33,8 +33,9 @@ public type Listener object {
         }
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        // ignore param 'name'
+        return self.register(s, {});
     }
 
     public function __start() returns error? {
@@ -47,7 +48,7 @@ public type Listener object {
 
     function init() returns error? = external;
 
-    function register(service s, map<any> annotationData) returns error? = external;
+    function register(service s, map<any> config) returns error? = external;
 
     function start() returns error? = external;
 

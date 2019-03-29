@@ -62,13 +62,13 @@ public type QueueReceiver object {
     # Binds the queue receiver endpoint to a service
     #
     # + serviceType - Type descriptor of the service to bind to
-    # + data - Service annotations
+    # + data - Name of the service
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    function registerListener(service serviceType, QueueReceiverCaller actions, map<any> data) returns error? = external;
+    function registerListener(service serviceType, QueueReceiverCaller actions, string? name) returns error? = external;
 
     function createQueueReceiver(Session? session, string messageSelector, string|Destination dest) = external;
 
