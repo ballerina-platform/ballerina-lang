@@ -13,46 +13,22 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
-type s1 record {
-    float x;
-};
+public function main(string? s = (), map<int>? m = ()) {
+    string stringToPrint = "string value: ";
+    if (s is string) {
+        stringToPrint += s;
+    } else {
+        stringToPrint += "s is nil";
+    }
 
-function getGlobalVars() returns float {
-    s1 v = {};
-    float f = v.foo:x;
-    return f;
+    stringToPrint += " ";
+
+    if (m is map<int>) {
+        stringToPrint += io:sprintf("%s", m);
+    } else {
+        stringToPrint += "m is nil";
+    }
+    io:print(stringToPrint);
 }
-
-public int invalidPublicGlobalInt = 1;
-
-public int invalidPublicGobalVar = 1;
-
-int uninitializedModuleVariable;
-
-var uninitializedModuleVar;
-
-listener Listener uninitializedModuleListener;
-
-public listener Listener uninitializedPublicModuleListener;
-
-public type Listener object {
-
-    *AbstractListener;
-
-    public function __init() {
-
-    }
-
-    public function __attach(service s, string? name = ()) returns error? {
-
-    }
-
-    public function __start() returns error? {
-
-    }
-
-    public function __stop() returns error? {
-
-    }
-};

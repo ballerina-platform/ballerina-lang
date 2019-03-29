@@ -44,15 +44,12 @@ type CustomListener object {
         // do nothing
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
+    public function __attach(service s, string? name = ()) returns error? {
         globalVar += ATTACH_METHOD_INCREMENT_VALUE;
     }
 };
 
-// TODO: The signature of attach function has map<any> instead of string?
-// https://github.com/ballerina-platform/ballerina-lang/issues/13441
 @test:Config {
-    groups: ["deviation"]
 }
 function testAbstractListener() {
     test:assertEquals(globalVar, START_METHOD_INCREMENT_VALUE + ATTACH_METHOD_INCREMENT_VALUE,
