@@ -2,14 +2,14 @@ import ballerina/filepath;
 import ballerina/io;
 
 public function main() {
-    // Get Absolute representation of the path.
+    // Get the absolute representation of the path.
     string absValue = checkpanic filepath:absolute(untaint "test.txt");
 
     // Check whether the path is absolute.
     boolean isAbs = checkpanic filepath:isAbsolute("/A/B/C");
     io:println("/A/B/C is absolute: " + isAbs);
 
-    // Get base name of the path.
+    // Get the base name of the path.
     string name = checkpanic filepath:filename("/A/B/C");
     io:println("Filename of /A/B/C: " + name); // returns C
 
