@@ -97,10 +97,9 @@ test {
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
     systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
-    // TODO: Enable tests once the pack is working
-//    useTestNG() {
-//        suites 'src/test/resources/testng.xml'
-//    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 description = 'Ballerina - Integration Test'

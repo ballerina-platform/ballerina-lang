@@ -130,6 +130,7 @@ dependencies {
     distBal project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-privacy', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-builtin', configuration: 'balSource')
@@ -202,6 +203,7 @@ dependencies {
     dist project(':ballerina-time')
     dist project(':ballerina-transactions')
     dist project(':ballerina-websub')
+    dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':strip-bouncycastle')
