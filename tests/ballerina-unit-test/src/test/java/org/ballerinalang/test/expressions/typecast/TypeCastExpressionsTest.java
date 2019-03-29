@@ -276,6 +276,12 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testValueTypeToFiniteTypeCastNegative");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'FooOneTrue'.*")
+    public void testFiniteTypeToFiniteTypeCastNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeToFiniteTypeCastNegative");
+    }
+
     @Test
     public void testCastNegatives() {
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
@@ -318,7 +324,8 @@ public class TypeCastExpressionsTest {
                 {"testDirectlyUnmatchedUnionToUnionCastPositive"},
                 {"testFiniteTypeToValueTypeCastPositive"},
                 {"testFiniteTypeToRefTypeCastPositive"},
-                {"testValueTypeToFiniteTypeCastPositive"}
+                {"testValueTypeToFiniteTypeCastPositive"},
+                {"testFiniteTypeToFiniteTypeCastPositive"}
         };
     }
 

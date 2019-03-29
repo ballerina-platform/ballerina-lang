@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -153,18 +154,11 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition astTypeDefinition) {
         Visibility visibility = getVisibility(astTypeDefinition.symbol);
 
-        List<BIRFunction> attachedFuncs;
-        int typeTag = astTypeDefinition.symbol.type.tag;
-        if (typeTag == TypeTags.OBJECT || typeTag == TypeTags.RECORD) { // TODO: records shouldn't have attached funcs
-            attachedFuncs = new ArrayList<>();
-        } else {
-            attachedFuncs = null;
-        }
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                                                           astTypeDefinition.symbol.name,
                                                           visibility,
                                                           astTypeDefinition.typeNode.type,
-                                                          attachedFuncs);
+                                                          new ArrayList<>());
         typeDefs.put(astTypeDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
@@ -284,6 +278,19 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation invocationExpr) {
+        createCall(invocationExpr, false);
+    }
+
+    public void visit(BLangStatementExpression statementExpression) {
+        statementExpression.stmt.accept(this);
+        statementExpression.expr.accept(this);
+    }
+
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation invocationExpr) {
+        createCall(invocationExpr, true);
+    }
+
+    private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
         // Lets create a block the jump after successful function return
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclFunc.basicBlocks.add(thenBB);
@@ -326,13 +333,14 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.targetOperand = lhsOp;
         }
 
+        // TODO: make vCall a new instruction to avoid package id in vCall
         if (!invocationExpr.async) {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos,
-                    InstructionKind.CALL, invocationExpr.symbol.pkgID,
+                    InstructionKind.CALL, isVirtual, invocationExpr.symbol.pkgID,
                     names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
         } else {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos,
-                    InstructionKind.ASYNC_CALL, invocationExpr.symbol.pkgID,
+                    InstructionKind.ASYNC_CALL, isVirtual, invocationExpr.symbol.pkgID,
                     names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
         }
 

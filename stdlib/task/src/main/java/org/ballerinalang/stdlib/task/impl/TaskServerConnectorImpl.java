@@ -55,7 +55,7 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        this.task.run(context);
+        this.task.start(context);
     }
 
     /**
