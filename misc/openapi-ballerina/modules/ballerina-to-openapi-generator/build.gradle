@@ -11,7 +11,7 @@ dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.0-rc3'
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-http')
-    testCompile project(':language-server:language-server-compiler');
+    testCompile project(':language-server:language-server-compiler')
     testCompile 'org.testng:testng:6.13.1'
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
 }
