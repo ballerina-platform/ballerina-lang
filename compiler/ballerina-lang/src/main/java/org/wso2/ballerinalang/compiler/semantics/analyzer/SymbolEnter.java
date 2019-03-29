@@ -1311,6 +1311,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
+        if (symbol.owner.tag == SymTag.PACKAGE) {
+            // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
+            return;
+        }
+
         BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
