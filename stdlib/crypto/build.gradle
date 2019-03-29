@@ -9,11 +9,10 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
     implementation project(':ballerina-time')
+    implementation 'commons-codec:commons-codec'
 
-    implementation 'commons-codec:commons-codec:1.9'
-
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-runtime-api')

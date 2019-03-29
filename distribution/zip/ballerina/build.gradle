@@ -161,9 +161,9 @@ dependencies {
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
     balSource project(path: ':ballerina-websub', configuration: 'balSource')
     balSource project(path: ':ballerina-activemq-artemis', configuration: 'balSource')
+    balSource project(path: ':ballerina-nats', configuration: 'balSource')
     balSource project(path: ':ballerina-privacy', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
-    balSource project(path: ':ballerina-nats', configuration: 'balSource')
 
     dist project(':ballerina-auth')
     dist project(':ballerina-builtin')

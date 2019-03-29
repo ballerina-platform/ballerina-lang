@@ -8,12 +8,11 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-backend-jvm')
 
-    implementation 'org.javassist:javassist:3.20.0-GA'
-    implementation 'io.netty:netty-codec-http:4.1.34.Final'
-
-    shadow 'org.testng:testng:6.13.1'
-    shadow 'org.apache.commons:commons-lang3:3.5'
-    shadow 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
+    implementation 'org.javassist:javassist'
+    implementation 'io.netty:netty-codec-http'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation 'org.testng:testng'
 }
 
 jar {

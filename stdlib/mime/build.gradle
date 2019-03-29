@@ -18,13 +18,13 @@ dependencies {
     implementation project(':ballerina-file')
     implementation project(':ballerina-launcher')
 
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
-    implementation 'org.jvnet.mimepull:mimepull:1.9.7'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation 'org.jvnet.mimepull:mimepull'
 
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
-    testCompile 'org.testng:testng:6.13.1'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'org.testng:testng'
 }
 
 test {

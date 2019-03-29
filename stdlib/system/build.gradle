@@ -11,8 +11,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-launcher')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-simple'
 }
 
 test {

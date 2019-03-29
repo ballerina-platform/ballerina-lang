@@ -23,8 +23,8 @@ dependencies {
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
     testCompile project(':ballerina-utils')
-    testCompile 'org.awaitility:awaitility:3.0.0'
-    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'org.testng:testng'
 }
 
 test {

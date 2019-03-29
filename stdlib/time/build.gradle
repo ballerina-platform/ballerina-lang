@@ -9,8 +9,8 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
 }
 
 description = 'Ballerina - Time'
