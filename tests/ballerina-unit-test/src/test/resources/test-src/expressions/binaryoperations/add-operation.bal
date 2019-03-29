@@ -22,18 +22,20 @@ function floatIntAdd(float a, int b) returns (float) {
     return a + b;
 }
 
-function xmlXmlAdd(xml a, xml b) returns (xml) {
+function xmlXmlAdd() returns (xml) {
+    xml a = xml `abc`;
+    xml b = xml `def`;
     return a + b;
 }
 
-function xmlStringAdd(xml a, string b) returns (xml) {
+function xmlStringAdd() returns (xml) {
+    xml a = xml `abc`;
+    string b = "def";
     return a + b;
 }
 
-function stringXmlAdd(string a, xml b) returns (xml) {
+function stringXmlAdd() returns (xml) {
+    string a = "def";
+    xml b = xml `abc`;
     return a + b;
-}
-
-function stringXmlAdditionCommutative(string a, xml b) returns (boolean) {
-    return (a + b) == (b + a);
 }
