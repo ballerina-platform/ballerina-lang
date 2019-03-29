@@ -7,13 +7,13 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':lib-creator')
 
-    testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-utils')
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')

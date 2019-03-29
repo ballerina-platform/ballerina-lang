@@ -6,9 +6,9 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-launcher')
     implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-backend-jvm')
-    implementation 'info.picocli:picocli:3.3.0'
-    testCompile 'org.testng:testng:6.13.1'
+    implementation project(':ballerina-backend-jvm')    
+    implementation 'info.picocli:picocli'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Packerina'

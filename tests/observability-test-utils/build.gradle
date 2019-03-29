@@ -6,8 +6,8 @@ dependencies {
     shadow project(':lib-creator')
     shadow project(':ballerina-builtin')
     shadow project(':ballerina-lang')
-    shadow 'com.google.code.gson:gson:2.7'
-    implementation 'io.opentracing:opentracing-mock:0.31.0'
+    shadow 'com.google.code.gson:gson'
+    implementation 'io.opentracing:opentracing-mock'
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'

@@ -6,15 +6,15 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
-
+    
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-utils')
     testCompile project(':ballerina-io')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.awaitility:awaitility:3.0.0'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    testCompile 'org.testng:testng'
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'org.slf4j:slf4j-jdk14'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
