@@ -512,7 +512,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     return;
-                } else if (varRef.symbol != null && varRef.symbol.closure) {
+                } else if (varRef.symbol != null && varRef.symbol.closure && varTaintedStatus == TaintedStatus.TAINTED
+                        && !varRef.symbol.tainted) {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
