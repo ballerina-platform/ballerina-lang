@@ -60,12 +60,12 @@ public type ChannelListener object {
     # + serviceType - Type descriptor of the service to bind to.
     # + data - Service annotations.
     # + return - () or error upon failure to register listener.
-    extern function registerListener(service serviceType, map<any> data);
+    private extern function registerListener(service serviceType, map<any> data);
 
     # Stops consuming messages through listener endpoint.
     #
     # + return - () or error upon failure to close the channel.
-    extern function stop() returns error?;
+    private extern function stop() returns error?;
 };
 
 # Represents the list of parameters required to create a subscription.

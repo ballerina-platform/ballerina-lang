@@ -30,6 +30,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Declares a queue.
@@ -47,16 +50,24 @@ import org.ballerinalang.natives.annotations.Receiver;
 )
 public class QueueDeclare extends BlockingNativeCallableUnit {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueueDeclare.class);
+
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         BValue queueConfig = context.getNullableRefArgument(1);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
                 Channel.class, context);
-        if (queueConfig == null) {
-            context.setReturnValues(new BString(ChannelUtils.queueDeclare(channel)));
-        } else {
-            ChannelUtils.queueDeclare(channel, (BMap<String, BValue>) context.getNullableRefArgument(1));
+        try {
+            if (queueConfig == null) {
+                context.setReturnValues(new BString(ChannelUtils.queueDeclare(channel)));
+            } else {
+                ChannelUtils.queueDeclare(channel, (BMap<String, BValue>) context.getNullableRefArgument(1));
+            }
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while declaring a queue", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
         }
     }
 }

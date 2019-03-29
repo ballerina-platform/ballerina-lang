@@ -30,6 +30,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a RabbitMQ AMQ Channel.
@@ -47,6 +50,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 )
 public class CreateChannel extends BlockingNativeCallableUnit {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateChannel.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
@@ -54,10 +59,12 @@ public class CreateChannel extends BlockingNativeCallableUnit {
         Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
                 RabbitMQConstants.CONNECTION_NATIVE_OBJECT,
                 Connection.class, context);
-        Channel channel = ChannelUtils.createChannel(connection);
-        channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+        try {
+            Channel channel = ChannelUtils.createChannel(connection);
+            channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while creating the channel", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+        }
     }
 }
-
-
-

@@ -29,6 +29,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Publishes messages to exchanges.
@@ -46,6 +49,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 )
 public class BasicPublish extends BlockingNativeCallableUnit {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicPublish.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
@@ -55,6 +60,11 @@ public class BasicPublish extends BlockingNativeCallableUnit {
         String routingKey = context.getStringArgument(1);
         // Handle other message types
         String exchange = context.getStringArgument(2);
-        ChannelUtils.basicPublish(channel, routingKey, message, exchange);
+        try {
+            ChannelUtils.basicPublish(channel, routingKey, message, exchange);
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while publishing a message", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+        }
     }
 }

@@ -35,7 +35,7 @@ public type Channel client object {
     # Internally creates an AMQ `Channel`.
     #
     # + connection - Ballerina RabbitMQ Connection object.
-    extern function createChannel(Connection? connection);
+    private extern function createChannel(Connection? connection);
 
     # Closes this channel.
     #

@@ -29,6 +29,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Binds a queue to an exchange.
@@ -46,6 +49,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 )
 public class QueueBind extends BlockingNativeCallableUnit {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueueBind.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
@@ -54,6 +59,11 @@ public class QueueBind extends BlockingNativeCallableUnit {
         String bindingKey = context.getStringArgument(2);
         Channel channel = RabbitMQUtils.getNativeObject(channelBObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
                 Channel.class, context);
-        ChannelUtils.queueBind(channel, queueName, exchangeName, bindingKey);
+        try {
+            ChannelUtils.queueBind(channel, queueName, exchangeName, bindingKey);
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while binding the queue", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+        }
     }
 }

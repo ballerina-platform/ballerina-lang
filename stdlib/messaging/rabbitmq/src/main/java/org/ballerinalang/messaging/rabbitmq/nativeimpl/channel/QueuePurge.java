@@ -29,6 +29,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Purges a queue.
@@ -45,12 +48,20 @@ import org.ballerinalang.natives.annotations.Receiver;
         isPublic = true
 )
 public class QueuePurge extends BlockingNativeCallableUnit {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueuePurge.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         String queueName = context.getStringArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject,
                 RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
-        ChannelUtils.queuePurge(channel, queueName);
+        try {
+            ChannelUtils.queuePurge(channel, queueName);
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while purging the queue", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+        }
     }
 }

@@ -29,6 +29,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Closes a RabbitMQ Channel.
@@ -46,12 +49,19 @@ import org.ballerinalang.natives.annotations.Receiver;
 )
 public class Close extends BlockingNativeCallableUnit {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Close.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = RabbitMQUtils.getNativeObject(channelBObject,
                 RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
-        ChannelUtils.close(channel, context);
-        channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, null);
+        try {
+            ChannelUtils.close(channel, context);
+            channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, null);
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while closing the channel", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+        }
     }
 }

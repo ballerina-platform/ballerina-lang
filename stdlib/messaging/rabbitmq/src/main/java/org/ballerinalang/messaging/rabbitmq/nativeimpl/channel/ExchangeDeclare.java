@@ -29,6 +29,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Actively declare a non-autodelete exchange with no extra arguments.
@@ -45,12 +48,20 @@ import org.ballerinalang.natives.annotations.Receiver;
         isPublic = true
 )
 public class ExchangeDeclare extends BlockingNativeCallableUnit {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExchangeDeclare.class);
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
         BMap<String, BValue> exchangeConfig = (BMap<String, BValue>) context.getRefArgument(1);
         Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
                 Channel.class, context);
-        ChannelUtils.exchangeDeclare(channel, exchangeConfig);
+        try {
+            ChannelUtils.exchangeDeclare(channel, exchangeConfig);
+        } catch (BallerinaException exception) {
+            LOGGER.error("I/O exception while declaring the exchange", exception);
+            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+        }
     }
 }
