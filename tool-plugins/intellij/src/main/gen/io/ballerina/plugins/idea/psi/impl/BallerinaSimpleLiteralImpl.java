@@ -68,12 +68,6 @@ public class BallerinaSimpleLiteralImpl extends ASTWrapperPsiElement implements 
 
   @Override
   @Nullable
-  public PsiElement getAdd() {
-    return findChildByType(ADD);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getBooleanLiteral() {
     return findChildByType(BOOLEAN_LITERAL);
   }

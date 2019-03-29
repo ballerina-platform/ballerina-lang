@@ -225,8 +225,6 @@ public interface BallerinaTypes {
   IElementType SERVICE_CONSTRUCTOR_EXPRESSION = new BallerinaCompositeElementType("SERVICE_CONSTRUCTOR_EXPRESSION");
   IElementType SERVICE_DEFINITION = new BallerinaCompositeElementType("SERVICE_DEFINITION");
   IElementType SERVICE_TYPE_NAME = new BallerinaCompositeElementType("SERVICE_TYPE_NAME");
-  IElementType SET_ASSIGNMENT_CLAUSE = new BallerinaCompositeElementType("SET_ASSIGNMENT_CLAUSE");
-  IElementType SET_CLAUSE = new BallerinaCompositeElementType("SET_CLAUSE");
   IElementType SHIFT_EXPRESSION = new BallerinaCompositeElementType("SHIFT_EXPRESSION");
   IElementType SIMPLE_LITERAL = new BallerinaCompositeElementType("SIMPLE_LITERAL");
   IElementType SIMPLE_LITERAL_EXPRESSION = new BallerinaCompositeElementType("SIMPLE_LITERAL_EXPRESSION");
@@ -512,7 +510,6 @@ public interface BallerinaTypes {
   IElementType SELECT = new BallerinaTokenType("select");
   IElementType SEMICOLON = new BallerinaTokenType(";");
   IElementType SERVICE = new BallerinaTokenType("service");
-  IElementType SET = new BallerinaTokenType("set");
   IElementType SINGLE_BACKTICK_CONTENT = new BallerinaTokenType("SINGLE_BACKTICK_CONTENT");
   IElementType SINGLE_BACKTICK_MARKDOWN_END = new BallerinaTokenType("SINGLE_BACKTICK_MARKDOWN_END");
   IElementType SINGLE_BACKTICK_MARKDOWN_START = new BallerinaTokenType("SINGLE_BACKTICK_MARKDOWN_START");
@@ -1186,12 +1183,6 @@ public interface BallerinaTypes {
       }
       else if (type == SERVICE_TYPE_NAME) {
         return new BallerinaServiceTypeNameImpl(node);
-      }
-      else if (type == SET_ASSIGNMENT_CLAUSE) {
-        return new BallerinaSetAssignmentClauseImpl(node);
-      }
-      else if (type == SET_CLAUSE) {
-        return new BallerinaSetClauseImpl(node);
       }
       else if (type == SHIFT_EXPRESSION) {
         return new BallerinaShiftExpressionImpl(node);
