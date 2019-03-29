@@ -51,7 +51,6 @@ public class ExchangeDelete extends BlockingNativeCallableUnit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExchangeDelete.class);
 
-
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
@@ -62,7 +61,7 @@ public class ExchangeDelete extends BlockingNativeCallableUnit {
             ChannelUtils.exchangeDelete(channel, exchangeName);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while declaring the exchange", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }

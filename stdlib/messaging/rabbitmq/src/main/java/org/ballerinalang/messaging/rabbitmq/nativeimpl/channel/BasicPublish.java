@@ -64,7 +64,7 @@ public class BasicPublish extends BlockingNativeCallableUnit {
             ChannelUtils.basicPublish(channel, routingKey, message, exchange);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while publishing a message", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }

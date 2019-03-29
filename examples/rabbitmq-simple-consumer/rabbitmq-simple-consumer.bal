@@ -2,16 +2,18 @@ import ballerina/log;
 import ballerina/rabbitmq;
 
 // Creates a ballerina RabbitMQ connection that allows reusability if necessary.
-rabbitmq:Connection conn = new({ host: "localhost", port: 5672 });
+rabbitmq:Connection connection = new({ host: "localhost", port: 5672 });
 
-listener rabbitmq:ChannelListener chann = new(conn);
+listener rabbitmq:ChannelListener channelListener = new(connection);
 
-// Consumer service listens to the "testing" queue.
+// Consumer service listens to the "testQueue" queue.
 @rabbitmq:ServiceConfig {
-    queueName: "testing"
+    queueConfig: {
+        queueName: "testQueue"
+    }
 }
 // Attaches the service to the listener.
-service testSimpleConsumer on chann {
+service testSimpleConsumer on channelListener {
 
     // Gets triggered when a message is received by the queue.
     resource function onMessage(string message) {

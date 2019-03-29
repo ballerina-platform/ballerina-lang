@@ -59,6 +59,7 @@ public class RabbitMQConstants {
     public static final String RABBITMQ_CONNECTION_HEARTBEAT = "heartbeat";
 
     // Channel listener constant fields
+    public static final String QUEUE_CONFIG = "queueConfig";
     public static final String CHANNEL_LISTENER_OBJECT = "ChannelListener";
     public static final String SERVICE_CONFIG = "ServiceConfig";
 

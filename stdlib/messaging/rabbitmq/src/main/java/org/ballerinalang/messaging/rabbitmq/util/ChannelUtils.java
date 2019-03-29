@@ -83,16 +83,16 @@ public class ChannelUtils {
     }
 
     /**
-     * Declared a queue.
+     * Declare a queue.
      *
-     * @param channel     RabbitMQ Channel object.
-     * @param queueConfig Parameters related to declaring a queue.
+     * @param channel    RabbitMQ Channel object.
+     * @param queueName  The name of the queue.
+     * @param durable    True if we are declaring a durable queue (the queue will survive a server restart).
+     * @param exclusive  True if we are declaring an exclusive queue (restricted to this connection).
+     * @param autoDelete True if we are declaring an autodelete queue (server will delete it when no longer in use).
      */
-    public static void queueDeclare(Channel channel, BMap<String, BValue> queueConfig) {
-        String queueName = RabbitMQUtils.getStringFromBValue(queueConfig, RabbitMQConstants.ALIAS_QUEUE_NAME);
-        boolean durable = RabbitMQUtils.getBooleanFromBValue(queueConfig, RabbitMQConstants.ALIAS_QUEUE_DURABLE);
-        boolean exclusive = RabbitMQUtils.getBooleanFromBValue(queueConfig, RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE);
-        boolean autoDelete = RabbitMQUtils.getBooleanFromBValue(queueConfig, RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
+    public static void queueDeclare(Channel channel, String queueName, boolean durable, boolean exclusive,
+                                    boolean autoDelete) {
         try {
             channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
         } catch (IOException e) {
@@ -138,6 +138,7 @@ public class ChannelUtils {
 
     /**
      * Publishes messages to an exchange.
+     * Actively declares an non-exclusive, autodelete, non-durable queue if the queue doesn't exist.
      *
      * @param channel    RabbitMQ Channel object.
      * @param routingKey The routing key of the queue.
@@ -151,7 +152,6 @@ public class ChannelUtils {
             String errorMessage = "An error occurred while publishing the message to a queue ";
             throw new BallerinaException(errorMessage + e.getMessage(), e);
         }
-
     }
 
     /**

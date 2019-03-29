@@ -58,7 +58,7 @@ public class Stop extends BlockingNativeCallableUnit {
         } else {
             try {
                 channel.close();
-            } catch (IOException |TimeoutException  exception) {
+            } catch (IOException | TimeoutException exception) {
                 RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CHANNEL_ERROR
                         + " " + exception.getMessage(), context, exception);
             }

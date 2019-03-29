@@ -25,8 +25,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.*;
+import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -39,6 +46,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Binds the ChannelListener to a service.
@@ -54,7 +62,6 @@ import java.util.List;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class RegisterListener extends BlockingNativeCallableUnit {
-    private static final String QUEUE_NAME_CONFIG_FIELD = "queueName";
 
     @Override
     public void execute(Context context) {
@@ -67,10 +74,14 @@ public class RegisterListener extends BlockingNativeCallableUnit {
                 RabbitMQConstants.SERVICE_CONFIG);
         Annotation annotation = annotationList.get(0);
         Struct value = annotation.getValue();
-        // Add creating the queue if it already doesn't exist
-        String queue = value.getStringField(QUEUE_NAME_CONFIG_FIELD);
+        Map<String, Value> queueConfig = value.getMapField(RabbitMQConstants.QUEUE_CONFIG);
+        String queueName = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_NAME).getStringValue();
+        boolean durable = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_DURABLE).getBooleanValue();
+        boolean exclusive = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE).getBooleanValue();;
+        boolean autoDelete = queueConfig.get(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE).getBooleanValue();;
+        ChannelUtils.queueDeclare(channel, queueName, durable, exclusive, autoDelete);
         onMessageResource = service.getResources()[0];
-        getMessages(onMessageResource, channel, queue);
+        getMessages(onMessageResource, channel, queueName);
     }
 
     private static class ResponseCallback implements CallableUnitCallback {

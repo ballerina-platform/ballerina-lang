@@ -61,7 +61,7 @@ public class QueuePurge extends BlockingNativeCallableUnit {
             ChannelUtils.queuePurge(channel, queueName);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while purging the queue", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }

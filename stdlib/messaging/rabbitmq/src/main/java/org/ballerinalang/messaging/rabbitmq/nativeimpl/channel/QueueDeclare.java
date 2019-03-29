@@ -52,7 +52,6 @@ public class QueueDeclare extends BlockingNativeCallableUnit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueueDeclare.class);
 
-
     @Override
     public void execute(Context context) {
         BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
@@ -63,11 +62,17 @@ public class QueueDeclare extends BlockingNativeCallableUnit {
             if (queueConfig == null) {
                 context.setReturnValues(new BString(ChannelUtils.queueDeclare(channel)));
             } else {
-                ChannelUtils.queueDeclare(channel, (BMap<String, BValue>) context.getNullableRefArgument(1));
+                BMap<String, BValue> config = (BMap<String, BValue>) context.getRefArgument(1);
+                String queueName = RabbitMQUtils.getStringFromBValue(config, RabbitMQConstants.ALIAS_QUEUE_NAME);
+                boolean durable = RabbitMQUtils.getBooleanFromBValue(config, RabbitMQConstants.ALIAS_QUEUE_DURABLE);
+                boolean exclusive = RabbitMQUtils.getBooleanFromBValue(config, RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE);
+                boolean autoDelete = RabbitMQUtils.getBooleanFromBValue(config,
+                        RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
+                ChannelUtils.queueDeclare(channel, queueName, durable, exclusive, autoDelete);
             }
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while declaring a queue", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }

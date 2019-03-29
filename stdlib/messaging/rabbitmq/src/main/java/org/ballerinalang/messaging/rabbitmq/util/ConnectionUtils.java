@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.util;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static org.ballerinalang.messaging.rabbitmq.RabbitMQConstants.*;
 
 /**
  * Util class for RabbitMQ Connection handling.
@@ -53,40 +53,44 @@ public class ConnectionUtils {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
 
-            String host = RabbitMQUtils.getStringFromBValue(connectionConfig, RABBITMQ_CONNECTION_HOST);
+            String host = RabbitMQUtils.getStringFromBValue(connectionConfig,
+                    RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
             connectionFactory.setHost(host);
 
-            int port = RabbitMQUtils.getIntFromBValue(connectionConfig, RABBITMQ_CONNECTION_PORT, LOGGER);
+            int port = RabbitMQUtils.getIntFromBValue(connectionConfig,
+                    RabbitMQConstants.RABBITMQ_CONNECTION_PORT, LOGGER);
             connectionFactory.setPort(port);
 
-            if (connectionConfig.get(RABBITMQ_CONNECTION_USER) != null) {
+            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_USER) != null) {
                 connectionFactory.setUsername
-                        (RabbitMQUtils.getStringFromBValue(connectionConfig, RABBITMQ_CONNECTION_USER));
+                        (RabbitMQUtils.getStringFromBValue(connectionConfig,
+                                RabbitMQConstants.RABBITMQ_CONNECTION_USER));
             }
-            if (connectionConfig.get(RABBITMQ_CONNECTION_PASS) != null) {
+            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_PASS) != null) {
                 connectionFactory.setPassword
-                        (RabbitMQUtils.getStringFromBValue(connectionConfig, RABBITMQ_CONNECTION_PASS));
+                        (RabbitMQUtils.getStringFromBValue(connectionConfig,
+                                RabbitMQConstants.RABBITMQ_CONNECTION_PASS));
             }
-            if (connectionConfig.get(RABBITMQ_CONNECTION_TIMEOUT) != null) {
+            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_TIMEOUT) != null) {
                 connectionFactory.setConnectionTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RABBITMQ_CONNECTION_TIMEOUT, LOGGER));
+                        RabbitMQConstants.RABBITMQ_CONNECTION_TIMEOUT, LOGGER));
             }
-            if (connectionConfig.get(RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT) != null) {
+            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT) != null) {
                 connectionFactory.setHandshakeTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT, LOGGER));
+                        RabbitMQConstants.RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT, LOGGER));
             }
-            if (connectionConfig.get(RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT) != null) {
+            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT) != null) {
                 connectionFactory.setShutdownTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT, LOGGER));
+                        RabbitMQConstants.RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT, LOGGER));
             }
-            if (connectionConfig.get(RABBITMQ_CONNECTION_HEARTBEAT) != null) {
+            if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_HEARTBEAT) != null) {
                 connectionFactory.setRequestedHeartbeat(RabbitMQUtils.getIntFromBValue(connectionConfig,
-                        RABBITMQ_CONNECTION_HEARTBEAT, LOGGER));
+                        RabbitMQConstants.RABBITMQ_CONNECTION_HEARTBEAT, LOGGER));
             }
             return connectionFactory.newConnection();
         } catch (IOException | TimeoutException exception) {
-            LOGGER.error(CREATE_CONNECTION_ERROR, exception);
-            throw new BallerinaException(CREATE_CONNECTION_ERROR + exception.getMessage(), exception);
+            LOGGER.error(RabbitMQConstants.CREATE_CONNECTION_ERROR, exception);
+            throw new BallerinaException(RabbitMQConstants.CREATE_CONNECTION_ERROR + exception.getMessage(), exception);
         }
     }
 
@@ -118,8 +122,9 @@ public class ConnectionUtils {
         try {
             connection.close();
         } catch (IOException exception) {
-            LOGGER.error(CLOSE_CONNECTION_ERROR, exception);
-            RabbitMQUtils.returnError(CLOSE_CONNECTION_ERROR + exception.getMessage(), context, exception);
+            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
+            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
+                    context, exception);
         }
     }
 
@@ -134,8 +139,9 @@ public class ConnectionUtils {
         try {
             connection.close(timeout);
         } catch (IOException exception) {
-            LOGGER.error(CLOSE_CONNECTION_ERROR, exception);
-            RabbitMQUtils.returnError(CLOSE_CONNECTION_ERROR + exception.getMessage(), context, exception);
+            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
+            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
+                    context, exception);
         }
     }
 

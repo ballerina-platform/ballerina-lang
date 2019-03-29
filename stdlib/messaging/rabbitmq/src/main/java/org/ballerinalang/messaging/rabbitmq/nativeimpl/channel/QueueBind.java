@@ -63,7 +63,7 @@ public class QueueBind extends BlockingNativeCallableUnit {
             ChannelUtils.queueBind(channel, queueName, exchangeName, bindingKey);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while binding the queue", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }

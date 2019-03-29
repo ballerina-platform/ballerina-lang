@@ -27,7 +27,7 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
 
-    implementation 'org.apache.activemq:artemis-core-client:2.6.3'
+    implementation 'com.rabbitmq:amqp-client:5.6.0'
 
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')

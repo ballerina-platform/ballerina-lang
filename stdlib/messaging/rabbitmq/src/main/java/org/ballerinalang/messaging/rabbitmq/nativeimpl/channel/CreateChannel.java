@@ -64,7 +64,7 @@ public class CreateChannel extends BlockingNativeCallableUnit {
             channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while creating the channel", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }

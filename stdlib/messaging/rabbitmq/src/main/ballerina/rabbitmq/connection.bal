@@ -30,17 +30,17 @@ public type Connection object {
     #
     # + timeout - Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
     # + return - An `error` if an I/O problem is encountered.
-    public extern function close(int? timeout = ()) returns error?;
+    public function close(int? timeout = ()) returns error? = external;
 
     # Checks whether `close` was already called.
     #
     # + return - The value `true` if the `Connection` is already closed and `false` otherwise.
-    public extern function isClosed() returns boolean;
+    public function isClosed() returns boolean = external;
 
     # Extern function called to initialize the RabbitMQ `Connection`.
     #
     # + connectionConfig - Holds the connection parameters required to initialize the `Connection`.
-    private extern function createConnection(ConnectionConfiguration connectionConfiguration);
+    private function createConnection(ConnectionConfiguration connectionConfiguration) = external;
 };
 
 # Holds the parameters used to create a RabbitMQ `Connection`.

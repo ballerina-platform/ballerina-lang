@@ -61,7 +61,7 @@ public class ExchangeDeclare extends BlockingNativeCallableUnit {
             ChannelUtils.exchangeDeclare(channel, exchangeConfig);
         } catch (BallerinaException exception) {
             LOGGER.error("I/O exception while declaring the exchange", exception);
-            RabbitMQUtils.returnError("Channel not properly initialized", context, exception);
+            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
 }
