@@ -1211,7 +1211,7 @@ public class BLangPackageBuilder {
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr;
         // If numeric literal create a numeric literal expression; otherwise create a literal expression
-        if (typeTag <= TypeTags.DECIMAL) {
+        if (typeTag < TypeTags.DECIMAL) {
             litExpr = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else {
             litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();

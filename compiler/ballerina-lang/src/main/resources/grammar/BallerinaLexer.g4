@@ -325,8 +325,8 @@ HexIndicator
 
 fragment
 HexFloatingPointNumber
-    :   HexDigits BinaryExponent DecimalFloatSelector?
-    |   DottedHexNumber BinaryExponent? DecimalFloatSelector?
+    :   HexDigits BinaryExponent
+    |   DottedHexNumber BinaryExponent?
     ;
 
 fragment

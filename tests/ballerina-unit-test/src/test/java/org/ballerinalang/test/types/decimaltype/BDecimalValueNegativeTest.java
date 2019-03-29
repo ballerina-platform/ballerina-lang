@@ -54,9 +54,10 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index, expectedError, 32, 20);
     }
 
-    @Test void testDecimalValueNegativeLiteral() {
+    @Test
+    void testDecimalValueNegativeLiteral() {
         CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative_literal.bal");
         Assert.assertEquals(negative.getErrorCount(), 1);
-        BAssertUtil.validateError(negative,0, "incompatible types: expected 'decimal', found 'float'", 20, 17);
+        BAssertUtil.validateError(negative, 0, "incompatible types: expected 'decimal', found 'float'", 20, 17);
     }
 }

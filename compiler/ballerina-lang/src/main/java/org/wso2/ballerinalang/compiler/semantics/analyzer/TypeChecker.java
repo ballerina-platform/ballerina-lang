@@ -284,12 +284,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (literalType.tag == TypeTags.FLOAT) {
             String numericLiteral = String.valueOf(literalValue);
             char lastChar = getLastChar(numericLiteral);
-
             numericLiteral = stripFloatDecimalDiscriminator(numericLiteral, lastChar);
 
             boolean isDiscriminatedFloat = lastChar == 'f' || lastChar == 'F';
             if (expType.tag == TypeTags.DECIMAL) {
-                if (isDiscriminatedFloat) {
+                if (isDiscriminatedFloat || isHexLiteral(numericLiteral)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.floatType);
                     resultType = symTable.semanticError;
                     return;
@@ -299,12 +298,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             boolean isDiscriminatedDecimal = lastChar == 'd' || lastChar == 'D';
-            if (expType.tag == TypeTags.FLOAT) {
-                if (isDiscriminatedDecimal) {
-                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.decimalType);
-                    resultType = symTable.semanticError;
-                    return;
-                }
+            if (expType.tag == TypeTags.FLOAT && isDiscriminatedDecimal) {
+                dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.decimalType);
+                resultType = symTable.semanticError;
+                return;
             }
 
             if (literalType.tag == TypeTags.DECIMAL || isDiscriminatedDecimal) {
@@ -340,6 +337,16 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    private boolean isHexLiteral(String numericLiteral) {
+        for (int i = 0; i < numericLiteral.length(); i++) {
+            char c = numericLiteral.charAt(i);
+            if (c == 'P' || c == 'p') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String stripFloatDecimalDiscriminator(String numericLiteral, char lastChar) {
