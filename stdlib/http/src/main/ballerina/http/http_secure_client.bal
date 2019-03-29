@@ -731,7 +731,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
                 return prepareError("Client id or client secret cannot be empty.");
             }
-            refreshUrl = refreshConfig.refreshUrl;
+            refreshUrl = untaint refreshConfig.refreshUrl;
             var clientCreation = createClient(refreshUrl, {});
             if (clientCreation is Client) {
                 refreshClient = clientCreation;
