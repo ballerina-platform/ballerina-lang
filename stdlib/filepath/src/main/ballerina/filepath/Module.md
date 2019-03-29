@@ -45,4 +45,6 @@ public function main() {
     // Returns a relative path that is logically equivalent to target path when joined to base path.
     string relPath = filepath:relative("a/b/c", "a/c/d");
     io:println(relPath); // On Unix : returns ../../c/d
+    
+}
 ```
