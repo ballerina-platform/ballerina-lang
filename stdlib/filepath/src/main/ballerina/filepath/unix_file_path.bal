@@ -49,7 +49,7 @@ function getUnixRoot(string input) returns (string, int)|error {
     return (root, offset);
 }
 
-function getUnixOffsetIndex(string path) returns int[] {
+function getUnixOffsetIndex(string path) returns int[]|error {
     int[] offsetIndexes = [];
     int index = 0;
     int count = 0;
@@ -57,16 +57,19 @@ function getUnixOffsetIndex(string path) returns int[] {
         offsetIndexes[count] = 0;
         count = count + 1;
     } else {
-        byte[] pathValues = path.toByteArray("UTF-8");
         while(index < path.length()) {
-            byte c = pathValues[index];
-            if (c == 47) {
+            string cn = check charAt(path, index);
+            if (cn == "/") {
                 index = index + 1;
             } else {
                 offsetIndexes[count] = index;
                 count = count + 1;
                 index = index + 1;
-                while(index < path.length() && pathValues[index] != 47) {
+                while(index < path.length()) {
+                    cn = check charAt(path, index);
+                    if (cn == "/") {
+                        break;
+                    }
                     index = index + 1;
                 }
             }
@@ -76,17 +79,16 @@ function getUnixOffsetIndex(string path) returns int[] {
 }
 
 function isPosixSlash(string|byte c) returns boolean {
-    if (c is string) {
-        return c == "/";
-    } else {
-        return c == 47;
-    }
+    return c == "/";
 }
 
 function parsePosixPath(string input, int off) returns string|error {
     int n = input.length();
-    byte[] bytes = input.toByteArray("UTF-8");
-    while((n > 0) && (bytes[n-1] == 47)) {
+    while((n > 0)) {
+        string cn = check charAt(input, n-1);
+        if(cn != "/") {
+            break;
+        }
         n = n-1;
     }
     if (n == 0) {

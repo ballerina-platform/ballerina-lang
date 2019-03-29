@@ -56,8 +56,7 @@ public function isAbsolute(string path) returns boolean|error {
     if (IS_WINDOWS) {
         return check getVolumnNameLength(path) > 0;
     } else {
-        byte[] bytes = path.toByteArray("UTF-8");
-        return bytes[0] == 47;
+        return check charAt(path, 0) == "/";
     }
 }
 
@@ -388,7 +387,7 @@ function getRoot(string input) returns (string,int)|error {
     }
 }
 
-function isSlash(string|byte c) returns boolean {
+function isSlash(string c) returns boolean {
     if (IS_WINDOWS) {
         return isWindowsSlash(c);
     } else {
@@ -396,19 +395,17 @@ function isSlash(string|byte c) returns boolean {
     }
 }
 
-function nextNonSlashIndex(string path, int offset, int end) returns int {
-    byte[] pathValues = path.toByteArray("UTF-8");
+function nextNonSlashIndex(string path, int offset, int end) returns int|error {
     int off = offset;
-    while(off < end && isSlash(pathValues[off])) {
+    while(off < end && isSlash(check charAt(path, off))) {
         off = off + 1;
     }
     return off;
 }
 
-function nextSlashIndex(string path, int offset, int end) returns int {
-    byte[] pathValues = path.toByteArray("UTF-8");
+function nextSlashIndex(string path, int offset, int end) returns int|error {
     int off = offset;
-    while(off < end && !isSlash(pathValues[off])) {
+    while(off < end && !isSlash(check charAt(path, off))) {
         off = off + 1;
     }
     return off;
@@ -437,7 +434,7 @@ function getOffsetIndexes(string path) returns int[]|error {
     if (IS_WINDOWS) {
         return check getWindowsOffsetIndex(path);
     } else {
-        return getUnixOffsetIndex(path);
+        return check getUnixOffsetIndex(path);
     }
 }
 

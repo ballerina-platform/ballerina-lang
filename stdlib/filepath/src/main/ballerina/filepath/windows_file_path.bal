@@ -112,7 +112,7 @@ function buildWindowsPath(string... parts) returns string|error {
     if (tail == "") {
         return normalizedHead;
     }
-    int index = nextNonSlashIndex(normalizedTail, 0, normalizedTail.length());
+    int index = check nextNonSlashIndex(normalizedTail, 0, normalizedTail.length());
     if (index > 0) {
         normalizedTail = normalizedTail.substring(index, normalizedTail.length());
     }
@@ -137,16 +137,16 @@ function getWindowsRoot(string input) returns (string, int)|error {
                 error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Invalid UNC path: " + input });
                 return err;
             }
-            offset = nextNonSlashIndex(input, next, length);
-            next = nextSlashIndex(input, offset, length);
+            offset = check nextNonSlashIndex(input, next, length);
+            next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
                 error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Hostname is missing in UNC path:
                 " + input });
                 return err;
             }
             string host = input.substring(offset, next);  //host
-            offset = nextNonSlashIndex(input, next, length);
-            next = nextSlashIndex(input, offset, length);
+            offset = check nextNonSlashIndex(input, next, length);
+            next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
                 error err = error("{ballerina/path}INVALID_UNC_PATH", { message: "Sharename is missing in UNC path:
                 " + input });
@@ -190,16 +190,19 @@ function getWindowsOffsetIndex(string path) returns int[]|error {
         count = count + 1;
     } else {
         (_, index) = check getWindowsRoot(path);
-        byte[] pathValues = path.toByteArray("UTF-8");
-        while(index < pathValues.length()) {
-            byte c = pathValues[index];
-            if (c == 47 || c == 92) {
+        while(index < path.length()) {
+            string cn = check charAt(path, index);
+            if (cn == "/" || cn == "\\") {
                 index = index + 1;
             } else {
                 offsetIndexes[count] = index;
                 count = count + 1;
                 index = index + 1;
-                while(index < pathValues.length() && pathValues[index] != 47 && pathValues[index] != 92) {
+                while(index < path.length()) {
+                    cn = check charAt(path, index);
+                    if (cn == "/" || cn == "\\") {
+                        break;
+                    }
                     index = index + 1;
                 }
             }
@@ -208,12 +211,8 @@ function getWindowsOffsetIndex(string path) returns int[]|error {
     return offsetIndexes;
 }
 
-function isWindowsSlash(string|byte c) returns boolean {
-    if (c is string) {
-        return (c == "\\") || (c == "/");
-    } else {
-        return (c == 92 || c == 47);
-    }
+function isWindowsSlash(string c) returns boolean {
+    return (c == "\\") || (c == "/");
 }
 
 # Returns length of windows volumn length.
@@ -270,14 +269,14 @@ function getVolumnNameLength(string path) returns int|error {
 function parseWindowsPath(string path, int off) returns string|error {
     string normalizedPath = "";
     int length = path.length();
-    int offset = nextNonSlashIndex(path, off, length);
+    int offset = check nextNonSlashIndex(path, off, length);
     int startIndex = offset;
     string lastC = "";
     while (offset < length) {
         string c = check charAt(path, offset);
         if (isSlash(c)) {
             normalizedPath = normalizedPath + path.substring(startIndex, offset);
-            offset = nextNonSlashIndex(path, offset, length);
+            offset = check nextNonSlashIndex(path, offset, length);
             if (offset != length) {
                 normalizedPath = normalizedPath + "\\";
             }
