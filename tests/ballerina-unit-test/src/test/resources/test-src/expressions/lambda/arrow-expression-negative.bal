@@ -67,3 +67,9 @@ int p = 2;
 function testArrowExprWithNoInputs() {
     function() returns string lambda = (i) => i + p;
 }
+
+function testArrowExprWithUninitializedClosureVars() {
+    int i;
+    int m;
+    function (int) returns (int) addFunc1 = a => a + i + m ;
+}
