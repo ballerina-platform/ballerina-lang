@@ -38,6 +38,7 @@ dependencies {
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-test-utils')
+    testCompile project(':ballerina-runtime')
 
     balRuntime project(':ballerina-runtime')
 
