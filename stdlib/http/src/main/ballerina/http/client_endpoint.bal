@@ -245,7 +245,7 @@ public type ClientEndpointConfig record {|
 |};
 
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
+function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
                     returns Client = external;
 
 # Provides configurations for controlling the retrying behavior in failure scenarios.
