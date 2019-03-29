@@ -8,11 +8,12 @@ const string ESCAPE = "!q";
 public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
-    // Initializes a producer
+    // Initializes a producer.
     nats:Producer producer = new({ host: "localhost", port: 4222, clientId: "p0" });
     while (message != ESCAPE) {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
+            // Produce a message to specified subject.
             var result = producer->send(subject, message);
             if (result is error) {
                 io:println("Error occurred while producing the message.");
@@ -21,4 +22,6 @@ public function main() {
             }
         }
     }
+    // Close the publisher connection.
+    var result = producer.close();
 }
