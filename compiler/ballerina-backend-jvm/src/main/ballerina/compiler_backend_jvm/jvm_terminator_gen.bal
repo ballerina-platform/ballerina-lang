@@ -54,7 +54,8 @@ type TerminatorGenerator object {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType) {
+                bType is bir:BTupleType ||
+                bType is bir:BJSONType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -126,7 +127,8 @@ type TerminatorGenerator object {
             } else if (bType is bir:BTypeAny ||
                         bType is bir:BTypeAnyData ||
                         bType is bir:BTypeNil ||
-                        bType is bir:BUnionType) {
+                        bType is bir:BUnionType ||
+                        bType is bir:BJSONType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", OBJECT);
             } else {
@@ -168,7 +170,8 @@ type TerminatorGenerator object {
                         bType is bir:BObjectType ||
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType || 
-                        bType is bir:BTupleType) {
+                        bType is bir:BTupleType ||
+                        bType is bir:BJSONType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
                 error err = error( "JVM generation is not supported for type " +

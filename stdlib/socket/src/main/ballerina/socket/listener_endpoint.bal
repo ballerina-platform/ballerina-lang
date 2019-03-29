@@ -35,13 +35,13 @@ public type Listener object {
         return self.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     extern function initServer(int port, ListenerConfig config) returns error?;
 
-    extern function register(service s, map<any> annotationData) returns error?;
+    extern function register(service s, string? name) returns error?;
 
     extern function start() returns error?;
 

@@ -42,9 +42,10 @@ import javax.jms.JMSException;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "createConnection",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ConnectionConfiguration")
         },
         isPublic = true

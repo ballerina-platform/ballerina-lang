@@ -210,6 +210,35 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(tempOutStream.toString(), expectedValue, "evaluated to invalid value");
     }
 
+    @Test
+    public void testMainWithOptionalParamsNoneSpecified() throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
+        resetTempOut();
+        BLangProgramRunner.runMainFunc(programFile, new String[]{});
+        Assert.assertEquals(tempOutStream.toString(), "string value: s is nil m is nil", "evaluated to invalid value");
+    }
+
+    @Test(dataProvider = "optionalDefaultableParamOneArgSpecifiedAndResult")
+    public void testMainWithOptionalDefaultableParamOneArgSpecified(String inputValue, String expectedValue)
+            throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
+        resetTempOut();
+        BLangProgramRunner.runMainFunc(programFile, new String[]{inputValue});
+        Assert.assertEquals(tempOutStream.toString(), expectedValue, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testMainWithOptionalParamsBothSpecified() throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
+        resetTempOut();
+        BLangProgramRunner.runMainFunc(programFile, new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
+        Assert.assertEquals(tempOutStream.toString(), "string value: ballerina {\"eleven\":11, \"twelve\":12}",
+                            "evaluated to invalid value");
+    }
+
     @AfterClass
     public void tearDown() throws IOException {
         tempOutStream.close();
@@ -270,6 +299,14 @@ public class ArgumentParserPositiveTest {
         return new Object[][]{
                 {"test string", "string value: test string"},
                 {"()", "nil value"}
+        };
+    }
+
+    @DataProvider(name = "optionalDefaultableParamOneArgSpecifiedAndResult")
+    public Object[][] optionalDefaultableParamArgAndResult() {
+        return new Object[][]{
+                {"-s=hello world", "string value: hello world m is nil"},
+                {"-m={\"one\":1,\"two\":2}", "string value: s is nil {\"one\":1, \"two\":2}"}
         };
     }
 
