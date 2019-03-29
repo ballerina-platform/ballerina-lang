@@ -64,7 +64,7 @@ test {
     } else {
         exec {
             workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
-            commandLine 'sh', "${buildDir}/ballerina-tools-${project.version}/bin/ballerina", 'init'
+            commandLine "${buildDir}/ballerina-tools-${project.version}/bin/./ballerina", 'init'
         }
     }
 
@@ -94,7 +94,7 @@ test {
         } else {
             exec {
                 workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
-                commandLine 'sh', "${buildDir}/ballerina-tools-${project.version}/bin/ballerina", 'build', bbe, '--experimental'
+                commandLine "${buildDir}/ballerina-tools-${project.version}/bin/./ballerina", 'build', bbe, '--experimental'
             }
         }
     }
