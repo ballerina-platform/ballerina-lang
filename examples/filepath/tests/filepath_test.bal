@@ -34,12 +34,12 @@ function testFunc() {
     if (IS_WINDOWS) {
         out1 ="/A/B/C is absolute: false";
         out2 ="Filename of /A/B/C: C";
-        out3 ="Parent of /A/B/C: \\A\\B";
+        out3 ="Parent of /A/B/C: \A\B";
         out4 ="Normalized path of foo/../bar: bar";
         out5 ="Path elements of /A/B/C: [\"A\", \"B\", \"C\"]";
-        out6 ="Built path of '/', 'foo', 'bar': \\foo\\bar";
+        out6 ="Built path of '/', 'foo', 'bar': \foo\bar";
         out7 ="Extension of path.bal: bal";
-        out8 ="Relative path between 'a/b/c' and 'a/c/d': ..\\..\\c\\d";
+        out8 ="Relative path between 'a/b/c' and 'a/c/d': ..\..\c\d";
     } else {
         out1 ="/A/B/C is absolute: true";
         out2 ="Filename of /A/B/C: C";
