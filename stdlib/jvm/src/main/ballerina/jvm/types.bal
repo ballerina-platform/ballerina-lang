@@ -63,6 +63,8 @@ public type MethodVisitor object {
     public function visitEnd() = external;
 
     public function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels) = external;
+
+    public function visitInvokeDynamicInsn(string className, string lambdaName) = external;
 };
 
 
