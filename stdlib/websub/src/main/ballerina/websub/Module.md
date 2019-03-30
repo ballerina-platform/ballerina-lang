@@ -390,3 +390,92 @@ dispatching should happen to a resource named `onIssueOpened`.
 The first parameter of this resource will be the generic `websub:Notification` record and the second parameter will 
 be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an issue is created.  
  
+#### Sample Specific Subscriber Service
+
+In order to introduce a specific subscriber service, a new Ballerina `listener` needs to be introduced, wrapping the 
+generic `ballerina/websub:Listener`, specifying the extension configuration described above.
+
+Assume there exists a service provider that
+- allows registering webhooks to receive notifications when an issue is opened or assigned
+- includes a header named "Event-Header" in each content delivery request indicating what event the notification is 
+for (e.g., "onIssueOpened" when an issue is opened and "onIssueAssigned" when an issue is assigned)
+
+```ballerina
+import ballerina/websub;
+
+// Introduce a record mapping the JSON payload received when an issue is opened.
+public type IssueOpenedEvent record {
+    int id;
+    string title;
+    string openedBy;
+}; 
+
+// Introduce a record mapping the JSON payload received when an issue is assigned.
+public type IssueAssignedEvent record {
+    int id;
+    string assignedTo;
+}; 
+
+// Introduce a new `listener` wrapping the generic `ballerina/websub:Listener` 
+public type WebhookListener object {
+
+    *AbstractListener;
+
+    private websub:Listener websubListener;
+
+    public function __init(int port) {
+        // Introduce the extension config, based on the mapping details.
+        websub:ExtensionConfig extensionConfig = {
+            topicIdentifier: websub:TOPIC_ID_HEADER,
+            topicHeader: "Event-Header",
+            headerResourceMap: {
+                "issueOpened": ("onIssueOpened", IssueOpenedEvent),
+                "issueAssigned": ("onIssueAssigned", IssueAssignedEvent)
+            }
+        };
+        
+        // Set the extension config in the generic `websub:Listener` config.
+        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+            extensionConfig: extensionConfig
+        };
+            
+        // Initialize the wrapped generic listener.
+        self.websubListener = new(port, config = sseConfig);
+    }
+
+    public function __attach(service s, string? name = ()) returns error?  {
+        return self.websubListener.__attach(s, name = name);
+    }
+
+    public function __start() returns error? {
+        return self.websubListener.__start();
+    }
+    
+    public function __stop() returns error? {
+        return self.websubListener.__stop();
+    }
+};
+```
+
+A service can now be introduced as follows:
+```ballerina
+import ballerina/io;
+import ballerina/log;
+import ballerina/websub;
+
+@websub:SubscriberServiceConfig {
+    path: "/subscriber",
+    subscribeOnStartUp: false
+}
+service specificSubscriber on new WebhookListener(8080) {
+    resource function onIssueOpened(websub:Notification notification, IssueOpenedEvent issueOpened) {
+        log:printInfo(io:sprintf("Issue opened: ID: %s, Title: %s", issueOpened.id, issueOpened.title));
+    }
+    
+    resource function onIssueAssigned(websub:Notification notification, IssueAssignedEvent issueAssigned) {
+        log:printInfo(io:sprintf("Issue ID %s assigned to %s", issueAssigned.id, issueAssigned.assignedTo));
+    }
+}
+```
+
+Please refer the ["Create Webhook Callback Services"](https://ballerina.io/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina" for a step-by-step guide on introducing custom subscriber services. 
