@@ -46,13 +46,13 @@ public type QueueSender client object {
         }
     }
 
-    extern function initQueueSender(Session? session, string|Destination dest);
+    function initQueueSender(Session? session, string|Destination dest) = external;
 
     # Sends a message to the JMS provider
     #
     # + message - Message to be sent to the JMS provider
     # + return - Error if unable to send the message to the queue
-    public remote extern function send(Message message) returns error?;
+    public remote function send(Message message) returns error? = external;
 
     # Sends a message to a given destination of the JMS provider
     #

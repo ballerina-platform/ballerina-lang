@@ -33,26 +33,26 @@ public type ReadableCharacterChannel object {
     #
     # + bChannel - ReadableByteChannel which should be used to initalize the ReadableCharacterChannel
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
-    extern function init(ReadableByteChannel bChannel, string cs);
+    function init(ReadableByteChannel bChannel, string cs) = external;
 
     # Reads a given number of characters.
     #
     # + numberOfChars - Number of characters which should be read
     # + return - Content which is read or an error
-    public extern function read(@sensitive int numberOfChars) returns @tainted string|error;
+    public function read(@sensitive int numberOfChars) returns @tainted string|error = external;
 
     # Reads a json from the given channel.
     #
     # + return - Read json string or an error
-    public extern function readJson() returns @tainted json|error;
+    public function readJson() returns @tainted json|error = external;
 
     # Reads a XML from the given channel.
     #
     # + return - Read xml or an error
-    public extern function readXml() returns @tainted xml|error;
+    public function readXml() returns @tainted xml|error = external;
 
     # Closes a given character channel.
     #
     # + return - If an error occurred while writing
-    public extern function close() returns error?;
+    public function close() returns error? = external;
 };

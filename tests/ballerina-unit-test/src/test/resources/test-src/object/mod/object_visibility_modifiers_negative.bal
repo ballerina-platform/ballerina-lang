@@ -4,14 +4,14 @@ type Person object {
 
     public function func1();
 
-    private function func2();
+    private function func2() = external;
 };
 
 public function Person.func1() {
 
 }
 
-private function Person.func2();
+private function Person.func2() {}
 
 
 

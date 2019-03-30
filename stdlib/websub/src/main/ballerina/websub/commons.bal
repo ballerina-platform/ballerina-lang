@@ -541,13 +541,13 @@ public type WebSubHub object {
     # Retrieves topics currently recognized by the Hub.
     #
     # + return - An array of available topics
-    public extern function getAvailableTopics() returns string[];
+    public function getAvailableTopics() returns string[] = external;
 
     # Retrieves details of subscribers registered to receive updates for a particular topic.
     #
     # + topic - The topic for which details need to be retrieved
     # + return - An array of subscriber details
-    public extern function getSubscribers(string topic) returns SubscriberDetails[];
+    public function getSubscribers(string topic) returns SubscriberDetails[] = external;
 };
 
 public function WebSubHub.stop() returns boolean {

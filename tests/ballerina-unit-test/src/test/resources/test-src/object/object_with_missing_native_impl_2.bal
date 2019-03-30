@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,12 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-type ObjectOne object {
-    public int age = 0;
 
-    function __init(int age) = external;
+type Person object {
+    public function printName(string s) returns string;
 };
 
-public type ObjectTwo object {
-    public function __init() = external;
-};
+public function Person.printName(string s) returns string = external;

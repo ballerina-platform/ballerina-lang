@@ -341,6 +341,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 this.dlog.error(func.pos, DiagnosticCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
+            if (func.flagSet.contains(Flag.RESOURCE) && func.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(func.pos, DiagnosticCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, func.name);
+            }
         });
 
         // Validate the referenced functions that don't have implementations within the function.
@@ -2158,7 +2161,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
             // object outer attached function must have a body
-            if (funcNode.body == null) {
+            if (funcNode.body == null && !Symbols.isNative(funcNode.symbol)) {
                 dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
             }
 

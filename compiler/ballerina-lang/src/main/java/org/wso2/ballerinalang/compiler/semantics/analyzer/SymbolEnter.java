@@ -706,6 +706,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
+
+        // If the function definition specifies the function to be an external function, but the function declaration
+        // does not, set the external flag for the declaration.
+        int flags = Flags.asMask(funcNode.flagSet);
+        if ((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE) &&
+                (flags & Flags.NATIVE) == Flags.NATIVE) {
+            Set<Flag> symFlags = funcNode.symbol.getFlags();
+            symFlags.add(Flag.NATIVE);
+            funcNode.symbol.flags = Flags.asMask(symFlags);
+        }
         //this was used earlier to one to one match object declaration with definitions for attached functions
         // keeping this commented as we may need uncomment this later.
         //        int flags = Flags.asMask(funcNode.flagSet);

@@ -37,19 +37,7 @@ service serviceName4 on new http:Listener(9090) {
         checkpanic caller->respond(res);
     }
 
-  resource    extern     function newResource3(http:Caller caller, http:Request request) {
-        worker worker1 {
-            http:Response res = new;
-            res.setPayload("sd");
-            checkpanic caller->respond(res);
-        }
-
-        worker worker2 {
-            http:Response res = new;
-            res.setPayload("sd");
-            checkpanic caller->respond(res);
-        }
-    }
+  resource         function newResource3(http:Caller caller, http:Request request)=external;
 
     resource function send(http:Caller caller, http:Request request) {
                 var result = caller->respond({
