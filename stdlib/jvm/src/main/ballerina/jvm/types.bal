@@ -16,6 +16,8 @@ public type ClassWriter object {
 
     public extern function visitEnd();
 
+    public extern function visitSource(string fileName);
+
     public extern function toByteArray() returns byte[];
 };
 
@@ -50,6 +52,8 @@ public type MethodVisitor object {
 
     public extern function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
                             string exceptionType);
+    
+    public extern function visitLineNumber(int line, Label label);
 };
 
 

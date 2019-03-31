@@ -34,6 +34,7 @@ public type FuncBodyParser object {
     }
 
     public function parseInstruction() returns Instruction {
+        DiagnosticPos pos = self.parseDiagnosticPos();
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
@@ -42,61 +43,61 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_MAP_STORE) {
             kind = INS_KIND_MAP_STORE;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_MAP_LOAD) {
             kind = INS_KIND_MAP_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_ARRAY_LOAD) {
             kind = INS_KIND_ARRAY_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return mapStore;
         } else if (kindTag == INS_NEW_ARRAY) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_ARRAY;
             var lhsOp = self.parseVarRef();
             var sizeOp = self.parseVarRef();
-            NewArray newArray = {kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
+            NewArray newArray = {pos:pos, kind:kind, lhsOp:lhsOp, sizeOp:sizeOp, typeValue:bType};
             return newArray;
         } else if (kindTag == INS_NEW_MAP) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_MAP;
             var lhsOp = self.parseVarRef();
-            NewMap newMap = {kind:kind, lhsOp:lhsOp, typeValue:bType};
+            NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType};
             return newMap;
         } else if (kindTag == INS_TYPE_CAST) {
             kind = INS_KIND_TYPE_CAST;
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            TypeCast typeCast = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            TypeCast typeCast = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeCast;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
             var bType = self.typeParser.parseType();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            IsLike isLike = {kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            IsLike isLike = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return isLike;
         } else if (kindTag == INS_TYPE_TEST) {
             kind = INS_KIND_TYPE_TEST;
             var bType = self.typeParser.parseType();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            TypeTest typeTest = {kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            TypeTest typeTest = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return typeTest;
         } else if (kindTag == INS_CONST_LOAD){
             //TODO: remove redundent
@@ -114,47 +115,48 @@ public type FuncBodyParser object {
             } else if (bType is BTypeFloat) {
                 value = self.reader.readFloatCpRef();
             }
-            ConstantLoad constLoad = {kind:kind, lhsOp:lhsOp, typeValue:bType, value:value};
+            ConstantLoad constLoad = {pos:pos, kind:kind, lhsOp:lhsOp, typeValue:bType, value:value};
             return constLoad;
         } else if (kindTag == INS_MOVE){
             kind = INS_KIND_MOVE;
             var rhsOp = self.parseVarRef();
             var lhsOp = self.parseVarRef();
-            Move move = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            Move move = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
             return move;
         } else if (kindTag == INS_NEW_ERROR) {
             kind = INS_KIND_NEW_ERROR;
             var lhsOp = self.parseVarRef();
             var reasonOp = self.parseVarRef();
             var detailsOp = self.parseVarRef();
-            NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
+            NewError newError = {pos:pos, kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
             return newError;
         } else if (kindTag == INS_PANIC) {
             kind = INS_KIND_NEW_PANIC;
             var errorOp = self.parseVarRef();
-            Panic panicStmt = {kind:kind, errorOp:errorOp};
+            Panic panicStmt = {pos:pos, kind:kind, errorOp:errorOp};
             return panicStmt;
         } else {
-            return self.parseBinaryOpInstruction(kindTag);
+            return self.parseBinaryOpInstruction(kindTag, pos);
         }
     }
     
     public function parseTerminator() returns Terminator {
+        DiagnosticPos pos = self.parseDiagnosticPos();
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
             TerminatorKind kind = TERMINATOR_BRANCH;
             var op = self.parseVarRef();
             BasicBlock trueBB = self.parseBBRef();
             BasicBlock falseBB = self.parseBBRef();
-            Branch branch = {falseBB:falseBB, kind:kind, op:op, trueBB:trueBB};
+            Branch branch = {pos:pos, falseBB:falseBB, kind:kind, op:op, trueBB:trueBB};
             return branch;
         } else if (kindTag == INS_GOTO){
             TerminatorKind kind = TERMINATOR_GOTO;
-            GOTO goto = {kind:kind, targetBB:self.parseBBRef()};
+            GOTO goto = {pos:pos, kind:kind, targetBB:self.parseBBRef()};
             return goto;
         } else if (kindTag == INS_RETURN){
             TerminatorKind kind = TERMINATOR_RETURN;
-            Return ret = {kind:kind};
+            Return ret = {pos:pos, kind:kind};
             return ret;
         } else if (kindTag == INS_CALL){
             TerminatorKind kind = TERMINATOR_CALL;
@@ -174,14 +176,20 @@ public type FuncBodyParser object {
             }
 
             BasicBlock thenBB = self.parseBBRef();
-            Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            Call call = {pos:pos, args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, 
+                thenBB:thenBB};
             return call;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
     }
-
-
+    
+     public function parseDiagnosticPos() returns DiagnosticPos {
+         int sLine = self.reader.readInt32();
+         int sCol = self.reader.readInt32();
+         return { sLine : sLine, sCol : sCol};
+     }
+    
     public function parseVarRef() returns VarRef {
         var kind = parseVarKind(self.reader);
         var varScope = parseVarScope(self.reader);
@@ -195,7 +203,7 @@ public type FuncBodyParser object {
         return { id: { value: self.reader.readStringCpRef() } };
     }
 
-    public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
+    public function parseBinaryOpInstruction(int kindTag, DiagnosticPos pos) returns BinaryOp {
         BinaryOpInstructionKind kind = BINARY_ADD;
         if (kindTag == INS_ADD){
             kind = BINARY_ADD;
@@ -225,7 +233,7 @@ public type FuncBodyParser object {
         var rhsOp1 = self.parseVarRef();
         var rhsOp2 = self.parseVarRef();
         var lhsOp = self.parseVarRef();
-        BinaryOp binaryOp = {kind:kind, lhsOp:lhsOp, rhsOp1:rhsOp1, rhsOp2:rhsOp2};
+        BinaryOp binaryOp = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp1:rhsOp1, rhsOp2:rhsOp2};
         return binaryOp;
     }
 

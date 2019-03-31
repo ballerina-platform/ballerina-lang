@@ -60,6 +60,7 @@ public type PackageParser object {
 
     public function parsePackage() returns Package {
         ModuleID pkgId = self.reader.readModuleIDCpRef();
+        string sourceFileName = self.reader.readStringCpRef();
         ImportModule[] importModules = self.parseImportMods();
         TypeDef?[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
@@ -83,7 +84,8 @@ public type PackageParser object {
                     functions : funcs,
                     name : { value: pkgId.name }, 
                     org : { value: pkgId.org }, 
-                    versionValue : { value: pkgId.modVersion } };
+                    versionValue : { value: pkgId.modVersion },
+                    sourceFileName: { value: sourceFileName } };
     }
 
     function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock?[] {
