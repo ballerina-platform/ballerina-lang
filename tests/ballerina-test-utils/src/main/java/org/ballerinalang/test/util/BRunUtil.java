@@ -471,6 +471,8 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 org.ballerinalang.jvm.types.BMapType mapType = (org.ballerinalang.jvm.types.BMapType) jvmType;
                 return new BMapType(getBVMType(mapType.getConstrainedType()));
+            case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
+                return BTypes.typePureType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
