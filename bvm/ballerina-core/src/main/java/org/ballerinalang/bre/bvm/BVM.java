@@ -3684,7 +3684,7 @@ public class BVM {
                     .allMatch(memType -> isPureType(memType, unresolvedTypes));
         }
 
-        return isAnydata(type, unresolvedTypes) || type.getTag() == TypeTags.ERROR_TAG;
+        return type.getTag() == TypeTags.ERROR_TAG || isAnydata(type, unresolvedTypes);
     }
 
     private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
