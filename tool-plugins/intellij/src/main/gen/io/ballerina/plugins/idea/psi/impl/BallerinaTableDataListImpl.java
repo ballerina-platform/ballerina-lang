@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableDataListImpl extends BallerinaCompositeElementImpl implements BallerinaTableDataList {
+public class BallerinaTableDataListImpl extends ASTWrapperPsiElement implements BallerinaTableDataList {
 
   public BallerinaTableDataListImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaTableDataListImpl extends BallerinaCompositeElementImpl im
   @Override
   @Nullable
   public BallerinaExpressionList getExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
+    return findChildByClass(BallerinaExpressionList.class);
   }
 
   @Override

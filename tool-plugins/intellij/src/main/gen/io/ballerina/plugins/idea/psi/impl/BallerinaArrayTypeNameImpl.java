@@ -56,7 +56,7 @@ public class BallerinaArrayTypeNameImpl extends BallerinaTypeNameImpl implements
   @Override
   @NotNull
   public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
 }

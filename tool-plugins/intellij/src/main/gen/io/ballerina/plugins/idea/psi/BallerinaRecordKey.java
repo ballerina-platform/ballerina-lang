@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRecordKey extends BallerinaCompositeElement {
+public interface BallerinaRecordKey extends PsiElement {
 
   @Nullable
   BallerinaExpression getExpression();

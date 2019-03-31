@@ -24,5 +24,5 @@ public type Connection object {
         self.init(config);
     }
 
-    extern function init(ConnectionConfig config);
+    function init(ConnectionConfig config) = external;
 };

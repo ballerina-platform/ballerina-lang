@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -299,6 +300,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
             analyzeDef(typeDefinition.typeNode, env);
         }
@@ -341,6 +343,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 this.dlog.error(func.pos, DiagnosticCode.EXTERN_FUNC_ABSTRACT_OBJECT, func.name,
                         objectTypeNode.symbol.name);
             }
+            if (func.flagSet.contains(Flag.RESOURCE) && func.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(func.pos, DiagnosticCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, func.name);
+            }
         });
 
         // Validate the referenced functions that don't have implementations within the function.
@@ -378,6 +383,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
         analyzeDef(recordTypeNode.initFunction, recordEnv);
         validateDefaultable(recordTypeNode);
+    }
+
+    @Override
+    public void visit(BLangErrorType errorType) {
+        BType reasonType = errorType.reasonType.type;
+
+        if (!types.isAssignable(reasonType, symTable.stringType)) {
+            dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
+        }
+
+        if (errorType.detailType == null) {
+            return;
+        }
+
+        BType detailType = errorType.detailType.type;
+        if (!types.isValidErrorDetailType(detailType)) {
+            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -989,9 +1012,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            ((BLangVariable) recordVar.restParam).type =
-                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordVarType) ?
-                            symTable.anyType : symTable.anydataType, null);
+            ((BLangVariable) recordVar.restParam).type = getRestParamType(recordVarType);
             symbolEnter.defineNode((BLangNode) recordVar.restParam, env);
         }
 
@@ -1368,9 +1389,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                        new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
-                                symTable.anyType : symTable.anydataType, null),
+                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
                         ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
             }
         }
@@ -1427,10 +1446,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (lhsVarRef.restParam != null) {
-            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
-                    new BMapType(TypeTags.MAP, recordHasAnyTypeField(rhsRecordType) ?
-                            symTable.anyType : symTable.anydataType, null),
-                    ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
+            types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
+                            ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
         //Check whether this is an readonly field.
@@ -1439,11 +1456,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkConstantAssignment(lhsVarRef);
     }
 
+    private BMapType getRestParamType(BRecordType recordType)  {
+        return new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordType) ?
+                BUnionType.create(null, symTable.anyType, symTable.errorType) : symTable.pureType, null);
+    }
+
     private boolean recordHasAnyTypeField(BRecordType recordType) {
         boolean hasAnyTypedField = recordType.fields.stream()
                 .map(field -> field.type)
-                .anyMatch(fieldType -> !types.isAnydata(fieldType));
-        return hasAnyTypedField || !types.isAnydata(recordType.restFieldType);
+                .anyMatch(fieldType -> !types.isPureType(fieldType));
+        return hasAnyTypedField || !types.isPureType(recordType.restFieldType);
     }
 
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef varRef, BType rhsType,
@@ -1498,8 +1520,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         if (varRef.detail.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(varRef.detail, env);
-            checkRecordVarRefEquivalency(
-                    pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType, rhsPos);
+            checkRecordVarRefEquivalency(pos, (BLangRecordVarRef) varRef.detail, ((BErrorType) rhsType).detailType,
+                                         rhsPos);
             return;
         }
 
@@ -1509,8 +1531,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         setTypeOfVarReferenceInAssignment(varRef.detail);
         // TODO: Once detail var is frozen, do the is like check instead of is Assignable
-        if (!types.isAssignable(rhsErrorType.detailType, varRef.detail.type)) {
-            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, rhsErrorType.detailType);
+        BType detailType = rhsErrorType.detailType;
+        if (!types.isAssignable(detailType, varRef.detail.type)) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.detail.type, detailType);
         }
     }
 
@@ -1929,7 +1952,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPanic panicNode) {
-        this.typeChecker.checkExpr(panicNode.expr, env);
+        this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
         if (panicNode.expr.type.tag != TypeTags.ERROR) {
             dlog.error(panicNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, panicNode.expr.type);
         }
@@ -2159,7 +2182,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
             // object outer attached function must have a body
-            if (funcNode.body == null) {
+            if (funcNode.body == null && !Symbols.isNative(funcNode.symbol)) {
                 dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
             }
 

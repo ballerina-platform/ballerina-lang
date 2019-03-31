@@ -122,6 +122,8 @@ public class SymbolTable {
     public final BType semanticError;
 
     public BErrorType errorType;
+    public BUnionType pureType;
+    public BMapType pureTypeConstrainedMap;
 
     public BPackageSymbol builtInPackageSymbol;
     public BPackageSymbol utilsPackageSymbol;
@@ -181,10 +183,15 @@ public class SymbolTable {
         defineType(semanticError, errSymbol);
 
         // Initialize Ballerina built-in error type.
-        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
-                rootPkgSymbol.pkgID, null, rootPkgSymbol);
+        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
+                                                       null, rootPkgSymbol);
         this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
         defineType(this.errorType, errorSymbol);
+        errorSymbol.type = this.errorType;
+
+        this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
+        this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);
+        this.errorType.detailType = this.pureTypeConstrainedMap;
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();

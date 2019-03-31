@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOrderByClauseImpl extends BallerinaCompositeElementImpl implements BallerinaOrderByClause {
+public class BallerinaOrderByClauseImpl extends ASTWrapperPsiElement implements BallerinaOrderByClause {
 
   public BallerinaOrderByClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -56,7 +57,7 @@ public class BallerinaOrderByClauseImpl extends BallerinaCompositeElementImpl im
   @Override
   @NotNull
   public PsiElement getOrder() {
-    return notNullChild(findChildByType(ORDER));
+    return findNotNullChildByType(ORDER);
   }
 
 }

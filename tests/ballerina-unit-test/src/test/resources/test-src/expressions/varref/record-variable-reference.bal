@@ -31,7 +31,7 @@ function testVariableAssignment() returns (string, boolean, int, string) {
     boolean married;
     int theAge;
     string format;
-    map<any> theMap;
+    map<any|error> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
     return (fName, married, theAge, format);
@@ -75,11 +75,11 @@ type OpenRecord record {
     boolean var2;
 };
 
-function testRestParam() returns map<any> {
+function testRestParam() returns map<anydata|error> {
     OpenRecord openRecord = {var1: "var1", var2: false, var3: 12, var4: "text"};
     string var1;
     boolean var2;
-    map<anydata> rest = {};
+    map<anydata|error> rest = {};
     {var1, var2, ...rest} = openRecord;
     return rest;
 }
@@ -125,7 +125,7 @@ type Child record {
     (int, Age) yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>) {
+function testRecordInsideTupleInsideRecord() returns (string[], string, map<anydata|error>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "x"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -135,7 +135,7 @@ function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>
 
     string[] namesOfChildren;
     Child[] children;
-    map<any> child = {};
+    map<anydata|error> child = {};
 
     Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
     {namesOfChildren, children, ...child} = parent;
@@ -196,8 +196,8 @@ type ObjectRestRecord record {
 
 function testRestParameterType() returns (boolean, boolean) {
     string name;
-    map<anydata> other1 = {};
-    map<any> other2 = {};
+    map<anydata|error> other1 = {};
+    map<any|error> other2 = {};
 
     IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
     { name, ...other1 } = rec1;
@@ -208,7 +208,7 @@ function testRestParameterType() returns (boolean, boolean) {
     any a1 = other1;
     any a2 = other2;
 
-    return (a1 is map<anydata>, a2 is map<anydata>);
+    return (a1 is map<anydata|error>, a2 is map<any>);
 }
 
 // TODO: Uncomment below tests once record literal is supported with var ref

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWaitForCollection extends BallerinaCompositeElement {
+public interface BallerinaWaitForCollection extends PsiElement {
 
   @NotNull
   List<BallerinaWaitKeyValue> getWaitKeyValueList();

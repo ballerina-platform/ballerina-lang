@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaFieldRefBindingPattern extends BallerinaCompositeElement {
+public interface BallerinaFieldRefBindingPattern extends PsiElement {
 
   @Nullable
   BallerinaBindingRefPattern getBindingRefPattern();

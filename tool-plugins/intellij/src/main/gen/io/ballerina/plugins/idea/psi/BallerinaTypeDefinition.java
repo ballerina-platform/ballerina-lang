@@ -21,10 +21,8 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub;
 
-public interface BallerinaTypeDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaTypeDefinitionStub> {
+public interface BallerinaTypeDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
   BallerinaFiniteType getFiniteType();
@@ -40,9 +38,5 @@ public interface BallerinaTypeDefinition extends BallerinaNamedElement, Ballerin
 
   @NotNull
   PsiElement getType();
-
-  //WARNING: getName(...) is skipped
-  //matching getName(BallerinaTypeDefinition, ...)
-  //methods are not found in BallerinaPsiImplUtil
 
 }

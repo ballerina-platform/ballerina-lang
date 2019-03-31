@@ -702,3 +702,20 @@ function test31() returns int|string {
     }
     return x;
 }
+
+public function laterInitCapture() returns string {
+    string a;
+    boolean test = true;
+    if test {
+        a = "a";
+    } else {
+        a = "b";
+    }
+
+    var bar = function () returns string {
+        a = a + "a";
+        return a;
+    };
+
+    return bar.call();
+}

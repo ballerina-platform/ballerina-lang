@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCloseTag extends BallerinaCompositeElement {
+public interface BallerinaCloseTag extends PsiElement {
 
   @Nullable
   BallerinaXmlQualifiedName getXmlQualifiedName();

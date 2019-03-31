@@ -3642,7 +3642,7 @@ public class BVM {
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+                return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 if (unresolvedTypes.contains(type)) {
                     return true;
@@ -3652,14 +3652,14 @@ public class BVM {
                 List<BType> fieldTypes = recordType.getFields().values().stream()
                                                    .map(BField::getFieldType)
                                                    .collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
-                        isAnydata(recordType.restFieldType, unresolvedTypes));
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
                                                                           .map(BValue::getType)
@@ -3672,6 +3672,19 @@ public class BVM {
 
     private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return isAnydata(type, unresolvedTypes) || type.getTag() == TypeTags.ERROR_TAG;
+    }
+
+    private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {
@@ -4395,7 +4408,7 @@ public class BVM {
             return true;
         }
 
-        return checkCast(value, constraintType, new ArrayList<>());
+        return checkIsType(value, constraintType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -4795,7 +4808,7 @@ public class BVM {
         }
 
         return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.detailsType, unresolvedValues);
+                checkIsLikeType(((BError) sourceValue).details, targetType.detailType, unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
@@ -5053,7 +5066,8 @@ public class BVM {
         if (sourceConstraint == null) {
             if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BRecordType targetConstrRecord = (BRecordType) targetConstraint;
-                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
+                return !targetConstrRecord.sealed && checkIsType(targetConstrRecord.restFieldType,
+                                                                 BTypes.typePureType, new ArrayList<>());
             }
             return false;
         }
