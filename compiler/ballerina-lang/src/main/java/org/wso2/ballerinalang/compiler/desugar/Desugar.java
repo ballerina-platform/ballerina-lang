@@ -2472,7 +2472,8 @@ public class Desugar extends BLangNodeVisitor {
         if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
             // string + xml ==> (xml string) + xml
             if (rhsExprTypeTag == TypeTags.XML) {
-                binaryExpr.lhsExpr = createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr, binaryExpr.lhsExpr.pos);
+                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                        binaryExpr.lhsExpr.pos, symTable.xmlType);
                 return;
             }
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
@@ -2483,7 +2484,8 @@ public class Desugar extends BLangNodeVisitor {
         if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
             // xml + string ==> xml + (xml string)
             if (lhsExprTypeTag == TypeTags.XML) {
-                binaryExpr.rhsExpr = createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr, binaryExpr.rhsExpr.pos);
+                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
             }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
@@ -2513,16 +2515,6 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
                                                     binaryExpr.rhsExpr.type);
         }
-    }
-
-    private BLangXMLTextLiteral createXMLTextLiteralNode(
-            BLangBinaryExpr parent, BLangExpression concatExpr, DiagnosticPos pos) {
-        BLangXMLTextLiteral xmlTextLiteral = new BLangXMLTextLiteral();
-        xmlTextLiteral.concatExpr = concatExpr;
-        xmlTextLiteral.pos = pos;
-        xmlTextLiteral.parent = parent;
-        xmlTextLiteral.type = symTable.xmlType;
-        return xmlTextLiteral;
     }
 
     /**
