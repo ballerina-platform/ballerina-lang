@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -176,6 +178,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
+import org.wso2.ballerinalang.programfile.ErrorTypeInfo;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
@@ -2143,6 +2146,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             case SymTag.RECORD:
                 createRecordTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
                 break;
+            case SymTag.ERROR:
+                createErrorTypeTypeDef(typeDefInfo, typeDefSymbol);
+                break;
             case SymTag.FINITE_TYPE:
                 createFiniteTypeTypeDef(typeDefinition, typeDefInfo);
                 break;
@@ -2285,6 +2291,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         return variable.expr != null && (variable.expr.getKind() == NodeKind.LITERAL ||
                 variable.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
                 variable.expr.type.getKind() != TypeKind.ARRAY;
+    }
+
+    private void createErrorTypeTypeDef(TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        ErrorTypeInfo errorTypeInfo = new ErrorTypeInfo();
+        BErrorTypeSymbol errorTypeSymbol = (BErrorTypeSymbol) typeDefSymbol;
+        errorTypeInfo.errorType = (BErrorType) errorTypeSymbol.type;
+
+        errorTypeInfo.reasonTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                            errorTypeInfo.errorType.reasonType.getDesc());
+        errorTypeInfo.detailTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                            errorTypeInfo.errorType.detailType.getDesc());
+        typeDefInfo.typeInfo = errorTypeInfo;
     }
 
     private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,

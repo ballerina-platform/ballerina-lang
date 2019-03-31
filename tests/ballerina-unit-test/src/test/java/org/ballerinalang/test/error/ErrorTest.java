@@ -18,6 +18,7 @@
 package org.ballerinalang.test.error;
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -175,6 +176,13 @@ public class ErrorTest {
         Assert.assertEquals(array.getString(5), "1");
     }
 
+    @Test
+    public void testGenericErrorWithDetailRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGenericErrorWithDetailRecord");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
@@ -192,12 +200,32 @@ public class ErrorTest {
     }
 
     @Test
+    public void testCustomErrorWithMappingOfSelf() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
+        BAssertUtil.validateError(negativeCompileResult, 2,
+                                  "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
+        BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', " +
+                "expected a subtype of 'record { }' or 'map<anydata|error>'", 40, 33);
+        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean'," +
+                " expected a subtype of 'record { }' or 'map<anydata|error>'", 41, 36);
+        BAssertUtil.validateError(negativeCompileResult, 5,
+                                  "invalid error reason type '1.0', expected a subtype of 'string'", 44, 7);
+        BAssertUtil.validateError(negativeCompileResult, 6,
+                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
+        BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 42);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 41);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")

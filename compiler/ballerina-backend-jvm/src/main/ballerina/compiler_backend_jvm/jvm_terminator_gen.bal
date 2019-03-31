@@ -18,11 +18,16 @@ type TerminatorGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     LabelGenerator labelGen;
+    int lambdaIndex = 0;
+    bir:Package module;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen) {
+
+    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen, 
+        bir:Package module) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.labelGen = labelGen;
+        self.module = module;
     }
 
     function genGoToTerm(bir:GOTO gotoIns, string funcName) {
@@ -55,7 +60,8 @@ type TerminatorGenerator object {
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
                 bType is bir:BTupleType ||
-                bType is bir:BJSONType) {
+                bType is bir:BJSONType ||
+                bType is bir:BFutureType) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             self.mv.visitInsn(ARETURN);
         } else {
@@ -122,6 +128,9 @@ type TerminatorGenerator object {
             } else if (bType is bir:BObjectType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", OBJECT_VALUE);
+            } else if (bType is bir:BFutureType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+                methodDesc = methodDesc + io:sprintf("L%s;", FUTURE_VALUE);
             } else if (bType is bir:BErrorType) {
                 self.mv.visitVarInsn(ALOAD, argIndex);
                 methodDesc = methodDesc + io:sprintf("L%s;", ERROR_VALUE);
@@ -172,6 +181,7 @@ type TerminatorGenerator object {
                         bType is bir:BUnionType ||
                         bType is bir:BRecordType || 
                         bType is bir:BTupleType ||
+                        bType is bir:BFutureType ||
                         bType is bir:BJSONType) {
                 self.mv.visitVarInsn(ASTORE, lhsLndex);
             } else {
@@ -223,6 +233,86 @@ type TerminatorGenerator object {
         self.mv.visitLabel(handlerLabel);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLabel);
+    }
+    
+    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
+
+        //create a object array of args
+        self.mv.visitIntInsn(BIPUSH, callIns.args.length() + 1);
+        self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        self.mv.visitInsn(DUP);
+
+        self.mv.visitInsn(ICONST_0);
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(AASTORE);
+        
+        int paramIndex = 1;
+        foreach var arg in callIns.args {
+            self.mv.visitInsn(DUP);
+            self.mv.visitIntInsn(BIPUSH, paramIndex);
+            
+            int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(arg.variableDcl));
+            bir:BType bType = arg.typeValue;
+
+            if (bType is bir:BTypeInt) {
+                self.mv.visitVarInsn(LLOAD, argIndex);
+            } else if (bType is bir:BTypeFloat) {
+                self.mv.visitVarInsn(DLOAD, argIndex);
+            } else if (bType is bir:BTypeString) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeBoolean) {
+                self.mv.visitVarInsn(ILOAD, argIndex);
+            } else if (bType is bir:BTypeByte) {
+                self.mv.visitVarInsn(ILOAD, argIndex);
+            } else if (bType is bir:BArrayType ||
+                        bType is bir:BTupleType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BRecordType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BMapType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BObjectType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BErrorType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else if (bType is bir:BTypeAny ||
+                        bType is bir:BTypeAnyData ||
+                        bType is bir:BTypeNil ||
+                        bType is bir:BUnionType) {
+                self.mv.visitVarInsn(ALOAD, argIndex);
+            } else {
+                error err = error( "JVM generation is not supported for type " +
+                                                    io:sprintf("%s", arg.typeValue));
+                panic err;
+            }
+            generateObjectCast(bType, self.mv);
+            self.mv.visitInsn(AASTORE);
+            paramIndex += 1;
+        }
+
+        string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        string methodClass = lookupFullQualifiedClassName(currentPackageName + funcName);
+        self.mv.visitInvokeDynamicInsn(methodClass, lambdaName);
+        lambdas[lambdaName] = (callIns, methodClass);
+        self.lambdaIndex += 1;
+        
+        self.mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;Ljava/util/function/Function;)L%s;", OBJECT, FUTURE_VALUE), false);
+
+        // store return
+        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp.variableDcl;
+        // store the returned strand as the future
+        self.mv.visitVarInsn(ASTORE, self.getJVMIndexOfVarRef(getVariableDcl(lhsOpVarDcl)));
+
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
+        jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
+        self.mv.visitJumpInsn(IFNE, yieldLabel);
+
+        // goto thenBB
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
+        self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     function getJVMIndexOfVarRef(bir:VariableDcl varDcl) returns int {

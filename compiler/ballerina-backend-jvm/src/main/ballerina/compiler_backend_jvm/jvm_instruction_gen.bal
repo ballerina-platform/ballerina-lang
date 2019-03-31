@@ -475,7 +475,8 @@ type InstructionGenerator object {
                     bType is bir:BTupleType ||
                     bType is bir:BRecordType ||
                     bType is bir:BErrorType ||
-                    bType is bir:BJSONType) {
+                    bType is bir:BJSONType ||
+                    bType is bir:BFutureType) {
             self.mv.visitVarInsn(ALOAD, valueIndex);
         } else {
             error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -511,7 +512,8 @@ type InstructionGenerator object {
                         bType is bir:BTupleType ||
                         bType is bir:BRecordType ||
                         bType is bir:BErrorType ||
-                        bType is bir:BJSONType) {
+                        bType is bir:BJSONType ||
+                        bType is bir:BFutureType) {
             self.mv.visitVarInsn(ASTORE, valueIndex);
         } else {
             error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));

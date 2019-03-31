@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.expressions.identifierliteral;
+package org.ballerinalang.test.expressions.literals;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -35,7 +35,8 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing variable in other packages defined with identifier literal")
     public void testAccessingVarsInOtherPackage() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/expressions/identifierliteral", "pkg.main");
+        CompileResult result = BCompileUtil.compile(this, "test-src/expressions/literals/identifierliteral",
+                                                    "pkg.main");
         BValue[] returns = BRunUtil.invoke(result, "pkg.main:0.0.0", "getVarsInOtherPkg");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -50,7 +51,8 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing global vars with identifier literals defined in other packages")
     public void testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/expressions/identifierliteral", "pkg.main");
+        CompileResult result = BCompileUtil.compile(this, "test-src/expressions/literals/identifierliteral",
+                                                    "pkg.main");
         BValue[] returns = BRunUtil.invoke(result, "pkg.main:0.0.0", "accessStructWithIL");
 
         Assert.assertEquals(returns.length, 2);

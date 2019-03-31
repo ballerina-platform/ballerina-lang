@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.expressions.identifierliteral;
+package org.ballerinalang.test.expressions.literals;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -39,7 +39,7 @@ public class IdentifierLiteralTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/identifierliteral/identifier-literal-success.bal");
+        result = BCompileUtil.compile("test-src/expressions/literals/identifierliteral/identifier-literal-success.bal");
     }
 
     @Test(description = "Test defining global variable with Identifier Literal and refer within a function")
@@ -203,7 +203,7 @@ public class IdentifierLiteralTest {
     //Error scenarios
     @Test(description = "Test error message when trying to access undefined global var with identifier literal")
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
-        CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
+        CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
                 "/identifier-literal-undefined-variable-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 1);
         BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global v \" ar'", 5, 12);
@@ -211,7 +211,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test wrong character in identifier literal")
     public void testIdentifierLiteralWithWrongCharacter() {
-        CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
+        CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 4);
         BAssertUtil.validateError(resultNeg, 0, "invalid token 'var'", 3, 23);

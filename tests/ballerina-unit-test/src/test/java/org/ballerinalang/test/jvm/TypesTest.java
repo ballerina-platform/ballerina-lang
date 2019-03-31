@@ -633,4 +633,11 @@ public class TypesTest {
         Assert.assertTrue(returns[1] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
+
+    @Test
+    public void testFutures() {
+        BValue[] result = BRunUtil.invoke(compileResult, "futuresTest");
+        Assert.assertTrue(result[0].stringValue().equals("0") || result[0].stringValue().equals("100") ||
+                result[0].stringValue().equals("200"));
+    }
 }
