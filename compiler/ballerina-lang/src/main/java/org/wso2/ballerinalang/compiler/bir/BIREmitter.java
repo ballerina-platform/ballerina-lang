@@ -56,7 +56,8 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRPackage birPackage) {
-        sb.append("module ").append(birPackage.name).append(";").append("\n\n");
+        sb.append("module ").append(birPackage.name).append(";").append("\n");
+        sb.append("fileName ").append(birPackage.sourceFileName).append("\n\n");
         birPackage.importModules.forEach(birImpModule -> birImpModule.accept(this));
         sb.append("\n");
         birPackage.functions.forEach(birFunction -> birFunction.accept(this));
@@ -114,7 +115,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Call birCall) {
-        sb.append("\t\t");
+        visit(birCall.pos);
         if (birCall.lhsOp != null) {
             birCall.lhsOp.accept(this);
             sb.append(" = ");
@@ -136,7 +137,7 @@ public class BIREmitter extends BIRVisitor {
 
     // Non-terminating instructions
     public void visit(BIRNonTerminator.Move birMove) {
-        sb.append("\t\t");
+        visit(birMove.pos);
         birMove.lhsOp.accept(this);
         sb.append(" = ");
         birMove.rhsOp.accept(this);
@@ -144,7 +145,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
-        sb.append("\t\t");
+        visit(birBinaryOp.pos);
         birBinaryOp.lhsOp.accept(this);
         sb.append(" = ").append(birBinaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birBinaryOp.rhsOp1.accept(this);
@@ -158,20 +159,20 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
-        sb.append("\t\t");
+        visit(birConstantLoad.pos);
         birConstantLoad.lhsOp.accept(this);
         sb.append(" = ").append(birConstantLoad.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         sb.append(birConstantLoad.value).append(";\n");
     }
 
     public void visit(NewStructure birNewStructure) {
-        sb.append("\t\t");
+        visit(birNewStructure.pos);
         birNewStructure.lhsOp.accept(this);
         sb.append(" = ").append(birNewStructure.kind.name().toLowerCase(Locale.ENGLISH)).append(";\n");
     }
 
     public void visit(NewArray birNewArray) {
-        sb.append("\t\t");
+        visit(birNewArray.pos);
         birNewArray.lhsOp.accept(this);
         sb.append(" = ").append(birNewArray.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
         birNewArray.sizeOp.accept(this);
@@ -179,7 +180,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(FieldAccess birFieldAccess) {
-        sb.append("\t\t");
+        visit(birFieldAccess.pos);
         birFieldAccess.lhsOp.accept(this);
         sb.append("[");
         birFieldAccess.keyOp.accept(this);
@@ -189,7 +190,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(TypeCast birTypeCast) {
-        sb.append("\t\t");
+        visit(birTypeCast.pos);
         birTypeCast.lhsOp.accept(this);
         sb.append(" = ").append(birTypeCast.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birTypeCast.rhsOp.accept(this);
@@ -197,7 +198,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(IsLike birIsLike) {
-        sb.append("\t\t");
+        visit(birIsLike.pos);
         birIsLike.lhsOp.accept(this);
         sb.append(" = ");
         birIsLike.rhsOp.accept(this);
@@ -207,7 +208,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(TypeTest birTypeTest) {
-        sb.append("\t\t");
+        visit(birTypeTest.pos);
         birTypeTest.lhsOp.accept(this);
         sb.append(" = ");
         birTypeTest.rhsOp.accept(this);
@@ -219,22 +220,25 @@ public class BIREmitter extends BIRVisitor {
     // Terminating instructions
 
     public void visit(BIRTerminator.Return birReturn) {
-        sb.append("\t\treturn;\n");
+        visit(birReturn.pos);
+        sb.append("return;\n");
     }
 
     public void visit(BIRTerminator.GOTO birGoto) {
-        sb.append("\t\tgoto ").append(birGoto.targetBB.id).append(";\n");
+        visit(birGoto.pos);
+        sb.append("goto ").append(birGoto.targetBB.id).append(";\n");
     }
 
     public void visit(BIRTerminator.Branch birBranch) {
-        sb.append("\t\tbranch ");
+        visit(birBranch.pos);
+        sb.append("branch ");
         birBranch.op.accept(this);
         sb.append(" [true:").append(birBranch.trueBB.id).append(", false:");
         sb.append(birBranch.falseBB.id).append("];\n");
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
-        sb.append("\t\t");
+        visit(birNewError.pos);
         birNewError.lhsOp.accept(this);
         sb.append(" = ").append(birNewError.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birNewError.reasonOp.accept(this);
@@ -244,7 +248,8 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.Panic birPanic) {
-        sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        visit(birPanic.pos);
+        sb.append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birPanic.errorOp.accept(this);
         sb.append(";\n");
     }
@@ -254,9 +259,17 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birOp.variableDcl.name);
     }
 
+    // Positions
+
+    public void visit(DiagnosticPos pos) {
+        if (pos != null) {
+            sb.append(pos.sLine).append(":").append(pos.sCol);
+        }
+        sb.append("\t\t");
+    }
 
     private void writePosition(DiagnosticPos pos) {
-        sb.append("\t\t// pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
-        sb.append(pos.eLine).append(":").append(pos.eCol).append("]");
+      //  sb.append("\t\t// pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
+      //  sb.append(pos.eLine).append(":").append(pos.eCol).append("]");
     }
 }

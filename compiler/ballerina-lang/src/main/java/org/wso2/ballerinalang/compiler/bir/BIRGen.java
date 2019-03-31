@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +131,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangPackage astPkg) {
         BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
-                astPkg.packageID.name, astPkg.packageID.version);
+                astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
         astPkg.symbol.bir = birPkg;
 
         this.env = new BIRGenEnv(birPkg);

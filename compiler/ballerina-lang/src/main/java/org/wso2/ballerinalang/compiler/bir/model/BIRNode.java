@@ -48,16 +48,19 @@ public abstract class BIRNode {
         public Name org;
         public Name name;
         public Name version;
+        public Name sourceFileName;
         public List<BIRImportModule> importModules;
         public List<BIRTypeDefinition> typeDefs;
         public List<BIRGlobalVariableDcl> globalVars;
         public List<BIRFunction> functions;
 
-        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
+        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version,
+                          Name sourceFileName) {
             super(pos);
             this.org = org;
             this.name = name;
             this.version = version;
+            this.sourceFileName = sourceFileName;
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();

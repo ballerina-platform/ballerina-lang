@@ -1,5 +1,5 @@
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
-
+    boolean isMainFunc =  func.name.value == "main";
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
@@ -128,6 +128,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         while (m < bb.instructions.length()) {
             bir:Instruction? inst = bb.instructions[m];
             InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+            var pos = inst.pos;
+            if (pos is bir:DiagnosticPos) {
+                generateDiagnosticPos(pos, mv);
+            }
             if (currentEE is  bir:ErrorEntry && !isInTryBlock &&
                     currentEE.fromBlockId.value == currentBBName && currentEE.fromIp == m) {
                 instGen.generateTryIns(tryCatchBlock);
@@ -187,6 +191,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
         // process terminator
         bir:Terminator terminator = bb.terminator;
+        generateDiagnosticPos(terminator.pos, mv);
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
@@ -359,7 +364,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitInsn(AASTORE);
 
 
-    termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
+    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
@@ -736,6 +741,14 @@ function generateDefaultConstructor(jvm:ClassWriter cw) {
     mv.visitInsn(RETURN);
     mv.visitMaxs(1, 1);
     mv.visitEnd();
+}
+
+function generateDiagnosticPos(bir:DiagnosticPos pos, jvm:MethodVisitor mv) {
+    if (pos.sLine != -1) {
+        jvm:Label label = new;
+        mv.visitLabel(label);
+        mv.visitLineNumber(pos.sLine, label);
+    }
 }
 
 function cleanupFunctionName(string functionName) returns string {

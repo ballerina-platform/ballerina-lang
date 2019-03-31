@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * A BIR node visitor.
@@ -143,5 +144,8 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    
+    // Positions
+    public void visit(DiagnosticPos pos) {
+        throw new AssertionError();
+    }
 }

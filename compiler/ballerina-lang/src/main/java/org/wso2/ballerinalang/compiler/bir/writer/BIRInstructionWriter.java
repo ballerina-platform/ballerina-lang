@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -85,15 +86,18 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Terminating instructions
 
     public void visit(BIRTerminator.GOTO birGoto) {
+        visit(birGoto.pos);
         buf.writeByte(birGoto.kind.getValue());
         addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
     public void visit(BIRTerminator.Return birReturn) {
+        visit(birReturn.pos);
         buf.writeByte(birReturn.kind.getValue());
     }
 
     public void visit(BIRTerminator.Branch birBranch) {
+        visit(birBranch.pos);
         buf.writeByte(birBranch.kind.getValue());
         birBranch.op.accept(this);
         // true:BB
@@ -106,12 +110,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Non-terminating instructions
 
     public void visit(BIRNonTerminator.Move birMove) {
+        visit(birMove.pos);
         buf.writeByte(birMove.kind.getValue());
         birMove.rhsOp.accept(this);
         birMove.lhsOp.accept(this);
     }
 
     public void visit(BIRTerminator.Call birCall) {
+        visit(birCall.pos);
         buf.writeByte(birCall.kind.getValue());
         PackageID calleePkg = birCall.calleePkg;
         int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
@@ -134,6 +140,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
+        visit(birBinaryOp.pos);
         buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);
         birBinaryOp.rhsOp2.accept(this);
@@ -145,6 +152,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
+        visit(birConstantLoad.pos);
         buf.writeByte(birConstantLoad.kind.getValue());
         birConstantLoad.type.accept(typeWriter);
         birConstantLoad.lhsOp.accept(this);
@@ -174,12 +182,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(NewStructure birNewStructure) {
+        visit(birNewStructure.pos);
         buf.writeByte(birNewStructure.kind.getValue());
         birNewStructure.type.accept(typeWriter);
         birNewStructure.lhsOp.accept(this);
     }
 
     public void visit(NewArray birNewArray) {
+        visit(birNewArray.pos);
         buf.writeByte(birNewArray.kind.getValue());
         birNewArray.type.accept(typeWriter);
         birNewArray.lhsOp.accept(this);
@@ -187,6 +197,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
+        visit(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
@@ -194,6 +205,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.TypeCast birTypeCast) {
+        visit(birTypeCast.pos);
         buf.writeByte(birTypeCast.kind.getValue());
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
@@ -201,12 +213,14 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
         buf.writeByte(birIsLike.kind.getValue());
+        visit(birIsLike.pos);
         birIsLike.type.accept(typeWriter);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
+        visit(birTypeTest.pos);
         buf.writeByte(birTypeTest.kind.getValue());
         birTypeTest.type.accept(typeWriter);
         birTypeTest.lhsOp.accept(this);
@@ -222,6 +236,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
+        visit(birNewError.pos);
         buf.writeByte(birNewError.kind.getValue());
         birNewError.lhsOp.accept(this);
         birNewError.reasonOp.accept(this);
@@ -230,8 +245,22 @@ public class BIRInstructionWriter extends BIRVisitor {
 
 
     public void visit(BIRNonTerminator.Panic birPanic) {
+        visit(birPanic.pos);
         buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
+    }
+    
+    // Positions
+
+    public void visit(DiagnosticPos pos) {
+        int sLine = -1;
+        int sCol = -1;
+        if (pos != null) {
+            sLine = pos.sLine;
+            sCol = pos.sCol;
+        }
+        buf.writeInt(sLine);
+        buf.writeInt(sCol);
     }
 
     // private methods

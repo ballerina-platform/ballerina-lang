@@ -459,7 +459,7 @@ function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
 # Generate code to load an instance of the given error type
 # to the top of the stack.
 #
-# + bType - error type to load
+# + errorType - error type to load
 function loadErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType) {
     // Create an new error type
     mv.visitTypeInsn(NEW, ERROR_TYPE);

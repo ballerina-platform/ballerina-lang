@@ -21,9 +21,10 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
+    string sourceFileName = module.sourceFileName.value;
 
     // TODO: need to get bal source file name for class name mapping
-    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint moduleName);
+    string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
@@ -36,6 +37,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+    cw.visitSource(sourceFileName);
     generateDefaultConstructor(cw);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -71,7 +73,6 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
-
     string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
 
     // TODO: remove once the package init class is introduced
@@ -85,6 +86,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+    cw.visitSource(module.sourceFileName.value);
     generateDefaultConstructor(cw);
 
     generateUserDefinedTypeFields(cw, module.typeDefs);

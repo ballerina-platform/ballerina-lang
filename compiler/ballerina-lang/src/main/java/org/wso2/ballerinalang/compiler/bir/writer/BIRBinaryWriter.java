@@ -57,6 +57,7 @@ public class BIRBinaryWriter {
         int versionCPIndex = addStringCPEntry(birPackage.version.value);
         int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         birbuf.writeInt(pkgIndex);
+        birbuf.writeInt(addStringCPEntry(birPackage.sourceFileName.value));
 
         //Write import module declarations
         writeImportModuleDecls(birbuf, birPackage.importModules);
