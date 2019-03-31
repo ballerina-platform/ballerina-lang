@@ -276,7 +276,9 @@ public type Terminator record {
 
 public type DiagnosticPos record {|
     int sLine = -1;
+    int eLine = -1;
     int sCol = -1;
+    int eCol = -1;
 |};
 
 public type ConstantLoad record {|

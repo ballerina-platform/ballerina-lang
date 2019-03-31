@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
-        sb.append("\t").append(birVariableDcl.type).append(" ").append(birVariableDcl.name).append(";\t\t// ");
+        sb.append("\t\t").append(birVariableDcl.type).append(" ").append(birVariableDcl.name).append(";\t\t// ");
         sb.append(birVariableDcl.kind.name().toLowerCase(Locale.ENGLISH)).append("\n");
     }
 
@@ -87,9 +88,8 @@ public class BIREmitter extends BIRVisitor {
         birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
         sb.append("\n");
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
-        sb.deleteCharAt(sb.lastIndexOf("\n"));
         if (!birFunction.errorTable.isEmpty()) {
-            sb.append("\tError Table \n\t\tBB\t|errorOp\n");
+            sb.append("\t\tError Table \n\t\t\tBB\t|errorOp\n");
             birFunction.errorTable.forEach(entry -> {
                 entry.accept(this);
             });
@@ -98,20 +98,20 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
-        sb.append("\t\t").append(errorEntry.trapBB.id).append("\t|");
+        sb.append("\t\t\t").append(errorEntry.trapBB.id).append("\t|");
         errorEntry.errorOp.accept(this);
         sb.append("\n");
     }
 
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
-        sb.append("\t");
+        sb.append("\t\t");
         sb.append(birBasicBlock.id).append(" {\n");
         birBasicBlock.instructions.forEach(instruction -> ((BIRNode) instruction).accept(this));
         if (birBasicBlock.terminator == null) {
             throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
         }
         birBasicBlock.terminator.accept(this);
-        sb.append("\t}\n\n");
+        sb.append("\t\t}\n\n");
     }
 
     public void visit(BIRTerminator.Call birCall) {
@@ -136,7 +136,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
-        sb.append("\t\t");
+        visit(birAsyncCall.pos);
         if (birAsyncCall.lhsOp != null) {
             birAsyncCall.lhsOp.accept(this);
             sb.append(" = ");
@@ -270,7 +270,7 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIRTerminator.Panic birPanic) {
         visit(birPanic.pos);
-        sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        sb.append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birPanic.errorOp.accept(this);
         sb.append(";\n");
     }
@@ -284,9 +284,24 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(DiagnosticPos pos) {
         if (pos != null) {
-            sb.append(pos.sLine).append(":").append(pos.sCol);
+            appendPos(sb, pos.sLine);
+            sb.append("-");
+            appendPos(sb, pos.eLine);
+            sb.append(":");
+            appendPos(sb, pos.sCol);
+            sb.append("-");
+            appendPos(sb, pos.eCol);
+        } else {
+            sb.append("\t");
         }
         sb.append("\t\t");
+    }
+
+    private void appendPos(StringBuilder sb, int line) {
+        if (line < 10) {
+            sb.append("0");
+        }
+        sb.append(line);
     }
 
     private void writePosition(DiagnosticPos pos) {

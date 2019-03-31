@@ -280,14 +280,20 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Positions
 
     public void visit(DiagnosticPos pos) {
-        int sLine = -1;
+        int sLine = 1;
+        int eLine = 1;
         int sCol = -1;
+        int eCol = -1;
         if (pos != null) {
             sLine = pos.sLine;
+            eLine = pos.eLine;
             sCol = pos.sCol;
+            eCol = pos.eCol;
         }
         buf.writeInt(sLine);
+        buf.writeInt(eLine);
         buf.writeInt(sCol);
+        buf.writeInt(eCol);
     }
 
     // private methods

@@ -231,8 +231,10 @@ public type FuncBodyParser object {
     
      public function parseDiagnosticPos() returns DiagnosticPos {
          int sLine = self.reader.readInt32();
+         int eLine = self.reader.readInt32();
          int sCol = self.reader.readInt32();
-         return { sLine : sLine, sCol : sCol};
+         int eCol = self.reader.readInt32();
+         return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol};
      }
     
     public function parseVarRef() returns VarRef {
