@@ -223,6 +223,15 @@ public class Types {
         return isBasicNumericType(type);
     }
 
+    private boolean containsErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(this::containsErrorType);
+        }
+
+        return type.tag == TypeTags.ERROR;
+    }
+
     public boolean isAnydata(BType type) {
         return isAnydata(type, new HashSet<>());
     }
@@ -234,7 +243,7 @@ public class Types {
 
         switch (type.tag) {
             case TypeTags.MAP:
-                return isAnydata(((BMapType) type).constraint, unresolvedTypes);
+                return isPureType(((BMapType) type).constraint, unresolvedTypes);
             case TypeTags.RECORD:
                 if (unresolvedTypes.contains(type)) {
                     return true;
@@ -244,14 +253,14 @@ public class Types {
                 List<BType> fieldTypes = recordType.fields.stream()
                                                           .map(field -> field.type)
                                                           .collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE:
-                return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
+                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
-                return isAnydata(((BArrayType) type).eType, unresolvedTypes);
+                return isPureType(((BArrayType) type).eType, unresolvedTypes);
             case TypeTags.FINITE:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
                                                                           .map(val -> val.type).collect(
@@ -264,6 +273,23 @@ public class Types {
 
     private boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    boolean isPureType(BType type) {
+        return isPureType(type, new HashSet<>());
+    }
+
+    private boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return isAnydata(type, unresolvedTypes) || type.tag == TypeTags.ERROR;
+    }
+
+    private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
 
     public boolean isLikeAnydataOrNotNil(BType type) {
@@ -514,11 +540,11 @@ public class Types {
         }
 
         // TODO: Remove the isValueType() check
-        if (target.tag == TypeTags.ANY && !isValueType(source)) {
+        if (target.tag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && isAnydata(source)) {
+        if (target.tag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
             return true;
         }
 
@@ -1061,6 +1087,18 @@ public class Types {
         return true;
     }
 
+    public boolean isValidErrorDetailType(BType detailType) {
+        switch (detailType.tag) {
+            case TypeTags.MAP:
+                return isAssignable(detailType, symTable.pureTypeConstrainedMap);
+            case TypeTags.RECORD:
+                BRecordType detailRecordType = (BRecordType) detailType;
+                return detailRecordType.fields.stream()
+                        .allMatch(field -> isAssignable(field.type, symTable.pureType)) &&
+                        (detailRecordType.sealed || isAssignable(detailRecordType.restFieldType, symTable.pureType));
+        }
+        return false;
+    }
 
     // private methods
 
@@ -1512,7 +1550,16 @@ public class Types {
                 return false;
             }
             BErrorType source = (BErrorType) s;
-            return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
+
+            if (!isSameType(source.reasonType, t.reasonType)) {
+                return false;
+            }
+
+            if (source.detailType == t.detailType) {
+                return true;
+            }
+
+            return isSameType(source.detailType, t.detailType);
         }
 
         @Override
@@ -1712,7 +1759,7 @@ public class Types {
      * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
      * @return true if assignable; false otherwise.
      */
-    private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
         // Different literal kinds.
         if (baseLiteral.getKind() != candidateLiteral.getKind()) {
             return false;
@@ -1730,11 +1777,9 @@ public class Types {
         // with the same value.
         switch (baseLiteral.type.tag) {
             case TypeTags.BYTE:
-                if (candidateTypeTag == TypeTags.BYTE) {
-                    return (byte) baseValue == (byte) candidateValue;
-                } else if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
-                        isByteLiteralValue((Long) candidateValue)) {
-                    return (byte) baseValue == ((Long) candidateValue).byteValue();
+                if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
+                        !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {
+                    return (long) baseValue == (long) candidateValue;
                 }
                 break;
             case TypeTags.INT:
@@ -1797,13 +1842,15 @@ public class Types {
         Set<BLangExpression> matchingValues = finiteType.valueSpace.stream()
                 .filter(
                         // case I: targetType - string ("foo" is assignable to string)
+                        // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
                         expr -> isAssignable(expr.type, targetType) ||
-                        // type FooVal "foo";
-                        // case II:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
-                        (targetType.tag == TypeTags.UNION &&
-                                 ((BUnionType) targetType).getMemberTypes().stream()
-                                         .filter(memType -> memType.tag == TypeTags.FINITE)
-                                         .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
+                                isAssignableToFiniteType(targetType, (BLangLiteral) expr) ||
+                                // type FooVal "foo";
+                                // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
+                                (targetType.tag == TypeTags.UNION &&
+                                         ((BUnionType) targetType).getMemberTypes().stream()
+                                                 .filter(memType ->  memType.tag == TypeTags.FINITE)
+                                                 .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
                                                                                             (BLangLiteral) expr))))
                 .collect(Collectors.toSet());
 
@@ -2282,6 +2329,10 @@ public class Types {
     }
 
     public boolean hasImplicitInitialValue(BType type) {
+        return hasImplicitInitialValue(type, new ArrayList<>());
+    }
+
+    public boolean hasImplicitInitialValue(BType type, List<BType> unanalyzedTypes) {
         if (type.tag < TypeTags.RECORD) {
             return true;
         }
@@ -2298,8 +2349,7 @@ public class Types {
             case TypeTags.OBJECT:
                 return analyzeObjectType((BObjectType) type);
             case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                return recordType.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type));
+                return analyzeRecordType((BRecordType) type, unanalyzedTypes);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.tupleTypes.stream().allMatch(this::hasImplicitInitialValue);
@@ -2308,6 +2358,14 @@ public class Types {
             default:
                 return false;
         }
+    }
+
+    public boolean includesErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream().anyMatch(t -> t.tag == TypeTags.ERROR);
+        }
+
+        return type.tag == TypeTags.ERROR;
     }
 
     private boolean analyzeUnionType(BUnionType type) {
@@ -2326,6 +2384,14 @@ public class Types {
         }
         // Control reaching this point means there is only one type in the union.
         return isValueType(firstMember) && hasImplicitInitialValue(firstMember);
+    }
+
+    private boolean analyzeRecordType(BRecordType type, List<BType> unanalyzedTypes) {
+        if (unanalyzedTypes.contains(type)) {
+            return true;
+        }
+        unanalyzedTypes.add(type);
+        return type.fields.stream().allMatch(f -> hasImplicitInitialValue(f.type, unanalyzedTypes));
     }
 
     private boolean analyzeObjectType(BObjectType type) {

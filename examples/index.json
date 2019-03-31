@@ -258,8 +258,8 @@
                 "url": "type-conversion"
             },
             {
-                "name": "Type Assertion",
-                "url": "type-assertion"
+                "name": "Type Cast",
+                "url": "type-cast"
             },
             {
                 "name": "Nil Lifting",
@@ -442,8 +442,8 @@
         "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Date Time",
-                "url": "date-time"
+                "name": "Time",
+                "url": "time"
             },
             {
                 "name": "Caching",
@@ -857,7 +857,7 @@
         ]
     },
  	{
-        "title": "Swagger",
+        "title": "OpenAPI",
         "column": 2,
         "category": "Working over the network",
         "samples": [{
@@ -865,12 +865,12 @@
                 "url": "client-generation"
             },
             {
-                "name": "Ballerina To Swagger",
-                "url": "ballerina-to-swagger"
+                "name": "Ballerina To OpenAPI",
+                "url": "ballerina-to-openapi"
             },
             {
-                "name": "Swagger To Ballerina",
-                "url": "swagger-to-ballerina"
+                "name": "OpenAPI To Ballerina",
+                "url": "openapi-to-ballerina"
             }
         ]
     },
@@ -941,12 +941,48 @@
         ]
     },
     {
+        "title": "NATS",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "NATS Basic Example",
+            "url": "nats-basic-client"
+        }]
+    },
+    {
+        "title": "ActiveMQ Artemis",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [
+            {
+                "name": "Artemis ANYCAST consumer",
+                "url": "artemis-anycast-session-consumer"
+            },
+            {
+                "name": "Artemis ANYCAST producer",
+                "url": "artemis-anycast-session-producer"
+            },
+            {
+                "name": "Artemis simple MULTICAST consumer",
+                "url": "artemis-multicast-consumer"
+            },
+            {
+                "name": "Artemis simple MULTICAST producer",
+                "url": "artemis-multicast-producer"
+            }
+        ]
+    },
+    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",
         "samples": [{
                 "name": "TCP Socket Basic Example",
                 "url": "tcp-socket-listener-client"
+            },
+            {
+                "name": "UDP Client Socket Basic Example",
+                "url": "udp-socket-client"
             }
         ]
     },

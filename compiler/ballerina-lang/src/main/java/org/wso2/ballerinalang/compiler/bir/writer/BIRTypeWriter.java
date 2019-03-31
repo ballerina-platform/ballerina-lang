@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
@@ -16,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -32,15 +50,20 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
  * A ConstPool is used to store string typed information.
+ * 
+ * @since 0.995.0
  */
 public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
 
     private final ConstantPool cp;
+    private final BMapType anydataMapType =
+            new BMapType(TypeTags.MAP, new BAnydataType(TypeTags.ANYDATA, null), null);
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -73,7 +96,8 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BErrorType bErrorType) {
         buff.writeByte(bErrorType.tag);
         bErrorType.reasonType.accept(this);
-        bErrorType.detailType.accept(this);
+        // Temporary fix to avoid recursive call, detail type needs to be visited once fixed
+        anydataMapType.accept(this);
     }
 
     @Override
@@ -98,13 +122,19 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BJSONType bjsonType) {
-        throwUnimplementedError(bjsonType);
+        buff.writeByte(bjsonType.tag);
     }
 
     @Override
     public void visit(BMapType bMapType) {
         buff.writeByte(bMapType.tag);
         bMapType.constraint.accept(this);
+    }
+
+    @Override
+    public void visit(BFutureType bFutureType) {
+        buff.writeByte(bFutureType.tag);
+        bFutureType.constraint.accept(this);
     }
 
     @Override

@@ -19,11 +19,10 @@ type Age record {
     string format;
 };
 
-type Person record {
+type Person record {|
     string name;
     boolean married;
-    !...;
-};
+|};
 
 function simpleDefinition() returns (string, boolean) {
     Person p = {name: "Peter", married: true};
@@ -121,25 +120,25 @@ function getAgeRecord() returns Age {
     return a;
 }
 
-function testRestParameter() returns map<any> {
+function testRestParameter() returns map<anydata|error> {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
     PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;
 }
 
-function testNestedRestParameter() returns (map<any>, map<any>) {
+function testNestedRestParameter() returns (map<anydata|error>, map<anydata|error>) {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
     PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = p;
     return (rest1, rest2);
 }
 
-function testVariableAssignment() returns (string, int, string, boolean, map<any>) {
+function testVariableAssignment() returns (string, int, string, boolean, map<anydata|error>) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     return (fName, age, format, married, rest);
 }
 
-function testVariableAssignment2() returns (string, int, string, boolean, map<any>) {
+function testVariableAssignment2() returns (string, int, string, boolean, map<anydata|error>) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     fName = "James";
@@ -177,7 +176,7 @@ type Child record {
     (int, Age) yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>) {
+function testRecordInsideTupleInsideRecord() returns (string[], string, map<anydata|error>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -203,7 +202,7 @@ function testRecordInsideTupleInsideRecord2() returns (string, int, int, string)
     return (name, yearInt, age, format);
 }
 
-function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map<any>) {
+function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map<anydata|error>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -290,7 +289,7 @@ function testIgnoreVariable() returns (string, int) {
     return (name, age);
 }
 
-function testRecordVariableWithOnlyRestParam() returns map<anydata> {
+function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
     PersonWithAge p = { name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE" };
     PersonWithAge { ...rest } = p;
     return rest;
@@ -342,6 +341,6 @@ function testRestParameterType() returns (boolean, boolean, boolean, boolean, bo
     any a5 = other5;
     any a6 = other6;
 
-    return (a1 is map<anydata>, a2 is map<int>, a3 is map<any>, a4 is map<Object>, a5 is map<any>,
-                                                                    a5 is map<anydata>, a6 is map<anydata>);
+    return (a1 is map<anydata|error>, a2 is map<int>, a3 is map<any|error>, a4 is map<Object>, a5 is map<any|error>,
+                                                                    a5 is map<anydata>, a6 is map<anydata|error>);
 }

@@ -235,6 +235,7 @@ public abstract class BIRNode {
             super(null);
             this.id = id;
             this.instructions = new ArrayList<>();
+            this.terminator = null;
         }
 
         @Override
@@ -255,6 +256,9 @@ public abstract class BIRNode {
          */
         public Name name;
 
+
+        public List<BIRFunction> attachedFuncs;
+
         /**
          * Visibility of this type definition.
          * 0 - package_private
@@ -265,11 +269,19 @@ public abstract class BIRNode {
 
         public BType type;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility, BType type) {
+        /**
+         * this is not serialized. it's used to keep the index of the def in the list.
+         * otherwise the writer has to *find* it in the list.
+         */
+        public int index;
+
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility,
+                                 BType type, List<BIRFunction> attachedFuncs) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
             this.type = type;
+            this.attachedFuncs = attachedFuncs;
         }
 
         @Override
@@ -285,17 +297,14 @@ public abstract class BIRNode {
      */
     public static class BIRErrorEntry extends BIRNode {
 
-        public Name fromBlockId;
-        public int fromIp;
-        public Name toBlockId;
-        public int toIp;
+        public BIRBasicBlock trapBB;
 
-        public BIRErrorEntry(Name fromBlockId, int fromIp, Name toBlockId, int toIp) {
+        public BIROperand errorOp;
+
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp) {
             super(null);
-            this.fromBlockId = fromBlockId;
-            this.fromIp = fromIp;
-            this.toBlockId = toBlockId;
-            this.toIp = toIp;
+            this.trapBB = trapBB;
+            this.errorOp = errorOp;
         }
 
         @Override

@@ -45,7 +45,7 @@ public type WebSocketClient client object {
     }
 
     # Initializes the endpoint.
-    public extern function initEndpoint();
+    public function initEndpoint() = external;
 
     # Push text to the connection.
     #
@@ -118,7 +118,7 @@ public type WebSocketClient client object {
 # + secureSocket - SSL/TLS related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
-public type WebSocketClientEndpointConfig record {
+public type WebSocketClientEndpointConfig record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
@@ -126,5 +126,4 @@ public type WebSocketClientEndpointConfig record {
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
     int maxFrameSize = 0;
-    !...;
-};
+|};

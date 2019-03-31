@@ -62,13 +62,13 @@ public type TopicSubscriber object {
     # + serviceType - Type descriptor of the service
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    extern function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error?;
+    function registerListener(service serviceType, TopicSubscriberCaller actions, string? name) returns error? = external;
 
-    extern function createSubscriber(Session? session, string messageSelector, string|Destination dest);
+    function createSubscriber(Session? session, string messageSelector, string|Destination dest) = external;
 
     # Start TopicSubscriber endpoint
     #
@@ -91,7 +91,7 @@ public type TopicSubscriber object {
         return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(TopicSubscriberCaller actions) returns error?;
+    function closeSubscriber(TopicSubscriberCaller actions) returns error? = external;
 };
 
 # Remote functions that topic subscriber endpoint could perform
@@ -105,13 +105,13 @@ public type TopicSubscriberCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - error on failure to acknowledge a received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error.
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
@@ -142,14 +142,14 @@ public type TopicSubscriberCaller client object {
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map<any> errorDetail = {
+        map<anydata> errorDetail = {
             message: errorMessage
         };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        map<any> errorDetail = {
+        map<anydata> errorDetail = {
             message: errorMessage
         };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);

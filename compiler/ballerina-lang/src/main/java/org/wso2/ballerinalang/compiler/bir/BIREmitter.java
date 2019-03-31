@@ -89,7 +89,7 @@ public class BIREmitter extends BIRVisitor {
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
         sb.deleteCharAt(sb.lastIndexOf("\n"));
         if (!birFunction.errorTable.isEmpty()) {
-            sb.append("\tError Table \n\t\tfromBB\t|fromIp\t|toBB\t|toIp\n");
+            sb.append("\tError Table \n\t\tBB\t|errorOp\n");
             birFunction.errorTable.forEach(entry -> {
                 entry.accept(this);
             });
@@ -98,8 +98,8 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
-        sb.append("\t\t").append(errorEntry.fromBlockId).append("\t|").append(errorEntry.fromIp)
-          .append("\t|").append(errorEntry.toBlockId).append("\t|").append(errorEntry.toIp);
+        sb.append("\t\t").append(errorEntry.trapBB.id).append("\t|");
+        errorEntry.errorOp.accept(this);
         sb.append("\n");
     }
 
@@ -131,6 +131,27 @@ public class BIREmitter extends BIRVisitor {
         }
         sb.append(") -> ");
         sb.append(birCall.thenBB.id);
+
+        sb.append(";\n");
+    }
+
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        sb.append("\t\t");
+        if (birAsyncCall.lhsOp != null) {
+            birAsyncCall.lhsOp.accept(this);
+            sb.append(" = ");
+        }
+        sb.append(birAsyncCall.name.getValue()).append("(");
+        List<BIROperand> args = birAsyncCall.args;
+        for (int i = 0; i < args.size(); i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            BIROperand arg = args.get(i);
+            arg.accept(this);
+        }
+        sb.append(") ->> ");
+        sb.append(birAsyncCall.thenBB.id);
 
         sb.append(";\n");
     }
@@ -247,9 +268,9 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
-    public void visit(BIRNonTerminator.Panic birPanic) {
+    public void visit(BIRTerminator.Panic birPanic) {
         visit(birPanic.pos);
-        sb.append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birPanic.errorOp.accept(this);
         sb.append(";\n");
     }

@@ -48,13 +48,8 @@ public class InvocationContextUtils {
         InvocationContext invocationContext = (InvocationContext) context.getProperty(InvocationContextUtils
                 .INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
-            synchronized (InvocationContextUtils.class) {
-                if (context.getProperty(InvocationContextUtils
-                        .INVOCATION_CONTEXT_PROPERTY) == null) {
-                    invocationContext = initInvocationContext(context);
-                    context.setProperty(InvocationContextUtils.INVOCATION_CONTEXT_PROPERTY, invocationContext);
-                }
-            }
+            invocationContext = initInvocationContext(context);
+            context.setProperty(InvocationContextUtils.INVOCATION_CONTEXT_PROPERTY, invocationContext);
         }
         return invocationContext;
     }

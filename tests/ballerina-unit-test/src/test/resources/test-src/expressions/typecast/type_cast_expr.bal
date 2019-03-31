@@ -38,17 +38,15 @@ type Person record {
     string name;
 };
 
-type TableEmployee record {
+type TableEmployee record {|
     int id;
     string name;
-    !...;
-};
+|};
 
-type TableEmployeeTwo record {
+type TableEmployeeTwo record {|
     boolean id;
     string name;
-    !...;
-};
+|};
 
 type EmployeeObject object {
     string name;
@@ -685,26 +683,23 @@ function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) return
     }
 }
 
-public type InMemoryModeConfig record {
+public type InMemoryModeConfig record {|
     string name = "";
     string username = "";
     string password = "";
     map<any> dbOptions = {name:"asdf"};
-    !...;
-};
+|};
 
-public type ServerModeConfig record {
+public type ServerModeConfig record {|
     string host = "";
     int port = 9090;
     *InMemoryModeConfig;
-    !...;
-};
+|};
 
-public type EmbeddedModeConfig record {
+public type EmbeddedModeConfig record {|
     string path = "";
     *InMemoryModeConfig;
-    !...;
-};
+|};
 
 type FooBar "foo"|"bar";
 type FooBarOne "foo"|"bar"|1;
@@ -765,6 +760,23 @@ function testValueTypeToFiniteTypeCastPositive() returns boolean {
 function testValueTypeToFiniteTypeCastNegative() {
     int a = 2;
     FooBarOne d = <FooBarOne> a;
+}
+
+type FooOneTrue 1|"foo"|true;
+
+function testFiniteTypeToFiniteTypeCastPositive() returns boolean {
+    FooBar a = "bar";
+    FooBarOne b = <FooBarOne> a;
+    boolean castSuccessful = a == b;
+
+    FooBarOne c = "foo";
+    FooOneTrue d = <FooOneTrue> c;
+    return castSuccessful && c == d;
+}
+
+function testFiniteTypeToFiniteTypeCastNegative() {
+    FooBarOne a = "bar";
+    FooOneTrue b = <FooOneTrue> a;
 }
 
 function testFunc(string s, int i) returns string {

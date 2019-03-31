@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -705,6 +706,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
+
+        // If the function definition specifies the function to be an external function, but the function declaration
+        // does not, set the external flag for the declaration.
+        int flags = Flags.asMask(funcNode.flagSet);
+        if ((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE) &&
+                (flags & Flags.NATIVE) == Flags.NATIVE) {
+            Set<Flag> symFlags = funcNode.symbol.getFlags();
+            symFlags.add(Flag.NATIVE);
+            funcNode.symbol.flags = Flags.asMask(symFlags);
+        }
         //this was used earlier to one to one match object declaration with definitions for attached functions
         // keeping this commented as we may need uncomment this later.
         //        int flags = Flags.asMask(funcNode.flagSet);
@@ -1116,9 +1127,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.mapType);
+                                        .orElse(symTable.pureTypeConstrainedMap);
 
-            if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }
@@ -1169,7 +1180,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     recordType.restFieldType = symTable.noType;
                     continue;
                 }
-                recordType.restFieldType = symTable.anydataType;
+                recordType.restFieldType = symTable.pureType;
                 continue;
             }
 
@@ -1300,6 +1311,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
+        if (symbol.owner.tag == SymTag.PACKAGE) {
+            // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
+            return;
+        }
+
         BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
@@ -1425,11 +1441,27 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (funcNode.returnTypeNode.type != symTable.nilType) {
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-        }
+        validateObjectInitFnReturnSignature(funcNode);
         objectSymbol.initializerFunc = attachedFunc;
+    }
+
+    private void validateObjectInitFnReturnSignature(BLangFunction objectInitFn) {
+        BType returnType = objectInitFn.returnTypeNode.type;
+
+        if (returnType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) returnType).getMemberTypes();
+            if (memberTypes.stream().noneMatch(type -> type.tag != TypeTags.NIL && type.tag != TypeTags.ERROR)
+                    && memberTypes.contains(symTable.nilType)) {
+                return;
+            }
+        }
+
+        if (returnType.tag == TypeTags.NIL) {
+            return;
+        }
+
+        dlog.error(objectInitFn.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR, objectInitFn.receiver.type.toString(),
+                   objectInitFn.returnTypeNode.type.toString());
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

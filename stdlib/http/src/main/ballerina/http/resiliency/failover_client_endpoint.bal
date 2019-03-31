@@ -22,11 +22,10 @@ import ballerina/io;
 #
 # + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
 # + interval - Failover delay interval in milliseconds
-public type FailoverConfig record {
+public type FailoverConfig record {|
     int[] failoverCodes = [];
     int interval = 0;
-    !...;
-};
+|};
 
 // TODO: This can be made package private
 // Represents inferred failover configurations passed to Failover connector.
@@ -35,12 +34,11 @@ public type FailoverConfig record {
 # + failoverClientsArray - Array of HTTP Clients that needs to be Failover
 # + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
 # + failoverInterval - Failover delay interval in milliseconds
-public type FailoverInferredConfig record {
+public type FailoverInferredConfig record {|
     Client?[] failoverClientsArray = [];
     boolean[] failoverCodesIndex = [];
     int failoverInterval = 0;
-    !...;
-};
+|};
 
 # An HTTP client endpoint which provides failover support over multiple HTTP clients.
 #
@@ -408,7 +406,7 @@ function populateGenericFailoverActionError (error?[] failoverActionErr, error h
     failoverActionErr[index] = httpActionErr;
     string lastErrorMsg = <string> httpActionErr.detail().message;
     string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    map<any> errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
+    map<anydata> errorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, errorDetail);
     return actionError;
 }
@@ -418,7 +416,7 @@ function populateGenericFailoverActionError (error?[] failoverActionErr, error h
 function populateFailoverErrorHttpStatusCodes (Response inResponse, error?[] failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " +
         inResponse.reasonPhrase;
-    map<any> errorDetail = { message : failoverMessage };
+    map<anydata|error> errorDetail = { message : failoverMessage };
     error httpActionErr = error(HTTP_ERROR_CODE, errorDetail);
     failoverActionErr[index] = httpActionErr;
 }
@@ -426,12 +424,12 @@ function populateFailoverErrorHttpStatusCodes (Response inResponse, error?[] fai
 function populateErrorsFromLastResponse (Response inResponse, error?[] failoverActionErr, int index)
                                                                             returns (error) {
     string message = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    map<any> errorDetail = { message : message };
+    map<anydata|error> errorDetail = { message : message };
     error lastHttpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
                                 + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    map<any> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
+    map<anydata> finalErrorDetail = { message : failoverMessage, failoverErrors : failoverActionErr };
     error actionError = error(HTTP_ERROR_CODE, finalErrorDetail);
     return actionError;
 }
@@ -454,7 +452,7 @@ function populateErrorsFromLastResponse (Response inResponse, error?[] failoverA
 # + auth - HTTP authentication releated configurations
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalMillis - Failover delay interval in milliseconds
-public type FailoverClientEndpointConfiguration record {
+public type FailoverClientEndpointConfiguration record {|
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
@@ -471,8 +469,7 @@ public type FailoverClientEndpointConfiguration record {
     AuthConfig? auth = ();
     int[] failoverCodes = [501, 502, 503, 504];
     int intervalMillis = 0;
-    !...;
-};
+|};
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
                                                   TargetService target) returns ClientEndpointConfig {

@@ -109,7 +109,7 @@ function testRecordBindingPatternWithRestParam() {
 
     string var1;
     boolean var5;
-    map<anydata> restParam = {};
+    map<anydata|error> restParam = {};
 
     { field2: var1, var5, ...restParam } = bindingPattern;
 
@@ -156,7 +156,7 @@ function testRecordBindingPatternWithOnlyRestParam() {
         field7: [8, 9, 10, 11]
     };
 
-    map<anydata> restParam = {};
+    map<anydata|error> restParam = {};
 
     { ...restParam } = bindingPattern;
 
@@ -170,12 +170,11 @@ function testRecordBindingPatternWithOnlyRestParam() {
     test:assertEquals(restParam.field7, <int[]>[8, 9, 10, 11], msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
 }
 
-type ClosedBindingPattern record {
+type ClosedBindingPattern record {|
     int field1;
     string field2;
     float field3;
-    !...;
-};
+|};
 
 @test:Config {}
 function testRecordBindingPatternWithClosedRestParam() {
@@ -189,7 +188,7 @@ function testRecordBindingPatternWithClosedRestParam() {
     string var2;
     float var3;
 
-    { field1: var1, field2: var2, field3: var3, !... } = cBindingPattern;
+    {| field1: var1, field2: var2, field3: var3 |} = cBindingPattern;
 
     test:assertEquals(var1, 15, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);

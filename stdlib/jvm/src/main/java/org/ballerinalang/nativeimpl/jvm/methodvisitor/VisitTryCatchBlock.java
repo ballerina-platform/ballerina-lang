@@ -34,6 +34,8 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 
 /**
  * Native class for jvm try catch byte code creation.
+ *
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

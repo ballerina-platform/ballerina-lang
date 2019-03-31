@@ -9,13 +9,13 @@ function testAnonStructFunc(int i, record {int k = 10; string s;} anonSt) return
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    record {int k = 11; string s; !...;} anonSt = {};
+    record {| int k = 11; string s; |} anonSt = {};
 
     return anonSt.k;
 }
 
 
-record {string fname; string lname; int age; !...;} person;
+record {| string fname; string lname; int age; |} person;
 
 function testAnonStructAsPkgVar() returns (string) {
 
@@ -29,20 +29,19 @@ type employee record {
     string fname;
     string lname;
     int age;
-    record { string line01;
-             string line02;
-             string city;
-             string state;
-             string zipcode;
-             !...;
-    } address;
+    record {|
+        string line01;
+        string line02;
+        string city;
+        string state;
+        string zipcode;
+    |} address;
 
-    record {
+    record {|
         string month = "JAN";
         string day = "01";
         string year = "1970";
-        !...;
-    } dateOfBirth;
+    |} dateOfBirth;
 };
 
 function testAnonStructAsStructField() returns (string) {

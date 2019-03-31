@@ -41,23 +41,22 @@ public type Listener object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
-    extern function initEndpoint() returns error?;
+    function initEndpoint() returns error? = external;
 
-    extern function register(service serviceType, map<any> annotationData) returns error?;
+    function register(service serviceType, string? name) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 };
 
 # Represents configurations that required for directory listener.
 #
 # + path - Directory path which need to listen
 # + recursive - Recursively monitor all sub folders or not in the given direcotry path
-public type ListenerConfig record {
+public type ListenerConfig record {|
     string? path = ();
     boolean recursive = false;
-    !...;
-};
+|};

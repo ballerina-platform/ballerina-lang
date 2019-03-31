@@ -180,7 +180,7 @@ function isBellow25(person p) returns boolean {
 function testIgnoredValue() returns (string) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
-    _ = s.filter(function (string ss) returns boolean {return ss.length() == 3;})
+    s = s.filter(function (string ss) returns boolean {return ss.length() == 3;})
     .map(function (string ss) returns string {
             output = output + " " + ss;
             return (ss + ss);

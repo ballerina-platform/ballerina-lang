@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -278,8 +277,6 @@ public class CompiledPackageSymbolEnter {
                 return new UTF8CPEntry(strValue);
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
-            case CP_ENTRY_BYTE:
-                return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_STRING:
@@ -353,6 +350,7 @@ public class CompiledPackageSymbolEnter {
         BInvokableType funcType = createInvokableType(funcSig);
         BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(funcName),
                 this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+        invokableSymbol.retType = funcType.retType;
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (Symbols.isFlagOn(flags, Flags.ATTACHED)) {
@@ -429,6 +427,9 @@ public class CompiledPackageSymbolEnter {
                 break;
             case TypeTags.RECORD:
                 typeDefSymbol = readRecordTypeSymbol(dataInStream, typeDefName, flags);
+                break;
+            case TypeTags.ERROR:
+                typeDefSymbol = readErrorTypeSymbol(dataInStream, typeDefName, flags);
                 break;
             case TypeTags.FINITE:
                 typeDefSymbol = readFiniteTypeSymbol(dataInStream, typeDefName, flags);
@@ -511,6 +512,31 @@ public class CompiledPackageSymbolEnter {
         return symbol;
     }
 
+
+    private BErrorTypeSymbol readErrorTypeSymbol(DataInputStream dataInStream, String name, int flags)
+            throws  IOException {
+        BErrorTypeSymbol symbol = Symbols.createErrorSymbol(flags, names.fromString(name), this.env.pkgSymbol.pkgID,
+                                                            null, this.env.pkgSymbol);
+        symbol.scope = new Scope(symbol);
+        BErrorType type = new BErrorType(symbol);
+        symbol.type = type;
+
+        String reasonTypeDesc = getUTF8CPEntryValue(dataInStream);
+        UnresolvedType reasonType = new UnresolvedType(reasonTypeDesc,
+                                                       errReasonType -> type.reasonType = errReasonType);
+        this.env.unresolvedTypes.add(reasonType);
+
+        String detailTypeDesc = getUTF8CPEntryValue(dataInStream);
+        UnresolvedType detailType = new UnresolvedType(detailTypeDesc,
+                                                       errDetailType -> type.detailType = errDetailType);
+        this.env.unresolvedTypes.add(detailType);
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
+
+        return symbol;
+    }
+
     private BTypeSymbol readFiniteTypeSymbol(DataInputStream dataInStream,
                                              String name, int flags) throws IOException {
         BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, flags, names.fromString(name),
@@ -554,14 +580,10 @@ public class CompiledPackageSymbolEnter {
                 litExpr.value = dataInStream.readBoolean();
                 break;
             case TypeDescriptor.SIG_INT:
+            case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = integerCPEntry.getValue();
-                break;
-            case TypeDescriptor.SIG_BYTE:
-                valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = byteCPEntry.getValue();
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
@@ -672,14 +694,10 @@ public class CompiledPackageSymbolEnter {
                 literal.value = documentDataStream.readBoolean();
                 break;
             case TypeDescriptor.SIG_INT:
+            case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = documentDataStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 literal.value = integerCPEntry.getValue();
-                break;
-            case TypeDescriptor.SIG_BYTE:
-                valueCPIndex = documentDataStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                literal.value = byteCPEntry.getValue();
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = documentDataStream.readInt();
@@ -845,8 +863,8 @@ public class CompiledPackageSymbolEnter {
                 return new DefaultValueLiteral(integerCPEntry.getValue(), TypeTags.INT);
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
-                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                return new DefaultValueLiteral(byteCPEntry.getValue(), TypeTags.BYTE);
+                IntegerCPEntry byteEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                return new DefaultValueLiteral(byteEntry.getValue(), TypeTags.BYTE);
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
@@ -998,7 +1016,7 @@ public class CompiledPackageSymbolEnter {
     private BInvokableType createInvokableType(String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(new CompilerTypeCreater(), chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new CompilerTypeCreator(), chars, 0, typeStack);
         return (BInvokableType) typeStack.pop();
     }
 
@@ -1082,7 +1100,7 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BType getBTypeFromDescriptor(String typeSig) {
-        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreater(), typeSig);
+        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreator(), typeSig);
     }
 
     private BLangLiteral createLiteralBasedOnDescriptor(String typeSig) {
@@ -1124,7 +1142,7 @@ public class CompiledPackageSymbolEnter {
      *
      * @since 0.975.0
      */
-    private class CompilerTypeCreater implements TypeCreater<BType> {
+    private class CompilerTypeCreator implements TypeCreator<BType> {
 
         @Override
         public BType getBasicType(char typeChar) {
@@ -1243,10 +1261,10 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getErrorType(BType reasonType, BType detailsType) {
-            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.pureTypeConstrainedMap) {
                 return symTable.errorType;
             }
-            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                     env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
             BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
             errorSymbol.type = errorType;

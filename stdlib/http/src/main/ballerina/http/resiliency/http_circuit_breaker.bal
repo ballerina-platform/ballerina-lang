@@ -48,7 +48,7 @@ public const CB_CLOSED_STATE = "CLOSED";
 # + lastErrorTime - The time that the last error occurred
 # + lastForcedOpenTime - The time that circuit forcefully opened at last
 # + totalBuckets - The discrete time buckets into which the time window is divided
-public type CircuitHealth record {
+public type CircuitHealth record {|
     boolean lastRequestSuccess = false;
     int totalRequestCount = 0;
     int lastUsedBucketId = 0;
@@ -57,8 +57,7 @@ public type CircuitHealth record {
     time:Time lastErrorTime?;
     time:Time lastForcedOpenTime?;
     Bucket?[] totalBuckets = [];
-    !...;
-};
+|};
 
 # Provides a set of configurations for controlling the behaviour of the Circuit Breaker.
 #
@@ -68,25 +67,23 @@ public type CircuitHealth record {
 # + resetTimeMillis - The time period(in milliseconds) to wait before attempting to make another request to
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
-public type CircuitBreakerConfig record {
+public type CircuitBreakerConfig record {|
     RollingWindow rollingWindow = {};
     float failureThreshold = 0.0;
     int resetTimeMillis = 0;
     int[] statusCodes = [];
-    !...;
-};
+|};
 
 # Represents a rolling window in the Circuit Breaker.
 #
 # + requestVolumeThreshold - Minimum number of requests in a `RollingWindow` that will trip the circuit.
 # + timeWindowMillis - Time period in milliseconds for which the failure threshold is calculated
 # + bucketSizeMillis - The granularity at which the time window slides. This is measured in milliseconds.
-public type RollingWindow record {
+public type RollingWindow record {|
     int requestVolumeThreshold = 10;
     int timeWindowMillis = 60000;
     int bucketSizeMillis = 10000;
-    !...;
-};
+|};
 
 # Represents a discrete sub-part of the time window (Bucket).
 #
@@ -94,13 +91,12 @@ public type RollingWindow record {
 # + failureCount - Number of failed requests during the sub-window time frame
 # + rejectedCount - Number of rejected requests during the sub-window time frame
 # + lastUpdatedTime - The time that the `Bucket` is last updated.
-public type Bucket record {
+public type Bucket record {|
     int totalCount = 0;
     int failureCount = 0;
     int rejectedCount = 0;
     time:Time lastUpdatedTime?;
-    !...;
-};
+|};
 
 # Derived set of configurations from the `CircuitBreakerConfig`.
 #
@@ -111,14 +107,13 @@ public type Bucket record {
 # + statusCodes - Array of HTTP response status codes which are considered as failures
 # + noOfBuckets - Number of buckets derived from the `RollingWindow`
 # + rollingWindow - `RollingWindow` options provided in the `CircuitBreakerConfig`
-public type CircuitBreakerInferredConfig record {
+public type CircuitBreakerInferredConfig record {|
     float failureThreshold = 0.0;
     int resetTimeMillis = 0;
     boolean[] statusCodes = [];
     int noOfBuckets = 0;
     RollingWindow rollingWindow = {};
-    !...;
-};
+|};
 
 # A Circuit Breaker implementation which can be used to gracefully handle network failures.
 #
@@ -541,7 +536,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    map<any> errorDetail = { message : errorMessage };
+    map<anydata|error> errorDetail = { message : errorMessage };
     error httpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
     return httpConnectorErr;
 }
@@ -552,7 +547,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
-        map<any> errorDetail = { message : errorMessage };
+        map<anydata|error> errorDetail = { message : errorMessage };
         error circuitBreakerConfigError = error(HTTP_ERROR_CODE, errorDetail);
         panic circuitBreakerConfigError;
     }

@@ -1,3 +1,20 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 
@@ -389,6 +406,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeAny";
     } else if (bType is bir:BTypeAnyData) {
         typeFieldName = "typeAnydata";
+    } else if (bType is bir:BJSONType) {
+        typeFieldName = "typeJSON";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -580,7 +599,7 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
 }
 
 function getTypeDesc(bir:BType bType) returns string {
-    if (bType is bir:BTypeInt) {
+    if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         return "J";
     } else if (bType is bir:BTypeFloat) {
         return "D";
@@ -588,19 +607,19 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
-    } else if (bType is bir:BTypeByte) {
-        return "B";
     } else if (bType is bir:BTypeNil) {
         return io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BArrayType || bType is bir:BTupleType) {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BMapType) {
+        return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
-               bType is bir:BMapType ||
-               bType is bir:BRecordType) {
+               bType is bir:BRecordType ||
+               bType is bir:BJSONType) {
         return io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));

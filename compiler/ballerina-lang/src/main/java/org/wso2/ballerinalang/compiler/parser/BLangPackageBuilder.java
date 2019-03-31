@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -545,17 +546,34 @@ public class BLangPackageBuilder {
         addType(refType);
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isReasonTypeExists, boolean isDetailsTypeExists) {
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
+                      boolean isAnonymous) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (isDetailsTypeExists) {
+        if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (isReasonTypeExists) {
+        if (reasonTypeExists) {
             errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
-        addType(errorType);
+
+        if (!isAnonymous) {
+            addType(errorType);
+            return;
+        }
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        // Generate a name for the anonymous error
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(genName);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+
+        typeDef.typeNode = errorType;
+        typeDef.pos = pos;
+        this.compUnit.addTopLevelNode(typeDef);
+
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
     }
 
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -693,11 +711,12 @@ public class BLangPackageBuilder {
         BLangErrorVariable errorVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
-        errorVariable.reason = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, ws, reasonIdentifier, false);
+        errorVariable.reason = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, null,
+                reasonIdentifier, false);
         if (hasRecordVariable) {
             errorVariable.detail = this.varStack.pop();
         } else if (detailIdentifier != null) {
-            errorVariable.detail = (BLangVariable) generateBasicVarNodeWithoutType(pos, ws, detailIdentifier, false);
+            errorVariable.detail = (BLangVariable) generateBasicVarNodeWithoutType(pos, null, detailIdentifier, false);
         }
         this.varStack.push(errorVariable);
     }
@@ -1527,6 +1546,14 @@ public class BLangPackageBuilder {
         addExpressionNode(checkedExpr);
     }
 
+    void createCheckPanickedExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangCheckPanickedExpr checkPanicExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
+        checkPanicExpr.pos = pos;
+        checkPanicExpr.addWS(ws);
+        checkPanicExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(checkPanicExpr);
+    }
+
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -1560,8 +1587,9 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = function.pos;
         }
-
         if (isReceiverAttached) {
             //Get type node for this attached function
             TypeNode typeNode = this.typeNodeStack.pop();
@@ -1964,6 +1992,8 @@ public class BLangPackageBuilder {
                 function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
+        } else {
+            function.body.pos = pos;
         }
 
         function.attachedFunction = true;
@@ -2016,6 +2046,8 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = pos;
         }
 
         // Create an user defined type with object type
@@ -2479,14 +2511,18 @@ public class BLangPackageBuilder {
         ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
-        ifNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        ifNode.setBody(blockNode);
     }
 
     void addElseIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode elseIfNode = ifElseStatementStack.pop();
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
-        elseIfNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        elseIfNode.setBody(blockNode);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();

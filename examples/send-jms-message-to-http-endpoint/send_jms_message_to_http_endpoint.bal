@@ -13,7 +13,7 @@ listener jms:QueueReceiver consumerEndpoint = new({
 // Bind the created JMS consumer to the listener service.
 service jmsListener on consumerEndpoint {
 
-    resource function onMessage(jms:QueueReceiver consumer,
+    resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
         var textContent = message.getTextMessageContent();
         if (textContent is string) {

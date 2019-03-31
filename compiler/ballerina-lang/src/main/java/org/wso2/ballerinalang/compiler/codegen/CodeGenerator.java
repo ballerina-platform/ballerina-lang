@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -176,6 +178,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
+import org.wso2.ballerinalang.programfile.ErrorTypeInfo;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
@@ -213,7 +216,6 @@ import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
@@ -238,6 +240,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -580,9 +583,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
             case TypeTags.INT:
-                return InstructionCodes.IRET;
             case TypeTags.BYTE:
-                return InstructionCodes.BRET;
+                return InstructionCodes.IRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.DECIMAL:
@@ -607,6 +609,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 long longVal = (Long) literalExpr.value;
                 if (longVal >= 0 && longVal <= 5) {
                     opcode = InstructionCodes.ICONST_0 + (int) longVal;
@@ -615,12 +618,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
-                break;
-
-            case TypeTags.BYTE:
-                byte byteVal = (Byte) literalExpr.value;
-                int byteCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(byteVal));
-                emit(InstructionCodes.BICONST, getOperand(byteCPEntryIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -1283,7 +1280,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        BSymbol structSymbol = cIExpr.type.tsymbol;
+        BSymbol structSymbol = extractObjectTypeSymbol(cIExpr.type);
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
@@ -1292,18 +1289,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Emit an instruction to create a new struct.
         RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct initializer here.
-        Operand[] operands = getFuncOperands(cIExpr.initInvocation);
-
-        Operand[] callOperands = new Operand[operands.length + 1];
-        callOperands[0] = operands[0];
-        callOperands[1] = operands[1];
-        callOperands[2] = getOperand(operands[2].value + 1);
-        callOperands[3] = structRegIndex;
-
-        System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
-        emit(InstructionCodes.CALL, callOperands);
     }
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
@@ -1501,10 +1486,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         int index;
         switch (typeTag) {
             case TypeTags.INT:
-                index = ++indexes.tInt;
-                break;
             case TypeTags.BYTE:
-                index = ++indexes.tBoolean;
+                index = ++indexes.tInt;
                 break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
@@ -1527,6 +1510,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 opcode = baseOpcode;
                 break;
             case TypeTags.FLOAT:
@@ -1535,7 +1519,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.STRING:
                 opcode = baseOpcode + STRING_OFFSET;
                 break;
-            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
                 break;
@@ -1858,10 +1841,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (RegIndex regIndex : regIndexList) {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
-                    break;
                 case TypeTags.BYTE:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -2037,8 +2018,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
                 break;
             case TypeTags.BYTE:
-                defaultValue.byteValue = (Byte) value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
+                defaultValue.byteValue = (Long) value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
@@ -2164,6 +2145,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case SymTag.RECORD:
                 createRecordTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
+                break;
+            case SymTag.ERROR:
+                createErrorTypeTypeDef(typeDefInfo, typeDefSymbol);
                 break;
             case SymTag.FINITE_TYPE:
                 createFiniteTypeTypeDef(typeDefinition, typeDefInfo);
@@ -2307,6 +2291,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         return variable.expr != null && (variable.expr.getKind() == NodeKind.LITERAL ||
                 variable.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
                 variable.expr.type.getKind() != TypeKind.ARRAY;
+    }
+
+    private void createErrorTypeTypeDef(TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        ErrorTypeInfo errorTypeInfo = new ErrorTypeInfo();
+        BErrorTypeSymbol errorTypeSymbol = (BErrorTypeSymbol) typeDefSymbol;
+        errorTypeInfo.errorType = (BErrorType) errorTypeSymbol.type;
+
+        errorTypeInfo.reasonTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                            errorTypeInfo.errorType.reasonType.getDesc());
+        errorTypeInfo.detailTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                            errorTypeInfo.errorType.detailType.getDesc());
+        typeDefInfo.typeInfo = errorTypeInfo;
     }
 
     private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
@@ -3363,7 +3359,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
-            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr), funcRefCPIndex, nextIndex,
                     typeCPIndex);
         } else {
             operands = new Operand[4];
@@ -3396,18 +3392,30 @@ public class CodeGenerator extends BLangNodeVisitor {
      * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
-    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+    private Operand[] calcClosureOperands(BLangLambdaFunction lambdaFunction, int funcRefCPIndex, RegIndex nextIndex,
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        for (BVarSymbol symbol : function.symbol.params) {
-            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
-                continue;
-            }
-            Operand type = new Operand(symbol.type.tag);
+        // Order the closures variable maps.
+        Set<BVarSymbol> closureMapSymbols = new LinkedHashSet<>();
+
+        // First add the parameter closure maps.
+        if (!lambdaFunction.function.paramClosureMap.isEmpty()) {
+            // Check if the levels of the parameters are same. If same add them to the closure var map.
+            TreeMap<Integer, BVarSymbol> paramClosureMap = lambdaFunction.function.paramClosureMap;
+
+            lambdaFunction.paramMapSymbolsOfEnclInvokable.forEach((integer, bVarSymbol) -> {
+                if (paramClosureMap.containsKey(integer)) {
+                    closureMapSymbols.add(bVarSymbol);
+                }
+            });
+            // Afterwards add all the enclosing block symbol maps.
+           closureMapSymbols.addAll(lambdaFunction.enclMapSymbols.values());
+        }
+
+        for (BVarSymbol symbol : closureMapSymbols) {
             Operand index = new Operand(symbol.varIndex.value);
-            closureOperandList.add(type);
             closureOperandList.add(index);
         }
         Operand[] operands;
@@ -3837,5 +3845,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             }
         }
+    }
+
+    private BTypeSymbol extractObjectTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
     }
 }

@@ -36,6 +36,7 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -103,7 +104,6 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
-import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -212,7 +212,7 @@ public class BVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     String decimalVal = ((UTF8CPEntry) sf.constPool[cpIndex]).getValue();
-                    sf.refRegs[i] = new BDecimal(new BigDecimal(decimalVal, MathContext.DECIMAL128));
+                    sf.refRegs[i] = new BDecimal(decimalVal);
                     break;
                 case InstructionCodes.SCONST:
                     cpIndex = operands[0];
@@ -278,11 +278,6 @@ public class BVM {
                 case InstructionCodes.RCONST_NULL:
                     i = operands[0];
                     sf.refRegs[i] = null;
-                    break;
-                case InstructionCodes.BICONST:
-                    cpIndex = operands[0];
-                    i = operands[1];
-                    sf.intRegs[i] = ((ByteCPEntry) sf.constPool[cpIndex]).getValue();
                     break;
                 case InstructionCodes.BACONST:
                     cpIndex = operands[0];
@@ -367,11 +362,8 @@ public class BVM {
                 case InstructionCodes.REF_NEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.IAND:
-                case InstructionCodes.BIAND:
                 case InstructionCodes.IOR:
-                case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
-                case InstructionCodes.BIXOR:
                 case InstructionCodes.BILSHIFT:
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
@@ -527,7 +519,7 @@ public class BVM {
                     BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
                             typeEntry.getType());
                     sf.refRegs[j] = functionPointer;
-                    findAndAddAdditionalVarRegIndexes(sf, operands, functionPointer);
+                    findAndAddAdditionalVarRegIndexesInFuncPointerLoad(sf, operands, functionPointer);
                     break;
                 case InstructionCodes.VFPLOAD:
                     i = operands[0];
@@ -550,7 +542,7 @@ public class BVM {
 
                     BFunctionPointer fPointer = new BFunctionPointer(attachedFuncInfo, typeEntry.getType());
                     sf.refRegs[j] = fPointer;
-                    findAndAddAdditionalVarRegIndexes(sf, operands, fPointer);
+                    findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(sf, operands, fPointer);
                     break;
 
                 case InstructionCodes.I2ANY:
@@ -586,11 +578,8 @@ public class BVM {
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2D:
                 case InstructionCodes.I2BI:
-                case InstructionCodes.BI2I:
                 case InstructionCodes.F2BI:
-                case InstructionCodes.BI2F:
                 case InstructionCodes.D2BI:
-                case InstructionCodes.BI2D:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -959,10 +948,8 @@ public class BVM {
             int argReg = argRegs[i];
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
-                    callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
-                    break;
                 case TypeTags.BYTE_TAG:
-                    callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
+                    callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
                     break;
                 case TypeTags.FLOAT_TAG:
                     callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
@@ -1053,111 +1040,22 @@ public class BVM {
             return invokeCallable(ctx, functionInfo, argRegs, funcCallCPEntry.getRetRegs()[0], flags);
         }
 
+        // There are closure variables.
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];
         System.arraycopy(argRegs, 0, newArgRegs, closureVars.size(), argRegs.length);
         int argRegIndex = 0;
-
-        int longIndex = expandLongRegs(sf, fp);
-        int doubleIndex = expandDoubleRegs(sf, fp);
-        int intIndex = expandIntRegs(sf, fp);
-        int stringIndex = expandStringRegs(sf, fp);
+        // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
+        // registry.
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
-            switch (closure.getType().getTag()) {
-                case TypeTags.INT_TAG: {
-                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
-                    newArgRegs[argRegIndex++] = longIndex++;
-                    break;
-                }
-                case TypeTags.BYTE_TAG: {
-                    sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
-                    newArgRegs[argRegIndex++] = intIndex++;
-                    break;
-                }
-                case TypeTags.FLOAT_TAG: {
-                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
-                    newArgRegs[argRegIndex++] = doubleIndex++;
-                    break;
-                }
-                case TypeTags.BOOLEAN_TAG: {
-                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
-                    newArgRegs[argRegIndex++] = intIndex++;
-                    break;
-                }
-                case TypeTags.STRING_TAG: {
-                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
-                    newArgRegs[argRegIndex++] = stringIndex++;
-                    break;
-                }
-                default:
-                    sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
-                    newArgRegs[argRegIndex++] = refIndex++;
-            }
+            sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
+            newArgRegs[argRegIndex++] = refIndex++;
         }
 
         return invokeCallable(ctx, functionInfo, newArgRegs, funcCallCPEntry.getRetRegs()[0], flags);
     }
 
-    private static int expandLongRegs(StackFrame sf, BFunctionPointer fp) {
-        int longIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
-            if (sf.longRegs == null) {
-                sf.longRegs = new long[0];
-            }
-            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
-            System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
-            longIndex = sf.longRegs.length;
-            sf.longRegs = newLongRegs;
-        }
-        return longIndex;
-    }
-
-    private static int expandIntRegs(StackFrame sf, BFunctionPointer fp) {
-        int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0 ||
-                fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
-            if (sf.intRegs == null) {
-                sf.intRegs = new int[0];
-            }
-            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) +
-                    fp.getAdditionalIndexCount(BTypes.typeByte.getTag())];
-            System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
-            intIndex = sf.intRegs.length;
-            sf.intRegs = newIntRegs;
-        }
-        return intIndex;
-    }
-
-    private static int expandDoubleRegs(StackFrame sf, BFunctionPointer fp) {
-        int doubleIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
-            if (sf.doubleRegs == null) {
-                sf.doubleRegs = new double[0];
-            }
-            double[] newDoubleRegs = new double[sf.doubleRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
-            System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
-            doubleIndex = sf.doubleRegs.length;
-            sf.doubleRegs = newDoubleRegs;
-        }
-        return doubleIndex;
-    }
-
-    private static int expandStringRegs(StackFrame sf, BFunctionPointer fp) {
-        int stringIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
-            if (sf.stringRegs == null) {
-                sf.stringRegs = new String[0];
-            }
-            String[] newStringRegs = new String[sf.stringRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
-            System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
-            stringIndex = sf.stringRegs.length;
-            sf.stringRegs = newStringRegs;
-        }
-        return stringIndex;
-    }
 
     private static int expandRefRegs(StackFrame sf, BFunctionPointer fp) {
         int refIndex = 0;
@@ -1174,8 +1072,8 @@ public class BVM {
         return refIndex;
     }
 
-    private static void findAndAddAdditionalVarRegIndexes(StackFrame sf, int[] operands,
-                                                          BFunctionPointer fp) {
+    private static void findAndAddAdditionalVarRegIndexesInFuncPointerLoad(StackFrame sf, int[] operands,
+                                                                           BFunctionPointer fp) {
 
         int h = operands[3];
 
@@ -1184,7 +1082,24 @@ public class BVM {
             return;
         }
 
-        //or else, this is a closure related scenario
+        //or else, this is a closure related scenario.
+        for (int i = 0; i < h; i++) {
+            int operandIndex = i + 4;
+            int index = operands[operandIndex];
+            // Closure variables will be always passed as maps of <any|error?> type, so they will be always in the ref
+            // registry.
+            fp.addClosureVar(new BClosure(sf.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
+        }
+    }
+
+    private static void findAndAddAdditionalVarRegIndexesInVirtualFuncPointerLoad(StackFrame sf, int[] operands,
+                                                                                  BFunctionPointer fp) {
+        int h = operands[3];
+        //if '0', then there are no additional indexes needs to be processed.
+        if (h == 0) {
+            return;
+        }
+        //or else, this is a closure related scenario.
         for (int i = 0; i < h; i++) {
             int operandIndex = i + 4;
             int type = operands[operandIndex];
@@ -1196,8 +1111,10 @@ public class BVM {
                     break;
                 }
                 case TypeTags.BYTE_TAG: {
-                    fp.addClosureVar(new BClosure(new BByte((byte) sf.intRegs[index]), BTypes.typeByte),
-                            TypeTags.BYTE_TAG);
+                    // 'byte' values are stored in long registry and treated similar to 'int' values.
+                    // Hence, modifying the int index for byte as well.
+                    fp.addClosureVar(new BClosure(new BByte(sf.longRegs[index]), BTypes.typeByte),
+                            TypeTags.INT_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
@@ -1421,7 +1338,7 @@ public class BVM {
                 k = operands[2];
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
+                    sf.longRegs[k] = Byte.toUnsignedLong(bValueArray.getByte(sf.longRegs[j]));
                 } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
@@ -1583,7 +1500,7 @@ public class BVM {
                 k = operands[2];
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], (byte) sf.longRegs[k]);
                 } catch (BLangFreezeException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
@@ -2035,24 +1952,6 @@ public class BVM {
                 }
                 sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                 break;
-            case InstructionCodes.BIAND:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] & sf.intRegs[j];
-                break;
-            case InstructionCodes.BIOR:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] | sf.intRegs[j];
-                break;
-            case InstructionCodes.BIXOR:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] ^ sf.intRegs[j];
-                break;
             case InstructionCodes.IAND:
                 i = operands[0];
                 j = operands[1];
@@ -2075,13 +1974,13 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = (byte) (sf.intRegs[i] << sf.longRegs[j]);
+                sf.longRegs[k] = Byte.toUnsignedLong((byte) (sf.longRegs[i] << sf.longRegs[j]));
                 break;
             case InstructionCodes.BIRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = (byte) (sf.intRegs[i] >>> sf.longRegs[j]);
+                sf.longRegs[k] = Byte.toUnsignedLong((byte) ((byte) sf.longRegs[i] >> sf.longRegs[j]));
                 break;
             case InstructionCodes.IRSHIFT:
                 i = operands[0];
@@ -2285,7 +2184,7 @@ public class BVM {
                             sf.refRegs[j] = ((BDecimal) bRefTypeValue);
                             break;
                         case TypeTags.BYTE_TAG:
-                            sf.intRegs[j] = ((BByte) bRefTypeValue).byteValue();
+                            sf.longRegs[j] = ((BByte) bRefTypeValue).byteValue();
                             break;
                         default:
                             sf.refRegs[j] = bRefTypeValue;
@@ -2310,7 +2209,7 @@ public class BVM {
             case InstructionCodes.BI2ANY:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BByte((byte) sf.intRegs[i]);
+                sf.refRegs[j] = new BByte(sf.longRegs[i]);
                 break;
             case InstructionCodes.F2ANY:
                 i = operands[0];
@@ -2335,7 +2234,7 @@ public class BVM {
             case InstructionCodes.ANY2BI:
                 i = operands[0];
                 j = operands[1];
-                sf.intRegs[j] = ((BValueType) sf.refRegs[i]).byteValue();
+                sf.longRegs[j] = ((BValueType) sf.refRegs[i]).byteValue();
                 break;
             case InstructionCodes.ANY2F:
                 i = operands[0];
@@ -2462,7 +2361,7 @@ public class BVM {
                     if (isRefTypeTarget) {
                         sf.refRegs[regIndex] = new BByte(((BValueType) bRefTypeValue).byteValue());
                     } else {
-                        sf.intRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
+                        sf.longRegs[regIndex] = ((BValueType) bRefTypeValue).byteValue();
                     }
                     break;
                 default:
@@ -2519,12 +2418,7 @@ public class BVM {
                     handleError(ctx);
                     break;
                 }
-                sf.intRegs[j] = new BByte((byte) sf.longRegs[i]).byteValue();
-                break;
-            case InstructionCodes.BI2I:
-                i = operands[0];
-                j = operands[1];
-                sf.longRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
+                sf.longRegs[j] = sf.longRegs[i];
                 break;
             case InstructionCodes.F2BI:
                 i = operands[0];
@@ -2548,12 +2442,7 @@ public class BVM {
                     handleError(ctx);
                     break;
                 }
-                sf.intRegs[j] = (byte) floatAsIntVal;
-                break;
-            case InstructionCodes.BI2F:
-                i = operands[0];
-                j = operands[1];
-                sf.doubleRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
+                sf.longRegs[j] = floatAsIntVal;
                 break;
             case InstructionCodes.D2BI:
                 i = operands[0];
@@ -2570,7 +2459,7 @@ public class BVM {
                     break;
                 }
 
-                long doubleAsIntVal = Math.round(Math.round(((BDecimal) sf.refRegs[i]).decimalValue().doubleValue()));
+                long doubleAsIntVal = Math.round(((BDecimal) sf.refRegs[i]).floatValue());
                 if (!isByteLiteral(doubleAsIntVal)) {
                     ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                                            "'" + TypeConstants.DECIMAL_TNAME + "' value '" +
@@ -2579,14 +2468,7 @@ public class BVM {
                     handleError(ctx);
                     break;
                 }
-                sf.intRegs[j] = (byte) doubleAsIntVal;
-                break;
-            case InstructionCodes.BI2D:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BDecimal((new BigDecimal(Byte.toUnsignedInt((byte) sf.intRegs[i]),
-                                                             MathContext.DECIMAL128))
-                                                     .setScale(1, BigDecimal.ROUND_HALF_EVEN));
+                sf.longRegs[j] = doubleAsIntVal;
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];
@@ -3491,7 +3373,7 @@ public class BVM {
                 result = new BInteger(data.longRegs[reg]);
                 break;
             case TypeTags.BYTE_TAG:
-                result = new BByte((byte) data.intRegs[reg]);
+                result = new BByte(data.longRegs[reg]);
                 break;
             case TypeTags.FLOAT_TAG:
                 result = new BFloat(data.doubleRegs[reg]);
@@ -3521,7 +3403,7 @@ public class BVM {
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
                 break;
             case TypeTags.BYTE_TAG:
-                currentSF.intRegs[regIndex] = ((BByte) passedInValue).byteValue();
+                currentSF.longRegs[regIndex] = ((BByte) passedInValue).byteValue();
                 break;
             case TypeTags.FLOAT_TAG:
                 currentSF.doubleRegs[regIndex] = ((BFloat) passedInValue).floatValue();
@@ -3760,7 +3642,7 @@ public class BVM {
 
         switch (type.getTag()) {
             case TypeTags.MAP_TAG:
-                return isAnydata(((BMapType) type).getConstrainedType(), unresolvedTypes);
+                return isPureType(((BMapType) type).getConstrainedType(), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 if (unresolvedTypes.contains(type)) {
                     return true;
@@ -3770,14 +3652,14 @@ public class BVM {
                 List<BType> fieldTypes = recordType.getFields().values().stream()
                                                    .map(BField::getFieldType)
                                                    .collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) && (recordType.sealed ||
-                        isAnydata(recordType.restFieldType, unresolvedTypes));
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION_TAG:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE_TAG:
-                return isAnydata(((BTupleType) type).getTupleTypes(), unresolvedTypes);
+                return isPureType(((BTupleType) type).getTupleTypes(), unresolvedTypes);
             case TypeTags.ARRAY_TAG:
-                return isAnydata(((BArrayType) type).getElementType(), unresolvedTypes);
+                return isPureType(((BArrayType) type).getElementType(), unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
                                                                           .map(BValue::getType)
@@ -3790,6 +3672,19 @@ public class BVM {
 
     private static boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return isAnydata(type, unresolvedTypes) || type.getTag() == TypeTags.ERROR_TAG;
+    }
+
+    private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
 
     private static BType getElementType(BType type) {
@@ -4367,7 +4262,7 @@ public class BVM {
         }
         return null;
     }
-    
+
     private static boolean execWait(Strand strand, int[] operands) {
         int c = operands[0];
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
@@ -4441,7 +4336,6 @@ public class BVM {
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.SERVICE_TAG:
                 BObjectType objType = (BObjectType) mapType;
                 BField objField = objType.getFields().get(fieldName);
                 BType objFieldType = objField.getFieldType();
@@ -4514,7 +4408,7 @@ public class BVM {
             return true;
         }
 
-        return checkCast(value, constraintType, new ArrayList<>());
+        return checkIsType(value, constraintType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
@@ -4914,7 +4808,7 @@ public class BVM {
         }
 
         return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.detailsType, unresolvedValues);
+                checkIsLikeType(((BError) sourceValue).details, targetType.detailType, unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
@@ -4941,7 +4835,6 @@ public class BVM {
             case TypeTags.BYTE_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.XML_TAG:
-            case TypeTags.SERVICE_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return ((BFiniteType) sourceType).valueSpace.stream()
                             .allMatch(bValue -> checkIsType(bValue, targetType));
@@ -4967,7 +4860,8 @@ public class BVM {
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
-                return isAssignable(sourceType, targetType, unresolvedTypes);
+                return targetType instanceof BServiceType ? sourceType.getTag() == targetType.getTag() :
+                        isAssignable(sourceType, targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkIsFiniteType(sourceType, (BFiniteType) targetType, unresolvedTypes);
             case TypeTags.FUTURE_TAG:
@@ -5172,7 +5066,8 @@ public class BVM {
         if (sourceConstraint == null) {
             if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 BRecordType targetConstrRecord = (BRecordType) targetConstraint;
-                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
+                return !targetConstrRecord.sealed && checkIsType(targetConstrRecord.restFieldType,
+                                                                 BTypes.typePureType, new ArrayList<>());
             }
             return false;
         }

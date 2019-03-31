@@ -20,21 +20,20 @@
 # + moduleName - Module name
 # + fileName - File name
 # + lineNumber - Line number
-public type CallStackElement record {
+public type CallStackElement record {|
     string callableName;
     string moduleName;
     string fileName;
     int lineNumber;
-    !...;
-};
+|};
 
 # Retrieves the Call Stack
 #
 # + return - Array of `CallStackElement` elements
-public extern function getCallStack() returns CallStackElement[];
+public function getCallStack() returns CallStackElement[] = external;
 
 # Retrieves the Call Stack Frame for a particular error
 #
 # + e - optional `error` instance
 # + return - Array of `CallStackElement` elements
-public extern function getErrorCallStackFrame(error? e) returns CallStackElement[];
+public function getErrorCallStackFrame(error? e) returns CallStackElement[] = external;

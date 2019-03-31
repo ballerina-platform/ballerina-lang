@@ -15,17 +15,18 @@
 // under the License.
 
 import ballerina/config;
+import ballerina/crypto;
+import ballerina/encoding;
 import ballerina/runtime;
 
 const string CONFIG_USER_SECTION = "b7a.users";
 
 # Represents configurations that required for Config auth store.
 #
-public type ConfigAuthProviderConfig record {
-    !...;
-};
+public type ConfigAuthProviderConfig record {|
+|};
 
-# Represents Ballerina configuration file based auth store provider
+# Represents Ballerina configuration file based auth store provider.
 #
 # + configAuthProviderConfig - Config auth store configurations
 public type ConfigAuthStoreProvider object {
@@ -39,23 +40,51 @@ public type ConfigAuthStoreProvider object {
         self.configAuthProviderConfig = configAuthProviderConfig;
     }
 
-    # Attempts to authenticate with username and password
+    # Attempts to authenticate with username and password.
     #
     # + user - user name
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
-        boolean isAuthenticated = password == self.readPassword(user);
-            if(isAuthenticated){
-                runtime:Principal principal = runtime:getInvocationContext().principal;
-                principal.userId = user;
-                // By default set userId as username.
-                principal.username = user;
-            }
-            return isAuthenticated;
+        if (user == EMPTY_STRING || password == EMPTY_STRING) {
+            return false;
         }
+        string passwordFromConfig = self.readPassword(user);
+        boolean isAuthenticated = false;
+        // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
+        if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
+            if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA256)) {
+                isAuthenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
+                                    .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA384)) {
+                isAuthenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
+                                    .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA512)) {
+                isAuthenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
+                                    .equalsIgnoreCase(self.extractHash(passwordFromConfig));
+            } else {
+                isAuthenticated = password == passwordFromConfig;
+            }
+        } else {
+            isAuthenticated = password == passwordFromConfig;
+        }
+        if (isAuthenticated) {
+            runtime:Principal principal = runtime:getInvocationContext().principal;
+            principal.userId = user;
+            principal.username = user;
+        }
+        return isAuthenticated;
+    }
 
-    # Reads the scope(s) for the user with the given username
+    # Extract password hash from the configuration file.
+    #
+    # + configValue - config value to extract the password from
+    # + return - password hash extracted from the configuration field
+    public function extractHash(string configValue) returns string {
+        return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}"));
+    }
+
+    # Reads the scope(s) for the user with the given username.
     #
     # + username - username
     # + return - array of groups for the user denoted by the username
@@ -65,7 +94,7 @@ public type ConfigAuthStoreProvider object {
         return self.getArray(self.getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
     }
 
-    # Reads the password hash for a user
+    # Reads the password hash for a user.
     #
     # + username - username
     # + return - password hash read from userstore, or nil if not found
@@ -76,10 +105,10 @@ public type ConfigAuthStoreProvider object {
     }
 
     public function getConfigAuthValue(string instanceId, string property) returns string {
-        return config:getAsString(instanceId + "." + property, default = "");
+        return config:getAsString(instanceId + "." + property, defaultValue = "");
     }
 
-    # Construct an array of groups from the comma separed group string passed
+    # Construct an array of groups from the comma separed group string passed.
     #
     # + groupString - comma separated string of groups
     # + return - array of groups, nil if the groups string is empty/nil

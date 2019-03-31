@@ -31,11 +31,10 @@ map<Cache> cacheMap = {};
 #
 # + value - cache value
 # + lastAccessedTime - last accessed time in ms of this value which is used to remove LRU cached values
-type CacheEntry record {
+type CacheEntry record {|
     any value;
     int lastAccessedTime;
-    !...;
-};
+|};
 
 # Represents a cache.
 public type Cache object {
@@ -78,9 +77,16 @@ public type Cache object {
         };
         task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
 
-        _ = cacheCleanupTimer.attach(cacheCleanupService);
-        _ = cacheCleanupTimer.start();
-
+        var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
+        if (attachCacheCleanerResult is error) {
+            error e = error("Failed to create the cache cleanup task.", { message : attachCacheCleanerResult.detail().message });
+            panic e;
+        }
+        var timerStartResult = cacheCleanupTimer.start();
+        if (timerStartResult is error) {
+            error e = error("Failed to start the cache cleanup task.", { message : timerStartResult.detail().message });
+            panic e;
+        }
     }
 
     # Checks whether the given key has an accociated cache value.
@@ -319,6 +325,6 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 # Cleanup service which cleans the cache periodically.
 service cacheCleanupService = service {
     resource function onTrigger() {
-        _ = runCacheExpiry();
+        checkpanic runCacheExpiry();
     }
 };

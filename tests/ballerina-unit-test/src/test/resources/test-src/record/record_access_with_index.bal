@@ -107,15 +107,14 @@ function testExpressionAsStructIndex() returns string {
     }
 }
 
-type Foo record {
+type Foo record {|
     string fieldOne;
     int fieldTwo;
     boolean fieldThree;
     () fieldFour;
     float fieldFive;
     decimal fieldSix;
-    !...;
-};
+|};
 
 function testDynamicIndexAccessTypes() returns string {
     Foo f = {
@@ -228,7 +227,7 @@ function testDynamicIndexAccessTypesWithOpenRecord() returns string {
     int[5] indexArr = [1, 2, 3, 4, 5];
 
     foreach var index in indexArr {
-        Obj|(function (int) returns int)|json|anydata? res = fb[getIndex(index)];
+        Obj|(function (int) returns int)|json|anydata|error res = fb[getIndex(index)];
         if (res is Obj) {
             result += io:sprintf(":object:%s", res.getIntField());
             continue;
@@ -289,10 +288,9 @@ function testDynamicIndexAccessWithSingleType() returns int {
     return marks;
 }
 
-type Quux record {
+type Quux record {|
     Qux fieldOne;
-    !...;
-};
+|};
 
 function testDynamicIndexAccessWithRecordInsideRecord() returns (int?, int?) {
     Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
@@ -330,10 +328,10 @@ function testFiniteTypeAsIndex() returns string {
     Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
     FooQux foo = { fieldOne: "string", fieldTwo: bar, fieldThree: 98.9, fieldFour: 12, fieldFive: q };
 
-    string|boolean|Bar|float|Obj|anydata? r1 = foo[index1];
+    string|boolean|Bar|float|Obj|anydata|error r1 = foo[index1];
     var r2 = foo[index2];
-    string|boolean|Bar|float|Obj|anydata? r3 = foo[index3];
-    string|boolean|Bar|float|Obj|anydata? r4 = foo[index4];
+    string|boolean|Bar|float|Obj|anydata|error r3 = foo[index3];
+    string|boolean|Bar|float|Obj|anydata|error r4 = foo[index4];
 
     string result = "";
     if r1 is string {

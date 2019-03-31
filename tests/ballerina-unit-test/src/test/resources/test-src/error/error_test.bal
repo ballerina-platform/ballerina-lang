@@ -16,7 +16,7 @@ function errorConstructDetailTest() returns (error, error, error, any, any, any)
     error er1 = error("error1", { message: "msg1" });
 
     string s = "error2";
-    map<any> m2 = { message: "msg2" };
+    map<anydata> m2 = { message: "msg2" };
     error er2 = error(s, m2);
 
     map<string> reason = { k1: "error3" };
@@ -46,12 +46,11 @@ function errorTrapTest(int i) returns string|error {
 
 type TrxError error<string, TrxErrorData>;
 
-type TrxErrorData record {
+type TrxErrorData record {|
     string message = "";
     error? cause = ();
     string data = "";
-    !...;
-};
+|};
 
 public function testCustomErrorDetails() returns error {
     TrxError err = error("trxErr", { data: "test" });
@@ -109,7 +108,7 @@ function testOneLinePanic() returns string[] {
         results[3] = error3.reason();
         var detail = error3.detail();
         results[4] = <string>detail.message;
-        results[5] = string.convert(detail.statusCode);
+        results[5] = string.convert(<int> detail.statusCode);
     }
 
     return results;
@@ -131,6 +130,18 @@ type DetailRec record {
 function panicWithReasonAndDetailRecord() {
     DetailRec detail = { message: "Something Went Wrong", statusCode: 1 };
     panic error("Error3", detail);
+}
+
+function testGenericErrorWithDetailRecord() returns boolean {
+    string reason = "error reason 1";
+    string detailMessage = "Something Went Wrong";
+    int detailStatusCode = 123;
+    DetailRec detail = { message: detailMessage, statusCode: detailStatusCode };
+    error e = error(reason, detail);
+    string errReason = e.reason();
+    map<anydata|error> errDetail = e.detail();
+    return errReason == reason && <string> errDetail.message == detailMessage &&
+            <int> errDetail.statusCode == detailStatusCode;
 }
 
 type ErrorReasons "reason one"|"reason two";
@@ -156,8 +167,19 @@ function testErrorConstrWithConstForConstReason() returns error {
     return e;
 }
 
-
 function testErrorConstrWithConstLiteralForConstReason() returns error {
     UserDefErrorTwo e = error("reason one", { message: "error detail message" });
     return e;
+}
+
+type MyError error<string, map<MyError>>;
+
+function testCustomErrorWithMappingOfSelf() returns boolean {
+    MyError e1 = error(ERROR_REASON_ONE, {});
+    MyError e2 = error(ERROR_REASON_TWO, { err: e1 });
+
+    boolean errOneInitSuccesful = e1.reason() == ERROR_REASON_ONE && e1.detail().length() == 0;
+    boolean errTwoInitSuccesful = e2.reason() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
+                e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
+    return errOneInitSuccesful && errTwoInitSuccesful;
 }

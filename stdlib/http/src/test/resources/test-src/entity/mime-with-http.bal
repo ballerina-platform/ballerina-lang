@@ -22,7 +22,7 @@ service echo on mockEP {
         }
 
         response.setEntity(responseEntity);
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 }
 

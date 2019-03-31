@@ -43,7 +43,11 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"recordTest2.json", "toplevel"},
                 {"globalVarDef1.json", "toplevel"},
                 {"globalVarDefPackageContent.json", "toplevel"},
-                {"suggestionAfterExtern.json", "toplevel"},
+//                {"suggestionAfterExtern.json", "toplevel"},
+                {"topLevelCompletionAfterDocumentation.json", "toplevel"},
+                {"importStatement1.json", "toplevel"},
+                {"importStatement2.json", "toplevel"},
+                {"importStatement3.json", "toplevel"},
         };
     }
 }

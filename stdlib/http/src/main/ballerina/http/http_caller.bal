@@ -140,66 +140,64 @@ public type HttpCaller client object {
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
-    public remote extern function getResponse(HttpFuture httpFuture) returns Response|error;
+    public remote function getResponse(HttpFuture httpFuture) returns Response|error = external;
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public remote extern function hasPromise(HttpFuture httpFuture) returns (boolean);
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean = external;
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an `error` if the invocation fails
-    public remote extern function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error = external;
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public remote extern function getPromisedResponse(PushPromise promise) returns Response|error;
+    public remote function getPromisedResponse(PushPromise promise) returns Response|error = external;
 
     # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
-    public remote extern function rejectPromise(PushPromise promise);
+    public remote function rejectPromise(PushPromise promise) = external;
 };
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-extern function nativePost(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativePost(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeHead(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeHead(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativePut(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativePut(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeExecute(string url, ClientEndpointConfig config, @sensitive string httpVerb, @sensitive string path,
-                                                        Request req) returns Response|error;
+function nativeExecute(string url, ClientEndpointConfig config, @sensitive string httpVerb, @sensitive string path,
+                                                        Request req) returns Response|error = external;
 
-extern function nativePatch(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativePatch(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeDelete(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeDelete(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeGet(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeGet(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeOptions(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeOptions(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeSubmit(string url, ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
-                                                            returns HttpFuture|error;
+function nativeSubmit(string url, ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
+                                                            returns HttpFuture|error = external;
 
-extern function nativeForward(string url, ClientEndpointConfig config, @sensitive string path, Request req)
-                                                            returns Response|error;
+function nativeForward(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
 # Defines a timeout error occurred during service invocation.
 #
 # + message - An explanation on what went wrong
 # + cause - The error which caused the `HttpTimeoutError`
 # + statusCode - HTTP status code
-public type HttpTimeoutError record {
+public type HttpTimeoutError record {|
     string message = "";
     error? cause = ();
     int statusCode = 0;
-    !...;
-};
+|};
 

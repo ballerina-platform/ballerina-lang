@@ -179,6 +179,29 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
+     * A new instruction.
+     * <p>
+     * e.g., object{int i;}  a = new;
+     *
+     * @since 0.995.0
+     */
+    public static class NewInstance extends BIRNonTerminator {
+        public BIRTypeDefinition def;
+        public BIROperand lhsOp;
+
+        public NewInstance(DiagnosticPos pos, BIRTypeDefinition def, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_INSTANCE);
+            this.lhsOp = lhsOp;
+            this.def = def;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A new array instruction.
      * <p>
      * e.g., map a = {}
@@ -326,28 +349,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.type = type;
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
-     * A panic statement.
-     * <p>
-     * panic error
-     *
-     * @since 0.995.0
-     */
-    public static class Panic extends BIRNonTerminator {
-
-        public BIROperand errorOp;
-
-        public Panic(DiagnosticPos pos, InstructionKind kind, BIROperand errorOp) {
-            super(pos, kind);
-            this.errorOp = errorOp;
         }
 
         @Override

@@ -1,5 +1,20 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
-public type Package record {
+public type Package record {|
     ImportModule[] importModules = [];
     TypeDef?[] typeDefs = [];
     GlobalVariableDcl?[] globalVars;
@@ -9,8 +24,7 @@ public type Package record {
     BType?[] types = [];
     Name versionValue = {};
     Name sourceFileName;
-    !...;
-};
+|};
 
 public type ImportModule record {
     Name modOrg;
@@ -22,38 +36,34 @@ public type TypeDef record {
     Name name = {};
     Visibility visibility = "PACKAGE_PRIVATE";
     BType typeValue = "()";
+    Function?[]? attachedFuncs = ();
 };
 
-public type Function record {
+public type Function record {|
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
-    ErrorEntry[] errorEntries = [];
+    ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
     VariableDcl?[] localVars = [];
     Name name = {};
     BInvokableType typeValue = {};
     Visibility visibility = "PACKAGE_PRIVATE";
-    !...;
-};
+|};
 
-public type BasicBlock record {
+public type BasicBlock record {|
     Name id = {};
     Instruction?[] instructions = [];
     Terminator terminator = {pos:{}, kind:"RETURN"};
-    !...;
-};
+|};
 
-public type ErrorEntry record {
-    Name fromBlockId;
-    int fromIp;
-    Name toBlockId;
-    int toIp;
-};
+public type ErrorEntry record {|
+    BasicBlock trapBB;
+    VarRef errorOp;
+|};
 
-public type Name record {
+public type Name record {|
     string value = "";
-    !...;
-};
+|};
 
 public const BINARY_ADD = "ADD";
 public const BINARY_SUB = "SUB";
@@ -75,6 +85,7 @@ public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|
 public const INS_KIND_MOVE = "MOVE";
 public const INS_KIND_CONST_LOAD = "CONST_LOAD";
 public const INS_KIND_NEW_MAP = "NEW_MAP";
+public const INS_KIND_NEW_INST = "NEW_INST";
 public const INS_KIND_MAP_STORE = "MAP_STORE";
 public const INS_KIND_NEW_ARRAY = "NEW_ARRAY";
 public const INS_KIND_ARRAY_STORE = "ARRAY_STORE";
@@ -84,21 +95,21 @@ public const INS_KIND_NEW_ERROR = "NEW_ERROR";
 public const INS_KIND_TYPE_CAST = "TYPE_CAST";
 public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
-public const INS_KIND_NEW_PANIC = "PANIC";
 
-public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
+public type InstructionKind INS_KIND_MOVE|INS_KIND_CONST_LOAD|INS_KIND_NEW_MAP|INS_KIND_NEW_INST|INS_KIND_MAP_STORE|INS_KIND_NEW_ARRAY
                                 |INS_KIND_NEW_ERROR|INS_KIND_ARRAY_STORE|INS_KIND_MAP_LOAD|INS_KIND_ARRAY_LOAD
-                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|INS_KIND_NEW_PANIC
-                                |BinaryOpInstructionKind;
+                                |INS_KIND_TYPE_CAST|INS_KIND_IS_LIKE|INS_KIND_TYPE_TEST|BinaryOpInstructionKind;
 
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
+public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
+public const TERMINATOR_PANIC = "PANIC";
 
-public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN;
-
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
+                                |TERMINATOR_PANIC;
 
 //TODO try to make below details meta
 public type LocalVarKind "LOCAL";
@@ -131,14 +142,13 @@ public type VariableDcl record {
     anydata...; // This is to type match with Object type fields in subtypes
 };
 
-public type GlobalVariableDcl record {
+public type GlobalVariableDcl record {|
     VarKind kind = "GLOBAL";
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     BType typeValue = "()";
     Visibility visibility = "PACKAGE_PRIVATE";
-    !...;
-};
+|};
 
 public const TYPE_ANY = "any";
 public type BTypeAny TYPE_ANY;
@@ -167,44 +177,41 @@ public type BTypeString TYPE_STRING;
 public const TYPE_BYTE = "byte";
 public type BTypeByte TYPE_BYTE;
 
-public type BArrayType record {
+public const TYPE_JSON = "json";
+public type BJSONType TYPE_JSON;
+
+public type BArrayType record {|
     ArrayState state;
     BType eType;
-    !...;
-};
+|};
 
-public type BMapType record {
+public type BMapType record {|
     BType constraint;
-    !...;
-};
+|};
 
-public type BErrorType record {
+public type BErrorType record {|
     BType reasonType;
     BType detailType;
-    !...;
-};
+|};
 
-public type BRecordType record {
+public type BRecordType record {|
     Name name = {};
     boolean sealed;
     BType restFieldType;
     BRecordField?[] fields = [];
-    !...;
-};
+|};
 
-public type BObjectType record {
+public type BObjectType record {|
     Name name = {};
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
-    !...;
-};
+|};
 
-public type BAttachedFunction record {
+public type BAttachedFunction record {|
     Name name = {};
     BInvokableType funcType;
     Visibility visibility;
-    !...;
-};
+|};
 
 public type BRecordField record {
     Name name;
@@ -219,29 +226,29 @@ public type BObjectField record {
     //TODO add position
 };
 
-public type BUnionType record {
+public type BUnionType record {|
    BType[]  members;
-   !...;
-};
+|};
 
-public type BTupleType record {
+public type BTupleType record {|
    BType[]  tupleTypes;
-   !...;
-};
+|};
 
+public type BFutureType record {|
+    BType returnType;
+|};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType;
 
-public type ModuleID record {
+public type ModuleID record {|
     string org = "";
     string name = "";
     string modVersion = "";
     boolean isUnnamed = false;
     string sourceFilename = "";
-    !...;
-};
+|};
 
 public type BInvokableType record {
     BType[] paramTypes = [];
@@ -267,97 +274,112 @@ public type Terminator record {
     TerminatorKind kind;
 };
 
-public type DiagnosticPos record {
+public type DiagnosticPos record {|
     int sLine = -1;
     int sCol = -1;
-    !...;
-};
+|};
 
-public type ConstantLoad record {
+public type ConstantLoad record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
     int | string | boolean | float | () value;
-    !...;
-};
+|};
 
-public type NewMap record {
+public type NewMap record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     BType typeValue;
-    !...;
-};
+|};
 
-public type NewArray record {
+public type NewInstance record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    TypeDef typeDef;
+    VarRef lhsOp;
+|};
+
+public type NewArray record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef sizeOp;
     BType typeValue;
-    !...;
-};
+|};
 
-public type FieldAccess record {
+public type NewError record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef reasonOp;
+    VarRef detailsOp;
+|};
+
+public type FieldAccess record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    !...;
-};
+|};
 
-public type TypeCast record {
+public type TypeCast record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
-    !...;
-};
+|};
 
-public type IsLike record {
-    DiagnosticPos pos;
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef rhsOp;
-    BType typeValue;
-    !...;
-};
-
-public type TypeTest record {
+public type IsLike record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
     BType typeValue;
-    !...;
-};
+|};
 
-public type VarRef record {
+public type TypeTest record {|
+    DiagnosticPos pos;
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+    BType typeValue;
+|};
+
+public type VarRef record {|
     BType typeValue;
     VariableDcl variableDcl;
-    !...;
-};
+|};
 
-public type Move record {
+public type Move record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
-    !...;
-};
+|};
 
-public type BinaryOp record {
+public type BinaryOp record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp1;
     VarRef rhsOp2;
-    !...;
-};
+|};
 
-public type Call record {
+public type Call record {|
+    DiagnosticPos pos;
+    VarRef?[] args;
+    TerminatorKind kind;
+    VarRef? lhsOp;
+    ModuleID pkgID;
+    Name name;
+    boolean isVirtual;
+    BasicBlock thenBB;
+|};
+
+public type AsyncCall record {|
     DiagnosticPos pos;
     VarRef?[] args;
     TerminatorKind kind;
@@ -365,43 +387,30 @@ public type Call record {
     ModuleID pkgID;
     Name name;
     BasicBlock thenBB;
-    !...;
-};
+|};
 
-public type Branch record {
+public type Branch record {|
     DiagnosticPos pos;
     BasicBlock falseBB;
     TerminatorKind kind;
     VarRef op;
     BasicBlock trueBB;
-    !...;
-};
+|};
 
-public type GOTO record {
+public type GOTO record {|
     DiagnosticPos pos;
     TerminatorKind kind;
     BasicBlock targetBB;
-    !...;
-};
+|};
 
-public type Return record {
+public type Return record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    !...;
-};
+|};
 
-public type NewError record {
-    DiagnosticPos pos;
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef reasonOp;
-    VarRef detailsOp;
-    !...;
-};
 
-public type Panic record {
+public type Panic record {|
     DiagnosticPos pos;
-    InstructionKind kind;
+    TerminatorKind kind;
     VarRef errorOp;
-    !...;
-};
+|};

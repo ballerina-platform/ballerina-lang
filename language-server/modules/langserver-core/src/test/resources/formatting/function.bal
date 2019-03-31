@@ -1,4 +1,6 @@
-import ballerina/io;
+   function name0() {
+
+}
 
 type Person record {
     string name;
@@ -18,7 +20,7 @@ function name4(   string s,float i) {}
 # test annotation
 function name5() {}
 
-public function main(   string... args){}
+     public       function main(   string... args){}
 
 function name6(int a,string... i){}
 
@@ -33,3 +35,16 @@ return ( 0,"");
 function name9() returns ( Person ) {
     return {name:""};
 }
+
+   private      function name10() {
+
+}
+
+          function name11()=external   ;
+
+      public       function name12()     =    external ;
+
+    private      function name13()
+    =
+    external
+    ;

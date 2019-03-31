@@ -62,10 +62,9 @@ function testIterableTypeRecord() {
     test:assertEquals(result, "2.2truevalueThree", msg = "expected record type to iterate over its fields");
 }
 
-public type TableConstraint record {
+public type TableConstraint record {|
     int constraintField;
-    !...;
-};
+|};
 
 @test:Config {}
 function testIterableTypeTable() {
@@ -73,10 +72,19 @@ function testIterableTypeTable() {
     TableConstraint tableEntry2 = { constraintField: 2 };
     TableConstraint tableEntry3 = { constraintField: 3 };
     table<TableConstraint> iterableTable = table{};
-    _ = iterableTable.add(tableEntry1);
-    _ = iterableTable.add(tableEntry2);
-    _ = iterableTable.add(tableEntry3);
+    error? err1 = iterableTable.add(tableEntry1);
+    error? err2 = iterableTable.add(tableEntry2);
+    error? err3 = iterableTable.add(tableEntry3);
 
+    if err1 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+    if err2 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+    if err3 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     int count = 0;
     foreach TableConstraint entry in iterableTable {
         count += entry.constraintField;

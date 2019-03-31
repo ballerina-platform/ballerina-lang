@@ -159,7 +159,7 @@ public class TypeChecker {
             return BTypes.typeNull;
         } else if (value instanceof Long) {
             return BTypes.typeInt;
-        } else if (value instanceof Float) {
+        } else if (value instanceof Double) {
             return BTypes.typeFloat;
         } else if (value instanceof BigDecimal) {
             return BTypes.typeDecimal;
@@ -805,7 +805,8 @@ public class TypeChecker {
     }
 
     private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
-        return new BLangRuntimeException("'" + getType(sourceVal) + "' cannot be cast to '" + targetType + "'");
+        return new BLangRuntimeException("incompatible types: '" + getType(sourceVal) +
+                                                 "' cannot be cast to '" + targetType + "'");
     }
 
     private static boolean isAnydata(BType type) {

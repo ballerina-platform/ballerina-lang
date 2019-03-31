@@ -26,10 +26,9 @@ function testNonSimpleValuesStoredInArrays() {
     test:assertEquals(s2[0][0], I, msg = "expected array member to have been updated");
 }
 
-public type BarRecord record {
+public type BarRecord record {|
     string barFieldOne;
-    !...;
-};
+|};
 
 @test:Config {}
 function testNonSimpleValuesStoredInTuples() {

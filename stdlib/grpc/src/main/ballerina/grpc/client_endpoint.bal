@@ -32,7 +32,7 @@ public type Client client object {
         self.init(self.url, self.config, globalGrpcClientConnPool);
     }
 
-    extern function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig);
+    function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig) = external;
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
@@ -40,8 +40,8 @@ public type Client client object {
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
     # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
-    public extern function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
-                               returns error?;
+    public function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
+                               returns error? = external;
 
     # Calls when executing blocking call with gRPC service.
     #
@@ -49,8 +49,8 @@ public type Client client object {
     # + payload - Request message. Message type varies with remote service method parameter.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
-    public remote extern function blockingExecute(string methodID, any payload, Headers? headers = ())
-                               returns ((any, Headers)|error);
+    public remote function blockingExecute(string methodID, any payload, Headers? headers = ())
+                               returns ((any, Headers)|error) = external;
 
     # Calls when executing non-blocking call with gRPC service.
     #
@@ -59,8 +59,8 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
-    public remote extern function nonBlockingExecute(string methodID, any payload, service listenerService,
-                                              Headers? headers = ()) returns error?;
+    public remote function nonBlockingExecute(string methodID, any payload, service listenerService,
+                                              Headers? headers = ()) returns error? = external;
 
 
     # Calls when executing streaming call with gRPC service.
@@ -69,8 +69,8 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns client connection if executes successfully, error otherwise.
-    public remote extern function streamingExecute(string methodID, service listenerService, Headers? headers = ())
-                               returns StreamingClient|error;
+    public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ())
+                               returns StreamingClient|error = external;
 };
 
 # Represents client endpoint configuration.
@@ -84,7 +84,7 @@ public type Client client object {
 # + poolConfig - Connection pool configuration
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-public type ClientEndpointConfig record {
+public type ClientEndpointConfig record {|
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     string httpVersion = "2.0";
@@ -94,8 +94,7 @@ public type ClientEndpointConfig record {
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     Compression compression = COMPRESSION_AUTO;
-    !...;
-};
+|};
 
 # Proxy server configurations to be used with the HTTP client endpoint.
 #
@@ -103,13 +102,12 @@ public type ClientEndpointConfig record {
 # + port - Proxy server port
 # + userName - Proxy server username
 # + password - proxy server password
-public type ProxyConfig record {
+public type ProxyConfig record {|
     string host = "";
     int port = 0;
     string userName = "";
     string password = "";
-    !...;
-};
+|};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
@@ -126,7 +124,7 @@ public type ProxyConfig record {
 # + verifyHostname - Enable/disable host name verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
-public type SecureSocket record {
+public type SecureSocket record {|
     TrustStore? trustStore = ();
     KeyStore? keyStore = ();
     string certFile = "";
@@ -139,5 +137,4 @@ public type SecureSocket record {
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
-    !...;
-};
+|};
