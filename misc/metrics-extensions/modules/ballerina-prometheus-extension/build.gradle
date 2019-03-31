@@ -3,7 +3,6 @@ apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 configurations {
     cliUtils 
     balx
-    generatedBalx
 }
 task genBalx(type: JavaExec) {
     def targetDir = "$buildDir/generated-balx/prometheus/"
@@ -74,9 +73,10 @@ dependencies {
     implementation project(':ballerina-utils')
 
     cliUtils project(':ballerina-cli-utils')
-    generatedBalx genBalx.outputs.files
 }
 
-artifacts.add('balx', file(configurations.generatedBalx.asPath))
+artifacts {
+    balx file: file("$buildDir/generated-balx"), builtBy: genBalx
+}
 
 description = 'Ballerina - Prometheus Extension for Metrics'

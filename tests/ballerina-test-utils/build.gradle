@@ -15,6 +15,10 @@ dependencies {
     implementation 'org.testng:testng'
 }
 
+configurations {
+    commonBackend
+}
+
 jar {
     enabled = false
     dependsOn(shadowJar { classifier = null })
@@ -61,6 +65,10 @@ shadowJar {
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')
     }
+}
+
+artifacts {
+    commonBackend file: file('src/main/ballerina/httpService/common_backend.bal')
 }
 
 build.dependsOn shadowJar

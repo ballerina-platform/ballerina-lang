@@ -50,8 +50,9 @@ public class RepoHierarchyTestCase extends BaseTest {
     public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-project-");
-        
-        String projectPath = (new File("src/test/resources/repohierarchy")).getAbsolutePath();
+
+        String projectPath = new File(getClass().getClassLoader().getResource("repohierarchy")
+            .getPath()).getAbsolutePath();
         FileUtils.copyDirectory(Paths.get(projectPath).toFile(), tempProjectDirectory.toFile());
         envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
     }

@@ -136,9 +136,9 @@ public class ImportModuleTestCase extends BaseTest {
     public void testResolveImportsFromInstalledModulesInTests() throws BallerinaTestException, IOException {
         Path projPath = tempProjectDirectory.resolve("thirdProj");
         Files.createDirectories(projPath);
-
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-test-in-cache"))
-                                                  .getAbsolutePath()).toFile(), projPath.toFile());
+        
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-test-in-cache").getPath()),
+            projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         // ballerina install abc

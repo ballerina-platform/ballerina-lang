@@ -162,6 +162,7 @@ task generateDocs(type: JavaExec) {
     dependsOn extractLibs
     inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
+    outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
     systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
