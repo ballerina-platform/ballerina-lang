@@ -52,4 +52,4 @@ public type Principal record {|
 # Creates a InvocationContext instance.
 #
 # + return - InvocationContext instance
-public extern function getInvocationContext() returns InvocationContext;
+public function getInvocationContext() returns InvocationContext = external;

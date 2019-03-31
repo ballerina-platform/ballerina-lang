@@ -30,21 +30,21 @@ public const APPEND = "a";
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource
-public extern function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel;
+public function openReadableFile(@sensitive string path) returns @tainted ReadableByteChannel = external;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + append - Append to end of file.
 # + return - ByteChannel representation of the file resource
-public extern function openWritableFile(@sensitive string path, boolean append = false)
-    returns @tainted WritableByteChannel;
+public function openWritableFile(@sensitive string path, boolean append = false)
+    returns @tainted WritableByteChannel = external;
 
 # Creates an in-memory channel which will reference stream of bytes.
 #
 # + content - Content which should be exposed as channel
 # + return - ByteChannel represenation to read the memory content
-public extern function createReadableChannel(byte[] content) returns ReadableByteChannel;
+public function createReadableChannel(byte[] content) returns ReadableByteChannel = external;
 
 # Retrieves a readable CSV channel from a give file path.
 #

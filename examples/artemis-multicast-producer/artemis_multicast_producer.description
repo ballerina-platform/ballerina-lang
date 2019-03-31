@@ -1,0 +1,2 @@
+// A message is produced to a MULTICAST ActiveMQ Artemis address using the Ballerina Artemis Connector
+// that uses the Core API for the connection.

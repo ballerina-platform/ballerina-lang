@@ -56,20 +56,20 @@ public type Listener object {
     # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
-    public extern function initEndpoint() returns error?;
+    public function initEndpoint() returns error? = external;
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
     # + return - An `error` if there is any error occured during the service attachment process or else nil
-    extern function register(service s, string? name) returns error?;
+    function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    extern function start();
+    function start() = external;
 
     # Stops the registered service.
-    extern function stop();
+    function stop() = external;
 };
 
 public function Listener.init(ServiceEndpointConfiguration c) {
