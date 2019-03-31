@@ -6,7 +6,9 @@ configurations {
     generatedBalx
 }
 task genBalx(type: JavaExec) {
+    dependsOn createBalHome
     def targetDir = "$buildDir/generated-balx/prometheus/"
+    inputs.files(configurations.baloImplementation)
     outputs.dir("$buildDir/lib")
     outputs.dir(targetDir)
     outputs.cacheIf { true }
