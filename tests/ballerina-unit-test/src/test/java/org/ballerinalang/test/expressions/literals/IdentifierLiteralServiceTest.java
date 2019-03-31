@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.expressions.identifierliteral;
+package org.ballerinalang.test.expressions.literals;
 
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
@@ -44,7 +44,8 @@ public class IdentifierLiteralServiceTest {
     @BeforeClass
     public void setup() {
         application = BServiceUtil
-                .setupProgramFile(this, "test-src/expressions/identifierliteral/identifier-literal-service.bal");
+                .setupProgramFile(this,
+                                  "test-src/expressions/literals/identifierliteral/identifier-literal-service.bal");
     }
 
     @Test(description = "Test using identifier literals in service and resource names")

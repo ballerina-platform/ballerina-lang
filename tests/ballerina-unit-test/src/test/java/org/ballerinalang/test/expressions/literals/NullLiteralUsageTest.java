@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.expressions;
+package org.ballerinalang.test.expressions.literals;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -43,13 +43,13 @@ public class NullLiteralUsageTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/null_literal_usage.bal");
+        result = BCompileUtil.compile("test-src/expressions/literals/null_literal_usage.bal");
     }
 
     @Test
     public void testInvalidNullLiteralUsage() {
         final String errorMsg = "'null' literal is only supported for 'json'";
-        CompileResult result = BCompileUtil.compile("test-src/expressions/null_literal_usage_negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/expressions/literals/null_literal_usage_negative.bal");
         int index = 0;
 
         assertEquals(result.getErrorCount(), 20);
