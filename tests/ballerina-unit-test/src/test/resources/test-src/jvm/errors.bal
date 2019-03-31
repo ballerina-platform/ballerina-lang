@@ -14,15 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testPanic() returns int {
-    int|string a = "ss";
-    int x  =  <int>a;
+function testPanic(int y) returns int|error {
+    int|error x = foo(y);
     return x;
 }
 
-function testTrap() returns int|error {
-    int|string a = "ss";
-    int|error x  = trap <int>a;
+function testTrap(int y) returns int|error {
+    int|error x = trap foo(y);
     return x;
 }
 
@@ -41,16 +39,16 @@ function testNestedCallsWithSomeTraps(int y) returns int|error {
     return x;
 }
 
-public function foo(error|int x) returns int|error  {
-    if  (x is error) {
+public function foo(int|error x) returns int|error {
+    if (x is error) {
         panic error("reason foo 1", {"message":"foo"});
     } else {
         panic error("reason foo 2", {"message":"int value"});
     }
 }
 
-public function bar(error|int x) returns error|int  {
-    if (x  is int) {
+public function bar(int|error x) returns int|error {
+    if (x is int) {
         if (x == 0) {
             panic error("reason bar 1", {"message":"bar"});
         }

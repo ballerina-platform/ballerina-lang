@@ -49,23 +49,22 @@ public class ErrorTest {
     @Test(description = "Test panic an error")
     public void testPanic() {
         try {
-            BRunUtil.invoke(compileResult, "testPanic");
+            BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
         } catch (RuntimeException e) {
             Assert.assertTrue(((InvocationTargetException) e.getCause()).getTargetException() instanceof ErrorValue);
             ErrorValue bError = (ErrorValue) ((InvocationTargetException) e.getCause()).getTargetException();
-            Assert.assertEquals(bError.getReason(), "type.cast.error");
-            Assert.assertEquals(((MapValue) bError.getDetails()).get("message").toString(),
-                                "'string' cannot be cast to'int'");
+            Assert.assertEquals(bError.getReason(), "reason foo 2");
+            Assert.assertEquals(((MapValue) bError.getDetails()).get("message").toString(), "int value");
         }
     }
 
     @Test(description = "Test trap an error")
     public void testTrap() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testTrap");
+        BValue[] result = BRunUtil.invoke(compileResult, "testTrap", new BValue[] { new BInteger(0) });
         Assert.assertTrue(result[0] instanceof BError);
         BError bError = (BError) result[0];
-        Assert.assertEquals(bError.reason, "type.cast.error");
-        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "'string' cannot be cast to'int'");
+        Assert.assertEquals(bError.reason, "reason foo 2");
+        Assert.assertEquals(((BMap) bError.details).get("message").stringValue(), "int value");
     }
 
     @Test(description = "Test handle errors of nested function calls with single trap")

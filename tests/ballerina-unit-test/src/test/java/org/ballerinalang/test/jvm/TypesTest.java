@@ -557,7 +557,7 @@ public class TypesTest {
 
     @Test
     public void testAddToNull() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddToNull");
+        BValue[] returErrorValuens = BRunUtil.invoke(compileResult, "testAddToNull");
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Supun\", \"address\":{\"country\":\"SriLanka\"}}");
     }
 
