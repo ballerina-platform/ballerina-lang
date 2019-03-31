@@ -20,14 +20,10 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 
-public interface BallerinaCompletePackageName extends BallerinaCompositeElement {
+public interface BallerinaCompletePackageName extends PsiElement {
 
   @NotNull
   List<BallerinaPackageName> getPackageNameList();
-
-  @NotNull
-  PsiReference[] getReferences();
 
 }

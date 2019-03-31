@@ -44,13 +44,13 @@ public class BallerinaCheckedExpressionImpl extends BallerinaExpressionImpl impl
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public PsiElement getCheck() {
-    return notNullChild(findChildByType(CHECK));
+    return findNotNullChildByType(CHECK);
   }
 
 }

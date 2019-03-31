@@ -68,7 +68,7 @@ public class BallerinaErrorConstructorExpressionImpl extends BallerinaExpression
   @Override
   @NotNull
   public PsiElement getError() {
-    return notNullChild(findChildByType(ERROR));
+    return findNotNullChildByType(ERROR);
   }
 
 }

@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDoubleBacktickedBlockImpl extends BallerinaCompositeElementImpl implements BallerinaDoubleBacktickedBlock {
+public class BallerinaDoubleBacktickedBlockImpl extends ASTWrapperPsiElement implements BallerinaDoubleBacktickedBlock {
 
   public BallerinaDoubleBacktickedBlockImpl(@NotNull ASTNode node) {
     super(node);
@@ -56,7 +57,7 @@ public class BallerinaDoubleBacktickedBlockImpl extends BallerinaCompositeElemen
   @Override
   @NotNull
   public PsiElement getDoubleBacktickMarkdownStart() {
-    return notNullChild(findChildByType(DOUBLE_BACKTICK_MARKDOWN_START));
+    return findNotNullChildByType(DOUBLE_BACKTICK_MARKDOWN_START);
   }
 
 }

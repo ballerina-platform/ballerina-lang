@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaBindingRefPatternImpl extends BallerinaCompositeElementImpl implements BallerinaBindingRefPattern {
+public class BallerinaBindingRefPatternImpl extends ASTWrapperPsiElement implements BallerinaBindingRefPattern {
 
   public BallerinaBindingRefPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaBindingRefPatternImpl extends BallerinaCompositeElementImp
   @Override
   @Nullable
   public BallerinaErrorRefBindingPattern getErrorRefBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaErrorRefBindingPattern.class);
+    return findChildByClass(BallerinaErrorRefBindingPattern.class);
   }
 
   @Override
   @Nullable
   public BallerinaStructuredRefBindingPattern getStructuredRefBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStructuredRefBindingPattern.class);
+    return findChildByClass(BallerinaStructuredRefBindingPattern.class);
   }
 
   @Override
   @Nullable
   public BallerinaVariableReference getVariableReference() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class);
+    return findChildByClass(BallerinaVariableReference.class);
   }
 
 }
