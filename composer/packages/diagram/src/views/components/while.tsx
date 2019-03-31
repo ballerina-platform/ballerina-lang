@@ -1,5 +1,5 @@
 
-import { ASTUtil, VisibleEndpoint, While as WhileNode} from "@ballerina/ast-model";
+import { ASTUtil, While as WhileNode} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -7,7 +7,6 @@ import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { Condition } from "./condition";
-import { LifeLine } from "./life-line";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -73,14 +72,7 @@ export const While: React.StatelessComponent<{
                     <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
                     <ArrowHead direction={"right"} className="condition-arrow-head" {...p4} />
                     <Condition {...conditionProps} astModel={model} />
-                    {model.body && <Block model={model.body} />}
+                    {model.body && <Block model={model.body} visibleEndpoints={model.VisibleEndpoints} />}
                 </g>
-                {model.VisibleEndpoints && model.VisibleEndpoints
-                    .filter((element) => element.viewState.visible)
-                    .map((element: VisibleEndpoint) => {
-                        return <LifeLine title={element.name} icon="endpoint"
-                            model={element.viewState.bBox} astModel={element} />;
-                    })
-                }
             </g>);
     };
