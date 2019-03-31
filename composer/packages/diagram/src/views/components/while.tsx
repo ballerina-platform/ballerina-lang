@@ -1,5 +1,5 @@
 
-import { ASTUtil, While as WhileNode} from "@ballerina/ast-model";
+import { ASTUtil, VisibleEndpoint, While as WhileNode} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -7,6 +7,7 @@ import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { Condition } from "./condition";
+import { LifeLine } from "./life-line";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -74,5 +75,12 @@ export const While: React.StatelessComponent<{
                     <Condition {...conditionProps} astModel={model} />
                     {model.body && <Block model={model.body} />}
                 </g>
+                {model.VisibleEndpoints && model.VisibleEndpoints
+                    .filter((element) => element.viewState.visible)
+                    .map((element: VisibleEndpoint) => {
+                        return <LifeLine title={element.name} icon="endpoint"
+                            model={element.viewState.bBox} astModel={element} />;
+                    })
+                }
             </g>);
     };

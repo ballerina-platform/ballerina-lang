@@ -1,10 +1,10 @@
 import {
     Assignment, ASTKindChecker,
-    ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
-    Foreach, Function as BalFunction, Identifier, If, Invocation, Lambda, Literal,
-    Match, MatchStaticPatternClause, ObjectType, Panic, RecordVariable,
-    Return, Service, TupleVariable, TypeDefinition, UnionTypeNode, UserDefinedType, ValueType,
-    Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
+    ASTNode, ASTUtil, Block, Break, CompilationUnit, CompoundAssignment, Constant,
+    ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
+    Literal, Match, MatchStaticPatternClause, ObjectType,
+    Panic, Return, Service, TypeDefinition, UnionTypeNode,
+    ValueType, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -18,7 +18,12 @@ interface WorkerTuple { block: Block; view: WorkerViewState; }
 
 class SizingVisitor implements Visitor {
     private endpointHolder: VisibleEndpoint[] = [];
+    private endpointWidth: number = 0;
     private returnStatements: Return[] = [];
+
+    public beginVisitCompilationUnit(node: CompilationUnit) {
+        this.endpointWidth = 0;
+    }
 
     public beginVisitFunction(node: BalFunction) {
         const viewState: FunctionViewState = node.viewState;
@@ -43,59 +48,27 @@ class SizingVisitor implements Visitor {
                 viewState.client = new ViewState();
             }
         }
-
-        // make endpoints, which are defined in function, visible
-        if (node.VisibleEndpoints && node.body) {
-            const varDefStmts = node.body.statements.filter(ASTKindChecker.isVariableDef);
-            const isVariableOfEP = (
-                        variable: Variable | TupleVariable | RecordVariable | Identifier,
-                        targetEP: VisibleEndpoint): boolean => {
-                let foundMatch = false;
-                if (ASTKindChecker.isTupleVariable(variable)) {
-                    const variables = (variable as TupleVariable).variables;
-                    variables.forEach((varToBeChecked) => {
-                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
-                    });
-                } else if (ASTKindChecker.isRecordVariable(variable)) {
-                    const variables = (variable as RecordVariable).variables;
-                    variables.forEach((varToBeChecked) => {
-                        foundMatch = foundMatch || isVariableOfEP(varToBeChecked, targetEP);
-                    });
-                } else if (ASTKindChecker.isIdentifier(variable)) {
-                    foundMatch = false;
-                } else if (ASTKindChecker.isVariable(variable)) {
-                    const varToBeChecked = variable as Variable;
-                    const variableTypeNode = varToBeChecked.typeNode as UserDefinedType;
-                    foundMatch = varToBeChecked.name.value === targetEP.name
-                            && variableTypeNode.packageAlias.value === targetEP.pkgAlias
-                            && variableTypeNode.typeName.value === targetEP.typeName;
-                }
-                return foundMatch;
-            };
-            node.VisibleEndpoints.forEach((visibleEndpoint) => {
-                const epDef = varDefStmts.find((varDefStmt) => {
-                    const varDef = varDefStmt as VariableDef;
-                    return isVariableOfEP(varDef.variable, visibleEndpoint);
-                });
-                if (epDef) {
-                    (visibleEndpoint.viewState as EndpointViewState).visible = true;
-                    // link position info of var def stmt to make revealPosition work
-                    visibleEndpoint.position = epDef.position;
-                }
-            });
-        }
     }
 
     public beginVisitIf(node: If) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (node.VisibleEndpoints) {
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        }
     }
 
     public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (node.VisibleEndpoints) {
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        }
     }
 
     public beginVisitForeach(node: Foreach) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
+        if (node.VisibleEndpoints) {
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        }
     }
 
     public endVisitFunction(node: BalFunction) {
@@ -151,19 +124,18 @@ class SizingVisitor implements Visitor {
         });
 
         // Size endpoints
-        let endpointWidth = 0;
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.bBox.h;
-                    endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                    this.endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 }
             });
         }
 
         const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
-            + defaultWorker.bBox.w + endpointWidth + workerWidth;
+            + defaultWorker.bBox.w + this.endpointWidth + workerWidth;
         body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 

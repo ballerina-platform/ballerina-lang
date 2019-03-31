@@ -1466,6 +1466,7 @@ export interface VariableDef extends ASTNode {
 
 export interface VisibleEndpoint extends ASTNode {
   caller: boolean;
+  isLocal: boolean;
   name: string;
   pkgAlias: string;
   pkgName: string;

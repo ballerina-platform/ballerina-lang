@@ -1,5 +1,5 @@
 
-import { ASTUtil, Foreach as ForeachNode} from "@ballerina/ast-model";
+import { ASTUtil, Foreach as ForeachNode, VisibleEndpoint} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -7,6 +7,7 @@ import { ViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { ForeachBox } from "./foreach-box";
+import { LifeLine } from "./life-line";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -75,5 +76,12 @@ export const Foreach: React.StatelessComponent<{
                     <ForeachBox {...conditionProps}/>
                     {model.body && <Block model={model.body} />}
                 </g>
+                {model.VisibleEndpoints && model.VisibleEndpoints
+                    .filter((element) => element.viewState.visible)
+                    .map((element: VisibleEndpoint) => {
+                        return <LifeLine title={element.name} icon="endpoint"
+                            model={element.viewState.bBox} astModel={element} />;
+                    })
+                }
             </g>);
     };

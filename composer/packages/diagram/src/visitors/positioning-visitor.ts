@@ -16,9 +16,16 @@ function positionWorkerLine(worker: WorkerViewState) {
     worker.lifeline.bBox.x = worker.bBox.x + worker.bBox.leftMargin - (worker.lifeline.bBox.w / 2);
 }
 
-export const visitor: Visitor = {
+class PositioningVisitor implements Visitor {
+    private epH: number = 0; // FIXME: Figure out how to do this inside sizing visitor
+    private epX: number = 0;
+    private epY: number = 0;
 
     beginVisitCompilationUnit(node: CompilationUnit) {
+
+        this.epX = 0;
+        this.epY = 0;
+        this.epH = 0;
         const viewState: CompilationUnitViewState = node.viewState;
 
         // filter out visible children from top level nodes.
@@ -61,7 +68,7 @@ export const visitor: Visitor = {
         viewState.bBox.h = height;
         viewState.bBox.w = width;
 
-    },
+    }
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: BalFunction) {
@@ -137,22 +144,24 @@ export const visitor: Visitor = {
             + config.lifeLine.header.height;
         });
 
-        let epX = workerX + config.lifeLine.gutter.h;
+        this.epX = workerX + config.lifeLine.gutter.h;
+        this.epY = workerY;
         // Position endpoints
         visibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-            endpoint.viewState.bBox.x = epX;
-            endpoint.viewState.bBox.y = workerY;
-            epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+            endpoint.viewState.bBox.x = this.epX;
+            endpoint.viewState.bBox.y = this.epY;
+            this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
         });
+        this.epH = viewState.client.bBox.h; // FIXME: Figure out how to do this in sizing visitor
 
         // Position drop down menu for adding workers and endpoints
-        viewState.menuTrigger.x = epX;
+        viewState.menuTrigger.x = this.epX;
         viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
         viewState.header.w = viewState.bBox.w;
-    },
+    }
 
     beginVisitBlock(node: Block) {
         const viewState: BlockViewState = node.viewState;
@@ -177,7 +186,7 @@ export const visitor: Visitor = {
                     expandedFunctionVS.bBox.x = elViewState.bBox.x;
                     expandedFunctionVS.bBox.y = elViewState.bBox.y;
 
-                    ASTUtil.traversNode(expandedSubTree, visitor);
+                    ASTUtil.traversNode(expandedSubTree, this);
                 }
             }
         });
@@ -203,20 +212,44 @@ export const visitor: Visitor = {
         };
         viewState.hoverRect.x = viewState.bBox.x - viewState.hoverRect.leftMargin;
         viewState.hoverRect.y = viewState.bBox.y;
-    },
+    }
 
     beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.condition.height;
-    },
+        if (node.VisibleEndpoints) {
+            // Position endpoints
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                // FIXME: Figure out how to do this in sizing visitor
+                endpoint.viewState.bBox.h = this.epH;
+                endpoint.viewState.bBox.w = config.lifeLine.width;
+                //////////////////////////////////////////////////
+                endpoint.viewState.bBox.x = this.epX;
+                endpoint.viewState.bBox.y = this.epY;
+                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+            });
+        }
+    }
 
     beginVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.foreach.height;
-    },
+        if (node.VisibleEndpoints) {
+            // Position endpoints
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                // FIXME: Figure out how to do this in sizing visitor
+                endpoint.viewState.bBox.h = this.epH;
+                endpoint.viewState.bBox.w = config.lifeLine.width;
+                //////////////////////////////////////////////////
+                endpoint.viewState.bBox.x = this.epX;
+                endpoint.viewState.bBox.y = this.epY;
+                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+            });
+        }
+    }
 
     beginVisitIf(node: If) {
         const viewState: ViewState = node.viewState;
@@ -229,7 +262,19 @@ export const visitor: Visitor = {
             node.elseStatement.viewState.bBox.y = viewState.bBox.y +
                 config.flowCtrl.condition.height + node.body.viewState.bBox.h;
         }
-    },
+        if (node.VisibleEndpoints) {
+            // Position endpoints
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                // FIXME: Figure out how to do this in sizing visitor
+                endpoint.viewState.bBox.h = this.epH;
+                endpoint.viewState.bBox.w = config.lifeLine.width;
+                //////////////////////////////////////////////////
+                endpoint.viewState.bBox.x = this.epX;
+                endpoint.viewState.bBox.y = this.epY;
+                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+            });
+        }
+    }
 
     beginVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
@@ -240,7 +285,7 @@ export const visitor: Visitor = {
             element.viewState.bBox.y = y;
             y += element.viewState.bBox.h;
         });
-    },
+    }
 
     beginVisitTypeDefinition(node: TypeDefinition) {
         // If it is a service do nothing.
@@ -253,14 +298,14 @@ export const visitor: Visitor = {
             element.viewState.bBox.y = y;
             y += element.viewState.bBox.h;
         });
-    },
+    }
 
     beginVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
         const viewState: ViewState = node.viewState;
         node.statement.viewState.bBox.x = viewState.bBox.x;
         node.statement.viewState.bBox.y = viewState.bBox.y
         + config.statement.height; // To print literal;
-    },
+    }
 
     beginVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
@@ -270,5 +315,12 @@ export const visitor: Visitor = {
             element.viewState.bBox.y = viewState.bBox.y + height;
             height += element.viewState.bBox.h;
         });
-    },
-};
+    }
+
+    endVisitFunction(node: BalFunction) {
+        const viewState: FunctionViewState = node.viewState;
+        viewState.menuTrigger.x = this.epX;
+    }
+}
+
+export const visitor = new PositioningVisitor();

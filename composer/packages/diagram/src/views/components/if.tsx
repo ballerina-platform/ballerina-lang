@@ -1,11 +1,12 @@
 
-import { ASTUtil, If as IfNode } from "@ballerina/ast-model";
+import { ASTUtil, If as IfNode, VisibleEndpoint } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
 import { Condition } from "./condition";
+import { LifeLine } from "./life-line";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -79,5 +80,12 @@ export const If: React.StatelessComponent<{
                     <Condition {...conditionProps} astModel={model} />
                     {children}
                 </g>
+                {model.VisibleEndpoints && model.VisibleEndpoints
+                    .filter((element) => element.viewState.visible)
+                    .map((element: VisibleEndpoint) => {
+                        return <LifeLine title={element.name} icon="endpoint"
+                            model={element.viewState.bBox} astModel={element} />;
+                    })
+                }
             </g>);
     };
