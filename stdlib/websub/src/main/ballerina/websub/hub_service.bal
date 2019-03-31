@@ -266,7 +266,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }

@@ -124,18 +124,17 @@ public class ObjectInitializerTest {
         Assert.assertEquals(person.get("misc").stringValue(), "[{\"city\":\"Colombo\", \"country\":\"Sri Lanka\"}]");
     }
 
-    // TODO: 2/8/19 commented lines due to https://github.com/ballerina-platform/ballerina-lang/issues/13521
     @Test(description = "Test returning a custom error from initializer")
     public void testCustomErrorReturn() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-//        Assert.assertEquals(returns[0].getType().getName(), "Err");
+        Assert.assertEquals(returns[0].getType().getName(), "Err");
         Assert.assertEquals(((BError) returns[0]).reason, "Failed to create object");
         Assert.assertEquals(((BError) returns[0]).details.stringValue(), "{id:100}");
 
         Assert.assertEquals(returns[1].getType().getTag(), TypeTags.ERROR);
-//        Assert.assertEquals(returns[1].getType().getName(), "error");
+        Assert.assertEquals(returns[1].getType().getName(), "Err");
         Assert.assertEquals(((BError) returns[1]).reason, "Failed to create object");
         Assert.assertEquals(((BError) returns[1]).details.stringValue(), "{id:100}");
     }

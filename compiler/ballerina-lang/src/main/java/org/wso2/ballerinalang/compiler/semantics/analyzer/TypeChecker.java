@@ -2119,19 +2119,8 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         if (expType.tag == TypeTags.NONE) {
-            Optional.ofNullable(errorConstructorExpr.reasonExpr)
-                    .map(expr -> checkExpr(expr, env, symTable.stringType))
-                    .orElseThrow(AssertionError::new);
-
-            // If no expected type, the reason type will be inferred as from the constructor
-            Optional.ofNullable(errorConstructorExpr.detailsExpr)
-                    .ifPresent(expr -> checkExpr(expr, env, symTable.noType));
-            resultType = new BErrorType(null, symTable.stringType, errorConstructorExpr.detailsExpr == null ?
-                    symTable.mapType : errorConstructorExpr.detailsExpr.type);
-            return;
-        }
-
-        if (expType.tag != TypeTags.ERROR) {
+            expType = symTable.errorType;
+        } else if (expType.tag != TypeTags.ERROR) {
             dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
@@ -2143,8 +2132,22 @@ public class TypeChecker extends BLangNodeVisitor {
                 .map(expr -> checkExpr(expr, env, ((BErrorType) expType).reasonType))
                 .orElseThrow(AssertionError::new);
 
-        Optional.ofNullable(errorConstructorExpr.detailsExpr)
-                .ifPresent(expr -> checkExpr(expr, env, ((BErrorType) expType).detailType));
+        if (errorConstructorExpr.detailsExpr == null) {
+            resultType = expType;
+            return;
+        }
+
+        BType errConstDetailExprType = errorConstructorExpr.detailsExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR ?
+                ((BErrorType) expType).detailType : checkExpr(errorConstructorExpr.detailsExpr, env, symTable.noType);
+
+        if (types.isValidErrorDetailType(errConstDetailExprType) &&
+                types.isStampingAllowed(errConstDetailExprType, ((BErrorType) expType).detailType)) {
+            checkExpr(errorConstructorExpr.detailsExpr, env, errConstDetailExprType);
+        } else {
+            checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
+        }
+
+        checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
         resultType = expType;
     }
 
