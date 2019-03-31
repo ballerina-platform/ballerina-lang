@@ -462,6 +462,7 @@ export interface FiniteTypeNode extends ASTNode {
 }
 
 export interface Foreach extends ASTNode {
+  VisibleEndpoints?: VisibleEndpoint[];
   body: Block;
   collection:
     | BinaryExpr
@@ -577,6 +578,7 @@ export interface Identifier extends ASTNode {
 }
 
 export interface If extends ASTNode {
+  VisibleEndpoints?: VisibleEndpoint[];
   body: Block;
   condition:
     | BinaryExpr
@@ -1494,6 +1496,7 @@ export interface Where extends ASTNode {
 }
 
 export interface While extends ASTNode {
+  VisibleEndpoints?: VisibleEndpoint[];
   body: Block;
   condition: BinaryExpr | BracedTupleExpr;
   ws: any[];
