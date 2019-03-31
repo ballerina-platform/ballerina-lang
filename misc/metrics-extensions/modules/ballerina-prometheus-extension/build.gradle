@@ -7,9 +7,8 @@ configurations {
 }
 task genBalx(type: JavaExec) {
     def targetDir = "$buildDir/generated-balx/prometheus/"
-    doFirst {
-        new File(targetDir).mkdirs()
-    }
+    outputs.dir(targetDir)
+    outputs.cacheIf { true }
 
     systemProperty "ballerina.home", "$buildDir"
     classpath = configurations.cliUtils
@@ -19,8 +18,6 @@ task genBalx(type: JavaExec) {
     def fileName = "reporter.bal"
     def target = "$targetDir/reporter.balx"
     args(src, fileName, target)
-    outputs.dir("$buildDir/generated-balx")
-    outputs.cacheIf { true }
 }
 
 dependencies {
@@ -74,9 +71,10 @@ dependencies {
     implementation project(':ballerina-utils')
 
     cliUtils project(':ballerina-cli-utils')
-    generatedBalx genBalx.outputs.files
 }
 
-artifacts.add('balx', file(configurations.generatedBalx.asPath))
+artifacts {
+    balx file: file("$buildDir/generated-balx"), builtBy: genBalx
+}
 
 description = 'Ballerina - Prometheus Extension for Metrics'
