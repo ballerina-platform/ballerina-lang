@@ -212,6 +212,23 @@ class PositioningVisitor implements Visitor {
         viewState.hoverRect.y = viewState.bBox.y;
     }
 
+    public beginVisitVariableDef(node: VariableDef) {
+        if (ASTUtil.isWorker(node)) {
+            const variable = node.variable;
+            const lambda: Lambda = variable.initialExpression as Lambda;
+            const functionNode = lambda.functionNode;
+            if (functionNode.VisibleEndpoints) {
+                // Position endpoints
+                functionNode.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                    endpoint.viewState.bBox.x = this.epX;
+                    endpoint.viewState.bBox.y = this.epY;
+                    this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                });
+            }
+        }
+    }
+
+
     beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
