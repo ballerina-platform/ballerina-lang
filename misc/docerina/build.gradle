@@ -36,7 +36,13 @@ jar {
     dependsOn(shadowJar { classifier = null })
     manifest {
         attributes(
-            'Main-Class': 'org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain'
+            'Main-Class': 'org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain',
+            'Implementation-Title': 'Ballerina - Docerina',
+            'Specification-Title': 'Ballerina - Docerina',
+            'Specification-Vendor': 'WSO2',
+            'Implementation-Vendor-Id': 'org.ballerinalang',
+            'Implementation-Vendor': 'WSO2',
+            'Implementation-URL': 'https://ballerina.io/misc/docerina/'
         )
     }
 }
