@@ -121,12 +121,15 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
             };
 
             if (validReturnType && ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                Optional<BLangConstant> rootDescriptor = ((ArrayList) ((BLangPackage) serviceNode.parent)
-                        .constants).stream().filter(var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName()
-                        .getValue())).findFirst();
-                Optional<BLangFunction> descriptorMapFunc = ((ArrayList) ((BLangPackage) serviceNode
-                        .parent).functions).stream().filter(var -> DESCRIPTOR_MAP.equals(((BLangFunction) var)
-                        .getName().getValue())).findFirst();
+                Optional<BLangConstant> rootDescriptor = Optional.empty();
+                Optional<BLangFunction> descriptorMapFunc = Optional.empty();;
+                if (serviceNode.parent.getKind() == NodeKind.PACKAGE) {
+                    BLangPackage packageNode = (BLangPackage) serviceNode.parent;
+                    rootDescriptor = ((ArrayList) packageNode.constants).stream().filter(
+                            var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName().getValue())).findFirst();
+                    descriptorMapFunc = ((ArrayList) packageNode.functions).stream().filter(
+                            var -> DESCRIPTOR_MAP.equals(((BLangFunction) var).getName().getValue())).findFirst();
+                }
 
                 for (AnnotationAttachmentNode annonNodes : serviceNode.getAnnotationAttachments()) {
                     if (ANN_SERVICE_DESCRIPTOR.equals(annonNodes.getAnnotationName().getValue())) {
