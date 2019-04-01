@@ -4016,15 +4016,23 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // identifier
+  // identifier {
+  // }
   public static boolean OrgName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OrgName")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, IDENTIFIER);
+    r = r && OrgName_1(b, l + 1);
     exit_section_(b, m, ORG_NAME, r);
     return r;
+  }
+
+  // {
+  // }
+  private static boolean OrgName_1(PsiBuilder b, int l) {
+    return true;
   }
 
   /* ********************************************************** */
@@ -4099,15 +4107,23 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // identifier
+  // identifier {
+  // }
   public static boolean PackageName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "PackageName")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, IDENTIFIER);
+    r = r && PackageName_1(b, l + 1);
     exit_section_(b, m, PACKAGE_NAME, r);
     return r;
+  }
+
+  // {
+  // }
+  private static boolean PackageName_1(PsiBuilder b, int l) {
+    return true;
   }
 
   /* ********************************************************** */
@@ -9376,17 +9392,17 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  final static Parser StatementRecover_parser_ = new Parser() {
+  static final Parser StatementRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return StatementRecover(b, l + 1);
     }
   };
-  final static Parser TopLevelDefinitionRecover_parser_ = new Parser() {
+  static final Parser TopLevelDefinitionRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return TopLevelDefinitionRecover(b, l + 1);
     }
   };
-  final static Parser WorkerDefinitionRecover_parser_ = new Parser() {
+  static final Parser WorkerDefinitionRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return WorkerDefinitionRecover(b, l + 1);
     }

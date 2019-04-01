@@ -15,7 +15,7 @@
 // under the License.
 
 type SMS error <string, map<string>>;
-type SMA error <string, map<any>>;
+type SMA error <string, map<anydata>>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error("Error One", { message: "Msg One", detail: "Detail Msg" });
@@ -96,6 +96,6 @@ function testErrorInRecordWithDestructure2() {
     int x;
     string reason;
     string? message;
-    any extra;
+    anydata|error extra;
     { x, e: error (reason, { message, extra }) } = b;
 }

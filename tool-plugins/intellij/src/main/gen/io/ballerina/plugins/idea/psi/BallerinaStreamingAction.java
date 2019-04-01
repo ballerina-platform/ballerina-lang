@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaStreamingAction extends BallerinaCompositeElement {
+public interface BallerinaStreamingAction extends PsiElement {
 
   @Nullable
   BallerinaBlock getBlock();

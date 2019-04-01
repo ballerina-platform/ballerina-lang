@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaFlushWorker extends BallerinaCompositeElement {
+public interface BallerinaFlushWorker extends PsiElement {
 
   @NotNull
   PsiElement getFlush();

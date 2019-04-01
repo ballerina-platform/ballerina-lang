@@ -35,17 +35,17 @@ public type Listener object {
         return self.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
-    extern function initServer(int port, ListenerConfig config) returns error?;
+    function initServer(int port, ListenerConfig config) returns error? = external;
 
-    extern function register(service s, map<any> annotationData) returns error?;
+    function register(service s, string? name) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 
-    extern function stop() returns error?;
+    function stop() returns error? = external;
 };
 
 # Represents the socket server configuration.

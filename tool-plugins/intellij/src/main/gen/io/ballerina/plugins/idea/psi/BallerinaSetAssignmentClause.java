@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSetAssignmentClause extends BallerinaCompositeElement {
+public interface BallerinaSetAssignmentClause extends PsiElement {
 
   @NotNull
   BallerinaExpression getExpression();

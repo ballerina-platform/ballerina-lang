@@ -1592,7 +1592,7 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                 if (text.equals("public") || text.equals("private") || text.equals("remote")
-                        || text.equals("extern") || text.equals("worker") || text.equals("resource")) {
+                        || text.equals("worker") || text.equals("resource")) {
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                         if (differentFirstKeyword) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -1672,10 +1672,10 @@ public class FormattingNodeTree {
                             functionWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
                                     indentWithParentIndentation);
                         }
-                    }
-
-                    if (wsText.equals(Tokens.SEMICOLON)) {
+                    } else if (wsText.equals(Tokens.SEMICOLON)) {
                         functionWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (wsText.equals(Tokens.EQUAL) || wsText.equals("external")) {
+                        functionWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }

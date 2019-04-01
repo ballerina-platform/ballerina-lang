@@ -115,13 +115,13 @@ public remote function Client.registerTopic(string topic) returns error? {
         if (registrationResponse.statusCode != http:ACCEPTED_202) {
             var result = registrationResponse.getTextPayload();
             string payload = result is string ? result : "";
-            map<any> errorDetail = { message : "Error occured during topic registration: " + payload };
+            map<anydata> errorDetail = { message : "Error occured during topic registration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     } else {
         string errCause = <string> registrationResponse.detail().message;
-        map<any> errorDetail = { message : "Error sending topic registration request: " + errCause };
+        map<anydata> errorDetail = { message : "Error sending topic registration request: " + errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
@@ -136,13 +136,13 @@ public remote function Client.unregisterTopic(string topic) returns error? {
         if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
             var result = unregistrationResponse.getTextPayload();
             string payload = result is string ? result : "";
-            map<any> errorDetail = { message : "Error occured during topic unregistration: " + payload };
+            map<anydata> errorDetail = { message : "Error occured during topic unregistration: " + payload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     } else {
         string errCause = <string> unregistrationResponse.detail().message;
-        map<any> errorDetail = { message : "Error sending topic unregistration request: " + errCause };
+        map<anydata> errorDetail = { message : "Error sending topic unregistration request: " + errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
@@ -172,12 +172,12 @@ public remote function Client.publishUpdate(string topic, string|xml|json|byte[]
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
             string textPayload = result is string ? result : "";
-            map<any> errorDetail = { message : "Error occured publishing update: " + textPayload };
+            map<anydata> errorDetail = { message : "Error occured publishing update: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     } else {
-        map<any> errorDetail = { message : "Publish failed for topic [" + topic + "]" };
+        map<anydata> errorDetail = { message : "Publish failed for topic [" + topic + "]" };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
@@ -200,12 +200,12 @@ public remote function Client.notifyUpdate(string topic, map<string>? headers = 
         if (!isSuccessStatusCode(response.statusCode)) {
             var result = response.getTextPayload();
             string textPayload = result is string ? result : "";
-            map<any> errorDetail = { message : "Error occured notifying update availability: " + textPayload };
+            map<anydata> errorDetail = { message : "Error occured notifying update availability: " + textPayload };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
         }
     } else {
-        map<any> errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
+        map<anydata> errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
@@ -274,7 +274,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
     string topic = subscriptionChangeRequest.topic;
     if (response is error) {
         string errCause = <string> response.detail().message;
-        map<any> errorDetail = { message : "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - " +
+        map<anydata> errorDetail = { message : "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - " +
                                 errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
@@ -287,7 +287,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                 return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                             httpClientEndpoint.config.auth, remainingRedirects - 1);
             }
-            map<any> errorDetail = { message : "Redirection response received for subscription change request"
+            map<anydata> errorDetail = { message : "Redirection response received for subscription change request"
                                     + " made with followRedirects disabled or after maxCount exceeded: Hub ["
                                     + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
             error subscriptionError = error(WEBSUB_ERROR_CODE, errorDetail);
