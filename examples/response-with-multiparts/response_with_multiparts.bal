@@ -97,7 +97,7 @@ function handleNestedParts(mime:Entity parentPart) {
             }
         } else {
             log:printError("Error retrieving child parts! " +
-                            string.convert(childParts.detail().message));
+                            <string> childParts.detail().message);
         }
     }
 }

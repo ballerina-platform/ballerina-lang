@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaArrayLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaArrayLiteral {
+public class BallerinaArrayLiteralImpl extends ASTWrapperPsiElement implements BallerinaArrayLiteral {
 
   public BallerinaArrayLiteralImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaArrayLiteralImpl extends BallerinaCompositeElementImpl imp
   @Override
   @Nullable
   public BallerinaExpressionList getExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
+    return findChildByClass(BallerinaExpressionList.class);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftBracket() {
-    return notNullChild(findChildByType(LEFT_BRACKET));
+    return findNotNullChildByType(LEFT_BRACKET);
   }
 
   @Override
   @NotNull
   public PsiElement getRightBracket() {
-    return notNullChild(findChildByType(RIGHT_BRACKET));
+    return findNotNullChildByType(RIGHT_BRACKET);
   }
 
 }

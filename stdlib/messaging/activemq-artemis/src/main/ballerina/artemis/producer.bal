@@ -38,7 +38,7 @@ public type Producer client object {
         self.createProducer(addressName, configuration, rate);
     }
 
-    extern function createProducer(string addressName, AddressConfiguration addressConfig, int rate);
+    function createProducer(string addressName, AddressConfiguration addressConfig, int rate) = external;
 
     # Sends a message to the producer's address.
     #
@@ -52,14 +52,14 @@ public type Producer client object {
     # Returns whether the producer is closed or not
     # 
     # + return - `true` if the producer is closed and `false` otherwise
-    public extern function isClosed() returns boolean;
+    public function isClosed() returns boolean = external;
 
     # Closes the ClientProducer. If already closed nothing is done.
     # 
     # + return - `error` on failure to close.
-    public remote extern function close() returns error?;
+    public remote function close() returns error? = external;
 
-    extern function externSend(Message data) returns error?;
+    function externSend(Message data) returns error? = external;
 };
 
 # The ActiveMQ Artemis address related configuration.

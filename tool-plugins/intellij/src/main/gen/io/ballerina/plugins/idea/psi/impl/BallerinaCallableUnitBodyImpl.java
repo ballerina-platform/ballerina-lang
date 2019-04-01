@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCallableUnitBodyImpl extends BallerinaCompositeElementImpl implements BallerinaCallableUnitBody {
+public class BallerinaCallableUnitBodyImpl extends ASTWrapperPsiElement implements BallerinaCallableUnitBody {
 
   public BallerinaCallableUnitBodyImpl(@NotNull ASTNode node) {
     super(node);
@@ -56,7 +57,7 @@ public class BallerinaCallableUnitBodyImpl extends BallerinaCompositeElementImpl
   @Override
   @NotNull
   public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override

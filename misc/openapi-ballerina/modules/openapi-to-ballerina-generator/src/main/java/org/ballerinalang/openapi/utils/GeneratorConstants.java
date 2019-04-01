@@ -30,8 +30,8 @@ public class GeneratorConstants {
      * Ballerina service, mock and client generation is available
      */
     public enum GenType {
-        MOCK("mock"),
-        CLIENT("client");
+        GEN_SERVICE("gen_service"),
+        GEN_CLIENT("gen_client");
 
         private String name;
 

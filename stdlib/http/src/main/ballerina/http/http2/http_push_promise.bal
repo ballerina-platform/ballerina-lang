@@ -36,43 +36,43 @@ public type PushPromise object {
     #
     # + headerName - The header name
     # + return - A `boolean` representing the existence of a given header
-    public extern function hasHeader (string headerName) returns (boolean);
+    public function hasHeader(string headerName) returns boolean = external;
 
     # Returns the header value with the specified header name.
     # If there are more than one header value for the specified header name, the first value is returned.
     #
     # + headerName - The header name
     # + return - The header value, or null if there is no such header
-    public extern function getHeader (string headerName) returns (string);
+    public function getHeader(string headerName) returns string = external;
 
     # Gets transport headers from the `PushPromise`.
     #
     # + headerName - The header name
     # + return - The array of header values
-    public extern function getHeaders (string headerName) returns (string[]);
+    public function getHeaders(string headerName) returns string[] = external;
 
     # Adds the specified key/value pair as an HTTP header to the `PushPromise`.
     #
     # + headerName - The header name
     # + headerValue - The header value
-    public extern function addHeader (string headerName, string headerValue);
+    public function addHeader(string headerName, string headerValue) = external;
 
     # Sets the value of a transport header in `PushPromise`.
     #
     # + headerName - The header name
     # + headerValue - The header value
-    public extern function setHeader (string headerName, string headerValue);
+    public function setHeader(string headerName, string headerValue) = external;
 
     # Removes a transport header from the `PushPromise`.
     #
     # + headerName - The header name
-    public extern function removeHeader (string headerName);
+    public function removeHeader(string headerName) = external;
 
     # Removes all transport headers from the `PushPromise`.
-    public extern function removeAllHeaders ();
+    public function removeAllHeaders() = external;
 
     # Gets all transport header names from the `PushPromise`.
     #
     # + return - An array of all transport header names
-    public extern function getHeaderNames () returns (string[]);
+    public function getHeaderNames() returns string[] = external;
 };

@@ -16,11 +16,11 @@
 
 # Prints `any` or `error` value(s) to the STDOUT.
 # + values - The value(s) to be printed.
-public extern function print((any|error)... values);
+public function print((any|error)... values) = external;
 
 # Prints `any` or `error` value(s) to the STDOUT followed by a new line.
 # + values - The value(s) to be printed.
-public extern function println((any|error)... values);
+public function println((any|error)... values) = external;
 
 # Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.
 #    b              boolean
@@ -35,4 +35,4 @@ public extern function println((any|error)... values);
 # + format - A format string
 # + args   - Arguments referenced by the format specifiers in the format string.
 # + return - Formatted string
-public extern function sprintf(string format, (any|error)... args) returns (string);
+public function sprintf(string format, (any|error)... args) returns string = external;

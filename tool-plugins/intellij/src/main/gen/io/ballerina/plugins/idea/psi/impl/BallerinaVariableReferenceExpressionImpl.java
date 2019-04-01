@@ -44,7 +44,7 @@ public class BallerinaVariableReferenceExpressionImpl extends BallerinaExpressio
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
   @Override

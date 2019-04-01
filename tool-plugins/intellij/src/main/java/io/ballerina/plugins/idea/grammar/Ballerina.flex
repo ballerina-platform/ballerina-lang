@@ -111,10 +111,10 @@ BOOLEAN_LITERAL = "true" | "false"
 // Note - Invalid escaped characters should be annotated at runtime.
 // This is done becuase otherwise the string wont be identified correctly.
 // Also the strings can either be enclosed in single or double quotes or no quotes at all.
-ESCAPE_SEQUENCE = \\ [btnfr\"'\\]
+ESCAPE_SEQUENCE = \\ [btnfr\"'\\] | {UnicodeEscape}
 STRING_CHARACTER =  [^\"] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
-QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"?
+QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"
 
 SYMBOLIC_STRING_LITERAL =  \' {UNDELIMETERED_INITIAL_CHAR} {UNDELIMETERED_FOLLOWING_CHAR}*
 

@@ -44,13 +44,13 @@ public class BallerinaNullableTypeNameImpl extends BallerinaTypeNameImpl impleme
   @Override
   @NotNull
   public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @NotNull
   public PsiElement getQuestionMark() {
-    return notNullChild(findChildByType(QUESTION_MARK));
+    return findNotNullChildByType(QUESTION_MARK);
   }
 
 }

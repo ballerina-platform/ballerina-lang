@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.990.3</version>
+    <version>0.990.4-SNAPSHOT</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -33,44 +33,14 @@
         </component>
     </module-components>
 
-    <extensionPoints>
-        <extensionPoint interface="com.github.gtache.lsp.contributors.icon.LSPIconProvider" name="LSPIconProvider"/>
-    </extensionPoints>
-
     <extensions defaultExtensionNs="com.intellij">
 
-        <!--LSP Plugin Extensions-->
-        <applicationConfigurable instance="com.github.gtache.lsp.settings.MiscSettings" id="MiscSettings"
-                                 parentId="Ballerina" displayName="Language Server"/>
-        <applicationConfigurable parentId="MiscSettings" id="ServerSettings" displayName="Server Definitions"
-                                 instance="com.github.gtache.lsp.settings.ServersSettings"/>
-        <applicationConfigurable parentId="MiscSettings" id="TimeoutSettings" displayName="Timeouts"
-                                 instance="com.github.gtache.lsp.settings.TimeoutSettings"/>
+        <!--lsp4intellij extensions-->
+        <completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
+                                id="LSPCompletionContributor" language="any"/>
 
-        <applicationService id="LSPState"
-                            serviceInterface="com.github.gtache.lsp.settings.BallerinaLSPState"
-                            serviceImplementation="com.github.gtache.lsp.settings.BallerinaLSPState"/>
-
-        <!--<gotoSymbolContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoSymbolContributor"-->
-                               <!--id="LSPGotoSymbolContributor"/>-->
-        <gotoClassContributor implementation="com.github.gtache.lsp.contributors.gotoo.LSPGotoClassContributor"
-                              id="LSPGotoClassContributor"/>
-        <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
-        <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
-                                id="LSPCompletionContributor" language="Ballerina"/>
-        <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
+        <inspectionToolProvider implementation="org.wso2.lsp4intellij.contributors.inspection.LSPInspectionProvider"
                                 id="LSPInspectionProvider"/>
-        <fileDocumentSynchronizationVetoer
-                implementation="com.github.gtache.lsp.editor.listeners.LSPFileDocumentSynchronizationVetoer"
-                id="LSPFileDocumentSynchronizationVetoer"/>
-
-        <renameHandler implementation="com.github.gtache.lsp.contributors.rename.LSPRenameHandler" id="LSPRenameHandler"
-                       order="first"/>
-        <renamePsiElementProcessor implementation="com.github.gtache.lsp.contributors.rename.LSPRenameProcessor"
-                                   id="LSPRenameProcessor" order="first"/>
-        <lang.documentationProvider implementationClass="com.github.gtache.lsp.contributors.LSPDocumentationProvider"
-                                    id="LSPDocumentationProvider" language="Ballerina" order="first"/>
-
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
@@ -83,27 +53,15 @@
 
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaFunctionIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaAnnotationIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaWorkerIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex"/>
         <!--Add organization index-->
-
-        <stubElementTypeHolder class="io.ballerina.plugins.idea.psi.BallerinaTypes"/>
 
         <indexPatternBuilder implementation="io.ballerina.plugins.idea.BallerinaIndexPatternBuilder"/>
 
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="io.ballerina.plugins.idea.marker.BallerinaTypeFunctionMarker"/>
 
-        <!--<lang.findUsagesProvider language="Ballerina"-->
-                                 <!--implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>-->
-
         <lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"
                                  implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
-
-        <!--<codeInsight.parameterInfo language="Ballerina"-->
-                                   <!--implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>-->
 
         <spellchecker.support language="Ballerina"
                               implementationClass="io.ballerina.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
@@ -114,10 +72,6 @@
         <annotator language="Ballerina"
                    implementationClass="io.ballerina.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
-        <!--refactoring-->
-        <!--<lang.refactoringSupport language="Ballerina"-->
-                                 <!--implementationClass="io.ballerina.plugins.idea.refactoring.BallerinaRefactoringSupport"/>-->
-
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
@@ -125,28 +79,13 @@
         <lang.braceMatcher language="Ballerina"
                            implementationClass="io.ballerina.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
 
-
-        <!--<completion.contributor language="Ballerina"-->
-        <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaKeywordContributor"/>-->
-        <!--<completion.contributor language="Ballerina"-->
-        <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaCompletionContributor"/>-->
-
-        <!--live templates-->
-        <!--<defaultLiveTemplatesProvider-->
-                <!--implementation="io.ballerina.plugins.idea.template.BallerinaLiveTemplateProvider"/>-->
-        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaEverywhereContextType"/>-->
-        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$File"/>-->
-        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Service"/>-->
-        <!--<liveTemplateContext-->
-                <!--implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>-->
-
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina"
                              implementationClass="io.ballerina.plugins.idea.editor.BallerinaFoldingBuilder"/>
 
         <!--formatter-->
-        <lang.formatter language="Ballerina"
-                        implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
+        <!--<lang.formatter language="Ballerina"-->
+                        <!--implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
         <codeStyleSettingsProvider
                 implementation="io.ballerina.plugins.idea.formatter.settings.BallerinaCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
@@ -214,9 +153,6 @@
         <xdebugger.breakpointType
                 implementation="io.ballerina.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
 
-        <codeInsight.template.postfixTemplateProvider language="Ballerina"
-                                                      implementationClass="io.ballerina.plugins.idea.codeinsight.template.postfix.BallerinaPostfixTemplateProvider"/>
-
         <!--project-->
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService"/>
@@ -235,15 +171,6 @@
 
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchSettings"/>
-
-        <!--Todo - Use language server diagnostics after fixing-->
-        <!--inspections-->
-        <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
-                         groupName="General" enabledByDefault="true" level="WARNING"
-                         shortName="BallerinaUnresolvedReference"
-                         implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
@@ -257,17 +184,20 @@
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
         </action>
 
-        <!-- LSP Plugin Actions -->
-        <!--<action class="com.github.gtache.lsp.actions.LSPQuickDocAction" id="QuickJavaDoc" text="Quick Doc"/>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPReformatAction" id="ReformatCode" use-shortcut-of="ReformatCode"/>-->
-        <!--<action class="com.github.gtache.lsp.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog" use-shortcut-of="ShowReformatFileDialog"/>-->
-        <action class="com.github.gtache.lsp.actions.LSPReferencesAction" id="LSPFindUsages"><keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/> </action>
-        <action class="com.github.gtache.lsp.actions.LSPRefactoringAction" id="LSPRefactoringAction"><keyboard-shortcut first-keystroke="shift alt F6" keymap="$default"/></action>
+        <action class="org.wso2.lsp4intellij.actions.LSPReformatAction" id="ReformatCode"
+                use-shortcut-of="ReformatCode"
+                overrides="true" text="Reformat Code"/>
+        <action class="org.wso2.lsp4intellij.actions.LSPShowReformatDialogAction" id="ShowReformatFileDialog"
+                use-shortcut-of="ShowReformatFileDialog" overrides="true" text="Show Reformat File Dialog"/>
+        <action class="org.wso2.lsp4intellij.actions.LSPReferencesAction"
+                id="LSPFindUsages">
+            <keyboard-shortcut first-keystroke="shift alt F7" keymap="$default"/>
+        </action>
     </actions>
 
     <application-components>
         <component>
-            <implementation-class>com.github.gtache.lsp.PluginMain</implementation-class>
+            <implementation-class>org.wso2.lsp4intellij.IntellijLanguageClient</implementation-class>
         </component>
     </application-components>
 

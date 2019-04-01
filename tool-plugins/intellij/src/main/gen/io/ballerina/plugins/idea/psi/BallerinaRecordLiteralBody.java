@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRecordLiteralBody extends BallerinaCompositeElement {
+public interface BallerinaRecordLiteralBody extends PsiElement {
 
   @NotNull
   List<BallerinaRecordKeyValue> getRecordKeyValueList();

@@ -24,15 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaWorkerDefinitionStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaWorkerDefinitionImpl extends BallerinaNamedElementImpl<BallerinaWorkerDefinitionStub> implements BallerinaWorkerDefinition {
-
-  public BallerinaWorkerDefinitionImpl(@NotNull BallerinaWorkerDefinitionStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaWorkerDefinitionImpl extends ASTWrapperPsiElement implements BallerinaWorkerDefinition {
 
   public BallerinaWorkerDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,13 +45,13 @@ public class BallerinaWorkerDefinitionImpl extends BallerinaNamedElementImpl<Bal
   @Override
   @Nullable
   public BallerinaReturnParameter getReturnParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReturnParameter.class);
+    return findChildByClass(BallerinaReturnParameter.class);
   }
 
   @Override
   @Nullable
   public BallerinaWorkerBody getWorkerBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWorkerBody.class);
+    return findChildByClass(BallerinaWorkerBody.class);
   }
 
   @Override
@@ -68,7 +63,7 @@ public class BallerinaWorkerDefinitionImpl extends BallerinaNamedElementImpl<Bal
   @Override
   @NotNull
   public PsiElement getWorker() {
-    return notNullChild(findChildByType(WORKER));
+    return findNotNullChildByType(WORKER);
   }
 
 }

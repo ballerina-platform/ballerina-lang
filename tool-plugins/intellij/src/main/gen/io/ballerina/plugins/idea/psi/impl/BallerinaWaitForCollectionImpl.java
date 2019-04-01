@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaWaitForCollectionImpl extends BallerinaCompositeElementImpl implements BallerinaWaitForCollection {
+public class BallerinaWaitForCollectionImpl extends ASTWrapperPsiElement implements BallerinaWaitForCollection {
 
   public BallerinaWaitForCollectionImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,7 +51,7 @@ public class BallerinaWaitForCollectionImpl extends BallerinaCompositeElementImp
   @Override
   @NotNull
   public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override

@@ -22,12 +22,14 @@ public type BirEmitter object {
     private TypeEmitter typeEmitter;
     private InstructionEmitter insEmitter;
     private TerminalEmitter termEmitter;
+    private OperandEmitter opEmitter;
 
     public function __init (Package pkg){
         self.pkg = pkg;
         self.typeEmitter = new;
         self.insEmitter = new;
         self.termEmitter = new;
+        self.opEmitter = new;
     }
 
 
@@ -113,6 +115,15 @@ public type BirEmitter object {
                 println();// empty line
             }
         }
+        if (bFunction.errorEntries.length() > 0 ) {
+            println("\tError Table \n\t\tBB\t|\terrorOp");
+        }
+        foreach var e in bFunction.errorEntries {
+            if (e is ErrorEntry) {
+                self.emitErrorEntry(e);
+                println();// empty line
+            }
+        }
         println("}");
     }
 
@@ -125,6 +136,13 @@ public type BirEmitter object {
         }
         self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs + "\t");
         println(tabs, "}");
+    }
+
+    function emitErrorEntry(ErrorEntry errorEntry) {
+        print("\t\t");
+        print(errorEntry.trapBB.id.value);
+        print("\t|\t");
+        self.opEmitter.emitOp(errorEntry.errorOp);
     }
 };
 
@@ -198,7 +216,7 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.opEmitter.emitOp(ins.reasonOp);
-            println(" ");
+            print(" ");
             self.opEmitter.emitOp(ins.detailsOp);
             println(";");
         } else if (ins is TypeCast) {
@@ -252,6 +270,10 @@ type TerminalEmitter object {
             println(" [true:", term.trueBB.id.value, ", false:", term.falseBB.id.value,"];");
         } else if (term is GOTO) {
             println(tabs, "goto ", term.targetBB.id.value, ";");
+        } else if (term is Panic) {
+            print(tabs, "panic ");
+            self.opEmitter.emitOp(term.errorOp);
+            print(";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }

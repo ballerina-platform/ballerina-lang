@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaIntRangeExpressionImpl extends BallerinaCompositeElementImpl implements BallerinaIntRangeExpression {
+public class BallerinaIntRangeExpressionImpl extends ASTWrapperPsiElement implements BallerinaIntRangeExpression {
 
   public BallerinaIntRangeExpressionImpl(@NotNull ASTNode node) {
     super(node);
@@ -62,7 +63,7 @@ public class BallerinaIntRangeExpressionImpl extends BallerinaCompositeElementIm
   @Override
   @NotNull
   public PsiElement getRange() {
-    return notNullChild(findChildByType(RANGE));
+    return findNotNullChildByType(RANGE);
   }
 
   @Override

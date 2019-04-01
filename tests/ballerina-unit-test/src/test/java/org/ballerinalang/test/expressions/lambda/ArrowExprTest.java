@@ -215,7 +215,7 @@ public class ArrowExprTest {
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
@@ -240,5 +240,7 @@ public class ArrowExprTest {
                 "undefined symbol 'm'", 60, 58);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '0' but found '1'", 68, 40);
+        BAssertUtil.validateError(resultNegative, i++, "variable 'i' is not initialized", 74, 54);
+        BAssertUtil.validateError(resultNegative, i, "variable 'm' is not initialized", 74, 58);
     }
 }

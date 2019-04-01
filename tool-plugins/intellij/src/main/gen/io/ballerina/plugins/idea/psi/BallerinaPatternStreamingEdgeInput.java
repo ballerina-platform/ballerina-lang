@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaPatternStreamingEdgeInput extends BallerinaCompositeElement {
+public interface BallerinaPatternStreamingEdgeInput extends PsiElement {
 
   @Nullable
   BallerinaIntRangeExpression getIntRangeExpression();

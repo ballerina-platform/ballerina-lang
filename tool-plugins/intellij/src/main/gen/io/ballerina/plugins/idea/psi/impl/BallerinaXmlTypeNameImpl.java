@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlTypeName {
+public class BallerinaXmlTypeNameImpl extends ASTWrapperPsiElement implements BallerinaXmlTypeName {
 
   public BallerinaXmlTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaXmlTypeNameImpl extends BallerinaCompositeElementImpl impl
   @Override
   @Nullable
   public BallerinaXmlLocalName getXmlLocalName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlLocalName.class);
+    return findChildByClass(BallerinaXmlLocalName.class);
   }
 
   @Override
   @Nullable
   public BallerinaXmlNamespaceName getXmlNamespaceName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlNamespaceName.class);
+    return findChildByClass(BallerinaXmlNamespaceName.class);
   }
 
   @Override
@@ -80,7 +81,7 @@ public class BallerinaXmlTypeNameImpl extends BallerinaCompositeElementImpl impl
   @Override
   @NotNull
   public PsiElement getXml() {
-    return notNullChild(findChildByType(XML));
+    return findNotNullChildByType(XML);
   }
 
 }

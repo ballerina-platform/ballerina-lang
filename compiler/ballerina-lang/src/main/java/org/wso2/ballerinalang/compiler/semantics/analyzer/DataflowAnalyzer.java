@@ -692,6 +692,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
+            bLangLambdaFunction.function.closureVarSymbols.forEach(closureVarSymbol -> {
+                if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                    this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                            closureVarSymbol.bSymbol);
+                }
+            });
             return;
         }
 
@@ -871,6 +877,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
+            if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                        closureVarSymbol.bSymbol);
+            }
+        });
     }
 
     @Override

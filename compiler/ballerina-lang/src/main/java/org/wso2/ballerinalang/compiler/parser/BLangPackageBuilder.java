@@ -546,17 +546,34 @@ public class BLangPackageBuilder {
         addType(refType);
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean isReasonTypeExists, boolean isDetailsTypeExists) {
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
+                      boolean isAnonymous) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (isDetailsTypeExists) {
+        if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (isReasonTypeExists) {
+        if (reasonTypeExists) {
             errorType.reasonType = (BLangType) this.typeNodeStack.pop();
         }
-        addType(errorType);
+
+        if (!isAnonymous) {
+            addType(errorType);
+            return;
+        }
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        // Generate a name for the anonymous error
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+        IdentifierNode anonTypeGenName = createIdentifier(genName);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+
+        typeDef.typeNode = errorType;
+        typeDef.pos = pos;
+        this.compUnit.addTopLevelNode(typeDef);
+
+        addType(createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name));
     }
 
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -1570,8 +1587,9 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = function.pos;
         }
-
         if (isReceiverAttached) {
             //Get type node for this attached function
             TypeNode typeNode = this.typeNodeStack.pop();
@@ -1974,6 +1992,8 @@ public class BLangPackageBuilder {
                 function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
+        } else {
+            function.body.pos = pos;
         }
 
         function.attachedFunction = true;
@@ -2026,6 +2046,8 @@ public class BLangPackageBuilder {
 
         if (!bodyExists) {
             function.body = null;
+        } else {
+            function.body.pos = pos;
         }
 
         // Create an user defined type with object type
@@ -2489,14 +2511,18 @@ public class BLangPackageBuilder {
         ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
-        ifNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        ifNode.setBody(blockNode);
     }
 
     void addElseIfBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         IfNode elseIfNode = ifElseStatementStack.pop();
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
-        elseIfNode.setBody(blockNodeStack.pop());
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        elseIfNode.setBody(blockNode);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();
