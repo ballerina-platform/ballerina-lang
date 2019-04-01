@@ -83,15 +83,19 @@ CopySpec copyJarSpec = copySpec {
 }
 
 CopySpec copyResourceSpec = copySpec {
-    from file("src/main/resources/lang-server-index.sql")
+    from file("$buildDir/lib/tools/lang-server/resources/lang-server-index.sql")
     into("resources")
 }
 
 task generateIndex(type: JavaExec) {
-    outputs.dir("$buildDir/lib/tools/lang-server/resources")
-    outputs.cacheIf { true }
+    // outputs.dir("$buildDir/lib/tools/lang-server/resources")
+    // outputs.cacheIf { true }
+    systemProperty("ballerina.home", "$buildDir")
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
+
+    // Uncomment the following to run the index generator in the debug mode while build
+     debug = true
 }
 
 task createZip(type: Zip) {
@@ -104,13 +108,11 @@ artifacts {
 }
 
 build {
+    dependsOn generateIndex
     dependsOn createZip
-    // Enable when the path issue fixed
-//    dependsOn generateIndex
 }
 
 test {
-    exclude '**/*'
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "experimental", "true"
     useTestNG() {
