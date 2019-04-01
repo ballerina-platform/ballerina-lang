@@ -46,7 +46,12 @@ public class LSCommandExecutorProvider {
             if (!optional.isPresent()) {
                 logger.error("No such Service loader found");
             } else {
-                executors.put(optional.get().getCommand(), optional.get());
+                String[] commands = optional.get().getCommand();
+                if (commands != null) {
+                    for (String command : commands) {
+                        executors.put(command, optional.get());
+                    }
+                }
             }
         }
     }

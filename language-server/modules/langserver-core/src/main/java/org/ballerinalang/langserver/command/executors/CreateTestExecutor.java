@@ -73,7 +73,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateTestExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_TEST";
+    public static final String COMMAND = "CREATE_TEST";
 
     public static String generateTestFileName(Path sourceFilePath) {
         String fileName = FilenameUtils.removeExtension(sourceFilePath.toFile().getName());
