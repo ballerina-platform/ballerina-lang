@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaSimpleLiteral {
+public class BallerinaSimpleLiteralImpl extends ASTWrapperPsiElement implements BallerinaSimpleLiteral {
 
   public BallerinaSimpleLiteralImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl im
   @Override
   @Nullable
   public BallerinaBlobLiteral getBlobLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlobLiteral.class);
+    return findChildByClass(BallerinaBlobLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEmptyTupleLiteral.class);
+    return findChildByClass(BallerinaEmptyTupleLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaFloatingPointLiteral getFloatingPointLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFloatingPointLiteral.class);
+    return findChildByClass(BallerinaFloatingPointLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaIntegerLiteral getIntegerLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaIntegerLiteral.class);
+    return findChildByClass(BallerinaIntegerLiteral.class);
   }
 
   @Override

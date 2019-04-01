@@ -1121,10 +1121,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
+            retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": string.convert(tableOrError.detail().message) };
+        retVal = { "Error": <string> tableOrError.detail().message };
     }
     return retVal;
 }
@@ -1136,11 +1136,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
         } else {
-            string errorXML = string.convert(xmlConversionResult.detail().message);
+            string errorXML = <string> xmlConversionResult.detail().message;
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else {
-        string errorXML = string.convert(tableOrError.detail().message);
+        string errorXML = <string> tableOrError.detail().message;
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;

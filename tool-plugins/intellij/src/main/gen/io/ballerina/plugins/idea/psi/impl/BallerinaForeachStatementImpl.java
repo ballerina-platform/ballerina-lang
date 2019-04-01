@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl implements BallerinaForeachStatement {
+public class BallerinaForeachStatementImpl extends ASTWrapperPsiElement implements BallerinaForeachStatement {
 
   public BallerinaForeachStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl
   @Override
   @Nullable
   public BallerinaBindingPattern getBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class);
+    return findChildByClass(BallerinaBindingPattern.class);
   }
 
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -92,7 +93,7 @@ public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl
   @Override
   @NotNull
   public PsiElement getForeach() {
-    return notNullChild(findChildByType(FOREACH));
+    return findNotNullChildByType(FOREACH);
   }
 
   @Override

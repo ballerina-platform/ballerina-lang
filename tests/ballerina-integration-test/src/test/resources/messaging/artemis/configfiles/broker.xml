@@ -103,10 +103,6 @@ under the License.
       <!-- how often we are looking for how many bytes are being used on the disk in ms -->
       <disk-scan-period>5000</disk-scan-period>
 
-      <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
-           that won't support flow control. -->
-      <max-disk-usage>90</max-disk-usage>
-
       <!-- should the broker detect dead locks and other issues -->
       <critical-analyzer>true</critical-analyzer>
 

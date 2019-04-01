@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlItemImpl extends BallerinaCompositeElementImpl implements BallerinaXmlItem {
+public class BallerinaXmlItemImpl extends ASTWrapperPsiElement implements BallerinaXmlItem {
 
   public BallerinaXmlItemImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaXmlItemImpl extends BallerinaCompositeElementImpl implemen
   @Override
   @Nullable
   public BallerinaComment getComment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaComment.class);
+    return findChildByClass(BallerinaComment.class);
   }
 
   @Override
   @Nullable
   public BallerinaElement getElement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaElement.class);
+    return findChildByClass(BallerinaElement.class);
   }
 
   @Override
   @Nullable
   public BallerinaProcIns getProcIns() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaProcIns.class);
+    return findChildByClass(BallerinaProcIns.class);
   }
 
   @Override
   @Nullable
   public BallerinaXmlText getXmlText() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlText.class);
+    return findChildByClass(BallerinaXmlText.class);
   }
 
   @Override

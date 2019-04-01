@@ -44,7 +44,7 @@ public class BallerinaStaticMatchRecordLiteralImpl extends BallerinaStaticMatchL
   @Override
   @NotNull
   public BallerinaRecordLiteral getRecordLiteral() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaRecordLiteral.class));
+    return findNotNullChildByClass(BallerinaRecordLiteral.class);
   }
 
 }

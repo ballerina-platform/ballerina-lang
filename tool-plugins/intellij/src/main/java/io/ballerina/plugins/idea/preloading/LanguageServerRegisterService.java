@@ -15,8 +15,8 @@
  */
 package io.ballerina.plugins.idea.preloading;
 
-import com.github.gtache.lsp.client.languageserver.serverdefinition.LanguageServerDefinition$;
-import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition;
+import org.wso2.lsp4intellij.IntellijLanguageClient;
+import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandServerDefinition;
 
 /**
  * Language Server Definition Register Service.
@@ -24,6 +24,6 @@ import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandSe
 public class LanguageServerRegisterService {
 
     static void register(String[] args) {
-        LanguageServerDefinition$.MODULE$.register(new RawCommandServerDefinition("bal", args));
+        IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", args));
     }
 }

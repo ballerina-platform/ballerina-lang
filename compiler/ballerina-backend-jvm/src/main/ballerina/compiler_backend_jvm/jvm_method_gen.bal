@@ -24,7 +24,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     int returnVarRefIndex = -1;
 
     // generate method desc
-    string desc = getMethodDesc(func);
+    string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, (), ());
     mv.visitCode();
 
@@ -105,7 +105,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         i = i + 1;
     }
 
-    TerminatorGenerator termGen = new(mv, indexMap, labelGen);
+    TerminatorGenerator termGen = new(mv, indexMap, labelGen, module);
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -124,7 +124,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
-        //io:println("Basic Block Is : ", bb.id.value);
         string currentBBName = io:sprintf("%s", bb.id.value);
 
         // create jvm label
@@ -185,6 +184,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
             termGen.genCallTerm(terminator, funcName);
+        } else if (terminator is bir:AsyncCall) {
+            termGen.genAsyncCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -244,10 +245,15 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", ERROR_VALUE));
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BFutureType) {
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+                    io:sprintf("L%s;", FUTURE_VALUE));
+            mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
@@ -303,6 +309,10 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", ERROR_VALUE));
+        } else if (bType is bir:BFutureType) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
+                    io:sprintf("L%s;", FUTURE_VALUE));
         } else if (bType is bir:BObjectType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
@@ -310,7 +320,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
-                    bType is bir:BUnionType) {
+                    bType is bir:BUnionType ||
+                    bType is bir:BJSONType) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", OBJECT));
@@ -352,6 +363,49 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitEnd();
 }
 
+function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string className, string lambdaName) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
+                                io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
+    mv.visitCode();
+
+    bir:VarRef?[] paramTypes = callIns.args;
+
+    //load strand as first arg
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitInsn(ICONST_0);
+    mv.visitInsn(AALOAD);
+    mv.visitTypeInsn(CHECKCAST, FUTURE_VALUE);
+
+    // load and cast param values
+    bir:BType[] paramBTypes = []; 
+    int paramIndex = 1;
+    foreach var paramType in paramTypes {
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitIntInsn(BIPUSH, paramIndex);
+        mv.visitInsn(AALOAD);
+        checkCastFromObject(paramType.typeValue, mv);
+        paramBTypes[paramIndex -1] = paramType.typeValue;
+        paramIndex += 1;
+    }
+
+    bir:BType lhsType = callIns.lhsOp.typeValue;
+    bir:BType returnType;
+    if (lhsType is bir:BFutureType) {
+        returnType = lhsType.returnType;
+    } else {
+        error err = error( "JVM generation is not supported for async return type " +
+                                        io:sprintf("%s", lhsType));
+        panic err;
+    }
+
+    mv.visitMethodInsn(INVOKESTATIC, className, callIns.name.value, getMethodDesc(paramBTypes, returnType), false);
+    
+    generateObjectCast(returnType, mv);
+    mv.visitInsn(ARETURN);
+    mv.visitMaxs(0,0);
+    mv.visitEnd();
+}
+
 function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
         mv.visitInsn(LCONST_0);
@@ -374,7 +428,9 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BObjectType ||
                 bType is bir:BUnionType ||
                 bType is bir:BRecordType ||
-                bType is bir:BTupleType) {
+                bType is bir:BTupleType ||
+                bType is bir:BFutureType ||
+                bType is bir:BJSONType) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else {
@@ -384,14 +440,14 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     }
 }
 
-function getMethodDesc(bir:Function func) returns string {
+function getMethodDesc(bir:BType[] paramTypes, bir:BType retType) returns string {
     string desc = "(Lorg/ballerinalang/jvm/Strand;";
     int i = 0;
-    while (i < func.argsCount) {
-        desc = desc + getArgTypeSignature(func.typeValue.paramTypes[i]);
+    while (i < paramTypes.length()) {
+        desc = desc + getArgTypeSignature(paramTypes[i]);
         i += 1;
     }
-    string returnType = generateReturnType(func.typeValue.retType);
+    string returnType = generateReturnType(retType);
     desc =  desc + returnType;
 
     return desc;
@@ -412,10 +468,16 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
-    } else if (bType is bir:BTypeAnyData || bType is bir:BUnionType) {
+    } else if (bType is bir:BTypeAnyData ||
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         return io:sprintf("L%s;", OBJECT);
-    } else if (bType is bir:BMapType || bType is bir:BRecordType || bType is bir:BTypeAny) {
+    } else if (bType is bir:BMapType ||
+                bType is bir:BRecordType ||
+                bType is bir:BTypeAny) {
         return io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BFutureType) {
+        return io:sprintf("L%s;", FUTURE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -443,9 +505,12 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", MAP_VALUE);
     } else if (bType is bir:BErrorType) {
         return io:sprintf(")L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        return io:sprintf(")L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType) {
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         return io:sprintf(")L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
@@ -486,7 +551,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
     }
 
-    string desc = getMethodDesc(userMainFunc);
+    string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
 
     mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
@@ -520,9 +585,73 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         }
     }
 
+    mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "shutdown", "()V", false);
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(paramTypes.length() + 5, 10);
     mv.visitEnd();
+}
+# Generate cast instruction from Object to target type
+# 
+# + targetType - target type to be casted
+# + mv - method visitor
+function checkCastFromObject(bir:BType targetType, jvm:MethodVisitor mv) {
+    if (targetType is bir:BTypeInt) {
+        mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
+    } else if (targetType is bir:BTypeFloat) {
+        mv.visitTypeInsn(CHECKCAST, DOUBLE_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, "parseDouble", "()D", false);
+    } else if (targetType is bir:BTypeString) {
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+    } else if (targetType is bir:BTypeBoolean) {
+        mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "parseBoolean", "()Z", false);
+    } else if (targetType is bir:BTypeByte) {
+        mv.visitTypeInsn(CHECKCAST, BYTE_VALUE);
+        mv.visitMethodInsn(INVOKEVIRTUAL, BYTE_VALUE, "parseByte", "()B", false);
+    } else if (targetType is bir:BArrayType) {
+        mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
+    } else if (targetType is bir:BMapType) {
+        mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BTypeAny ||
+                targetType is bir:BTypeAnyData ||
+                targetType is bir:BTypeNil ||
+                targetType is bir:BUnionType) {
+        // do nothing
+        return;
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
+        panic err;
+    }
+}
+
+# Cast a given type to object
+# 
+# + targetType - target type to be casted
+# + mv - method visitor
+function generateObjectCast(bir:BType targetType, jvm:MethodVisitor mv) {  
+    if (targetType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
+    } else if (targetType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
+    } else if (targetType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
+    } else if (targetType is bir:BTypeByte) {
+        mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "valueOf", io:sprintf("(B)L%s;", BYTE_VALUE), false);
+    } else if (targetType is bir:BTypeAny ||
+                targetType is bir:BTypeAnyData ||
+                targetType is bir:BTypeNil ||
+                targetType is bir:BUnionType ||
+                targetType is bir:BTypeString ||
+                targetType is bir:BArrayType ||
+                targetType is bir:BMapType) {
+        // do nothing
+        return;
+    } else {
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", targetType));
+        panic err;
+    }
 }
 
 function hasInitFunction(bir:Package pkg) returns boolean {
@@ -591,7 +720,8 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
-                targetType is bir:BUnionType) {
+                targetType is bir:BUnionType ||
+                targetType is bir:BJSONType) {
         // do nothing
         return;
     } else {
@@ -682,11 +812,14 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
         typeSig = io:sprintf("L%s;", ARRAY_VALUE);
     } else if (bType is bir:BErrorType) {
         typeSig = io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        typeSig = io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BObjectType) {
         typeSig = io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
-                bType is bir:BUnionType) {
+                bType is bir:BUnionType ||
+                bType is bir:BJSONType) {
         typeSig = io:sprintf("L%s;", OBJECT);
     } else {
         error err = error( "JVM generation is not supported for type " +

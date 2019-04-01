@@ -50,49 +50,49 @@ public type Message client object {
         }
     }
 
-    extern function createMessage(Session session, string | byte[] | map<string | int | float | byte | boolean | byte[]>
- | io:ReadableByteChannel data, MessageConfiguration config);
+    function createMessage(Session session, string | byte[] | map<string | int | float | byte | boolean | byte[]>
+ | io:ReadableByteChannel data, MessageConfiguration config) = external;
 
     # Acknowledges reception of this message.
     #
     # + return - If an error occurred while acknowledging the message
-    public remote extern function acknowledge() returns error?;
+    public remote function acknowledge() returns error? = external;
 
     # Returns the size (in bytes) of this message's body.
     #
     # + return - the size of the message body
-    public extern function getBodySize() returns int;
+    public function getBodySize() returns int = external;
 
     # Add message property.
     #
     # + key - The name of the property
     # + value - The value of the property 
     # + return - If an error occures while setting the property
-    public extern function putProperty(string key, string | int | float | boolean | byte | byte[] value);
+    public function putProperty(string key, string | int | float | boolean | byte | byte[] value) = external;
 
     # Get a message property.
     #
     # + key - The name of the property
     # + return - The value of the property or nil if not found
-    public extern function getProperty(string key) returns string | int | float | boolean | byte | byte[] | () | error;
+    public function getProperty(string key) returns string | int | float | boolean | byte | byte[] | () | error = external;
 
     # The type of the message.
     #
     # + return - The `MessageType` of the message
-    public extern function getType() returns MessageType;
+    public function getType() returns MessageType = external;
 
     # The message payload.
     #
     # + return - The message payload or error on failure to retrieve payload or if the type is unsupported.
     #  A map payload can contain an error if the type is unsupported.
-    public extern function getPayload() returns string | byte[] | map<string | int | float | byte | boolean | byte[]> |
-error | ();
+    public function getPayload() returns string | byte[] | map<string | int | float | byte | boolean | byte[]> |
+error | () = external;
 
     # Call this function to save to a WritableByteChannel if the message is `STREAM` type.
     #
     # + ch - The byte channel to save to
     # + return - will return an `error` if the message is not of type `STREAM` or on failure
-    public extern function saveToWritableByteChannel(io:WritableByteChannel ch) returns error?;
+    public function saveToWritableByteChannel(io:WritableByteChannel ch) returns error? = external;
 
     # Get the message configuration.
     #

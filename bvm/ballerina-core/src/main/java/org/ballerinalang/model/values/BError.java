@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +32,8 @@ import java.util.Map;
 public class BError implements BRefType {
 
     BType type;
-    public String reason;
-    public BRefType details;
+    private String reason;
+    private BRefType details;
     public List<BMap<String, BValue>> callStack;
     public BError cause;
 
@@ -71,12 +70,27 @@ public class BError implements BRefType {
     }
 
     public BRefType getDetails() {
-        // TODO: Make details frozen.
-        return (BRefType) details.copy(new HashMap<>());
+        return details;
     }
 
     @Override
     public Object value() {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void attemptFreeze(BVM.FreezeStatus freezeStatus) {
+        // do nothing, since error types are always frozen
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFrozen() {
+        return true;
     }
 }

@@ -25,7 +25,7 @@ public type BIRContext object {
     }
 };
 
-extern function getBIRModuleBinary(BIRContext birContext, ModuleID modId) returns byte[];
+function getBIRModuleBinary(BIRContext birContext, ModuleID modId) returns byte[] = external;
 
 
 // TODO Refactor following methods

@@ -44,13 +44,13 @@ public class BallerinaWorkerSendAsyncExpressionImpl extends BallerinaExpressionI
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public PsiElement getSyncrarrow() {
-    return notNullChild(findChildByType(SYNCRARROW));
+    return findNotNullChildByType(SYNCRARROW);
   }
 
   @Override

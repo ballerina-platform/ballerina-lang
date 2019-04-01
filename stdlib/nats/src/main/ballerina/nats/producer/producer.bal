@@ -59,7 +59,7 @@ public type Producer client object {
         }
     }
 
-    extern function sendMsg(string subject, byte[] message) returns string|error;
+    function sendMsg(string subject, byte[] message) returns string|error = external;
 
-    extern function sendRequestReplyMsg(string subject, byte[] message) returns Message|error;
+    function sendRequestReplyMsg(string subject, byte[] message) returns Message|error = external;
 };

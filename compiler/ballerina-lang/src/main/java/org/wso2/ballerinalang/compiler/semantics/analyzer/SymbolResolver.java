@@ -373,8 +373,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (type.tag != TypeTags.ERROR) {
             return symTable.notFoundSymbol;
         }
-        return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(),
-                ((BErrorType) type).detailType, InstructionCodes.NOP);
+        return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(), ((BErrorType) type).detailType,
+                                       InstructionCodes.NOP);
     }
 
     public BSymbol createSymbolForConvertOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
@@ -930,8 +930,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.mapType);
-        if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.pureTypeConstrainedMap);
+
+        if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
             resultType = symTable.errorType;
             return;
         }
