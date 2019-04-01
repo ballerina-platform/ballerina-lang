@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
@@ -69,6 +70,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         birBasicBlock.terminator.accept(this);
     }
 
+    public void writeErrorTable(List<BIRNode.BIRErrorEntry> errorEntries) {
+        buf.writeInt(errorEntries.size());
+        errorEntries.forEach(birErrorEntry -> birErrorEntry.accept(this));
+    }
+
+    public void visit(BIRNode.BIRErrorEntry errorEntry) {
+        addCpAndWriteString(errorEntry.trapBB.id.value);
+        errorEntry.errorOp.accept(this);
+    }
 
     // Terminating instructions
 
@@ -106,6 +116,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int nameCPIndex = addStringCPEntry(calleePkg.name.value);
         int versionCPIndex = addStringCPEntry(calleePkg.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
@@ -246,6 +257,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.detailOp.accept(this);
     }
 
+
+    public void visit(BIRTerminator.Panic birPanic) {
+        buf.writeByte(birPanic.kind.getValue());
+        birPanic.errorOp.accept(this);
+    }
 
     // private methods
 

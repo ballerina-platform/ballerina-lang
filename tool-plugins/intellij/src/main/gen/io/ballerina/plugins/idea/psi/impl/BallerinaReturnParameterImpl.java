@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaReturnParameterImpl extends BallerinaCompositeElementImpl implements BallerinaReturnParameter {
+public class BallerinaReturnParameterImpl extends ASTWrapperPsiElement implements BallerinaReturnParameter {
 
   public BallerinaReturnParameterImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaReturnParameterImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaReturnType getReturnType() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReturnType.class);
+    return findChildByClass(BallerinaReturnType.class);
   }
 
   @Override
   @NotNull
   public PsiElement getReturns() {
-    return notNullChild(findChildByType(RETURNS));
+    return findNotNullChildByType(RETURNS);
   }
 
 }

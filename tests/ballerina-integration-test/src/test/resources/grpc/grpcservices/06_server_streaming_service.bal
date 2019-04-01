@@ -39,7 +39,7 @@ service HelloWorld45 on ep6 {
             }
         }
         // Once all messages are sent, server send complete message to notify the client, I’m done.
-        _ = caller->complete();
+        checkpanic caller->complete();
         io:println("send all responses sucessfully.");
     }
 

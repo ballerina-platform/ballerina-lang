@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaVarMatchPatternImpl extends BallerinaCompositeElementImpl implements BallerinaVarMatchPattern {
+public class BallerinaVarMatchPatternImpl extends ASTWrapperPsiElement implements BallerinaVarMatchPattern {
 
   public BallerinaVarMatchPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaVarMatchPatternImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaBindingPattern getBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class);
+    return findChildByClass(BallerinaBindingPattern.class);
   }
 
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaStatement getStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
+    return findChildByClass(BallerinaStatement.class);
   }
 
   @Override
@@ -92,7 +93,7 @@ public class BallerinaVarMatchPatternImpl extends BallerinaCompositeElementImpl 
   @Override
   @NotNull
   public PsiElement getVar() {
-    return notNullChild(findChildByType(VAR));
+    return findNotNullChildByType(VAR);
   }
 
 }

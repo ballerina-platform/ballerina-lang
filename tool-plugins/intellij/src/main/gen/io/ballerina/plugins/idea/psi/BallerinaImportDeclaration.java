@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaImportDeclaration extends BallerinaCompositeElement {
+public interface BallerinaImportDeclaration extends PsiElement {
 
   @Nullable
   BallerinaAlias getAlias();
@@ -43,8 +43,5 @@ public interface BallerinaImportDeclaration extends BallerinaCompositeElement {
 
   @NotNull
   PsiElement getImport();
-
-  @Nullable
-  PsiElement getShortPackageName();
 
 }

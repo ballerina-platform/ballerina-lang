@@ -218,6 +218,13 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testLambdaNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 28, 20);
+    }
+
+    @Test
     public void testTupleReturn() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/tuple-return.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
@@ -452,20 +459,22 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSimpleWorkerInteractionNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 11, 24);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 11, 24);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSimpleBlockedWorkerInteractionNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-blocked-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 24);
     }
 
     @Test (enabled = false)
@@ -543,5 +552,20 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/call-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 18, 25);
+    }
+
+    @Test
+    public void testClosureVariableAssignment() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
+                "closure-variable-assignment.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testClosureVariableAssignmentNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
+                "closure-variable-assignment-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to closure variable 'test'", 22, 9);
     }
 }

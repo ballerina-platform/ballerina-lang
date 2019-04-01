@@ -84,7 +84,7 @@ public class TimerSchedulerTest {
 
     @Test(description = "Tests a timer scheduler cancel functionality")
     public void testListenerTimerStop() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/timer_cancel.bal");
+        CompileResult compileResult = BCompileUtil.compileAndSetup("scheduler/timer/timer_stop.bal");
         await().atLeast(4000, TimeUnit.MILLISECONDS).atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BRunUtil.invokeStateful(compileResult, "triggerTimer");
             BValue[] count = BRunUtil.invokeStateful(compileResult, "getCount");

@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSelectClause extends BallerinaCompositeElement {
+public interface BallerinaSelectClause extends PsiElement {
 
   @Nullable
   BallerinaGroupByClause getGroupByClause();

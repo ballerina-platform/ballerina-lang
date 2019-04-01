@@ -46,13 +46,13 @@ public type TopicPublisher client object {
         }
     }
 
-    public extern function initTopicPublisher(Session? session, string|Destination dest);
+    public function initTopicPublisher(Session? session, string|Destination dest) = external;
 
     # Sends a message to the JMS provider
     #
     # + message - Message to be sent to the JMS provider
     # + return - Error upon failure to send the message to the JMS provider
-    public remote extern function send(Message message) returns error?;
+    public remote function send(Message message) returns error? = external;
 
     # Sends a message to the JMS provider
     #

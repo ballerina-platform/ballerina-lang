@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -251,9 +253,16 @@ public class TypeChecker extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral literalExpr) {
+        BType literalType = setLiteralValueAndGetType(literalExpr, expType);
+        if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
+            return;
+        }
+        resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
-
         Object literalValue = literalExpr.value;
         literalExpr.isJSONContext = types.isJSONContext(expType);
 
@@ -268,48 +277,201 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!types.isByteLiteralValue((Long) literalValue)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
                     resultType = symTable.semanticError;
-                    return;
+                    return resultType;
                 }
                 literalType = symTable.byteType;
+            } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
+                BFiniteType finiteType = (BFiniteType) expType;
+                if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.INT &&
+                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.intType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.BYTE &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.byteType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                }
+            } else if (expType.tag == TypeTags.UNION) {
+                Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                if (memberTypes.stream()
+                        .anyMatch(memType -> memType.tag == TypeTags.INT || memType.tag == TypeTags.JSON ||
+                                memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.intType);
+                }
+
+                BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.intType);
+                if (finiteType != symTable.semanticError) {
+                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                    if (literalExpr.isFiniteContext) {
+                        // i.e., a match was found for a finite type
+                        return setType;
+                    }
+                }
+
+                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.BYTE)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.byteType);
+                }
+
+                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.byteType);
+                if (finiteType != symTable.semanticError) {
+                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                    if (literalExpr.isFiniteContext) {
+                        // i.e., a match was found for a finite type
+                        return setType;
+                    }
+                }
+
+                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.FLOAT)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                }
+
+                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.floatType);
+                if (finiteType != symTable.semanticError) {
+                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                    if (literalExpr.isFiniteContext) {
+                        // i.e., a match was found for a finite type
+                        return setType;
+                    }
+                }
+
+                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                }
+
+                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.decimalType);
+                if (finiteType != symTable.semanticError) {
+                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                    if (literalExpr.isFiniteContext) {
+                        // i.e., a match was found for a finite type
+                        return setType;
+                    }
+                }
             }
-        }
-
-        // check whether this is a byte array
-        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
-            literalType = new BArrayType(symTable.byteType);
-        }
-
-        // Check whether this belongs to decimal type or float type
-        if (literalType.tag == TypeTags.FLOAT) {
+        } else if (literalType.tag == TypeTags.FLOAT) {
             if (expType.tag == TypeTags.DECIMAL) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
             } else if (expType.tag == TypeTags.FLOAT) {
                 literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
+            } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
+                BFiniteType finiteType = (BFiniteType) expType;
+                if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                } else if (finiteType.valueSpace.stream()
+                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
+                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                    BType valueType = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                    setLiteralValueForFiniteType(literalExpr, valueType);
+                    return valueType;
+                }
+            } else if (expType.tag == TypeTags.UNION) {
+                Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+                if (memberTypes.stream()
+                        .anyMatch(memType -> memType.tag == TypeTags.FLOAT || memType.tag == TypeTags.JSON ||
+                                memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.floatType);
+                }
+
+                BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.floatType);
+                if (finiteType != symTable.semanticError) {
+                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                    if (literalExpr.isFiniteContext) {
+                        // i.e., a match was found for a finite type
+                        return setType;
+                    }
+                }
+
+                if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
+                    return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                }
+
+                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType,
+                                                                      symTable.decimalType);
+                if (finiteType != symTable.semanticError) {
+                    BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                    if (literalExpr.isFiniteContext) {
+                        // i.e., a match was found for a finite type
+                        return setType;
+                    }
+                }
+            }
+        } else {
+            if (this.expType.tag == TypeTags.FINITE) {
+                boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
+                if (foundMember) {
+                    setLiteralValueForFiniteType(literalExpr, literalType);
+                    return literalType;
+                }
+            } else if (this.expType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) this.expType;
+                boolean foundMember = unionType.getMemberTypes()
+                        .stream()
+                        .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
+                if (foundMember) {
+                    setLiteralValueForFiniteType(literalExpr, literalType);
+                    return literalType;
+                }
             }
         }
 
-        if (this.expType.tag == TypeTags.FINITE) {
-            BFiniteType expType = (BFiniteType) this.expType;
-            boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
-            if (foundMember) {
-                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
-                resultType = literalType;
-                return;
-            }
-        } else if (this.expType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) this.expType;
-            boolean foundMember = unionType.getMemberTypes()
-                    .stream()
-                    .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
-            if (foundMember) {
-                types.setImplicitCastExpr(literalExpr, literalType, this.expType);
-                resultType = literalType;
-                return;
-            }
+        if (literalExpr.type.tag == TypeTags.BYTE_ARRAY) {
+            // check whether this is a byte array
+            literalType = new BArrayType(symTable.byteType);
         }
 
-        resultType = types.checkType(literalExpr, literalType, expType);
+        return literalType;
+    }
+
+    private void setLiteralValueForFiniteType(BLangLiteral literalExpr, BType type) {
+        types.setImplicitCastExpr(literalExpr, type, this.expType);
+        this.resultType = type;
+        literalExpr.isFiniteContext = true;
+    }
+
+    private BType getFiniteTypeWithValuesOfSingleType(BUnionType unionType, BType matchType) {
+        List<BFiniteType> finiteTypeMembers = unionType.getMemberTypes().stream()
+                .filter(memType -> memType.tag == TypeTags.FINITE)
+                .map(memFiniteType -> (BFiniteType) memFiniteType)
+                .collect(Collectors.toList());
+
+        if (finiteTypeMembers.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        int tag = matchType.tag;
+        Set<BLangExpression> matchedValueSpace = new LinkedHashSet<>();
+
+        for (BFiniteType finiteType : finiteTypeMembers) {
+            matchedValueSpace.addAll(finiteType.valueSpace.stream()
+                                             .filter(expression -> expression.type.tag == tag)
+                                             .collect(Collectors.toSet()));
+        }
+
+        if (matchedValueSpace.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        return new BFiniteType(null, matchedValueSpace);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
@@ -714,7 +876,7 @@ public class TypeChecker extends BLangNodeVisitor {
         Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
             if (varRefExpr.lhsVar) {
-                varRefExpr.type = this.symTable.noType;
+                varRefExpr.type = this.symTable.anyType;
             } else {
                 varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
@@ -745,27 +907,27 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = varSym.type;
                 BLangInvokableNode encInvokable = env.enclInvokable;
                 if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        !(symbol.owner instanceof BPackageSymbol)) {
+                        !(symbol.owner instanceof BPackageSymbol) &&
+                        !isFunctionArgument(varSym, encInvokable.requiredParams)) {
                     SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE_NAME);
-                    if (closureVarSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
-                        ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv,
+                            symbol.name, SymTag.VARIABLE);
+                    if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                        resolvedSymbol.closure = true;
+                        ((BLangFunction) encInvokable).closureVarSymbols.add(
+                                new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
                     }
                 }
                 if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
-                    // The owner of the variable ref should be an invokable symbol.
-                    // It's set here because the arrow expression changes to an invokable only at desugar
-                    // and is not an invokable at this phase.
-                    symbol.owner = Symbols.createInvokableSymbol(SymTag.FUNCTION, 0, null,
-                            env.enclPkg.packageID, null, symbol.owner);
-                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                            SymTag.VARIABLE_NAME);
-                    if (closureVarSymbol != symTable.notFoundSymbol &&
-                            !isFunctionArgument(closureVarSymbol, ((BLangArrowFunction) env.node).params)) {
-                        ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    if (!isFunctionArgument(varSym, ((BLangArrowFunction) env.node).params)) {
+                        SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                                SymTag.VARIABLE);
+                        if (resolvedSymbol != symTable.notFoundSymbol) {
+                            resolvedSymbol.closure = true;
+                            ((BLangArrowFunction) env.node).closureVarSymbols.add(
+                                    new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
+                        }
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -1400,9 +1562,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
         BLangExpression expr;
         if (keyVal.keyExpr != null) {
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.keyExpr.variableName),
-                                                      SymTag.VARIABLE);
-            keyVal.keyExpr.symbol = symbol;
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode
+                            (((BLangSimpleVarRef) keyVal.keyExpr).variableName), SymTag.VARIABLE);
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;
         } else {
@@ -1687,7 +1848,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = exprType;
             }
         } else {
-            exprType = checkExpr(unaryExpr.expr, env);
+            exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
+                    checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.pos, unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
@@ -2042,6 +2204,16 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkedExpr) {
+        visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr) {
+        String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         boolean firstVisit = checkedExpr.expr.type == null;
         BType exprExpType;
         if (expType == symTable.noType) {
@@ -2064,9 +2236,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (exprType.tag != TypeTags.UNION) {
             if (types.isAssignable(exprType, symTable.errorType)) {
-                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+                dlog.error(checkedExpr.expr.pos,
+                        DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS, operatorType);
             } else if (exprType != symTable.semanticError) {
-                dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+                dlog.error(checkedExpr.expr.pos,
+                        DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
             }
             checkedExpr.type = symTable.semanticError;
             return;
@@ -2082,7 +2256,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (checkedExpr.equivalentErrorTypeList == null ||
                 checkedExpr.equivalentErrorTypeList.size() == 0) {
             // No member types in this union is equivalent to the error type
-            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
+            dlog.error(checkedExpr.expr.pos,
+                    DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
             checkedExpr.type = symTable.semanticError;
             return;
         }
@@ -2091,7 +2266,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (nonErrorTypeList == null || nonErrorTypeList.size() == 0) {
             // All member types in the union are equivalent to the error type.
             // Checked expression requires at least one type which is not equivalent to the error type.
-            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
+            dlog.error(checkedExpr.expr.pos,
+                    DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS, operatorType);
             checkedExpr.type = symTable.semanticError;
             return;
         }
@@ -2109,19 +2285,8 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         if (expType.tag == TypeTags.NONE) {
-            Optional.ofNullable(errorConstructorExpr.reasonExpr)
-                    .map(expr -> checkExpr(expr, env, symTable.stringType))
-                    .orElseThrow(AssertionError::new);
-
-            // If no expected type, the reason type will be inferred as from the constructor
-            Optional.ofNullable(errorConstructorExpr.detailsExpr)
-                    .ifPresent(expr -> checkExpr(expr, env, symTable.noType));
-            resultType = new BErrorType(null, symTable.stringType, errorConstructorExpr.detailsExpr == null ?
-                    symTable.mapType : errorConstructorExpr.detailsExpr.type);
-            return;
-        }
-
-        if (expType.tag != TypeTags.ERROR) {
+            expType = symTable.errorType;
+        } else if (expType.tag != TypeTags.ERROR) {
             dlog.error(errorConstructorExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
@@ -2133,8 +2298,22 @@ public class TypeChecker extends BLangNodeVisitor {
                 .map(expr -> checkExpr(expr, env, ((BErrorType) expType).reasonType))
                 .orElseThrow(AssertionError::new);
 
-        Optional.ofNullable(errorConstructorExpr.detailsExpr)
-                .ifPresent(expr -> checkExpr(expr, env, ((BErrorType) expType).detailType));
+        if (errorConstructorExpr.detailsExpr == null) {
+            resultType = expType;
+            return;
+        }
+
+        BType errConstDetailExprType = errorConstructorExpr.detailsExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR ?
+                ((BErrorType) expType).detailType : checkExpr(errorConstructorExpr.detailsExpr, env, symTable.noType);
+
+        if (types.isValidErrorDetailType(errConstDetailExprType) &&
+                types.isStampingAllowed(errConstDetailExprType, ((BErrorType) expType).detailType)) {
+            checkExpr(errorConstructorExpr.detailsExpr, env, errConstDetailExprType);
+        } else {
+            checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
+        }
+
+        checkExpr(errorConstructorExpr.detailsExpr, env, ((BErrorType) expType).detailType);
         resultType = expType;
     }
 

@@ -45,6 +45,6 @@ service echo04 on listener04 {
         }
     }
     resource function echo(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

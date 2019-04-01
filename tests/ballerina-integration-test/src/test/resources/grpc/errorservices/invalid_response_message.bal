@@ -23,6 +23,6 @@ service HelloWorld on server2 {
     resource function invalidRespType(grpc:Caller caller, string name) {
         string? message = "Hello " + name;
         error? err = caller->send(message);
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }

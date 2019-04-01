@@ -1820,6 +1820,7 @@
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/nats</module>
 
                 <module>misc/lib-creator</module>
 
@@ -2383,7 +2384,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.0.275</transport.http.version>
+        <transport.http.version>6.0.278</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2499,7 +2500,7 @@
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <andes.client.version>3.2.87</andes.client.version>
-        <wso2.securevault.version>1.1.1</wso2.securevault.version>
+        <wso2.securevault.version>1.1.2</wso2.securevault.version>
 
         <!-- Artemis connector -->
         <artemis.version>2.6.3</artemis.version>

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.object;
 
+import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -26,6 +27,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -379,7 +381,7 @@ public class ObjectTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
     }
 
     @Test(description = "Test object any type field as a constructor parameter")
@@ -528,8 +530,8 @@ public class ObjectTest {
     public void testObjectInitFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'extern' function", 19, 5);
-        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'extern' function", 23, 5);
+        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'external' function", 19, 5);
+        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'external' function", 23, 5);
     }
 
     @Test(description = "Test nillable initialization")
@@ -561,7 +563,7 @@ public class ObjectTest {
         CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
         Assert.assertEquals(result.getErrorCount(), 19);
         int index = 0;
-        BAssertUtil.validateError(result, index++, "object attached function definition must have a body 'func2'", 14
+        BAssertUtil.validateError(result, index++, "external function 'func2' cannot have a body", 14
                 , 1);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 46, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'mod:0.0.0:Employee'", 46, 17);
@@ -725,6 +727,18 @@ public class ObjectTest {
         BValue[] b = BRunUtil.invoke(objectTypeUnion, "selectOnRestParamInReturnType");
         BMap<String, BValue> retChoose = (BMap<String, BValue>) b[0];
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
+    }
+
+    @Test(dataProvider = "missingNativeImplFiles")
+    public void testObjectWithMissingNativeImpl(String filePath) {
+        try {
+            BCompileUtil.compile(filePath);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains(
+                    "error: failed to compile file: native function not available .:Person.printName"));
+            return;
+        }
+        Assert.fail("expected compilation to fail due to missing external implementation");
     }
 
     @Test(description = "Test invoking object inits with union params in another object's function")

@@ -55,7 +55,7 @@ import static org.quartz.CronExpression.isValidExpression;
  */
 public class Utils {
 
-    public static BError createError(Context context, String message) {
+    private static BError createError(Context context, String message) {
         BMap<String, BValue> taskErrorRecord = createTaskErrorRecord(context);
         taskErrorRecord.put(TASK_ERROR_MESSAGE, new BString(message));
         return BLangVMErrors.createError(context, true, BTypes.typeError, TASK_ERROR_CODE, taskErrorRecord);
@@ -63,6 +63,10 @@ public class Utils {
 
     private static BMap<String, BValue> createTaskErrorRecord(Context context) {
         return BLangConnectorSPIUtil.createBStruct(context, PACKAGE_STRUCK_NAME, TASK_ERROR_RECORD);
+    }
+
+    public static void setError(Context context, String message) {
+        context.setReturnValues(createError(context, message));
     }
 
     public static String getCronExpressionFromAppointmentRecord(BValue record)

@@ -72,7 +72,7 @@ public class TransactionUtils {
 
     private static void checkTransactionCoordinatorError(BValue value, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
-            throw new BallerinaException(errMsg + ((BError) value).reason);
+            throw new BallerinaException(errMsg + ((BError) value).getReason());
         }
     }
 
