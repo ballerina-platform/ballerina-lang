@@ -44,8 +44,8 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class EqualAndNotEqualOperationsTest {
 
-    CompileResult result;
-    CompileResult resultNegative;
+    private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -162,6 +162,21 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected value to be identified as not equal to " +
                 "nil");
+    }
+
+    @Test(description = "Test equals/unequals operation with two equal errors")
+    public void testErrorEqualityPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorEqualityPositive", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected errors to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with two unequal errors")
+    public void testErrorEqualityNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorEqualityNegative", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected errors to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal open records")
@@ -819,6 +834,13 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as unequal.");
+    }
+
+    @Test
+    public void testEmptyMapAndRecordEquality() {
+        BValue[] returns = BRunUtil.invoke(result, "testEmptyMapAndRecordEquality");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal.");
     }
 
     @Test(description = "Test equal and not equal with errors")
