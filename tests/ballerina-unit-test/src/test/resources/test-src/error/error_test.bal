@@ -183,3 +183,14 @@ function testCustomErrorWithMappingOfSelf() returns boolean {
                 e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
     return errOneInitSuccesful && errTwoInitSuccesful;
 }
+
+public function testRuntimeFailingWhenAssigningErrorToAny() {
+    map<any> m1 = { one: "a", two: "b" };
+    error errValOne = error("error reason one");
+
+    insertMemberToMap(m1, "three", errValOne); // panic
+}
+
+public function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
+    mapVal[index] = member;
+}

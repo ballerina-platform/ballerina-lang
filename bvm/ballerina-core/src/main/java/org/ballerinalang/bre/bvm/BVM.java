@@ -4408,7 +4408,7 @@ public class BVM {
         }
 
         BType constraintType = ((BMapType) mapType).getConstrainedType();
-        if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
+        if (constraintType.equals(value.getType())) {
             return true;
         }
 
