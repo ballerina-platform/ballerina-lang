@@ -85,7 +85,8 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    function genCallTerm(bir:Call callIns, string funcName) {
+    function genCallTerm(bir:Call callIns, string funcName, boolean isInTryBlock, bir:ErrorEntry? currentEE, 
+                         jvm:Label endLabel, jvm:Label handlerLabel, jvm:Label jumpLabel) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string methodName = callIns.name.value;
 
@@ -190,7 +191,12 @@ type TerminatorGenerator object {
             }
 
         }
-
+        
+        // handle trapped function calls.
+        if (isInTryBlock &&  currentEE is bir:ErrorEntry) {
+            self.generateCatchIns(currentEE, endLabel, handlerLabel, jumpLabel);
+        }
+        
         self.mv.visitVarInsn(ALOAD, 0);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
         jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
@@ -201,6 +207,34 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
+    function genPanicIns(bir:Panic panicTerm) {
+        int errorIndex = self.getJVMIndexOfVarRef(panicTerm.errorOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, errorIndex);
+        self.mv.visitInsn(ATHROW);
+    }
+
+    function generateTryIns(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
+                            jvm:Label jumpLabel) {
+        jvm:Label startLabel = new;
+        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
+        jvm:Label temp = new;
+        self.mv.visitLabel(temp);
+        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
+        self.mv.visitVarInsn(ALOAD, lhsIndex);
+        self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
+        self.mv.visitLabel(startLabel);
+    }
+
+    function generateCatchIns(bir:ErrorEntry currentEE, jvm:Label endLabel, jvm:Label handlerLabel,
+                              jvm:Label jumpLabel) {
+        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
+        self.mv.visitLabel(endLabel);
+        self.mv.visitJumpInsn(GOTO, jumpLabel);
+        self.mv.visitLabel(handlerLabel);
+        self.mv.visitVarInsn(ASTORE, lhsIndex);
+        self.mv.visitLabel(jumpLabel);
+    }
+    
     function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
 
         //create a object array of args

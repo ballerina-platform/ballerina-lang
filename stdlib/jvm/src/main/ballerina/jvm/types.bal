@@ -65,6 +65,9 @@ public type MethodVisitor object {
     public function visitLookupSwitchInsn(Label defaultLabel, int[] keys, Label[] labels) = external;
 
     public function visitInvokeDynamicInsn(string className, string lambdaName) = external;
+    
+    public function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
+                                        string exceptionType) = external;
 };
 
 

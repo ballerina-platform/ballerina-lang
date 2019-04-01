@@ -26,6 +26,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     // generate method desc
     string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, (), ());
+    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
@@ -121,7 +122,17 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitVarInsn(ILOAD, stateVarIndex);
     jvm:Label yieldLable = labelGen.getLabel(funcName + "yield");
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
-
+    
+    // process error entries
+    bir:ErrorEntry?[] errorEntries = func.errorEntries;
+    bir:ErrorEntry? currentEE = ();
+    jvm:Label endLabel = new;
+    jvm:Label handlerLabel = new;
+    jvm:Label jumpLabel = new;
+    int errorEntryCnt = 0;
+    if (errorEntries.length() > errorEntryCnt) {
+        currentEE = errorEntries[errorEntryCnt];
+    }
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         string currentBBName = io:sprintf("%s", bb.id.value);
@@ -132,9 +143,17 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
         // generate instructions
         int m = 0;
-        while (m < bb.instructions.length()) {
+        int insCount = bb.instructions.length();
+        boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
+        // start a try block if current block is trapped
+        if (isTrapped) {
+            endLabel = new;
+            handlerLabel = new;
+            jumpLabel = new;
+            termGen.generateTryIns(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+        }
+        while (m < insCount) {
             bir:Instruction? inst = bb.instructions[m];
-            InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
             } else if (inst is bir:Move) {
@@ -172,6 +191,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             m += 1;
         }
 
+        bir:Terminator terminator = bb.terminator;
+        // close the started try block with a catch statement if current block is trapped.
+        // if we have a call terminator, we need to generate the catch during call code.gen hence skipping that.
+        if (isTrapped && !(terminator is bir:Call)) {
+            termGen.generateCatchIns(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+        }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
@@ -179,17 +204,25 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         mv.visitVarInsn(ISTORE, stateVarIndex);
 
         // process terminator
-        bir:Terminator terminator = bb.terminator;
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
-            termGen.genCallTerm(terminator, funcName);
+            termGen.genCallTerm(terminator, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel);
         } else if (terminator is bir:AsyncCall) {
             termGen.genAsyncCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {
             termGen.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
             termGen.genReturnTerm(terminator, returnVarRefIndex, func);
+        } else if (terminator is bir:Panic) {
+            termGen.genPanicIns(terminator);
+        }
+        // set next error entry after visiting current error entry.
+        if (isTrapped) {
+            errorEntryCnt = errorEntryCnt + 1;
+            if (errorEntries.length() > errorEntryCnt) {
+                currentEE = errorEntries[errorEntryCnt];
+            }
         }
         j += 1;
     }
@@ -717,6 +750,8 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
         mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
     } else if (targetType is bir:BMapType) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    } else if (targetType is bir:BErrorType) {
+        mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
