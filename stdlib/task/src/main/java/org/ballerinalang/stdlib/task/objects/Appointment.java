@@ -48,11 +48,10 @@ public class Appointment extends AbstractTask {
     /**
      * Creates an Appointment object with provided cron expression.
      *
-     * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
      * @throws SchedulingException When initializing this Appointment is failed.
      */
-    public Appointment(Context context, String cronExpression) throws SchedulingException {
+    public Appointment(String cronExpression) throws SchedulingException {
         super();
         this.cronExpression = cronExpression;
     }
@@ -61,12 +60,11 @@ public class Appointment extends AbstractTask {
      * Creates an Appointment object with provided cron expression,
      * which will stop after running provided number of times.
      *
-     * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
      * @param maxRuns        Number of times after which the Appointment will cancel.
      * @throws SchedulingException When initializing this Appointment is failed.
      */
-    public Appointment(Context context, String cronExpression, long maxRuns) throws SchedulingException {
+    public Appointment(String cronExpression, long maxRuns) throws SchedulingException {
         super(maxRuns);
         this.cronExpression = cronExpression;
     }

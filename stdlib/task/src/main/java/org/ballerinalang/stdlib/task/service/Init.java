@@ -78,9 +78,9 @@ public class Init extends BlockingNativeCallableUnit {
         Task task;
         try {
             if (RECORD_TIMER_CONFIGURATION.equals(configurationTypeName)) {
-                task = processTimer(context, configurations);
+                task = processTimer(configurations);
             } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
-                task = processAppointment(context, configurations);
+                task = processAppointment(configurations);
             }
             taskStruct.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
         } catch (SchedulingException e) {
@@ -89,21 +89,21 @@ public class Init extends BlockingNativeCallableUnit {
         }
     }
 
-    private static Timer processTimer(Context context, BMap<String, BValue> configurations) throws SchedulingException {
+    private static Timer processTimer(BMap<String, BValue> configurations) throws SchedulingException {
         Timer task;
         long interval = ((BInteger) configurations.get(FIELD_INTERVAL)).intValue();
         long delay = ((BInteger) configurations.get(FIELD_DELAY)).intValue();
 
         if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
             long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
-            task = new Timer(context, delay, interval, noOfRuns);
+            task = new Timer(delay, interval, noOfRuns);
         } else {
-            task = new Timer(context, delay, interval);
+            task = new Timer(delay, interval);
         }
         return task;
     }
 
-    private static Appointment processAppointment(Context context, BMap<String, BValue> configurations)
+    private static Appointment processAppointment(BMap<String, BValue> configurations)
             throws SchedulingException {
         Appointment appointment;
         BValue appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
@@ -111,9 +111,9 @@ public class Init extends BlockingNativeCallableUnit {
 
         if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
             long noOfRuns = ((BInteger) configurations.get(FIELD_NO_OF_RUNS)).intValue();
-            appointment = new Appointment(context, cronExpression, noOfRuns);
+            appointment = new Appointment(cronExpression, noOfRuns);
         } else {
-            appointment = new Appointment(context, cronExpression);
+            appointment = new Appointment(cronExpression);
         }
         return appointment;
     }

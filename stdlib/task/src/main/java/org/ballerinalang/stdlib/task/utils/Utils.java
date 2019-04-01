@@ -14,7 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.bre.Context;
@@ -41,7 +41,6 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MONTHS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SECONDS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_CODE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_MESSAGE;
@@ -69,11 +68,9 @@ public class Utils {
         context.setReturnValues(createError(context, message));
     }
 
-    public static String getCronExpressionFromAppointmentRecord(BValue record)
-            throws SchedulingException {
-
+    public static String getCronExpressionFromAppointmentRecord(BValue record) throws SchedulingException {
         String cronExpression;
-        if (record instanceof BMap && RECORD_APPOINTMENT_DATA.equals(record.getType().getName())) {
+        if (record instanceof BMap) {
             cronExpression = buildCronExpression((BMap) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.stringValue() + "\" is invalid.");
