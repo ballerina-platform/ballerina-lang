@@ -3067,7 +3067,8 @@ public class Desugar extends BLangNodeVisitor {
                                                                  BLangBuiltInMethod.FREEZE,
                                                                  Lists.of(rewriteExpr(
                                                                          ASTBuilderUtil.createEmptyRecordLiteral(
-                                                                                 errConstExpr.pos, symTable.mapType))));
+                                                                                 errConstExpr.pos,
+                                                                                 symTable.pureTypeConstrainedMap))));
         } else {
             errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
                                                                  BLangBuiltInMethod.FREEZE,
