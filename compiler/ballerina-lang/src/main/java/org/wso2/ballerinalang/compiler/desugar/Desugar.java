@@ -3063,8 +3063,11 @@ public class Desugar extends BLangNodeVisitor {
         errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
         if (errConstExpr.detailsExpr == null) {
-            errConstExpr.detailsExpr = rewriteExpr(
-                    ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType));
+            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.pos,
+                                                                 BLangBuiltInMethod.FREEZE,
+                                                                 Lists.of(rewriteExpr(
+                                                                         ASTBuilderUtil.createEmptyRecordLiteral(
+                                                                                 errConstExpr.pos, symTable.mapType))));
         } else {
             errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
                                                                  BLangBuiltInMethod.FREEZE,
