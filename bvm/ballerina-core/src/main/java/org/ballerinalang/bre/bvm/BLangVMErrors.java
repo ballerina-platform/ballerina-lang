@@ -255,13 +255,13 @@ public class BLangVMErrors {
 
         String errorMsg = "";
         boolean reasonAdded = false;
-        if (error.reason != null && !error.reason.isEmpty()) {
-            errorMsg = removeJava(error.reason);
+        if (error.getReason() != null && !error.getReason().isEmpty()) {
+            errorMsg = removeJava(error.getReason());
             reasonAdded = true;
         }
 
-        if (error.details != null) {
-            errorMsg = errorMsg + (reasonAdded ? " " : "") + error.details.toString();
+        if (error.getDetails() != null) {
+            errorMsg = errorMsg + (reasonAdded ? " " : "") + error.getDetails().toString();
         }
 
         return errorMsg;

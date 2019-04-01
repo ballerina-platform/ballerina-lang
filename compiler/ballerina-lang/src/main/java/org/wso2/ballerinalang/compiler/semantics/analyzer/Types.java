@@ -285,7 +285,7 @@ public class Types {
                     .allMatch(memType -> isPureType(memType, unresolvedTypes));
         }
 
-        return isAnydata(type, unresolvedTypes) || type.tag == TypeTags.ERROR;
+        return type.tag == TypeTags.ERROR || isAnydata(type, unresolvedTypes);
     }
 
     private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
