@@ -27,6 +27,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -757,5 +758,13 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, 2, "cannot infer type of the object from 'Obj|Obj2|Obj3|Obj4'",
                                   50, 46);
         BAssertUtil.validateError(resultNegative, 3, "cannot infer type of the object from 'Bar?'", 71, 20);
+    }
+
+    @DataProvider
+    public Object[][] missingNativeImplFiles() {
+        return new Object[][]{
+                {"test-src/object/object_with_missing_native_impl.bal"},
+                {"test-src/object/object_with_missing_native_impl_2.bal"}
+        };
     }
 }
