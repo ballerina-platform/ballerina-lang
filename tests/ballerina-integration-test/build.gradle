@@ -102,4 +102,8 @@ test {
     }
 }
 
+clean.doFirst {
+    delete 'data'
+}
+
 description = 'Ballerina - Integration Test'

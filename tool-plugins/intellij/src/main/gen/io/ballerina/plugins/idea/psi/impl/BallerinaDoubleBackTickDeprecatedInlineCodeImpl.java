@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDoubleBackTickDeprecatedInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaDoubleBackTickDeprecatedInlineCode {
+public class BallerinaDoubleBackTickDeprecatedInlineCodeImpl extends ASTWrapperPsiElement implements BallerinaDoubleBackTickDeprecatedInlineCode {
 
   public BallerinaDoubleBackTickDeprecatedInlineCodeImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaDoubleBackTickDeprecatedInlineCodeImpl extends BallerinaCo
   @Override
   @NotNull
   public PsiElement getDbDeprecatedInlineCodeStart() {
-    return notNullChild(findChildByType(DB_DEPRECATED_INLINE_CODE_START));
+    return findNotNullChildByType(DB_DEPRECATED_INLINE_CODE_START);
   }
 
   @Override

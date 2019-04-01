@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCompoundAssignmentStatementImpl extends BallerinaCompositeElementImpl implements BallerinaCompoundAssignmentStatement {
+public class BallerinaCompoundAssignmentStatementImpl extends ASTWrapperPsiElement implements BallerinaCompoundAssignmentStatement {
 
   public BallerinaCompoundAssignmentStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaCompoundAssignmentStatementImpl extends BallerinaComposite
   @Override
   @NotNull
   public BallerinaCompoundOperator getCompoundOperator() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaCompoundOperator.class));
+    return findNotNullChildByClass(BallerinaCompoundOperator.class);
   }
 
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
   @NotNull
   public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
+    return findNotNullChildByType(SEMICOLON);
   }
 
 }

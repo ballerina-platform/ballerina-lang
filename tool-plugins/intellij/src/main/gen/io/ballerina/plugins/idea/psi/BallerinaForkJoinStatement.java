@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaForkJoinStatement extends BallerinaCompositeElement {
+public interface BallerinaForkJoinStatement extends PsiElement {
 
   @NotNull
   List<BallerinaWorkerDefinition> getWorkerDefinitionList();

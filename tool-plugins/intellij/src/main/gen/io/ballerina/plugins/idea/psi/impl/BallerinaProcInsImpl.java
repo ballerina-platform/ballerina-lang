@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaProcInsImpl extends BallerinaCompositeElementImpl implements BallerinaProcIns {
+public class BallerinaProcInsImpl extends ASTWrapperPsiElement implements BallerinaProcIns {
 
   public BallerinaProcInsImpl(@NotNull ASTNode node) {
     super(node);
@@ -56,7 +57,7 @@ public class BallerinaProcInsImpl extends BallerinaCompositeElementImpl implemen
   @Override
   @NotNull
   public PsiElement getXmlTagSpecialOpen() {
-    return notNullChild(findChildByType(XML_TAG_SPECIAL_OPEN));
+    return findNotNullChildByType(XML_TAG_SPECIAL_OPEN);
   }
 
 }

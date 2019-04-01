@@ -35,7 +35,7 @@ public type Listener object {
         self.init(port, sseEpConfig =  config);
     }
 
-    public function __attach(service s, map<any> data) returns error? {
+    public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
         self.registerWebSubSubscriberServiceEndpoint(s);
         return;
@@ -46,27 +46,27 @@ public type Listener object {
     # + sseEpConfig - The Subscriber Service Endpoint Configuration of the endpoint
     function init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ());
 
-    extern function initWebSubSubscriberServiceEndpoint();
+    function initWebSubSubscriberServiceEndpoint() = external;
 
-    extern function registerWebSubSubscriberServiceEndpoint(service serviceType);
+    function registerWebSubSubscriberServiceEndpoint(service serviceType) = external;
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests();
 
     # Start the registered WebSub Subscriber service.
-    extern function startWebSubSubscriberServiceEndpoint();
+    function startWebSubSubscriberServiceEndpoint() = external;
 
     # Sets the topic to which this service is subscribing, for auto intent verification.
     #
     # + webSubServiceName - The name of the service for which subscription happened for a topic
     # + topic - The topic the subscription happened for
-    extern function setTopic(string webSubServiceName, string topic);
+    function setTopic(string webSubServiceName, string topic) = external;
 
     # Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
     # should happen for the services bound to the endpoint.
     #
     # + return - `map[]` array of maps containing subscription details for each service
-    extern function retrieveSubscriptionParameters() returns map<any>[];
+    function retrieveSubscriptionParameters() returns map<any>[] = external;
 
 };
 
@@ -232,7 +232,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
         }
     } else {
         string errCause = <string> discoveryResponse.detail().message;
-        map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
+        map<anydata> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
         websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     }

@@ -44,7 +44,7 @@ public class BallerinaBracedOrTupleExpressionImpl extends BallerinaExpressionImp
   @Override
   @NotNull
   public BallerinaTupleLiteral getTupleLiteral() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTupleLiteral.class));
+    return findNotNullChildByClass(BallerinaTupleLiteral.class);
   }
 
 }

@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordDestructuringStatementImpl extends BallerinaCompositeElementImpl implements BallerinaRecordDestructuringStatement {
+public class BallerinaRecordDestructuringStatementImpl extends ASTWrapperPsiElement implements BallerinaRecordDestructuringStatement {
 
   public BallerinaRecordDestructuringStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaRecordDestructuringStatementImpl extends BallerinaComposit
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public BallerinaRecordRefBindingPattern getRecordRefBindingPattern() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaRecordRefBindingPattern.class));
+    return findNotNullChildByClass(BallerinaRecordRefBindingPattern.class);
   }
 
   @Override
   @NotNull
   public PsiElement getAssign() {
-    return notNullChild(findChildByType(ASSIGN));
+    return findNotNullChildByType(ASSIGN);
   }
 
   @Override

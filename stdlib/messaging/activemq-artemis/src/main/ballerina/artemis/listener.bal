@@ -37,13 +37,13 @@ public type Listener object {
     public function __stop() returns error? {
         return self.stop();
     }
-    public function __attach(service serviceType, map<any> annotationData) returns error? {
+    public function __attach(service serviceType, string? name = ()) returns error? {
         return self.createConsumer(serviceType);
     }
 
-    extern function start() returns error?;
-    extern function createConsumer(service serviceType) returns error?;
-    extern function stop() returns error?;
+    function start() returns error? = external;
+    function createConsumer(service serviceType) returns error? = external;
+    function stop() returns error? = external;
 };
 
 # The configuration for an Artemis consumer service.

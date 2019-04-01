@@ -32,29 +32,29 @@ public type WritableCharacterChannel object {
     #
     # + byteChannel - WritableByteChannel which should be used to initalize the character channel
     # + cs - Character-set (i.e UTF-8) which should be used to encode
-    extern function init(WritableByteChannel byteChannel, string cs);
+    function init(WritableByteChannel byteChannel, string cs) = external;
 
     # Writes a given sequence of characters (string).
     #
     # + content - Content which should be written
     # + startOffset - Number of characters which should be offset when writing content
     # + return - Content length that written or an error.
-    public extern function write(string content, int startOffset) returns int|error;
+    public function write(string content, int startOffset) returns int|error = external;
 
     # Writes a given json to the given channel.
     #
     # + content - The json which should be written
     # + return - If an error occurred while writing
-    public extern function writeJson(json content) returns error?;
+    public function writeJson(json content) returns error? = external;
 
     # Writes a given xml to the channel.
     #
     # + content - The XML which should be written
     # + return - If an error occurred while writing
-    public extern function writeXml(xml content) returns error?;
+    public function writeXml(xml content) returns error? = external;
 
     # Closes a given WritableCharacterChannel channel.
     #
     # + return - If an error occurred while writing
-    public extern function close() returns error?;
+    public function close() returns error? = external;
 };

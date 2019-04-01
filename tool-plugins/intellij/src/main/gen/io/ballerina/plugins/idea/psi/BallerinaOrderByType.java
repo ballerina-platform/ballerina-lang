@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaOrderByType extends BallerinaCompositeElement {
+public interface BallerinaOrderByType extends PsiElement {
 
   @Nullable
   PsiElement getAscending();

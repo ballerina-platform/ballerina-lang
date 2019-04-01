@@ -171,7 +171,7 @@ public class JSONTest {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "unrecognized token 'some' at line: 1 column: 6");
     }
 
@@ -450,7 +450,7 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
 
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                 "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }
