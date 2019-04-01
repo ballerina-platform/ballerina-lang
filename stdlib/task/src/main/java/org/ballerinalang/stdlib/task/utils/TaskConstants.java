@@ -34,7 +34,6 @@ public class TaskConstants {
 
     // Record types used
     public static final String RECORD_TIMER_CONFIGURATION = "TimerConfiguration";
-    public static final String RECORD_APPOINTMENT_DATA = "AppointmentData";
 
     // Member names used in records
     public static final String MEMBER_LISTENER_CONFIGURATION = "listenerConfiguration";
