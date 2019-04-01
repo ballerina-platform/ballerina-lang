@@ -16,3 +16,13 @@ task npmInstall(type: Exec) {
 assemble {
     dependsOn npmInstall
 }
+
+task test{
+    exec {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'test'
+        } else {
+            commandLine 'npm', 'test'
+        }
+    }
+}
