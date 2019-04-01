@@ -207,6 +207,7 @@ public class CodeActionTest {
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
                 {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
+                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"}
         };
     }
