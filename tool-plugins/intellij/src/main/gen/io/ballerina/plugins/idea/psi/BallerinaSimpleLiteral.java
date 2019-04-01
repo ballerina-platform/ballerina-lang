@@ -47,4 +47,7 @@ public interface BallerinaSimpleLiteral extends PsiElement {
   @Nullable
   PsiElement getSub();
 
+  @Nullable
+  PsiElement getSymbolicStringLiteral();
+
 }

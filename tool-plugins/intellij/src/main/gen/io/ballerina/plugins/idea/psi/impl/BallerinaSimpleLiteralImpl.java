@@ -90,4 +90,10 @@ public class BallerinaSimpleLiteralImpl extends ASTWrapperPsiElement implements 
     return findChildByType(SUB);
   }
 
+  @Override
+  @Nullable
+  public PsiElement getSymbolicStringLiteral() {
+    return findChildByType(SYMBOLIC_STRING_LITERAL);
+  }
+
 }
