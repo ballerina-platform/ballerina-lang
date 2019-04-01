@@ -476,7 +476,8 @@ type InstructionGenerator object {
                     bType is bir:BRecordType ||
                     bType is bir:BErrorType ||
                     bType is bir:BJSONType ||
-                    bType is bir:BFutureType) {
+                    bType is bir:BFutureType ||
+                    bType is bir:BObjectType) {
             self.mv.visitVarInsn(ALOAD, valueIndex);
         } else {
             error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -513,7 +514,8 @@ type InstructionGenerator object {
                         bType is bir:BRecordType ||
                         bType is bir:BErrorType ||
                         bType is bir:BJSONType ||
-                        bType is bir:BFutureType) {
+                        bType is bir:BFutureType ||
+                        bType is bir:BObjectType) {
             self.mv.visitVarInsn(ASTORE, valueIndex);
         } else {
             error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -524,7 +526,7 @@ type InstructionGenerator object {
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
         self.generateVarLoad(typeCastIns.rhsOp.variableDcl);
-        generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
         self.generateVarStore(typeCastIns.lhsOp.variableDcl);
     }
 
@@ -538,6 +540,15 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
         self.generateVarStore(typeTestIns.lhsOp.variableDcl);
+    }
+
+    function generateObjectNewIns(bir:NewInstance objectNewIns) {
+        string className = self.currentPackageName + objectNewIns.typeDef.name.value;
+        self.mv.visitTypeInsn(NEW, className);
+        self.mv.visitInsn(DUP);
+        loadType(self.mv, objectNewIns.typeDef.typeValue);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        self.generateVarStore(objectNewIns.lhsOp.variableDcl);
     }
 };
 

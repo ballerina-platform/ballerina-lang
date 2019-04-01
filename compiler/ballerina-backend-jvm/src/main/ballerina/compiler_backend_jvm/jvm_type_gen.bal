@@ -202,7 +202,7 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + objectType - object type
 # + name - name of the object
 function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
-    // Create the record type
+    // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
 

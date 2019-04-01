@@ -233,7 +233,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Due to the current algorithm, some basic blocks will not contain any instructions or a terminator.
         // These basic blocks will be remove by the optimizer, but for now just add a return terminator
         BIRBasicBlock enclBB = this.env.enclBB;
-        if (enclBB.instructions.size() == 0 && enclBB.terminator == null) {
+        if (enclBB.instructions.size() == 0 && enclBB.terminator == null && this.env.returnBB != null) {
             enclBB.terminator = new BIRTerminator.GOTO(null, this.env.returnBB);
         }
     }
