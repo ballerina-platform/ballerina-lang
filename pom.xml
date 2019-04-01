@@ -2503,7 +2503,7 @@
         <wso2.securevault.version>1.1.2</wso2.securevault.version>
 
         <!-- Artemis connector -->
-        <artemis.version>2.6.3</artemis.version>
+        <artemis.version>2.7.0</artemis.version>
         <beanutils.version>1.9.3</beanutils.version>
         <jboss.version>3.3.2.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>
