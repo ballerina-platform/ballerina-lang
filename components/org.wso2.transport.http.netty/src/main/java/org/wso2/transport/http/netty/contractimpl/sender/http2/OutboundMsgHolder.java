@@ -20,6 +20,8 @@ package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
+import org.wso2.transport.http.netty.message.BackPressureObservable;
+import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -47,6 +49,8 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
     private boolean firstContentWritten;
+    private boolean streamWritable = true;
+    private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
 
     public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
         this.requestCarbonMessage = httpOutboundRequest;
@@ -216,5 +220,17 @@ public class OutboundMsgHolder {
 
     void setFirstContentWritten(boolean firstContentWritten) {
         this.firstContentWritten = firstContentWritten;
+    }
+
+    public synchronized boolean isStreamWritable() {
+        return streamWritable;
+    }
+
+    public synchronized void setStreamWritable(boolean streamWritable) {
+        this.streamWritable = streamWritable;
+    }
+
+    public BackPressureObservable getBackPressureObservable() {
+        return backPressureObservable;
     }
 }
