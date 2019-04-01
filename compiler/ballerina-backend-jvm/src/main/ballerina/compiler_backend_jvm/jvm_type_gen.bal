@@ -29,7 +29,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
         bir:BType bType = typeDef.typeValue;
-        if (bType is bir:BRecordType || bType is bir:BObjectType) {
+        if (bType is bir:BRecordType || bType is bir:BObjectType || bType is bir:BErrorType) {
             jvm:FieldVisitor fv = cw.visitField(ACC_STATIC, fieldName, io:sprintf("L%s;", BTYPE));
             fv.visitEnd();
         } else {
@@ -56,6 +56,8 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             createRecordType(mv, bType, typeDef.name.value);
         } else if (bType is bir:BObjectType) {
             createObjectType(mv, bType, typeDef.name.value);
+        } else if (bType is bir:BErrorType) {
+            createErrorType(mv, bType, typeDef.name.value);
         } else {
             error err = error("Type definition is not yet supported for " + io:sprintf("%s", bType));
             panic err;
@@ -344,6 +346,36 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
 }
 
 // -------------------------------------------------------
+//              Error type generation methods
+// -------------------------------------------------------
+
+# Create a runtime type instance for the error.
+#
+# + mv - method visitor
+# + errorType - error type
+# + name - name of the error
+function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string name) {
+    // Create the error type
+    mv.visitTypeInsn(NEW, ERROR_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load error type name
+    mv.visitLdcInsn(name);
+
+    // Load package path
+    // TODO: get it from the type
+    mv.visitLdcInsn("pkg");
+    
+    // Load reason and details type
+    loadType(mv, errorType.reasonType);
+    loadType(mv, errorType.detailType);
+
+    // initialize the error type
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, 
+            STRING_VALUE, BTYPE, BTYPE), false);
+}
+
+// -------------------------------------------------------
 //              Type loading methods
 // -------------------------------------------------------
 
@@ -381,6 +413,9 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         return;
     } else if (bType is bir:BMapType) {
         loadMapType(mv, bType);
+        return;
+    } else if (bType is bir:BErrorType) {
+        loadErrorType(mv, bType);
         return;
     } else if (bType is bir:BUnionType) {
         loadUnionType(mv, bType);
@@ -438,6 +473,23 @@ function loadMapType(jvm:MethodVisitor mv, bir:BMapType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given error type
+# to the top of the stack.
+#
+# + errorType - error type to load
+function loadErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType) {
+    // Create an new error type
+    mv.visitTypeInsn(NEW, ERROR_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load reason and details type
+    loadType(mv, errorType.reasonType);
+    loadType(mv, errorType.detailType);
+    
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE, BTYPE), false);
 }
 
 # Generate code to load an instance of the given union type
