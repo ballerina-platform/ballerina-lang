@@ -60,14 +60,14 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "errorConstructReasonTest");
 
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, ERROR1);
-        Assert.assertEquals(((BError) returns[0]).details.stringValue(), EMPTY_CURLY_BRACE);
+        Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
         Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertEquals(((BError) returns[1]).reason, ERROR2);
-        Assert.assertEquals(((BError) returns[1]).details.stringValue(), EMPTY_CURLY_BRACE);
+        Assert.assertEquals(((BError) returns[1]).getReason(), ERROR2);
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
         Assert.assertTrue(returns[2] instanceof BError);
-        Assert.assertEquals(((BError) returns[2]).reason, ERROR3);
-        Assert.assertEquals(((BError) returns[2]).details.stringValue(), EMPTY_CURLY_BRACE);
+        Assert.assertEquals(((BError) returns[2]).getReason(), ERROR3);
+        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
         Assert.assertEquals(returns[3].stringValue(), ERROR1);
         Assert.assertEquals(returns[4].stringValue(), ERROR2);
         Assert.assertEquals(returns[5].stringValue(), ERROR3);
@@ -80,14 +80,14 @@ public class ErrorTest {
         String detail2 = "{\"message\":\"msg2\"}";
         String detail3 = "{\"message\":\"msg3\"}";
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, ERROR1);
-        Assert.assertEquals(((BError) returns[0]).details.stringValue().trim(), detail1);
+        Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue().trim(), detail1);
         Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertEquals(((BError) returns[1]).reason, ERROR2);
-        Assert.assertEquals(((BError) returns[1]).details.stringValue().trim(), detail2);
+        Assert.assertEquals(((BError) returns[1]).getReason(), ERROR2);
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue().trim(), detail2);
         Assert.assertTrue(returns[2] instanceof BError);
-        Assert.assertEquals(((BError) returns[2]).reason, ERROR3);
-        Assert.assertEquals(((BError) returns[2]).details.stringValue().trim(), detail3);
+        Assert.assertEquals(((BError) returns[2]).getReason(), ERROR3);
+        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue().trim(), detail3);
         Assert.assertEquals(returns[3].stringValue().trim(), detail1);
         Assert.assertEquals(returns[4].stringValue().trim(), detail2);
         Assert.assertEquals(returns[5].stringValue().trim(), detail3);
@@ -133,8 +133,8 @@ public class ErrorTest {
     public void customErrorDetailsTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:(), data:\"test\"}");
-        Assert.assertEquals(((BError) returns[0]).details.getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).details.getType().getName(), "TrxErrorData");
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
     }
 
     @Test
@@ -187,15 +187,15 @@ public class ErrorTest {
     public void testErrorWithUserDefinedReasonType(String testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, CONST_ERROR_REASON);
+        Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
     }
 
     @Test(dataProvider = "constAsReasonTests")
     public void testErrorWithConstantAsReason(String testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, CONST_ERROR_REASON);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "error detail message");
     }
 
