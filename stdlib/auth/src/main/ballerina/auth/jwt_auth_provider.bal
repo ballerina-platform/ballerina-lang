@@ -26,14 +26,12 @@ import ballerina/time;
 public type JWTAuthProvider object {
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
-    private cache:Cache authCache;
 
     # Provides authentication based on the provided jwt token
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
     public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
         self.jwtAuthProviderConfig = jwtAuthProviderConfig;
-        self.authCache = new;
     }
 
     # Authenticate with a jwt token
@@ -42,7 +40,7 @@ public type JWTAuthProvider object {
     # + return - true if authentication is successful, false otherwise.
     #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
-        if (self.authCache.hasKey(jwtToken)) {
+        if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
             var payload = self.authenticateFromCache(jwtToken);
             if (payload is internal:JwtPayload) {
                 self.setAuthContext(payload, jwtToken);
@@ -52,7 +50,16 @@ public type JWTAuthProvider object {
             }
         }
 
-        var payload = internal:validate(jwtToken, self.jwtAuthProviderConfig);
+        internal:JWTValidatorConfig jwtValidatorConfig = {
+            issuer: self.jwtAuthProviderConfig.issuer,
+            audience: self.jwtAuthProviderConfig.audience,
+            clockSkew: self.jwtAuthProviderConfig.clockSkew,
+            certificateAlias: self.jwtAuthProviderConfig.certificateAlias,
+            trustStoreFilePath: self.jwtAuthProviderConfig.trustStoreFilePath,
+            trustStorePassword: self.jwtAuthProviderConfig.trustStorePassword
+        };
+        var payload = internal:validate(jwtToken, jwtValidatorConfig);
+
         if (payload is internal:JwtPayload) {
             self.setAuthContext(payload, jwtToken);
             self.addToAuthenticationCache(jwtToken, payload.exp, payload);
@@ -63,7 +70,7 @@ public type JWTAuthProvider object {
     }
 
     function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
-        var context = trap <CachedJWTAuthContext>self.authCache.get(jwtToken);
+        var context = trap <CachedJWTAuthContext>self.jwtAuthProviderConfig.jwtCache.get(jwtToken);
         if (context is CachedJWTAuthContext) {
             // convert to current time and check the expiry time
             if (context.expiryTime > (time:currentTime().time / 1000)) {
@@ -79,7 +86,7 @@ public type JWTAuthProvider object {
 
     function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
         CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
-        self.authCache.put(jwtToken, cachedContext);
+        self.jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedContext);
         log:printDebug(function() returns string {
             return "Add authenticated user :" + payload.sub + " to the cache";
         });
@@ -123,6 +130,7 @@ const string AUTH_TYPE_JWT = "jwt";
 # + certificateAlias - Token signed key alias
 # + trustStoreFilePath - Path to the trust store file
 # + trustStorePassword - Trust store password
+# + jwtCache - Cache used to store parsed JWT information as CachedJwt
 public type JWTAuthProviderConfig record {
     string issuer = "";
     string audience = "";
@@ -130,6 +138,7 @@ public type JWTAuthProviderConfig record {
     string certificateAlias = "";
     string trustStoreFilePath = "";
     string trustStorePassword = "";
+    cache:Cache jwtCache = new;
     !...;
 };
 
