@@ -18,7 +18,6 @@ dependencies {
     ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
 }
 
-
 task copyZip (type:Copy) {
     def zipFile = file(configurations.ballerinaTools.asPath)
     def outputDir = file(buildDir)
@@ -28,7 +27,6 @@ task copyZip (type:Copy) {
 }
 
 test {
-    dependsOn copyZip
     // List of BBEs excluded from building
     def ignoreList = [ 'proto-to-ballerina',
                        'swagger-to-ballerina',
