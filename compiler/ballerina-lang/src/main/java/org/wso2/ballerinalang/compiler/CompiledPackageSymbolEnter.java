@@ -428,6 +428,9 @@ public class CompiledPackageSymbolEnter {
             case TypeTags.RECORD:
                 typeDefSymbol = readRecordTypeSymbol(dataInStream, typeDefName, flags);
                 break;
+            case TypeTags.ERROR:
+                typeDefSymbol = readErrorTypeSymbol(dataInStream, typeDefName, flags);
+                break;
             case TypeTags.FINITE:
                 typeDefSymbol = readFiniteTypeSymbol(dataInStream, typeDefName, flags);
                 break;
@@ -502,6 +505,31 @@ public class CompiledPackageSymbolEnter {
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
+
+        return symbol;
+    }
+
+
+    private BErrorTypeSymbol readErrorTypeSymbol(DataInputStream dataInStream, String name, int flags)
+            throws  IOException {
+        BErrorTypeSymbol symbol = Symbols.createErrorSymbol(flags, names.fromString(name), this.env.pkgSymbol.pkgID,
+                                                            null, this.env.pkgSymbol);
+        symbol.scope = new Scope(symbol);
+        BErrorType type = new BErrorType(symbol);
+        symbol.type = type;
+
+        String reasonTypeDesc = getUTF8CPEntryValue(dataInStream);
+        UnresolvedType reasonType = new UnresolvedType(reasonTypeDesc,
+                                                       errReasonType -> type.reasonType = errReasonType);
+        this.env.unresolvedTypes.add(reasonType);
+
+        String detailTypeDesc = getUTF8CPEntryValue(dataInStream);
+        UnresolvedType detailType = new UnresolvedType(detailTypeDesc,
+                                                       errDetailType -> type.detailType = errDetailType);
+        this.env.unresolvedTypes.add(detailType);
 
         // Read and ignore attributes
         readAttributes(dataInStream);
@@ -1233,10 +1261,10 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getErrorType(BType reasonType, BType detailsType) {
-            if (reasonType == symTable.stringType && detailsType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailsType == symTable.pureTypeConstrainedMap) {
                 return symTable.errorType;
             }
-            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.EMPTY,
+            BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
                     env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
             BErrorType errorType = new BErrorType(errorSymbol, reasonType, detailsType);
             errorSymbol.type = errorType;

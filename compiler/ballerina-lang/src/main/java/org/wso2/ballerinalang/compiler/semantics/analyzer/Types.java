@@ -243,7 +243,7 @@ public class Types {
 
         switch (type.tag) {
             case TypeTags.MAP:
-                return isAnydata(((BMapType) type).constraint, unresolvedTypes);
+                return isPureType(((BMapType) type).constraint, unresolvedTypes);
             case TypeTags.RECORD:
                 if (unresolvedTypes.contains(type)) {
                     return true;
@@ -253,14 +253,14 @@ public class Types {
                 List<BType> fieldTypes = recordType.fields.stream()
                                                           .map(field -> field.type)
                                                           .collect(Collectors.toList());
-                return isAnydata(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
+                return isPureType(fieldTypes, unresolvedTypes) &&
+                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
                 return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
             case TypeTags.TUPLE:
-                return isAnydata(((BTupleType) type).tupleTypes, unresolvedTypes);
+                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
             case TypeTags.ARRAY:
-                return isAnydata(((BArrayType) type).eType, unresolvedTypes);
+                return isPureType(((BArrayType) type).eType, unresolvedTypes);
             case TypeTags.FINITE:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
                                                                           .map(val -> val.type).collect(
@@ -273,6 +273,23 @@ public class Types {
 
     private boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
+    }
+
+    boolean isPureType(BType type) {
+        return isPureType(type, new HashSet<>());
+    }
+
+    private boolean isPureType(BType type, Set<BType> unresolvedTypes) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
+        }
+
+        return type.tag == TypeTags.ERROR || isAnydata(type, unresolvedTypes);
+    }
+
+    private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
+        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
     }
 
     public boolean isLikeAnydataOrNotNil(BType type) {
@@ -1070,6 +1087,18 @@ public class Types {
         return true;
     }
 
+    public boolean isValidErrorDetailType(BType detailType) {
+        switch (detailType.tag) {
+            case TypeTags.MAP:
+                return isAssignable(detailType, symTable.pureTypeConstrainedMap);
+            case TypeTags.RECORD:
+                BRecordType detailRecordType = (BRecordType) detailType;
+                return detailRecordType.fields.stream()
+                        .allMatch(field -> isAssignable(field.type, symTable.pureType)) &&
+                        (detailRecordType.sealed || isAssignable(detailRecordType.restFieldType, symTable.pureType));
+        }
+        return false;
+    }
 
     // private methods
 
@@ -1521,7 +1550,16 @@ public class Types {
                 return false;
             }
             BErrorType source = (BErrorType) s;
-            return isSameType(source.reasonType, t.reasonType) && isSameType(source.detailType, t.detailType);
+
+            if (!isSameType(source.reasonType, t.reasonType)) {
+                return false;
+            }
+
+            if (source.detailType == t.detailType) {
+                return true;
+            }
+
+            return isSameType(source.detailType, t.detailType);
         }
 
         @Override
@@ -1721,7 +1759,7 @@ public class Types {
      * @param candidateLiteral Literal to be tested whether it is assignable to the base literal or not.
      * @return true if assignable; false otherwise.
      */
-    private boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
+    boolean checkLiteralAssignabilityBasedOnType(BLangLiteral baseLiteral, BLangLiteral candidateLiteral) {
         // Different literal kinds.
         if (baseLiteral.getKind() != candidateLiteral.getKind()) {
             return false;

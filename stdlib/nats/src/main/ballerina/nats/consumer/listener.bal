@@ -40,7 +40,7 @@ public type Listener object {
         return self.create(serviceType, name);
     }
 
-    extern function create(service serviceType, string? name) returns error?;
+    function create(service serviceType, string? name) returns error? = external;
 
     # Starts the listener in the lifecyle.
     #

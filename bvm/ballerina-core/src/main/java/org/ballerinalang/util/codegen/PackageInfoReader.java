@@ -415,6 +415,10 @@ public class PackageInfoReader {
                     readRecordInfoEntry(packageInfo, typeDefInfo);
                     packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
                     break;
+                case TypeTags.ERROR_TAG:
+                    readErrorInfoEntry(packageInfo, typeDefInfo);
+                    packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
+                    break;
                 case TypeTags.FINITE_TYPE_TAG:
                     readFiniteTypeInfoEntry(packageInfo, typeDefInfo);
                     packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
@@ -522,6 +526,24 @@ public class PackageInfoReader {
         // Read attributes of the struct info
         readAttributeInfoEntries(packageInfo, packageInfo, recordInfo);
         typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private void readErrorInfoEntry(PackageInfo packageInfo, TypeDefInfo typeDefInfo) throws IOException {
+        ErrorTypeInfo errorTypeInfo = new ErrorTypeInfo();
+
+        int reasonTypeCPIndex = dataInStream.readInt();
+        UTF8CPEntry reasonTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(reasonTypeCPIndex);
+        errorTypeInfo.setReasonFieldTypeSignature(reasonTypeSigUTF8Entry.getValue());
+
+        int detailTypeCPIndex = dataInStream.readInt();
+        UTF8CPEntry detailTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(detailTypeCPIndex);
+        errorTypeInfo.setDetailFieldTypeSignature(detailTypeSigUTF8Entry.getValue());
+
+        BErrorType errorType = new BErrorType(errorTypeInfo, typeDefInfo.name, packageInfo.getPkgPath());
+        errorTypeInfo.setType(errorType);
+
+        readAttributeInfoEntries(packageInfo, packageInfo, errorTypeInfo);
+        typeDefInfo.typeInfo = errorTypeInfo;
     }
 
     private void readFiniteTypeInfoEntry(PackageInfo packageInfo, TypeDefInfo typeDefInfo) throws IOException {
@@ -1670,6 +1692,12 @@ public class PackageInfoReader {
             if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG) {
                 continue;
             }
+
+            if (structInfo.typeTag == TypeTags.ERROR_TAG) {
+                resolveErrorType(packageInfo, (ErrorTypeInfo) structInfo.typeInfo);
+                continue;
+            }
+
             StructureTypeInfo structureTypeInfo = (StructureTypeInfo) structInfo.typeInfo;
             StructFieldInfo[] fieldInfoEntries = structureTypeInfo.getFieldInfoEntries();
 
@@ -1715,10 +1743,17 @@ public class PackageInfoReader {
         }
     }
 
+    private void resolveErrorType(PackageInfo packageInfo, ErrorTypeInfo errorTypeInfo) {
+        errorTypeInfo.getType().reasonType = getBTypeFromDescriptor(packageInfo,
+                                                                    errorTypeInfo.getReasonFieldTypeSignature());
+        errorTypeInfo.getType().detailType = getBTypeFromDescriptor(packageInfo,
+                                                                    errorTypeInfo.getDetailFieldTypeSignature());
+    }
+
     private void setAttachedFunctions(PackageInfo packageInfo) {
         TypeDefInfo[] structInfoEntries = packageInfo.getTypeDefInfoEntries();
         for (TypeDefInfo structInfo : structInfoEntries) {
-            if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG) {
+            if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG || structInfo.typeTag == TypeTags.ERROR_TAG) {
                 continue;
             }
             StructureTypeInfo structureTypeInfo = (StructureTypeInfo) structInfo.typeInfo;

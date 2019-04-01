@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaOrderByVariable extends BallerinaCompositeElement {
+public interface BallerinaOrderByVariable extends PsiElement {
 
   @Nullable
   BallerinaOrderByType getOrderByType();

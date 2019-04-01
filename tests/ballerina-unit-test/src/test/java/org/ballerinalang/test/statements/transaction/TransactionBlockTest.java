@@ -72,7 +72,7 @@ public class TransactionBlockTest {
         BValue[] result = BRunUtil.invoke(programFile, "testTransactionFailing", params);
         Assert.assertEquals(result[0].getType().getTag(), TypeTags.ERROR);
         BError error = (BError) result[0];
-        Assert.assertEquals(error.reason, "TransactionError");
+        Assert.assertEquals(error.getReason(), "TransactionError");
     }
 
     @Test

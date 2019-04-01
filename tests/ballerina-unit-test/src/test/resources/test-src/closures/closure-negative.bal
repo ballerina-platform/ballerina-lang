@@ -100,3 +100,24 @@ function() foo = function () returns () {
 };
 
 int p = 2;
+
+function testUninitializedClosureVars() {
+    string a;
+
+    var bazz = function () {
+        string str = a + "aa";
+    };
+
+    bazz.call();
+
+    string b;
+    int count;
+
+    var bar = function () {
+        count += 10;
+
+        b = b + "bb";
+    };
+
+    bar.call();
+}

@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDeprecatedTextImpl extends BallerinaCompositeElementImpl implements BallerinaDeprecatedText {
+public class BallerinaDeprecatedTextImpl extends ASTWrapperPsiElement implements BallerinaDeprecatedText {
 
   public BallerinaDeprecatedTextImpl(@NotNull ASTNode node) {
     super(node);

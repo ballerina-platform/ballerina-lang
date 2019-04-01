@@ -192,7 +192,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
 
     if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            map<any> errorDetail = { message : X_HUB_SIGNATURE + " header not present for subscription " +
+            map<anydata> errorDetail = { message : X_HUB_SIGNATURE + " header not present for subscription " +
                                             "added specifying " + HUB_SECRET };
             error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
             return webSubError;
@@ -210,7 +210,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
         return validateSignature(xHubSignature, payload, secret);
     } else {
         string errCause = <string> payload.detail().message;
-        map<any> errorDetail = { message : "Error extracting notification payload as string " +
+        map<anydata> errorDetail = { message : "Error extracting notification payload as string " +
                                         "for signature validation: " + errCause };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
@@ -236,13 +236,13 @@ function validateSignature(string xHubSignature, string stringPayload, string se
         generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
             secret.toByteArray("UTF-8")));
     } else {
-        map<any> errorDetail = { message : "Unsupported signature method: " + method };
+        map<anydata> errorDetail = { message : "Unsupported signature method: " + method };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
 
     if (!signature.equalsIgnoreCase(generatedSignature)) {
-        map<any> errorDetail = { message : "Signature validation failed: Invalid Signature!" };
+        map<anydata> errorDetail = { message : "Signature validation failed: Invalid Signature!" };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
@@ -366,7 +366,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
     }
 
     if (linkHeaders.length() == 0) {
-        map<any> errorDetail = { message : "Link header unavailable in discovery response" };
+        map<anydata> errorDetail = { message : "Link header unavailable in discovery response" };
         error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return websubError;
     }
@@ -392,7 +392,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
                 hubIndex += 1;
             } else if (linkConstituents[1].contains("rel=\"self\"")) {
                 if (topic != "") {
-                    map<any> errorDetail = { message : "Link Header contains > 1 self URLs" };
+                    map<anydata> errorDetail = { message : "Link Header contains > 1 self URLs" };
                     error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
                     return websubError;
                 } else {
@@ -406,7 +406,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         return (topic, hubs);
     }
 
-    map<any> errorDetail = { message : "Hub and/or Topic URL(s) not identified in link header of discovery response" };
+    map<anydata> errorDetail = { message : "Hub and/or Topic URL(s) not identified in link header of discovery response" };
     error websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     return websubError;
 }
@@ -541,13 +541,13 @@ public type WebSubHub object {
     # Retrieves topics currently recognized by the Hub.
     #
     # + return - An array of available topics
-    public extern function getAvailableTopics() returns string[];
+    public function getAvailableTopics() returns string[] = external;
 
     # Retrieves details of subscribers registered to receive updates for a particular topic.
     #
     # + topic - The topic for which details need to be retrieved
     # + return - An array of subscriber details
-    public extern function getSubscribers(string topic) returns SubscriberDetails[];
+    public function getSubscribers(string topic) returns SubscriberDetails[] = external;
 };
 
 public function WebSubHub.stop() returns boolean {
@@ -559,7 +559,7 @@ public function WebSubHub.stop() returns boolean {
 public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
-        map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        map<anydata> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
         error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
         return webSubError;
     }
@@ -591,7 +591,7 @@ public function WebSubHub.publishUpdate(string topic, string|xml|json|byte[]|io:
 
 public function WebSubHub.registerTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        map<any> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
+        map<anydata> errorDetail = { message : "Internal Ballerina Hub not initialized or incorrectly referenced" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }
@@ -600,7 +600,7 @@ public function WebSubHub.registerTopic(string topic) returns error? {
 
 public function WebSubHub.unregisterTopic(string topic) returns error? {
     if (!hubTopicRegistrationRequired) {
-        map<any> errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
+        map<anydata> errorDetail = { message : "Remote topic unregistration not allowed/not required at the Hub" };
         error e = error(WEBSUB_ERROR_CODE, errorDetail);
         return e;
     }

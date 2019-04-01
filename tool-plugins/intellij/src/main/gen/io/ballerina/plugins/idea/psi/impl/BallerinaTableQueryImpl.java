@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableQueryImpl extends BallerinaCompositeElementImpl implements BallerinaTableQuery {
+public class BallerinaTableQueryImpl extends ASTWrapperPsiElement implements BallerinaTableQuery {
 
   public BallerinaTableQueryImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,37 +45,37 @@ public class BallerinaTableQueryImpl extends BallerinaCompositeElementImpl imple
   @Override
   @Nullable
   public BallerinaJoinStreamingInput getJoinStreamingInput() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaJoinStreamingInput.class);
+    return findChildByClass(BallerinaJoinStreamingInput.class);
   }
 
   @Override
   @Nullable
   public BallerinaLimitClause getLimitClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaLimitClause.class);
+    return findChildByClass(BallerinaLimitClause.class);
   }
 
   @Override
   @Nullable
   public BallerinaOrderByClause getOrderByClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOrderByClause.class);
+    return findChildByClass(BallerinaOrderByClause.class);
   }
 
   @Override
   @Nullable
   public BallerinaSelectClause getSelectClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSelectClause.class);
+    return findChildByClass(BallerinaSelectClause.class);
   }
 
   @Override
   @Nullable
   public BallerinaStreamingInput getStreamingInput() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStreamingInput.class);
+    return findChildByClass(BallerinaStreamingInput.class);
   }
 
   @Override
   @NotNull
   public PsiElement getFrom() {
-    return notNullChild(findChildByType(FROM));
+    return findNotNullChildByType(FROM);
   }
 
 }

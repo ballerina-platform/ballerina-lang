@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingInput {
+public class BallerinaStreamingInputImpl extends ASTWrapperPsiElement implements BallerinaStreamingInput {
 
   public BallerinaStreamingInputImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,7 +51,7 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
   @Override
   @Nullable
   public BallerinaWindowClause getWindowClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWindowClause.class);
+    return findChildByClass(BallerinaWindowClause.class);
   }
 
   @Override

@@ -44,7 +44,7 @@ public class BallerinaActionInvocationExpressionImpl extends BallerinaExpression
   @Override
   @NotNull
   public BallerinaActionInvocation getActionInvocation() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaActionInvocation.class));
+    return findNotNullChildByClass(BallerinaActionInvocation.class);
   }
 
 }

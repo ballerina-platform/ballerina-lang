@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -223,7 +224,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -268,6 +268,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
     private int recordCount = 0;
+    private int errorCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -3061,8 +3062,15 @@ public class Desugar extends BLangNodeVisitor {
         }
         errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
-        errConstExpr.detailsExpr = rewriteExpr(Optional.ofNullable(errConstExpr.detailsExpr)
-                .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));
+        if (errConstExpr.detailsExpr == null) {
+            errConstExpr.detailsExpr = rewriteExpr(
+                    ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType));
+        } else {
+            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
+                                                                 BLangBuiltInMethod.FREEZE,
+                                                                 Lists.of(visitCloneInvocation(
+                                                                         rewriteExpr(errConstExpr.detailsExpr))));
+        }
         result = errConstExpr;
     }
 
@@ -4162,9 +4170,9 @@ public class Desugar extends BLangNodeVisitor {
         if (NodeKind.RECORD_VARIABLE == bindingPatternVariable.getKind()) {
             BLangRecordVariable recordVariable = (BLangRecordVariable) bindingPatternVariable;
 
-            BRecordTypeSymbol recordSymbol = Symbols
-                    .createRecordSymbol(0, names.fromString("$anonType$" + recordCount++), env.enclPkg.symbol.pkgID,
-                            null, env.scope.owner);
+            BRecordTypeSymbol recordSymbol =
+                    Symbols.createRecordSymbol(0, names.fromString("$anonRecordType$" + recordCount++),
+                                               env.enclPkg.symbol.pkgID, null, env.scope.owner);
             List<BField> fields = new ArrayList<>();
             List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
 
@@ -4200,9 +4208,19 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
             BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
-            return new BErrorType(null, symTable.stringType,
-                    errorVariable.detail == null || errorVariable.detail.type == symTable.noType ?
-                            symTable.mapAnydataType : getStructuredBindingPatternType(errorVariable.detail));
+            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC,
+                                                                    names.fromString("$anonErrorType$" + errorCount++),
+                                                                    env.enclPkg.symbol.pkgID,
+                                                                    null, null);
+            BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType,
+                                                  errorVariable.detail == null ||
+                                                          errorVariable.detail.type == symTable.noType ?
+                                                          symTable.pureTypeConstrainedMap :
+                                                          getStructuredBindingPatternType(errorVariable.detail));
+            errorTypeSymbol.type = errorType;
+
+            createTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType));
+            return errorType;
         }
 
         return bindingPatternVariable.type;
@@ -4214,6 +4232,12 @@ public class Desugar extends BLangNodeVisitor {
         recordTypeNode.type = recordVarType;
         recordTypeNode.fields = typeDefFields;
         return recordTypeNode;
+    }
+
+    private BLangErrorType createErrorTypeNode(BErrorType errorType) {
+        BLangErrorType errorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorTypeNode.type = errorType;
+        return errorTypeNode;
     }
 
     private void createTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode) {

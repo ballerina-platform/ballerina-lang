@@ -44,7 +44,7 @@ public class BallerinaXmlLiteralExpressionImpl extends BallerinaExpressionImpl i
   @Override
   @NotNull
   public BallerinaXmlLiteral getXmlLiteral() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaXmlLiteral.class));
+    return findNotNullChildByClass(BallerinaXmlLiteral.class);
   }
 
 }
