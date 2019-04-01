@@ -29,6 +29,8 @@ dependencies {
     
     testCompile 'org.testng:testng'
     testCompile project(':language-server:language-server-compiler')
+    testCompile 'org.slf4j:slf4j-jdk14'
+
 }
 
 jar {
