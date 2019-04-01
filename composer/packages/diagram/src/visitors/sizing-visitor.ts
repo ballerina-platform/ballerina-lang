@@ -1,6 +1,6 @@
 import {
     Assignment, ASTKindChecker,
-    ASTNode, ASTUtil, Block, Break, CompilationUnit, CompoundAssignment, Constant,
+    ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
     Literal, Match, MatchStaticPatternClause, ObjectType,
     Panic, Return, Service, TypeDefinition, UnionTypeNode,
@@ -21,11 +21,8 @@ class SizingVisitor implements Visitor {
     private endpointWidth: number = 0;
     private returnStatements: Return[] = [];
 
-    public beginVisitCompilationUnit(node: CompilationUnit) {
-        this.endpointWidth = 0;
-    }
-
     public beginVisitFunction(node: BalFunction) {
+        this.endpointWidth = 0;
         const viewState: FunctionViewState = node.viewState;
         if (!node.lambda) {
             this.endpointHolder = (node.viewState as FunctionViewState).containingVisibleEndpoints;
@@ -124,8 +121,8 @@ class SizingVisitor implements Visitor {
         });
 
         // Size endpoints
-        if (node.VisibleEndpoints) {
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        if (this.endpointHolder) {
+            this.endpointHolder.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.bBox.h;

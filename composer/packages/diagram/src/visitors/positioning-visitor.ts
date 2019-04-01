@@ -17,7 +17,7 @@ function positionWorkerLine(worker: WorkerViewState) {
 }
 
 class PositioningVisitor implements Visitor {
-    private epH: number = 0; // FIXME: Figure out how to do this inside sizing visitor
+
     private epX: number = 0;
     private epY: number = 0;
 
@@ -25,7 +25,6 @@ class PositioningVisitor implements Visitor {
 
         this.epX = 0;
         this.epY = 0;
-        this.epH = 0;
         const viewState: CompilationUnitViewState = node.viewState;
 
         // filter out visible children from top level nodes.
@@ -152,7 +151,6 @@ class PositioningVisitor implements Visitor {
             endpoint.viewState.bBox.y = this.epY;
             this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
         });
-        this.epH = viewState.client.bBox.h; // FIXME: Figure out how to do this in sizing visitor
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = this.epX;
@@ -222,10 +220,6 @@ class PositioningVisitor implements Visitor {
         if (node.VisibleEndpoints) {
             // Position endpoints
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                // FIXME: Figure out how to do this in sizing visitor
-                endpoint.viewState.bBox.h = this.epH;
-                endpoint.viewState.bBox.w = config.lifeLine.width;
-                //////////////////////////////////////////////////
                 endpoint.viewState.bBox.x = this.epX;
                 endpoint.viewState.bBox.y = this.epY;
                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
@@ -240,10 +234,6 @@ class PositioningVisitor implements Visitor {
         if (node.VisibleEndpoints) {
             // Position endpoints
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                // FIXME: Figure out how to do this in sizing visitor
-                endpoint.viewState.bBox.h = this.epH;
-                endpoint.viewState.bBox.w = config.lifeLine.width;
-                //////////////////////////////////////////////////
                 endpoint.viewState.bBox.x = this.epX;
                 endpoint.viewState.bBox.y = this.epY;
                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
@@ -265,10 +255,6 @@ class PositioningVisitor implements Visitor {
         if (node.VisibleEndpoints) {
             // Position endpoints
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                // FIXME: Figure out how to do this in sizing visitor
-                endpoint.viewState.bBox.h = this.epH;
-                endpoint.viewState.bBox.w = config.lifeLine.width;
-                //////////////////////////////////////////////////
                 endpoint.viewState.bBox.x = this.epX;
                 endpoint.viewState.bBox.y = this.epY;
                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
