@@ -183,7 +183,7 @@ class VisibleEndpointVisitor extends LSNodeVisitor {
                 .map(entry -> entry.getValue().symbol)
                 .collect(Collectors.toList()).stream()
                 .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(symbol)
-                    && symbol.owner instanceof BPackageSymbol)
+                    && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
                 .map(symbol -> {
 
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);

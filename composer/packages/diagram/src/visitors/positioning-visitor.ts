@@ -21,7 +21,7 @@ class PositioningVisitor implements Visitor {
     private epX: number = 0;
     private epY: number = 0;
 
-    beginVisitCompilationUnit(node: CompilationUnit) {
+    public beginVisitCompilationUnit(node: CompilationUnit) {
 
         this.epX = 0;
         this.epY = 0;
@@ -70,7 +70,7 @@ class PositioningVisitor implements Visitor {
     }
 
     // tslint:disable-next-line:ban-types
-    beginVisitFunction(node: BalFunction) {
+    public beginVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
@@ -161,7 +161,7 @@ class PositioningVisitor implements Visitor {
         viewState.header.w = viewState.bBox.w;
     }
 
-    beginVisitBlock(node: Block) {
+    public beginVisitBlock(node: Block) {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
 
@@ -228,8 +228,7 @@ class PositioningVisitor implements Visitor {
         }
     }
 
-
-    beginVisitWhile(node: While) {
+    public beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
@@ -244,7 +243,7 @@ class PositioningVisitor implements Visitor {
         }
     }
 
-    beginVisitForeach(node: Foreach) {
+    public beginVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.foreach.height;
@@ -258,7 +257,7 @@ class PositioningVisitor implements Visitor {
         }
     }
 
-    beginVisitIf(node: If) {
+    public beginVisitIf(node: If) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.bottomMargin
@@ -279,7 +278,7 @@ class PositioningVisitor implements Visitor {
         }
     }
 
-    beginVisitService(node: Service) {
+    public beginVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
         let y = viewState.bBox.y + config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
@@ -290,7 +289,7 @@ class PositioningVisitor implements Visitor {
         });
     }
 
-    beginVisitTypeDefinition(node: TypeDefinition) {
+    public beginVisitTypeDefinition(node: TypeDefinition) {
         // If it is a service do nothing.
         if (node.service || !ASTUtil.isValidObjectType(node)) { return; }
         const viewState: ViewState = node.viewState;
@@ -303,14 +302,14 @@ class PositioningVisitor implements Visitor {
         });
     }
 
-    beginVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
+    public beginVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
         const viewState: ViewState = node.viewState;
         node.statement.viewState.bBox.x = viewState.bBox.x;
         node.statement.viewState.bBox.y = viewState.bBox.y
         + config.statement.height; // To print literal;
     }
 
-    beginVisitMatch(node: Match) {
+    public beginVisitMatch(node: Match) {
         const viewState: ViewState = node.viewState;
         let height = config.frame.topMargin + config.frame.header.height;
         node.patternClauses.forEach((element) => {
@@ -320,7 +319,7 @@ class PositioningVisitor implements Visitor {
         });
     }
 
-    endVisitFunction(node: BalFunction) {
+    public endVisitFunction(node: BalFunction) {
         const viewState: FunctionViewState = node.viewState;
         viewState.menuTrigger.x = this.epX;
     }

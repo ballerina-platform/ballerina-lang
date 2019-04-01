@@ -1,6 +1,6 @@
 
 import { ASTKindChecker, ASTNode, ASTUtil, Block as BlockNode,
-        Function as FunctionNode, 
+        Function as FunctionNode,
         VisibleEndpoint} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramUtils } from "../../diagram/diagram-utils";
