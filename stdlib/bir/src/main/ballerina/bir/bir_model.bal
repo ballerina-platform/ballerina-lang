@@ -206,6 +206,10 @@ public type BObjectType record {|
     BAttachedFunction?[] attachedFunctions = [];
 |};
 
+public type Self record {|
+    BType bType;
+|};
+
 public type BAttachedFunction record {|
     Name name = {};
     BInvokableType funcType;
@@ -239,7 +243,7 @@ public type BFutureType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self;
 
 public type ModuleID record {|
     string org = "";
