@@ -2420,7 +2420,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getNodeValue(ctx, node), node.getText());
+                String nodeValue = getNodeValue(ctx, node);
+                int literalTypeTag = isDecimalDiscriminated(nodeValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
+                this.pkgBuilder.addLiteralValue(pos, ws, literalTypeTag, nodeValue, node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getHexNodeValue(ctx, node), node.getText());
             }
@@ -2439,6 +2441,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
         }
+    }
+
+    private boolean isDecimalDiscriminated(String nodeValue) {
+        int length = nodeValue.length();
+        if (length < 1) {
+            return false;
+        }
+        char lastChar = nodeValue.charAt(length - 1);
+        return lastChar == 'd' || lastChar == 'D';
     }
 
     /**

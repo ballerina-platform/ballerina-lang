@@ -1895,7 +1895,16 @@ public class BLangPackageBuilder {
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             finiteTypeNode.addWS(finiteTypeWsStack.pop());
             while (!exprNodeStack.isEmpty()) {
-                finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
+                ExpressionNode expressionNode = exprNodeStack.pop();
+                NodeKind exprKind = expressionNode.getKind();
+                if (exprKind == NodeKind.LITERAL || exprKind == NodeKind.NUMERIC_LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) expressionNode;
+                    String strVal = String.valueOf(literal.value);
+                    if (literal.type.tag == TypeTags.FLOAT || literal.type.tag == TypeTags.DECIMAL) {
+                        literal.value = stripDiscriminator(strVal);
+                    }
+                }
+                finiteTypeNode.valueSpace.add((BLangExpression) expressionNode);
             }
 
             // Reverse the collection so that they would appear in the correct order.
@@ -1941,6 +1950,18 @@ public class BLangPackageBuilder {
         attachDeprecatedNode(typeDefinition);
         attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
+    }
+
+    private Object stripDiscriminator(String strVal) {
+        int length = strVal.length();
+        if (length < 2) {
+            return strVal;
+        }
+        char lastChar = strVal.charAt(length - 1);
+        if (lastChar == 'f' || lastChar == 'F' || lastChar == 'd' || lastChar == 'D') {
+            return strVal.substring(0, length - 1);
+        }
+        return strVal;
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,

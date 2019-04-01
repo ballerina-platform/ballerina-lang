@@ -280,12 +280,14 @@ public class TypeChecker extends BLangNodeVisitor {
             literalType = new BArrayType(symTable.byteType);
         }
 
-        // Check whether this belongs to decimal type or float type
+        // Check whether this belongs to float type
         if (literalType.tag == TypeTags.FLOAT) {
             String numericLiteral = String.valueOf(literalValue);
             char lastChar = getLastChar(numericLiteral);
             numericLiteral = stripFloatDecimalDiscriminator(numericLiteral, lastChar);
 
+            // When the float literal is not discriminated for float or decimal it's considered float.
+            // And if expected type is decimal we convert it to decimal given it's not discriminated as float.
             boolean isDiscriminatedFloat = lastChar == 'f' || lastChar == 'F';
             if (expType.tag == TypeTags.DECIMAL) {
                 if (isDiscriminatedFloat || isHexLiteral(numericLiteral)) {
@@ -297,20 +299,30 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalExpr.type = literalType;
             }
 
+            if (literalType.tag == TypeTags.DECIMAL) {
+                literalExpr.value = numericLiteral;
+            } else if (literalType.tag == TypeTags.FLOAT) {
+                literalExpr.value = Double.parseDouble(numericLiteral);
+            }
+
+            if (expType.tag == TypeTags.NONE) {
+                expType = literalType;
+            }
+        }
+
+        // Check whether this belongs to decimal type
+        if (literalType.tag == TypeTags.DECIMAL) {
+            String numericLiteral = String.valueOf(literalValue);
+            char lastChar = getLastChar(numericLiteral);
+            numericLiteral = stripFloatDecimalDiscriminator(numericLiteral, lastChar);
+
             boolean isDiscriminatedDecimal = lastChar == 'd' || lastChar == 'D';
             if (expType.tag == TypeTags.FLOAT && isDiscriminatedDecimal) {
                 dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.decimalType);
                 resultType = symTable.semanticError;
                 return;
             }
-
-            if (literalType.tag == TypeTags.DECIMAL || isDiscriminatedDecimal) {
-                literalExpr.value = numericLiteral;
-                literalType = symTable.decimalType; // var a = 33.3d
-            } else if (literalType.tag == TypeTags.FLOAT) {
-                literalExpr.value = Double.parseDouble(numericLiteral);
-            }
-
+            literalExpr.value = numericLiteral;
             if (expType.tag == TypeTags.NONE) {
                 expType = literalType;
             }

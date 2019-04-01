@@ -1750,7 +1750,11 @@ public class Types {
                 }
                 break;
             case TypeTags.FLOAT:
-                double baseDoubleVal = Double.parseDouble(String.valueOf(baseValue));
+                String baseValueStr = String.valueOf(baseValue);
+                if (isDecimalDiscriminated(baseValueStr)) {
+                    return false;
+                }
+                double baseDoubleVal = Double.parseDouble(baseValueStr);
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDoubleVal = ((Long) candidateValue).doubleValue();
@@ -1761,14 +1765,14 @@ public class Types {
                 }
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal baseDecimalVal = new BigDecimal(String.valueOf(baseValue), MathContext.DECIMAL128);
+                BigDecimal baseDecimalVal = parseBigDecimal(baseValue);
                 BigDecimal candidateDecimalVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
                         candidateTypeTag == TypeTags.DECIMAL) {
-                    candidateDecimalVal = new BigDecimal(String.valueOf(candidateValue), MathContext.DECIMAL128);
+                    candidateDecimalVal = parseBigDecimal(candidateValue);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 }
                 break;
@@ -1777,6 +1781,24 @@ public class Types {
                 return baseValue.equals(candidateValue);
         }
         return false;
+    }
+
+    private BigDecimal parseBigDecimal(Object baseValue) {
+        String strValue = String.valueOf(baseValue);
+        if (isDecimalDiscriminated(strValue)) {
+            strValue = strValue.substring(0, strValue.length() - 1);
+        }
+        return new BigDecimal(strValue, MathContext.DECIMAL128);
+    }
+
+    private boolean isDecimalDiscriminated(String baseValueStr) {
+        int length = baseValueStr.length();
+        // There should be at least 2 characters to form discriminated decimal literal.
+        if (length < 2) {
+            return false;
+        }
+        char lastChar = baseValueStr.charAt(length - 1);
+        return (lastChar == 'd' || lastChar == 'D');
     }
 
     boolean isByteLiteralValue(Long longObject) {
