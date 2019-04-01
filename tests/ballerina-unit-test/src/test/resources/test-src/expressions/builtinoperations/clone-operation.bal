@@ -371,3 +371,61 @@ public function cloneNilAnydata() returns (any, any) {
     anydata y = x.clone();
     return (x, y);
 }
+
+type MyError error<string, map<map<string>>>;
+
+string reason1 = "err reason 1";
+string reason2 = "err reason 2";
+string reason3 = "err reason 3";
+string reason4 = "err reason 4";
+string[*] reasonArray = [reason1, reason2, reason3, reason4];
+
+map<string> m1 = { one: "first" };
+map<string> m2 = { one: "first", two: "second" };
+
+error err1 = error(reason1);
+error err2 = error(reason2, { one: 1, two: "2" });
+MyError err3 = error(reason3, { m1: m1 });
+MyError err4 = error(reason4, { m1: m1, m2: m2 });
+
+public function testCloneArrayWithError() returns boolean {
+    error[*] errArray = [err1, err2, err3, err4];
+    error[4] clonedErrArray = errArray.clone();
+
+    boolean cloneSuccessful = errArray !== clonedErrArray;
+
+    foreach int i in 0 ... 3 {
+        cloneSuccessful = cloneSuccessful &&
+                            errArray[i].reason() == clonedErrArray[i].reason() &&
+                            errArray[i].reason() == reasonArray[i] &&
+                            errArray[i].detail() === clonedErrArray[i].detail();
+    }
+    return cloneSuccessful;
+}
+
+public function testCloneMapWithError() returns boolean {
+    map<error> errMap = {
+        e1: err1,
+        e2: err2,
+        e3: err3,
+        e4: err4
+    };
+
+    map<any> ma = {
+        one: 1,
+        two: "two",
+        errMap: errMap
+    };
+    map<error> errMapFromValue = <map<error>> ma.errMap;
+
+    map<any> clonedMap = <map<any>> ma.clone();
+
+    boolean cloneSuccessful = ma !== clonedMap && <int> ma.one == <int> clonedMap.one &&
+                                <string> ma.two == <string> clonedMap.two;
+
+    map<error> clonedErrorMap = <map<error>> clonedMap.errMap;
+    foreach (string, error) (key, value) in errMapFromValue {
+        cloneSuccessful = cloneSuccessful && value === clonedErrorMap[key];
+    }
+    return cloneSuccessful;
+}

@@ -266,7 +266,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -383,11 +383,9 @@ function persistSubscriptionChange(string mode, SubscriptionDetails subscription
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubPersistenceStoreImpl is HubPersistenceStore) {
-            // always true since already checked
-            addTopicRegistrationsOnStartup(hubPersistenceStoreImpl);
-            addSubscriptionsOnStartup(hubPersistenceStoreImpl); //TODO:verify against topics
-        }
+        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
     }
     return;
 }

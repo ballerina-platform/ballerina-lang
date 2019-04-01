@@ -558,6 +558,15 @@ function testErrorValueFreeze() returns string {
     return (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
 }
 
+function testStructureWithErrorValueFreeze() returns boolean {
+    string errReason = "test error";
+    error e = error(errReason);
+    map<any|error> m = { err: e };
+
+    map<any|error>|error res = m.freeze();
+    return res is map<any|error> && res.err === e && res === m;
+}
+
 function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {
     json j = { hello: "world "};
     json[] a = [j, "ballerina", 2, 10.3];

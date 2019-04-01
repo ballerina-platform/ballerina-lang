@@ -21,17 +21,17 @@ public type StreamingClient client object {
     #
     # + res - The inbound request message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote extern function send(any res) returns error?;
+    public remote function send(any res) returns error? = external;
 
     # Informs the server, caller finished sending messages.
     #
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote extern function complete() returns error?;
+    public remote function complete() returns error? = external;
 
     # Sends error message to the server.
     #
     # + statusCode - Error status code.
     # + message - Error message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote extern function sendError(int statusCode, string message) returns error?;
+    public remote function sendError(int statusCode, string message) returns error? = external;
 };

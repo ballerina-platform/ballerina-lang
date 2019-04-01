@@ -82,7 +82,7 @@ public class WorkerSyncSendTest {
 
         BValue[] returns = BRunUtil.invoke(result, "errorResult");
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, "error3");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
     }
 
     @Test
@@ -161,7 +161,7 @@ public class WorkerSyncSendTest {
     public void errorResultWithMultipleWorkers() {
         BValue[] returns = BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("err returned from w2", ((BError) returns[0]).reason);
+        Assert.assertEquals("err returned from w2", ((BError) returns[0]).getReason());
     }
 
     @Test

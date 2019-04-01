@@ -48,20 +48,20 @@ public type Response object {
     # Create a new `Entity` and link it with the response.
     #
     # + return - Newly created `Entity` that has been set to the response
-    extern function createNewEntity() returns mime:Entity;
+    function createNewEntity() returns mime:Entity = external;
 
     # Gets the `Entity` associated with the response.
     #
     # + return - The `Entity` of the response. An `error` is returned, if entity construction fails
-    public extern function getEntity() returns mime:Entity|error;
+    public function getEntity() returns mime:Entity|error = external;
 
     //Gets the `Entity` from the response without the entity body. This function is exposed only to be used internally.
-    extern function getEntityWithoutBody() returns mime:Entity;
+    function getEntityWithoutBody() returns mime:Entity = external;
 
     # Sets the provided `Entity` to the response.
     #
     # + e - The `Entity` to be set to the response
-    public extern function setEntity(mime:Entity e);
+    public function setEntity(mime:Entity e) = external;
 
     # Checks whether the requested header key exists in the header map.
     #

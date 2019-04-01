@@ -16,12 +16,20 @@
 
 final map<string> fullQualifiedClassNames = {};
 
+final map<(bir:AsyncCall,string)> lambdas = {};
+
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];
 
     if (result is string) {
         return result;
     } else {
+        (string, string) (pkgName, functionName) = getPackageAndFunctionName(key);
+        result = jvm:lookupExternClassName(pkgName, functionName);
+        if (result is string) {
+            fullQualifiedClassNames[key] = result;
+            return result;
+        }
         error err = error("cannot find full qualified class for : " + key);
         panic err;
     }
@@ -131,6 +139,10 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
         generateMethod(getFunction(func), cw, module);
     }
 
+    foreach var (k,v) in lambdas {
+        generateLambdaMethod(v[0], cw, v[1], k);
+    }
+
     cw.visitEnd();
 
     byte[] classContent = cw.toByteArray();
@@ -175,4 +187,12 @@ function getPackageName(string orgName, string moduleName) returns string {
     }
 
     return name;
+}
+
+function getPackageAndFunctionName(string key) returns (string, string) {
+    int index = key.lastIndexOf("/");
+    string pkgName = key.substring(0, index);
+    string functionName = key.substring(index + 1, key.length());
+
+    return (pkgName, functionName);
 }
