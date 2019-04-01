@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -113,14 +114,22 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() throws IOException {
             byteBuffer = null;
-            printStream.println("---------------DataStream close is called-----------------");
+            printStream.println("---------------Close is called-----------------");
+            if (httpContent != null) {
+                printStream.println("-------------Payload---------------");
+                printStream.print(httpContent.content().toString(CharsetUtil.UTF_8));
+                printStream.println("-----------------------------------");
+            }
+            for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+                printStream.println(element);
+            }
             releaseHttpContent();
             super.close();
         }
 
         private synchronized void releaseHttpContent() {
             if (httpContent != null && httpContent.refCnt() > 0) {
-                printStream.println("---------------DataStream release HttpContent is called---------------");
+                printStream.println("---------------Release HttpContent is called---------------");
                 httpContent.release();
             }
         }
