@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
@@ -73,6 +74,7 @@ public class HttpMessageDataStreamer {
         private int limit;
         private ByteBuffer byteBuffer;
         private HttpContent httpContent;
+        private PrintStream printStream = System.out;
 
         @Override
         public int read() {
@@ -111,12 +113,14 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() throws IOException {
             byteBuffer = null;
+            printStream.println("---------------DataStream close is called-----------------");
             releaseHttpContent();
             super.close();
         }
 
         private synchronized void releaseHttpContent() {
             if (httpContent != null && httpContent.refCnt() > 0) {
+                printStream.println("---------------DataStream release HttpContent is called---------------");
                 httpContent.release();
             }
         }
