@@ -26,7 +26,7 @@ string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
 #
 # + path - String value of file path.
 # + return - The absolute path reference or an error if the path cannot be derived
-public extern function absolute(@sensitive string path) returns string|error;
+public function absolute(@sensitive string path) returns string|error = external;
 
 # Returns path separator of underline operating system.
 #

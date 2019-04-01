@@ -42,30 +42,30 @@ public class UtilsTest {
 
         // Get Path error with reason and throwable.
         BError error1 = Utils.getPathError(reason, exp);
-        Assert.assertEquals(error1.reason, ERROR_REASON_PREFIX + reason);
-        Assert.assertEquals(error1.details.stringValue(), "{\"message\":\"Invalid path format: " +
+        Assert.assertEquals(error1.getReason(), ERROR_REASON_PREFIX + reason);
+        Assert.assertEquals(error1.getDetails().stringValue(), "{\"message\":\"Invalid path format: " +
                 "/User/ballerina/path\\test\"}");
 
         // Get Path error without reason.
         BError error2 = Utils.getPathError(null, exp);
-        Assert.assertEquals(error2.reason, ERROR_REASON_PREFIX + UNKNOWN_REASON);
-        Assert.assertEquals(error2.details.stringValue(), "{\"message\":\"Invalid path format: " +
+        Assert.assertEquals(error2.getReason(), ERROR_REASON_PREFIX + UNKNOWN_REASON);
+        Assert.assertEquals(error2.getDetails().stringValue(), "{\"message\":\"Invalid path format: " +
                 "/User/ballerina/path\\test\"}");
 
         // Get Path error without throwable.
         BError error3 = Utils.getPathError(reason, null);
-        Assert.assertEquals(error3.reason, ERROR_REASON_PREFIX + reason);
-        Assert.assertEquals(error3.details.stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
+        Assert.assertEquals(error3.getReason(), ERROR_REASON_PREFIX + reason);
+        Assert.assertEquals(error3.getDetails().stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
 
         // Get Path error without both reason and throwable.
         BError error4 = Utils.getPathError(null, null);
-        Assert.assertEquals(error4.reason, ERROR_REASON_PREFIX + UNKNOWN_REASON);
-        Assert.assertEquals(error4.details.stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
+        Assert.assertEquals(error4.getReason(), ERROR_REASON_PREFIX + UNKNOWN_REASON);
+        Assert.assertEquals(error4.getDetails().stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
 
         // Get Path error without throwable message.
         Exception exp2 = new Exception();
         BError error5 = Utils.getPathError(reason, exp2);
-        Assert.assertEquals(error5.reason, ERROR_REASON_PREFIX + reason);
-        Assert.assertEquals(error5.details.stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
+        Assert.assertEquals(error5.getReason(), ERROR_REASON_PREFIX + reason);
+        Assert.assertEquals(error5.getDetails().stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
     }
 }

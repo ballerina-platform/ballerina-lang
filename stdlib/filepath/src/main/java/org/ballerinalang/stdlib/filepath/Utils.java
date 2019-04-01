@@ -45,7 +45,7 @@ public class Utils {
      * @return      Ballerina error object.
      */
     public static BError getPathError(String reason, Throwable error) {
-        BMap<String, BValue> refData = new BMap<>(BTypes.typeError.detailsType);
+        BMap<String, BValue> refData = new BMap<>(BTypes.typeError.detailType);
         if (reason != null) {
             reason = Constants.ERROR_REASON_PREFIX + reason;
         } else {
