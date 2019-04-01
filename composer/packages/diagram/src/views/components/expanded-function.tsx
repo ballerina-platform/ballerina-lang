@@ -175,7 +175,6 @@ function getExpandFunctionHandler(
             startColumn: res.range.start.character + 1,
             startLine: res.range.start.line + 1,
         }, astRes.ast);
-
         const defTree = subTree as BallerinaFunction;
 
         expandContext.expandedSubTree = defTree;
