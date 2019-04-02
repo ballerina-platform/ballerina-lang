@@ -5,15 +5,20 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
+    implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
+    implementation project(':ballerina-launcher')
+
     implementation 'org.apache.activemq:artemis-core-client:2.6.3'
 
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-}
 
-description = 'Ballerina - ActiveMQ Artemis'
+    testCompile 'org.testng:testng:6.13.1'
+
+}
 
 test {
     doFirst {
@@ -22,6 +27,7 @@ test {
             into "$buildDir/lib/repo/ballerina"
         }
     }
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
+
+description = 'Ballerina - ActiveMQ Artemis'
+

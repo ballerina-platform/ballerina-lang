@@ -18,6 +18,8 @@
 package org.ballerinalang.test.balo.constant;
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -117,7 +119,7 @@ public class SimpleConstantAccessInBaloTest {
     public void testByteTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 240);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
     }
 
     @Test
@@ -138,7 +140,7 @@ public class SimpleConstantAccessInBaloTest {
     public void testDecimalTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 50.0);
+        Assert.assertEquals(((BDecimal) returns[0]).floatValue(), 50.0);
     }
 
     @Test

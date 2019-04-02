@@ -47,6 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.StringJoiner;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
@@ -301,7 +302,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
-        boolean nativeFunc = ctx.EXTERN() != null;
+        boolean nativeFunc = ctx.EXTERNAL() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
@@ -516,7 +517,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
-        boolean nativeFunc = ctx.EXTERN() != null;
+        boolean nativeFunc = ctx.EXTERNAL() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
@@ -806,9 +807,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        boolean isReasonTypeExists = !ctx.typeName().isEmpty();
-        boolean isDetailsTypeExists = ctx.typeName().size() > 1;
-        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), isReasonTypeExists, isDetailsTypeExists);
+        boolean reasonTypeExists = !ctx.typeName().isEmpty();
+        boolean detailsTypeExists = ctx.typeName().size() > 1;
+        boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
+                                        instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
+        this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), reasonTypeExists, detailsTypeExists, isAnonymous);
     }
 
     @Override
@@ -2293,6 +2296,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createCheckPanickedExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitNameReference(BallerinaParser.NameReferenceContext ctx) {
         if (isInErrorState) {
             return;
@@ -2481,7 +2493,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         Stack<String> stringFragments = getTemplateTextFragments(ctx.XMLCommentTemplateText());
         String endingString = getTemplateEndingStr(ctx.XMLCommentText());
-        endingString = endingString.substring(0, endingString.length() - 3);
         this.pkgBuilder.createXMLCommentLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingString);
 
         if (ctx.getParent() instanceof BallerinaParser.ContentContext) {
@@ -2631,10 +2642,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void exitXmlQualifiedName(BallerinaParser.XmlQualifiedNameContext ctx) {
         if (isInErrorState) {
-            return;
-        }
-
-        if (ctx.expression() != null) {
             return;
         }
 
@@ -3357,6 +3364,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private String getTemplateEndingStr(TerminalNode node) {
         return node == null ? null : node.getText();
+    }
+
+    private String getTemplateEndingStr(List<TerminalNode> nodes) {
+        StringJoiner joiner = new StringJoiner("");
+        nodes.forEach(node -> joiner.add(node.getText()));
+        return joiner.toString();
     }
 
     private String getNodeValue(ParserRuleContext ctx, TerminalNode node) {

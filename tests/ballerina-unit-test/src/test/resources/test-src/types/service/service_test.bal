@@ -9,6 +9,6 @@ service HelloWorld on new http:MockListener (9090) {
     resource function hello (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Hello, World!");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }

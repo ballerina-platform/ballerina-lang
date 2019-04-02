@@ -37,7 +37,7 @@ public class AnydataNegativeTest {
         CompileResult result = compile("test-src/types/anydata/anydata_negative_test.bal");
         int index = 0;
 
-        assertEquals(result.getErrorCount(), 33);
+        assertEquals(result.getErrorCount(), 34);
 
         // Invalid literal assignments to `anydata`
         validateError(result, index++, "invalid usage of record literal with type 'anydata'", 36, 20);
@@ -107,8 +107,10 @@ public class AnydataNegativeTest {
 
         // Test invalid map insertions
         validateError(result, index++, "incompatible types: expected 'anydata', found 'Bar'", 146, 16);
-        validateError(result, index, "incompatible types: expected 'anydata', found " +
+        validateError(result, index++, "incompatible types: expected 'anydata', found " +
                 "'int|float|string|boolean|byte|table<any>|json|xml|Bar|map<anydata>|anydata[]'", 149, 18);
+
+        validateError(result, index, "incompatible types: expected 'anydata', found 'error'", 154, 18);
     }
 
     @Test(description = "Negative test cases for non-anydata closed record assignment")

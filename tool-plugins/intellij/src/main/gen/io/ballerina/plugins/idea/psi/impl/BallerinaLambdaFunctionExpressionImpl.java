@@ -44,7 +44,7 @@ public class BallerinaLambdaFunctionExpressionImpl extends BallerinaExpressionIm
   @Override
   @NotNull
   public BallerinaLambdaFunction getLambdaFunction() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaLambdaFunction.class));
+    return findNotNullChildByClass(BallerinaLambdaFunction.class);
   }
 
 }

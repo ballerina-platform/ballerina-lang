@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWindowClause extends BallerinaCompositeElement {
+public interface BallerinaWindowClause extends PsiElement {
 
   @Nullable
   BallerinaFunctionInvocation getFunctionInvocation();

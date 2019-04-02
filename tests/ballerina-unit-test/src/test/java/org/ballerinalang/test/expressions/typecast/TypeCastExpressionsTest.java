@@ -125,7 +125,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'error'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'MyErrorTwo'.*")
     public void testErrorCastNegative() {
         BRunUtil.invoke(result, "testErrorCastNegative");
     }
@@ -207,7 +207,7 @@ public class TypeCastExpressionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testCastPanicWithCheckTrap");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "incompatible types: 'function (string,int) returns (string)' cannot be cast to " +
                                     "'function (string) returns (string)'");
     }
@@ -276,6 +276,12 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testValueTypeToFiniteTypeCastNegative");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'FooOneTrue'.*")
+    public void testFiniteTypeToFiniteTypeCastNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeToFiniteTypeCastNegative");
+    }
+
     @Test
     public void testCastNegatives() {
         Assert.assertEquals(resultNegative.getErrorCount(), 4);
@@ -318,7 +324,8 @@ public class TypeCastExpressionsTest {
                 {"testDirectlyUnmatchedUnionToUnionCastPositive"},
                 {"testFiniteTypeToValueTypeCastPositive"},
                 {"testFiniteTypeToRefTypeCastPositive"},
-                {"testValueTypeToFiniteTypeCastPositive"}
+                {"testValueTypeToFiniteTypeCastPositive"},
+                {"testFiniteTypeToFiniteTypeCastPositive"}
         };
     }
 

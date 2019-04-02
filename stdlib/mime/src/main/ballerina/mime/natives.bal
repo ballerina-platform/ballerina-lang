@@ -69,7 +69,7 @@ public type ContentDisposition object {
 
     # Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
     # + return - The `string` represnetation of the `ContentDisposition` object
-    public extern function toString() returns (string);
+    public function toString() returns string = external;
 };
 
 # Describes the nature of the data in the body of a MIME entity.
@@ -240,13 +240,13 @@ public type Entity object {
     # + jsonContent - JSON content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
     #                 is used as the default value.
-    public extern function setJson(@sensitive json jsonContent, @sensitive string contentType = "application/json");
+    public function setJson(@sensitive json jsonContent, @sensitive string contentType = "application/json") = external;
 
     # Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
     #
     # + return - `json` data extracted from the the entity body. An `error` record is returned in case of
     #            errors.
-    public extern function getJson() returns @tainted json|error;
+    public function getJson() returns @tainted json|error = external;
 
     # Sets the entity body with the given XML content. This method overrides any existing content-type headers
     # with the default content-type `application/xml`. The default value `application/xml` can be overridden
@@ -255,13 +255,13 @@ public type Entity object {
     # + xmlContent - XML content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/xml`
     #                 is used as the default value.
-    public extern function setXml(@sensitive xml xmlContent, @sensitive string contentType = "application/xml");
+    public function setXml(@sensitive xml xmlContent, @sensitive string contentType = "application/xml") = external;
 
     # Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
     #
     # + return - `xml` data extracted from the the entity body. An `error` record is returned in case of
     #            errors.
-    public extern function getXml() returns @tainted xml|error;
+    public function getXml() returns @tainted xml|error = external;
 
     # Sets the entity body with the given text content. This method overrides any existing content-type headers
     # with the default content-type `text/plain`. The default value `text/plain` can be overridden
@@ -270,12 +270,12 @@ public type Entity object {
     # + textContent - Text content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `text/plain`
     #                 is used as the default value.
-    public extern function setText(@sensitive string textContent, @sensitive string contentType = "text/plain");
+    public function setText(@sensitive string textContent, @sensitive string contentType = "text/plain") = external;
 
     # Extracts text body from the entity. If the entity body is not text compatible an error is returned.
     #
     # + return - `string` data extracted from the the entity body or `error` in case of errors.
-    public extern function getText() returns @tainted string|error;
+    public function getText() returns @tainted string|error = external;
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
     # with the default content type `application/octet-stream`. The default value `application/octet-stream`
@@ -284,14 +284,14 @@ public type Entity object {
     # + blobContent - byte[] content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public extern function setByteArray(@sensitive byte[] blobContent, @sensitive string contentType = "application/octet-stream");
+    public function setByteArray(@sensitive byte[] blobContent, @sensitive string contentType = "application/octet-stream") = external;
 
     # Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
     # using getByteChannel() method instead.
     #
     # + return - `byte[]` data extracted from the the entity body. An `error` record is returned in case of
     #            errors.
-    public extern function getByteArray() returns @tainted byte[]|error;
+    public function getByteArray() returns @tainted byte[]|error = external;
 
     # Sets the entity body with the given byte channel content. This method overrides any existing content-type headers
     # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
@@ -300,23 +300,23 @@ public type Entity object {
     # + byteChannel - Byte channel that needs to be set to entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public extern function setByteChannel(io:ReadableByteChannel byteChannel, @sensitive string contentType = "application/octet-stream");
+    public function setByteChannel(io:ReadableByteChannel byteChannel, @sensitive string contentType = "application/octet-stream") = external;
 
     # Given an entity, gets the entity body as a byte channel.
     #
     # + return - An `io:ReadableByteChannel`. An `error` record will be returned in case of errors
-    public extern function getByteChannel() returns @tainted io:ReadableByteChannel|error;
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|error = external;
 
     # Given an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.
     #
     # + return - An array of body parts(`Entity[]`) extracted from the entity body. An `error` record will be
     #            returned in case of errors.
-    public extern function getBodyParts() returns Entity[]|error;
+    public function getBodyParts() returns Entity[]|error = external;
 
     # Given an entity, gets the body parts as a byte channel.
     #
     # + return - Body parts as a byte channel
-    public extern function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|error;
+    public function getBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|error = external;
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
     # with the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden
@@ -325,7 +325,7 @@ public type Entity object {
     # + bodyParts - Represents the body parts that needs to be set to the entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 `multipart/form-data` is used as the default value.
-    public extern function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data");
+    public function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data") = external;
 
     # Gets the header value associated with the given header name.
     #
@@ -333,46 +333,46 @@ public type Entity object {
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
     #            present, then the first value is returned. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public extern function getHeader(@sensitive string headerName) returns @tainted string;
+    public function getHeader(@sensitive string headerName) returns @tainted string = external;
 
     # Gets all the header values associated with the given header name.
     #
     # + headerName - The header name
     # + return - All the header values associated with the given header name as a `string[]`. An exception is thrown
     #            if no header is found. Use `hasHeader()` beforehand to check the existence of header.
-    public extern function getHeaders(@sensitive string headerName) returns @tainted string[];
+    public function getHeaders(@sensitive string headerName) returns @tainted string[] = external;
 
     # Gets all header names.
     #
     # + return - All header names as a `string[]`
-    public extern function getHeaderNames() returns @tainted string[];
+    public function getHeaderNames() returns @tainted string[] = external;
 
     # Adds the given header value against the given header.
     #
     # + headerName - The header name
     # + headerValue - Represents the header value to be added
-    public extern function addHeader(@sensitive string headerName, string headerValue);
+    public function addHeader(@sensitive string headerName, string headerValue) = external;
 
     # Sets the given header value against the existing header. If a header already exists, its value is replaced
     # with the given header value.
     #
     # + headerName - The header name
     # + headerValue - Represents the header value
-    public extern function setHeader(@sensitive string headerName, string headerValue);
+    public function setHeader(@sensitive string headerName, string headerValue) = external;
 
     # Removes the given header from the entity.
     #
     # + headerName - Represents the header name
-    public extern function removeHeader(@sensitive string headerName);
+    public function removeHeader(@sensitive string headerName) = external;
 
     # Removes all headers associated with the entity.
-    public extern function removeAllHeaders();
+    public function removeAllHeaders() = external;
 
     # Checks whether the requested header key exists in the header map.
     #
     # + headerName - The header name
     # + return - True if the specified header key exists
-    public extern function hasHeader(@sensitive string headerName) returns boolean;
+    public function hasHeader(@sensitive string headerName) returns boolean = external;
 };
 
 public function Entity.setFileAsEntityBody(@sensitive string filePath,
@@ -405,8 +405,8 @@ public function Entity.setBody(@sensitive (string|xml|json|byte[]|io:ReadableByt
 #            If the given input is of type byte[], an encoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
 #            In case of errors, an `error` record is returned.
-extern function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
-    returns (string|byte[]|io:ReadableByteChannel|error);
+function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
+    returns (string|byte[]|io:ReadableByteChannel|error) = external;
 
 # Decodes a given input with MIME specific Base64 encoding scheme.
 #
@@ -416,8 +416,8 @@ extern function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeE
 #            If the given input is of type byte[], a decoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
 #            In case of errors, an `error` record is returned.
-extern function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
-    returns (string|byte[]|io:ReadableByteChannel|error);
+function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
+    returns (string|byte[]|io:ReadableByteChannel|error) = external;
 
 # Encodes a given byte[] with Base64 encoding scheme.
 #
@@ -517,26 +517,26 @@ function getEncoding(MediaType contentType) returns (string) {
 #
 # + contentType - Content-Type in string
 # + return - `MediaType` object or an error in case of invalid content-type
-public extern function getMediaType(string contentType) returns MediaType|error;
+public function getMediaType(string contentType) returns MediaType|error = external;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.
 #
 # + contentDisposition - Content disposition string
 # + return - A `ContentDisposition` object
-public extern function getContentDispositionObject(string contentDisposition) returns ContentDisposition;
+public function getContentDispositionObject(string contentDisposition) returns ContentDisposition = external;
 
 # Converts given byte[] to a string.
 #
 # + encoding - Encoding to used in byte[] conversion to string
 # + return - String representation of the given byte[]
-public extern function byteArrayToString(byte[] b, string encoding) returns string;
+public function byteArrayToString(byte[] b, string encoding) returns string = external;
 
 # Encode a given byte[] with Base64 encoding scheme.
 #
 # + return - Return an encoded byte[]
-public extern function base64EncodeByteArray(byte[] b) returns byte[];
+public function base64EncodeByteArray(byte[] b) returns byte[] = external;
 
 # Decode a given byte[] with Base64 encoding scheme.
 #
 # + return - Return a decoded byte[]
-public extern function base64DecodeByteArray(byte[] b) returns byte[];
+public function base64DecodeByteArray(byte[] b) returns byte[] = external;

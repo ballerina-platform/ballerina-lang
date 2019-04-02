@@ -32,23 +32,22 @@ import java.math.BigDecimal;
  */
 public class Lists {
 
-    public static Object get(ArrayValue array, int index) {
+    public static Object get(ArrayValue array, long index) {
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             return array.getRefValue(index);
         }
 
         switch (((BArrayType) array.getType()).getElementType().getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                int i = array.getBoolean(index);
-                return new Boolean(i != 0);
+                return new Boolean(array.getBoolean(index));
             case TypeTags.BYTE_TAG:
-                return new Byte(array.getByte(index));
+                return new Long(array.getByte(index));
             case TypeTags.FLOAT_TAG:
-                return new Float(array.getFloat(index));
+                return new Double(array.getFloat(index));
             case TypeTags.DECIMAL_TAG:
                 return new BigDecimal(array.getRefValue(index).toString());
             case TypeTags.INT_TAG:
-                return new Integer((int) array.getInt(index));
+                return new Long((int) array.getInt(index));
             case TypeTags.STRING_TAG:
                 return new String(array.getString(index));
             default:
@@ -56,7 +55,7 @@ public class Lists {
         }
     }
 
-    public static void add(ArrayValue array, int index, Object refType) {
+    public static void add(ArrayValue array, long index, Object refType) {
         if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
             array.add(index, refType);
             return;
@@ -64,15 +63,13 @@ public class Lists {
 
         switch (((BArrayType) array.getType()).getElementType().getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                array.add(index, ((Boolean) refType).booleanValue() ? 1 : 0);
-                return;
-            case TypeTags.BYTE_TAG:
-                array.add(index, ((Byte) refType).byteValue());
+                array.add(index, ((Boolean) refType).booleanValue());
                 return;
             case TypeTags.FLOAT_TAG:
                 array.add(index, ((Double) refType).doubleValue());
                 return;
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
                 array.add(index, ((Long) refType).longValue());
                 return;
             case TypeTags.STRING_TAG:

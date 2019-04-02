@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaDefinition {
+public class BallerinaDefinitionImpl extends ASTWrapperPsiElement implements BallerinaDefinition {
 
   public BallerinaDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,37 +45,37 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
   @Override
   @Nullable
   public BallerinaAnnotationDefinition getAnnotationDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnnotationDefinition.class);
+    return findChildByClass(BallerinaAnnotationDefinition.class);
   }
 
   @Override
   @Nullable
   public BallerinaConstantDefinition getConstantDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaConstantDefinition.class);
+    return findChildByClass(BallerinaConstantDefinition.class);
   }
 
   @Override
   @Nullable
   public BallerinaFunctionDefinition getFunctionDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionDefinition.class);
+    return findChildByClass(BallerinaFunctionDefinition.class);
   }
 
   @Override
   @Nullable
   public BallerinaGlobalVariableDefinition getGlobalVariableDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariableDefinition.class);
+    return findChildByClass(BallerinaGlobalVariableDefinition.class);
   }
 
   @Override
   @Nullable
   public BallerinaServiceDefinition getServiceDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceDefinition.class);
+    return findChildByClass(BallerinaServiceDefinition.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeDefinition getTypeDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeDefinition.class);
+    return findChildByClass(BallerinaTypeDefinition.class);
   }
 
 }

@@ -8,7 +8,7 @@ service serviceName1 on new http:Listener(9090){
         http:Response res = new;
         res.setPayload("sd");
         var d = 0;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -26,7 +26,7 @@ service serviceName4 on new http:Listener(9090) {
         public    resource     function newResource1(http:Caller caller, http:Request request) {
         http:Response res = new;
         res.setPayload("sd");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
  private   resource     function newResource2(http:Caller caller, http:Request request) {
@@ -34,22 +34,10 @@ service serviceName4 on new http:Listener(9090) {
 
         http:Response res = new;
         res.setPayload("sd");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
-  resource    extern     function newResource3(http:Caller caller, http:Request request) {
-        worker worker1 {
-            http:Response res = new;
-            res.setPayload("sd");
-            _ = caller->respond(res);
-        }
-
-        worker worker2 {
-            http:Response res = new;
-            res.setPayload("sd");
-            _ = caller->respond(res);
-        }
-    }
+  resource         function newResource3(http:Caller caller, http:Request request)=external;
 
     resource function send(http:Caller caller, http:Request request) {
                 var result = caller->respond({

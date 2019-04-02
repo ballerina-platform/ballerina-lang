@@ -379,7 +379,7 @@ public class FreezeAndIsFrozenTest {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidComplexArrayFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'typedesc'");
+        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: 'freeze()' not allowed on 'typedesc'");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue(), "Expected value to be unfrozen since an error " +
                 "was encountered");
@@ -532,7 +532,15 @@ public class FreezeAndIsFrozenTest {
         BValue[] returns = BRunUtil.invoke(result, "testErrorValueFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: freeze not allowed on 'error'");
+        Assert.assertEquals(returns[0].stringValue(), "error occurred on freeze: 'freeze()' not allowed on 'error'");
+    }
+
+    @Test
+    public void testStructureWithErrorValueFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructureWithErrorValueFreeze", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test

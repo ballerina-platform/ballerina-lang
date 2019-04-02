@@ -706,6 +706,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
+
+        // If the function definition specifies the function to be an external function, but the function declaration
+        // does not, set the external flag for the declaration.
+        int flags = Flags.asMask(funcNode.flagSet);
+        if ((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE) &&
+                (flags & Flags.NATIVE) == Flags.NATIVE) {
+            Set<Flag> symFlags = funcNode.symbol.getFlags();
+            symFlags.add(Flag.NATIVE);
+            funcNode.symbol.flags = Flags.asMask(symFlags);
+        }
         //this was used earlier to one to one match object declaration with definitions for attached functions
         // keeping this commented as we may need uncomment this later.
         //        int flags = Flags.asMask(funcNode.flagSet);
@@ -1171,9 +1181,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                         .orElse(symTable.stringType);
             BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                                        .orElse(symTable.mapType);
+                                        .orElse(symTable.pureTypeConstrainedMap);
 
-            if (reasonType == symTable.stringType && detailType == symTable.mapType) {
+            if (reasonType == symTable.stringType && detailType == symTable.pureTypeConstrainedMap) {
                 typeDef.symbol.type = symTable.errorType;
                 continue;
             }
@@ -1224,7 +1234,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     recordType.restFieldType = symTable.noType;
                     continue;
                 }
-                recordType.restFieldType = symTable.anydataType;
+                recordType.restFieldType = symTable.pureType;
                 continue;
             }
 
@@ -1355,6 +1365,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type) {
+        if (symbol.owner.tag == SymTag.PACKAGE) {
+            // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
+            return;
+        }
+
         BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;

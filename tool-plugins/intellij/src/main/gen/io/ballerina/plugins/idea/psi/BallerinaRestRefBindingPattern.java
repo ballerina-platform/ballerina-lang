@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaRestRefBindingPattern extends BallerinaCompositeElement {
+public interface BallerinaRestRefBindingPattern extends PsiElement {
 
   @Nullable
   BallerinaSealedLiteral getSealedLiteral();

@@ -50,31 +50,31 @@ public type Request object {
     # Create a new `Entity` and link it with the request.
     #
     # + return - Newly created `Entity` that has been set to the request
-    extern function createNewEntity() returns mime:Entity;
+    function createNewEntity() returns mime:Entity = external;
 
     # Sets the provided `Entity` to the request.
     #
     # + e - The `Entity` to be set to the request
-    public extern function setEntity(mime:Entity e);
+    public function setEntity(mime:Entity e) = external;
 
     # Gets the query parameters of the request, as a map.
     #
     # + return - String map of query params
-    public extern function getQueryParams() returns map<string>;
+    public function getQueryParams() returns map<string> = external;
 
     # Gets the matrix parameters of the request.
     #
     # + path - Path to the location of matrix parameters
     # + return - A map of matrix paramters which can be found for the given path
-    public extern function getMatrixParams(string path) returns map<any>;
+    public function getMatrixParams(string path) returns map<any> = external;
 
     # Gets the `Entity` associated with the request.
     #
     # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
-    public extern function getEntity() returns mime:Entity|error;
+    public function getEntity() returns mime:Entity|error = external;
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
-    extern function getEntityWithoutBody() returns mime:Entity;
+    function getEntityWithoutBody() returns mime:Entity = external;
 
     # Checks whether the requested header key exists in the header map.
     #
@@ -238,7 +238,7 @@ public type Request object {
     # Check whether the entity body is present.
     #
     # + return - a boolean indicating entity body availability
-    extern function checkEntityBodyAvailability() returns boolean;
+    function checkEntityBodyAvailability() returns boolean = external;
 };
 
 /////////////////////////////////

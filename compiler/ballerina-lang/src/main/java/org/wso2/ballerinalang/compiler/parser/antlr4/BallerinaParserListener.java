@@ -1802,6 +1802,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitCheckedExpression(BallerinaParser.CheckedExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code checkPanickedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code checkPanickedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code bitwiseExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
