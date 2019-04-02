@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
 
@@ -53,8 +54,15 @@ public class Clone extends BlockingNativeCallableUnit {
         BValue refRegVal = ctx.getNullableRefArgument(0);
         if (refRegVal == null) {
             return;
+        } else if (refRegVal.getType().getTag() == TypeTags.ERROR) {
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CLONE_ERROR,
+                                                          BLangExceptionHelper.getErrorMessage(
+                                                                  RuntimeErrors.UNSUPPORTED_CLONE_OPERATION,
+                                                                  "error")));
+            return;
         }
-        if (!BVM.checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
+
+        if (!BVM.checkIsLikeType(refRegVal, BTypes.typePureType)) {
             ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.CLONE_ERROR,
                                                           BLangExceptionHelper.getErrorMessage(
                                                                   RuntimeErrors.UNSUPPORTED_CLONE_OPERATION,

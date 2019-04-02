@@ -50,13 +50,13 @@ public class BallerinaTupleTypeNameImpl extends BallerinaTypeNameImpl implements
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
   @NotNull
   public PsiElement getRightParenthesis() {
-    return notNullChild(findChildByType(RIGHT_PARENTHESIS));
+    return findNotNullChildByType(RIGHT_PARENTHESIS);
   }
 
 }

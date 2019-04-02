@@ -127,8 +127,8 @@ public type WebhookServerForPayload object {
         self.websubListener = new(port, config = sseConfig);
     }
 
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.websubListener.__attach(serviceType, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.websubListener.__attach(serviceType, name = name);
     }
 
     public function __start() returns error? {
@@ -165,8 +165,8 @@ public type WebhookServerForHeader object {
         self.websubListener = new(port, config = sseConfig);
     }
 
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.websubListener.__attach(serviceType, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.websubListener.__attach(serviceType, name = name);
     }
 
     public function __start() returns error? {
@@ -224,8 +224,8 @@ public type WebhookServerForHeaderAndPayload object {
         self.websubListener = new(port, config = sseConfig);
     }
 
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.websubListener.__attach(serviceType, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.websubListener.__attach(serviceType, name = name);
     }
 
     public function __start() returns error? {

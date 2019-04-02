@@ -41,6 +41,7 @@ public type TypeDef record {
 public type Function record {|
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
+    ErrorEntry?[] errorEntries = [];
     boolean isDeclaration = false;
     VariableDcl?[] localVars = [];
     Name name = {};
@@ -52,6 +53,11 @@ public type BasicBlock record {|
     Name id = {};
     Instruction?[] instructions = [];
     Terminator terminator = {kind:"RETURN"};
+|};
+
+public type ErrorEntry record {|
+    BasicBlock trapBB;
+    VarRef errorOp;
 |};
 
 public type Name record {|
@@ -99,9 +105,10 @@ public const TERMINATOR_CALL = "CALL";
 public const TERMINATOR_ASYNC_CALL = "ASYNC_CALL";
 public const TERMINATOR_BRANCH = "BRANCH";
 public const TERMINATOR_RETURN = "RETURN";
+public const TERMINATOR_PANIC = "PANIC";
 
-public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL;
-
+public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
+                                |TERMINATOR_PANIC;
 
 //TODO try to make below details meta
 public type LocalVarKind "LOCAL";
@@ -290,6 +297,13 @@ public type NewArray record {|
     BType typeValue;
 |};
 
+public type NewError record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef reasonOp;
+    VarRef detailsOp;
+|};
+
 public type FieldAccess record {|
     InstructionKind kind;
     VarRef lhsOp;
@@ -341,6 +355,7 @@ public type Call record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    boolean isVirtual;
     BasicBlock thenBB;
 |};
 
@@ -369,9 +384,7 @@ public type Return record {|
     TerminatorKind kind;
 |};
 
-public type NewError record {|
-    InstructionKind kind;
-    VarRef lhsOp;
-    VarRef reasonOp;
-    VarRef detailsOp;
+public type Panic record {|
+    TerminatorKind kind;
+    VarRef errorOp;
 |};

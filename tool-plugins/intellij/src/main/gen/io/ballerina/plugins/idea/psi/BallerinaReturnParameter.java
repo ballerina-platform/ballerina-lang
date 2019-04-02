@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaReturnParameter extends BallerinaCompositeElement {
+public interface BallerinaReturnParameter extends PsiElement {
 
   @Nullable
   BallerinaReturnType getReturnType();

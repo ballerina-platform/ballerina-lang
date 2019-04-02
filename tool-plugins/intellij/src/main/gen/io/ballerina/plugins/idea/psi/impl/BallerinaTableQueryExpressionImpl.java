@@ -44,7 +44,7 @@ public class BallerinaTableQueryExpressionImpl extends BallerinaExpressionImpl i
   @Override
   @NotNull
   public BallerinaTableQuery getTableQuery() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTableQuery.class));
+    return findNotNullChildByClass(BallerinaTableQuery.class);
   }
 
 }

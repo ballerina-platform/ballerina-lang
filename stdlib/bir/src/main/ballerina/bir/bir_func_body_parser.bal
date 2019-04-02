@@ -45,6 +45,10 @@ public type FuncBodyParser object {
         return { id: { value: id }, instructions: instructions, terminator: self.parseTerminator() };
     }
 
+    public function parseEE() returns ErrorEntry {
+        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef() };
+    }
+
     public function parseInstruction() returns Instruction {
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;
@@ -151,9 +155,7 @@ public type FuncBodyParser object {
             return self.parseBinaryOpInstruction(kindTag);
         }
     }
-
-
-
+    
     public function parseTerminator() returns Terminator {
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
@@ -173,6 +175,7 @@ public type FuncBodyParser object {
             return ret;
         } else if (kindTag == INS_CALL){
             TerminatorKind kind = TERMINATOR_CALL;
+            var isVirtual = self.reader.readBoolean();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
@@ -189,7 +192,9 @@ public type FuncBodyParser object {
             }
 
             BasicBlock thenBB = self.parseBBRef();
-            Call call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
+            Call call = {args:args, kind:kind, isVirtual: isVirtual,
+                         lhsOp:lhsOp, pkgID:pkgId,
+                         name:{ value: name }, thenBB:thenBB};
             return call;
         } else if (kindTag == INS_ASYNC_CALL){
             TerminatorKind kind = TERMINATOR_ASYNC_CALL;
@@ -211,6 +216,11 @@ public type FuncBodyParser object {
             BasicBlock thenBB = self.parseBBRef();
             AsyncCall call = {args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, thenBB:thenBB};
             return call;
+        } else if (kindTag == INS_PANIC) {
+            TerminatorKind kind = TERMINATOR_PANIC;
+            var errorOp = self.parseVarRef();
+            Panic panicStmt = { kind:kind, errorOp:errorOp };
+            return panicStmt;
         }
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;

@@ -45,15 +45,15 @@ public type Client client object {
         return ();
     }
 
-    extern function initEndpoint(ClientConfig clientConfig) returns error?;
+    function initEndpoint(ClientConfig clientConfig) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 
     # Writes given data to the client socket.
     #
     # + content - - the content that wish to send to the client socket
     # + return - - number of bytes got written or an error if encounters an error while writing
-    public remote extern function write(byte[] content) returns int|error;
+    public remote function write(byte[] content) returns int|error = external;
 
     # Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
     # are received from the client. Else, return the data available in the OS buffer.
@@ -63,22 +63,22 @@ public type Client client object {
     #
     # + length - - Positive integer. Represents the number of bytes which should be read
     # + return - - Content as a byte array and the number of bytes read or an error if encounters an error while reading
-    public remote extern function read(int length = -100) returns (byte[], int)|error;
+    public remote function read(int length = -100) returns (byte[], int)|error = external;
 
     # Closes the client socket connection.
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
-    public remote extern function close() returns error?;
+    public remote function close() returns error? = external;
 
     # Shutdowns the further read from socket.
     #
     # + return - an error if encounters an error while shutdown the read from socket or returns nil otherwise
-    public remote extern function shutdownRead() returns error?;
+    public remote function shutdownRead() returns error? = external;
 
     # Shutdowns the further write from socket.
     #
     # + return - an error if encounters an error while shutdown the write from socket or returns nil otherwise
-    public remote extern function shutdownWrite() returns error?;
+    public remote function shutdownWrite() returns error? = external;
 };
 
 # Configuration for socket client endpoint.

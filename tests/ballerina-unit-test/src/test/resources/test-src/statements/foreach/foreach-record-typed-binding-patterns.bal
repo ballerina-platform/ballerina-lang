@@ -120,7 +120,7 @@ function testEmptyRecordIteration() returns string {
 
     int i = 0;
     foreach var (k, v) in d {
-        concatIntStringAny(i, k, v);
+        concatIntStringAny(i, k, <any> v);
         i += 1;
     }
     return output;

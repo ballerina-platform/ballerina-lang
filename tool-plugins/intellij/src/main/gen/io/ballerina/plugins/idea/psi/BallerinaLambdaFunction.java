@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaLambdaFunction extends BallerinaCompositeElement {
+public interface BallerinaLambdaFunction extends PsiElement {
 
   @Nullable
   BallerinaCallableUnitBody getCallableUnitBody();

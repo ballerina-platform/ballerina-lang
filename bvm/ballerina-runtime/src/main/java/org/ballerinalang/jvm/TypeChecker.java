@@ -805,8 +805,8 @@ public class TypeChecker {
     }
 
     private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
-        return new BLangRuntimeException(
-                "incompatible types: '" + getType(sourceVal) + "' cannot be cast to '" + targetType + "'");
+        return new BLangRuntimeException("incompatible types: '" + getType(sourceVal) +
+                                                 "' cannot be cast to '" + targetType + "'");
     }
 
     private static boolean isAnydata(BType type) {

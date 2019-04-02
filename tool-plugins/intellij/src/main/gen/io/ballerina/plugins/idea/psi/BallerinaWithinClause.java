@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWithinClause extends BallerinaCompositeElement {
+public interface BallerinaWithinClause extends PsiElement {
 
   @Nullable
   BallerinaTimeScale getTimeScale();
