@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -38,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -114,12 +114,7 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() throws IOException {
             byteBuffer = null;
-            printStream.println("---------------Close is called-----------------");
-            if (httpContent != null) {
-                printStream.println("-------------Payload---------------");
-                printStream.print(httpContent.content().toString(CharsetUtil.UTF_8));
-                printStream.println("-----------------------------------");
-            }
+            printStream.println("---Close is called-----------------" + new Timestamp(System.currentTimeMillis()));
             for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
                 printStream.println(element);
             }
@@ -129,7 +124,7 @@ public class HttpMessageDataStreamer {
 
         private synchronized void releaseHttpContent() {
             if (httpContent != null && httpContent.refCnt() > 0) {
-                printStream.println("---------------Release HttpContent is called---------------");
+                printStream.println("---Release HttpContent is called---" + new Timestamp(System.currentTimeMillis()));
                 httpContent.release();
             }
         }
