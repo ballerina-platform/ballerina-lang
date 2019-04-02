@@ -179,6 +179,29 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     }
 
     /**
+     * A new instruction.
+     * <p>
+     * e.g., object{int i;}  a = new;
+     *
+     * @since 0.995.0
+     */
+    public static class NewInstance extends BIRNonTerminator {
+        public BIRTypeDefinition def;
+        public BIROperand lhsOp;
+
+        public NewInstance(DiagnosticPos pos, BIRTypeDefinition def, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_INSTANCE);
+            this.lhsOp = lhsOp;
+            this.def = def;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
      * A new array instruction.
      * <p>
      * e.g., map a = {}

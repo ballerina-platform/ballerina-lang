@@ -25,41 +25,41 @@ public type EncodingError record {|
 #
 # + input - Value to be encoded
 # + return - Encoded output
-public extern function encodeBase64(byte[] input) returns string;
+public function encodeBase64(byte[] input) returns string = external;
 
 # Decode Base64 encoded `string` into byte array.
 #
 # + input - Value to be decoded
 # + return - Decoded output or error if input is not a valid Base64 value
-public extern function decodeBase64(string input) returns byte[]|error;
+public function decodeBase64(string input) returns byte[]|error = external;
 
 # Returns the Base64 URL encoded `string` value of the given byte array.
 #
 # + input - Value to be encoded
 # + return - Encoded output
-public extern function encodeBase64Url(byte[] input) returns string;
+public function encodeBase64Url(byte[] input) returns string = external;
 
 # Decode Base64 URL encoded `string` into byte array.
 #
 # + input - Value to be decoded
 # + return - Decoded output or error if input is not a valid Base64 URL encoded value
-public extern function decodeBase64Url(string input) returns byte[]|error;
+public function decodeBase64Url(string input) returns byte[]|error = external;
 
 # Returns the Hex encoded `string` value of the given byte array.
 #
 # + input - Value to be encoded
 # + return - Encoded output
-public extern function encodeHex(byte[] input) returns string;
+public function encodeHex(byte[] input) returns string = external;
 
 # Decode Hex encoded `string` into byte array.
 #
 # + input - Value to be decoded
 # + return - Decoded output or error if input is not a valid Hex value
-public extern function decodeHex(string input) returns byte[]|error;
+public function decodeHex(string input) returns byte[]|error = external;
 
 # Converts given byte array to a string.
 #
 # + content - Byte array content to be converted
 # + encoding - Encoding to used in byte array conversion to string
 # + return - String representation of the given byte array
-public extern function byteArrayToString(byte[] content, string encoding = "utf-8") returns string;
+public function byteArrayToString(byte[] content, string encoding = "utf-8") returns string = external;

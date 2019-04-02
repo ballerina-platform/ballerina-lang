@@ -302,7 +302,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BMap<?, ?> getAttributesMap() {
-        BMap<String, BString> attrMap = new BMap<>(new BMapType(BTypes.typeString));
+        BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -328,6 +328,7 @@ public final class BXMLItem extends BXML<OMNode> {
             attrMap.put(attr.getQName().toString(), new BString(attr.getAttributeValue()));
         }
 
+        attrMap.finishConstruction();
         return attrMap;
     }
 
@@ -863,6 +864,44 @@ public final class BXMLItem extends BXML<OMNode> {
     public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
+        }
+    }
+
+    private static class BXmlAttrMap extends BMap {
+        private final BXMLItem bXmlItem;
+        private boolean constructed = false;
+
+        BXmlAttrMap(BXMLItem bXmlItem) {
+            super(new BMapType(BTypes.typeString));
+            this.bXmlItem = bXmlItem;
+        }
+
+        void finishConstruction() {
+            constructed = true;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void put(Object key, BValue value) {
+            super.put(key, value);
+            if (constructed) {
+                setAttribute((String) key, value.stringValue());
+            }
+        }
+
+        private void setAttribute(String key, String value) {
+            String url = null;
+            String localName = key;
+
+            int endOfUrl = key.lastIndexOf('}');
+            if (endOfUrl != -1) {
+                int startBrace = key.indexOf('{');
+                if (startBrace == 0) {
+                    url = key.substring(startBrace + 1, endOfUrl);
+                    localName = key.substring(endOfUrl + 1);
+                }
+            }
+            bXmlItem.setAttribute(localName, url, null, value);
         }
     }
 }

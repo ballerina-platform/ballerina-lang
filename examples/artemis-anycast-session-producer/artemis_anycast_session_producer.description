@@ -1,0 +1,2 @@
+// A message is produced to an ANYCAST ActiveMQ Artemis address
+// by creating the Connection, Session and Message explicitly.

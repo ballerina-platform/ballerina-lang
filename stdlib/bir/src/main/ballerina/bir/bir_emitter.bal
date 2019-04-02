@@ -22,20 +22,21 @@ public type BirEmitter object {
     private TypeEmitter typeEmitter;
     private InstructionEmitter insEmitter;
     private TerminalEmitter termEmitter;
+    private OperandEmitter opEmitter;
 
     public function __init (Package pkg){
         self.pkg = pkg;
         self.typeEmitter = new;
         self.insEmitter = new;
         self.termEmitter = new;
+        self.opEmitter = new;
     }
 
 
     public function emitPackage() {
         println("################################# Begin bir program #################################");
         println();
-        println("org - ", self.pkg.org.value);
-        println("name - ", self.pkg.name.value);
+        println("package ", self.pkg.org.value, "/", self.pkg.name.value, ";");
         // println("version - " + pkg.versionValue);
         
         println(); // empty line
@@ -98,13 +99,28 @@ public type BirEmitter object {
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {");
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs="\t");
-            println(" ", v.name.value, "\t// ", v.kind);
+            self.typeEmitter.emitType(v.typeValue, tabs = "\t");
+            print(" ");
+            if (v.name.value == "%0") {
+                print("%ret");
+            } else {
+                print(v.name.value);
+            }
+            println("\t// ", v.kind);
         }
         println();// empty line
         foreach var b in bFunction.basicBlocks {
             if (b is BasicBlock) {
                 self.emitBasicBlock(b, "\t");
+                println();// empty line
+            }
+        }
+        if (bFunction.errorEntries.length() > 0 ) {
+            println("\tError Table \n\t\tBB\t|\terrorOp");
+        }
+        foreach var e in bFunction.errorEntries {
+            if (e is ErrorEntry) {
+                self.emitErrorEntry(e);
                 println();// empty line
             }
         }
@@ -120,6 +136,13 @@ public type BirEmitter object {
         }
         self.termEmitter.emitTerminal(bBasicBlock.terminator, tabs = tabs + "\t");
         println(tabs, "}");
+    }
+
+    function emitErrorEntry(ErrorEntry errorEntry) {
+        print("\t\t");
+        print(errorEntry.trapBB.id.value);
+        print("\t|\t");
+        self.opEmitter.emitOp(errorEntry.errorOp);
     }
 };
 
@@ -166,9 +189,9 @@ type InstructionEmitter object {
         } else if (ins is ConstantLoad) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
-            print(" = ", ins.kind, " ", ins.value, " <");
+            print(" = ", ins.kind, " <");
             self.typeEmitter.emitType(ins.typeValue);
-            println(">;");
+            println("> ", ins.value, ";");
         } else if (ins is NewArray) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
@@ -178,13 +201,22 @@ type InstructionEmitter object {
         } else if (ins is NewMap) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
-            println(" = ", ins.kind, ";");
+            print(" = ", ins.kind, " ");
+            self.typeEmitter.emitType(ins.typeValue);
+            println(";");
+        } else if (ins is NewInstance) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ", ins.kind, " ");
+            println(ins.typeDef);
+            //self.typeEmitter.emitType();
+            println(";");
         } else if (ins is NewError) {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.opEmitter.emitOp(ins.reasonOp);
-            println(" ");
+            print(" ");
             self.opEmitter.emitOp(ins.detailsOp);
             println(";");
         } else if (ins is TypeCast) {
@@ -199,9 +231,9 @@ type InstructionEmitter object {
             print(" = ");
             self.opEmitter.emitOp(ins.rhsOp);
             print(" ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);            
+            self.typeEmitter.emitType(ins.typeValue);
             println(";");
-        } 
+        }
     }
 };
 
@@ -238,6 +270,10 @@ type TerminalEmitter object {
             println(" [true:", term.trueBB.id.value, ", false:", term.falseBB.id.value,"];");
         } else if (term is GOTO) {
             println(tabs, "goto ", term.targetBB.id.value, ";");
+        } else if (term is Panic) {
+            print(tabs, "panic ");
+            self.opEmitter.emitOp(term.errorOp);
+            print(";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -246,15 +282,19 @@ type TerminalEmitter object {
 
 type OperandEmitter object {
     function emitOp(VarRef op, string tabs = "") {
-        print(op.variableDcl.name.value);
+        if (op.variableDcl.name.value == "%0") {
+            print("%ret");
+        } else {
+            print(op.variableDcl.name.value);
+        }
         // TODO add the rest, currently only have var ref
     }
 };
 
 type TypeEmitter object {
-    
+
     function emitType(BType typeVal, string tabs = "") {
-        if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean 
+        if (typeVal is BTypeAny || typeVal is BTypeInt || typeVal is BTypeString || typeVal is BTypeBoolean
                 || typeVal is BTypeFloat || typeVal is BTypeAnyData || typeVal is BTypeNone) {
             print(tabs, typeVal);
         } else if (typeVal is BRecordType) {
@@ -281,26 +321,26 @@ type TypeEmitter object {
     }
 
     function emitRecordType(BRecordType bRecordType, string tabs) {
-        println(tabs, "record { \\\\ name - ", bRecordType.name.value, ", sealed - ", bRecordType.sealed);
-        foreach var field in bRecordType.fields {
-            if (field is BRecordField) {
-                self.emitType(field.typeValue, tabs = tabs + "\t");
-                println(" ", field.name.value);
-            }
+        print(tabs);
+        if (bRecordType.sealed) {
+            print("sealed ");
+        }
+        print("record { ");
+        foreach var f in bRecordType.fields {
+            self.emitType(f.typeValue, tabs = tabs + "\t");
+            print(" ", f.name.value);
         }
         self.emitType(bRecordType.restFieldType, tabs = tabs + "\t");
-        println("...");
+        print("...");
         print(tabs, "}");
     }
 
     function emitObjectType(BObjectType bObjectType, string tabs) {
-        println(tabs, "object {\\\\ name - ", bObjectType.name.value);
-        foreach var field in bObjectType.fields {
-            if (field is BObjectField) {
-                print(tabs + "\t", field.visibility, " ");
-                self.emitType(field.typeValue);
-                println(" ", field.name.value);
-            }
+        print(tabs, "object {");
+        foreach var f in bObjectType.fields {
+            print(tabs + "\t", f.visibility, " ");
+            self.emitType(f.typeValue);
+            print(" ", f.name.value);
         }
         print(tabs, "}");
     }

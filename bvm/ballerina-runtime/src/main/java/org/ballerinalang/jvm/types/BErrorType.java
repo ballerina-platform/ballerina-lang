@@ -35,6 +35,12 @@ public class BErrorType extends BType {
         this.detailType = detailType;
     }
 
+    public BErrorType(BType reasonType, BType detailType) {
+        super(TypeConstants.ERROR, null, ErrorValue.class);
+        this.reasonType = reasonType;
+        this.detailType = detailType;
+    }
+
     @Override
     public <V> V getZeroValue() {
         return null;

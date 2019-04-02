@@ -122,7 +122,19 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.Panic birPanic) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNode.BIRErrorEntry birErrorEntry) {
+        throw new AssertionError();
+    }
+
     public void visit(TypeCast birTypeCast) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
         throw new AssertionError();
     }
 
@@ -138,4 +150,6 @@ public abstract class BIRVisitor {
     public void visit(BIROperand birVarRef) {
         throw new AssertionError();
     }
+
+    
 }

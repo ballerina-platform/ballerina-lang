@@ -47,11 +47,12 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "createQueueReceiver",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiver", structPackage = "ballerina/jms"),
-        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_RECEIVER_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
                  @Argument(name = "messageSelector", type = TypeKind.STRING),
                  @Argument(name = "destination", type = TypeKind.OBJECT)
         },
@@ -60,7 +61,9 @@ import javax.jms.Session;
 public class CreateQueueReceiver implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> queueConsumerBObject = (BMap<String, BValue>) context.getRefArgument(0);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
@@ -71,6 +74,7 @@ public class CreateQueueReceiver implements NativeCallableUnit {
         if (arg instanceof BString) {
             queueName = arg.stringValue();
         } else {
+            @SuppressWarnings(JmsConstants.UNCHECKED)
             BMap<String, BValue> destinationBObject = (BMap<String, BValue>) arg;
             destinationObject = JmsUtils.getDestination(context, destinationBObject);
         }
@@ -82,6 +86,7 @@ public class CreateQueueReceiver implements NativeCallableUnit {
         try {
             Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
             MessageConsumer consumer = session.createConsumer(queue, messageSelector);
+            @SuppressWarnings(JmsConstants.UNCHECKED)
             BMap<String, BValue> consumerConnectorBObject =
                     (BMap<String, BValue>) queueConsumerBObject.get(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);

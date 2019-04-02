@@ -20,7 +20,6 @@ package io.ballerina.plugins.idea.psi;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
-import io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory;
 import io.ballerina.plugins.idea.psi.impl.*;
 
 public interface BallerinaTypes {
@@ -29,9 +28,9 @@ public interface BallerinaTypes {
   IElementType ABORT_STATEMENT = new BallerinaCompositeElementType("ABORT_STATEMENT");
   IElementType ACTION_INVOCATION = new BallerinaCompositeElementType("ACTION_INVOCATION");
   IElementType ACTION_INVOCATION_EXPRESSION = new BallerinaCompositeElementType("ACTION_INVOCATION_EXPRESSION");
-  IElementType ALIAS = BallerinaElementTypeFactory.stubFactory("ALIAS");
+  IElementType ALIAS = new BallerinaCompositeElementType("ALIAS");
   IElementType ANNOTATION_ATTACHMENT = new BallerinaCompositeElementType("ANNOTATION_ATTACHMENT");
-  IElementType ANNOTATION_DEFINITION = BallerinaElementTypeFactory.stubFactory("ANNOTATION_DEFINITION");
+  IElementType ANNOTATION_DEFINITION = new BallerinaCompositeElementType("ANNOTATION_DEFINITION");
   IElementType ANY_DATA_TYPE_NAME = new BallerinaCompositeElementType("ANY_DATA_TYPE_NAME");
   IElementType ANY_IDENTIFIER_NAME = new BallerinaCompositeElementType("ANY_IDENTIFIER_NAME");
   IElementType ANY_TYPE_NAME = new BallerinaCompositeElementType("ANY_TYPE_NAME");
@@ -125,7 +124,7 @@ public interface BallerinaTypes {
   IElementType FOREVER_STATEMENT_BODY = new BallerinaCompositeElementType("FOREVER_STATEMENT_BODY");
   IElementType FORK_JOIN_STATEMENT = new BallerinaCompositeElementType("FORK_JOIN_STATEMENT");
   IElementType FORMAL_PARAMETER_LIST = new BallerinaCompositeElementType("FORMAL_PARAMETER_LIST");
-  IElementType FUNCTION_DEFINITION = BallerinaElementTypeFactory.stubFactory("FUNCTION_DEFINITION");
+  IElementType FUNCTION_DEFINITION = new BallerinaCompositeElementType("FUNCTION_DEFINITION");
   IElementType FUNCTION_INVOCATION = new BallerinaCompositeElementType("FUNCTION_INVOCATION");
   IElementType FUNCTION_INVOCATION_REFERENCE = new BallerinaCompositeElementType("FUNCTION_INVOCATION_REFERENCE");
   IElementType FUNCTION_NAME_REFERENCE = new BallerinaCompositeElementType("FUNCTION_NAME_REFERENCE");
@@ -162,9 +161,9 @@ public interface BallerinaTypes {
   IElementType MATCH_STATEMENT = new BallerinaCompositeElementType("MATCH_STATEMENT");
   IElementType MATCH_STATEMENT_BODY = new BallerinaCompositeElementType("MATCH_STATEMENT_BODY");
   IElementType NAMED_ARGS = new BallerinaCompositeElementType("NAMED_ARGS");
-  IElementType NAMESPACE_DECLARATION = BallerinaElementTypeFactory.stubFactory("NAMESPACE_DECLARATION");
+  IElementType NAMESPACE_DECLARATION = new BallerinaCompositeElementType("NAMESPACE_DECLARATION");
   IElementType NAMESPACE_DECLARATION_STATEMENT = new BallerinaCompositeElementType("NAMESPACE_DECLARATION_STATEMENT");
-  IElementType NAME_REFERENCE = BallerinaElementTypeFactory.stubFactory("NAME_REFERENCE");
+  IElementType NAME_REFERENCE = new BallerinaCompositeElementType("NAME_REFERENCE");
   IElementType NULLABLE_TYPE_NAME = new BallerinaCompositeElementType("NULLABLE_TYPE_NAME");
   IElementType OBJECT_BODY = new BallerinaCompositeElementType("OBJECT_BODY");
   IElementType OBJECT_FIELD_DEFINITION = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION");
@@ -174,11 +173,11 @@ public interface BallerinaTypes {
   IElementType ORDER_BY_CLAUSE = new BallerinaCompositeElementType("ORDER_BY_CLAUSE");
   IElementType ORDER_BY_TYPE = new BallerinaCompositeElementType("ORDER_BY_TYPE");
   IElementType ORDER_BY_VARIABLE = new BallerinaCompositeElementType("ORDER_BY_VARIABLE");
-  IElementType ORG_NAME = BallerinaElementTypeFactory.stubFactory("ORG_NAME");
+  IElementType ORG_NAME = new BallerinaCompositeElementType("ORG_NAME");
   IElementType OUTPUT_RATE_LIMIT = new BallerinaCompositeElementType("OUTPUT_RATE_LIMIT");
-  IElementType PACKAGE_NAME = BallerinaElementTypeFactory.stubFactory("PACKAGE_NAME");
-  IElementType PACKAGE_REFERENCE = BallerinaElementTypeFactory.stubFactory("PACKAGE_REFERENCE");
-  IElementType PACKAGE_VERSION = BallerinaElementTypeFactory.stubFactory("PACKAGE_VERSION");
+  IElementType PACKAGE_NAME = new BallerinaCompositeElementType("PACKAGE_NAME");
+  IElementType PACKAGE_REFERENCE = new BallerinaCompositeElementType("PACKAGE_REFERENCE");
+  IElementType PACKAGE_VERSION = new BallerinaCompositeElementType("PACKAGE_VERSION");
   IElementType PANIC_STATEMENT = new BallerinaCompositeElementType("PANIC_STATEMENT");
   IElementType PARAMETER = new BallerinaCompositeElementType("PARAMETER");
   IElementType PARAMETER_DESCRIPTION = new BallerinaCompositeElementType("PARAMETER_DESCRIPTION");
@@ -283,7 +282,7 @@ public interface BallerinaTypes {
   IElementType TYPE_ACCESS_EXPRESSION = new BallerinaCompositeElementType("TYPE_ACCESS_EXPRESSION");
   IElementType TYPE_ACCESS_EXPR_INVOCATION_REFERENCE = new BallerinaCompositeElementType("TYPE_ACCESS_EXPR_INVOCATION_REFERENCE");
   IElementType TYPE_CONVERSION_EXPRESSION = new BallerinaCompositeElementType("TYPE_CONVERSION_EXPRESSION");
-  IElementType TYPE_DEFINITION = BallerinaElementTypeFactory.stubFactory("TYPE_DEFINITION");
+  IElementType TYPE_DEFINITION = new BallerinaCompositeElementType("TYPE_DEFINITION");
   IElementType TYPE_DESC_TYPE_NAME = new BallerinaCompositeElementType("TYPE_DESC_TYPE_NAME");
   IElementType TYPE_INIT_EXPRESSION = new BallerinaCompositeElementType("TYPE_INIT_EXPRESSION");
   IElementType TYPE_NAME = new BallerinaCompositeElementType("TYPE_NAME");
@@ -309,7 +308,7 @@ public interface BallerinaTypes {
   IElementType WINDOW_CLAUSE = new BallerinaCompositeElementType("WINDOW_CLAUSE");
   IElementType WITHIN_CLAUSE = new BallerinaCompositeElementType("WITHIN_CLAUSE");
   IElementType WORKER_BODY = new BallerinaCompositeElementType("WORKER_BODY");
-  IElementType WORKER_DEFINITION = BallerinaElementTypeFactory.stubFactory("WORKER_DEFINITION");
+  IElementType WORKER_DEFINITION = new BallerinaCompositeElementType("WORKER_DEFINITION");
   IElementType WORKER_RECEIVE_EXPRESSION = new BallerinaCompositeElementType("WORKER_RECEIVE_EXPRESSION");
   IElementType WORKER_SEND_ASYNC_EXPRESSION = new BallerinaCompositeElementType("WORKER_SEND_ASYNC_EXPRESSION");
   IElementType WORKER_SEND_ASYNC_STATEMENT = new BallerinaCompositeElementType("WORKER_SEND_ASYNC_STATEMENT");
@@ -585,7 +584,7 @@ public interface BallerinaTypes {
   class Factory {
     public static PsiElement createElement(ASTNode node) {
       IElementType type = node.getElementType();
-       if (type == ABORTED_CLAUSE) {
+      if (type == ABORTED_CLAUSE) {
         return new BallerinaAbortedClauseImpl(node);
       }
       else if (type == ABORT_STATEMENT) {

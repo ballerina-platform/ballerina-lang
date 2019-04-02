@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Performs freezing a given value.
@@ -48,6 +49,12 @@ public class Freeze extends BlockingNativeCallableUnit {
         BValue value = ctx.getNullableRefArgument(0);
         if (value == null) {
             // assuming we reach here because the value is nil (()), the frozen value would also be nil.
+            return;
+        } else if (value.getType().getTag() == TypeTags.ERROR) {
+            // If the value is of type error, return an error indicating an error cannot be frozen.
+            // Freeze is only allowed on errors if they are part of a structure.
+            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.FREEZE_ERROR,
+                                                          "'freeze()' not allowed on 'error'"));
             return;
         }
 

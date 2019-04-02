@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWorkerBody extends BallerinaCompositeElement {
+public interface BallerinaWorkerBody extends PsiElement {
 
   @NotNull
   BallerinaBlock getBlock();

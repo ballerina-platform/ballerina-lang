@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTupleRefBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaTupleRefBindingPattern {
+public class BallerinaTupleRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaTupleRefBindingPattern {
 
   public BallerinaTupleRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,7 +51,7 @@ public class BallerinaTupleRefBindingPatternImpl extends BallerinaCompositeEleme
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override

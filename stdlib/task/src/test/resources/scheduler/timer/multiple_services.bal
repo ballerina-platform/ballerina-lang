@@ -20,9 +20,9 @@ public function triggerTimer() {
     int interval = 1000;
     task:Scheduler timer = new({ interval: interval });
 
-    _ = timer.attach(service1);
-    _ = timer.attach(service2);
-    _ = timer.start();
+    checkpanic timer.attach(service1);
+    checkpanic timer.attach(service2);
+    checkpanic timer.start();
 }
 
 boolean firstTriggered = false;

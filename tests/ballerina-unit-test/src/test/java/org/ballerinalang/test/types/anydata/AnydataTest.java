@@ -368,4 +368,28 @@ public class AnydataTest {
         assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
         assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
     }
+
+    @Test
+    public void testArraysWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testArraysWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTuplesWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testTuplesWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testMapsWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapsWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testRecordsWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

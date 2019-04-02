@@ -44,19 +44,19 @@ public class BallerinaTypeTestExpressionImpl extends BallerinaExpressionImpl imp
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @NotNull
   public PsiElement getIs() {
-    return notNullChild(findChildByType(IS));
+    return findNotNullChildByType(IS);
   }
 
 }
