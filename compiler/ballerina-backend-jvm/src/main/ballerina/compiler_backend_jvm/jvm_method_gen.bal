@@ -15,7 +15,6 @@
 // under the License.
 
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
-    boolean isMainFunc =  func.name.value == "main";
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;
@@ -27,6 +26,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, funcName, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    ErrorHandlerGenerator errorGen = new(mv, indexMap);
+    
     mv.visitCode();
 
     if (isModuleInitFunction(module, func)) {
@@ -106,7 +107,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         i = i + 1;
     }
 
-    TerminatorGenerator termGen = new(mv, indexMap, labelGen, module);
+    TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, module);
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -150,7 +151,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             endLabel = new;
             handlerLabel = new;
             jumpLabel = new;
-            termGen.generateTryIns(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         while (m < insCount) {
             bir:Instruction? inst = bb.instructions[m];
@@ -199,7 +200,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         // close the started try block with a catch statement if current block is trapped.
         // if we have a call terminator, we need to generate the catch during call code.gen hence skipping that.
         if (isTrapped && !(terminator is bir:Call)) {
-            termGen.generateCatchIns(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
@@ -220,7 +221,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         } else if (terminator is bir:Return) {
             termGen.genReturnTerm(terminator, returnVarRefIndex, func);
         } else if (terminator is bir:Panic) {
-            termGen.genPanicIns(terminator);
+            errorGen.genPanic(terminator);
         }
         // set next error entry after visiting current error entry.
         if (isTrapped) {
@@ -570,7 +571,13 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
 
 function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
-
+    
+    BalToJVMIndexMap indexMap = new;
+    ErrorHandlerGenerator errorGen = new(mv, indexMap);
+    jvm:Label endLabel = new;
+    jvm:Label handlerLabel = new;
+    errorGen.generateTryIns(endLabel, handlerLabel);
+    
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
@@ -607,6 +614,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         paramIndex += 1;
     }
 
+ 
     // invoke the user's main method
     mv.visitMethodInsn(INVOKESTATIC, mainClass, "main", desc, false);
 
@@ -622,7 +630,7 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
         }
     }
-
+    errorGen.generateCatchInsForMain(endLabel, handlerLabel);
     mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "shutdown", "()V", false);
 
     mv.visitInsn(RETURN);
