@@ -68,54 +68,76 @@ dependencies {
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
-def basePath = '/' + project.name + '-' + project.version + '/'
 
-CopySpec copyJarSpec = copySpec {
-    from configurations.dist
-    into(basePath + 'bre/lib')
-}
-
-CopySpec copyBaloSpec = copySpec {
-    from configurations.distBal
-    into(basePath + 'lib')
-}
-
-CopySpec copyBinSpec = copySpec {
-    from configurations.bin
-    filter { line -> line.replace('${project.version}', "$project.version") }
-    into(basePath + 'bin')
-}
-
-CopySpec copyToolsBin = copySpec {
-    from ('resources')
-    into(basePath + 'lib/tools/lang-server/launcher')
-}
-
-CopySpec copyToolsZipSpec = copySpec {
-    configurations.toolsZip.asFileTree.each {
-        from(zipTree(it))
+def copyJarSpec = {
+    base -> copySpec {
+        from configurations.dist
+        into(base + 'bre/lib')
     }
-    into(basePath + 'lib/tools/lang-server')
 }
 
-CopySpec copyBallerinaZipSpec = copySpec {
-    configurations.ballerinaZip.asFileTree.each {
-        from(zipTree(it))  { includeEmptyDirs false }
-	    eachFile { f ->
-			f.path = f.path.replaceFirst("ballerina-${project.version}/", '')
+def copyBaloSpec = {
+    path -> copySpec {
+        from configurations.distBal
+        into(path + 'lib')
+    }
+}
+
+def copyBinSpec = {
+    path -> copySpec {
+        from configurations.bin
+        filter { line -> line.replace('${project.version}', "$project.version") }
+        into(path + 'bin')
+    }
+}
+
+def copyToolsBin = {
+    path -> copySpec {
+        from('resources')
+        into(path + 'lib/tools/lang-server/launcher')
+    }
+}
+
+def copyToolsZipSpec = {
+    path -> copySpec {
+        configurations.toolsZip.asFileTree.each {
+            from(zipTree(it))
         }
+        into(path + 'lib/tools/lang-server')
+     }
+}
+
+def copyBallerinaZipSpec = {
+    path -> copySpec {
+        configurations.ballerinaZip.asFileTree.each {
+            from(zipTree(it)) { includeEmptyDirs false }
+            eachFile { f ->
+                f.path = f.path.replaceFirst("ballerina-${project.version}/", '')
+            }
+        }
+        into(path)
     }
-    into(basePath)
 }
 
-CopySpec copyToolsSpec = copySpec {
-    from configurations.tools
-    into(basePath + 'lib/tools/lang-server/lib')
+def copyToolsSpec = {
+    path -> copySpec {
+        from configurations.tools
+        into(path + 'lib/tools/lang-server/lib')
+    }
 }
 
-CopySpec examplesSpec = copySpec {
-    from fileTree(project.rootDir.path + '/examples');
-    into(basePath + '/examples')
+def examplesSpec = {
+    path -> copySpec {
+        from fileTree(project.rootDir.path + '/examples');
+        into(path + '/examples')
+    }
+}
+
+def apiDocsSpec = {
+    path -> copySpec {
+        from generateDocs.outputs.files
+        into("$path/docs")
+    }
 }
 
 task extractLibs(type: Copy) {
@@ -139,10 +161,6 @@ task generateDocs(type: JavaExec) {
     args("$libs", "$buildDir/api-docs")
 }
 
-CopySpec apiDocsSpec = copySpec {
-    from generateDocs.outputs.files
-    into("$basePath/docs")
-}
 
 task createApiDocsZip(type: Zip) {
     from generateDocs.outputs.files
@@ -150,15 +168,31 @@ task createApiDocsZip(type: Zip) {
 }
 
 task createZip(type: Zip) {
-    with copyJarSpec
-    with copyBaloSpec
-    with copyBinSpec
-    with copyToolsSpec
-    with copyToolsZipSpec
-    with copyToolsBin
-    with copyBallerinaZipSpec
-    with examplesSpec
-    with apiDocsSpec
+    def basePath = '/' + project.name + '-' + project.version + '/'
+    with copyJarSpec(basePath)
+    with copyBaloSpec(basePath)
+    with copyBinSpec(basePath)
+    with copyToolsSpec(basePath)
+    with copyToolsZipSpec(basePath)
+    with copyToolsBin(basePath)
+    with copyBallerinaZipSpec(basePath)
+    with examplesSpec(basePath)
+    with apiDocsSpec(basePath)
+}
+
+task updateBalHome(type: Copy) {
+    def installDir = ""
+    with copyJarSpec(installDir)
+    with copyBaloSpec(installDir)
+    with copyBinSpec(installDir)
+    with copyToolsSpec(installDir)
+    with copyToolsZipSpec(installDir)
+    with copyToolsBin(installDir)
+    with copyBallerinaZipSpec(installDir)
+    // TODO: uncomment after caching is fixed for apiDocs
+    //  with apiDocsSpec(installDir)
+    with examplesSpec(installDir)
+    into System.getenv('BAL_HOME')
 }
 
 build {
