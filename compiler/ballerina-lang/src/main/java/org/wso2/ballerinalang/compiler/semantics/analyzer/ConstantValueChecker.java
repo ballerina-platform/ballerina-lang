@@ -46,7 +46,6 @@ public class ConstantValueChecker extends BLangNodeVisitor {
     private BLangExpression referenceExpression;
     private BLangIdentifier keyIdentifier;
 
-
     private ConstantValueChecker(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
 
@@ -54,11 +53,11 @@ public class ConstantValueChecker extends BLangNodeVisitor {
     }
 
     public static ConstantValueChecker getInstance(CompilerContext context) {
-        ConstantValueChecker constantValueResolver = context.get(CONSTANT_VALUE_RESOLVER_KEY);
-        if (constantValueResolver == null) {
-            constantValueResolver = new ConstantValueChecker(context);
+        ConstantValueChecker constantValueChecker = context.get(CONSTANT_VALUE_RESOLVER_KEY);
+        if (constantValueChecker == null) {
+            constantValueChecker = new ConstantValueChecker(context);
         }
-        return constantValueResolver;
+        return constantValueChecker;
     }
 
     void checkValue(BLangExpression referenceExpression, BLangIdentifier keyIdentifier, BLangRecordLiteral mapLiteral) {
