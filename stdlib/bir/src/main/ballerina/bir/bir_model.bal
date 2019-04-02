@@ -40,6 +40,7 @@ public type TypeDef record {
 };
 
 public type Function record {|
+    DiagnosticPos pos;
     int argsCount = 0;
     BasicBlock?[] basicBlocks = [];
     ErrorEntry?[] errorEntries = [];

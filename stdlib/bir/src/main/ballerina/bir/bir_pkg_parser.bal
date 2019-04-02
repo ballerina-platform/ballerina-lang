@@ -38,6 +38,9 @@ public type PackageParser object {
     }
 
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
+        map<VariableDcl> localVarMap = {};
+        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
+        DiagnosticPos pos = bodyParser.parseDiagnosticPos();
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
         var visibility = parseVisibility(self.reader);
@@ -51,7 +54,6 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
 
         VariableDcl?[] dcls = [];
-        map<VariableDcl> localVarMap = {};
         int i = 0;
         while (i < numLocalVars) {
             var dcl = self.parseVariableDcl();
@@ -59,10 +61,10 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-        FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         return {
+            pos: pos,
             name: { value: name },
             isDeclaration: isDeclaration,
             visibility: visibility,
