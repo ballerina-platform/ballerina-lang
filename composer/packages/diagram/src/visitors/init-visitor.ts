@@ -156,7 +156,8 @@ export const visitor: Visitor = {
         if (!node.viewState) {
             node.viewState = new EndpointViewState();
         }
-        (node.viewState as EndpointViewState).visible = false;
+        // show locally defined endpoints by default
+        (node.viewState as EndpointViewState).visible = node.isLocal;
     },
 
     beginVisitReturn(node: Return) {
