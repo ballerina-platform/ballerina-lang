@@ -10,21 +10,21 @@ This implementation supports introducing all WebSub components: subscribers, pub
 is updated by the topic's publisher.
  
  
-### Basic Flow with WebSub
-1. Subscriber discovers the topics it needs to subscribe to in order to receive updates/content and discovers the hub(s) where it can subscribe.
+### Basic flow with WebSub
+1. The subscriber discovers the topics it needs to subscribe to in order to receive updates/content and discovers the hub(s) at which it can subscribe.
 
-2. Subscriber sends a subscription request to a hub, specifying the topic it needs to receive notifications for along 
- with other subscription parameters, such as:
-    - The callback URL where content is expected to be delivered
-    - (Optional) A lease seconds value indicating how long the subscriber wants the subscription to stay active
-    - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content)
+2. The subscriber sends a subscription request to a hub specifying the topic it needs to receive notifications for along 
+ with other subscription parameters such as:
+    - The callback URL to which content is expected to be delivered.
+    - (Optional) The lease period (in seconds) the subscriber wants the subscription to stay active.
+    - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content).
   
-3. The hub sends an intent verification request to the specified callback URL, and if the response indicates 
+3. The hub sends an intent verification request to the specified callback URL. If the response indicates 
 verification
  (by echoing a challenge specified in the request) by the subscriber, the subscription is added for the topic at the 
  hub.
    
-4. Publisher notifies the hub of updates to the topic, and the content to deliver is identified.
+4. The publisher notifies the hub of updates to the topic and the content to deliver is identified.
 
 5. The hub delivers the identified content to the subscribers of the topic.
 
@@ -33,25 +33,25 @@ verification
 #### Subscriber
 
 This module allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
- - Subscription Requests are sent at service start time for the hub and topic, which are either specified as annotations or discovered based on the resource URL specified as an annotation.
- - Auto Intent Verification against the topic specified as an annotation, or discovered based on the resource URL specified as an annotation, if `onIntentVerification` is not specified.
- - Signature Validation for authenticated content distribution if a secret is specified for the subscription.
+ - When the service is started a subscription request is sent for a hub/topic combination, either specified as annotations or discovered based on the resource URL specified as an annotation.
+ - If `onIntentVerification` is not specified, intent verification will be done automatically against the topic specified as an annotation or discovered based on the resource URL specified as an annotation.
+ - If a secret is specified for the subscription, signature validation will be done for authenticated content distribution.
   
 #### Hub
 
-A WebSub compliant hub based on the Ballerina Message Broker is also available for use as a remote hub or to be used by publishers who want to have their own internal hub. Ballerina's WebSub Hub honors specified lease periods and supports authenticated content distribution.
+A WebSub compliant hub based on the Ballerina Message Broker is also available. This can be used as a remote hub or to be used by publishers who want to have their own internal hub. Ballerina's WebSub hub honors specified lease periods and supports authenticated content distribution.
 
-##### Enabling Data Persistence for the Hub
+##### Enabling data persistence for the hub
 
 The Ballerina WebSub Hub supports persistence of topic and subscription data that needs to be restored when the hub is 
 restarted.
  
-Users can introduce their own persistence implementation, by introducing an object type structurally 
-equivalent to the `websub:HubPersistenceStore` abstract object. Alternatively, the H2 based 
+Users can introduce their own persistence implementation, by introducing an object type that is structurally 
+equivalent to the `websub:HubPersistenceStore` abstract object. Alternatively, the H2-based 
 `websub:H2HubPersistenceStore` object made available in the `ballerina/websub` module could be used to persist data.
 
 Persistence can be enabled by setting a suitable `websub:HubPersistenceStore` value for the `hubPersistenceStore` field 
-in the `HubConfiguration` record passed to the `websub:startHub()` function.
+in the `HubConfiguration` record, which is passed to the `websub:startHub()` function.
 
 ```ballerina
 import ballerina/h2;
@@ -87,12 +87,12 @@ URLs, which facilitates WebSub discovery.
 A hub client endpoint is also made available to publishers and subscribers to perform the following:
 - Publishers
   - Register a topic at the Hub
-  - Publish to the hub, indicating an update of the topic
+  - Publish to the hub indicating an update of the topic
 - Subscribers
-  - Subscribe/Unsubscribe to topics at a hub
+  - Subscribe/Unsubscribe to/from topics at a hub
 
 ## Samples
-This sample demonstrates a Subscriber Service with `subscribeOnStartUp` set to true, which will result in a
+This sample demonstrates a Subscriber Service with `subscribeOnStartUp` set to true. This will result in a
  subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value 
  and the specified secret for authenticated content distribution.
 Since an `onIntentVerification` resource function is not included, intent verification for subscription and unsubscription 
@@ -339,7 +339,7 @@ The `"issueOpened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that wh
 `<HEADER_TO_CONSIDER>` header is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`. 
 
 The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
-be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an issue is created.  
+be a custom `IssueOpenedEvent` record mapping the JSON payload received when an issue is created.  
 
 **Based on the payload**
 
@@ -393,9 +393,9 @@ be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an
 #### Sample Specific Subscriber Service
 
 In order to introduce a specific subscriber service, a new Ballerina `listener` needs to be introduced, wrapping the 
-generic `ballerina/websub:Listener`, specifying the extension configuration described above.
+generic `ballerina/websub:Listener` and specifying the extension configuration described above.
 
-Assume there exists a service provider that
+The following example is for a service provider that
 - allows registering webhooks to receive notifications when an issue is opened or assigned
 - includes a header named "Event-Header" in each content delivery request indicating what event the notification is 
 for (e.g., "onIssueOpened" when an issue is opened and "onIssueAssigned" when an issue is assigned)
@@ -457,7 +457,7 @@ public type WebhookListener object {
 };
 ```
 
-A service can now be introduced as follows:
+A service can now be introduced for the above service provider as follows.
 ```ballerina
 import ballerina/io;
 import ballerina/log;
@@ -478,4 +478,4 @@ service specificSubscriber on new WebhookListener(8080) {
 }
 ```
 
-Please refer the ["Create Webhook Callback Services"](https://ballerina.io/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina" for a step-by-step guide on introducing custom subscriber services. 
+For a step-by-step guide on introducing custom subscriber services, see the ["Create Webhook Callback Services"](https://ballerina.io/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina". 
