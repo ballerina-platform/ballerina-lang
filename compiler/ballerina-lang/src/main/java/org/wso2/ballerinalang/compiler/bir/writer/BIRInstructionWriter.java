@@ -278,8 +278,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
     
     // Positions
-
-    public void writePosition(DiagnosticPos pos) {
+    void writePosition(DiagnosticPos pos) {
         int sLine = 1;
         int eLine = 1;
         int sCol = -1;

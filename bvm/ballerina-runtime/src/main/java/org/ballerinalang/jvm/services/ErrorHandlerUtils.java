@@ -20,6 +20,8 @@ import java.io.PrintStream;
 
 /**
  * Class contains utility methods for ballerina server error handling.
+ *
+ * @since 0.995.0
  */
 public class ErrorHandlerUtils {
 

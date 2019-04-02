@@ -40,8 +40,8 @@ type ErrorHandlerGenerator object {
         jvm:Label jumpLabel = new;
         self.mv.visitJumpInsn(GOTO, jumpLabel);
         self.mv.visitLabel(handlerLabel);
-        self.mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/BLangVMErrors", "printTraceOnMainMethodError",
-            "(Lorg/ballerinalang/jvm/values/ErrorValue;)V", false);
+        self.mv.visitMethodInsn(INVOKESTATIC, BLANG_VM_ERRORS, PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR,
+            io:sprintf("(L%s;)V", ERROR_VALUE), false);
         self.mv.visitLabel(jumpLabel);
     }
 

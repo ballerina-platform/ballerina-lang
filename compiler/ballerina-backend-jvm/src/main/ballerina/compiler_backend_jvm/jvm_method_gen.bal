@@ -15,6 +15,7 @@
 // under the License.
 
 function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
+
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
     BalToJVMIndexMap indexMap = new;

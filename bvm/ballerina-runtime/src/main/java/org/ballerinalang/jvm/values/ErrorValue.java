@@ -31,7 +31,7 @@ import java.util.Map;
  * @since 0.995.0
  */
 public class ErrorValue extends RuntimeException implements RefValue {
-    
+
     private static final long serialVersionUID = 1L;
     private final BType type;
     private final String reason;
