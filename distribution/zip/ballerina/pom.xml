@@ -167,6 +167,10 @@
             <artifactId>ballerina-privacy</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jzlib</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-core-client</artifactId>
         </dependency>
