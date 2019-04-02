@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTransactionStatementImpl extends BallerinaCompositeElementImpl implements BallerinaTransactionStatement {
+public class BallerinaTransactionStatementImpl extends ASTWrapperPsiElement implements BallerinaTransactionStatement {
 
   public BallerinaTransactionStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaTransactionStatementImpl extends BallerinaCompositeElement
   @Override
   @Nullable
   public BallerinaCommittedAbortedClauses getCommittedAbortedClauses() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCommittedAbortedClauses.class);
+    return findChildByClass(BallerinaCommittedAbortedClauses.class);
   }
 
   @Override
   @Nullable
   public BallerinaOnRetryClause getOnRetryClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOnRetryClause.class);
+    return findChildByClass(BallerinaOnRetryClause.class);
   }
 
   @Override
   @NotNull
   public BallerinaTransactionClause getTransactionClause() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTransactionClause.class));
+    return findNotNullChildByClass(BallerinaTransactionClause.class);
   }
 
 }

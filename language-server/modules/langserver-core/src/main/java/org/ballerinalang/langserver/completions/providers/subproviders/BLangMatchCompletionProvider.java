@@ -76,7 +76,7 @@ public class BLangMatchCompletionProvider extends AbstractSubCompletionProvider 
                 break;
             }
             default: {
-                completionItems.add(getMatchFieldSnippetCompletion(getVariableValueDestructurePattern(ctx),
+                completionItems.add(getMatchFieldSnippetCompletion(getVariableValueDestructurePattern(),
                         CommonUtil.getBTypeName(bLangMatch.expr.type, ctx)));
                 break;
             }
@@ -90,18 +90,18 @@ public class BLangMatchCompletionProvider extends AbstractSubCompletionProvider 
         if (bType instanceof BTupleType) {
             String tupleDestructured = "var " + getTupleDestructured((BTupleType) bType,
                     new ArrayList<>(), ctx);
-            String variableValuePattern = generateMatchPattern(tupleDestructured, ctx);
-            String fixedValuePattern = generateMatchPattern(getStructuredFixedValueMatch(bType), ctx);
+            String variableValuePattern = generateMatchPattern(tupleDestructured);
+            String fixedValuePattern = generateMatchPattern(getStructuredFixedValueMatch(bType));
             completionItems.add(this.getMatchFieldSnippetCompletion(variableValuePattern,
                     bType.toString() + " : " + LABEL_VARIABLE_VALUE));
             completionItems.add(this.getMatchFieldSnippetCompletion(fixedValuePattern,
                     bType.toString() + " : " + LABEL_STRUCTURED_FIXED));
         } else if (bType instanceof BRecordType) {
-            String fixedValuePattern = generateMatchPattern(getStructuredFixedValueMatch(bType), ctx);
+            String fixedValuePattern = generateMatchPattern(getStructuredFixedValueMatch(bType));
             completionItems.add(this.getMatchFieldSnippetCompletion(fixedValuePattern,
                     bType.toString() + " : " + LABEL_STRUCTURED_FIXED));
         } else {
-            String variableValuePattern = getVariableValueDestructurePattern(ctx);
+            String variableValuePattern = getVariableValueDestructurePattern();
             completionItems.add(this.getMatchFieldSnippetCompletion(variableValuePattern,
                     bType.toString() + " : " + LABEL_VARIABLE_VALUE));
         }

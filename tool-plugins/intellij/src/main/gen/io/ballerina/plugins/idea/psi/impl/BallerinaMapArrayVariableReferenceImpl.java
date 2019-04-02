@@ -44,13 +44,13 @@ public class BallerinaMapArrayVariableReferenceImpl extends BallerinaVariableRef
   @Override
   @NotNull
   public BallerinaIndex getIndex() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaIndex.class));
+    return findNotNullChildByClass(BallerinaIndex.class);
   }
 
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
 }

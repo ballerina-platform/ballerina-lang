@@ -38,6 +38,7 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     public SymbolEnv env;
     public BType workerType;
     public BType matchingSendsError;
+    public BLangExpression sendExpression;
 
     @Override
     public BLangExpression getKeyExpression() {

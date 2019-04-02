@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -691,6 +692,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
+            bLangLambdaFunction.function.closureVarSymbols.forEach(closureVarSymbol -> {
+                if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                    this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                            closureVarSymbol.bSymbol);
+                }
+            });
             return;
         }
 
@@ -747,6 +754,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeNode(checkedExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanicExpr) {
+        analyzeNode(checkPanicExpr.expr, env);
     }
 
     @Override
@@ -865,6 +877,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
+            if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                        closureVarSymbol.bSymbol);
+            }
+        });
     }
 
     @Override

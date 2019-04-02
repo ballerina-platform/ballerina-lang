@@ -77,18 +77,29 @@ service productMaterialService on productMaterialListener {
     resource function rawmaterialrequests(http:Caller caller, http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var productMaterial = ProductMaterial.convert(jsonMsg);
-            rawMaterialStream.publish(productMaterial);
+            var conversionResult = ProductMaterial.convert(jsonMsg);
+            if (conversionResult is error) {
+                io:println("Error in sending response to caller",
+                                                        conversionResult);
+            } else {
+                rawMaterialStream.publish(conversionResult);
+            }
 
             http:Response res = new;
             res.setJsonPayload({"message": "Raw material request"
                                         + " successfully received"});
-            _ = caller->respond(res);
+            error? result = caller->respond(res);
+            if (result is error) {
+                io:println("Error in sending response to caller", result);
+            }
         } else {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());
-            _ = caller->respond(res);
+            error? result = caller->respond(res);
+            if (result is error) {
+                io:println("Error in sending response to caller", result);
+            }
         }
     }
 
@@ -100,19 +111,30 @@ service productMaterialService on productMaterialListener {
                                http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var productMaterial = ProductMaterial.convert(jsonMsg);
-            productionInputStream.publish(productMaterial);
+            var conversionResult = ProductMaterial.convert(jsonMsg);
+            if (conversionResult is error) {
+                io:println("Error in sending response to caller",
+                                                    conversionResult);
+            } else {
+                productionInputStream.publish(conversionResult);
+            }
 
             http:Response res = new;
             res.setJsonPayload({"message": "Production input " +
                                     "request successfully received"});
-            _ = caller->respond(res);
+            error? result = caller->respond(res);
+            if (result is error) {
+                io:println("Error in sending response to caller", result);
+            }
 
         } else {
             http:Response res = new;
             res.statusCode = 500;
             res.setPayload(untaint jsonMsg.reason());
-            _ = caller->respond(res);
+            error? result = caller->respond(res);
+            if (result is error) {
+                io:println("Error in sending response to caller", result);
+            }
         }
     }
 }

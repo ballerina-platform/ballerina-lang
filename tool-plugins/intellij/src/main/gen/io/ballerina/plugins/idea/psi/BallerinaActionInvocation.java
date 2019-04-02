@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaActionInvocation extends BallerinaCompositeElement {
+public interface BallerinaActionInvocation extends PsiElement {
 
   @NotNull
   BallerinaFunctionInvocation getFunctionInvocation();

@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaLambdaFunctionImpl extends BallerinaCompositeElementImpl implements BallerinaLambdaFunction {
+public class BallerinaLambdaFunctionImpl extends ASTWrapperPsiElement implements BallerinaLambdaFunction {
 
   public BallerinaLambdaFunctionImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaLambdaFunctionImpl extends BallerinaCompositeElementImpl i
   @Override
   @Nullable
   public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
+    return findChildByClass(BallerinaCallableUnitBody.class);
   }
 
   @Override
   @Nullable
   public BallerinaFormalParameterList getFormalParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFormalParameterList.class);
+    return findChildByClass(BallerinaFormalParameterList.class);
   }
 
   @Override
   @Nullable
   public BallerinaLambdaReturnParameter getLambdaReturnParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaLambdaReturnParameter.class);
+    return findChildByClass(BallerinaLambdaReturnParameter.class);
   }
 
   @Override
@@ -74,7 +75,7 @@ public class BallerinaLambdaFunctionImpl extends BallerinaCompositeElementImpl i
   @Override
   @NotNull
   public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+    return findNotNullChildByType(FUNCTION);
   }
 
   @Override

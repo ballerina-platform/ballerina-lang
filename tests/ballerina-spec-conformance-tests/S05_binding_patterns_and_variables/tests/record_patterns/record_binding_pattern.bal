@@ -109,7 +109,7 @@ function testRecordBindingPatternWithRestParam() {
 
     string var1;
     boolean var5;
-    map<anydata> restParam = {};
+    map<anydata|error> restParam = {};
 
     { field2: var1, var5, ...restParam } = bindingPattern;
 
@@ -156,7 +156,7 @@ function testRecordBindingPatternWithOnlyRestParam() {
         field7: [8, 9, 10, 11]
     };
 
-    map<anydata> restParam = {};
+    map<anydata|error> restParam = {};
 
     { ...restParam } = bindingPattern;
 

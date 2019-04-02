@@ -35,15 +35,15 @@ service testService16 on new http:Listener(9118) {
                 var payload = res.getXmlPayload();
                 if (payload is xml) {
                     xml descendants = payload.selectDescendants("title");
-                    _ = caller->respond(untaint descendants.getTextValue());
+                    checkpanic caller->respond(untaint descendants.getTextValue());
                 } else {
-                    _ = caller->respond(untaint payload.reason());
+                    checkpanic caller->respond(untaint payload.reason());
                 }
             } else {
-                _ = caller->respond(untaint binaryPayload.reason());
+                checkpanic caller->respond(untaint binaryPayload.reason());
             }
         } else {
-            _ = caller->respond(untaint res.reason());
+            checkpanic caller->respond(untaint res.reason());
         }
     }
 }
@@ -69,6 +69,6 @@ service testPayload17 on new http:Listener(9119) {
                                       </item>
                                 </channel>
                               </xml>`;
-        _ = caller->respond(untaint xmlPayload);
+        checkpanic caller->respond(untaint xmlPayload);
     }
 }

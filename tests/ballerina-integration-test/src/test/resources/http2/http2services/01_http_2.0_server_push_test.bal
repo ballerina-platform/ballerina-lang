@@ -25,7 +25,7 @@ service frontendHttpService on frontendEP {
         } else {
             io:println("Error occurred while submitting a request");
             json errMsg = { "error": "error occurred while submitting a request" };
-            _ = caller->respond(errMsg);
+            checkpanic caller->respond(errMsg);
             return;
         }
 
@@ -42,7 +42,7 @@ service frontendHttpService on frontendEP {
             } else {
                 io:println("Error occurred while fetching a push promise");
                 json errMsg = { "error": "error occurred while fetching a push promise" };
-                _ = caller->respond(errMsg);
+                checkpanic caller->respond(errMsg);
                 return;
             }
 
@@ -55,7 +55,7 @@ service frontendHttpService on frontendEP {
         // By this time 3 promises should be received, if not send an error response
         if (promiseCount != 3) {
             json errMsg = { "error": "expected number of promises not received" };
-            _ = caller->respond(errMsg);
+            checkpanic caller->respond(errMsg);
             return;
         }
         io:println("Number of promises received : " + promiseCount);
@@ -68,7 +68,7 @@ service frontendHttpService on frontendEP {
         } else {
             io:println("Error occurred while fetching response");
             json errMsg = { "error": "error occurred while fetching response" };
-            _ = caller->respond(errMsg);
+            checkpanic caller->respond(errMsg);
             return;
         }
 
@@ -78,14 +78,14 @@ service frontendHttpService on frontendEP {
             responseJsonPayload = responsePayload;
         } else {
             json errMsg = { "error": "expected response message not received" };
-            _ = caller->respond(errMsg);
+            checkpanic caller->respond(errMsg);
             return;
         }
         // Check whether correct response received
         string responseStringPayload = responseJsonPayload.toString();
         if (!(responseStringPayload.contains("main"))) {
             json errMsg = { "error": "expected response message not received" };
-            _ = caller->respond(errMsg);
+            checkpanic caller->respond(errMsg);
             return;
         }
         io:println("Response : " + responseStringPayload);
@@ -100,7 +100,7 @@ service frontendHttpService on frontendEP {
             } else {
                 io:println("Error occurred while fetching promised response");
                 json errMsg = { "error": "error occurred while fetching promised response" };
-                _ = caller->respond(errMsg);
+                checkpanic caller->respond(errMsg);
                 return;
             }
 
@@ -110,7 +110,7 @@ service frontendHttpService on frontendEP {
                 promisedJsonPayload = promisedPayload;
             } else {
                 json errMsg = { "error": "expected promised response not received" };
-                _ = caller->respond(errMsg);
+                checkpanic caller->respond(errMsg);
                 return;
             }
 
@@ -119,7 +119,7 @@ service frontendHttpService on frontendEP {
             string promisedStringPayload = promisedJsonPayload.toString();
             if (!(promisedStringPayload.contains(expectedVal))) {
                 json errMsg = { "error": "expected promised response not received" };
-                _ = caller->respond(errMsg);
+                checkpanic caller->respond(errMsg);
                 return;
             }
             io:println("Promised resource : " + promisedStringPayload);
@@ -127,7 +127,7 @@ service frontendHttpService on frontendEP {
 
         // By this time everything has went well, hence send a success response
         json successMsg = { "status": "successful" };
-        _ = caller->respond(successMsg);
+        checkpanic caller->respond(successMsg);
     }
 }
 
@@ -147,11 +147,11 @@ service backendHttp2Service on backendEP {
 
         // Send a Push Promise
         http:PushPromise promise1 = new(path = "/resource1", method = "POST");
-        _ = caller->promise(promise1);
+        checkpanic caller->promise(promise1);
 
         // Send another Push Promise
         http:PushPromise promise2 = new(path = "/resource2", method = "POST");
-        _ = caller->promise(promise2);
+        checkpanic caller->promise(promise2);
 
         // Send one more Push Promise
         http:PushPromise promise3 = new;
@@ -159,13 +159,13 @@ service backendHttp2Service on backendEP {
         promise3.path = "/resource3";
         // set parameters
         promise3.method = "POST";
-        _ = caller->promise(promise3);
+        checkpanic caller->promise(promise3);
 
         // Construct requested resource
         json msg = { "response": { "name": "main resource" } };
 
         // Send the requested resource
-        _ = caller->respond(msg);
+        checkpanic caller->respond(msg);
 
         // Construct promised resource1
         http:Response push1 = new;
@@ -173,20 +173,20 @@ service backendHttp2Service on backendEP {
         push1.setJsonPayload(msg);
 
         // Push promised resource1
-        _ = caller->pushPromisedResponse(promise1, push1);
+        checkpanic caller->pushPromisedResponse(promise1, push1);
 
         http:Response push2 = new;
         msg = { "push": { "name": "resource2" } };
         push2.setJsonPayload(msg);
 
         // Push promised resource2
-        _ = caller->pushPromisedResponse(promise2, push2);
+        checkpanic caller->pushPromisedResponse(promise2, push2);
 
         http:Response push3 = new;
         msg = { "push": { "name": "resource3" } };
         push3.setJsonPayload(msg);
 
         // Push promised resource3
-        _ = caller->pushPromisedResponse(promise3, push3);
+        checkpanic caller->pushPromisedResponse(promise3, push3);
     }
 }

@@ -76,7 +76,10 @@ service backEndService on new http:Listener(9091) {
         path: "/greeting"
     }
     resource function replyText(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello");
+        error? result = caller->respond("Hello");
+        if (result is error) {
+            log:printError("Error in responding to caller", err = result);
+        }
     }
 
     @http:ResourceConfig {
@@ -93,7 +96,7 @@ service backEndService on new http:Listener(9091) {
                 if (returnValue is string) {
                     textValue = returnValue;
                 } else {
-                    textValue = string.convert(returnValue.detail().message);
+                    textValue = <string> returnValue.detail().message;
                 }
                 var result = caller->respond(untaint textValue);
                 handleError(result);
@@ -212,7 +215,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(untaint string.convert(err.detail().message));
+    res.setPayload(untaint <string> err.detail().message);
     var result = caller->respond(res);
     handleError(result);
 }

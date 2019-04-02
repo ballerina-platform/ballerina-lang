@@ -21,11 +21,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -119,6 +119,11 @@ public class BIRBinaryWriter {
         // Visibility
         buf.writeByte(typeDef.visibility.value());
         typeDef.type.accept(typeWriter);
+
+        int defType = typeDef.type.tag;
+        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
+            writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
+        }
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {
@@ -148,13 +153,13 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
-        // Write basic blocks
-        writeBasicBlocks(buf, typeWriter, birFunction.basicBlocks);
-    }
-
-    private void writeBasicBlocks(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRBasicBlock> birBBList) {
         BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
-        insWriter.writeBBs(birBBList);
+
+        // Write basic blocks
+        insWriter.writeBBs(birFunction.basicBlocks);
+
+        // Write error table
+        insWriter.writeErrorTable(birFunction.errorTable);
     }
 
     private int addStringCPEntry(String value) {

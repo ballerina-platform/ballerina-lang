@@ -20,14 +20,14 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.ResolveState;
-import com.intellij.psi.scope.PsiScopeProcessor;
 
-public interface BallerinaBlock extends BallerinaCompositeElement {
+public interface BallerinaBlock extends PsiElement {
 
   @NotNull
   List<BallerinaStatement> getStatementList();
 
-  boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place);
+  //WARNING: processDeclarations(...) is skipped
+  //matching processDeclarations(BallerinaBlock, ...)
+  //methods are not found in BallerinaPsiImplUtil
 
 }

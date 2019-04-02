@@ -72,7 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -702,25 +702,30 @@ public class CommonUtil {
     /**
      * Get completion items list for struct fields.
      *
-     * @param structFields List of struct fields
+     * @param fields List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getStructFieldCompletionItems(List<BField> structFields) {
+    public static List<CompletionItem> getRecordFieldCompletionItems(List<BField> fields) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        structFields.forEach(bStructField -> {
-            StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
-            if (bStructField.getType() instanceof BStructureType) {
+        fields.forEach(field -> {
+            BType fieldType = field.getType();
+            StringBuilder insertText = new StringBuilder(field.getName().getValue() + ": ");
+            if (fieldType instanceof BRecordType) {
                 insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
+            } else if (fieldType instanceof BArrayType) {
+                insertText.append("[").append("${1}").append("]");
+            } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
+                insertText.append("\"").append("${1}").append("\"");
             } else {
-                insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
-                if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
-                    insertText.append(getFiniteAndUnionTypesComment(bStructField.getType()));
+                insertText.append("${1:").append(getDefaultValueForType(field.getType())).append("}");
+                if (field.getType() instanceof BFiniteType || field.getType() instanceof BUnionType) {
+                    insertText.append(getFiniteAndUnionTypesComment(field.getType()));
                 }
             }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText.toString());
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(bStructField.getName().getValue());
+            fieldItem.setLabel(field.getName().getValue());
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
@@ -1012,34 +1017,39 @@ public class CommonUtil {
                 .map(id -> id.value)
                 .collect(Collectors.toList()));
     }
+    
+    public static String getPlainTextSnippet(String snippet) {
+        return snippet
+                .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d\\})", "");
+    }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
                                                       LSContext context) {
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         String signature = "";
         SymbolInfo.CustomOperationSignature customOpSignature;
         SymbolInfo iterableOperation = new SymbolInfo();
         switch (operation.getLabel()) {
             case ItemResolverConstants.ITR_FOREACH_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_MAP_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             case ItemResolverConstants.ITR_FILTER_LABEL: {
                 String params = getIterableOpLambdaParam(bType, context);
-                signature = operation.getString(isSnippet)
+                signature = operation.getString()
                         .replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
                 break;
             }
             default: {
-                signature = operation.getString(isSnippet);
+                signature = operation.getString();
                 break;
             }
         }
@@ -1052,12 +1062,11 @@ public class CommonUtil {
 
     private static String getIterableOpLambdaParam(BType bType, LSContext context) {
         String params = "";
-        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         if (bType instanceof BMapType) {
             BMapType bMapType = (BMapType) bType;
             String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bMapType.constraint);
-            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet)
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString()
                     .replace(UtilSymbolKeys.ITR_OP_LAMBDA_KEY_REPLACE_TOKEN, "string")
                     .replace(UtilSymbolKeys.ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN, valueType);
         } else if (bType instanceof BArrayType) {
@@ -1065,9 +1074,9 @@ public class CommonUtil {
             String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bArrayType.eType);
             params = valueType + " value";
         } else if (bType instanceof BJSONType) {
-            params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
+            params = Snippet.ITR_ON_JSON_PARAMS.get().getString();
         } else if (bType instanceof BXMLType) {
-            params = Snippet.ITR_ON_XML_PARAMS.get().getString(isSnippet);
+            params = Snippet.ITR_ON_XML_PARAMS.get().getString();
         }
 
         return params;

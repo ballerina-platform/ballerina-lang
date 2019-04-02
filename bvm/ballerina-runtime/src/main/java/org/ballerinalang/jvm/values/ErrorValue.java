@@ -28,13 +28,15 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
-public class ErrorValue implements RefValue {
+public class ErrorValue extends RuntimeException implements RefValue {
 
-    private BType type;
-    private String reason;
-    private RefValue details;
+    private static final long serialVersionUID = 1L;
+    private final BType type;
+    private final String reason;
+    private final Object details;
 
-    public ErrorValue(String reason, RefValue details) {
+    public ErrorValue(String reason, Object details) {
+        super(reason);
         this.type = BTypes.typeError;
         this.reason = reason;
         this.details = details;
@@ -65,7 +67,10 @@ public class ErrorValue implements RefValue {
         return reason;
     }
 
-    public RefValue getDetails() {
-        return (RefValue) details.copy(new HashMap<>());
+    public Object getDetails() {
+        if (details instanceof RefValue) {
+            return ((RefValue) details).copy(new HashMap<>());
+        }
+        return details;
     }
 }
