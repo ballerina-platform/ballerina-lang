@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaInitWithoutTypeImpl extends BallerinaCompositeElementImpl implements BallerinaInitWithoutType {
+public class BallerinaInitWithoutTypeImpl extends ASTWrapperPsiElement implements BallerinaInitWithoutType {
 
   public BallerinaInitWithoutTypeImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaInitWithoutTypeImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaInvocationArgList getInvocationArgList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaInvocationArgList.class);
+    return findChildByClass(BallerinaInvocationArgList.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaInitWithoutTypeImpl extends BallerinaCompositeElementImpl 
   @Override
   @NotNull
   public PsiElement getNew() {
-    return notNullChild(findChildByType(NEW));
+    return findNotNullChildByType(NEW);
   }
 
 }

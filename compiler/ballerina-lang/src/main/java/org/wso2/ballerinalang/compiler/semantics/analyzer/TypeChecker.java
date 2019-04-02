@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -145,7 +147,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -913,6 +914,8 @@ public class TypeChecker extends BLangNodeVisitor {
                             symbol.name, SymTag.VARIABLE);
                     if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                         resolvedSymbol.closure = true;
+                        ((BLangFunction) encInvokable).closureVarSymbols.add(
+                                new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
                     }
                 }
                 if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
@@ -922,6 +925,8 @@ public class TypeChecker extends BLangNodeVisitor {
                                 SymTag.VARIABLE);
                         if (resolvedSymbol != symTable.notFoundSymbol) {
                             resolvedSymbol.closure = true;
+                            ((BLangArrowFunction) env.node).closureVarSymbols.add(
+                                    new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
                         }
                     }
                 }
@@ -1317,6 +1322,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
+        cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+
         List<BType> matchingLhsMemberTypes = new ArrayList<>();
         for (BType memberType : lhsUnionType.getMemberTypes()) {
             if (memberType.tag != TypeTags.OBJECT) {
@@ -1325,7 +1332,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             if ((memberType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
                 dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, lhsUnionType.tsymbol);
-                cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
             }
 
             BAttachedFunction initializerFunc = ((BObjectTypeSymbol) memberType.tsymbol).initializerFunc;
@@ -1704,6 +1710,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         binaryExpr.opKind, lhsType, rhsType);
             } else {
+                if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
+                        (couldHoldTableValues(lhsType, new ArrayList<>()) &&
+                                 couldHoldTableValues(rhsType, new ArrayList<>()))) {
+                    dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, "table");
+                }
+
                 binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                 actualType = opSymbol.type.getReturnType();
             }
@@ -3522,5 +3534,33 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
         return true;
+    }
+
+    private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {
+        if (encounteredTypes.contains(type)) {
+            return false;
+        }
+        encounteredTypes.add(type);
+
+        switch (type.tag) {
+            case TypeTags.TABLE:
+                return true;
+            case TypeTags.UNION:
+                return ((BUnionType) type).getMemberTypes().stream()
+                        .anyMatch(bType -> couldHoldTableValues(bType, encounteredTypes));
+            case TypeTags.MAP:
+                return couldHoldTableValues(((BMapType) type).constraint, encounteredTypes);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                return recordType.fields.stream()
+                        .anyMatch(field -> couldHoldTableValues(field.type, encounteredTypes)) ||
+                        (!recordType.sealed && couldHoldTableValues(recordType.restFieldType, encounteredTypes));
+            case TypeTags.ARRAY:
+                return couldHoldTableValues(((BArrayType) type).eType, encounteredTypes);
+            case TypeTags.TUPLE:
+                return ((BTupleType) type).getTupleTypes().stream()
+                        .anyMatch(bType -> couldHoldTableValues(bType, encounteredTypes));
+        }
+        return false;
     }
 }

@@ -91,6 +91,6 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     }
 
     private static String getAggregatedRootErrorMessages(BError error) {
-        return error.reason;
+        return error.getReason();
     }
 }

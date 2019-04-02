@@ -3674,13 +3674,17 @@ public class BVM {
         return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
     }
 
+    public static boolean isPureType(BType type) {
+        return isPureType(type,  new HashSet<>());
+    }
+
     private static boolean isPureType(BType type, Set<BType> unresolvedTypes) {
         if (type.getTag() == TypeTags.UNION_TAG) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .allMatch(memType -> isPureType(memType, unresolvedTypes));
         }
 
-        return isAnydata(type, unresolvedTypes) || type.getTag() == TypeTags.ERROR_TAG;
+        return type.getTag() == TypeTags.ERROR_TAG || isAnydata(type, unresolvedTypes);
     }
 
     private static boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
@@ -4807,8 +4811,9 @@ public class BVM {
             return false;
         }
 
-        return checkIsLikeType(new BString(((BError) sourceValue).reason), targetType.reasonType, unresolvedValues) &&
-                checkIsLikeType(((BError) sourceValue).details, targetType.detailType, unresolvedValues);
+        return checkIsLikeType(new BString(((BError) sourceValue).getReason()),
+                               targetType.reasonType, unresolvedValues) &&
+                checkIsLikeType(((BError) sourceValue).getDetails(), targetType.detailType, unresolvedValues);
     }
 
     public static boolean checkIsType(BValue sourceVal, BType targetType) {
@@ -5081,8 +5086,7 @@ public class BVM {
         }
 
         // All the value types are immutable
-        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG ||
-                value.getType().getTag() == TypeTags.ERROR_TAG) { // to be removed once error is frozen
+        if (value.getType().getTag() < TypeTags.JSON_TAG || value.getType().getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
 
@@ -5137,6 +5141,9 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.ERROR_TAG:
+                return rhsValTypeTag == TypeTags.ERROR_TAG &&
+                        isEqual((BError) lhsValue, (BError) rhsValue, checkedValues);
             case TypeTags.SERVICE_TAG:
                 break;
         }
@@ -5211,6 +5218,24 @@ public class BVM {
         return true;
     }
 
+    /**
+     * Deep equality check for error.
+     *
+     * @param lhsError      The error on the left hand side
+     * @param rhsError      The error on the right hand side
+     * @param checkedValues Errors already compared or being compared
+     * @return True if the error values are equal, else false.
+     */
+    private static boolean isEqual(BError lhsError, BError rhsError, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsError, rhsError);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        return isEqual(new BString(lhsError.getReason()), new BString(rhsError.getReason()), checkedValues) &&
+                isEqual((BMap) lhsError.getDetails(), (BMap) rhsError.getDetails(), checkedValues);
+    }
 
     /**
      * Maintains the frozen status of a freezable {@link BValue}.

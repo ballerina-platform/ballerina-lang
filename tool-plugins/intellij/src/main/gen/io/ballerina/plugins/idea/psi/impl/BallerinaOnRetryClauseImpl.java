@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOnRetryClauseImpl extends BallerinaCompositeElementImpl implements BallerinaOnRetryClause {
+public class BallerinaOnRetryClauseImpl extends ASTWrapperPsiElement implements BallerinaOnRetryClause {
 
   public BallerinaOnRetryClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaOnRetryClauseImpl extends BallerinaCompositeElementImpl im
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class BallerinaOnRetryClauseImpl extends BallerinaCompositeElementImpl im
   @Override
   @NotNull
   public PsiElement getOnretry() {
-    return notNullChild(findChildByType(ONRETRY));
+    return findNotNullChildByType(ONRETRY);
   }
 
 }

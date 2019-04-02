@@ -21,6 +21,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaStaticMatchLiterals extends BallerinaCompositeElement {
+public interface BallerinaStaticMatchLiterals extends PsiElement {
 
 }

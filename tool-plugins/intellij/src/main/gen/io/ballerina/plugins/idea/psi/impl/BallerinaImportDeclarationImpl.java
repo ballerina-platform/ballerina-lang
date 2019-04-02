@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaImportDeclarationImpl extends BallerinaCompositeElementImpl implements BallerinaImportDeclaration {
+public class BallerinaImportDeclarationImpl extends ASTWrapperPsiElement implements BallerinaImportDeclaration {
 
   public BallerinaImportDeclarationImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaImportDeclarationImpl extends BallerinaCompositeElementImp
   @Override
   @Nullable
   public BallerinaAlias getAlias() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAlias.class);
+    return findChildByClass(BallerinaAlias.class);
   }
 
   @Override
   @Nullable
   public BallerinaCompletePackageName getCompletePackageName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCompletePackageName.class);
+    return findChildByClass(BallerinaCompletePackageName.class);
   }
 
   @Override
   @Nullable
   public BallerinaOrgName getOrgName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOrgName.class);
+    return findChildByClass(BallerinaOrgName.class);
   }
 
   @Override
   @Nullable
   public BallerinaPackageVersion getPackageVersion() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaPackageVersion.class);
+    return findChildByClass(BallerinaPackageVersion.class);
   }
 
   @Override
@@ -80,12 +81,7 @@ public class BallerinaImportDeclarationImpl extends BallerinaCompositeElementImp
   @Override
   @NotNull
   public PsiElement getImport() {
-    return notNullChild(findChildByType(IMPORT));
-  }
-
-  @Nullable
-  public PsiElement getShortPackageName() {
-    return BallerinaPsiImplUtil.getShortPackageName(this);
+    return findNotNullChildByType(IMPORT);
   }
 
 }

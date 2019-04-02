@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDefaultableParameter extends BallerinaCompositeElement {
+public interface BallerinaDefaultableParameter extends PsiElement {
 
   @NotNull
   BallerinaExpression getExpression();

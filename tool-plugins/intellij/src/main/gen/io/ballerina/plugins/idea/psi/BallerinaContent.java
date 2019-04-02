@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaContent extends BallerinaCompositeElement {
+public interface BallerinaContent extends PsiElement {
 
   @NotNull
   List<BallerinaComment> getCommentList();

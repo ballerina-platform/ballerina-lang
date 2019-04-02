@@ -224,7 +224,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -3063,8 +3062,19 @@ public class Desugar extends BLangNodeVisitor {
         }
         errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
-        errConstExpr.detailsExpr = rewriteExpr(Optional.ofNullable(errConstExpr.detailsExpr)
-                .orElseGet(() -> ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType)));
+        if (errConstExpr.detailsExpr == null) {
+            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.pos,
+                                                                 BLangBuiltInMethod.FREEZE,
+                                                                 Lists.of(rewriteExpr(
+                                                                         ASTBuilderUtil.createEmptyRecordLiteral(
+                                                                                 errConstExpr.pos,
+                                                                                 symTable.pureTypeConstrainedMap))));
+        } else {
+            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
+                                                                 BLangBuiltInMethod.FREEZE,
+                                                                 Lists.of(visitCloneInvocation(
+                                                                         rewriteExpr(errConstExpr.detailsExpr))));
+        }
         result = errConstExpr;
     }
 
