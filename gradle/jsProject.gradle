@@ -17,8 +17,8 @@ assemble {
     dependsOn npmInstall
 }
 
-task test{
-    exec {
+task test(type: Exec) {
+    doFirst {
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             commandLine 'cmd', '/c', 'npm', 'test'
         } else {

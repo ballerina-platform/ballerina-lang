@@ -24,4 +24,11 @@ dependencies {
 
 build {
     dependsOn npmBuild
+    dependsOn 'test'
+}
+
+test {
+    onlyIf {
+        !npmInstall.state.upToDate || !npmBuild.state.upToDate
+    }
 }

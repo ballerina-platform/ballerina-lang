@@ -24,3 +24,9 @@ task npmBuild(type: Exec) {
 build {
     dependsOn npmBuild
 }
+
+test {
+    onlyIf {
+        !npmInstall.state.upToDate || !npmBuild.state.upToDate
+    }
+}
