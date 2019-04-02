@@ -14,7 +14,7 @@ const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text
 svg.appendChild(textElement);
 document.body.appendChild(svg);
 
-const ellipsesLength = getEllipsesLength();
+let ellipsesLength: number | undefined;
 export class DiagramUtils {
 
     public static getComponents(nodeArray: any): React.ReactNode[] {
@@ -47,6 +47,9 @@ export class DiagramUtils {
         maxWidth = DefaultConfig.statement.maxWidth,
         paddingLeft = DefaultConfig.statement.padding.left,
         paddingRight = DefaultConfig.statement.padding.right) {
+        if (!ellipsesLength) {
+            ellipsesLength = getEllipsesLength();
+        }
         text = text.trim();
         text = text.replace(/\/\/.*$/gm, "");
         text = text.trim();
@@ -93,7 +96,10 @@ export class DiagramUtils {
     }
 }
 
-function getEllipsesLength() {
+/**
+ * Get text length of "..."
+ */
+function getEllipsesLength(): number {
     textElement.textContent = "...";
     return textElement.getComputedTextLength();
 }
