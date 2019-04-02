@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.bvm.Strand.State;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -148,7 +149,11 @@ public class BVMExecutor {
         ObserveUtils.startResourceObservation(strand, observerContext);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
-        BVMScheduler.schedule(strand);
+        if (ConfigRegistry.getInstance().getAsBoolean("b7a.http.worker.nonblocking")) {
+            BVMScheduler.execute(strand);
+        } else {
+            BVMScheduler.schedule(strand);
+        }
     }
 
     private static void infectResourceFunction(StrandResourceCallback strandResourceCallback, Strand strand) {
