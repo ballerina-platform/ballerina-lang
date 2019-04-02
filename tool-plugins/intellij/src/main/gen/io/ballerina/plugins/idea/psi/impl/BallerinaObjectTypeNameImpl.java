@@ -48,9 +48,9 @@ public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implement
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override

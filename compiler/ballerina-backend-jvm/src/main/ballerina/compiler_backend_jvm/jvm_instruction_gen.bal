@@ -443,7 +443,7 @@ type InstructionGenerator object {
         self.generateVarLoad(newErrorIns.reasonOp.variableDcl);
         self.generateVarLoad(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, REF_VALUE), false);
+                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
         self.generateVarStore(newErrorIns.lhsOp.variableDcl);
     }
 

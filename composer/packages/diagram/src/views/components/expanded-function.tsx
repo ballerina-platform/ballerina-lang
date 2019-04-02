@@ -132,12 +132,14 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
     return (
         <DiagramContext.Consumer>
             {({ langClient, docUri, update }) => (
-                <text x={x} y={y}
-                    className="expander"
-                    onClick={getExpandFunctionHandler(
-                        langClient, docUri, position, expandContext, update)}>
-                    {getCodePoint("down")}
-                </text>
+                <g className="expander">
+                    <circle className="circle" cx={x + 7} cy={y - 2} r={10}/>
+                    <text x={x} y={y}
+                        onClick={getExpandFunctionHandler(
+                            langClient, docUri, position, expandContext, update)}>
+                        {getCodePoint("down")}
+                    </text>
+                </g>
             )}
         </DiagramContext.Consumer>
     );
@@ -173,7 +175,6 @@ function getExpandFunctionHandler(
             startColumn: res.range.start.character + 1,
             startLine: res.range.start.line + 1,
         }, astRes.ast);
-
         const defTree = subTree as BallerinaFunction;
 
         expandContext.expandedSubTree = defTree;
