@@ -7,30 +7,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <title>API Documentation</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-    <link rel="stylesheet" href="../dist/styles/css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+  <link rel="stylesheet" href="../dist/styles/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 </head>
 
 <body>
   <div class="ui grid">
     <div class="header-wrapper">
-      <div>
-        <img class="logo" src="images/ballerina-logo.png">
-      </div>
-      <h1>{{name}}</h1>
+      <img class="logo" src="images/ballerina-logo.png">
       <p>{{description}}</p>
-      {{#if modules}}
-      <div class="eleven wide column content-wrapper">
-        {{#each modules}}
-        <div class="two wide column module-title">
-          <a href="{{id}}/index.html">{{id}}</a>
+      <div class="ui grid">
+        {{#if modules}}
+        <div class="eleven wide column content-wrapper">
+          <div class="ui grid">{{#each modules}}
+            <div class="two wide column">
+              
+              <span class="module-title">
+                <a href="{{id}}/index.html">{{id}}</a></span>
+            </div>
+            <div class="fourteen wide column">
+              <span class="module-desc">
+                {{description}}
+              </span>
+             
+            </div>
+             {{/each}}
+          </div>
         </div>
-        <div class="fourteen wide column module-desc">{{description}}</div>
-        {{/each}}
+        {{/if}}
       </div>
-      {{/if}}
     </div>
   </div>
 </body>

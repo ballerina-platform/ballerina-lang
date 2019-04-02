@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <title>API Documentation</title>
-  <link rel="stylesheet" href="../../styles/css/styles.css">
+  <link rel="stylesheet" href="../styles/css/styles.css">
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
   <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
@@ -27,7 +27,7 @@
       </div>
 
       <div class="primary-list">
-        <h4>http Module</h4>
+        <h4>http</h4>
         <ul>
           {{#each constructs}}
           <li>
@@ -42,7 +42,7 @@
         <div class="ui divider"></div>
 
         <div class="secondary-list">
-          <h4>http Module</h4>
+          <h4>Modules</h4>
           <ul>
             <li>ballerina/auth</li>
             <li>ballerina/bir</li>
@@ -96,7 +96,7 @@
     <div class="eleven wide column content-wrapper">
       <div class="ui breadcrumb">
         <a href="">
-          <h2 class="section">Modules</h2>
+          <h2 class="section">modules</h2>
         </a>
         <div class="divider"> / </div>
         <h2 class="active section">{{id}}</h2>
@@ -148,23 +148,113 @@
         <b><u>HTTP Load Balancer Example</u></b>
       </p>
       <p>
-        <code>Listener</code> endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and Server Name
-        Indication (SNI) and Application Layer Protocol Negotiation (ALPN). <code>Listener</code> endpoints also support Certificate
+        <code>Listener</code> endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and
+        Server Name
+        Indication (SNI) and Application Layer Protocol Negotiation (ALPN). <code>Listener</code> endpoints also support
+        Certificate
         Revocation List (CRL), Online Certificate Status Protocol (OCSP), OCSP Stapling, HTTP2, keep-alive, chunking,
         HTTP caching, and data compression/decompression.
       </p>
       <p>See <u><b>Mutual SSL Example.</u></b></p>
       <p> See <u><b> Caching Example</u></b>, <u><b> HTTP Disable Chunking Example.</u></b></p>
-      
+
       <div class="ui divider"></div>
-      <h3><a name="records">Records</a></h3> 
-      <div class="two wide column records">{{records.name}}</div>
-      <div class="eleven wide column">{{records.description}}</div>
+      <h3><a name="records">Records</a></h3>
       <div class="ui divider"></div>
-      <h3><a name="objects">Objects</a></h3> 
+      <div class="ui grid">
+        <div class="two wide column module-title records"><a href="../ballerina/http/AuthCacheConfig.html">AuthCacheConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the authorization caching
+          behaviour of the endpoint.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">AuthConfig</a></div>
+        <div class="thirteen wide column module-desc">AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">AuthProvider</a></div>
+        <div class="thirteen wide column module-desc">Configuration for authentication providers.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">Authentication</a></div>
+        <div class="thirteen wide column module-desc">Can be used for enabling/disabling authentication in an HTTP service.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">Bucket</a></div>
+        <div class="thirteen wide column module-desc">Represents a discrete sub-part of the time window (Bucket).</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">CacheConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the caching behaviour of the endpoint.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">CircuitBreakerConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the behaviour of the Circuit Breaker.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">CircuitBreakerInferredConfig</a></div>
+        <div class="thirteen wide column module-desc">Derived set of configurations from the `CircuitBreakerConfig`.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">CircuitHealth</a></div>
+        <div class="thirteen wide column module-desc">Maintains the health of the Circuit Breaker.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">ClientEndpointConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">CompressionConfig</a></div>
+        <div class="thirteen wide column module-desc">A record for providing configurations for content compression.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">ConnectionThrottling</a></div>
+        <div class="thirteen wide column module-desc">Provides configurations for throttling connections of the endpoint.</div>
+          <div class="two wide column module-title  records"><a href="../ballerina/http/AuthCacheConfig.html">CorsConfig</a></div>
+        <div class="thirteen wide column module-desc">Configurations for CORS support.</div>
+          <div class="two wide column module-title records"><a href="../ballerina/http/AuthCacheConfig.html">FailoverClientEndpointConfiguration</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of HTTP related configurations and failover related configurations.</div>
       <div class="ui divider"></div>
-      <div class="two wide column objects">{{constructs/records/name}}</div>
-      <div class="eleven wide column">{{records.description}}</div>
+      <h3><a name="objects">Objects</a></h3>
+      <div class="ui divider sixteen wide"></div>
+        <div class="two wide column module-title objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">AuthCacheConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the authorization caching
+          behaviour of the endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/AuthzFilter.html">AuthzFilter </a></div>
+        <div class="thirteen wide column module-desc">AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">AuthProvider</a></div>
+        <div class="thirteen wide column module-desc">Configuration for authentication providers.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">Authentication</a></div>
+        <div class="thirteen wide column module-desc">Can be used for enabling/disabling authentication in an HTTP service.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">Bucket</a></div>
+        <div class="thirteen wide column module-desc">Represents a discrete sub-part of the time window (Bucket).</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CacheConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the caching behaviour of the endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CircuitBreakerConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the behaviour of the Circuit Breaker.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CircuitBreakerInferredConfig</a></div>
+        <div class="thirteen wide column module-desc">Derived set of configurations from the `CircuitBreakerConfig`.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CircuitHealth</a></div>
+        <div class="thirteen wide column module-desc">Maintains the health of the Circuit Breaker.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">ClientEndpointConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CompressionConfig</a></div>
+        <div class="thirteen wide column module-desc">A record for providing configurations for content compression.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">ConnectionThrottling</a></div>
+        <div class="thirteen wide column module-desc">Provides configurations for throttling connections of the endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CorsConfig</a></div>
+        <div class="thirteen wide column module-desc">Configurations for CORS support.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">FailoverClientEndpointConfiguration</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of HTTP related configurations and failover related configurations.</div>
+        
+        <h3><a name="functions">Functions</a></h3>
+        <div class="ui divider sixteen wide"></div>
+        <div class="two wide column module-title objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">AuthCacheConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the authorization caching
+          behaviour of the endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/AuthzFilter.html">AuthzFilter </a></div>
+        <div class="thirteen wide column module-desc">AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">AuthProvider</a></div>
+        <div class="thirteen wide column module-desc">Configuration for authentication providers.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">Authentication</a></div>
+        <div class="thirteen wide column module-desc">Can be used for enabling/disabling authentication in an HTTP service.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">Bucket</a></div>
+        <div class="thirteen wide column module-desc">Represents a discrete sub-part of the time window (Bucket).</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CacheConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the caching behaviour of the endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CircuitBreakerConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the behaviour of the Circuit Breaker.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CircuitBreakerInferredConfig</a></div>
+        <div class="thirteen wide column module-desc">Derived set of configurations from the `CircuitBreakerConfig`.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CircuitHealth</a></div>
+        <div class="thirteen wide column module-desc">Maintains the health of the Circuit Breaker.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">ClientEndpointConfig</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CompressionConfig</a></div>
+        <div class="thirteen wide column module-desc">A record for providing configurations for content compression.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">ConnectionThrottling</a></div>
+        <div class="thirteen wide column module-desc">Provides configurations for throttling connections of the endpoint.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">CorsConfig</a></div>
+        <div class="thirteen wide column module-desc">Configurations for CORS support.</div>
+          <div class="two wide column module-title  objects"><a href="../ballerina/http/HttpAuthHandlerRegistry.html">FailoverClientEndpointConfiguration</a></div>
+        <div class="thirteen wide column module-desc">Provides a set of HTTP related configurations and failover related configurations.</div>
     </div>
   </div>
 </body>

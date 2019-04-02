@@ -3,8 +3,8 @@
     "description": "Built in modules of Ballerina",
     "modules": [
         {
-            "id": "ballerina/caching",
-            "description": "This module provides a set of default ballerina/authentication store providers that can be extended to create new ballerina/authentication store providers.",
+            "id": "caching",
+            "description": "This module provides a set of default authentication store providers that can be extended to create new authentication store providers.",
             "constructs": 
             {
                 "records": [],
@@ -18,19 +18,19 @@
             }
         },
         {
-            "id": "ballerina/http",
+            "id": "http",
             "description": "This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints.",
             "constructs": {
                 "records": [
                     {
-                        "name": "ballerina/authCacheConfig",
-                        "description": "Provides a set of configurations for controlling the ballerina/authorization caching behaviour of the endpoint.",
+                        "name": "authCacheConfig",
+                        "description": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.",
                         "fields": [
                             {
                                 "field_name": "enabled",
                                 "data_type": "boolean",
                                 "default_value": "true",
-                                "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                                "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                             },
                             {
                                 "field_name": "capacity",
@@ -53,90 +53,90 @@
                         ]
                     },
                     {
-                        "name": "ballerina/authConfig",
-                        "description": "ballerina/authConfig record can be used to configure the ballerina/authentication mechanism used by the HTTP endpoint.",
+                        "name": "authConfig",
+                        "description": "authConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
-                        "name": "ballerina/authCacheConfig",
-                        "description": "Provides a set of configurations for controlling the ballerina/authorization caching behaviour of the endpoint.",
+                        "name": "authCacheConfig",
+                        "description": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.",
                         "fields": [
                             {
                                 "field_name": "scheme",
-                                "data_type": "Basic|Oballerina/auth2|JWT",
+                                "data_type": "Basic|Oauth2|JWT",
                                 "default_value": "",
-                                "description": "Scheme of the configuration (Basic, Oballerina/auth2, JWT etc.)"
+                                "description": "Scheme of the configuration (Basic, Oauth2, JWT etc.)"
                             },
                             {
                                 "field_name": "username",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Username for Basic ballerina/authentication"
+                                "description": "Username for Basic authentication"
                             },
                             {
                                 "field_name": "password",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Password for Basic ballerina/authentication"
+                                "description": "Password for Basic authentication"
                             },
                             {
                                 "field_name": "accessToken",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Access token for Oballerina/auth2 ballerina/authentication"
+                                "description": "Access token for Oauth2 authentication"
                             },
                             {
                                 "field_name": "refreshToken",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Refresh token for Oballerina/auth2 ballerina/authentication"
+                                "description": "Refresh token for Oauth2 authentication"
                             },
                             {
                                 "field_name": "refreshUrl",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Refresh token URL for Oballerina/auth2 ballerina/authentication"
+                                "description": "Refresh token URL for Oauth2 authentication"
                             },
                             {
                                 "field_name": "consumerKey",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Consumer key for Oballerina/auth2 ballerina/authentication"
+                                "description": "Consumer key for Oauth2 authentication"
                             },
                             {
                                 "field_name": "consumerSecret",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Consumer secret for Oballerina/auth2 ballerina/authentication"
+                                "description": "Consumer secret for Oauth2 authentication"
                             },
                             {
                                 "field_name": "tokenUrl",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Token URL for Oballerina/auth2 ballerina/authentication"
+                                "description": "Token URL for Oauth2 authentication"
                             },
                             {
                                 "field_name": "clientId",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Clietnt ID for Oballerina/auth2 ballerina/authentication"
+                                "description": "Clietnt ID for Oauth2 authentication"
                             },
                             {
                                 "field_name": "clientSecret",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "Client secret for Oballerina/auth2 ballerina/authentication"
+                                "description": "Client secret for Oauth2 authentication"
                             },
                             {
                                 "field_name": "credentialBearer",
-                                "data_type": "ballerina/auth_HEADER_BEARER|POST_BODY_BEARER",
-                                "default_value": "ballerina/auth_HEADER_BEARER",
-                                "description": "How client ballerina/authentication is sent to refresh access token (ballerina/authHeaderBearer, PostBodyBearer)"
+                                "data_type": "auth_HEADER_BEARER|POST_BODY_BEARER",
+                                "default_value": "auth_HEADER_BEARER",
+                                "description": "How client authentication is sent to refresh access token (authHeaderBearer, PostBodyBearer)"
                             },
                             {
                                 "field_name": "scopes",
@@ -147,32 +147,32 @@
                         ]
                     },
                     {
-                        "name": "ballerina/authProvider",
-                        "description": "Configuration for ballerina/authentication providers.",
+                        "name": "authProvider",
+                        "description": "Configuration for authentication providers.",
                         "fields": [
                             {
                                 "field_name": "scheme",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "ballerina/authentication scheme"
+                                "description": "authentication scheme"
                             },
                             {
                                 "field_name": "id",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "ballerina/authentication provider instance id"
+                                "description": "authentication provider instance id"
                             },
                             {
-                                "field_name": "ballerina/authStoreProvider",
+                                "field_name": "authStoreProvider",
                                 "data_type": "string",
                                 "default_value": "",
-                                "description": "ballerina/authentication store provider (file, LDAP, etc.) implementation"
+                                "description": "authentication store provider (file, LDAP, etc.) implementation"
                             },
                             {
-                                "field_name": "ballerina/authStoreProviderConfig",
-                                "data_type": "ballerina/auth:Ldapballerina/authProviderConfig?",
+                                "field_name": "authStoreProviderConfig",
+                                "data_type": "auth:LdapauthProviderConfig?",
                                 "default_value": "null",
-                                "description": "ballerina/auth store related configurations"
+                                "description": "auth store related configurations"
                             },
                             {
                                 "field_name": "issuer",
@@ -238,18 +238,18 @@
                                 "field_name": "propagateJwt",
                                 "data_type": "boolean",
                                 "default_value": "false",
-                                "description": "<code>true</code> if propagating ballerina/authentication info as JWT"
+                                "description": "<code>true</code> if propagating authentication info as JWT"
                             }
                         ]
                     },
                     {
-                        "name": "ballerina/authentication",
-                        "description": "Can be used for enabling/disabling ballerina/authentication in an HTTP service",
+                        "name": "authentication",
+                        "description": "Can be used for enabling/disabling authentication in an HTTP service",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -259,7 +259,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -269,7 +269,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -279,7 +279,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -289,7 +289,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -299,7 +299,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -309,7 +309,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -319,7 +319,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -329,7 +329,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -339,7 +339,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -349,7 +349,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -359,7 +359,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -369,7 +369,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -379,7 +379,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -389,7 +389,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -399,7 +399,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -409,7 +409,7 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
@@ -419,17 +419,17 @@
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     },
                     {
-                        "name": "Listenerballerina/authConfig",
-                        "description": "Configures the ballerina/authentication scheme for a service or a resource.",
+                        "name": "ListenerauthConfig",
+                        "description": "Configures the authentication scheme for a service or a resource.",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
                             "default_value": "true",
-                            "description": "Specifies whether ballerina/authorization caching is enabled. Caching is enabled by default."
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     }
                 ],
@@ -443,7 +443,7 @@
             }
         },
         {
-            "id": "ballerina/config",
+            "id": "config",
             "description": "This module offers a cache that supports time-based eviction, and size-based eviction.",
             "constructs": {
                 "records": [],
@@ -457,8 +457,8 @@
             }
         },
         {
-            "id": "ballerina/encoding",
-            "description": "The ballerina/config module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters, and build a consolidated set of configurations.",
+            "id": "encoding",
+            "description": "The config module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters, and build a consolidated set of configurations.",
             "constructs": {
                 "records": [],
                 "objects": [],
@@ -471,7 +471,7 @@
             }
         },
         {
-            "id": "ballerina/file",
+            "id": "file",
             "description": "This module contains services that register listeners against a local folder and identify events that create, modify, and delete files.",
             "constructs": {
                 "records": [],
@@ -485,7 +485,7 @@
             }
         },
         {
-            "id": "ballerina/io",
+            "id": "io",
             "description": "This module is designed to support input and output operations via channels in a canonical way, either in a blocking, or non-blocking manner.",
             "constructs": {
                 "records": [],
@@ -499,7 +499,7 @@
             }
         },
         {
-            "id": "ballerina/log",
+            "id": "log",
             "description": "This module provides a basic API for logging.",
             "constructs": {
                 "records": [],
@@ -513,7 +513,7 @@
             }
         },
         {
-            "id": "ballerina/math",
+            "id": "math",
             "description": "This module provides functions to perform fixed-precision integer arithmetic and fixed-precision decimal arithmetic. It includes functions to get the absolute, cosine, sine, root, tangent, and more for a given value.",
             "constructs": {
                 "records": [],
@@ -527,7 +527,7 @@
             }
         },
         {
-            "id": "ballerina/grpc",
+            "id": "grpc",
             "description": "This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The module facilitates two types of endpoints as ‘Client’ and ‘Listener’.",
             "constructs": {
                 "records": [],
@@ -541,7 +541,7 @@
             }
         },
         {
-            "id": "ballerina/h2",
+            "id": "h2",
             "description": "This module contains functions to support gRPC protocol based communication. gRPC is a framework developed by Google to support the RPC (Remote Procedure Call) protocol.",
             "constructs": {
                 "records": [],
@@ -555,7 +555,7 @@
             }
         },
         {
-            "id": "ballerina/file",
+            "id": "file",
             "description": "This module provides the functionality required to access and manipulate data stored in an H2 database.",
             "constructs": {
                 "records": [],
@@ -569,7 +569,7 @@
             }
         },
         {
-            "id": "ballerina/mysql",
+            "id": "mysql",
             "description": "This module contains services that register listeners against a local folder and identify events that create, modify, and delete files.",
             "constructs": {
                 "records": [],
@@ -583,7 +583,7 @@
             }
         },
         {
-            "id": "ballerina/io",
+            "id": "io",
             "description": "This module provides the functionality required to access and manipulate data stored in a MySQL database.",
             "constructs": {
                 "records": [],
@@ -597,7 +597,7 @@
             }
         },
         {
-            "id": "ballerina/runtime",
+            "id": "runtime",
             "description": "This module is designed to support input and output operations via channels in a canonical way, either in a blocking, or non-blocking manner.",
             "constructs": {
                 "records": [],
@@ -611,7 +611,7 @@
             }
         },
         {
-            "id": "ballerina/auth",
+            "id": "auth",
             "description": "This module includes functions to interact with the runtime, the invocation context and to manage errors.",
             "constructs": {
                 "records": [],

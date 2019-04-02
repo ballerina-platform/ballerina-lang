@@ -13,17 +13,16 @@ body {
         font-weight: 600;
     }
 
-    .ui.grid {              
-        height: 100vh;
+    .ui.grid {
         
         .header-wrapper {
             position: fixed;
             height: auto;
+            margin: 25px 20px;
 
             .logo {
                 width: 200px;
                 height: auto;
-                float: left;
             }
             
         }
@@ -83,7 +82,7 @@ body {
             .breadcrumb {
                 a {
                     color: #aaa;
-                    font-weight: 300 !important; 
+                    font-weight: 300; 
                 }
             }
 
@@ -93,7 +92,7 @@ body {
             }
 
             p {
-                line-height: 24px !important;
+                line-height: 24px;
             }
 
             code {
@@ -103,35 +102,43 @@ body {
 
             .records {
                 color: #2c9ea1;
-                font-weight: 600;
+                a {
+                color: #2c9ea1;
+                }
             }
             .objects {
                 color: #93bd54;
-                font-weight: 600;
+                a {
+                color: #93bd54;
+                }
+            }
+            .constants {
+                margin-top: 20px;
+                margin-left: 20px;
+
+                p {
+                    line-height: 28px;
+                }
+
+                .column {
+                    margin: 0 ;
+                    padding: 10px;
+                }
             }
 
-            .module-list {
-                line-height: 20px;
-                float: left;
+            .module-title {
+                margin-bottom: 10px; 
+                word-wrap: break-word;
+                font-weight: 600;
+                height: auto;
+            }
 
-                .module-title {
-                    float: left;
-                    margin-left: 20px;
-                }
-
-                .module-desc {
-                    margin-left: 10px;
-                    float: left;
-                    word-wrap: break-word;
-                }
-
-                ul {
-                    li {
-                        list-style: none;
-                        line-height: 30px;
-                        text-transform: uppercase ;
-                    }
-                }
+            .module-desc {
+                margin-left: 10px;
+                word-wrap: break-word;
+                margin-bottom: 10px; 
+                padding:0;
+                height: auto;
             }
         }
     }
