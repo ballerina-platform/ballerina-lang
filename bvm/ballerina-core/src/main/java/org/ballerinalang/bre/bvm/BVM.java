@@ -4327,15 +4327,15 @@ public class BVM {
     private static void handleMapStore(Strand ctx, BMap<String, BRefType> bMap, String fieldName,
                                        BRefType<?> value) {
         BType mapType = bMap.getType();
+        BType valuesType = value == null ? BTypes.typeNull : value.getType();
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 if (!isValidMapInsertion(mapType, value)) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                                                     BLangExceptionHelper
-                                                             .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
-                                                                              expType, value.getType()));
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    expType, valuesType));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4347,7 +4347,7 @@ public class BVM {
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName,
-                                                             objFieldType, value.getType()));
+                                                             objFieldType, valuesType));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4375,7 +4375,7 @@ public class BVM {
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                                                      BLangExceptionHelper.getErrorMessage(
                                                              RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName,
-                                                             recFieldType, value.getType()));
+                                                             recFieldType, valuesType));
                 }
 
                 insertToMap(ctx, bMap, fieldName, value);
@@ -4403,12 +4403,8 @@ public class BVM {
     }
 
     private static boolean isValidMapInsertion(BType mapType, BValue value) {
-        if (value == null) {
-            return true;
-        }
-
         BType constraintType = ((BMapType) mapType).getConstrainedType();
-        if (constraintType.equals(value.getType())) {
+        if (value != null && constraintType.equals(value.getType())) {
             return true;
         }
 
