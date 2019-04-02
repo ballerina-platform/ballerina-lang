@@ -60,7 +60,7 @@ public class FiniteTypeNegativeTest {
         validateError(result, 8, "incompatible types: expected '5', found 'int'", 81, 17);
         validateError(result, 9, "incompatible types: expected 'string', found 'foo|1'", 89, 17);
         validateError(result, 10, "incompatible types: expected 'int', found 'string|int'", 92, 14);
-        validateError(result, 11, "incompatible types: expected '1.0f|1.0d|2.22f|3.33d', found 'float'", 102, 14);
-        validateError(result, 12, "incompatible types: expected '1.0f|1.0d|2.22f|3.33d', found 'decimal'", 103, 14);
+        validateError(result, 11, "incompatible types: expected '1.0d|2.0f', found 'float'", 102, 13);
+        validateError(result, 12, "incompatible types: expected '1.0f|1.0d|2.22f|3.33d', found 'decimal'", 107, 14);
     }
 }

@@ -1789,7 +1789,8 @@ public class Types {
                 break;
             case TypeTags.FLOAT:
                 String baseValueStr = String.valueOf(baseValue);
-                if (isDecimalDiscriminated(baseValueStr)) {
+                String originalValue = baseLiteral.originalValue;
+                if (isDecimalDiscriminated(originalValue != null ? originalValue : baseValueStr)) {
                     return false;
                 }
                 double baseDoubleVal = Double.parseDouble(baseValueStr);
@@ -1810,6 +1811,9 @@ public class Types {
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
                         candidateTypeTag == TypeTags.DECIMAL) {
+                    if (isFloatDiscriminated(String.valueOf(candidateValue))) {
+                        return false;
+                    }
                     candidateDecimalVal = parseBigDecimal(candidateValue);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 }
@@ -1837,6 +1841,16 @@ public class Types {
         }
         char lastChar = baseValueStr.charAt(length - 1);
         return (lastChar == 'd' || lastChar == 'D');
+    }
+
+    private boolean isFloatDiscriminated(String baseValueStr) {
+        int length = baseValueStr.length();
+        // There should be at least 2 characters to form discriminated decimal literal.
+        if (length < 2) {
+            return false;
+        }
+        char lastChar = baseValueStr.charAt(length - 1);
+        return (lastChar == 'f' || lastChar == 'F');
     }
 
     boolean isByteLiteralValue(Long longObject) {

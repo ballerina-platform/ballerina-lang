@@ -283,27 +283,19 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalType = symTable.byteType;
             } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
                 BFiniteType finiteType = (BFiniteType) expType;
-                if (finiteType.valueSpace.stream()
-                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.INT &&
-                                 types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.INT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.intType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
-                } else if (finiteType.valueSpace.stream()
-                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.BYTE &&
-                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.BYTE)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.byteType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
-                } else if (finiteType.valueSpace.stream()
-                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
-                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.FLOAT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.floatType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
-                } else if (finiteType.valueSpace.stream()
-                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
-                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
@@ -365,22 +357,29 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         } else if (literalType.tag == TypeTags.FLOAT) {
+            String literal = String.valueOf(literalValue);
+            char lastChar = getLastChar(literal);
+            String numericLiteral = stripFloatDecimalDiscriminator(literal, lastChar);
+            boolean isDiscriminatedFloat = lastChar == 'f' || lastChar == 'F';
+
             if (expType.tag == TypeTags.DECIMAL) {
+                if (isDiscriminatedFloat || isHexLiteral(numericLiteral)) {
+                    dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.floatType);
+                    resultType = symTable.semanticError;
+                    return resultType;
+                }
                 literalType = symTable.decimalType;
-                literalExpr.value = String.valueOf(literalValue);
+                literalExpr.value = numericLiteral;
             } else if (expType.tag == TypeTags.FLOAT) {
-                literalExpr.value = Double.parseDouble(String.valueOf(literalValue));
+                literalExpr.value = Double.parseDouble(String.valueOf(numericLiteral));
             } else if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
                 BFiniteType finiteType = (BFiniteType) expType;
-                if (finiteType.valueSpace.stream()
-                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.FLOAT &&
-                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.FLOAT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.floatType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
-                } else if (finiteType.valueSpace.stream()
-                        .anyMatch(valueExpr -> valueExpr.type.tag == TypeTags.DECIMAL &&
-                                types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr))) {
+                } else if (!isDiscriminatedFloat
+                        && literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
                     setLiteralValueForFiniteType(literalExpr, valueType);
                     return valueType;
@@ -407,7 +406,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType,
-                                                                      symTable.decimalType);
+                        symTable.decimalType);
                 if (finiteType != symTable.semanticError) {
                     BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
                     if (literalExpr.isFiniteContext) {
@@ -416,6 +415,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
             }
+        } else if (literalType.tag == TypeTags.DECIMAL) {
+            return decimalLiteral(literalValue, literalExpr, expType);
         } else {
             if (this.expType.tag == TypeTags.FINITE) {
                 boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
@@ -441,6 +442,66 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return literalType;
+    }
+
+    private boolean literalAssignableToFiniteType(BLangLiteral literalExpr, BFiniteType finiteType,
+                                                  int targetMemberTypeTag) {
+        return finiteType.valueSpace.stream()
+                .anyMatch(valueExpr -> valueExpr.type.tag == targetMemberTypeTag &&
+                        types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr));
+    }
+
+    private BType decimalLiteral(Object literalValue, BLangLiteral literalExpr, BType expType) {
+        String literal = String.valueOf(literalValue);
+        char lastChar = getLastChar(literal);
+        String numericLiteral = stripFloatDecimalDiscriminator(literal, lastChar);
+        boolean isDecimalDiscriminated = lastChar == 'd' || lastChar == 'D';
+        if (expType.tag == TypeTags.FLOAT && isDecimalDiscriminated) {
+            dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.decimalType);
+            resultType = symTable.semanticError;
+            return resultType;
+        }
+        if (expType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expType, literalExpr)) {
+            BFiniteType finiteType = (BFiniteType) expType;
+            if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
+                BType valueType = setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+                setLiteralValueForFiniteType(literalExpr, valueType);
+                return valueType;
+            }
+        } else if (expType.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
+            if (memberTypes.stream()
+                    .anyMatch(memType -> memType.tag == TypeTags.JSON ||
+                            memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY)) {
+                return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+            }
+
+            BType finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.floatType);
+            if (finiteType != symTable.semanticError) {
+                BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                if (literalExpr.isFiniteContext) {
+                    // i.e., a match was found for a finite type
+                    return setType;
+                }
+            }
+
+            if (memberTypes.stream().anyMatch(memType -> memType.tag == TypeTags.DECIMAL)) {
+                return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
+            }
+
+            finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType,
+                    symTable.decimalType);
+            if (finiteType != symTable.semanticError) {
+                BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
+                if (literalExpr.isFiniteContext) {
+                    // i.e., a match was found for a finite type
+                    return setType;
+                }
+            }
+        }
+        literalExpr.value = numericLiteral;
+        resultType = symTable.decimalType;
+        return symTable.decimalType;
     }
 
     private void setLiteralValueForFiniteType(BLangLiteral literalExpr, BType type) {
@@ -475,6 +536,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BFiniteType(null, matchedValueSpace);
     }
 
+    /**
+     * This method depends on the fact that we add HexExponentIndicator (p0|P0) to hex literals if it's not available.
+     *
+     * @param numericLiteral numeric literals to be tested
+     * @return is this a hex literal
+     */
     private boolean isHexLiteral(String numericLiteral) {
         for (int i = 0; i < numericLiteral.length(); i++) {
             char c = numericLiteral.charAt(i);
@@ -487,7 +554,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private String stripFloatDecimalDiscriminator(String numericLiteral, char lastChar) {
         if (lastChar == 'd' || lastChar == 'D' || lastChar == 'f' || lastChar == 'F') {
-            numericLiteral = numericLiteral.substring(0, numericLiteral.length() - 1);
+            return numericLiteral.substring(0, numericLiteral.length() - 1);
         }
         return numericLiteral;
     }
