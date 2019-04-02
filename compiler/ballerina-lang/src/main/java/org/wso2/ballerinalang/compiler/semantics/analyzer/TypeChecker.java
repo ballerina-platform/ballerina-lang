@@ -1710,6 +1710,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         binaryExpr.opKind, lhsType, rhsType);
             } else {
+                if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
+                        (couldHoldTableValues(lhsType, new ArrayList<>()) &&
+                                 couldHoldTableValues(rhsType, new ArrayList<>()))) {
+                    dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, "table");
+                }
+
                 binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                 actualType = opSymbol.type.getReturnType();
             }
@@ -3528,5 +3534,33 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
         return true;
+    }
+
+    private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {
+        if (encounteredTypes.contains(type)) {
+            return false;
+        }
+        encounteredTypes.add(type);
+
+        switch (type.tag) {
+            case TypeTags.TABLE:
+                return true;
+            case TypeTags.UNION:
+                return ((BUnionType) type).getMemberTypes().stream()
+                        .anyMatch(bType -> couldHoldTableValues(bType, encounteredTypes));
+            case TypeTags.MAP:
+                return couldHoldTableValues(((BMapType) type).constraint, encounteredTypes);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                return recordType.fields.stream()
+                        .anyMatch(field -> couldHoldTableValues(field.type, encounteredTypes)) ||
+                        (!recordType.sealed && couldHoldTableValues(recordType.restFieldType, encounteredTypes));
+            case TypeTags.ARRAY:
+                return couldHoldTableValues(((BArrayType) type).eType, encounteredTypes);
+            case TypeTags.TUPLE:
+                return ((BTupleType) type).getTupleTypes().stream()
+                        .anyMatch(bType -> couldHoldTableValues(bType, encounteredTypes));
+        }
+        return false;
     }
 }
