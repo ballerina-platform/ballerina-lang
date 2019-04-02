@@ -24,10 +24,11 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.remoteServer.util.CloudNotifier;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
@@ -51,6 +52,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
     private static final Logger LOG = Logger.getInstance(BallerinaPreloadingActivity.class);
     private static final String launcherScriptPath = "lib/tools/lang-server/launcher";
     private static final String ballerinaSourcePath = "lib/repo";
+    private static CloudNotifier notifier = new CloudNotifier("Ballerina Home Auto Detection");
 
     /**
      * Preloading of the ballerina plugin.
@@ -97,7 +99,8 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         boolean autoDetected = false;
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         String balSdkPath = getBallerinaSdk(project);
-        if (balSdkPath == null) {
+        // Checks for the user-configured auto detection settings.
+        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
             //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
             balSdkPath = autoDetectSdk();
             autoDetected = true;
@@ -106,15 +109,11 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             boolean success = doRegister(balSdkPath);
             if (success && autoDetected) {
                 LOG.info("Auto-detected Ballerina Home: " + balSdkPath + " for the project: " + project.getBasePath());
-                // If the project is initiated as a ballerina project.
-                if (BallerinaSdkService.getInstance(project) != null) {
-                    String finalBalSdkPath = balSdkPath;
-                    ApplicationManager.getApplication().invokeLater(() -> Messages.showInfoMessage(
-                            "Ballerina SDK is not configured for the ballerina project: " + project.getBasePath()
-                                    + "\n\nAuto Detected Ballerina Home: " + finalBalSdkPath,
-                            "Ballerina Auto Detection"));
-
-                }
+                String finalBalSdkPath = balSdkPath;
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    notifier.showMessage("No ballerina SDK is found for: " + project.getBasePath()
+                            + "\nAuto Detected Ballerina Home: " + finalBalSdkPath, MessageType.INFO);
+                });
             }
             return success;
         }
@@ -195,12 +194,6 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         String launcherBatchScript = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
         return (new File(balShellScript).exists() || new File(balBatchScript).exists()) && (
                 new File(launcherShellScript).exists() || new File(launcherBatchScript).exists());
-    }
-
-    private static boolean hasBallerinaFiles(String dirName) {
-        File dir = new File(dirName);
-        File[] files = dir.listFiles((dir1, filename) -> filename.endsWith(".java"));
-        return files.length > 0;
     }
 
     private static String autoDetectSdk() {

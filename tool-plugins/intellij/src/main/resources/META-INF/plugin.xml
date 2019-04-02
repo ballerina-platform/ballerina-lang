@@ -85,7 +85,7 @@
 
         <!--formatter-->
         <!--<lang.formatter language="Ballerina"-->
-                        <!--implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
+        <!--implementationClass="io.ballerina.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>-->
         <codeStyleSettingsProvider
                 implementation="io.ballerina.plugins.idea.formatter.settings.BallerinaCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
@@ -162,8 +162,6 @@
                              provider="io.ballerina.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
         <projectExtension implementation="io.ballerina.plugins.idea.project.BallerinaProjectExtension"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
         <projectStructureDetector
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
@@ -171,7 +169,8 @@
 
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
-
+        <applicationService
+                serviceImplementation="io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
