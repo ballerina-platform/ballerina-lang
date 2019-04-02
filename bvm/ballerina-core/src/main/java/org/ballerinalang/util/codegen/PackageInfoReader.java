@@ -762,8 +762,8 @@ public class PackageInfoReader {
             // Read the value type CP index and get type.
             int valueTypeSigCPIndex = dataInStream.readInt();
             UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
-            RuntimeTypeCreater typeCreater = new RuntimeTypeCreater(packageInfo);
-            BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreater, resNameUTF8Entry.getValue());
+            RuntimeTypeCreator typeCreator = new RuntimeTypeCreator(packageInfo);
+            BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreator, resNameUTF8Entry.getValue());
 
             readSimpleLiteral(type);
         } else {
@@ -822,8 +822,8 @@ public class PackageInfoReader {
                 // Read the value type CP index and get type.
                 int valueTypeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
-                RuntimeTypeCreater typeCreater = new RuntimeTypeCreater(packageInfo);
-                BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreater, resNameUTF8Entry.getValue());
+                RuntimeTypeCreator typeCreator = new RuntimeTypeCreator(packageInfo);
+                BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreator, resNameUTF8Entry.getValue());
 
                 // Read simple literal info.
                 readSimpleLiteral(type);
