@@ -70,23 +70,25 @@ public type JWTAuthProvider object {
     }
 
     function authenticateFromCache(string jwtToken) returns internal:JwtPayload|() {
-        var context = trap <CachedJWTAuthContext>self.jwtAuthProviderConfig.jwtCache.get(jwtToken);
-        if (context is CachedJWTAuthContext) {
+        var cachedJwt = trap <CachedJwt>self.jwtAuthProviderConfig.jwtCache.get(jwtToken);
+        if (cachedJwt is CachedJwt) {
             // convert to current time and check the expiry time
-            if (context.expiryTime > (time:currentTime().time / 1000)) {
-                internal:JwtPayload payload = context.jwtPayload;
+            if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
+                internal:JwtPayload payload = cachedJwt.jwtPayload;
                 log:printDebug(function() returns string {
                     return "Authenticate user :" + payload.sub + " from cache";
                 });
                 return payload;
+            } else {
+                self.jwtAuthProviderConfig.jwtCache.remove(jwtToken);
             }
         }
         return ();
     }
 
     function addToAuthenticationCache(string jwtToken, int exp, internal:JwtPayload payload) {
-        CachedJWTAuthContext cachedContext = {jwtPayload : payload, expiryTime : exp};
-        self.jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedContext);
+        CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp};
+        self.jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedJwt);
         log:printDebug(function() returns string {
             return "Add authenticated user :" + payload.sub + " to the cache";
         });
@@ -142,7 +144,11 @@ public type JWTAuthProviderConfig record {
     !...;
 };
 
-type CachedJWTAuthContext record {
+# Represents parsed and cached JWT
+#
+# + jwtPayload - Parsed JWT payload
+# + expiryTime - Expiry time of the JWT
+public type CachedJwt record {
     internal:JwtPayload jwtPayload;
     int expiryTime;
     !...;
