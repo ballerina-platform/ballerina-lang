@@ -108,11 +108,13 @@ artifacts {
 }
 
 build {
+    dependsOn createBalHome
     dependsOn generateIndex
     dependsOn createZip
 }
 
 test {
+    exclude '**/*'
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "experimental", "true"
     useTestNG() {

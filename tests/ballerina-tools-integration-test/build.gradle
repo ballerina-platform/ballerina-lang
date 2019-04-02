@@ -27,7 +27,6 @@ dependencies {
 }
 
 test {
-    // exclude '**/*'
     systemProperty 'project.build.directory', "$buildDir"
     systemProperty 'server.zip', configurations.ballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
