@@ -1083,13 +1083,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check constant map literal access.
         if (varRefType.tag == TypeTags.MAP) {
             BLangExpression expression = fieldAccessExpr.getExpression();
-            if (expression.getKind() == NodeKind.CONSTANT_REF) {
-                BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangConstRef) expression).symbol;
-                BLangMapLiteral mapLiteral = (BLangMapLiteral) constantSymbol.literalValue;
-                // Retrieve the field access expression's value.
-                constantValueChecker.checkValue(fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
-            }
-
             if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 if (symbol.tag == SymTag.CONSTANT) {

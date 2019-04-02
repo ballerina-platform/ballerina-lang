@@ -2029,11 +2029,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     typeChecker.checkExpr(expression, env, constant.typeNode.type);
             constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
         } else {
-            if (constant.typeNode == null) {
-                typeChecker.checkExpr(expression, env);
-            } else {
-                typeChecker.checkExpr(expression, env, constant.typeNode.type);
-            }
+            throw new RuntimeException("unsupported node kind");
         }
 
         // Check nested expressions.
