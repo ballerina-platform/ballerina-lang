@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BLangVMErrors;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
@@ -29,7 +31,7 @@ import java.util.Map;
  * @since 0.995.0
  */
 public class ErrorValue extends RuntimeException implements RefValue {
-
+    
     private static final long serialVersionUID = 1L;
     private final BType type;
     private final String reason;
@@ -72,5 +74,10 @@ public class ErrorValue extends RuntimeException implements RefValue {
             return ((RefValue) details).copy(new HashMap<>());
         }
         return details;
+    }
+
+    @Override
+    public void printStackTrace() {
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(this));
     }
 }
