@@ -84,18 +84,18 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Terminating instructions
 
     public void visit(BIRTerminator.GOTO birGoto) {
-        visit(birGoto.pos);
+        writePosition(birGoto.pos);
         buf.writeByte(birGoto.kind.getValue());
         addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
     public void visit(BIRTerminator.Return birReturn) {
-        visit(birReturn.pos);
+        writePosition(birReturn.pos);
         buf.writeByte(birReturn.kind.getValue());
     }
 
     public void visit(BIRTerminator.Branch birBranch) {
-        visit(birBranch.pos);
+        writePosition(birBranch.pos);
         buf.writeByte(birBranch.kind.getValue());
         birBranch.op.accept(this);
         // true:BB
@@ -108,14 +108,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Non-terminating instructions
 
     public void visit(BIRNonTerminator.Move birMove) {
-        visit(birMove.pos);
+        writePosition(birMove.pos);
         buf.writeByte(birMove.kind.getValue());
         birMove.rhsOp.accept(this);
         birMove.lhsOp.accept(this);
     }
 
     public void visit(BIRTerminator.Call birCall) {
-        visit(birCall.pos);
+        writePosition(birCall.pos);
         buf.writeByte(birCall.kind.getValue());
         PackageID calleePkg = birCall.calleePkg;
         int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
@@ -161,7 +161,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
-        visit(birBinaryOp.pos);
+        writePosition(birBinaryOp.pos);
         buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);
         birBinaryOp.rhsOp2.accept(this);
@@ -173,7 +173,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
-        visit(birConstantLoad.pos);
+        writePosition(birConstantLoad.pos);
         buf.writeByte(birConstantLoad.kind.getValue());
         birConstantLoad.type.accept(typeWriter);
         birConstantLoad.lhsOp.accept(this);
@@ -204,7 +204,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(NewStructure birNewStructure) {
-        visit(birNewStructure.pos);
+        writePosition(birNewStructure.pos);
         buf.writeByte(birNewStructure.kind.getValue());
         birNewStructure.type.accept(typeWriter);
         birNewStructure.lhsOp.accept(this);
@@ -217,7 +217,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(NewArray birNewArray) {
-        visit(birNewArray.pos);
+        writePosition(birNewArray.pos);
         buf.writeByte(birNewArray.kind.getValue());
         birNewArray.type.accept(typeWriter);
         birNewArray.lhsOp.accept(this);
@@ -225,7 +225,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
-        visit(birFieldAccess.pos);
+        writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
@@ -233,7 +233,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.TypeCast birTypeCast) {
-        visit(birTypeCast.pos);
+        writePosition(birTypeCast.pos);
         buf.writeByte(birTypeCast.kind.getValue());
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
@@ -241,14 +241,14 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {
         buf.writeByte(birIsLike.kind.getValue());
-        visit(birIsLike.pos);
+        writePosition(birIsLike.pos);
         birIsLike.type.accept(typeWriter);
         birIsLike.lhsOp.accept(this);
         birIsLike.rhsOp.accept(this);
     }
 
     public void visit(BIRNonTerminator.TypeTest birTypeTest) {
-        visit(birTypeTest.pos);
+        writePosition(birTypeTest.pos);
         buf.writeByte(birTypeTest.kind.getValue());
         birTypeTest.type.accept(typeWriter);
         birTypeTest.lhsOp.accept(this);
@@ -264,7 +264,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.NewError birNewError) {
-        visit(birNewError.pos);
+        writePosition(birNewError.pos);
         buf.writeByte(birNewError.kind.getValue());
         birNewError.lhsOp.accept(this);
         birNewError.reasonOp.accept(this);
@@ -272,14 +272,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(BIRTerminator.Panic birPanic) {
-        visit(birPanic.pos);
+        writePosition(birPanic.pos);
         buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
     }
     
     // Positions
 
-    public void visit(DiagnosticPos pos) {
+    public void writePosition(DiagnosticPos pos) {
         int sLine = 1;
         int eLine = 1;
         int sCol = -1;

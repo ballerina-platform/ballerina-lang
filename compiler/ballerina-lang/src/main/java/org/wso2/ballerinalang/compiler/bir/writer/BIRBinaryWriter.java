@@ -133,6 +133,10 @@ public class BIRBinaryWriter {
     }
 
     private void writeFunction(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRFunction birFunction) {
+
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
+        // Write Position
+        insWriter.writePosition(birFunction.pos);
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
         // Function definition or a declaration
@@ -154,7 +158,6 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(localVar.name.value));
         }
 
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
 
         // Write basic blocks
         insWriter.writeBBs(birFunction.basicBlocks);
