@@ -88,8 +88,8 @@ CopySpec copyResourceSpec = copySpec {
 }
 
 task generateIndex(type: JavaExec) {
-    // outputs.dir("$buildDir/lib/tools/lang-server/resources")
-    // outputs.cacheIf { true }
+    outputs.dir("$buildDir/lib/tools/lang-server/resources")
+    outputs.cacheIf { true }
     systemProperty("ballerina.home", "$buildDir")
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
