@@ -48,7 +48,7 @@ dependencies {
     testCompile 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
     testCompile 'org.awaitility:awaitility:3.0.0'
     testCompile 'org.hsqldb:hsqldb:2.4.0'
-    testCompile 'com.h2database:h2:1.4.197'
+    testCompile 'com.h2database:h2:1.4.199'
     testCompile 'io.ballerina.messaging:broker-amqp:0.970.0'
     testCompile project(':observability-test-utils')
     testCompile project(':ballerina-mime')
