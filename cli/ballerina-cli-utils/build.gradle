@@ -13,10 +13,10 @@ task genBalxForPull(type: JavaExec) {
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "src/main/ballerina/packaging_pull"
+    def targetDir = "$buildDir/generated-balx/packaging_pull"
     outputs.dir(targetDir)
     // Do not cache the output
-    outputs.cacheIf { false }
+    outputs.cacheIf { true }
 
     def src = "src/main/ballerina/packaging_pull"
     def fileName = "packaging_pull.bal"
@@ -32,10 +32,10 @@ task genBalxForPush(type: JavaExec) {
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "src/main/ballerina/packaging_push"
+    def targetDir = "$buildDir/generated-balx/packaging_push"
     outputs.dir(targetDir)
     // Do not cache the output
-    outputs.cacheIf { false }
+    outputs.cacheIf { true }
 
     def src = "src/main/ballerina/packaging_push"
     def fileName = "packaging_push.bal"
@@ -51,10 +51,10 @@ task genBalxForSearch(type: JavaExec) {
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "src/main/ballerina/packaging_search"
+    def targetDir = "$buildDir/generated-balx/packaging_search"
     outputs.dir(targetDir)
     // Do not cache the output
-    outputs.cacheIf { false }
+    outputs.cacheIf { true }
 
     def src = "src/main/ballerina/packaging_search"
     def fileName = "packaging_search.bal"
@@ -70,10 +70,10 @@ task genBalxForTokenUpdater(type: JavaExec) {
     main 'org.ballerinalang.cli.utils.GenerateBalx'
     classpath = sourceSets.main.runtimeClasspath
 
-    def targetDir = "src/main/ballerina/packaging_token_updater"
+    def targetDir = "$buildDir/generated-balx/packaging_token_updater"
     outputs.dir(targetDir)
     // Do not cache the output
-    outputs.cacheIf { false }
+    outputs.cacheIf { true }
 
     def src = "src/main/ballerina/packaging_token_updater"
     def fileName = "packaging_token_updater.bal"
@@ -125,31 +125,16 @@ artifacts {
 }
 
 jar {
-    from("src/main/ballerina") {
+    from("$buildDir/generated-balx") {
         into "META-INF/ballerina"
     }
 
     // The jar should be created after balxs for push, pull, search and token updater are created.
     dependsOn = [genBalxForPull, genBalxForPush, genBalxForSearch, genBalxForTokenUpdater]
+}
 
-    // Delete all the generated balx files from the module.
-    doLast {
-        delete fileTree('src/main/ballerina/packaging_pull') {
-            include '**/*.balx'
-        }
-
-        delete fileTree('src/main/ballerina/packaging_push') {
-            include '**/*.balx'
-        }
-
-        delete fileTree('src/main/ballerina/packaging_search') {
-            include '**/*.balx'
-        }
-
-        delete fileTree('src/main/ballerina/packaging_token_updater') {
-            include '**/*.balx'
-        }
-    }
+clean {
+    delete "$buildDir/generated-balx"
 }
 
 description = 'Ballerina - Cli Utils'
