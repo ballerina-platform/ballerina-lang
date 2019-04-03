@@ -37,6 +37,7 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-socket')
+    implementation project(':ballerina-crypto')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':observability-test-utils')

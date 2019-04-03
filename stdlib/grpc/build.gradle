@@ -13,6 +13,7 @@ dependencies {
     implementation 'com.github.jknack:handlebars'
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation project(':ballerina-crypto')
 
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
@@ -29,6 +30,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - gRPC Implementation'
