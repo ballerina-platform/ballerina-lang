@@ -22,11 +22,13 @@ public final class Http2RemoteFlowControlListener implements Http2RemoteFlowCont
             return;
         }
         if (http2ClientChannel.getConnection().remote().flowController().isWritable(stream)) {
-            LOG.warn("{} stream {} writable.", Thread.currentThread().getName(), stream.id());
+            LOG.warn("{} stream {} writable. State {} ", Thread.currentThread().getName(), stream.id(),
+                     stream.state().toString());
             outboundMsgHolder.setStreamWritable(true);
             outboundMsgHolder.getBackPressureObservable().notifyWritable();
         } else {
-            LOG.warn("{} stream {} not writable.", Thread.currentThread().getName(), stream.id());
+            LOG.warn("{} stream {} not writable. State {}. ",
+                     Thread.currentThread().getName(), stream.id(), stream.state().toString());
             outboundMsgHolder.setStreamWritable(false);
         }
     }
