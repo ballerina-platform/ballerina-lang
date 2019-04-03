@@ -260,7 +260,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-codegen</artifactId>
+            <artifactId>ballerina-client-generator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
