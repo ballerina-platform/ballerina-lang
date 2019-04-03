@@ -26,4 +26,7 @@ import java.util.logging.ConsoleHandler;
  * @since 0.94.1
  */
 public class TestLogHandler extends ConsoleHandler {
+    // Log handler class to use in tests.
+    // This does not need a body as the super class has all the functions we need.
+    // Purpose of this is to create a new class as we need two log handlers, but cannot use the same log handler twice.
 }
