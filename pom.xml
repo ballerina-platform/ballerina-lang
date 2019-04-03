@@ -1092,7 +1092,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
+                <artifactId>ballerina-client-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
