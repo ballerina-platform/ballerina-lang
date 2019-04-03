@@ -147,7 +147,6 @@ public class ObjectEquivalencyTest {
         Assert.assertEquals(returns[1].stringValue(), "{age:35, name:\"John\", address:\"\"}");
     }
 
-
     @Test(description = "Test inherent type violation with nil value.",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"" +
