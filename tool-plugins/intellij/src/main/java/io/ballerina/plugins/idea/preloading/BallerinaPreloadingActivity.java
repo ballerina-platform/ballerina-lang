@@ -210,7 +210,7 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
                 ballerinaPath = ballerinaPath.replace("\\bin\\ballerina.bat", "");
             }
         case MAC:
-            ballerinaPath = getByCommand("which ballerina").trim();
+            ballerinaPath = getByCommand("which ballerina");
             // remove ballerina bin from ballerinaPath
             if (!ballerinaPath.isEmpty()) {
                 ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
@@ -236,10 +236,15 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
     private static String getByCommand(String cmd) {
         java.util.Scanner s;
         try {
-            // This returns a symlink which links to the real path.
+            // This may returns a symlink which links to the real path.
             s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
             String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "") : "";
-            // Gets the target file path that the symbolic link points to.
+            LOG.info("Which ballerina command returned: " + path);
+            if (path.isEmpty()) {
+                return path;
+            }
+
+            // Gets the actual file path if there are the symbolic links using "toRealPath()".
             String realPath = new File(path).toPath().toRealPath().toString();
             return realPath;
         } catch (IOException e) {
