@@ -38,6 +38,7 @@ dependencies {
     implementation project(':ballerina-jms')
     implementation project(':ballerina-socket')
     implementation project(':ballerina-crypto')
+    implementation project(':ballerina-time')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-activemq-artemis')
     implementation project(':observability-test-utils')
@@ -68,6 +69,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':observability-test-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile 'org.slf4j:slf4j-jdk14'
