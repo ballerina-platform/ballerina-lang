@@ -28,6 +28,7 @@ import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
  */
 public class RequestWriteStarter {
     private static final Logger LOG = LoggerFactory.getLogger(RequestWriteStarter.class);
+
     private final OutboundMsgHolder outboundMsgHolder;
     private final Http2ClientChannel http2ClientChannel;
 
@@ -37,21 +38,29 @@ public class RequestWriteStarter {
     }
 
     public void startWritingContent() {
-        if (!outboundMsgHolder.getRequest().isPassthrough()) {
-            outboundMsgHolder.getBackPressureObservable().setListener(new DefaultBackPressureListener());
-        }
+        setBackPressureListener();
         outboundMsgHolder.setFirstContentWritten(false);
-        outboundMsgHolder.getRequest().getHttpContentAsync().setMessageListener((httpContent) -> {
-            if (!outboundMsgHolder.isStreamWritable()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("In thread {}. Stream is not writable.", Thread.currentThread().getName());
-                }
-                outboundMsgHolder.getBackPressureObservable().notifyUnWritable();
-            }
+        outboundMsgHolder.getRequest().getHttpContentAsync().setMessageListener(httpContent -> {
+            checkStreamUnwritability();
             http2ClientChannel.getChannel().eventLoop().execute(() -> {
                 Http2Content http2Content = new Http2Content(httpContent, outboundMsgHolder);
                 http2ClientChannel.getChannel().write(http2Content);
             });
         });
+    }
+
+    private void setBackPressureListener() {
+        if (!outboundMsgHolder.getRequest().isPassthrough()) {
+            outboundMsgHolder.getBackPressureObservable().setListener(new DefaultBackPressureListener());
+        }
+    }
+
+    private void checkStreamUnwritability() {
+        if (!outboundMsgHolder.isStreamWritable()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("In thread {}. Stream is not writable.", Thread.currentThread().getName());
+            }
+            outboundMsgHolder.getBackPressureObservable().notifyUnWritable();
+        }
     }
 }
