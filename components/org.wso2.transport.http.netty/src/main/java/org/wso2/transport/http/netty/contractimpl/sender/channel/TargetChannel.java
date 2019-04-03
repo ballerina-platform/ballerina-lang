@@ -222,6 +222,9 @@ public class TargetChannel {
                 .setSenderState(new SendingHeaders(messageStateContext, this, httpVersion, chunkConfig,
                                                    httpInboundResponseFuture));
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent -> {
+            //TODO:Until the listener is set, content writing happens in I/O thread. If writability changed
+            //while in I/O thread and DefaultBackPressureListener is engaged, there's a chance of I/O thread
+            //getting blocked. Cannot recreate, only a possibility.
             Util.checkUnWritabilityAndNotify(targetHandler.getContext(), backpressureHandler);
             this.channel.eventLoop().execute(() -> {
                 try {

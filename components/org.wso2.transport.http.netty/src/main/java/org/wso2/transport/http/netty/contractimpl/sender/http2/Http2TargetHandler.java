@@ -59,9 +59,20 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-        if (msg instanceof OutboundMsgHolder) {
-            OutboundMsgHolder outboundMsgHolder = (OutboundMsgHolder) msg;
-            new Http2TargetHandler.Http2RequestWriter(outboundMsgHolder).writeContent(ctx);
+        if (msg instanceof Http2Content) {
+            Http2Content http2Content = (Http2Content) msg;
+            try {
+                new Http2TargetHandler.Http2RequestWriter(http2Content.getOutboundMsgHolder()).
+                    writeContent(ctx, http2Content.getHttpContent());
+            } catch (Http2NoMoreStreamIdsException ex) {
+                //Remove connection from the pool
+                http2ClientChannel.removeFromConnectionPool();
+                LOG.warn("Channel is removed from the connection pool : {}", ex.getMessage(), ex);
+                http2Content.getOutboundMsgHolder().getResponseFuture().notifyHttpListener(ex);
+            } catch (Http2Exception ex) {
+                LOG.error("Failed to send the request : {}", ex.getMessage(), ex);
+                http2Content.getOutboundMsgHolder().getResponseFuture().notifyHttpListener(ex);
+            }
         } else if (msg instanceof Http2Reset) {
             Http2Reset resetMsg = (Http2Reset) msg;
             resetStream(ctx, resetMsg.getStreamId(), resetMsg.getError());
@@ -139,35 +150,20 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             }
         }
 
-        void writeContent(ChannelHandlerContext ctx) {
-            httpOutboundRequest.getHttp2MessageStateContext()
-                    .setSenderState(new SendingHeaders(Http2TargetHandler.this, this));
-            // Write Content
-            httpOutboundRequest.getHttpContentAsync().setMessageListener(httpContent ->
-                    http2ClientChannel.getChannel().eventLoop().execute(() -> {
-                        try {
-                            writeOutboundRequest(ctx, httpContent);
-                        } catch (Http2NoMoreStreamIdsException ex) {
-                            //Remove connection from the pool
-                            http2ClientChannel.removeFromConnectionPool();
-                            LOG.warn("Channel is removed from the connection pool : {}", ex.getMessage(), ex);
-                            outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
-                        } catch (Http2Exception ex) {
-                            LOG.error("Failed to send the request : " + ex.getMessage(), ex);
-                            outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
-                        }
-                    }));
-        }
-
-        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
+        void writeContent(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
             try {
+                if (!outboundMsgHolder.isFirstContentWritten()) {
+                    httpOutboundRequest.getHttp2MessageStateContext()
+                        .setSenderState(new SendingHeaders(Http2TargetHandler.this, this));
+                    outboundMsgHolder.setFirstContentWritten(true);
+                }
                 http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
             } catch (RuntimeException ex) {
                 httpOutboundRequest.getHttp2MessageStateContext()
-                        .setSenderState(new SendingEntityBody(Http2TargetHandler.this, this));
+                    .setSenderState(new SendingEntityBody(Http2TargetHandler.this, this));
                 httpOutboundRequest.getHttp2MessageStateContext()
-                        .getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
-                        http2MessageStateContext);
+                    .getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
+                                                               http2MessageStateContext);
             }
         }
 
