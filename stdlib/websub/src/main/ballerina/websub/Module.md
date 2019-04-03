@@ -79,6 +79,66 @@ var result = websub:startHub(new http:Listener(8080), hubConfiguration = hubConf
 
 Any subscriptions added at the hub will now be available even when the hub is restarted.
 
+##### Enabling Basic Auth support for the hub
+
+The Ballerina WebSub Hub can be secured using basic authentication by enforcing authorization. Hub listener and the 
+Hub service need AuthProvider and authConfig configurations respectively. The auth provider stores username, password
+for authentication and scopes for authorization. User can specify AuthProvider as follows pass it along with the 
+hubListenerConfig when creating hub.
+
+``` ballerina
+http:AuthProvider basicAuthProvider = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
+
+http:ServiceEndpointConfiguration hubListenerConfig = {
+    authProviders: [basicAuthProvider],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        },
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
+    }
+};
+
+var val = websub:startHub(new http:Listener (9191, config =  hubListenerConfig));
+```
+In addition to authProviders, User needs to specify the authConfig properties at service config level. 
+It can be populated by providing authConfig via a toml formatted file under `b7a.websub.hub.auth` alias.
+Recognized users can also be mentioned in the same file which permits auth providers to read. 
+
+```
+["b7a.websub.hub.auth"]
+enabled=true  // enables the authentication
+scopes="scope1" // defines the scope of possible users
+
+["b7a.users"]
+
+["b7a.users.tom"]
+password="1234"
+scopes="scope1"
+```
+
+Once the hub is secured over basic auth, the subscriber should provide auth config in subscriptionClientConfig 
+along with proper credentials
+```ballerina
+@websub:SubscriberServiceConfig {
+    path: "/ordereventsubscriber",
+    subscriptionClientConfig: {
+        auth: {
+            scheme: http:BASIC_AUTH,
+            username: "tom",
+            password: "1234"
+        }
+    }
+}
+```
+
 #### Publisher
 
 Ballerina WebSub publishers can use utility functions to add WebSub link headers indicating the hub and topic 
