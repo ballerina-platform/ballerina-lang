@@ -122,7 +122,7 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
 
             if (validReturnType && ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 Optional<BLangConstant> rootDescriptor = Optional.empty();
-                Optional<BLangFunction> descriptorMapFunc = Optional.empty();;
+                Optional<BLangFunction> descriptorMapFunc = Optional.empty();
                 if (serviceNode.parent.getKind() == NodeKind.PACKAGE) {
                     BLangPackage packageNode = (BLangPackage) serviceNode.parent;
                     rootDescriptor = ((ArrayList) packageNode.constants).stream().filter(
