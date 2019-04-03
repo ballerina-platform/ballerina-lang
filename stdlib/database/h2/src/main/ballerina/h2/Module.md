@@ -4,16 +4,16 @@ This module provides the functionality required to access and manipulate data st
 
 ### Client
 
-To access a database, you must first create a `client` object. Create a client of the H2 Client type (i.e., `h2:Client`)
-and provide the necessary connection parameters.
+To access a database, you must first create a `client` object. A sample for creating an H2 client can be
+found below.
 
 ### Connection pool handling
 
 There are 3 possible scenarios for connection pool handling.
 
 1. Global, shareable default connection pool
-If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database if a
-connection pool matching with the properties you provided doesn't exist already.
+If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
+a connection pool matching with the properties you provided already exists.
 
 ```ballerina
 h2:Client testDB = new({
