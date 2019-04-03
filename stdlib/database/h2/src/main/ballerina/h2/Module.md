@@ -8,9 +8,10 @@ You need to create a `client` object to access a database. The following is a sa
 
 ### Handling the connection pool
 
-There are 3 possible ways of handling the connection pool.
+There are 3 possible usage scenarios for a connection pool.
 
-1. Global, shareable default connection pool
+**1. Globally shareable connection pool**
+
 If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
 a connection pool matching the properties you provided already exists.
 
@@ -23,7 +24,8 @@ h2:Client testDB = new({
 });
 ```
 
-2. Unshareable connection pool owned by the client
+**2. Unshareable connection pool owned by the client**
+
 If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
 ```ballerina
@@ -36,7 +38,8 @@ h2:Client testDB = new({
 });
 ```
 
-3. Local shareable connection pool
+**3. Locally shareable connection pool**
+
 If you create a record of the `sql:PoolOptions` type and reuse that in the configuration of multiple clients, a shared
 connection pool will be created for each set of clients that connect to the same database instance with the same set
 of properties.
@@ -73,7 +76,7 @@ testDB3 = new({
 });
 ```
 
-The default values of the connection pool properties can be found in the `sql:PoolOptions` type.
+The default values of the connection pool properties can be found in the documentation of the `sql:PoolOptions` type.
 
 ### Database operations
 

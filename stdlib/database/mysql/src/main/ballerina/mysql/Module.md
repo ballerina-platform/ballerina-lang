@@ -9,11 +9,14 @@ found below.
 
 ### Handling the connection pool
 
-There are 3 possible ways of handling the connection pool.
+There are 3 possible usage scenarios for a connection pool.
 
-1. Global, shareable default connection pool
+**1. The globally shareable connection pool**
+
 If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
 a connection pool matching the properties you provided already exists.
+
+>**Info:**This is the connection pool that is used by default
 
 ```ballerina
 mysql:Client testDB = new({
@@ -26,7 +29,8 @@ mysql:Client testDB = new({
 });
 ```
 
-2. Client owned, unshareable connection pool
+**2. An unshareable connection pool owned by the client**
+
 If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
 ```ballerina
@@ -41,8 +45,9 @@ mysql:Client testDB = new({
 });
 ```
 
-3. Local shareable connection pool
-If you create a record of type `sql:PoolOptions` and reuse that in the configuration of multiple clients, a shared
+**3. A locally shareable connection pool**
+
+If you create a record of the `sql:PoolOptions` type and reuse that in the configuration of multiple clients, a shared
 connection pool will be created for each set of clients that connect to the same database instance with the same set of
 properties.
 
@@ -84,15 +89,15 @@ testDB3 = new({
 });
 ```
 
-The default values of the connection pool properties can be found in the `sql:PoolOptions` type.
+The default values of the connection pool properties can be found in the documentation of the `sql:PoolOptions` type.
 
 ### Database operations
 
 Once the client is created, the database operations can be executed through that client. This module provides support for
-creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch
-updating data. For more details on the supported remote functions, see the documentation of the sql module.
+creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and updating
+data in batches. For more details on the supported remote functions, see the documentation of the sql module.
 
-Also the details of the SQL data types and query parameters relevant to these database operations can be found in the
+Also, the details of the SQL data types and query parameters relevant to these database operations can be found in the
 documentation of the `sql` module.
 
 ## Samples
