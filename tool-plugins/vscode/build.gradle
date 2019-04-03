@@ -7,7 +7,7 @@ configurations {
     }
 }
 
-task npmBuild(type: Exec) {
+task npmBuild(type: Exec, overwrite: true) {
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
 
@@ -18,17 +18,12 @@ task npmBuild(type: Exec) {
     }
 }
 
+task assemble(overwrite: true) {
+    dependsOn npmInstall
+    dependsOn npmBuild
+}
+
+
 dependencies {
     dist project(':composer-library')
-}
-
-build {
-    dependsOn npmBuild
-    dependsOn 'test'
-}
-
-test {
-    onlyIf {
-        !npmInstall.state.upToDate || !npmBuild.state.upToDate
-    }
 }
