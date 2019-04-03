@@ -44,7 +44,7 @@ public class BallerinaStaticMatchIdentifierLiteralImpl extends BallerinaStaticMa
   @Override
   @NotNull
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

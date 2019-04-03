@@ -22,6 +22,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.5'
     implementation 'commons-io:commons-io:2.6'
     implementation 'org.slf4j:slf4j-api:1.7.22'
+    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
     testCompile 'org.testng:testng:6.13.1'

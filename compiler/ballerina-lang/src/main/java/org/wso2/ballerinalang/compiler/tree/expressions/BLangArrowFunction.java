@@ -25,10 +25,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -43,6 +46,9 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     public BType funcType;
     public IdentifierNode functionName;
     public BLangInvokableNode function;
+
+    // Used to track uninitialized closure variables in DataFlowAnalyzer.
+    public Set<ClosureVarSymbol> closureVarSymbols = new LinkedHashSet<>();
 
     @Override
     public List<BLangSimpleVariable> getParameters() {

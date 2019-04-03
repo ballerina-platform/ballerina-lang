@@ -50,7 +50,7 @@ public class BallerinaStaticMatchOrExpressionImpl extends BallerinaStaticMatchLi
   @Override
   @NotNull
   public PsiElement getPipe() {
-    return notNullChild(findChildByType(PIPE));
+    return findNotNullChildByType(PIPE);
   }
 
 }

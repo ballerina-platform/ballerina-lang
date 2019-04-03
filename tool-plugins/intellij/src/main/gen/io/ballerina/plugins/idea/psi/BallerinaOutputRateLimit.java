@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaOutputRateLimit extends BallerinaCompositeElement {
+public interface BallerinaOutputRateLimit extends PsiElement {
 
   @Nullable
   BallerinaTimeScale getTimeScale();
