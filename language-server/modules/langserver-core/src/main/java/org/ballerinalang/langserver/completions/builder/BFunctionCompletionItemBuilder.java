@@ -130,9 +130,9 @@ public final class BFunctionCompletionItemBuilder {
         if (!(bInvokableSymbol.retType instanceof BNilType)
                 && bInvokableSymbol.retType != null
                 && bInvokableSymbol.retType.tsymbol != null) {
-            documentation = CommonUtil.MARKDOWN_MARKUP_KIND + documentation + CommonUtil.MD_LINE_SEPARATOR
+            documentation = documentation + CommonUtil.MD_LINE_SEPARATOR
                     + CommonUtil.MD_LINE_SEPARATOR + "**Return**" + CommonUtil.MD_LINE_SEPARATOR
-                    + bInvokableSymbol.retType.tsymbol.toString();
+                    + bInvokableSymbol.retType.toString();
         }
         docMarkupContent.setValue(documentation);
 
