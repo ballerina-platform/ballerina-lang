@@ -78,7 +78,6 @@ public class JVMCodeGen {
     private static final String functionName = "generateJarBinary";
     private static final String JAR_ENTRIES = "jarEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
-    private static final String BALLERINA_RUNTIME_JAR_NAME = "ballerina-runtime";
 
     public static byte[] generateJarBinary(BLangPackage bLangPackage, CompilerContext context, String packagePath) {
         PackageID packageID = bLangPackage.packageID;
@@ -133,20 +132,23 @@ public class JVMCodeGen {
                 target.write(entryContent);
                 target.closeEntry();
             }
-            writeBallerinaRuntimeDependency(target);
+
+            for (RuntimeDependency dependency : RuntimeDependency.values()) {
+                writeBallerinaRuntimeDependency(target, dependency.getName());
+            }
         }
 
         return baos.toByteArray();
     }
 
-    private static void writeBallerinaRuntimeDependency(JarOutputStream target) throws IOException {
+    private static void writeBallerinaRuntimeDependency(JarOutputStream target, String jarName) throws IOException {
         String ballerinaHome = System.getProperty(BALLERINA_HOME);
         Path ballerinaRuntimeLib = Paths.get(ballerinaHome, BALLERINA_HOME_BRE, BALLERINA_HOME_LIB);
 
-        File ballerinaRuntimeJar =  Arrays.stream(Objects.requireNonNull(ballerinaRuntimeLib.toFile().listFiles()))
-                .filter(file -> file.getName().contains(BALLERINA_RUNTIME_JAR_NAME) && !file.getName().contains("api"))
-                .findFirst()
-                .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
+        File ballerinaRuntimeJar = Arrays.stream(Objects.requireNonNull(ballerinaRuntimeLib.toFile().listFiles()))
+                                          .filter(file -> file.getName().contains(jarName) && !file.getName().contains("api"))
+                                          .findFirst()
+                                          .orElseThrow(() -> new BLangCompilerException(jarName +" jar is not found"));
 
         ZipFile zipFile = new ZipFile(ballerinaRuntimeJar);
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
