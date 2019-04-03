@@ -823,7 +823,7 @@ type BalToJVMIndexMap object {
     }
 
     function getVarRefName(bir:VariableDcl varDcl) returns string {
-        return io:sprintf("%s", varDcl);
+        return varDcl.name.value;
     }
 };
 

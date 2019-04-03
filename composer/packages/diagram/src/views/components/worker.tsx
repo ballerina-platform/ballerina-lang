@@ -22,6 +22,7 @@ export const Worker: React.SFC<WorkerProps> = ({ model, startY, client }) => {
             y={startY} label="start" />
         <LifeLine title={workerViewState.name} icon="worker"
             model={workerViewState.lifeline.bBox} astModel={model} />
-        {functionNode.body && <Block model={functionNode.body} />}
+        {functionNode.body && <Block model={functionNode.body}
+            visibleEndpoints={functionNode.VisibleEndpoints!.filter((ep) => ep.isLocal)} />}
     </g>;
 };
