@@ -4998,9 +4998,21 @@ public class BVM {
         }
 
         BArrayType sourceArrayType = (BArrayType) sourceType;
-        if (sourceArrayType.getState() != targetType.getState() || sourceArrayType.getSize() != targetType.getSize()) {
-            return false;
+
+        switch (sourceArrayType.getState()) {
+            case UNSEALED:
+                if (targetType.getState() != BArrayState.UNSEALED) {
+                    return false;
+                }
+                break;
+            case CLOSED_SEALED:
+                if (targetType.getState() == BArrayState.CLOSED_SEALED &&
+                        sourceArrayType.getSize() != targetType.getSize()) {
+                    return false;
+                }
+                break;
         }
+
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
