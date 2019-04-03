@@ -11,9 +11,9 @@ is updated by the topic's publisher.
  
  
 ### Basic flow with WebSub
-1. The subscriber discovers the topics it needs to subscribe to in order to receive updates/content and discovers the hub(s) at which it can subscribe.
+1. The subscriber discovers from the publisher, the topic it needs to subscribe to and the hub(s) that deliver notifications on updates of the topic.
 
-2. The subscriber sends a subscription request to a hub specifying the topic it needs to receive notifications for along 
+2. The subscriber sends a subscription request to one or more discovered hub(s) specifying the discovered topic along 
  with other subscription parameters such as:
     - The callback URL to which content is expected to be delivered.
     - (Optional) The lease period (in seconds) the subscriber wants the subscription to stay active.
@@ -392,8 +392,7 @@ be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an
  
 #### Sample Specific Subscriber Service
 
-In order to introduce a specific subscriber service, a new Ballerina `listener` needs to be introduced, wrapping the 
-generic `ballerina/websub:Listener` and specifying the extension configuration described above.
+In order to introduce a specific subscriber service, a new Ballerina `listener` needs to be introduced. This `listener` should wrap the generic `ballerina/websub:Listener` and include the extension configuration described above.
 
 The following example is for a service provider that
 - allows registering webhooks to receive notifications when an issue is opened or assigned
