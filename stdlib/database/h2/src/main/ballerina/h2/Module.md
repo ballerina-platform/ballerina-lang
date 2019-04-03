@@ -12,8 +12,10 @@ There are 3 possible usage scenarios for a connection pool.
 
 **1. The globally shareable connection pool**
 
-If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
+If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database, unless
 a connection pool matching the properties you provided already exists.
+
+>**Info:** This is the connection pool that is used by default.
 
 ```ballerina
 h2:Client testDB = new({
@@ -76,7 +78,7 @@ testDB3 = new({
 });
 ```
 
-The default values of the connection pool properties can be found in the documentation of the `sql:PoolOptions` type.
+For the default values of the connection pool properties, see the documentation of the `sql:PoolOptions` type.
 
 ### Handling database operations
 
