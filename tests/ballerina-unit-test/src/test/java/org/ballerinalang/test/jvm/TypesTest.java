@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.util.exceptions.JBLangRuntimeException;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -522,7 +522,7 @@ public class TypesTest {
         Assert.assertEquals(returns[0].stringValue(), "b");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {JBLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
                     "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
@@ -549,7 +549,7 @@ public class TypesTest {
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { JBLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
@@ -568,31 +568,31 @@ public class TypesTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { JBLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { JBLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { JBLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { JBLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = { JBLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");

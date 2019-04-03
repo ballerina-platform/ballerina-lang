@@ -38,7 +38,6 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @since 0.995.0
  */
-@Ignore
 public class ErrorTest {
 
     private CompileResult compileResult;
