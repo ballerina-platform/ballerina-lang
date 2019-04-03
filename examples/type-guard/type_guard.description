@@ -1,2 +1,4 @@
-// A type-guard check (also known as `is` check) is a type test construct that allows selective code execution based on
+// A type guard (based on the type test) is a construct that allows selective code execution based on
 // the type of the expression that is being tested.
+// The type of the expression within the type guard (except for global variables) would be a narrowed type based on the
+// relevant type test.
