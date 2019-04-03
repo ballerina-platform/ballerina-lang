@@ -659,20 +659,33 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangLocalVarRef astVarRefExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
+        BSymbol varSymbol = astVarRefExpr.symbol;
 
         if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(varSymbol));
             emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astVarRefExpr.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
-            BIROperand fromVarRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+
+            BIRVariableDcl varDecl;
+            if (isSelfVar(varSymbol)) {
+                varDecl = new BIRVariableDcl(varSymbol.type, varSymbol.name, VarScope.FUNCTION, VarKind.SELF);
+            } else {
+                varDecl = this.env.symbolVarMap.get(varSymbol);
+            }
+            BIROperand fromVarRef = new BIROperand(varDecl);
+
             emit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
+    }
+
+    private boolean isSelfVar(BSymbol symbol) {
+        return Names.SELF.equals(symbol.name);
     }
 
     public void visit(BLangPackageVarRef astPackageVarRefExpr) {
@@ -914,7 +927,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
-
+        InstructionKind insKind;
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -924,8 +937,13 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, InstructionKind.MAP_STORE,
-                    varRefRegIndex, keyRegIndex, rhsOp));
+            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+                insKind = InstructionKind.OBJECT_STORE;
+            } else {
+                insKind = InstructionKind.MAP_STORE;
+            }
+            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
+                    rhsOp));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);
@@ -938,8 +956,13 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
-                    keyRegIndex, varRefRegIndex));
+            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+                insKind = InstructionKind.OBJECT_LOAD;
+            } else {
+                insKind = InstructionKind.MAP_LOAD;
+            }
+            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
+                    varRefRegIndex));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;

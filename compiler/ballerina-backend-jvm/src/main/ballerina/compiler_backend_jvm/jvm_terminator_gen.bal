@@ -176,7 +176,7 @@ type TerminatorGenerator object {
 
         // load self
         self.mv.visitVarInsn(ALOAD, argIndex);
-        self.mv.visitTypeInsn(CHECKCAST, ABSTRACT_OBJECT_VALUE);
+        self.mv.visitTypeInsn(CHECKCAST, OBJECT_VALUE);
 
         // load the strand
         self.mv.visitVarInsn(ALOAD, 0);
@@ -195,18 +195,19 @@ type TerminatorGenerator object {
         self.mv.visitLdcInsn(methodName);
 
         // create an Object[] for the rest params
-        int argsCount = callIns.args.length();
-        self.mv.visitLdcInsn(argsCount - 1);
+        int argsCount = callIns.args.length() - 1;
+        self.mv.visitLdcInsn(argsCount);
         self.mv.visitInsn(L2I);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
-        int i = 1;
+        int i = 0;
         while (i < argsCount) {
             self.mv.visitInsn(DUP);
             self.mv.visitLdcInsn(i);
             self.mv.visitInsn(L2I);
 
-            bir:VarRef? arg = callIns.args[i];
+            // i + 1 is used since we skip the first argument (self)
+            bir:VarRef? arg = callIns.args[i + 1];
             _ = self.visitArg(arg);
 
             // Add the to the rest params array
@@ -217,7 +218,7 @@ type TerminatorGenerator object {
 
         // call method
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, ABSTRACT_OBJECT_VALUE, "call", methodDesc, false);
+        self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
         bir:BType? returnType = callIns.lhsOp.typeValue;
         if (returnType is ()) {

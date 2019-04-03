@@ -190,14 +190,21 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
             } else if (inst is bir:NewInstance) {
                 instGen.generateObjectNewIns(inst);
             } else if (inst is bir:FieldAccess) {
-                if (inst.kind == "MAP_STORE") {
+                if (inst.kind == bir:INS_KIND_MAP_STORE) {
                     instGen.generateMapStoreIns(inst);
-                } else if (inst.kind == "MAP_LOAD") {
+                } else if (inst.kind == bir:INS_KIND_MAP_LOAD) {
                     instGen.generateMapLoadIns(inst);
-                } else if (inst.kind == "ARRAY_STORE") {
+                } else if (inst.kind == bir:INS_KIND_ARRAY_STORE) {
                     instGen.generateArrayStoreIns(inst);
-                } else if (inst.kind == "ARRAY_LOAD") {
+                } else if (inst.kind == bir:INS_KIND_ARRAY_LOAD) {
                     instGen.generateArrayValueLoad(inst);
+                } else if (inst.kind == bir:INS_KIND_OBJECT_STORE) {
+                    instGen.generateObjectStoreIns(inst);
+                } else if (inst.kind == bir:INS_KIND_OBJECT_LOAD) {
+                    instGen.generateObjectLoadIns(inst);
+                } else {
+                    error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
+                    panic err;
                 }
             } else if (inst is bir:TypeTest) {
                 instGen.generateTypeTestIns(inst);

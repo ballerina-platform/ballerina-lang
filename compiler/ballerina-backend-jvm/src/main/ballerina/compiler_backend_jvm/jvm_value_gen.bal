@@ -127,17 +127,15 @@ public type ObjectGenerator object {
                 // load parameters
                 mv.visitVarInsn(ALOAD, 3);
 
-                // load j-th parameter
+                // load j'th parameter
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-
                 addUnboxInsn(mv, paramType);
-
-                mv.visitInsn(POP);
                 j += 1;
             }
 
+            // use index access, since retType can be nil.
             bir:BType? retType = func.funcType["retType"];
             string methodSig = getMethodDesc(paramTypes, retType);
             mv.visitMethodInsn(INVOKEVIRTUAL, className, self.getName(func), methodSig, false);
@@ -316,10 +314,10 @@ function quickSort(NamedNode?[] arr, int low, int high) {
 
 function partition(NamedNode?[] arr, int begin, int end) returns int {
     int pivot = getHash(arr[end]);
-    int i = (begin-1);
+    int i = begin - 1;
 
     int j = begin;
-    while ( j < end) {
+    while (j < end) {
         if (getHash(arr[j]) <= pivot) {
             i += 1;
             swap(arr, i, j);
