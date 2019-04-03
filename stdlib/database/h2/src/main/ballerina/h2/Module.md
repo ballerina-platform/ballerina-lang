@@ -4,7 +4,7 @@ This module provides the functionality required to access and manipulate data st
 
 ### Client
 
-To access a database, you must first create a `client` object. A sample for creating an H2 client can be
+You need to create a `client` object to access a database. The following is a sample for creating an H2 client.
 found below.
 
 ### Connection pool handling
