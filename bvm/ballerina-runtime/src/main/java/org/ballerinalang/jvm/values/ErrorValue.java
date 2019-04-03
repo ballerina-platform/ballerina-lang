@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,12 @@ public class ErrorValue extends RuntimeException implements RefValue {
         // Error values are immutable and frozen, copy give same value.
         return this;
     }
+
+    @Override
+    public void attemptFreeze(Status freezeStatus) {
+        // do nothing, since error types are always frozen
+    }
+
 
     @Override
     public String toString() {
