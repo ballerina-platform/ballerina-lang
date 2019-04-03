@@ -2,18 +2,18 @@
 
 This module provides the functionality required to access and manipulate data stored in a MySQL database. 
 
-### Endpoint 
+### Client
 
-To access a database, you must first create a `client` object. A sample for creating a MySQL client can be
+You need to create a `client` object to access a database. A sample for creating a MySQL client can be
 found below.
 
-### Connection pool handling
+### Handling the connection pool
 
-There are 3 possible scenarios for connection pool handling.
+There are 3 possible ways of handling the connection pool.
 
 1. Global, shareable default connection pool
 If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
-a connection pool matching with the properties you provided already exists.
+a connection pool matching the properties you provided already exists.
 
 ```ballerina
 mysql:Client testDB = new({
@@ -42,9 +42,9 @@ mysql:Client testDB = new({
 ```
 
 3. Local shareable connection pool
-If you create a record of type `sql:PoolOptions` and reuse that in the configuration of multiple clients, for each
-set of clients that connect to the same database instance with the same set of properties, a shared connection pool
-will be created.
+If you create a record of type `sql:PoolOptions` and reuse that in the configuration of multiple clients, a shared
+connection pool will be created for each set of clients that connect to the same database instance with the same set of
+properties.
 
 ```ballerina
 mysql:Client testDB1;
@@ -84,15 +84,16 @@ testDB3 = new({
 });
 ```
 
-The default values for the connection pool properties can be found in the `sql:PoolOptions` type.
+The default values of the connection pool properties can be found in the `sql:PoolOptions` type.
 
 ### Database operations
 
-Once the client is created, database operations can be executed through that client. This module provides support for
+Once the client is created, the database operations can be executed through that client. This module provides support for
 creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch
-updating data. For more details on the supported remote functions refer to the `sql` module. Also the details of the
-SQL data types and query parameters relevant to these database operations can be found in the documentation of the
-`sql` module.
+updating data. For more details on the supported remote functions, see the documentation of the sql module.
+
+Also the details of the SQL data types and query parameters relevant to these database operations can be found in the
+documentation of the `sql` module.
 
 ## Samples
 
