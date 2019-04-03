@@ -15,47 +15,47 @@ public function mockPrint(any... s) {
     counter += 1;
 }
 
-boolean IS_WINDOWS = system:getEnv("OS") != "";
+boolean isWindows = system:getEnv("OS") != "";
 
 @test:Config
 function testFunc() {
     // Invoking the main function
     main();
 
-    string out1;
-    string out2;
-    string out3;
-    string out4;
-    string out5;
-    string out6;
-    string out7;
-    string out8;
+    string absolutePath;
+    string filename;
+    string parent;
+    string normalized;
+    string elements;
+    string buildPath;
+    string extension;
+    string relative;
 
-    if (IS_WINDOWS) {
-        out1 ="/A/B/C is absolute: false";
-        out2 ="Filename of /A/B/C: C";
-        out3 ="Parent of /A/B/C: \\A\\B";
-        out4 ="Normalized path of foo/../bar: bar";
-        out5 ="Path elements of /A/B/C: [\"A\", \"B\", \"C\"]";
-        out6 ="Built path of '/', 'foo', 'bar': \\foo\\bar";
-        out7 ="Extension of path.bal: bal";
-        out8 ="Relative path between 'a/b/c' and 'a/c/d': ..\\..\\c\\d";
+    if (isWindows) {
+        absolutePath ="/A/B/C is absolute: false";
+        filename ="Filename of /A/B/C: C";
+        parent ="Parent of /A/B/C: \\A\\B";
+        normalized ="Normalized path of foo/../bar: bar";
+        elements ="Path elements of /A/B/C: [\"A\", \"B\", \"C\"]";
+        buildPath ="Built path of '/', 'foo', 'bar': \\foo\\bar";
+        extension ="Extension of path.bal: bal";
+        relative ="Relative path between 'a/b/c' and 'a/c/d': ..\\..\\c\\d";
     } else {
-        out1 ="/A/B/C is absolute: true";
-        out2 ="Filename of /A/B/C: C";
-        out3 ="Parent of /A/B/C: /A/B";
-        out4 ="Normalized path of foo/../bar: bar";
-        out5 ="Path elements of /A/B/C: [\"A\", \"B\", \"C\"]";
-        out6 ="Built path of '/', 'foo', 'bar': /foo/bar";
-        out7 ="Extension of path.bal: bal";
-        out8 ="Relative path between 'a/b/c' and 'a/c/d': ../../c/d";
+        absolutePath ="/A/B/C is absolute: true";
+        filename ="Filename of /A/B/C: C";
+        parent ="Parent of /A/B/C: /A/B";
+        normalized ="Normalized path of foo/../bar: bar";
+        elements ="Path elements of /A/B/C: [\"A\", \"B\", \"C\"]";
+        buildPath ="Built path of '/', 'foo', 'bar': /foo/bar";
+        extension ="Extension of path.bal: bal";
+        relative ="Relative path between 'a/b/c' and 'a/c/d': ../../c/d";
     }
-    test:assertEquals(outputs[0], out1);
-    test:assertEquals(outputs[1], out2);
-    test:assertEquals(outputs[2], out3);
-    test:assertEquals(outputs[3], out4);
-    test:assertEquals(outputs[4], out5);
-    test:assertEquals(outputs[5], out6);
-    test:assertEquals(outputs[6], out7);
-    test:assertEquals(outputs[7], out8);
+    test:assertEquals(outputs[0], absolutePath);
+    test:assertEquals(outputs[1], filename);
+    test:assertEquals(outputs[2], parent);
+    test:assertEquals(outputs[3], normalized);
+    test:assertEquals(outputs[4], elements);
+    test:assertEquals(outputs[5], buildPath);
+    test:assertEquals(outputs[6], extension);
+    test:assertEquals(outputs[7], relative);
 }

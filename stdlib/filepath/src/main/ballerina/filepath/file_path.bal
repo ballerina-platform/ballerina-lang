@@ -18,9 +18,9 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/system;
 
-boolean IS_WINDOWS = system:getEnv("OS") != "";
-string PATH_SEPARATOR = IS_WINDOWS ? "\\" : "/";
-string PATH_LIST_SEPARATOR = IS_WINDOWS ? ";" : ":";
+boolean isWindows = system:getEnv("OS") != "";
+string pathSeparator = isWindows ? "\\" : "/";
+string pathListSeparator = isWindows ? ";" : ":";
 
 # Retrieves the absolute path from the provided location.
 #
@@ -32,14 +32,14 @@ public function absolute(@sensitive string path) returns string|error = external
 #
 # + return - String value of path separator
 public function getPathSeparator() returns string {
-    return PATH_SEPARATOR;
+    return pathSeparator;
 }
 
 # Returns path list separator of underline operating system.
 #
 # + return - String value of path list separator
 public function getPathListSeparator() returns string {
-    return PATH_LIST_SEPARATOR;
+    return pathListSeparator;
 }
 
 # Reports whether the path is absolute.
@@ -53,7 +53,7 @@ public function isAbsolute(string path) returns boolean|error {
     if (path.length() <= 0) {
         return false;
     }
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return check getVolumnNameLength(path) > 0;
     } else {
         return check charAt(path, 0) == "/";
@@ -76,7 +76,7 @@ public function filename(string path) returns string|error {
     if (count == 1 && validatedPath.length() > 0) {
         if !(check isAbsolute(validatedPath)) {
             return validatedPath;
-        } else if (IS_WINDOWS) {
+        } else if (isWindows) {
             // if windows path is absolute and doesn't contain path separator, 
             // there is no filename. 
             return "";
@@ -191,7 +191,7 @@ public function normalize(string path) returns string|error {
     i = 0;
     while (i < count) {
         if (!ignore[i] && (offset <= offsetIndexes[i])) {
-            normalizedPath = normalizedPath + parts[i] + PATH_SEPARATOR;
+            normalizedPath = normalizedPath + parts[i] + pathSeparator;
         }
         i = i + 1;
     }
@@ -229,7 +229,7 @@ public function split(string path) returns string[]|error {
 # + parts - String values of file path parts.
 # + return - String value of file path.
 public function build(string... parts) returns string|error {
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return check buildWindowsPath(...parts);
     } else {
         return check buildUnixPath(...parts);
@@ -242,7 +242,7 @@ public function build(string... parts) returns string|error {
 # + name - filename
 # + return - true, if path is Windows reserved name.
 public function isReservedName(string name) returns boolean {
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return isWindowsReservedName(name);
     }
     // unix system doesn't have any reserved names.
@@ -264,7 +264,7 @@ public function extension(string path) returns string|error {
     int i = count - 1;
     while (i >= 0) {
         string char = check charAt(validatedPath, i);
-        if (char == PATH_SEPARATOR) {
+        if (char == pathSeparator) {
             break;
         }
         if (char == ".") {
@@ -336,11 +336,11 @@ public function relative(string base, string target) returns string|error {
         string relativePath = "..";
         int i = 0;
         while (i < noSeparators) {
-            relativePath = relativePath + PATH_SEPARATOR + "..";
+            relativePath = relativePath + pathSeparator + "..";
             i = i + 1;
         }
         if (t0 != tl) {
-            relativePath = relativePath + PATH_SEPARATOR + cleanTarget.substring(t0, tl);
+            relativePath = relativePath + pathSeparator + cleanTarget.substring(t0, tl);
         }
         return relativePath;
     }
@@ -355,7 +355,7 @@ function parse(string input) returns string|error {
     if (input.length() <= 0) {
         return input;
     }
-    if (IS_WINDOWS) {
+    if (isWindows) {
         int offset = 0;
         string root = "";
         (root, offset) = check getRoot(input);
@@ -380,7 +380,7 @@ function parse(string input) returns string|error {
 }
 
 function getRoot(string input) returns (string,int)|error {
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return getWindowsRoot(input);
     } else {
         return getUnixRoot(input);
@@ -388,7 +388,7 @@ function getRoot(string input) returns (string,int)|error {
 }
 
 function isSlash(string c) returns boolean {
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return isWindowsSlash(c);
     } else {
         return isPosixSlash(c);
@@ -431,7 +431,7 @@ function isEmpty(string path) returns boolean {
 }
 
 function getOffsetIndexes(string path) returns int[]|error {
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return check getWindowsOffsetIndex(path);
     } else {
         return check getUnixOffsetIndex(path);
@@ -449,7 +449,7 @@ function charAt(string input, int index) returns string|error {
 }
 
 function isSamePath(string base, string target) returns boolean {
-    if (IS_WINDOWS) {
+    if (isWindows) {
         return base.equalsIgnoreCase(target);
     } else {
         return base == target;

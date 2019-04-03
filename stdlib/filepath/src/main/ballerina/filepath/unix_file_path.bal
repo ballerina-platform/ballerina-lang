@@ -43,7 +43,7 @@ function getUnixRoot(string input) returns (string, int)|error {
     int offset = 0;
     string root = "";
     if (length > 0 && isSlash(check charAt(input, 0))) {
-        root = PATH_SEPARATOR;
+        root = pathSeparator;
         offset = 1;
     }
     return (root, offset);

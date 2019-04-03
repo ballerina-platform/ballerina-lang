@@ -117,10 +117,10 @@ function buildWindowsPath(string... parts) returns string|error {
         normalizedTail = normalizedTail.substring(index, normalizedTail.length());
     }
 
-    if check charAt(normalizedHead, normalizedHead.length() - 1) == PATH_SEPARATOR {
+    if check charAt(normalizedHead, normalizedHead.length() - 1) == pathSeparator {
 		return normalizedHead + normalizedTail;
 	}
-	return normalizedHead + PATH_SEPARATOR + normalizedTail;
+	return normalizedHead + pathSeparator + normalizedTail;
 }
 
 function getWindowsRoot(string input) returns (string, int)|error {
