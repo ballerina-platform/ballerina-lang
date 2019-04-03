@@ -22,6 +22,7 @@ dependencies {
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-activemq-artemis')
+    implementation project(':ballerina-rabbitmq')
     implementation project(':ballerina-nats')
     testCompile 'org.testng:testng:6.13.1'
 }
