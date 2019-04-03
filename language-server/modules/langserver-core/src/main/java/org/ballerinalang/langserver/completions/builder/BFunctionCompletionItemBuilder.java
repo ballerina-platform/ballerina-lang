@@ -101,7 +101,7 @@ public final class BFunctionCompletionItemBuilder {
         String pkgID = bInvokableSymbol.pkgID.toString();
 
         MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        String description = markdownDocAttachment.description;
+        String description = markdownDocAttachment.description == null ? "" : markdownDocAttachment.description;
         List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
         List<BVarSymbol> defaultParams = bInvokableSymbol.getDefaultableParameters();
 
