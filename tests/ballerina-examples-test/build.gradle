@@ -8,30 +8,20 @@ import groovy.json.JsonSlurper
 
 
 configurations {
-    ballerinaTools {
-        transitive false
-    }
+    ballerinaTools
 }
 
 dependencies {
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
 }
 
-clean {
+build {
+    dependsOn (":ballerina-tools:build")
+}
+
+task test{
     doLast {
-        delete fileTree(dir: "$buildDir/ballerina-${project.version}")
-    }
-}
-
-task test() {
-    doFirst {
-        copy {
-            def zipFile = file(configurations.ballerinaTools.asPath)
-            def outputDir = file(buildDir)
-
-            from zipTree(zipFile)
-            into outputDir
-        }
+        def distPath = configurations.ballerinaTools.asPath;
 
         //List of BBEs excluded from building
         def ignoreList = [ 'proto-to-ballerina',
@@ -63,17 +53,17 @@ task test() {
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             //TODO: Need to verify with windows
             exec {
-                workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
-                commandLine 'cmd', '/c', "${buildDir}/ballerina-tools-${project.version}/bin/ballerina.bat", 'init'
+                workingDir "${distPath}/examples"
+                commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'init'
             }
         } else {
             exec {
-                workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
-                commandLine "${buildDir}/ballerina-tools-${project.version}/bin/./ballerina", 'init'
+                workingDir "${distPath}/examples"
+                commandLine "${distPath}/bin/./ballerina", 'init'
             }
         }
 
-        def inputFile = new File( "${buildDir}/ballerina-tools-${project.version}/examples/index.json")
+        def inputFile = new File( "${distPath}/examples/index.json")
         def categories = new JsonSlurper().parseText(inputFile.text)
         def bbeList = []
         categories.each { category ->
@@ -93,22 +83,20 @@ task test() {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 //TODO: Need to verify with windows
                 exec {
-                    workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
-                    commandLine 'cmd', '/c', "${buildDir}/ballerina-tools-${project.version}/bin/ballerina.bat", 'build', bbe, '--experimental'
+                    workingDir "${distPath}/examples"
+                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', bbe, '--experimental'
                 }
             } else {
                 exec {
-                    workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
-                    commandLine "${buildDir}/ballerina-tools-${project.version}/bin/./ballerina", 'build', bbe, '--experimental'
+                    workingDir "${distPath}/examples"
+                    commandLine "${distPath}/bin/./ballerina", 'build', bbe, '--experimental'
                 }
             }
         }
    }
 }
 
-build {
-    dependsOn test
-}
+build.finalizedBy test
 
 
 
