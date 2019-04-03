@@ -44,7 +44,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
 /**
  * Represents the ignore return command executor.
  *
- * @since 0.990.4
+ * @since 0.991.0
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class IgnoreReturnExecutor implements LSCommandExecutor {
