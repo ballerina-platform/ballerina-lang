@@ -4,14 +4,16 @@ This module provides the functionality required to access and manipulate data st
 
 ### Client
 
-To access a database, you must first create a `client` object. Create a client of the H2 Client type (i.e., `h2:Client`) and provide the necessary connection parameters.
+To access a database, you must first create a `client` object. Create a client of the H2 Client type (i.e., `h2:Client`)
+and provide the necessary connection parameters.
 
 ### Connection pool handling
 
-There are 3 possible scenarios of connection pool handling
+There are 3 possible scenarios for connection pool handling.
 
-1. If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database if a connection pool matching with the properties you provided
-doesn't exist already.
+1. Global, shareable default connection pool
+If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database if a
+connection pool matching with the properties you provided doesn't exist already.
 
 ```ballerina
 h2:Client testDB = new({
@@ -22,7 +24,8 @@ h2:Client testDB = new({
 });
 ```
 
-2. If you define the `poolOptions` field inline, an unshareable connection pool will be created.
+2. Client owned, unshareable connection pool
+If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
 ```ballerina
 h2:Client testDB = new({
@@ -34,7 +37,8 @@ h2:Client testDB = new({
 });
 ```
 
-3. If you create a record of type `sql:PoolOptions` and reuse that in the configuration of multiple clients, for each
+3. Local shareable connection pool
+If you create a record of type `sql:PoolOptions` and reuse that in the configuration of multiple clients, for each
 set of clients that connect to the same database instance with the same set of properties, a shared connection pool
 will be created.
 
@@ -74,7 +78,11 @@ The default values for the connection pool properties can be found in the `sql:P
 
 ### Database operations
 
-Once the client is created, database operations can be executed through that client. This module provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported remote functions refer to the `sql` module. Also the details of the SQL data types and query parameters relevant to these database operations can be found in the documentation of the `sql` module.
+Once the client is created, database operations can be executed through that client. This module provides support for
+creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch
+updating data. For more details on the supported remote functions refer to the `sql` module. Also the details of the
+SQL data types and query parameters relevant to these database operations can be found in the documentation of the
+`sql` module.
 
 ## Samples
 
