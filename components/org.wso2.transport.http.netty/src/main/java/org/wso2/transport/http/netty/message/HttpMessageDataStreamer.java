@@ -94,8 +94,7 @@ public class HttpMessageDataStreamer {
                 int value = byteBuffer.get() & 0xff;
                 chunkFinished = true;
                 byteBuffer = null;
-                httpContent.release();
-
+                releaseHttpContent();
                 return value;
             }
             return byteBuffer.get() & 0xff;
@@ -112,10 +111,14 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() throws IOException {
             byteBuffer = null;
+//            releaseHttpContent();    //fix memory leak issue in error path
+            super.close();
+        }
+
+        private synchronized void releaseHttpContent() {
             if (httpContent != null && httpContent.refCnt() > 0) {
                 httpContent.release();
             }
-            super.close();
         }
     }
 

@@ -62,16 +62,15 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         if (msg instanceof Http2Content) {
             Http2Content http2Content = (Http2Content) msg;
             try {
-                new Http2TargetHandler.Http2RequestWriter(http2Content.getOutboundMsgHolder()).writeContent(ctx,
-                                                                                            http2Content
-                                                                                                .getHttpContent());
+                new Http2TargetHandler.Http2RequestWriter(http2Content.getOutboundMsgHolder()).
+                    writeContent(ctx, http2Content.getHttpContent());
             } catch (Http2NoMoreStreamIdsException ex) {
                 //Remove connection from the pool
                 http2ClientChannel.removeFromConnectionPool();
                 LOG.warn("Channel is removed from the connection pool : {}", ex.getMessage(), ex);
                 http2Content.getOutboundMsgHolder().getResponseFuture().notifyHttpListener(ex);
             } catch (Http2Exception ex) {
-                LOG.error("Failed to send the request : " + ex.getMessage(), ex);
+                LOG.error("Failed to send the request : {}", ex.getMessage(), ex);
                 http2Content.getOutboundMsgHolder().getResponseFuture().notifyHttpListener(ex);
             }
         } else if (msg instanceof Http2Reset) {
