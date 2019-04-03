@@ -20,9 +20,11 @@ build {
 }
 
 task test{
+    dependsOn build
     doLast {
         def distPath = configurations.ballerinaTools.asPath;
 
+        // TODO: run examples list as dynamic tasks
         //List of BBEs excluded from building
         def ignoreList = [ 'proto-to-ballerina',
                            'swagger-to-ballerina',

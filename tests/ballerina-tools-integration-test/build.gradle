@@ -27,6 +27,8 @@ dependencies {
 }
 
 test {
+    // make usre ballerina tools zip is built before test run
+    dependsOn (":ballerina-tools:build")
     systemProperty 'project.build.directory', "$buildDir"
     systemProperty 'server.zip', configurations.ballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
