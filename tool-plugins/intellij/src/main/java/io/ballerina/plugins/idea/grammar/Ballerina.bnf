@@ -125,19 +125,11 @@ DefinitionWithMultipleAnnotationAttachments ::=  documentationString? deprecated
 DefinitionWithSingleAnnotationAttachment ::= documentationString? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
 DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {pin=3 elementType=Definition}
 
-//PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
-//    pin=1
-//    methods=[getName]
-//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageDeclarationStub"
-//}
-
 CompletePackageName ::= PackageName (DOT PackageName)* {
     pin(".*")=1
 }
 
-PackageName ::= identifier {
-}
-
+PackageName ::= identifier
 PackageVersion ::= version identifier {
     pin=1
 }
@@ -177,7 +169,7 @@ WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
 Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public|private)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+FunctionDefinition ::= (public|private)? remote? extern? function (FunctionWithoutReceiver | FunctionWithReceiver) {
     pin=4 methods=[getIdentifier getName]
 }
 private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
@@ -197,7 +189,7 @@ ArrowParam ::= identifier
 // Todo - cache and add Signature owner?
 CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
 
-TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
+TypeDefinition ::= public? type identifier FiniteType SEMICOLON {
     pin=2
 }
 
@@ -213,9 +205,9 @@ RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS SEMI
 
 SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
 
-ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public|private)? (remote|resource)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=7}
+ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public|private)? (remote|resource)? extern? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=7}
 
-AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier TypeName? SEMICOLON {
+AnnotationDefinition ::= public? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier TypeName? SEMICOLON {
     pin=2
 }
 
@@ -233,7 +225,7 @@ private finalVariableDefinition ::= public? final (TypeName | var) identifier AS
 private globalVarDefinition ::= public? var identifier ASSIGN Expression SEMICOLON {pin=2}
 private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
 private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
-channelType ::= channel (LT TypeName GT) {pin=1}
+channelType ::= channel LT TypeName GT {pin=1}
 
 // Todo - Need to update the service?
 // Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.
@@ -283,16 +275,10 @@ NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
 TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
-ObjectTypeName ::= abstract? client? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
+ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
 RecordTypeName ::= record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
 
 RecordFieldDefinitionList ::= (FieldDefinition | TypeReference)* RecordRestFieldDefinition?
-
-//BuiltInTypeName ::= AnyTypeName
-//                    | SimpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
-//                    | TypeDescTypeName
-//                    | ValueTypeName
-//                    | BuiltInReferenceTypeName
 
 ReferenceTypeName ::= BuiltInReferenceTypeName
                       | UserDefineTypeName
@@ -311,13 +297,13 @@ BuiltInReferenceTypeName ::= MapTypeName
                              | ErrorTypeName
                              | FunctionTypeName
 
-MapTypeName ::= map (LT TypeName GT) {pin=1}
-FutureTypeName ::= future (LT TypeName GT) {pin=1}
+MapTypeName ::= map LT TypeName GT {pin=1}
+FutureTypeName ::= future LT TypeName GT {pin=1}
 XmlTypeName ::= xml (LT (LEFT_BRACE XmlNamespaceName RIGHT_BRACE)? XmlLocalName GT)? {pin=1}
 JsonTypeName ::= json
-TableTypeName ::= table (LT TypeName GT) {pin=1}
+TableTypeName ::= table LT TypeName GT {pin=1}
 ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
-StreamTypeName ::= stream (LT TypeName GT) {pin=1}
+StreamTypeName ::= stream LT TypeName GT {pin=1}
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 XmlNamespaceName ::= QUOTED_STRING_LITERAL
 ServiceTypeName ::= service
@@ -363,7 +349,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -668,7 +654,7 @@ XmlLiteralExpression ::= XmlLiteral
 StringTemplateLiteralExpression ::= StringTemplateLiteral
 VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
-TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
+TypeConversionExpression ::= LT TypeName GT Expression {pin=1}
 UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | untaint) Expression {pin=1}
 BracedOrTupleExpression ::= TupleLiteral
 BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
@@ -739,8 +725,8 @@ RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=3}
 
 FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter
 
-SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
-                  | (ADD|SUB)? FloatingPointLiteral
+SimpleLiteral ::= SUB? IntegerLiteral
+                  | SUB? FloatingPointLiteral
                   | QUOTED_STRING_LITERAL
                   | SYMBOLIC_STRING_LITERAL
                   | BOOLEAN_LITERAL
@@ -843,10 +829,6 @@ GroupByClause ::= group by VariableReferenceList {pin=1}
 HavingClause ::= having Expression {pin=1}
 
 StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS Parameter RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
-
-SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
-
-SetAssignmentClause ::= VariableReference ASSIGN Expression
 
 StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
