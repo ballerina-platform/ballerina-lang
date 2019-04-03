@@ -11,6 +11,7 @@ int counter = 0;
 }
 public function mockPrint(any... s) {
     if (s[0] is ()) {
+        // Cannot convert () to string.
         outputs[counter] = "()";
     } else {
         outputs[counter] = string.convert(s[0]);
