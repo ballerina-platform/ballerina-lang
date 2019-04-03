@@ -37,21 +37,21 @@ public function main() {
     length = myStr.length();
     io:println("String size: ", length);
 
-    // This creates an XML element.
+    // This creates an `xml` element.
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>`;
 
-    // This prints the number of content items in the XML element.
+    // This prints the number of content items in the `xml` element.
     length = x1.*.elements().length();
     io:println("XML child elements size: ", length);
 
-    // This creates a tuple with two members.
+    // This creates a `tuple` with two members.
     (int, string) tupleVar = (10, "John");
 
-    // This prints the size of the tuple.
+    // This prints the size of the `tuple` i.e. the number of members in the `tuple`.
     length = tupleVar.length();
     io:println("Tuple size: ", length);
 
@@ -71,7 +71,7 @@ public function main() {
         ]
     };
 
-    // This prints the number of rows of the in-memory table constrained table.
+    // This prints the number of rows in the in-memory table.
     length = tbStudent.length();
     io:println("Row count in table : ", length);
 }
