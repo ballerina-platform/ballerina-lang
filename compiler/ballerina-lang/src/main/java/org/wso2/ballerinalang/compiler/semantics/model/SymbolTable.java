@@ -244,6 +244,7 @@ public class SymbolTable {
     private void defineOperators() {
         // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
+        defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, decimalType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
@@ -254,6 +255,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType, InstructionCodes.DADD);
