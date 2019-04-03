@@ -67,6 +67,11 @@ public class ConstantValueChecker extends BLangNodeVisitor {
         mapLiteral.accept(this);
     }
 
+    // Note - We have implemented visit methods for both `BLangRecordLiteral` and `BLangMapLiteral` because the symbols
+    // which comes from balo contains `BLangMapLiteral` value and the file which is being compiled will contain
+    // `BLangRecordLiteral` value. These `BLangRecordLiteral` will be rewritten to `BLangMapLiteral` when they reach
+    // the desugar.
+
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         // Iterate through all key-value pairs in the record literal.
