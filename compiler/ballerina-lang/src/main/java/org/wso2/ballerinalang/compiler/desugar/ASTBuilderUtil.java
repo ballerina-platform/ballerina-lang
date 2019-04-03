@@ -465,6 +465,7 @@ public class ASTBuilderUtil {
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
+        invokeLambda.name = createIdentifier(pos, invokableSymbol.name.value);
         invokeLambda.requiredArgs.addAll(requiredArgs);
         invokeLambda.namedArgs
                 .addAll(generateArgExprs(pos, namedArgs, invokableSymbol.defaultableParams, symResolver));
