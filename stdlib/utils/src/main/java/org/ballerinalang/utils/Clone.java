@@ -22,6 +22,23 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.JBLangVMErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.util.exceptions.JBLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.JRuntimeErrors;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.XMLAttributes;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLQName;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
@@ -70,5 +87,60 @@ public class Clone extends BlockingNativeCallableUnit {
             return;
         }
         ctx.setReturnValues(refRegVal.copy(new HashMap<>()));
+    }
+
+    public static Object clone(Strand strand, Object value) {
+        return cloneValue((RefValue) value);
+    }
+
+    public static Object clone(Strand strand, ArrayValue value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, ErrorValue value) {
+        return JBLangVMErrors.createError(JBallerinaErrorReasons.CLONE_ERROR, JBLangExceptionHelper
+                .getErrorMessage(JRuntimeErrors.UNSUPPORTED_CLONE_OPERATION, value.getType()));
+    }
+
+    public static Object clone(Strand strand, MapValue value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, ObjectValue value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, StreamingJsonValue value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, XMLAttributes value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, XMLItem value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, XMLQName value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, XMLSequence value) {
+        return cloneValue(value);
+    }
+
+    public static Object clone(Strand strand, XMLValue value) {
+        return cloneValue(value);
+    }
+
+    private static Object cloneValue(RefValue value) {
+        if (value == null) {
+            return null;
+        } else if (!TypeChecker.checkIsLikeType(value, org.ballerinalang.jvm.types.BTypes.typePureType)) {
+            return JBLangVMErrors.createError(BallerinaErrorReasons.CLONE_ERROR, BLangExceptionHelper
+                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, value.getType()));
+        }
+        return value.copy(new HashMap<>());
     }
 }
