@@ -4331,7 +4331,7 @@ public class BVM {
 
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                if (!isValidMapInsertion(mapType, value)) {
+                if (!checkIsType(value, ((BMapType) mapType).getConstrainedType())) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
                     throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
@@ -4400,15 +4400,6 @@ public class BVM {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), errMessage + e.getDetail()));
             handleError(ctx);
         }
-    }
-
-    private static boolean isValidMapInsertion(BType mapType, BValue value) {
-        BType constraintType = ((BMapType) mapType).getConstrainedType();
-        if (value != null && constraintType.equals(value.getType())) {
-            return true;
-        }
-
-        return checkIsType(value, constraintType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
