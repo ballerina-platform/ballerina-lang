@@ -1806,6 +1806,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
