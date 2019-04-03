@@ -950,6 +950,19 @@
         }]
     },
     {
+        "title": "RabbitMQ",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "RabbitMQ Simple Producer",
+            "url": "rabbitmq-simple-producer"
+        },
+          {
+            "name": "RabbitMQ Simple Consumer",
+            "url": "rabbitmq-simple-consumer"
+          }]
+    },
+    {
         "title": "ActiveMQ Artemis",
         "column": 2,
         "category": "Working over the network",
