@@ -13,8 +13,8 @@ type EmployeeSalary record {
 
 public function main() {
     // This creates an in-memory `table` constrained by the `Employee` type with `id` marked as the
-    // primary key in column descriptor. Three data records are inserted to the `table`. Order of
-    // the data values should match with the order of the column descriptor.
+    // primary key in the column descriptor. Three data records are inserted to the `table`. Order of
+    // the data values should match the order of the column descriptor.
     table<Employee> tbEmployee = table {
         { key id, name, salary },
         [ { 1, "Mary",  300.5 },
@@ -59,7 +59,7 @@ public function main() {
         io:println("Name: " + x.name);
     }
 
-    //This accesses rows using the `while` loop.
+    // This accesses rows using the `while` loop.
     io:println("Using while loop: ");
     while (tb.hasNext()) {
         var ret = Employee.convert(tb.getNext());
@@ -75,10 +75,10 @@ public function main() {
     float lowerAvgSal = tb.filter(isLowerSalary).map(getSalary).average();
     io:println("Average of Low salary: " + lowerAvgSal);
 
-    //This selects a subset of columns from the `table`.
+    // This selects a subset of columns from the `table`.
     table<EmployeeSalary> salaryTable = tb.select(getEmployeeSalary);
 
-    //This fetches the `table` row count using the `count` operation.
+    // This fetches the `table` row count using the `count` operation.
     int count = salaryTable.count();
     io:println("Selected row count: " + count);
     io:println(salaryTable);
