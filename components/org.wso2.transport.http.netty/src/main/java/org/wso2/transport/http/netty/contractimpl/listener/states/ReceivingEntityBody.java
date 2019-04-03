@@ -37,8 +37,6 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.PrintStream;
-
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
@@ -112,8 +110,6 @@ public class ReceivingEntityBody implements ListenerState {
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it's an application error. Connection needs to be closed once the response is sent.
-        PrintStream printStream = System.out;
-        printStream.println("-------application error. Connection needs to be closed-------");
         respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
                                    messageStateContext, outboundResponseMsg, httpContent,
                                    REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
