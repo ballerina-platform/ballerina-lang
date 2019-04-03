@@ -28,6 +28,10 @@ import java.util.List;
 public class BLauncherException extends RuntimeException {
     private List<String> detailedMessages = new ArrayList<>();
 
+    public List<String> getDetailedMessages() {
+        return detailedMessages;
+    }
+
     void addMessage(String message) {
         detailedMessages.add(message);
     }

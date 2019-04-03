@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.testerina.test;
 
+import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -46,18 +46,14 @@ public class BeforeAfterTest {
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
     }
 
-    @Test(expectedExceptions = BallerinaException.class,
-        expectedExceptionsMessageRegExp = ".*Cannot find the specified before function : \\[beforeFunc-nonExist\\] " +
-                                          "for testerina function : \\[testFunc\\]")
+    @Test(expectedExceptions = BLauncherException.class)
     public void tesMissingBeforeFunction() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-func-negative.bal")}, new
             ArrayList<>());
     }
 
-    @Test(expectedExceptions = BallerinaException.class,
-        expectedExceptionsMessageRegExp = ".*Cannot find the specified before function : \\[afterFunc-nonExist\\] " +
-                                          "for testerina function : \\[testFunc\\]")
+    @Test(expectedExceptions = BLauncherException.class)
     public void tesMissingAfterFunction() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("after-func-negative.bal")}, new

@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.launcher.BLauncherException;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -266,6 +267,11 @@ public class BTestRunner {
             if (plugin instanceof TestAnnotationProcessor) {
                 try {
                     ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                } catch (BLauncherException e) {
+//                    // Print the error.
+//                    errStream.println(String.join("\n", e.getDetailedMessages()));
+//                    // Exit the command.
+                    throw e;
                 } catch (Exception e) {
                     errStream.println("error: validation failed. Cause: " + e.getMessage());
                     throw new BallerinaException(e);
