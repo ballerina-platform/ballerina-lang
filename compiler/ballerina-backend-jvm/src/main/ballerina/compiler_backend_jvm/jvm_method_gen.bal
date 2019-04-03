@@ -92,7 +92,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     mv.visitLabel(varinitLable);
 
     if (!isVoidFunc) {
-        bir:VariableDcl varDcl = getVariableDcl(localVars[localVarOffset]);
+        bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
         returnVarRefIndex = indexMap.getIndex(varDcl);
         bir:BType returnType = func.typeValue.retType;
         genDefaultValue(mv, returnType, returnVarRefIndex);
@@ -231,7 +231,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         if (terminator is bir:GOTO) {
             termGen.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
-            termGen.genCallTerm(terminator, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel);
+            termGen.genCallTerm(terminator, funcName, isTrapped, currentEE, endLabel, handlerLabel, jumpLabel,
+                    localVarOffset);
         } else if (terminator is bir:AsyncCall) {
             termGen.genAsyncCallTerm(terminator, funcName);
         } else if (terminator is bir:Branch) {

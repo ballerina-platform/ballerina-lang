@@ -86,14 +86,14 @@ type TerminatorGenerator object {
     }
 
     function genCallTerm(bir:Call callIns, string funcName, boolean isInTryBlock, bir:ErrorEntry? currentEE, 
-                         jvm:Label endLabel, jvm:Label handlerLabel, jvm:Label jumpLabel) {
+                         jvm:Label endLabel, jvm:Label handlerLabel, jvm:Label jumpLabel, int localVarOffset) {
         //io:println("Call Ins : " + io:sprintf("%s", callIns));
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
         if (callIns.isVirtual) {
-            self.genVirtualCall(callIns, orgName, moduleName);
+            self.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
         } else {
-            self.genStaticCall(callIns, orgName, moduleName);
+            self.genStaticCall(callIns, orgName, moduleName, localVarOffset);
         }
 
         // store return
@@ -137,7 +137,7 @@ type TerminatorGenerator object {
             self.generateCatchIns(currentEE, endLabel, handlerLabel, jumpLabel);
         }
         
-        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
         jvm:Label yieldLabel = self.labelGen.getLabel(funcName + "yield");
         self.mv.visitJumpInsn(IFNE, yieldLabel);
@@ -147,12 +147,12 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genStaticCall(bir:Call callIns, string orgName, string moduleName) {
+    function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         string methodName = callIns.name.value;
         string methodDesc = "(Lorg/ballerinalang/jvm/Strand;";
         
         // load strand
-        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         int argsCount = callIns.args.length();
         int i = 0;
@@ -170,7 +170,7 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
 
-    function genVirtualCall(bir:Call callIns, string orgName, string moduleName) {
+    function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         bir:VariableDcl selfArg = getVariableDcl(callIns.args[0].variableDcl);
         int argIndex = self.getJVMIndexOfVarRef(selfArg);
 
@@ -179,7 +179,7 @@ type TerminatorGenerator object {
         self.mv.visitTypeInsn(CHECKCAST, OBJECT_VALUE);
 
         // load the strand
-        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // update the function name by adding the type name as prefix
         string methodName = callIns.name.value;

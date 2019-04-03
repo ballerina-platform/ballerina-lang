@@ -103,7 +103,11 @@ public type ObjectGenerator object {
 
         int funcNameRegIndex = 2;
         jvm:Label defaultCaseLabel = new jvm:Label();
-        sortByHash(funcs);
+
+        // sort the fields before generating switch case
+        NodeSorter sorter = new(self.currentObjectType);
+        sorter.sortByHash(funcs);
+
         jvm:Label[] labels = self.createLabelsforSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
         jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels, 
                 defaultCaseLabel);
@@ -138,7 +142,7 @@ public type ObjectGenerator object {
             // use index access, since retType can be nil.
             bir:BType? retType = func.funcType["retType"];
             string methodSig = getMethodDesc(paramTypes, retType);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, self.getName(func), methodSig, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, getName(func, self.currentObjectType), methodSig, false);
 
             if (retType is () || retType is bir:BTypeNil) {
                 mv.visitInsn(ACONST_NULL);
@@ -162,6 +166,11 @@ public type ObjectGenerator object {
 
         int fieldNameRegIndex = 1;
         jvm:Label defaultCaseLabel = new jvm:Label();
+
+        // sort the fields before generating switch case
+        NodeSorter sorter = new(self.currentObjectType);
+        sorter.sortByHash(fields);
+
         jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
         jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
                 defaultCaseLabel);
@@ -191,6 +200,11 @@ public type ObjectGenerator object {
 
         int fieldNameRegIndex = 1;
         jvm:Label defaultCaseLabel = new jvm:Label();
+
+        // sort the fields before generating switch case
+        NodeSorter sorter = new(self.currentObjectType);
+        sorter.sortByHash(fields);
+
         jvm:Label[] labels = self.createLabelsforSwitch(mv, fieldNameRegIndex, fields, defaultCaseLabel);
         jvm:Label[] targetLabels = self.createLabelsForEqualCheck(mv, fieldNameRegIndex, fields, labels, 
                 defaultCaseLabel);
@@ -226,7 +240,7 @@ public type ObjectGenerator object {
         foreach var node in nodes {
             if (node is NamedNode) {
                 labels[i] = new jvm:Label();
-                hashCodes[i] = self.getName(node).hashCode();
+                hashCodes[i] = getName(node, self.currentObjectType).hashCode();
                 i += 1;
             }
         }
@@ -252,7 +266,7 @@ public type ObjectGenerator object {
             if (node is NamedNode) {
                 mv.visitLabel(labels[i]);
                 mv.visitVarInsn(ALOAD, nameRegIndex);
-                mv.visitLdcInsn(self.getName(node));
+                mv.visitLdcInsn(getName(node, self.currentObjectType));
                 mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "equals",
                         io:sprintf("(L%s;)Z", OBJECT), false);
                 jvm:Label targetLabel = new jvm:Label();
@@ -275,21 +289,20 @@ public type ObjectGenerator object {
         }
     }
 
-    // TODO: this function should accept a `NamedNode`. However there seems to be a bug
-    // in type compatibility check.
-    function getName(any node) returns string {
-        bir:BObjectType? objectType = self.currentObjectType;
-        if (node is bir:BAttachedFunction && objectType is bir:BObjectType) {
-            return objectType.name.value + "_" + node.name.value;
-        } else if (node is NamedNode) {
-            return node.name.value;
-        } else {
-            error err = error(io:sprintf("Invalid node: %s", node));
-            panic err;
-        }
-    }
 };
 
+// TODO: this function should accept a `NamedNode`. However there seems to be a bug
+// in type compatibility check.
+function getName(any node, bir:BObjectType? objectType) returns string {
+    if (node is bir:BAttachedFunction && objectType is bir:BObjectType) {
+        return objectType.name.value + "_" + node.name.value;
+    } else if (node is NamedNode) {
+        return node.name.value;
+    } else {
+        error err = error(io:sprintf("Invalid node: %s", node));
+        panic err;
+    }
+}
 
 // --------------------- Sorting ---------------------------
 
@@ -297,48 +310,52 @@ type NamedNode record {
     bir:Name name = {};
 };
 
-function sortByHash(NamedNode?[] arr) {
-    quickSort(arr, 0, arr.length() - 1);
-}
+type NodeSorter object {
 
-function quickSort(NamedNode?[] arr, int low, int high) { 
-    if (low < high) { 
-        // pi is partitioning index, arr[pi] is now at right place
-        int pi = partition(arr, low, high); 
+    private bir:BObjectType? currentObjectType;
 
-        // Recursively sort elements before partition and after partition 
-        quickSort(arr, low, pi - 1); 
-        quickSort(arr, pi + 1, high); 
-    } 
-} 
+    function __init(bir:BObjectType? currentObjectType) {
+        self.currentObjectType = currentObjectType;
+    }
 
-function partition(NamedNode?[] arr, int begin, int end) returns int {
-    int pivot = getHash(arr[end]);
-    int i = begin - 1;
+    function sortByHash(NamedNode?[] arr) {
+        self.quickSort(arr, 0, arr.length() - 1);
+    }
 
-    int j = begin;
-    while (j < end) {
-        if (getHash(arr[j]) <= pivot) {
-            i += 1;
-            swap(arr, i, j);
+    private function quickSort(NamedNode?[] arr, int low, int high) { 
+        if (low < high) { 
+            // pi is partitioning index, arr[pi] is now at right place
+            int pi = self.partition(arr, low, high); 
+
+            // Recursively sort elements before partition and after partition 
+            self.quickSort(arr, low, pi - 1); 
+            self.quickSort(arr, pi + 1, high); 
+        } 
+    }
+
+    private function partition(NamedNode?[] arr, int begin, int end) returns int {
+        int pivot = self.getHash(arr[end]);
+        int i = begin - 1;
+
+        int j = begin;
+        while (j < end) {
+            if (self.getHash(arr[j]) <= pivot) {
+                i += 1;
+                self.swap(arr, i, j);
+            }
+            j += 1;
         }
-        j += 1;
+        self.swap(arr, i+1, end);
+        return i + 1;
     }
-    swap(arr, i+1, end);
-    return i + 1;
-}
 
-function getHash(NamedNode? node) returns int {
-    if (node is NamedNode) {
-        return node.name.value.hashCode();
-    } else {
-        error err = error(io:sprintf("Invalid sortable node: %s", node));
-        panic err;
+    private function getHash(any node) returns int {
+        return getName(node, self.currentObjectType).hashCode();
     }
-}
 
-function swap(NamedNode?[] arr, int i, int j) {
-    NamedNode? swapTemp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = swapTemp;
-}
+    private function swap(NamedNode?[] arr, int i, int j) {
+        NamedNode? swapTemp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = swapTemp;
+    }
+};
