@@ -18,6 +18,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.debugger.Debugger;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -47,6 +48,7 @@ public class TypeGenTest {
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
     private ProgramFile programFile;
     private String entryPkgName;
+    private static CompileResult compileResult;
 
     @BeforeClass
     public void readTestBalx() throws IOException {
@@ -63,7 +65,7 @@ public class TypeGenTest {
         String sourceFilePath = "test-src/bir/types.bal";
         List<String> source = Files.readAllLines(resourceDir.resolve(sourceFilePath));
         CompileResult result = BCompileUtil.compile(sourceFilePath, CompilerPhase.TYPE_CHECK);
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.toString(result.getDiagnostics()));
+        compileResult = result;
         PackageNode ast = result.getAST();
         List<TopLevelNode> topLevelNodes = ((BLangPackage) ast).topLevelNodes;
         List<Object[]> testCases = new ArrayList<>();
@@ -114,6 +116,11 @@ public class TypeGenTest {
         BIRTypeWriter birTypeWriter = new BIRTypeWriter(buff, cp);
         type.accept(birTypeWriter);
         return Arrays.copyOfRange(buff.nioBuffer().array(), 0, buff.nioBuffer().limit());
+    }
+
+    @AfterClass
+    public void verifyCompilation() {
+        Assert.assertEquals(compileResult.getErrorCount(), 0, compileResult.toString());
     }
 
 }
