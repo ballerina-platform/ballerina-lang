@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -67,7 +67,7 @@ public class StringUtils {
             }
             result = bos.toString();
         } catch (IOException ioe) {
-            throw new BallerinaException("Error occurred when reading input stream", ioe);
+            throw new JBallerinaException("Error occurred when reading input stream", ioe);
         } finally {
             try {
                 bos.close();
@@ -85,7 +85,7 @@ public class StringUtils {
                 textBuilder.append((char) character);
             }
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
+            throw new JBallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
         return textBuilder.toString();
     }

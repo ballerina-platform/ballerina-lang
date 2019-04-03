@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.values.freeze;
 
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
 
 /**
  * Class for freeze() util methods.
@@ -32,7 +32,7 @@ public class FreezeUtils {
      *
      * @param currentFreezeStatus the current freeze status of the value
      * @param receivedFreezeStatus the received freeze status of the new freeze attempt
-     * @return true if the state is unfrozen, false if not. Would throw a {@link BLangFreezeException} if the value
+     * @return true if the state is unfrozen, false if not. Would throw a {@link JBLangFreezeException} if the value
      *         is already part of a different freeze attempt.
      */
     public static boolean isOpenForFreeze(Status currentFreezeStatus, Status receivedFreezeStatus) {
@@ -43,8 +43,8 @@ public class FreezeUtils {
                 if (currentFreezeStatus == receivedFreezeStatus) {
                     return false;
                 }
-                throw new BLangFreezeException(BallerinaErrorReasons.CONCURRENT_MODIFICATION_ERROR,
-                        "concurrent 'freeze()' attempts not allowed");
+                throw new JBLangFreezeException(JBallerinaErrorReasons.CONCURRENT_MODIFICATION_ERROR,
+                                                "concurrent 'freeze()' attempts not allowed");
             default:
                 return true;
         }
@@ -61,11 +61,11 @@ public class FreezeUtils {
     public static void handleInvalidUpdate(State currentState) {
         switch (currentState) {
             case FROZEN:
-                throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
-                        "modification not allowed on frozen value");
+                throw new JBLangFreezeException(JBallerinaErrorReasons.INVALID_UPDATE_ERROR,
+                                                "modification not allowed on frozen value");
             case MID_FREEZE:
-                throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
-                        "modification not allowed during freeze");
+                throw new JBLangFreezeException(JBallerinaErrorReasons.INVALID_UPDATE_ERROR,
+                                                "modification not allowed during freeze");
             default:
                 return;
         }

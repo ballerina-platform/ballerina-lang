@@ -27,10 +27,10 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.util.exceptions.JBLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.JRuntimeErrors;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -403,13 +403,14 @@ public class ArrayValue implements RefValue {
             try {
                 outputStream.write(byteValues);
             } catch (IOException e) {
-                throw new BallerinaException("error occurred while writing the binary content to the output stream", e);
+                throw new JBallerinaException("error occurred while writing the binary content to the output stream",
+                                              e);
             }
         } else {
             try {
                 outputStream.write(this.toString().getBytes(Charset.defaultCharset()));
             } catch (IOException e) {
-                throw new BallerinaException("error occurred while serializing data", e);
+                throw new JBallerinaException("error occurred while serializing data", e);
             }
         }
     }
@@ -448,20 +449,20 @@ public class ArrayValue implements RefValue {
     private void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw JBLangExceptionHelper.getRuntimeException(JBallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                            JRuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     private void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw JBLangExceptionHelper.getRuntimeException(JBallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                            JRuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((int) index < 0 || index >= maxArraySize) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw JBLangExceptionHelper.getRuntimeException(JBallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                            JRuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -482,7 +483,7 @@ public class ArrayValue implements RefValue {
              gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+            throw new JBallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
         return new String(byteOut.toByteArray());
     }
@@ -530,6 +531,29 @@ public class ArrayValue implements RefValue {
     private void resetSize(int index) {
         if (index >= size) {
             size = index + 1;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            return;
+        }
+
+        this.freezeStatus = freezeStatus;
+
+        if (elementType == null || !(elementType.getTag() == TypeTags.INT_TAG ||
+                elementType.getTag() == TypeTags.STRING_TAG || elementType.getTag() == TypeTags.BOOLEAN_TAG ||
+                elementType.getTag() == TypeTags.FLOAT_TAG || elementType.getTag() == TypeTags.BYTE_TAG)) {
+            for (int i = 0; i < this.size; i++) {
+                Object refValue = this.getRefValue(i);
+                if (refValue instanceof RefValue) {
+                    ((RefValue) refValue).attemptFreeze(freezeStatus);
+                }
+            }
         }
     }
 }

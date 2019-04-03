@@ -21,7 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -268,10 +268,10 @@ public abstract class XMLValue<T> implements RefValue {
         // Here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
         if (t.getCause() != null) {
-            throw new BallerinaException(message + t.getCause().getMessage());
+            throw new JBallerinaException(message + t.getCause().getMessage());
         }
 
-        throw new BallerinaException(message + t.getMessage());
+        throw new JBallerinaException(message + t.getMessage());
     }
 
     /**

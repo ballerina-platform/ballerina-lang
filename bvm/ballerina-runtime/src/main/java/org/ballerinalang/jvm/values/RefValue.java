@@ -18,8 +18,8 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -58,7 +58,7 @@ public interface RefValue {
      *            freeze result of this attempt
      */
     default void attemptFreeze(Status freezeStatus) {
-        throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
+        throw new JBLangFreezeException("freeze not allowed on '" + getType() + "'");
     }
 
     /**
@@ -75,14 +75,14 @@ public interface RefValue {
             attemptFreeze(freezeStatus);
             freezeStatus.setFrozen();
             return this;
-        } catch (BLangFreezeException e) {
+        } catch (JBLangFreezeException e) {
             // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
             // constituents to false, and return an error
             freezeStatus.setUnfrozen();
 
             // TODO: return an error value
             return null;
-        } catch (BallerinaException e) {
+        } catch (JBallerinaException e) {
             // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
             // and its constituents to false, and panic
             freezeStatus.setUnfrozen();
@@ -99,7 +99,7 @@ public interface RefValue {
         try {
             outputStream.write(this.toString().getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
-            throw new BallerinaException("error occurred while serializing data", e);
+            throw new JBallerinaException("error occurred while serializing data", e);
         }
     }
 }

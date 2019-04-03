@@ -24,7 +24,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -124,7 +124,7 @@ public class JSONToXMLConverter {
             // Extract attributes and set to the immediate parent.
             if (nodeName.startsWith(attributePrefix)) {
                 if (json instanceof RefValue) {
-                    throw new BallerinaException("attribute cannot be an object or array");
+                    throw new JBallerinaException("attribute cannot be an object or array");
                 }
                 if (parentElement != null) {
                     String attributeKey = nodeName.substring(1);
@@ -176,14 +176,14 @@ public class JSONToXMLConverter {
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                     if (currentRoot == null) {
-                        throw new BallerinaException("error in converting json to xml");
+                        throw new JBallerinaException("error in converting json to xml");
                     }
 
                     OMText txt1 = OM_FACTORY.createOMText(currentRoot, json.toString());
                     currentRoot.addChild(txt1);
                     break;
                 default:
-                    throw new BallerinaException("error in converting json to xml");
+                    throw new JBallerinaException("error in converting json to xml");
             }
         }
 

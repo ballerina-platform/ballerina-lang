@@ -22,7 +22,7 @@ package org.ballerinalang.jvm.util.exceptions;
  *
  * @since 0.990.0
  */
-public class BallerinaErrorReasons {
+public class JBallerinaErrorReasons {
 
     private static final String BALLERINA_PREFIX = "{ballerina}";
 
