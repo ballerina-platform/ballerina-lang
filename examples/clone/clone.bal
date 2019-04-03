@@ -60,6 +60,5 @@ public function main() {
     // If the result is an error, print out the detailed error message.
     } else if (result is error) {
         io:println("Cannot clone: ", result.detail().message);
-        return ();
     }
 }
