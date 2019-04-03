@@ -1,11 +1,10 @@
 ## Module overview
 
-This module provides the functionality required to access and manipulate data stored in a MySQL database. 
+This module provides the functionality that is required to access and manipulate the data stored in a MySQL database. 
 
-### Client
+### Creating the client
 
-You need to create a `client` object to access a database. A sample for creating a MySQL client can be
-found below.
+You need to create a `client` object to access a database. You can create a sample MySQL client as follows.
 
 ### Handling the connection pool
 
@@ -16,7 +15,7 @@ There are 3 possible usage scenarios for a connection pool.
 If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
 a connection pool matching the properties you provided already exists.
 
->**Info:**This is the connection pool that is used by default
+>**Info:** This is the connection pool that is used by default.
 
 ```ballerina
 mysql:Client testDB = new({
@@ -48,7 +47,7 @@ mysql:Client testDB = new({
 **3. A locally shareable connection pool**
 
 If you create a record of the `sql:PoolOptions` type and reuse that in the configuration of multiple clients, a shared
-connection pool will be created for each set of clients that connect to the same database instance with the same set of
+connection pool will be created, for each set of clients that connect to the same database instance with the same set of
 properties.
 
 ```ballerina
@@ -89,20 +88,18 @@ testDB3 = new({
 });
 ```
 
-The default values of the connection pool properties can be found in the documentation of the `sql:PoolOptions` type.
+For the default values of the connection pool properties, see the documentation of the `sql:PoolOptions` type.
 
 ### Database operations
 
 Once the client is created, the database operations can be executed through that client. This module provides support for
-creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and updating
-data in batches. For more details on the supported remote functions, see the documentation of the sql module.
+creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating a single data record, and updating data in batches. 
 
-Also, the details of the SQL data types and query parameters relevant to these database operations can be found in the
-documentation of the `sql` module.
+For more details on the supported remote functions, and of the details of the SQL data types and query parameters relevant to these database operations,see the documentation of the `sql` module.
 
 ## Samples
 
-### Creating an endpoint
+### Creating a client
 ```ballerina
 mysql:Client testDB = new({
     host: "localhost",
@@ -113,5 +110,5 @@ mysql:Client testDB = new({
     dbOptions: { "useSSL": false }
 });
 ```
-The full list of client properties can be found in the `sql:PoolOptions` type.
+For a complete list of client properties, see the documentation of the `sql:PoolOptions` type.
 
