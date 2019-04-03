@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaLockStatement extends BallerinaCompositeElement {
+public interface BallerinaLockStatement extends PsiElement {
 
   @Nullable
   BallerinaBlock getBlock();

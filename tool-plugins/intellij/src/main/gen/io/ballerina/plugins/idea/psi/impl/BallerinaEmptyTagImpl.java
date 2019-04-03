@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaEmptyTagImpl extends BallerinaCompositeElementImpl implements BallerinaEmptyTag {
+public class BallerinaEmptyTagImpl extends ASTWrapperPsiElement implements BallerinaEmptyTag {
 
   public BallerinaEmptyTagImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,13 +51,13 @@ public class BallerinaEmptyTagImpl extends BallerinaCompositeElementImpl impleme
   @Override
   @Nullable
   public BallerinaXmlQualifiedName getXmlQualifiedName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaXmlQualifiedName.class);
+    return findChildByClass(BallerinaXmlQualifiedName.class);
   }
 
   @Override
   @NotNull
   public PsiElement getXmlTagOpen() {
-    return notNullChild(findChildByType(XML_TAG_OPEN));
+    return findNotNullChildByType(XML_TAG_OPEN);
   }
 
   @Override

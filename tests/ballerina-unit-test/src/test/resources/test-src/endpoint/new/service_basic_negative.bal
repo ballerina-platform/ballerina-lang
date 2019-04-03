@@ -1,6 +1,6 @@
 listener ABC ex = new;
 
-service name on ex {
+service name1 on ex {
 
 
     resource function foo(string b) {
@@ -14,7 +14,7 @@ service name on ex {
 
 string xx = "some test";
 
-service name on xx {
+service name1 on xx {
     string id;
 
     resource function foo(string b) {
@@ -42,7 +42,7 @@ public type ABC object {
         return ();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
+    public function __attach(service s, string? name = ()) returns error? {
         return ();
     }
 };

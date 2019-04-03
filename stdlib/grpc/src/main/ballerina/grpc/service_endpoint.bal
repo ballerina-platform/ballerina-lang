@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public type Listener object {
@@ -40,10 +42,10 @@ public type Listener object {
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + s - The type of the service to be registered.
-    # + annotationData - Annotations attached to the service.
+    # + name - Name of the service.
     # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     # Gets called when the endpoint is being initialize during module init time.
@@ -56,14 +58,14 @@ public type Listener object {
         self.init(self.port, self.config);
     }
 
-    extern function init(int port, ServiceEndpointConfiguration config);
+    function init(int port, ServiceEndpointConfiguration config) = external;
 
 
-    extern function register(service serviceType, map<any> annotationData) returns error?;
+    function register(service serviceType, string? name) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 
-    extern function stop() returns error?;
+    function stop() returns error? = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.
@@ -113,8 +115,8 @@ public type ServiceEndpointConfiguration record {|
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
 public type ServiceSecureSocket record {|
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

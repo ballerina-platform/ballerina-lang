@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlSingleQuotedStringImpl extends BallerinaCompositeElementImpl implements BallerinaXmlSingleQuotedString {
+public class BallerinaXmlSingleQuotedStringImpl extends ASTWrapperPsiElement implements BallerinaXmlSingleQuotedString {
 
   public BallerinaXmlSingleQuotedStringImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,13 +51,13 @@ public class BallerinaXmlSingleQuotedStringImpl extends BallerinaCompositeElemen
   @Override
   @NotNull
   public PsiElement getSingleQuote() {
-    return notNullChild(findChildByType(SINGLE_QUOTE));
+    return findNotNullChildByType(SINGLE_QUOTE);
   }
 
   @Override
   @NotNull
   public PsiElement getSingleQuoteEnd() {
-    return notNullChild(findChildByType(SINGLE_QUOTE_END));
+    return findNotNullChildByType(SINGLE_QUOTE_END);
   }
 
   @Override

@@ -18,6 +18,7 @@
 # Producer would create a new NATS connection if a connection was not provided during the initialization.
 public type Producer client object {
     private Connection? connection = ();
+    private boolean adhocConnection = true;
 
     # Creates a new producer. A connection will be created if a refernece to a connection is not provided.
     #
@@ -25,6 +26,7 @@ public type Producer client object {
     public function __init(ConnectionConfig|Connection c) {
         if (c is Connection) {
             self.connection = c;
+            self.adhocConnection = false;
         } else {
             self.connection = new Connection(c);
         }
@@ -59,7 +61,22 @@ public type Producer client object {
         }
     }
 
-    extern function sendMsg(string subject, byte[] message) returns string|error;
+    # Close a given connection.
+    #
+    # + return - () or error if unable to complete close operation.
+    public function close() returns error? {
+        if (self.connection is Connection) {
+            if (self.adhocConnection) {
+                return self.connection.close();
+            } else {
+                error conErr = error("{ballerina/nats}CONNECTION_ERROR",
+                        { message: "unable to close a shared connection." });
+                return conErr;
+            }
+        }
+    }
 
-    extern function sendRequestReplyMsg(string subject, byte[] message) returns Message|error;
+    function sendMsg(string subject, byte[] message) returns string|error = external;
+
+    function sendRequestReplyMsg(string subject, byte[] message) returns Message|error = external;
 };

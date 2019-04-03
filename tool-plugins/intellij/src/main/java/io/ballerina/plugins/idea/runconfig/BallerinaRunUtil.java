@@ -180,20 +180,6 @@ public class BallerinaRunUtil {
     }
 
     @Contract("null -> false")
-    static boolean isTestFunction(BallerinaFunctionDefinition functionDefinitionNode) {
-        // Get the function name.
-        PsiElement functionName = functionDefinitionNode.getNameIdentifier();
-        if (functionName == null) {
-            return false;
-        }
-        // Check whether the function name is "main".
-        if (functionName.getText().startsWith(BallerinaConstants.BALLERINA_TEST_FUNCTION_PREFIX)) {
-            return true;
-        }
-        return false;
-    }
-
-    @Contract("null -> false")
     static boolean hasServices(PsiFile file) {
         Collection<BallerinaServiceDefinition> serviceDefinitionNodes =
                 PsiTreeUtil.findChildrenOfType(file, BallerinaServiceDefinition.class);

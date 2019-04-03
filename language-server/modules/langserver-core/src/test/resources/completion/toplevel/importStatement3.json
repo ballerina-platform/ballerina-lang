@@ -162,12 +162,6 @@
       "insertText": "h2"
     },
     {
-      "label": "builtin",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "builtin"
-    },
-    {
       "label": "math",
       "kind": "Module",
       "detail": "Package",

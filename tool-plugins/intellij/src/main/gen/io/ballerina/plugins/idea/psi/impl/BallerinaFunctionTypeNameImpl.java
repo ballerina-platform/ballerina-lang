@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaFunctionTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaFunctionTypeName {
+public class BallerinaFunctionTypeNameImpl extends ASTWrapperPsiElement implements BallerinaFunctionTypeName {
 
   public BallerinaFunctionTypeNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,25 +45,25 @@ public class BallerinaFunctionTypeNameImpl extends BallerinaCompositeElementImpl
   @Override
   @Nullable
   public BallerinaParameterList getParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaParameterList.class);
+    return findChildByClass(BallerinaParameterList.class);
   }
 
   @Override
   @Nullable
   public BallerinaParameterTypeNameList getParameterTypeNameList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaParameterTypeNameList.class);
+    return findChildByClass(BallerinaParameterTypeNameList.class);
   }
 
   @Override
   @Nullable
   public BallerinaReturnParameter getReturnParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReturnParameter.class);
+    return findChildByClass(BallerinaReturnParameter.class);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
@@ -74,7 +75,7 @@ public class BallerinaFunctionTypeNameImpl extends BallerinaCompositeElementImpl
   @Override
   @NotNull
   public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+    return findNotNullChildByType(FUNCTION);
   }
 
 }

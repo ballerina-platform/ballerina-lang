@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaSealedLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaSealedLiteral {
+public class BallerinaSealedLiteralImpl extends ASTWrapperPsiElement implements BallerinaSealedLiteral {
 
   public BallerinaSealedLiteralImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaSealedLiteralImpl extends BallerinaCompositeElementImpl im
   @Override
   @NotNull
   public PsiElement getEllipsis() {
-    return notNullChild(findChildByType(ELLIPSIS));
+    return findNotNullChildByType(ELLIPSIS);
   }
 
   @Override
   @NotNull
   public PsiElement getNot() {
-    return notNullChild(findChildByType(NOT));
+    return findNotNullChildByType(NOT);
   }
 
 }

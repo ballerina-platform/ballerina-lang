@@ -50,7 +50,7 @@ public class BallerinaBinaryOrExpressionImpl extends BallerinaBinaryExpressionIm
   @Override
   @NotNull
   public PsiElement getOr() {
-    return notNullChild(findChildByType(OR));
+    return findNotNullChildByType(OR);
   }
 
 }

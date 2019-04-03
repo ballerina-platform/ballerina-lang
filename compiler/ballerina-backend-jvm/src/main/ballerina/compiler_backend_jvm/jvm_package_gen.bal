@@ -16,6 +16,8 @@
 
 final map<string> fullQualifiedClassNames = {};
 
+final map<(bir:AsyncCall,string)> lambdas = {};
+
 function lookupFullQualifiedClassName(string key) returns string {
     var result = fullQualifiedClassNames[key];
 
@@ -135,6 +137,10 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     // generate methods
     foreach var func in module.functions {
         generateMethod(getFunction(func), cw, module);
+    }
+
+    foreach var (k,v) in lambdas {
+        generateLambdaMethod(v[0], cw, v[1], k);
     }
 
     cw.visitEnd();

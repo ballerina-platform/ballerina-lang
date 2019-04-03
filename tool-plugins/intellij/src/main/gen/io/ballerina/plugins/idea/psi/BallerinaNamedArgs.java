@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaNamedArgs extends BallerinaCompositeElement {
+public interface BallerinaNamedArgs extends PsiElement {
 
   @Nullable
   BallerinaExpression getExpression();

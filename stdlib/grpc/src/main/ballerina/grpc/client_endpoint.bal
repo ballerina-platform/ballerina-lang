@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.
 public type Client client object {
@@ -32,7 +34,7 @@ public type Client client object {
         self.init(self.url, self.config, globalGrpcClientConnPool);
     }
 
-    extern function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig);
+    function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig) = external;
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
@@ -40,8 +42,8 @@ public type Client client object {
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
     # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
-    public extern function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
-                               returns error?;
+    public function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
+                               returns error? = external;
 
     # Calls when executing blocking call with gRPC service.
     #
@@ -49,8 +51,8 @@ public type Client client object {
     # + payload - Request message. Message type varies with remote service method parameter.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
-    public remote extern function blockingExecute(string methodID, any payload, Headers? headers = ())
-                               returns ((any, Headers)|error);
+    public remote function blockingExecute(string methodID, any payload, Headers? headers = ())
+                               returns ((any, Headers)|error) = external;
 
     # Calls when executing non-blocking call with gRPC service.
     #
@@ -59,8 +61,8 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
-    public remote extern function nonBlockingExecute(string methodID, any payload, service listenerService,
-                                              Headers? headers = ()) returns error?;
+    public remote function nonBlockingExecute(string methodID, any payload, service listenerService,
+                                              Headers? headers = ()) returns error? = external;
 
 
     # Calls when executing streaming call with gRPC service.
@@ -69,8 +71,8 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns client connection if executes successfully, error otherwise.
-    public remote extern function streamingExecute(string methodID, service listenerService, Headers? headers = ())
-                               returns StreamingClient|error;
+    public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ())
+                               returns StreamingClient|error = external;
 };
 
 # Represents client endpoint configuration.
@@ -125,8 +127,8 @@ public type ProxyConfig record {|
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {|
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";

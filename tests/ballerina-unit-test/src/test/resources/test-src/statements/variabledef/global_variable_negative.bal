@@ -44,7 +44,7 @@ public type Listener object {
 
     }
 
-    public function __attach(service s, map<any> data) returns error? {
+    public function __attach(service s, string? name = ()) returns error? {
 
     }
 

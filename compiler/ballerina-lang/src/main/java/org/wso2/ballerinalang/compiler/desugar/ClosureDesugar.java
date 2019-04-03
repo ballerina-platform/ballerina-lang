@@ -339,9 +339,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        // If its a variable that is a closure.
-        BLangAssignment stmt = createAssignment(varDefNode);
-        result = rewrite(stmt, env);
+        // If its a variable declaration with a RHS value, and also a closure.
+        if (varDefNode.var.expr != null) {
+            BLangAssignment stmt = createAssignment(varDefNode);
+            result = rewrite(stmt, env);
+        } else {
+            result = varDefNode;
+        }
     }
 
     /**

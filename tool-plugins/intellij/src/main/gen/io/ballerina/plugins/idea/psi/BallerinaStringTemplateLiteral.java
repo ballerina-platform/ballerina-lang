@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaStringTemplateLiteral extends BallerinaCompositeElement {
+public interface BallerinaStringTemplateLiteral extends PsiElement {
 
   @Nullable
   BallerinaStringTemplateContent getStringTemplateContent();

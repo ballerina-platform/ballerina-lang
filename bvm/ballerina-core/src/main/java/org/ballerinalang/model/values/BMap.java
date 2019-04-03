@@ -400,7 +400,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType, unresolvedValues);
-                    type = memberType;
+                    if (memberType.getTag() == TypeTags.ANYDATA_TAG) {
+                        type = BVM.resolveMatchingTypeForUnion(this, memberType);
+                    } else {
+                        type = memberType;
+                    }
                     break;
                 }
             }

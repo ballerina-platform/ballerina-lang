@@ -35,6 +35,7 @@ dependencies {
     implementation project(':ballerina-websub')
     implementation project(':ballerina-jms')
     implementation project(':ballerina-socket')
+    implementation project(':ballerina-crypto')
     implementation project(':ballerina-observability')
     implementation project(':observability-test-utils')
     testCompile project(':ballerina-test-utils')
@@ -70,6 +71,10 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+clean.doFirst {
+    delete 'data'
 }
 
 description = 'Ballerina - Integration Test'

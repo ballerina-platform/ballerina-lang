@@ -190,8 +190,8 @@ public final class BFunctionCompletionItemBuilder {
             }
             for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
                 signature.append(getParameterSignature(defaultParameterDefs.get(itr), true));
-                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true,
-                                                         defaultParameterDefs.size() + itr + 1));
+                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true, 
+                        parameterDefs.size() + itr + 1));
 
                 if (itr < defaultParameterDefs.size() - 1) {
                     signature.append(", ");

@@ -87,9 +87,13 @@ public class TypeGenTest {
         ConstantPool cp = new ConstantPool();
         byte[] typeBinary = serializeBType(type, cp);
         byte[] cpBinary = cp.serialize();
-        BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
-        Assert.assertEquals(testParseTypes[0].stringValue(), source,
-                            "Unable to recover type info from " + Arrays.toString(typeBinary));
+        try {
+            BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
+            Assert.assertEquals(testParseTypes[0].stringValue(), source,
+                                "Unable to recover type info from " + Arrays.toString(typeBinary));
+        } catch (Exception e) {
+            throw new AssertionError("Error deserializeing" + Arrays.toString(typeBinary), e);
+        }
 
     }
 

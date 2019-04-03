@@ -12,7 +12,7 @@ type StructField record {
 function testExpressionAsStructIndex () returns string {
     StructField nameField = {key:"name"};
     Person emp = {name:"Jack", adrs:{"country":"USA", "state":"CA"}, age:25};
-    string|map<any>|int|anydata? result = emp[nameField.key];
+    string|map<any>|int|anydata|error result = emp[nameField.key];
     if result is string {
         return result;
     } else {

@@ -62,15 +62,15 @@ public type QueueReceiver object {
     # Binds the queue receiver endpoint to a service
     #
     # + serviceType - Type descriptor of the service to bind to
-    # + data - Service annotations
+    # + data - Name of the service
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    extern function registerListener(service serviceType, QueueReceiverCaller actions, map<any> data) returns error?;
+    function registerListener(service serviceType, QueueReceiverCaller actions, string? name) returns error? = external;
 
-    extern function createQueueReceiver(Session? session, string messageSelector, string|Destination dest);
+    function createQueueReceiver(Session? session, string messageSelector, string|Destination dest) = external;
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
     #
@@ -95,7 +95,7 @@ public type QueueReceiver object {
         return ();
     }
 
-    extern function closeQueueReceiver(QueueReceiverCaller actions);
+    function closeQueueReceiver(QueueReceiverCaller actions) = external;
 };
 
 # Caller actions related to queue receiver endpoint.
@@ -109,13 +109,13 @@ public type QueueReceiverCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - error upon failure to acknowledge the received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 
     # Synchronously receive a message from a given destination
     #
@@ -146,14 +146,14 @@ public type QueueReceiverCaller client object {
 function validateQueue(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map<any> errorDetail = {
+        map<anydata> errorDetail = {
             message: errorMessage
         };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic queueReceiverConfigError;
     } else if (destination.destinationType != "queue") {
         string errorMessage = "Destination should should be a queue";
-        map<any> errorDetail = {
+        map<anydata> errorDetail = {
             message: errorMessage
         };
         error queueReceiverConfigError = error(JMS_ERROR_CODE, errorDetail);

@@ -77,8 +77,9 @@ public class WorkspaceDocument {
             return newText;
         }
         String trimmedOldText = oldText.trim();
-        int leadingNewLines = oldText.indexOf(trimmedOldText);
-        int trailingNewLines = oldText.length() - leadingNewLines - trimmedOldText.length();
+        int trimmedTextStart = oldText.indexOf(trimmedOldText);
+        int trailingNewLines = oldText.substring(trimmedTextStart + trimmedOldText.length())
+                .replaceAll("\\r?\\n", " ").length();
         List<String> oldTextLines = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
         oldTextLines.addAll(Collections.nCopies(trailingNewLines, ""));
         Position start = range.getStart();

@@ -89,7 +89,7 @@ service echo on testEP {
         if (jsonPayload is json) {
             checkpanic caller->respond(untaint jsonPayload);
         } else {
-            checkpanic caller->respond(untaint string.convert(jsonPayload.detail().message));
+            checkpanic caller->respond(untaint <string> jsonPayload.detail().message);
         }
     }
 }

@@ -198,8 +198,6 @@ public abstract class AbstractSubCompletionProvider {
      * @return {@link List}     List of populated completion items
      */
     protected List<CompletionItem> addTopLevelItems(LSContext context) {
-//        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-//                .getSnippetSupport();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(getStaticItem(context, Snippet.KW_IMPORT));
         completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
@@ -215,13 +213,12 @@ public abstract class AbstractSubCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC));
         completionItems.add(getStaticItem(context, Snippet.KW_FINAL));
         completionItems.add(getStaticItem(context, Snippet.KW_CONST));
-        completionItems.add(getStaticItem(context, Snippet.KW_EXTERN));
         completionItems.add(getStaticItem(context, Snippet.DEF_ERROR));
         completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
         return completionItems;
     }
 
-    private CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
+    protected CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
         return snippet.get().build(ctx);
     }
 
@@ -294,7 +291,7 @@ public abstract class AbstractSubCompletionProvider {
     protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)
+            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
                     || (UtilSymbolKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
                     && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
         };
