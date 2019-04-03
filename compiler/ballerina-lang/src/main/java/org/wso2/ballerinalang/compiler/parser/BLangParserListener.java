@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -2423,7 +2424,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
                 String nodeValue = getNodeValue(ctx, node);
-                int literalTypeTag = isDecimalDiscriminated(nodeValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
+                int literalTypeTag = NumericLiteralSupport.isDecimalDiscriminated(nodeValue)
+                        ? TypeTags.DECIMAL : TypeTags.FLOAT;
                 this.pkgBuilder.addLiteralValue(pos, ws, literalTypeTag, nodeValue, node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getHexNodeValue(ctx, node), node.getText());
@@ -2443,15 +2445,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
         }
-    }
-
-    private boolean isDecimalDiscriminated(String nodeValue) {
-        int length = nodeValue.length();
-        if (length < 1) {
-            return false;
-        }
-        char lastChar = nodeValue.charAt(length - 1);
-        return lastChar == 'd' || lastChar == 'D';
     }
 
     /**

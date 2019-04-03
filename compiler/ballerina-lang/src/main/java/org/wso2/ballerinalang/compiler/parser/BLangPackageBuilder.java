@@ -220,6 +220,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1918,7 +1919,7 @@ public class BLangPackageBuilder {
                     BLangLiteral literal = (BLangLiteral) expressionNode;
                     String strVal = String.valueOf(literal.value);
                     if (literal.type.tag == TypeTags.FLOAT || literal.type.tag == TypeTags.DECIMAL) {
-                        literal.value = stripDiscriminator(strVal);
+                        literal.value = NumericLiteralSupport.stripDiscriminator(strVal);
                     }
                 }
                 finiteTypeNode.valueSpace.add((BLangExpression) expressionNode);
@@ -1967,18 +1968,6 @@ public class BLangPackageBuilder {
         attachDeprecatedNode(typeDefinition);
         attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
-    }
-
-    private Object stripDiscriminator(String strVal) {
-        int length = strVal.length();
-        if (length < 2) {
-            return strVal;
-        }
-        char lastChar = strVal.charAt(length - 1);
-        if (lastChar == 'f' || lastChar == 'F' || lastChar == 'd' || lastChar == 'D') {
-            return strVal.substring(0, length - 1);
-        }
-        return strVal;
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,

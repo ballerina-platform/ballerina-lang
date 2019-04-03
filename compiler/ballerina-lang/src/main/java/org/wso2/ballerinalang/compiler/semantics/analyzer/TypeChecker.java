@@ -132,6 +132,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -358,12 +359,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else if (literalType.tag == TypeTags.FLOAT) {
             String literal = String.valueOf(literalValue);
-            char lastChar = getLastChar(literal);
-            String numericLiteral = stripFloatDecimalDiscriminator(literal, lastChar);
-            boolean isDiscriminatedFloat = lastChar == 'f' || lastChar == 'F';
+            String numericLiteral = NumericLiteralSupport.stripDiscriminator(literal);
+            boolean isDiscriminatedFloat = NumericLiteralSupport.isFloatDiscriminated(literal);
 
             if (expType.tag == TypeTags.DECIMAL) {
-                if (isDiscriminatedFloat || isHexLiteral(numericLiteral)) {
+                if (isDiscriminatedFloat || NumericLiteralSupport.isHexLiteral(numericLiteral)) {
                     dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.floatType);
                     resultType = symTable.semanticError;
                     return resultType;
@@ -405,8 +405,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
                 }
 
-                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType,
-                        symTable.decimalType);
+                finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.decimalType);
                 if (finiteType != symTable.semanticError) {
                     BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
                     if (literalExpr.isFiniteContext) {
@@ -453,10 +452,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType decimalLiteral(Object literalValue, BLangLiteral literalExpr, BType expType) {
         String literal = String.valueOf(literalValue);
-        char lastChar = getLastChar(literal);
-        String numericLiteral = stripFloatDecimalDiscriminator(literal, lastChar);
-        boolean isDecimalDiscriminated = lastChar == 'd' || lastChar == 'D';
-        if (expType.tag == TypeTags.FLOAT && isDecimalDiscriminated) {
+        if (expType.tag == TypeTags.FLOAT && NumericLiteralSupport.isDecimalDiscriminated(literal)) {
             dlog.error(literalExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.decimalType);
             resultType = symTable.semanticError;
             return resultType;
@@ -471,8 +467,9 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (expType.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) expType).getMemberTypes();
             if (memberTypes.stream()
-                    .anyMatch(memType -> memType.tag == TypeTags.JSON ||
-                            memType.tag == TypeTags.ANYDATA || memType.tag == TypeTags.ANY)) {
+                    .anyMatch(memType -> memType.tag == TypeTags.JSON
+                            || memType.tag == TypeTags.ANYDATA
+                            || memType.tag == TypeTags.ANY)) {
                 return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
             }
 
@@ -489,8 +486,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return setLiteralValueAndGetType(literalExpr, symTable.decimalType);
             }
 
-            finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType,
-                    symTable.decimalType);
+            finiteType = getFiniteTypeWithValuesOfSingleType((BUnionType) expType, symTable.decimalType);
             if (finiteType != symTable.semanticError) {
                 BType setType = setLiteralValueAndGetType(literalExpr, finiteType);
                 if (literalExpr.isFiniteContext) {
@@ -499,7 +495,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        literalExpr.value = numericLiteral;
+        literalExpr.value = NumericLiteralSupport.stripDiscriminator(literal);
         resultType = symTable.decimalType;
         return symTable.decimalType;
     }
@@ -534,33 +530,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return new BFiniteType(null, matchedValueSpace);
-    }
-
-    /**
-     * This method depends on the fact that we add HexExponentIndicator (p0|P0) to hex literals if it's not available.
-     *
-     * @param numericLiteral numeric literals to be tested
-     * @return is this a hex literal
-     */
-    private boolean isHexLiteral(String numericLiteral) {
-        for (int i = 0; i < numericLiteral.length(); i++) {
-            char c = numericLiteral.charAt(i);
-            if (c == 'P' || c == 'p') {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String stripFloatDecimalDiscriminator(String numericLiteral, char lastChar) {
-        if (lastChar == 'd' || lastChar == 'D' || lastChar == 'f' || lastChar == 'F') {
-            return numericLiteral.substring(0, numericLiteral.length() - 1);
-        }
-        return numericLiteral;
-    }
-
-    private char getLastChar(String string) {
-        return string.charAt(string.length() - 1);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {

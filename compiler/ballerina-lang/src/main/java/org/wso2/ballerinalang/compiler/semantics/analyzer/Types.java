@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -1789,8 +1790,8 @@ public class Types {
                 break;
             case TypeTags.FLOAT:
                 String baseValueStr = String.valueOf(baseValue);
-                String originalValue = baseLiteral.originalValue;
-                if (isDecimalDiscriminated(originalValue != null ? originalValue : baseValueStr)) {
+                String originalValue = baseLiteral.originalValue != null ? baseLiteral.originalValue : baseValueStr;
+                if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
                     return false;
                 }
                 double baseDoubleVal = Double.parseDouble(baseValueStr);
@@ -1804,17 +1805,17 @@ public class Types {
                 }
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal baseDecimalVal = parseBigDecimal(baseValue);
+                BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
                 BigDecimal candidateDecimalVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
                         candidateTypeTag == TypeTags.DECIMAL) {
-                    if (isFloatDiscriminated(String.valueOf(candidateValue))) {
+                    if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {
                         return false;
                     }
-                    candidateDecimalVal = parseBigDecimal(candidateValue);
+                    candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 }
                 break;
@@ -1823,34 +1824,6 @@ public class Types {
                 return baseValue.equals(candidateValue);
         }
         return false;
-    }
-
-    private BigDecimal parseBigDecimal(Object baseValue) {
-        String strValue = String.valueOf(baseValue);
-        if (isDecimalDiscriminated(strValue)) {
-            strValue = strValue.substring(0, strValue.length() - 1);
-        }
-        return new BigDecimal(strValue, MathContext.DECIMAL128);
-    }
-
-    private boolean isDecimalDiscriminated(String baseValueStr) {
-        int length = baseValueStr.length();
-        // There should be at least 2 characters to form discriminated decimal literal.
-        if (length < 2) {
-            return false;
-        }
-        char lastChar = baseValueStr.charAt(length - 1);
-        return (lastChar == 'd' || lastChar == 'D');
-    }
-
-    private boolean isFloatDiscriminated(String baseValueStr) {
-        int length = baseValueStr.length();
-        // There should be at least 2 characters to form discriminated decimal literal.
-        if (length < 2) {
-            return false;
-        }
-        char lastChar = baseValueStr.charAt(length - 1);
-        return (lastChar == 'f' || lastChar == 'F');
     }
 
     boolean isByteLiteralValue(Long longObject) {
