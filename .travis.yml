@@ -31,7 +31,7 @@ install:
   - nvm install 8.9.0
   - nvm use 8.9.0
   - npm install -g npm@'5.6.0'
-  - mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferLisner=WARN
+  - mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN
 
 script: echo "Done"
 
