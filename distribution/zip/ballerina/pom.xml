@@ -76,6 +76,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
         </dependency>
         <dependency>
@@ -417,6 +421,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -619,6 +629,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-file</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -841,6 +857,7 @@
                                 ballerina-encoding,
                                 ballerina-database,
                                 ballerina-file,
+                                ballerina-filepath,
                                 ballerina-grpc,
                                 ballerina-h2,
                                 ballerina-http,
@@ -932,6 +949,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-file-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-filepath-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
