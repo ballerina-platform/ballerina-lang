@@ -1,0 +1,115 @@
+apply plugin: "base"
+
+
+description = 'Ballerina - Examples Test'
+
+import org.apache.tools.ant.taskdefs.condition.Os
+import groovy.json.JsonSlurper
+
+
+configurations {
+    ballerinaTools {
+        transitive false
+    }
+}
+
+dependencies {
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
+}
+
+clean {
+    doLast {
+        delete fileTree(dir: "$buildDir/ballerina-${project.version}")
+    }
+}
+
+task test() {
+    doFirst {
+        copy {
+            def zipFile = file(configurations.ballerinaTools.asPath)
+            def outputDir = file(buildDir)
+
+            from zipTree(zipFile)
+            into outputDir
+        }
+
+        //List of BBEs excluded from building
+        def ignoreList = [ 'proto-to-ballerina',
+                           'swagger-to-ballerina',
+                           'taint-checking',
+                           'websub-hub-client-sample',
+                           'websub-remote-hub-sample',
+                           'config-api',
+                           'testerina-function-mocks',
+                           'jms-queue-message-receiver-with-client-acknowledgment',
+                           'jdbc-client-crud-operations',
+                           'jdbc-client-batch-update',
+                           'jdbc-client-call-procedures',
+                           'streaming-big-dataset',
+                           'docker-deployment',
+                           'kubernetes-deployment',
+                           'awslambda-deployment',
+                           'transactions-distributed',
+                           'local-transactions',
+                           'local-transactions-with-participants',
+                           'xa-transactions',
+                           'secured-client-with-oauth2',
+                           'gauge-metrics',
+                           'counter-metrics',
+                           'xml-functions',
+                           'openapi-to-ballerina']
+
+        //Initialize Ballerina project
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            //TODO: Need to verify with windows
+            exec {
+                workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
+                commandLine 'cmd', '/c', "${buildDir}/ballerina-tools-${project.version}/bin/ballerina.bat", 'init'
+            }
+        } else {
+            exec {
+                workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
+                commandLine "${buildDir}/ballerina-tools-${project.version}/bin/./ballerina", 'init'
+            }
+        }
+
+        def inputFile = new File( "${buildDir}/ballerina-tools-${project.version}/examples/index.json")
+        def categories = new JsonSlurper().parseText(inputFile.text)
+        def bbeList = []
+        categories.each { category ->
+            def examples = category.samples
+            examples.each { example ->
+                bbeList.push("$example.url")
+
+            }
+        }
+
+        // Remove excludes
+        ignoreList.each { ignoreItem ->
+            bbeList.remove("$ignoreItem")
+        }
+
+        bbeList.each { String bbe ->
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                exec {
+                    workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
+                    commandLine 'cmd', '/c', "${buildDir}/ballerina-tools-${project.version}/bin/ballerina.bat", 'build', bbe, '--experimental'
+                }
+            } else {
+                exec {
+                    workingDir "${buildDir}/ballerina-tools-${project.version}/examples"
+                    commandLine "${buildDir}/ballerina-tools-${project.version}/bin/./ballerina", 'build', bbe, '--experimental'
+                }
+            }
+        }
+   }
+}
+
+build {
+    dependsOn test
+}
+
+
+
+
