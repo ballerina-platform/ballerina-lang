@@ -103,6 +103,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             // Get the test suite related to the package from registry
             suite = registry.getTestSuites().get(packageName);
         }
+        // Remove the duplicated annotations.
+        annotations = annotations.stream().distinct().collect(Collectors.toList());
         // traverse through the annotations of this function
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
