@@ -17,10 +17,17 @@
 */
 package org.ballerinalang.util.diagnostic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @since 0.94
  */
 public interface DiagnosticListener {
 
     void received(Diagnostic diagnostic);
+
+    default List<Diagnostic> getDiagnostics() {
+        return new ArrayList<>();
+    }
 }
