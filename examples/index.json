@@ -109,8 +109,8 @@
                 "url": "record-match-statement"
             },
             {
-                "name": "Type Check Expression",
-                "url": "type-check-expression"
+                "name": "Type Test Expression",
+                "url": "type-test-expression"
             },
             {
                 "name": "Type Guard",
