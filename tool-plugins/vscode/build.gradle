@@ -8,6 +8,7 @@ configurations {
 }
 
 task npmBuild(type: Exec, overwrite: true) {
+    mustRunAfter('npmInstall')
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
 
