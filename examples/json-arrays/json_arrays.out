@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run json_arrays.bal
 [1, false, null, "foo", {"first":"John", "last":"Pala"}]
 John
