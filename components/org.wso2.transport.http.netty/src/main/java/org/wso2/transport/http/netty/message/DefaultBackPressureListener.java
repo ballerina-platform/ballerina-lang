@@ -46,7 +46,6 @@ public class DefaultBackPressureListener implements BackPressureListener {
             LOG.debug("Semaphore acquired in thread {}.", Thread.currentThread().getName());
         }
         try {
-            LOG.warn("{} Semaphore acquired.", Thread.currentThread().getName());
             semaphore.acquire();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -58,7 +57,6 @@ public class DefaultBackPressureListener implements BackPressureListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Semaphore released in thread {} ", Thread.currentThread().getName());
         }
-        LOG.warn("{} Semaphore released.", Thread.currentThread().getName());
         semaphore.release();
     }
 }

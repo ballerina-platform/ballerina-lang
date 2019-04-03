@@ -21,10 +21,10 @@ package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.Http2BackPressureListener;
+import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 
 /**
- * Starts HTTP/2 request content writing.
+ * Starts writing HTTP/2 request content.
  */
 public class RequestWriteStarter {
     private static final Logger LOG = LoggerFactory.getLogger(RequestWriteStarter.class);
@@ -37,14 +37,15 @@ public class RequestWriteStarter {
     }
 
     public void startWritingContent() {
-        LOG.warn("{} Is Passthrough {} ", Thread.currentThread().getName(),
-                 outboundMsgHolder.getRequest().isPassthrough());
         if (!outboundMsgHolder.getRequest().isPassthrough()) {
-            outboundMsgHolder.getBackPressureObservable().setListener(new Http2BackPressureListener());
+            outboundMsgHolder.getBackPressureObservable().setListener(new DefaultBackPressureListener());
         }
         outboundMsgHolder.setFirstContentWritten(false);
         outboundMsgHolder.getRequest().getHttpContentAsync().setMessageListener((httpContent) -> {
             if (!outboundMsgHolder.isStreamWritable()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("In thread {}. Stream is not writable.", Thread.currentThread().getName());
+                }
                 outboundMsgHolder.getBackPressureObservable().notifyUnWritable();
             }
             http2ClientChannel.getChannel().eventLoop().execute(() -> {
