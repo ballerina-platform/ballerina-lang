@@ -7,7 +7,7 @@ const string GET = "GET";
 const POST = "POST";
 
 // Constants can be used to create type definitions. The type definition below specifies that a variable of the type
-// `Action` can only hold either `GET` or `POST`.
+// `ACTION` can only hold either `GET` or `POST`.
 type ACTION GET|POST;
 
 // Integer constant.
