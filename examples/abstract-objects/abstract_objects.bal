@@ -30,7 +30,7 @@ type Employee object {
         self.lastName = lastName;
     }
 
-    // Methods should have a body.
+    // Methods should have a body either within the object or as outside method definitions.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
