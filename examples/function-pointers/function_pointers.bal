@@ -8,8 +8,8 @@ function test(int x, string s) returns float {
     if (y is int) {
         f = x * 1.0 * y;
     } else {
-        // The runtime value is cast to the correct type since Ballerina
-        // runtime can infer the correct type to error.
+        // The type of `y` within the else block would be error, since the `int`
+        // case is already handled by the `if` block.
         panic y;
     }
     return f;

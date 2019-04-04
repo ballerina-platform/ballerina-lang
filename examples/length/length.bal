@@ -48,10 +48,10 @@ public function main() {
     length = x1.*.elements().length();
     io:println("XML child elements size: ", length);
 
-    // This creates a `tuple` with two members.
+    // This creates a tuple with two members.
     (int, string) tupleVar = (10, "John");
 
-    // This prints the size of the `tuple` i.e. the number of members in the `tuple`.
+    // This prints the size of the tuple i.e. the number of members in the tuple.
     length = tupleVar.length();
     io:println("Tuple size: ", length);
 

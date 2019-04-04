@@ -28,7 +28,7 @@ function multilevelClosure() returns (function (int) returns int) {
         var func2 = function (int y) returns int {
             int c = 7;
             var func3 = function (int z) returns int {
-                // Variable `b` defined in the outermost scope is modified.
+                // Variable `b` defined in function `func1` is modified.
                 // The original value of `b` will be changed to `24`.
                 b = b + 1;
                 return x + y + z + a + b + c;

@@ -28,7 +28,7 @@ public function main() {
     // It is possible to get all the attributes at once. However, this cannot be assigned to any variable.
     io:println(x1@);
 
-    // We can use `x1@` syntax to get all attributes of a single XML element as a map.
+    // We can use `x1@` syntax to get all attributes of a singleton XML element as a map.
     map<string>? attributeMap = x1@;
     io:println(attributeMap);
     io:println(attributeMap["count"]);
