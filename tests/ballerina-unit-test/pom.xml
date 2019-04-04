@@ -435,18 +435,6 @@
                                     <groupId>org.ballerinalang</groupId>
                                     <artifactId>ballerina-runtime</artifactId>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-core</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-lang</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-utils</artifactId>
-                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/bre/lib</outputDirectory>
                         </configuration>
