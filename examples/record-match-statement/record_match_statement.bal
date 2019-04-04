@@ -52,8 +52,8 @@ function basicMatch(any a) {
     }
 }
 
-// Following method uses structured record match patterns with different fields along with a type guards. The given
-// `match` expression will be checked for "isLike" relationship and also it will check the type guard present for a
+// Following method uses structured record match patterns with different fields along with type guards. The given
+// `match` expression will be checked for "isLike" relationship and it will also check the type guard present for a
 // successful match.
 function matchWithTypeGuard(any matchExpr) {
     // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2`
@@ -79,7 +79,7 @@ function matchWithTypeGuard(any matchExpr) {
                io:println("Matched with string and RecordTwo typeguard : "
                           + io:sprintf("%s", var2.var1));
         // A pattern with a single identifier can be used as the last match pattern and all values will
-        // be matched to this
+        // be matched to this.
         var x => io:println("Matched with Default");
     }
 }
