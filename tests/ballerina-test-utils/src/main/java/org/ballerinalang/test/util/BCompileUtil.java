@@ -550,7 +550,7 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName);
+        byte[] compiledJar = JVMCodeGen.generateJarBinary(false, bLangPackage, context, packageName);
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String entryClassName = FileUtils.cleanupFileExtension(packageName);
         Class<?> clazz = classLoader.loadClass(entryClassName);
