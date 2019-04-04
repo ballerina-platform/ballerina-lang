@@ -8,7 +8,7 @@ function test(int x, string s) returns float {
     if (y is int) {
         f = x * 1.0 * y;
     } else {
-        // The type of `y` within the else block would be error, since the `int`
+        // The type of `y` within the else block would be `error`, since the `int`
         // case is already handled by the `if` block.
         panic y;
     }
