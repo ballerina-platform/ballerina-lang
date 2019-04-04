@@ -48,6 +48,12 @@ public class BallerinaClassWriter extends ClassWriter {
         super.visit(version, access, className, signature, superName, interfaces);
     }
 
+    /**
+     * Returns the common super type of the two given types. If any of the classes are 
+     * generated ones, then their super class is used to find the common super type. It 
+     * is assumed that the super classes are compile time known classes. If the super classes
+     * are also generated ones, this method must be overridden to to handle such cases.
+     */
     @Override
     protected String getCommonSuperClass(String type1, String type2) {
         if (generatedClasses.containsKey(type1)) {

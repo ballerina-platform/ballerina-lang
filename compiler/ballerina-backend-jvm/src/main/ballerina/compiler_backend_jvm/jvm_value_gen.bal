@@ -291,8 +291,6 @@ public type ObjectGenerator object {
 
 };
 
-// TODO: this function should accept a `NamedNode`. However there seems to be a bug
-// in type compatibility check.
 function getName(any node, bir:BObjectType? objectType) returns string {
     if (node is bir:BAttachedFunction && objectType is bir:BObjectType) {
         return objectType.name.value + "_" + node.name.value;
