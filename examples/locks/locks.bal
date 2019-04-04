@@ -10,7 +10,6 @@ public function main() {
 }
 
 type Counter object {
-    // The `count` field will be shared among the same object instances.
     int count = 0;
 
     public function update() {
