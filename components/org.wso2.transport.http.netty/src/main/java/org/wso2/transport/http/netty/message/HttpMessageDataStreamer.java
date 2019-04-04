@@ -35,7 +35,6 @@ import org.wso2.transport.http.netty.contract.Constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
@@ -74,7 +73,6 @@ public class HttpMessageDataStreamer {
         private int limit;
         private ByteBuffer byteBuffer;
         private HttpContent httpContent;
-        private PrintStream printStream = System.out;
 
         @Override
         public int read() {
@@ -113,17 +111,13 @@ public class HttpMessageDataStreamer {
         @Override
         public void close() throws IOException {
             byteBuffer = null;
-            releaseHttpContent();    //fix memory leak issue in error path
-            for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-                printStream.println(element);
-            }
-//            super.close();
+//            releaseHttpContent();    //fix memory leak issue in error path
+            super.close();
         }
 
         private synchronized void releaseHttpContent() {
             if (httpContent != null && httpContent.refCnt() > 0) {
                 httpContent.release();
-                printStream.println("---Release HttpContent is called---");
             }
         }
     }
