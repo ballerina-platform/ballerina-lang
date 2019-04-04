@@ -4,12 +4,12 @@ public function main() {
     string? x = ();
 
     // If you need to get the value of `x` if it is a `string`, or assign some
-    // other `string` value if `x` is `nil`, you can do it using the type-guard
+    // other `string` value if `x` is `()`, you can do it using the type-guard
     // as follows.
     string output = x is string ? "value is string: " + x : "value is nil";
     io:println("The output from the type-guard: " + output);
 
-    // Following is how you can achieve the same using the `elvis` operator.
+    // Following is how you can achieve the same using the elvis operator.
     string elvisOutput = x ?: "value is nil";
     io:println("The output from the elvis operator: " + elvisOutput);
 }

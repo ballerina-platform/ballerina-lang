@@ -16,7 +16,7 @@ public function main() {
         io:println("'a' is not an int or string, with value: ", a);
     }
 
-    // The type test can be used to find the runtime type of `union` type variables.
+    // The type test can be used to find the runtime type of union type variables.
     Student alex = { name : "Alex" };
     Student|Person|Vehicle x = alex;
 

@@ -31,7 +31,7 @@ public function main() {
             io:println("- value is string|boolean: ", sb);
         }
     } else {
-        // Within this block the type of `value` is `boolean` since the previous `if` and `else if` blocks handle the
+        // Within this block, the type of `value` is `boolean` since the previous `if` and `else if` blocks handle the
         // other possible scenarios.
         if (value) {
             io:println("s is 'true'");
