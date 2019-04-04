@@ -625,4 +625,16 @@ public class TypeTestExprTest {
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
+
+    @Test
+    public void testClosedArrayAsOpenArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsOpenArray");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testClosedArrayAsInvalidClosedArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsInvalidClosedArray");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
 }
