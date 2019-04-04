@@ -1,0 +1,9 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+$ ballerina run checkpanic.bal
+120
+error: {ballerina}ConversionError {"message":"incompatible convert operation: 'string' value 'Invalid' cannot be converted as 'int'"}
+        at ballerina/utils:simpleValueConvert(<native>)
+           parse(checkpanic.bal:5)
+           scale(checkpanic.bal:14)
+           main(checkpanic.bal:24)
