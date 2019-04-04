@@ -43,4 +43,8 @@ spotbugsTest {
 test {
     systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }

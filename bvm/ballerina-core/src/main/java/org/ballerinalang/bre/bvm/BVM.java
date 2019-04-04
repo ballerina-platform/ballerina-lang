@@ -4998,9 +4998,21 @@ public class BVM {
         }
 
         BArrayType sourceArrayType = (BArrayType) sourceType;
-        if (sourceArrayType.getState() != targetType.getState() || sourceArrayType.getSize() != targetType.getSize()) {
-            return false;
+
+        switch (sourceArrayType.getState()) {
+            case UNSEALED:
+                if (targetType.getState() != BArrayState.UNSEALED) {
+                    return false;
+                }
+                break;
+            case CLOSED_SEALED:
+                if (targetType.getState() == BArrayState.CLOSED_SEALED &&
+                        sourceArrayType.getSize() != targetType.getSize()) {
+                    return false;
+                }
+                break;
         }
+
         return checkIsType(sourceArrayType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
@@ -5141,6 +5153,9 @@ public class BVM {
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
                 return isListType(rhsValTypeTag) && isEqual((BNewArray) lhsValue, (BNewArray) rhsValue, checkedValues);
+            case TypeTags.ERROR_TAG:
+                return rhsValTypeTag == TypeTags.ERROR_TAG &&
+                        isEqual((BError) lhsValue, (BError) rhsValue, checkedValues);
             case TypeTags.SERVICE_TAG:
                 break;
         }
@@ -5215,6 +5230,24 @@ public class BVM {
         return true;
     }
 
+    /**
+     * Deep equality check for error.
+     *
+     * @param lhsError      The error on the left hand side
+     * @param rhsError      The error on the right hand side
+     * @param checkedValues Errors already compared or being compared
+     * @return True if the error values are equal, else false.
+     */
+    private static boolean isEqual(BError lhsError, BError rhsError, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsError, rhsError);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        return isEqual(new BString(lhsError.getReason()), new BString(rhsError.getReason()), checkedValues) &&
+                isEqual((BMap) lhsError.getDetails(), (BMap) rhsError.getDetails(), checkedValues);
+    }
 
     /**
      * Maintains the frozen status of a freezable {@link BValue}.

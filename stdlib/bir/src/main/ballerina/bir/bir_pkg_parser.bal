@@ -59,16 +59,16 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i += 1;
         }
-
         FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
         BasicBlock?[] basicBlocks = self.getBasicBlocks(bodyParser);
-
+        ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         return {
             name: { value: name },
             isDeclaration: isDeclaration,
             visibility: visibility,
             localVars: dcls,
             basicBlocks: basicBlocks,
+            errorEntries:errorEntries,
             argsCount: argsCount,
             typeValue: sig
         };
@@ -111,6 +111,17 @@ public type PackageParser object {
         }
 
         return basicBlocks;
+    }
+
+    function getErrorEntries(FuncBodyParser bodyParser) returns ErrorEntry?[] {
+        ErrorEntry?[] errorEntries = [];
+        var numEE = self.reader.readInt32();
+        int i = 0;
+        while (i < numEE) {
+            errorEntries[i] = bodyParser.parseEE();
+            i += 1;
+        }
+        return errorEntries;
     }
 
     function parseImportMods() returns ImportModule[] {

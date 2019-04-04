@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -91,6 +93,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -214,6 +217,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Rearrange basic block ids.
         birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
+        // Rearrange error entries.
+        birFunc.errorTable.sort(Comparator.comparing(o -> o.trapBB.id.value));
         this.env.clear();
     }
 
@@ -364,8 +369,20 @@ public class BIRGen extends BLangNodeVisitor {
             returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
             this.env.returnBB = returnBB;
         }
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(astReturnStmt.pos, this.env.returnBB);
+        }
+    }
 
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(astReturnStmt.pos, this.env.returnBB);
+    public void visit(BLangPanic panicNode) {
+        panicNode.expr.accept(this);
+        // Some functions will only have panic but we need to add return for them to make current algorithm work.
+        if (this.env.returnBB == null) {
+            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
+            returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
+            this.env.returnBB = returnBB;
+        }
+        this.env.enclBB.terminator = new BIRTerminator.Panic(panicNode.pos, this.env.targetOperand);
     }
 
     public void visit(BLangIf astIfStmt) {
@@ -715,7 +732,41 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
     }
 
+    public void visit(BLangTrapExpr trapExpr) {
+        // This will move instructions inside trap expression for a new basic block unless current block does not have 
+        // any instructions or already in the current trap block.
+        if (!this.env.enclBB.instructions.isEmpty() && this.env.trapBB != this.env.enclBB) {
+            this.env.trapBB = new BIRBasicBlock(this.env.nextBBId(names));
+            env.enclFunc.basicBlocks.add(this.env.trapBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, this.env.trapBB);
+            this.env.enclBB = this.env.trapBB;
+        } else {
+            this.env.trapBB = this.env.enclBB;
+        }
+        trapExpr.expr.accept(this);
+        if (this.env.trapBB.terminator != null) {
+            // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap 
+            // and add error entry for each and every basic block.
+            genIntermediateErrorEntries(this.env.trapBB);
+        } else {
+            // Create new block for instructions after trap.
+            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(this.env.trapBB, this.env.targetOperand));
+            this.env.trapBB = new BIRBasicBlock(this.env.nextBBId(names));
+            env.enclFunc.basicBlocks.add(this.env.trapBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, this.env.trapBB);
+            this.env.enclBB = this.env.trapBB;
+        }
+    }
+
     // private methods
+
+    private void genIntermediateErrorEntries(BIRBasicBlock thenBB) {
+        if (thenBB != this.env.enclBB) {
+            this.env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(thenBB, this.env.targetOperand));
+            this.env.trapBB = ((BIRTerminator.Call) thenBB.terminator).thenBB;
+            genIntermediateErrorEntries(this.env.trapBB);
+        }
+    }
 
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isPublic(symbol)) {

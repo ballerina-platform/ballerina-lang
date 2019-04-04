@@ -1765,6 +1765,9 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <quiet>true</quiet>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -2384,7 +2387,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.0.278</transport.http.version>
+        <transport.http.version>6.0.277</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2422,7 +2425,7 @@
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.34</swagger.parser.version>
         <swagger.models.version>1.5.18</swagger.models.version>
-        <swagger.v3.parser.version>2.0.9</swagger.v3.parser.version>
+        <swagger.v3.parser.version>2.0.11</swagger.v3.parser.version>
         <swagger.v3.models.version>2.0.7</swagger.v3.models.version>
         <swagger.parser.v2.converter.version>2.0.0-rc3</swagger.parser.v2.converter.version>
         <com.fasterxml.jackson.core.annotations.version>2.9.8</com.fasterxml.jackson.core.annotations.version>
@@ -2500,10 +2503,10 @@
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <andes.client.version>3.2.87</andes.client.version>
-        <wso2.securevault.version>1.1.1</wso2.securevault.version>
+        <wso2.securevault.version>1.1.2</wso2.securevault.version>
 
         <!-- Artemis connector -->
-        <artemis.version>2.6.3</artemis.version>
+        <artemis.version>2.7.0</artemis.version>
         <beanutils.version>1.9.3</beanutils.version>
         <jboss.version>3.3.2.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>

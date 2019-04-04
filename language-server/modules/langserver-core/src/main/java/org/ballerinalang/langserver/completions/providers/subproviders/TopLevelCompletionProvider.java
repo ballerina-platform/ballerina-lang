@@ -16,11 +16,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.subproviders;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
@@ -35,19 +32,8 @@ public class TopLevelCompletionProvider extends AbstractSubCompletionProvider {
     @Override
     public List<CompletionItem> resolveItems(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
-        if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
-            // Provides completions after public keyword
-            completionItems.addAll(addTopLevelItems(ctx));
-            completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
-            // Completion after the extern keyword. Only the signature of function should suggest
-            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx));
-        } else {
-            completionItems.addAll(addTopLevelItems(ctx));
-            completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        }
+        completionItems.addAll(addTopLevelItems(ctx));
+        completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
 
         ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
         return completionItems;

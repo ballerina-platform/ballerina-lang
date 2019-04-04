@@ -44,6 +44,7 @@ public enum InstructionKind {
     IS_LIKE((byte) 30),
     TYPE_TEST((byte) 31),
     NEW_INSTANCE((byte) 32),
+    PANIC((byte) 33),
 
     // Binary expression related instructions.
     ADD((byte) 50),

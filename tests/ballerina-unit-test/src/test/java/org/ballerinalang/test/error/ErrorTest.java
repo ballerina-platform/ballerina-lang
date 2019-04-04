@@ -207,6 +207,20 @@ public class ErrorTest {
     }
 
     @Test
+    public void testUnspecifiedErrorDetailFrozenness() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnspecifiedErrorDetailFrozenness");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testErrorDetailCloneAndFreeze() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorDetailCloneAndFreeze");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testErrorNegative() {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeCompileResult, 0,
