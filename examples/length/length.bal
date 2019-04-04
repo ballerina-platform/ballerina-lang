@@ -37,14 +37,14 @@ public function main() {
     length = myStr.length();
     io:println("String size: ", length);
 
-    // This creates an `xml` element.
+    // This creates an XML element.
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
                     <!--Price: $10-->
                   </book>`;
 
-    // This prints the number of content items in the `xml` element.
+    // This prints the number of content items in the XML element.
     length = x1.*.elements().length();
     io:println("XML child elements size: ", length);
 
