@@ -1092,7 +1092,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
+                <artifactId>ballerina-client-generator</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1852,6 +1852,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1884,6 +1885,7 @@
                 <module>cli/ballerina-packerina</module>
                 <!--<module>compiler/ballerina-backend-llvm</module>-->
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>

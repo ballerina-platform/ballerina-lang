@@ -48,7 +48,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class ImportModuleExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "IMPORT_MODULE";
+    public static final String COMMAND = "IMPORT_MODULE";
 
     /**
      * {@inheritDoc}
