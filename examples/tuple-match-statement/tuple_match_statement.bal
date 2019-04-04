@@ -14,7 +14,7 @@ public function main() {
     basicMatch(a4);
 
     // In this example, there are five different variables created and they will be used
-    // with the 'matchWithTypeGuard' function, which does the match along with type guard conditions.
+    // with the 'matchWithTypeGuard()' function, which does the match along with type guard conditions.
     (string, int)|(boolean, int)|(int, boolean)|int|float b1 = ("Hello", 45);
     (string, int)|(float, boolean)|(int, boolean)|int|float b2 = (4.5, true);
     (float, boolean)|(boolean, int)|(int, boolean)|int|float b3 = (false, 4);
