@@ -9,6 +9,8 @@ configurations {
 
 task npmBuild(type: Exec, overwrite: true) {
     mustRunAfter('npmInstall')
+    // TODO: Refactor mustRunAfter logic
+    mustRunAfter ':composer-library:npmBuild'
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
 
@@ -24,6 +26,11 @@ task assemble(overwrite: true) {
     dependsOn npmBuild
 }
 
+build.finalizedBy('test')
+
+test {
+    mustRunAfter ":ballerina-integration-test:test"
+}
 
 dependencies {
     dist project(':composer-library')

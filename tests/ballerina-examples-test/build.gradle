@@ -16,7 +16,7 @@ dependencies {
 }
 
 build {
-    dependsOn (":ballerina-tools:build")
+    dependsOn ":ballerina-tools:build"
 }
 
 task test{

@@ -103,6 +103,34 @@ def copyBaloSpec = {
     }
 }
 
+def copyBalxSpec = {
+    path -> copySpec {
+        from configurations.balx
+        into(path + 'lib/balx')
+    }
+}
+
+def copyStaticSpec = {
+    path -> copySpec {
+        from configurations.staticFiles
+        into(path)
+    }
+}
+
+def copyResourceSpec = {
+    path -> copySpec {
+        from configurations.resourceFiles
+        into("$path/bre")
+    }
+}
+
+def copySrcBaloSpec = {
+    path -> copySpec {
+        from configurations.balSource.files
+        into("$path/src")
+    }
+}
+
 def copyBinSpec = {
     path -> copySpec {
         from configurations.bin
@@ -192,6 +220,7 @@ task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBaloSpec(basePath)
+    with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyToolsSpec(basePath)
     with copyToolsZipSpec(basePath)
@@ -199,12 +228,16 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
+    with copyStaticSpec(basePath)
+    with copyResourceSpec(basePath)
+    with copySrcBaloSpec(basePath)
 }
 
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBaloSpec(installDir)
+    with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyToolsSpec(installDir)
     with copyToolsZipSpec(installDir)
@@ -212,6 +245,9 @@ task updateBalHome(type: Copy) {
     with copyBallerinaZipSpec(installDir)
     with apiDocsSpec(installDir)
     with examplesSpec(installDir)
+    with copyStaticSpec(installDir)
+    with copyResourceSpec(installDir)
+    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
 
@@ -220,6 +256,7 @@ task createDistribution(type: Copy) {
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBaloSpec("")
+    with copyBalxSpec("")
     with copyBinSpec("")
     with copyToolsSpec("")
     with copyToolsZipSpec("")
@@ -227,10 +264,16 @@ task createDistribution(type: Copy) {
     with copyBallerinaZipSpec("")
     with apiDocsSpec("")
     with examplesSpec("")
+    with copyStaticSpec("")
+    with copyResourceSpec("")
+    with copySrcBaloSpec("")
     destinationDir=file(filePath)
 }
 
 build {
+    // To make sure language server zip is ready before building pack
+    mustRunAfter ':language-server:language-server-core:build'
+
     dependsOn createZip
     dependsOn createDistribution
 }
