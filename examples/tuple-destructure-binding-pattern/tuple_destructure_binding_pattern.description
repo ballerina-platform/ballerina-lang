@@ -1,3 +1,3 @@
 // Tuple binding patterns are used to destructure and assign values to each individual variables of the tuple.
-// The tuple destructuring binding patters will be used to refer existing variables as a tuple and destructure the
+// The tuple destructuring binding patterns will be used to refer existing variables as a tuple and destructure the
 // the given value on the right hand side and assign the values to each individual variables of the tuple at runtime.

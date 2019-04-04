@@ -1,6 +1,6 @@
 import ballerina/io;
 
-//This function optionally returns a `string` value. `?` here is equivalent to `|()`.
+//This function optionally returns a `string` value. Here, `string?` is equivalent to `string|()`.
 function getValue(string key) returns string? {
     // In Ballerina, the `nil` type that is provided as `()` contains a single value named `nil`. This is used
     // to represent the absence of any other value.
