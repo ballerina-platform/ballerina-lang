@@ -109,6 +109,10 @@
                 "url": "record-match-statement"
             },
             {
+                "name": "Error Match",
+                "url": "error-match-statement"
+            },
+            {
                 "name": "Type Check Expression",
                 "url": "type-check-expression"
             },
@@ -338,12 +342,20 @@
                 "url": "record-type-binding-pattern"
             },
             {
+                "name": "Error Type Binding Pattern",
+                "url": "error-type-binding-pattern"
+            },
+            {
                 "name": "Tuple Destructure Binding Pattern",
                 "url": "tuple-destructure-binding-pattern"
             },
             {
                 "name": "Record Destructure Binding Pattern",
                 "url": "record-destructure-binding-pattern"
+            },
+            {
+                "name": "Error Destructure Binding Pattern",
+                "url": "error-destructure-binding-pattern"
             }
         ]
     },
@@ -362,6 +374,10 @@
             {
                 "name": "Check",
                 "url": "check"
+            },
+            {
+                "name": "Check Panic",
+                "url": "checkpanic"
             },
             {
                 "name": "Panic ",
