@@ -23,36 +23,6 @@
             "constructs": {
                 "records": [
                     {
-                        "name": "authCacheConfig",
-                        "description": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.",
-                        "fields": [
-                            {
-                                "field_name": "enabled",
-                                "data_type": "boolean",
-                                "default_value": "true",
-                                "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
-                            },
-                            {
-                                "field_name": "capacity",
-                                "data_type": "int",
-                                "default_value": "100",
-                                "description": "The capacity of the cache"
-                            },
-                            {
-                                "field_name": "expiryTimeMillis",
-                                "data_type": "int",
-                                "default_value": "5 * 1000",
-                                "description": "The number of milliseconds to keep an entry in the cache"
-                            },
-                            {
-                                "field_name": "evictionFactor",
-                                "data_type": "float",
-                                "default_value": "1.0",
-                                "description": "The fraction of entries to be removed when the cache is full. The value should be between 0 (exclusive) and 1 (inclusive)."
-                            }
-                        ]
-                    },
-                    {
                         "name": "authConfig",
                         "description": "authConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.",
                         "fields": {
@@ -433,7 +403,239 @@
                         }
                     }
                 ],
-                "objects": [],
+                "objects": [
+                    {
+                        "name": "AuthHandlerRegistry",
+                        "description": "Representation of the Http Auth Handler Registry.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "AuthnFilter",
+                        "description": "Representation of the Authentication filter.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "AuthnHandlerChain",
+                        "description": "Representation of Authentication handler chain",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "AuthzFilter",
+                        "description": "Representation of the Authorization filter",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "CircuitBreakerClient",
+                        "description": "A Circuit Breaker implementation which can be used to gracefully handle network failures.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "Filter",
+                        "description": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "FilterContext",
+                        "description": "Representation of request filter Context.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "HttpAuthnHandler",
+                        "description": "Representation of Authentication handler for HTTP traffic.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "HttpAuthzHandler",
+                        "description": "Representation of Authorization Handler for HTTP",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "HttpBasicAuthnHandler",
+                        "description": "Defines Basic Auth handler for HTTP traffic.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "HttpCache",
+                        "description": "",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "HttpFuture",
+                        "description": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission. This can be used as a reference to fetch the results of the submission.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "HttpJwtAuthnHandler",
+                        "description": "Representation of JWT Auth handler for HTTP traffic",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "Listener",
+                        "description": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to remote callers. The Listener is responsible for initializing the endpoint using the provided configurations.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "LoadBalancerRounRobinRule",
+                        "description": "Implementation of round robin load balancing strategy.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "LoadBalancerRule",
+                        "description": "LoadBalancerRule provides a required interfaces to implement different algorithms.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "MockListener",
+                        "description": "Mock server endpoint which does not open a listening port.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "PushPromise",
+                        "description": "Represents an HTTP/2 PUSH_PROMISE frame.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "Request",
+                        "description": "Represents an HTTP request.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "RequestCacheControl",
+                        "description": "Configures cache control directives for a Request.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "Response",
+                        "description": "Represents an HTTP response.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "ResponseCacheControl",
+                        "description": "Configures cache control directives for a Response.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    },
+                    {
+                        "name": "WebSocketListener",
+                        "description": "Represents a WebSocket service endpoint.",
+                        "fields": {
+                            "field_name": "enabled",
+                            "data_type": "boolean",
+                            "default_value": "true",
+                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                        }
+                    }
+                
+                ],
                 "clients": [],
                 "functions": [],
                 "listeners": [],
@@ -613,6 +815,244 @@
         {
             "id": "auth",
             "description": "This module includes functions to interact with the runtime, the invocation context and to manage errors.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "h2",
+            "description": "This module contains functions to support gRPC protocol based communication. gRPC is a framework developed by Google to support the RPC (Remote Procedure Call) protocol.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "file",
+            "description": "This module provides the functionality required to access and manipulate data stored in an H2 database.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "mysql",
+            "description": "This module contains services that register listeners against a local folder and identify events that create, modify, and delete files.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "observe",
+            "description": "This module provides the functionality required to access and manipulate data stored in a MySQL database.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "reflect",
+            "description": "This module is designed to support input and output operations via channels in a canonical way, either in a blocking, or non-blocking manner.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "runtime",
+            "description": "This module includes functions to interact with the runtime, the invocation context and to manage errors.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "socket",
+            "description": "This module provides the functionality required to access and manipulate data stored in a MySQL database.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "sql",
+            "description": "This module is designed to support input and output operations via channels in a canonical way, either in a blocking, or non-blocking manner.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "streams",
+            "description": "This module includes functions to interact with the runtime, the invocation context and to manage errors.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "swagger",
+            "description": "This module provides the functionality required to access and manipulate data stored in a MySQL database.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "system",
+            "description": "This module is designed to support input and output operations via channels in a canonical way, either in a blocking, or non-blocking manner.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "task",
+            "description": "This module includes functions to interact with the runtime, the invocation context and to manage errors.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "test",
+            "description": "This module contains functions to support gRPC protocol based communication. gRPC is a framework developed by Google to support the RPC (Remote Procedure Call) protocol.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "file",
+            "description": "This module provides the functionality required to access and manipulate data stored in an H2 database.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "time",
+            "description": "This module contains services that register listeners against a local folder and identify events that create, modify, and delete files.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "transactions",
+            "description": "This module provides the functionality required to access and manipulate data stored in a MySQL database.",
+            "constructs": {
+                "records": [],
+                "objects": [],
+                "clients": [],
+                "functions": [],
+                "listeners": [],
+                "constants": [],
+                "annotations": [],
+                "errors": []
+            }
+        },
+        {
+            "id": "websub",
+            "description": "This module is designed to support input and output operations via channels in a canonical way, either in a blocking, or non-blocking manner.",
             "constructs": {
                 "records": [],
                 "objects": [],

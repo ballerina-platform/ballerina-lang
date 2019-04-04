@@ -15,29 +15,22 @@
 
 <body>
   <div class="ui grid">
-    <div class="header-wrapper">
+    <div class="navi-wrapper two wide column"> 
       <img class="logo" src="images/ballerina-logo.png">
-      <p>{{description}}</p>
-      <div class="ui grid">
-        {{#if modules}}
-        <div class="eleven wide column content-wrapper">
-          <div class="ui grid">{{#each modules}}
-            <div class="two wide column">
-              
-              <span class="module-title">
-                <a href="{{id}}/index.html">{{id}}</a></span>
-            </div>
-            <div class="fourteen wide column">
-              <span class="module-desc">
-                {{description}}
-              </span>
-             
-            </div>
-             {{/each}}
-          </div>
-        </div>
+    </div>
+    <div class="fourteen wide column content-wrapper">
+      <table class="ui table">
+         {{#if modules}}
+        <tbody>
+         {{#each modules}}
+          <tr>
+            <td class="module-title"><a href="{{id}}/index.html">{{id}}</a></td>
+            <td class="module-desc">{{description}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
         {{/if}}
-      </div>
+      </table>
     </div>
   </div>
 </body>
