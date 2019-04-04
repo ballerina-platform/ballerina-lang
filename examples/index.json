@@ -215,8 +215,8 @@
                 "url": "object-initializer"
             },
             {
-                "name": "Member Functions",
-                "url": "object-member-functions"
+                "name": "Object Methods",
+                "url": "object-methods"
             },
             {
                 "name": "Object Assignability",
