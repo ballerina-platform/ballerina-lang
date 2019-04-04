@@ -349,7 +349,7 @@ type TypeEmitter object {
     function emitObjectType(BObjectType bObjectType, string tabs) {
         print(tabs, "object {");
         foreach var f in bObjectType.fields {
-            if(f is BObjectField){
+            if (f is BObjectField){
                 string visibility = f.visibility;
                 print(tabs + "\t", visibility.toLower(), " ");
                 self.emitType(f.typeValue);
