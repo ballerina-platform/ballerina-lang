@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
     // Here there are four different variables created and they will be used with
-    // the `basicMatch` function, which does the match.
+    // the `basicMatch()` function, which does the match.
     (string, int)|(float, string, boolean)|float a1 = 66.6;
     (string, int)|(float, string, boolean)|float a2 = ("Hello", 12);
     (float, boolean)|(float, string, boolean)|float a3 = (4.5, true);
