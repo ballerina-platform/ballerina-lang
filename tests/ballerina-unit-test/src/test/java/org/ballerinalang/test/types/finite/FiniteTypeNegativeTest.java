@@ -48,19 +48,19 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 13, "Error count mismatch");
-
-        validateError(result, 0, "incompatible types: expected '5|100', found 'string'", 33, 16);
-        validateError(result, 1, "incompatible types: expected '5', found '5'", 40, 18);
-        validateError(result, 2, "incompatible types: expected '5', found '5'", 47, 17);
-        validateError(result, 3, "incompatible types: expected '5', found 'float'", 52, 17);
-        validateError(result, 4, "incompatible types: expected '5.0f', found '5'", 59, 19);
-        validateError(result, 5, "incompatible types: expected '5.0f', found '5d'", 64, 19);
-        validateError(result, 6, "incompatible types: expected '5d', found '5'", 71, 21);
-        validateError(result, 7, "incompatible types: expected '5d', found '5.0f'", 76, 21);
-        validateError(result, 8, "incompatible types: expected '5', found 'int'", 81, 17);
-        validateError(result, 9, "incompatible types: expected 'string', found 'foo|1'", 89, 17);
-        validateError(result, 10, "incompatible types: expected 'int', found 'string|int'", 92, 14);
-        validateError(result, 11, "incompatible types: expected '1.0d|2.0f', found 'float'", 102, 13);
-        validateError(result, 12, "incompatible types: expected '1.0f|1.0d|2.22f|3.33d', found 'decimal'", 107, 14);
+        int i = 0;
+        validateError(result, i++, "incompatible types: expected '5|100', found 'string'", 33, 16);
+        validateError(result, i++, "incompatible types: expected '5', found '5'", 40, 18);
+        validateError(result, i++, "incompatible types: expected '5', found '5'", 47, 17);
+        validateError(result, i++, "incompatible types: expected '5', found 'float'", 52, 17);
+        validateError(result, i++, "incompatible types: expected '5.0f', found '5'", 59, 19);
+        validateError(result, i++, "incompatible types: expected '5.0f', found '5d'", 64, 19);
+        validateError(result, i++, "incompatible types: expected '5d', found '5'", 71, 21);
+        validateError(result, i++, "incompatible types: expected '5d', found '5.0f'", 76, 21);
+        validateError(result, i++, "incompatible types: expected '5', found 'int'", 81, 17);
+        validateError(result, i++, "incompatible types: expected 'string', found 'foo|1'", 89, 17);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string|int'", 92, 14);
+        validateError(result, i++, "incompatible types: expected '1.0d|2.0f', found 'float'", 102, 13);
+        validateError(result, i++, "incompatible types: expected '1.0f|1.0d|2.22f|3.33d', found 'decimal'", 107, 14);
     }
 }
