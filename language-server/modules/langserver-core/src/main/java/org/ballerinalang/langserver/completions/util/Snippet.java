@@ -66,8 +66,6 @@ public enum Snippet {
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
-    KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
-
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
@@ -146,6 +144,16 @@ public enum Snippet {
     BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
+
+    BUILTIN_HAS_KEY(SnippetGenerator.getBuiltinHasKeySnippet()),
+
+    BUILTIN_REMOVE(SnippetGenerator.getBuiltinRemoveSnippet()),
+
+    BUILTIN_VALUES(SnippetGenerator.getBuiltinValuesSnippet()),
+
+    BUILTIN_KEYS(SnippetGenerator.getBuiltinKeysSnippet()),
+
+    BUILTIN_CLEAR(SnippetGenerator.getBuiltinClearSnippet()),
 
     BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 

@@ -27,13 +27,7 @@ public interface BallerinaTypeConversionExpression extends BallerinaExpression {
   BallerinaExpression getExpression();
 
   @Nullable
-  BallerinaFunctionInvocation getFunctionInvocation();
-
-  @Nullable
   BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getComma();
 
   @Nullable
   PsiElement getGt();
