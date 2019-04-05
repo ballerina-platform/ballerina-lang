@@ -26,7 +26,7 @@ dependencies {
 description = 'Ballerina - Spec Conformance Tests'
 
 test {
-    systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
     useTestNG() {

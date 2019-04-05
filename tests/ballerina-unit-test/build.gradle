@@ -77,7 +77,7 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 }
 
 test {
-    systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
     useTestNG() {

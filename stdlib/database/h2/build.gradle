@@ -69,7 +69,7 @@ test {
         suites 'src/test/resources/testng.xml'
     }
     systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
