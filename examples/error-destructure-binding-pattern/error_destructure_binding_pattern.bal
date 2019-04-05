@@ -5,7 +5,7 @@ type SampleError error<string, map<anydata|error>>;
 public function main() {
     string reason;
     map<anydata|error> detail;
-    // This error de-structure binding pattern will de-structure an `error` value of type `SampleError`
+    // This error destructure binding pattern will destructure an `error` value of type `SampleError`
     // and assign the values to two variable references as follows:
     // The value of the `reason string` in `SampleError` will be assigned to the variable `reason`.
     // The value of the `detail mapping` will be assigned to the variable `detail`.
