@@ -6,6 +6,11 @@ const outPath = path.join(__dirname, "..", "dist");
 const indexHBS = fs.readFileSync(path.join(__dirname, "index.hbs")).toString();
 const data = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "model.json")).toString());
 
+// Partials
+const partialPath = path.join(__dirname, "partial");
+const headerHBS = fs.readFileSync(path.join(partialPath, 'head.hbs')).toString();
+Handlebars.registerPartial("htmlHead", Handlebars.compile(headerHBS));
+
 function buildModules(modules) {
     const modHBS = fs.readFileSync(path.join(__dirname, "module.hbs")).toString();
     const modTemplate = Handlebars.compile(modHBS);
@@ -14,7 +19,7 @@ function buildModules(modules) {
         fs.ensureDirSync(modOutDir);
         fs.writeFileSync(path.join(modOutDir, "index.html"), modTemplate(mod));
         if (mod.constructs){
-            buildContructs(mod);
+            buildConstructs(mod);
         }
     });
 }
@@ -58,7 +63,7 @@ function buildFunctions(modId, functions) {
 }
 
 
-function buildContructs(mod) {
+function buildConstructs(mod) {
     const records = mod.constructs.records;
     const objects = mod.constructs.objects;
     const clients = mod.constructs.clients;
