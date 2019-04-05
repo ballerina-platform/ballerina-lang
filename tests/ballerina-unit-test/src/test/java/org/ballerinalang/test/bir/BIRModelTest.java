@@ -46,8 +46,8 @@ public class BIRModelTest {
     public void testBIRGen() {
         CompileResult result = BCompileUtil.compileAndDumpBir("test-src/bir/bir_model_dump.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        Assert.assertEquals(outContent.toString(), "    bir_model_dump.bal\n"
-                + "################################# Begin bir program #################################\n"
+        Assert.assertEquals(outContent.toString(), "################################# Begin bir program " 
+                + "#################################\n"
                 + "\n"
                 + "package $anon/.;\n"
                 + "\n"
