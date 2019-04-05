@@ -268,9 +268,6 @@ public class BTestRunner {
                 try {
                     ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
                 } catch (BLauncherException e) {
-//                    // Print the error.
-//                    errStream.println(String.join("\n", e.getDetailedMessages()));
-//                    // Exit the command.
                     throw e;
                 } catch (Exception e) {
                     errStream.println("error: validation failed. Cause: " + e.getMessage());
