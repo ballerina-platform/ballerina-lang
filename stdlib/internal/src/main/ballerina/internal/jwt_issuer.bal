@@ -57,10 +57,6 @@ function createHeader(JwtHeader header) returns (string|error) {
     }
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
-    var customClaims = header["customClaims"];
-    if (customClaims is map<any>) {
-        headerJson = addMapToJson(headerJson, customClaims);
-    }
     string headerValInString = headerJson.toString();
     string encodedPayload = encoding:encodeBase64(headerValInString.toByteArray("UTF-8"));
     return encodedPayload;
@@ -84,51 +80,20 @@ function createPayload(JwtPayload payload) returns (string|error) {
     if (jti is string) {
         payloadJson[JTI] = jti;
     }
-    payloadJson[AUD] = convertStringArrayToJson(payload.aud);
+    payloadJson[AUD] = payload.aud;
     var customClaims = payload["customClaims"];
-    if (customClaims is map<any>) {
+    if (customClaims is map<json>) {
         payloadJson = addMapToJson(payloadJson, customClaims);
     }
     string payloadInString = payloadJson.toString();
     return encoding:encodeBase64(payloadInString.toByteArray("UTF-8"));
 }
 
-function addMapToJson(json inJson, map<any> mapToConvert) returns (json) {
+function addMapToJson(json inJson, map<json> mapToConvert) returns (json) {
     if (mapToConvert.length() != 0) {
         foreach var key in mapToConvert.keys() {
-            var customClaims = mapToConvert[key];
-            if (customClaims is string[]) {
-                inJson[key] = convertStringArrayToJson(customClaims);
-            } else if (customClaims is int[]) {
-                inJson[key] = convertIntArrayToJson(customClaims);
-            } else if (customClaims is string) {
-                inJson[key] = customClaims;
-            } else if (customClaims is int) {
-                inJson[key] = customClaims;
-            } else if (customClaims is boolean) {
-                inJson[key] = customClaims;
-            }
+            inJson[key] = mapToConvert[key];
         }
     }
     return inJson;
-}
-
-function convertStringArrayToJson(string[] arrayToConvert) returns (json) {
-    json jsonPayload = [];
-    int i = 0;
-    while (i < arrayToConvert.length()) {
-        jsonPayload[i] = arrayToConvert[i];
-        i = i + 1;
-    }
-    return jsonPayload;
-}
-
-function convertIntArrayToJson(int[] arrayToConvert) returns (json) {
-    json jsonPayload = [];
-    int i = 0;
-    while (i < arrayToConvert.length()) {
-        jsonPayload[i] = arrayToConvert[i];
-        i = i + 1;
-    }
-    return jsonPayload;
 }

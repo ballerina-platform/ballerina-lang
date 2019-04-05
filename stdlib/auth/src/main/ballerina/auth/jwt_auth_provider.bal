@@ -43,7 +43,7 @@ public type JWTAuthProvider object {
         if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
             var payload = self.authenticateFromCache(jwtToken);
             if (payload is internal:JwtPayload) {
-                self.setAuthContext(payload, jwtToken);
+                check self.setAuthContext(payload, jwtToken);
                 return true;
             } else {
                 return false;
@@ -61,7 +61,7 @@ public type JWTAuthProvider object {
         var payload = internal:validate(jwtToken, jwtValidatorConfig);
 
         if (payload is internal:JwtPayload) {
-            self.setAuthContext(payload, jwtToken);
+            check self.setAuthContext(payload, jwtToken);
             self.addToAuthenticationCache(jwtToken, payload.exp, payload);
             return true;
         } else {
@@ -94,7 +94,7 @@ public type JWTAuthProvider object {
         });
     }
 
-    function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) {
+    function setAuthContext(internal:JwtPayload jwtPayload, string jwtToken) returns error? {
         runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
         userPrincipal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
         // By default set sub as username.
@@ -104,6 +104,8 @@ public type JWTAuthProvider object {
             var scopeString = jwtPayload.customClaims[SCOPES];
             if (scopeString is string) {
                 userPrincipal.scopes = scopeString.split(" ");
+            } else if (scopeString is json[]) {
+                userPrincipal.scopes = check string[].convert(scopeString);
             }
         }
         if (jwtPayload.customClaims.hasKey(USERNAME)) {
@@ -115,6 +117,7 @@ public type JWTAuthProvider object {
         runtime:AuthContext authContext = runtime:getInvocationContext().authContext;
         authContext.scheme = AUTH_TYPE_JWT;
         authContext.authToken = jwtToken;
+        return ();
     }
 
 };
