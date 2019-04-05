@@ -44,7 +44,6 @@ import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHand
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
-import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -110,7 +109,7 @@ public class Http2StateUtil {
      */
     public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler) {
         ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
-        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
+        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest);
         sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);

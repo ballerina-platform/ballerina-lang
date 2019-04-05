@@ -34,8 +34,10 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.Http2Stream;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
@@ -883,5 +885,11 @@ public class Util {
         if (handshakeTimeout > 0) {
             sslHandler.setHandshakeTimeout(handshakeTimeout, TimeUnit.SECONDS);
         }
+    }
+
+    public static void consumeBytes(Http2Connection connection, int streamId, int noOfConsumedBytes)
+        throws Http2Exception {
+        Http2Stream stream = connection.stream(streamId);
+        connection.local().flowController().consumeBytes(stream, noOfConsumedBytes);
     }
 }

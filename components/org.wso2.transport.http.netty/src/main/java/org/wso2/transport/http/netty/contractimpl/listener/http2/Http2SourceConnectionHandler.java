@@ -144,7 +144,8 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
             data.skipBytes(readableBytes);
             Http2DataFrame dataFrame = new Http2DataFrame(streamId, forwardedData, endOfStream);
             ctx.fireChannelRead(dataFrame);
-            return readableBytes + padding;
+//            return readableBytes + padding;
+            return 0;
         }
     }
 }
