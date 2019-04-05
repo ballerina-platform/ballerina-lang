@@ -24,7 +24,7 @@ function basicMatch(any|error v) {
         var (tVar1, tVar2) => io:println("Matched a value with a tuple shape");
         var { message, fatal } =>
                             io:println("Matched a value with a record shape");
-        // If the variable `v` contains an error value, it will be matched
+        // If the variable `v` contains an `error` value, it will be matched
         // to this pattern and the reason string and detail map will be
         // destructed within the pattern block.
         var error(reason, detail) => io:println("Matched an error value : "
