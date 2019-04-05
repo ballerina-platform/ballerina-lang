@@ -1,8 +1,8 @@
 import ballerina/io;
 
-// Define an abstract object called `Person`. It should only contain the
+// Define an abstract object called `Person`. It should only contain 
 // fields and method declarations. An abstract object cannot have
-// an initializer, or any method definitions.
+// an initializer or method definitions.
 type Person abstract object {
     public int age;
     public string firstName;
@@ -30,7 +30,7 @@ type Employee object {
         self.lastName = lastName;
     }
 
-    // Methods should have a body.
+    // Methods should have a body either within the object or as outside method definitions.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }

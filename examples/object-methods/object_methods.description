@@ -1,3 +1,3 @@
 // Objects can have functions associated with them. These associated functions are known as methods.
-// Methods can be defined inside of the object or outside of the object. To define a method outside of the object,
+// Methods can be defined inside or outside the object. To define a method outside the object,
 // first declare the method signature inside the object.

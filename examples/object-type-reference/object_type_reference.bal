@@ -15,7 +15,7 @@ type Person abstract object {
 
 // Define another abstract object called `Employee`, which references the `Person` object.
 type Employee abstract object {
-    // Add a reference to the `Person` object type. Note that only abstract objects can be referred to.
+    // Add a reference to the `Person` object type. Note that only abstract objects can be referred.
     // All the member fields and member methods will be copied from the `Person` object.
     *Person;    
     public float salary;
@@ -54,7 +54,7 @@ type Manager object {
     }
 };
 
-// Member methods coming from the referenced type can also be defined outside of the object.
+// Member methods coming from the referenced type can also be defined outside the object.
 function Manager.getSalary() returns float {
         return self.salary;
 }

@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // This defines an open record type named `Student` which in addition to the fields defined here, allows additional
-// string fields.
+// `string` fields.
 type Student record {
     string name;
     int age;
