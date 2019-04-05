@@ -23,7 +23,7 @@ public function main() {
     io:println("Detail Mapping Field One: " + io:sprintf("%s", detailTwo));
     io:println("Detail Mapping Field Two: " + io:sprintf("%s", fatal));
 
-    // Underscore '_' can be used to ignore either the `reason string` or the `detail mapping`.
+    // Underscore '_' can be used to ignore either the reason string or the detail mapping.
     Foo fooRec;
     error(_, fooRec) = getRecordConstrainedError();
     io:println("Detail Mapping: " + io:sprintf("%s", fooRec));
