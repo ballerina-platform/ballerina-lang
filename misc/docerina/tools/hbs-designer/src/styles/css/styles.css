@@ -11,24 +11,18 @@ body a {
   color: #333;
   font-weight: 600;
 }
-body .ui.grid {
-  height: 100vh;
-}
-body .ui.grid .header-wrapper {
-  position: fixed;
-  height: auto;
-}
-body .ui.grid .header-wrapper .logo {
-  width: 200px;
-  height: auto;
-  float: left;
-}
 body .ui.grid .navi-wrapper {
-  margin-left: 20px;
+  margin: 0;
   background: #f5f7f8;
   height: 100vh;
   overflow-y: hidden;
-  position: fixed;
+  overflow-x: hidden;
+}
+body .ui.grid .navi-wrapper .logo {
+  width: 150px;
+  height: auto;
+  text-align: center;
+  margin: 30px 20px;
 }
 body .ui.grid .navi-wrapper:hover {
   overflow-y: scroll ;
@@ -39,6 +33,9 @@ body .ui.grid .navi-wrapper .search input {
   border: 0;
   margin-bottom: 20px;
 }
+body .ui.grid .navi-wrapper .primary-list {
+  padding-left: 10px;
+}
 body .ui.grid .navi-wrapper .primary-list ul {
   padding: 0;
   margin: 0;
@@ -47,24 +44,49 @@ body .ui.grid .navi-wrapper .primary-list ul li {
   list-style: none !important;
   line-height: 25px;
   margin-left: 15px;
+  text-transform: capitalize;
+  font-weight: 300;
+}
+body .ui.grid .navi-wrapper .primary-list ul li:hover {
+  font-weight: 600;
+}
+body .ui.grid .navi-wrapper .primary-list ul li,
+body .ui.grid .navi-wrapper .primary-list ul li a {
+  font-weight: 300;
+}
+body .ui.grid .navi-wrapper .primary-list ul li:hover,
+body .ui.grid .navi-wrapper .primary-list ul li a:hover {
+  color: #333 !important;
+  font-weight: 600;
 }
 body .ui.grid .content-wrapper {
-  margin: 20px;
-  height: 82vh;
+  padding: 46px 500px 12px 43px!important;
+  margin: 0;
+  height: 100vh;
   text-align: justify;
   overflow-y: hidden;
   position: fixed;
+  font-size: 16px;
+}
+body .ui.grid .content-wrapper .ui.table,
+body .ui.grid .content-wrapper .ui.table tr td {
+  border: 0 !important;
+}
+body .ui.grid .content-wrapper .ui.table tr td:first-child,
+body .ui.grid .content-wrapper .ui.table tr td tr td:first-child {
+  width: 120px;
+  vertical-align: top;
 }
 body .ui.grid .content-wrapper .breadcrumb a {
   color: #aaa;
-  font-weight: 300 !important;
+  font-weight: 300;
 }
 body .ui.grid .content-wrapper:hover {
   overflow-y: auto;
   position: inherit;
 }
 body .ui.grid .content-wrapper p {
-  line-height: 24px !important;
+  line-height: 24px;
 }
 body .ui.grid .content-wrapper code {
   color: #ea8792;
@@ -72,26 +94,40 @@ body .ui.grid .content-wrapper code {
 }
 body .ui.grid .content-wrapper .records {
   color: #2c9ea1;
-  font-weight: 600;
+}
+body .ui.grid .content-wrapper .records a {
+  color: #2c9ea1;
 }
 body .ui.grid .content-wrapper .objects {
   color: #93bd54;
-  font-weight: 600;
 }
-body .ui.grid .content-wrapper .module-list {
-  line-height: 20px;
-  float: left;
+body .ui.grid .content-wrapper .objects a {
+  color: #93bd54;
 }
-body .ui.grid .content-wrapper .module-list .module-title {
-  float: left;
+body .ui.grid .content-wrapper .constants {
+  margin-top: 20px;
   margin-left: 20px;
 }
-body .ui.grid .content-wrapper .module-list .module-desc {
-  margin-left: 10px;
-  float: left;
-  word-wrap: break-word;
+body .ui.grid .content-wrapper .constants p {
+  line-height: 28px;
 }
-body .ui.grid .content-wrapper .module-list ul li {
-  list-style: none;
-  line-height: 30px;
+body .ui.grid .content-wrapper .constants .column {
+  margin: 0 ;
+  padding: 10px;
+}
+body .ui.grid .content-wrapper .module-title {
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  font-weight: 600;
+  height: auto;
+  padding: 0;
+  vertical-align: top;
+}
+body .ui.grid .content-wrapper .module-desc {
+  margin-left: 10px;
+  word-wrap: break-word;
+  margin-bottom: 10px;
+  padding: 0;
+  height: auto;
+  padding-bottom: 20px;
 }
