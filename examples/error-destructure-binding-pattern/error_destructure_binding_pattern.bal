@@ -11,7 +11,7 @@ public function main() {
     // The value of the detail mapping will be assigned to the variable `detail`.
     error(reason, detail) = getSampleError();
     io:println("Reason String: " + reason);
-    io:println("Detail Mapping: " + io:sprintf("%s", detail));
+    io:println(io:sprintf("Detail Mapping: %s", detail));
 
     string reasonTwo;
     anydata|error detailTwo;
@@ -20,13 +20,13 @@ public function main() {
     // The detail mapping can further be destructured into existing variable references.
     error(reasonTwo, { detail: detailTwo, fatal }) = getSampleError();
     io:println("Reason String: " + reasonTwo);
-    io:println("Detail Mapping Field One: " + io:sprintf("%s", detailTwo));
-    io:println("Detail Mapping Field Two: " + io:sprintf("%s", fatal));
+    io:println(io:sprintf("Detail Mapping Field One: %s", detailTwo));
+    io:println(io:sprintf("Detail Mapping Field Two: %s", fatal));
 
     // Underscore '_' can be used to ignore either the reason string or the detail mapping.
     Foo fooRec;
     error(_, fooRec) = getRecordConstrainedError();
-    io:println("Detail Mapping: " + io:sprintf("%s", fooRec));
+    io:println(io:sprintf("Detail Mapping: %s", fooRec));
 }
 
 function getSampleError() returns SampleError {

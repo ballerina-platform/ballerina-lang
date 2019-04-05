@@ -376,12 +376,12 @@
                 "url": "check"
             },
             {
-                "name": "Check Panic",
-                "url": "checkpanic"
-            },
-            {
                 "name": "Panic ",
                 "url": "panic"
+            },
+            {
+                "name": "Check Panic",
+                "url": "checkpanic"
             },
             {
                 "name": "Trap",
