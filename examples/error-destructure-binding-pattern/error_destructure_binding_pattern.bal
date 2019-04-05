@@ -17,7 +17,7 @@ public function main() {
     anydata|error detailTwo;
     anydata|error fatal;
 
-    // The `detail mapping` can further be de-structured into existing variable references.
+    // The detail mapping can further be destructured into existing variable references.
     error(reasonTwo, { detail: detailTwo, fatal }) = getSampleError();
     io:println("Reason String: " + reasonTwo);
     io:println("Detail Mapping Field One: " + io:sprintf("%s", detailTwo));
