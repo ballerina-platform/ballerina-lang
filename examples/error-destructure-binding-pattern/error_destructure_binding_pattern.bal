@@ -8,7 +8,7 @@ public function main() {
     // This error destructure binding pattern will destructure an `error` value of type `SampleError`
     // and assign the values to two variable references as follows:
     // The value of the reason string in `SampleError` will be assigned to the variable `reason`.
-    // The value of the `detail mapping` will be assigned to the variable `detail`.
+    // The value of the detail mapping will be assigned to the variable `detail`.
     error(reason, detail) = getSampleError();
     io:println("Reason String: " + reason);
     io:println("Detail Mapping: " + io:sprintf("%s", detail));
