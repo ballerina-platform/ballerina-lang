@@ -27,17 +27,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.XMLAttributes;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.TypeKind;
@@ -99,62 +89,21 @@ public class Freeze extends BlockingNativeCallableUnit {
     }
 
     public static Object freeze(Strand strand, Object value) {
-        return freezeValue((RefValue) value);
-    }
-
-    public static Object freeze(Strand strand, AbstractObjectValue value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, ArrayValue value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, ErrorValue value) {
-        // If the value is of type error, return an error indicating an error cannot be frozen.
-        // Freeze is only allowed on errors if they are part of a structure.
-        return JBLangVMErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
-    }
-
-    public static Object freeze(Strand strand, MapValue value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, StreamingJsonValue value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, XMLAttributes value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, XMLItem value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, XMLQName value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, XMLSequence value) {
-        return freezeValue(value);
-    }
-
-    public static Object freeze(Strand strand, XMLValue value) {
-        return freezeValue(value);
-    }
-
-    private static Object freezeValue(RefValue value) {
-        if (value == null) {
+        RefValue refValue = (RefValue) value;
+        if (refValue == null) {
             // assuming we reach here because the value is nil (()), the frozen value would also be nil.
             return null;
+        } else if (refValue.getType().getTag() == TypeTags.ERROR) {
+            // If the value is of type error, return an error indicating an error cannot be frozen.
+            // Freeze is only allowed on errors if they are part of a structure.
+            return JBLangVMErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
         }
         Status freezeStatus = new Status(State.MID_FREEZE);
         try {
-            value.attemptFreeze(freezeStatus);
+            refValue.attemptFreeze(freezeStatus);
             // if freeze is successful, set the status as frozen and the value itself as the return value
             freezeStatus.setFrozen();
-            return value;
+            return refValue;
         } catch (JBLangFreezeException e) {
             // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
             // constituents to false, and return an error
