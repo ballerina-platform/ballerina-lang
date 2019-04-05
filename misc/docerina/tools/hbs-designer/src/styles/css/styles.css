@@ -2,7 +2,6 @@ body {
   background: #fff;
   color: #464646;
   height: 100vh;
-  position: fixed;
 }
 body p {
   font-size: 16px;
@@ -10,6 +9,9 @@ body p {
 body a {
   color: #333;
   font-weight: 600;
+}
+body .ui.grid {
+  width: 100%;
 }
 body .ui.grid .navi-wrapper {
   margin: 0;

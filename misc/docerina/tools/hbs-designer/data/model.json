@@ -5,8 +5,7 @@
         {
             "id": "caching",
             "description": "This module provides a set of default authentication store providers that can be extended to create new authentication store providers.",
-            "constructs": 
-            {
+            "constructs": {
                 "records": [],
                 "objects": [],
                 "clients": [],
@@ -23,18 +22,14 @@
             "constructs": {
                 "records": [
                     {
-                        "name": "authConfig",
-                        "description": "authConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.",
-                        "fields": {
-                            "field_name": "enabled",
-                            "data_type": "boolean",
-                            "default_value": "true",
-                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
-                        }
-                    },
-                    {
                         "name": "authCacheConfig",
                         "description": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": [
                             {
                                 "field_name": "scheme",
@@ -119,6 +114,12 @@
                     {
                         "name": "authProvider",
                         "description": "Configuration for authentication providers.",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": [
                             {
                                 "field_name": "scheme",
@@ -215,6 +216,12 @@
                     {
                         "name": "authentication",
                         "description": "Can be used for enabling/disabling authentication in an HTTP service",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -225,6 +232,12 @@
                     {
                         "name": "Bucket",
                         "description": "Represents a discrete sub-part of the time window (Bucket).",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -235,6 +248,12 @@
                     {
                         "name": "CacheConfig",
                         "description": "Provides a set of configurations for controlling the caching behaviour of the endpoint.",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -245,6 +264,12 @@
                     {
                         "name": "CircuitBreakerConfig",
                         "description": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -255,6 +280,12 @@
                     {
                         "name": "CircuitBreakerInferredConfig",
                         "description": "Derived set of configurations from the `CircuitBreakerConfig`.",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -264,6 +295,12 @@
                     },
                     {
                         "name": "CircuitHealth",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Maintains the health of the Circuit Breaker.",
                         "fields": {
                             "field_name": "enabled",
@@ -274,6 +311,12 @@
                     },
                     {
                         "name": "ClientEndpointConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.",
                         "fields": {
                             "field_name": "enabled",
@@ -284,6 +327,12 @@
                     },
                     {
                         "name": "CompressionConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "A record for providing configurations for content compression.",
                         "fields": {
                             "field_name": "enabled",
@@ -294,6 +343,12 @@
                     },
                     {
                         "name": "ConnectionThrottling",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Provides configurations for throttling connections of the endpoint.",
                         "fields": {
                             "field_name": "enabled",
@@ -304,6 +359,12 @@
                     },
                     {
                         "name": "CorsConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Configurations for CORS support.",
                         "fields": {
                             "field_name": "enabled",
@@ -314,6 +375,12 @@
                     },
                     {
                         "name": "FailoverClientEndpointConfiguration",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Provides a set of HTTP related configurations and failover related configurations.",
                         "fields": {
                             "field_name": "enabled",
@@ -324,6 +391,12 @@
                     },
                     {
                         "name": "FailoverConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Provides a set of configurations for controlling the failover behaviour of the endpoint.",
                         "fields": {
                             "field_name": "enabled",
@@ -334,6 +407,12 @@
                     },
                     {
                         "name": "FailoverInferredConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Inferred failover configurations passed into the failover client.",
                         "fields": {
                             "field_name": "enabled",
@@ -344,6 +423,12 @@
                     },
                     {
                         "name": "FollowRedirects",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.",
                         "fields": {
                             "field_name": "enabled",
@@ -354,6 +439,12 @@
                     },
                     {
                         "name": "HttpResourceConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Configuration for an HTTP resource.",
                         "fields": {
                             "field_name": "enabled",
@@ -364,6 +455,12 @@
                     },
                     {
                         "name": "HttpServiceConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Contains the configurations for an HTTP service.",
                         "fields": {
                             "field_name": "enabled",
@@ -374,6 +471,12 @@
                     },
                     {
                         "name": "HttpTimeoutError",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Defines a timeout error occurred during service invocation.",
                         "fields": {
                             "field_name": "enabled",
@@ -384,6 +487,12 @@
                     },
                     {
                         "name": "KeyStore",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "A record for providing key store related configurations.",
                         "fields": {
                             "field_name": "enabled",
@@ -394,6 +503,12 @@
                     },
                     {
                         "name": "ListenerauthConfig",
+                        "label": "record",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "description": "Configures the authentication scheme for a service or a resource.",
                         "fields": {
                             "field_name": "enabled",
@@ -407,16 +522,88 @@
                     {
                         "name": "AuthHandlerRegistry",
                         "description": "Representation of the Http Auth Handler Registry.",
-                        "fields": {
-                            "field_name": "enabled",
-                            "data_type": "boolean",
-                            "default_value": "true",
-                            "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
-                        }
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
+                        "method": [
+                            {
+                                "method_type": "add",
+                                "method_params": "(string id, http:HttpAuthnHandler authnHandler)",
+                                "label_return": "",
+                                "return_params": "",
+                                "description": "Add an HttpAuthnHandler to HttpAuthHandlerRegistry",
+                                "fields": [
+                                    {
+                                        "param_name": "id",
+                                        "data_type": "string",
+                                        "default_value": "",
+                                        "description": "Auth provider id"
+                                    },
+                                    {
+                                        "param_name": "authnHandler",
+                                        "data_type": "http:HttpAuthnHandler",
+                                        "default_value": "",
+                                        "description": "HttpAuthnHandler instance"
+                                    }
+                                ]
+                            },
+                            {
+                                "method_type": "get",
+                                "method_params": "(string id)",
+                                "label_return": "returns",
+                                "return_params": "(HttpAuthnHandler)",
+                                "description": "Retrieves an HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id",
+                                "fields": {
+                                    "param_name": "id",
+                                    "data_type": "string",
+                                    "default_value": "",
+                                    "description": "Auth provider id",
+                                    "Return Type": "HttpAuthnHandler",
+                                    "return_description":"HttpAuthnHandler instance or nil if not found"
+                                }
+                            },
+                            {
+                                "method_type": "getAll",
+                                "method_params": "()",
+                                "label_return": "returns",
+                                "return_params": "(map<HttpAuthnHandler>)",
+                                "description": "Retrieve the HttpAuthnHandler map",
+                                "fields": {
+                                    "param_name": "",
+                                    "data_type": "",
+                                    "default_value": "",
+                                    "description": "",
+                                    "Return Type": "map",
+                                    "return_description":"map of HttpAuthnHandler"
+                                }
+                            },
+                            {
+                                "method_type": "",
+                                "method_params": "",
+                                "label_return": "",
+                                "return_params": "",
+                                "description": "Add an HttpAuthnHandler to HttpAuthHandlerRegistry",
+                                "fields": {
+                                    "param_name": "enabled",
+                                    "data_type": "boolean",
+                                    "default_value": "true",
+                                    "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
+                                }
+                            }
+                        ]
                     },
                     {
                         "name": "AuthnFilter",
                         "description": "Representation of the Authentication filter.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -427,6 +614,12 @@
                     {
                         "name": "AuthnHandlerChain",
                         "description": "Representation of Authentication handler chain",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -437,6 +630,12 @@
                     {
                         "name": "AuthzFilter",
                         "description": "Representation of the Authorization filter",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -447,6 +646,12 @@
                     {
                         "name": "CircuitBreakerClient",
                         "description": "A Circuit Breaker implementation which can be used to gracefully handle network failures.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -457,6 +662,12 @@
                     {
                         "name": "Filter",
                         "description": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -467,6 +678,12 @@
                     {
                         "name": "FilterContext",
                         "description": "Representation of request filter Context.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -477,6 +694,12 @@
                     {
                         "name": "HttpAuthnHandler",
                         "description": "Representation of Authentication handler for HTTP traffic.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -487,6 +710,12 @@
                     {
                         "name": "HttpAuthzHandler",
                         "description": "Representation of Authorization Handler for HTTP",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -497,6 +726,12 @@
                     {
                         "name": "HttpBasicAuthnHandler",
                         "description": "Defines Basic Auth handler for HTTP traffic.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -507,6 +742,12 @@
                     {
                         "name": "HttpCache",
                         "description": "",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -517,6 +758,12 @@
                     {
                         "name": "HttpFuture",
                         "description": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission. This can be used as a reference to fetch the results of the submission.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -527,6 +774,12 @@
                     {
                         "name": "HttpJwtAuthnHandler",
                         "description": "Representation of JWT Auth handler for HTTP traffic",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -537,6 +790,12 @@
                     {
                         "name": "Listener",
                         "description": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to remote callers. The Listener is responsible for initializing the endpoint using the provided configurations.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -547,6 +806,12 @@
                     {
                         "name": "LoadBalancerRounRobinRule",
                         "description": "Implementation of round robin load balancing strategy.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -557,6 +822,12 @@
                     {
                         "name": "LoadBalancerRule",
                         "description": "LoadBalancerRule provides a required interfaces to implement different algorithms.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -567,6 +838,12 @@
                     {
                         "name": "MockListener",
                         "description": "Mock server endpoint which does not open a listening port.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -577,6 +854,12 @@
                     {
                         "name": "PushPromise",
                         "description": "Represents an HTTP/2 PUSH_PROMISE frame.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -587,6 +870,12 @@
                     {
                         "name": "Request",
                         "description": "Represents an HTTP request.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -597,6 +886,12 @@
                     {
                         "name": "RequestCacheControl",
                         "description": "Configures cache control directives for a Request.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -607,6 +902,12 @@
                     {
                         "name": "Response",
                         "description": "Represents an HTTP response.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -617,6 +918,12 @@
                     {
                         "name": "ResponseCacheControl",
                         "description": "Configures cache control directives for a Response.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -627,6 +934,12 @@
                     {
                         "name": "WebSocketListener",
                         "description": "Represents a WebSocket service endpoint.",
+                        "label": "object",
+                        "type": "public type",
+                        "label_field_name": "Field Name",
+                        "label_data_type": "Date Type",
+                        "label_default_value": "Default Value",
+                        "label_description": "Description",
                         "fields": {
                             "field_name": "enabled",
                             "data_type": "boolean",
@@ -634,7 +947,6 @@
                             "description": "Specifies whether authorization caching is enabled. Caching is enabled by default."
                         }
                     }
-                
                 ],
                 "clients": [],
                 "functions": [],
@@ -1063,6 +1375,6 @@
                 "annotations": [],
                 "errors": []
             }
-        }   
+        }
     ]
 }
