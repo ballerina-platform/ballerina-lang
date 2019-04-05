@@ -1,3 +1,3 @@
-// Objects are a behaviourial type. An object is a combination of public and private fields along with a
+// Objects are a behaviourial type. An object is a combination of public, private and module-level visible fields along with a
 // set of associated functions (called methods) that can be used to manipulate the fields. that allow you
 // to create new, user-defined data types with behavior.
