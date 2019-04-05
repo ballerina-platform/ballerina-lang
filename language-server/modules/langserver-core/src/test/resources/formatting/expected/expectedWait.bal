@@ -1,5 +1,5 @@
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 
 function waitTest1() returns fourthRec {
     future<int> f1 = start add_panic(20, 66);

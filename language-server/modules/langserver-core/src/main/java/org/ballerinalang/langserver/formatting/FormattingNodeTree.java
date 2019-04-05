@@ -649,70 +649,61 @@ public class FormattingNodeTree {
         // Update whitespaces for top level nodes.
         JsonArray topLevelNodes = node.get("topLevelNodes").getAsJsonArray();
 
-        // TODO: Fix import sorting.
         // Handle import sorting according to the alphabetical order.
-//        int i, j;
-//        boolean swapped;
-//        for (i = 0; i < topLevelNodes.size() - 1; i++) {
-//            swapped = false;
-//            for (j = 0; j < topLevelNodes.size() - i - 1; j++) {
-//                if (topLevelNodes.get(j).getAsJsonObject()
-//                        .get("kind").getAsString().equals("Import")
-//                        && topLevelNodes.get(j + 1).getAsJsonObject()
-//                        .get("kind").getAsString().equals("Import")) {
-//                    String refImportName = topLevelNodes.get(j).getAsJsonObject()
-//                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
-//                            + topLevelNodes.get(j).getAsJsonObject().get("packageName")
-//                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
-//
-//                    String compImportName = topLevelNodes.get(j + 1).getAsJsonObject()
-//                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
-//                            + topLevelNodes.get(j + 1).getAsJsonObject().get("packageName")
-//                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
-//
-//                    int comparisonResult = refImportName.compareTo(compImportName);
-//                    // Swap if the comparison value is positive.
-//                    if (comparisonResult > 0) {
-//                        // Swap ws to keep the formatting in level.
-//                        String refWS = topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS)
-//                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
-//
-//                        String compWS = topLevelNodes.get(j + 1).getAsJsonObject().get(FormattingConstants.WS)
-//                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
-//
-//                        JsonElement tempLowNode = topLevelNodes.get(j);
-//                        JsonElement tempTopNode = topLevelNodes.get(j + 1);
-//
-//                        int topNodeStartPosition = tempLowNode.getAsJsonObject().getAsJsonArray("ws")
-//                                .get(0).getAsJsonObject().get("i").getAsInt();
-//                        // Reconcile whitespaces of the node to be replaced the current node at index j before adding.
-//                        FormattingSourceGen.reconcileWS(tempTopNode.getAsJsonObject(), topLevelNodes, node,
-//                                topNodeStartPosition);
-//                        topLevelNodes.set(j, tempTopNode);
-//
-//                        tempLowNode.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray().get(0)
-//                                .getAsJsonObject().addProperty(FormattingConstants.WS, compWS);
-//
-//                        topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray()
-//                                .get(0).getAsJsonObject().addProperty(FormattingConstants.WS, refWS);
-//
-//                        int lowNodeStartPosition = topLevelNodes.size() >= (j + 2 + 1)
-//                                ? FormattingSourceGen.extractWS(topLevelNodes.get(j + 2)
-//                                .getAsJsonObject()).get(0).getAsJsonObject().get("i").getAsInt() : -1;
-//                        // Reconcile whitespace of the node to be added to the next node at index j+1 before adding.
-//                        FormattingSourceGen.reconcileWS(tempLowNode.getAsJsonObject(), topLevelNodes, node,
-//                                lowNodeStartPosition);
-//                        topLevelNodes.set(j + 1, tempLowNode);
-//
-//                        swapped = true;
-//                    }
-//                }
-//            }
-//            // If not swapped, break.
-//            if (!swapped) {
-//                break;
-//            }
-//        }
+        int i, j;
+        boolean swapped;
+        for (i = 0; i < topLevelNodes.size() - 1; i++) {
+            swapped = false;
+            for (j = 0; j < topLevelNodes.size() - i - 1; j++) {
+                if (topLevelNodes.get(j).getAsJsonObject()
+                        .get("kind").getAsString().equals("Import")
+                        && topLevelNodes.get(j + 1).getAsJsonObject()
+                        .get("kind").getAsString().equals("Import")) {
+                    String refImportName = topLevelNodes.get(j).getAsJsonObject()
+                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
+                            + topLevelNodes.get(j).getAsJsonObject().get("packageName")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
+
+                    String compImportName = topLevelNodes.get(j + 1).getAsJsonObject()
+                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
+                            + topLevelNodes.get(j + 1).getAsJsonObject().get("packageName")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
+
+                    int comparisonResult = refImportName.compareTo(compImportName);
+                    // Swap if the comparison value is positive.
+                    if (comparisonResult > 0) {
+                        // Swap ws to keep the formatting in level.
+                        String refWS = topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS)
+                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
+
+                        String compWS = topLevelNodes.get(j + 1).getAsJsonObject().get(FormattingConstants.WS)
+                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
+
+                        JsonElement tempLowNode = topLevelNodes.get(j);
+                        JsonElement tempTopNode = topLevelNodes.get(j + 1);
+
+                        // Swap whitespaces of the nodes.
+                        FormattingSourceGen.swapWSIndexes(tempTopNode.getAsJsonObject(),
+                                tempLowNode.getAsJsonObject());
+
+                        tempLowNode.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray().get(0)
+                                .getAsJsonObject().addProperty(FormattingConstants.WS, compWS);
+
+                        tempTopNode.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray()
+                                .get(0).getAsJsonObject().addProperty(FormattingConstants.WS, refWS);
+
+                        topLevelNodes.set(j, tempTopNode);
+                        topLevelNodes.set(j + 1, tempLowNode);
+
+                        swapped = true;
+                    }
+                }
+            }
+            // If not swapped, break.
+            if (!swapped) {
+                break;
+            }
+        }
 
         int movedFirstIndex = 0;
         for (int index = 0; index < topLevelNodes.size(); index++) {

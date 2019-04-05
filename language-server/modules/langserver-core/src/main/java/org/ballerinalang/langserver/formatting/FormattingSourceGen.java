@@ -129,6 +129,26 @@ public class FormattingSourceGen {
     }
 
     /**
+     * Swap given two nodes' whitespace indexes.
+     *
+     * @param firstNode  first node to be indexed swapped
+     * @param secondNode second node to be indexed swapped
+     */
+    public static void swapWSIndexes(JsonObject firstNode, JsonObject secondNode) {
+        List<JsonObject> firstNodeWS = extractWS(firstNode);
+        List<JsonObject> secondNodeWS = extractWS(secondNode);
+
+        int firstNodeIndex = firstNodeWS.get(0).get("i").getAsInt();
+        int secondNodeIndex = secondNodeWS.get(0).get("i").getAsInt();
+        int firstDiff = secondNodeIndex - firstNodeIndex;
+
+        firstNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + firstDiff));
+
+        int secondDiff = firstNodeIndex - secondNodeIndex;
+        secondNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + secondDiff));
+    }
+
+    /**
      * Add new whitespace object to given target node on given start index
      * and then update the rest of the tree accordingly.
      *
