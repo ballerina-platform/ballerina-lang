@@ -10,7 +10,7 @@ public function main() {
     io:println("Reason String: " + reason);
     io:println("Detail Mapping: " + io:sprintf("%s", detail));
 
-    // The `detail mapping value` can further be de-structured using a record binding pattern.
+    // The detail mapping value can further be destructured using a record binding pattern.
     SampleError error(reasonTwo, { detail: detailTwo, fatal }) = getSampleError();
     io:println("Reason String: " + reasonTwo);
     io:println("Detail Mapping Field One: " + io:sprintf("%s", detailTwo));
