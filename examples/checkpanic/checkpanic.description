@@ -1,4 +1,4 @@
 // `checkpanic` is a unary expression that is used to handle errors.
 // The `checkpanic` expression checks the result of the sub-expression and panics if the result is `error`.
-// Hence, checkpanic can be considered as a built-in type-guard for errors, where if resulted in an error,
+// Hence, `checkpanic` can be considered as a built-in type-guard for errors, where the program will panic
 // the program will panic.
