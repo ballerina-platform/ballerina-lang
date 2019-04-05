@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run error_match_statement.bal
 Matched a value with a tuple shape
 Matched a value with a record shape
