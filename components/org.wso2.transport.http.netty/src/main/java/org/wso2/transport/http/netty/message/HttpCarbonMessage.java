@@ -468,10 +468,17 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * Removes the content listener that is set for handling Inbound throttling.
+     * Removes the content listener that is set for handling inbound throttling in case of HTTP/1.1. For HTTP/2, flow
+     * control cannot be disabled (https://tools.ietf.org/html/rfc7540#page-23). To prevent HTTP/2 streams from
+     * stalling, receiver must aggressively update the window size kept by the sender, hence listener should not be
+     * removed for HTTP/2.
      */
     public void removeInboundContentListener() {
-        this.contentObservable.removeListener();
+        contentObservable.notifyReadInterest();
+        String httpVersion = (String) this.getProperty(Constants.HTTP_VERSION);
+        if (Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion)) {
+            contentObservable.removeListener();
+        }
     }
 
     /**
@@ -509,12 +516,16 @@ public class HttpCarbonMessage {
 
     /**
      * Returns the {@link FullHttpMessageFuture} which notifies {@link FullHttpMessageListener} when the complete
-     * content of the {@link HttpCarbonMessage} is accumulated.
+     * content of the {@link HttpCarbonMessage} is accumulated. Should never remove content listener for HTTP/2.
      *
      * @return the default implementation of the {@link FullHttpMessageFuture}.
      */
     public synchronized FullHttpMessageFuture getFullHttpCarbonMessage() {
-        contentObservable.removeListener();
+        contentObservable.notifyReadInterest();
+        String httpVersion = (String) this.getProperty(Constants.HTTP_VERSION);
+        if (Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion)) {
+            contentObservable.removeListener();
+        }
         fullHttpMessageFuture = new DefaultFullHttpMessageFuture(this);
         return fullHttpMessageFuture;
     }

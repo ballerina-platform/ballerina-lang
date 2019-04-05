@@ -47,4 +47,6 @@ public interface Observable {
      * @param content of the message
      */
     void notifyGetListener(HttpContent content);
+
+    void notifyReadInterest();
 }

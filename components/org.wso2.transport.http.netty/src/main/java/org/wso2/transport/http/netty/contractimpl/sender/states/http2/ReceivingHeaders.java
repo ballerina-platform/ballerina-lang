@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandle
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -217,7 +218,8 @@ public class ReceivingHeaders implements SenderState {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         // Create HTTP Carbon Response
-        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse);
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new Http2InboundContentListener(
+            streamId, http2TargetHandler.getConnection()));
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));

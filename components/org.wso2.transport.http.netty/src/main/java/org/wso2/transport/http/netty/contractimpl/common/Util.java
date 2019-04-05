@@ -886,10 +886,4 @@ public class Util {
             sslHandler.setHandshakeTimeout(handshakeTimeout, TimeUnit.SECONDS);
         }
     }
-
-    public static void consumeBytes(Http2Connection connection, int streamId, int noOfConsumedBytes)
-        throws Http2Exception {
-        Http2Stream stream = connection.stream(streamId);
-        connection.local().flowController().consumeBytes(stream, noOfConsumedBytes);
-    }
 }

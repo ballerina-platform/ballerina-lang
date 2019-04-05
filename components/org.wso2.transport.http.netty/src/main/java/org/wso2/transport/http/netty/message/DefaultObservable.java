@@ -32,12 +32,12 @@ public class DefaultObservable implements Observable {
         this.listener = listener;
     }
 
+    /**
+     * This method should only be called for HTTP/1.1.
+     */
     @Override
     public void removeListener() {
-        if (listener != null) {
-            listener.resumeReadInterest();
             listener = null;
-        }
     }
 
     @Override
@@ -51,6 +51,13 @@ public class DefaultObservable implements Observable {
     public void notifyGetListener(HttpContent httpContent) {
         if (listener != null) {
             listener.onRemove(httpContent);
+        }
+    }
+
+    @Override
+    public void notifyReadInterest() {
+        if (listener != null) {
+            listener.resumeReadInterest();
         }
     }
 }

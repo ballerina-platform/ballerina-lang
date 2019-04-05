@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChanne
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
@@ -107,9 +108,11 @@ public class Http2StateUtil {
      * @param http2SourceHandler the HTTP/2 source handler
      * @return the CarbonRequest Message created from given HttpRequest
      */
-    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler) {
+    public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler,
+                                                       int streamId) {
         ChannelHandlerContext ctx = http2SourceHandler.getChannelHandlerContext();
-        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest);
+        HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest, new Http2InboundContentListener(
+            streamId, http2SourceHandler.getConnection()));
         sourceReqCMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(CHNL_HNDLR_CTX, ctx);
         sourceReqCMsg.setProperty(Constants.SRC_HANDLER, http2SourceHandler);
