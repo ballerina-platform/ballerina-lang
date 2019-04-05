@@ -181,14 +181,14 @@ public class BuildCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
 
+            // Load the configuration file. If no config file is given then the default config file i.e.
+            // "ballerina.conf" in the source root path is taken.
+            LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
+
             if (jvmTarget) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
             } else {
-                // Load the configuration file. If no config file is given then the default config file i.e.
-                // "ballerina.conf" in the source root path is taken.
-                LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
-
                 BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag);
             }
