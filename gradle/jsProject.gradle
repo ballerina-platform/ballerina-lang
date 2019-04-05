@@ -4,20 +4,23 @@ apply plugin: 'base'
 task npmInstall(type: Exec) {
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'cmd', '/c', 'npm', 'install'
-    } else {
-        commandLine 'npm', 'install'
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'install'
+        } else {
+            commandLine 'npm', 'install'
+        }
     }
 }
 
 task npmBuild(type: Exec) {
-    mustRunAfter('npmInstall')
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'build'
-    } else {
-        commandLine 'npm', 'run', 'build'
+    mustRunAfter 'npmInstall'
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'build'
+        } else {
+            commandLine 'npm', 'run', 'build'
+        }
     }
 }
 
@@ -26,10 +29,7 @@ assemble {
     dependsOn npmBuild
 }
 
-build.finalizedBy('test')
-
 task test(type: Exec) {
-    mustRunAfter('build')
     onlyIf {
         !assemble.state.upToDate
     }
@@ -41,3 +41,5 @@ task test(type: Exec) {
         }
     }
 }
+
+build.finalizedBy 'test'

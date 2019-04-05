@@ -94,11 +94,8 @@ dependencies {
 }
 
 test {
-    // make usre ballerina zip is built before test run
+    // make sure ballerina zip is built before test run
     dependsOn (":ballerina:build")
-    // TODO: Refactor integration tests to run task asynchronously
-    mustRunAfter ':ballerina-unit-test:test'
-    mustRunAfter ':examples-test:test'
     
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"

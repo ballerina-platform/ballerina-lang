@@ -272,10 +272,10 @@ task createDistribution(type: Copy) {
 
 build {
     // To make sure language server zip is ready before building pack
-    mustRunAfter ':language-server:language-server-core:build'
-
+    dependsOn ':language-server:language-server-core:build'
     dependsOn createZip
     dependsOn createDistribution
+    finalizedBy ':ballerina-tools-integration-test:test'
 }
 
 artifacts {

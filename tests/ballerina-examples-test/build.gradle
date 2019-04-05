@@ -15,12 +15,8 @@ dependencies {
     ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
 }
 
-build {
+task test {
     dependsOn ":ballerina-tools:build"
-}
-
-task test{
-    dependsOn build
     doLast {
         def distPath = configurations.ballerinaTools.asPath;
 
@@ -97,9 +93,4 @@ task test{
         }
    }
 }
-
-build.finalizedBy test
-
-
-
 

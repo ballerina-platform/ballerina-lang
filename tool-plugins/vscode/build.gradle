@@ -8,28 +8,24 @@ configurations {
 }
 
 task npmBuild(type: Exec, overwrite: true) {
-    mustRunAfter('npmInstall')
-    // TODO: Refactor mustRunAfter logic
-    mustRunAfter ':composer-library:npmBuild'
+    mustRunAfter 'npmInstall'
+    dependsOn(':composer-library:build')
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
 
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'package'
-    } else {
-        commandLine 'npm', 'run', 'package'
+    doFirst {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'package'
+        } else {
+            commandLine 'npm', 'run', 'package'
+        }
     }
 }
 
 task assemble(overwrite: true) {
     dependsOn npmInstall
     dependsOn npmBuild
-}
-
-build.finalizedBy('test')
-
-test {
-    mustRunAfter ":ballerina-integration-test:test"
+    dependsOn(':composer-library:assemble')
 }
 
 dependencies {
