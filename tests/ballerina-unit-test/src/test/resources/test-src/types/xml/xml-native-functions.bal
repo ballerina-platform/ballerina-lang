@@ -884,3 +884,11 @@ function testToJSONAndSubsequentRemove() returns (json, json) {
     person.remove("age");
     return (intermediatePerson, person);
 }
+
+function testXMLLength() returns (int, int, int, int) {
+    xml a = xml `xml1`;
+    xml b = xml `b✅`;
+    xml c = xml `<elem>cont</elem>`;
+    xml d = a + b + c;
+    return (d.length(), a.length(), b.length(), c.length());
+}

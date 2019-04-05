@@ -48,6 +48,8 @@ public enum Snippet {
 
     DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
 
+    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),

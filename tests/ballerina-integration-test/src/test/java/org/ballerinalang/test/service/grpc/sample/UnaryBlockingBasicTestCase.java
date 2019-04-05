@@ -141,12 +141,11 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     public void testNonBlockingBallerinaClient() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_nonblocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        final String serverMsg = "Hello WSO2";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryNonBlockingClient", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BInteger);
-        BInteger responseCount = (BInteger) responses[0];
-        Assert.assertEquals(responseCount.intValue(), 2);
+        Assert.assertTrue(responses[0] instanceof BBoolean);
+        BBoolean response = (BBoolean) responses[0];
+        Assert.assertTrue(response.booleanValue());
     }
 }
