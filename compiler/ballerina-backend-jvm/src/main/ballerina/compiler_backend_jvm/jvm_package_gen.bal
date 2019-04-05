@@ -35,12 +35,12 @@ function lookupFullQualifiedClassName(string key) returns string {
     }
 }
 
-public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries) {
+public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntries, boolean dumpBIR) {
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
-        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
-        generateImportedPackage(importedPkg, pkgEntries);
+        bir:Package importedPkg = lookupModule(mod, currentBIRContext, dumpBIR);
+        generateImportedPackage(importedPkg, pkgEntries, dumpBIR);
     }
 
     string orgName = module.org.value;
@@ -81,7 +81,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module);
+        generateMethod(getFunction(func), cw, module, dumpBIR);
     }
 
     cw.visitEnd();
@@ -91,7 +91,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 }
 
 public function generateEntryPackage(bir:Package module, string sourceFileName, map<byte[]> pkgEntries,
-        map<string> manifestEntries) {
+        map<string> manifestEntries, boolean dumpBIR) {
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -136,7 +136,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module);
+        generateMethod(getFunction(func), cw, module, dumpBIR);
     }
 
     foreach var (k,v) in lambdas {
@@ -155,10 +155,10 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     generateField(cw, bType, varName);
 }
 
-function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) returns bir:Package {
+function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext, boolean dumpBIR) returns bir:Package {
     bir:ModuleID moduleId = {org: importModule.modOrg.value, name: importModule.modName.value,
                                 modVersion: importModule.modVersion.value};
-    return birContext.lookupBIRModule(moduleId);
+    return birContext.lookupBIRModule(moduleId, dumpBIR);
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {

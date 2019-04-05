@@ -31,10 +31,11 @@ import java.util.List;
  * @since 0.980.0
  */
 public abstract class BIRNode {
-    public DiagnosticPos pos;
+    //private DiagnosticPos pos;
 
     public BIRNode(DiagnosticPos pos) {
-        this.pos = pos;
+        // ToDo: This will be used when supporting positions in BIR. Commented out to fix spotbug error at build.
+        // this.pos = pos;
     }
 
     public abstract void accept(BIRVisitor visitor);

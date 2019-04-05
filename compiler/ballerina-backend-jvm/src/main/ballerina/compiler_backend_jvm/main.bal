@@ -30,19 +30,20 @@ public function main(string... args) {
     //do nothing
 }
 
-function generateJarBinary(bir:BIRContext birContext, bir:ModuleID entryModId, string progName) returns JarFile {
+function generateJarBinary(bir:BIRContext birContext, bir:ModuleID entryModId, string progName, boolean dumpBIR) 
+                            returns JarFile {
     currentBIRContext = birContext;
-    bir:Package entryMod = birContext.lookupBIRModule(entryModId);
+    bir:Package entryMod = birContext.lookupBIRModule(entryModId, dumpBIR);
 
     map<byte[]> jarEntries = {};
     map<string> manifestEntries = {};
 
     foreach var importModule in entryMod.importModules {
-        bir:Package module = lookupModule(importModule, birContext);
-        generateImportedPackage(module, jarEntries);
+        bir:Package module = lookupModule(importModule, birContext, dumpBIR);
+        generateImportedPackage(module, jarEntries, dumpBIR);
     }
 
-    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries);
+    generateEntryPackage(entryMod, progName, jarEntries, manifestEntries, dumpBIR);
 
     JarFile jarFile = {jarEntries : jarEntries, manifestEntries : manifestEntries};
     return jarFile;

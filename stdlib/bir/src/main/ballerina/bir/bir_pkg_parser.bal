@@ -18,11 +18,13 @@ public type PackageParser object {
     BirChannelReader reader;
     TypeParser typeParser;
     map<VariableDcl> globalVarMap;
+    boolean dumpBIR;
 
-    public function __init(BirChannelReader reader, TypeParser typeParser) {
+    public function __init(BirChannelReader reader, TypeParser typeParser, boolean dumpBIR) {
         self.reader = reader;
         self.typeParser = typeParser;
         self.globalVarMap = {};
+        self.dumpBIR = dumpBIR;
     }
 
     public function parseVariableDcl() returns VariableDcl {
@@ -86,11 +88,13 @@ public type PackageParser object {
             funcs[i] = self.parseFunction(typeDefs);
             i += 1;
         }
-
-       //BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
-       //                             functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
-       //                             versionValue: {value: pkgId.modVersion}});
-       //emitter.emitPackage();
+        
+        if (self.dumpBIR) {
+           BirEmitter emitter = new({ importModules: importModules, typeDefs: typeDefs, globalVars:globalVars,
+                                        functions: funcs, name: {value: pkgId.name}, org: {value: pkgId.org},
+                                        versionValue: {value: pkgId.modVersion}});
+           emitter.emitPackage();
+        }
 
         return { importModules : importModules, 
                     typeDefs : typeDefs, 

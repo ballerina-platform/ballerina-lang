@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module) {
+function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, boolean dumpBIR) {
 
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
@@ -31,7 +31,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
-        generateInitFunctionInvocation(module, mv);
+        generateInitFunctionInvocation(module, mv, dumpBIR);
         generateUserDefinedTypes(mv, module.typeDefs);
     }
 
@@ -711,9 +711,9 @@ function getModuleInitFuncName(bir:Package module) returns string {
     }
 }
 
-function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
+function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv, boolean dumpBIR) {
     foreach var mod in pkg.importModules {
-        bir:Package importedPkg = lookupModule(mod, currentBIRContext);
+        bir:Package importedPkg = lookupModule(mod, currentBIRContext, dumpBIR);
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
@@ -725,7 +725,7 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
                     "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
             mv.visitInsn(POP);
         }
-        generateInitFunctionInvocation(importedPkg, mv);
+        generateInitFunctionInvocation(importedPkg, mv, dumpBIR);
     }
 }
 

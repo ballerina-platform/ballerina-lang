@@ -101,13 +101,16 @@ public class BCompileUtil {
     }
 
     /**
-     * Compile and return the semantic errors.
+     * Compile and dump bir.
      *
      * @param sourceFilePath Path to source module/file
      * @return Semantic errors
      */
-    public static CompileResult compileAndGetBIR(String sourceFilePath) {
-        return compile(sourceFilePath, CompilerPhase.BIR_GEN);
+    public static CompileResult compileAndDumpBir(String sourceFilePath) {
+        if (jBallerinaTestsEnabled()) {
+            return compileOnJBallerina(sourceFilePath, true);
+        }
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
     /**
@@ -118,7 +121,7 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceFilePath) {
         if (jBallerinaTestsEnabled()) {
-            return compileOnJBallerina(sourceFilePath);
+            return compileOnJBallerina(sourceFilePath, false);
         }
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
@@ -533,7 +536,7 @@ public class BCompileUtil {
     }
 
 
-    private static CompileResult compileOnJBallerina(String sourceFilePath) {
+    private static CompileResult compileOnJBallerina(String sourceFilePath, boolean dumpBIR) {
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
@@ -550,7 +553,7 @@ public class BCompileUtil {
         }
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-        byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName);
+        byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName, dumpBIR);
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
         String entryClassName = FileUtils.cleanupFileExtension(packageName);
         Class<?> clazz = classLoader.loadClass(entryClassName);

@@ -19,9 +19,9 @@ import ballerina/io;
 # TODO Docs
 public type BIRContext object {
 
-    public function lookupBIRModule(ModuleID modId) returns Package {
+    public function lookupBIRModule(ModuleID modId, boolean dumpBIR) returns Package {
         var modBinary = getBIRModuleBinary(self, modId);
-        return populateBIRModuleFromBinary(modBinary);
+        return populateBIRModuleFromBinary(modBinary, dumpBIR);
     }
 };
 
@@ -29,14 +29,14 @@ function getBIRModuleBinary(BIRContext birContext, ModuleID modId) returns byte[
 
 
 // TODO Refactor following methods
-function populateBIRModuleFromBinary(byte[] modBinary) returns Package {
+function populateBIRModuleFromBinary(byte[] modBinary, boolean dumpBIR) returns Package {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(modBinary);
     ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     ConstPoolParser cpParser = new(reader);
     BirChannelReader birReader = new(reader, cpParser.parse());
     TypeParser typeParser = new (birReader);
-    PackageParser pkgParser = new(birReader, typeParser);
+    PackageParser pkgParser = new(birReader, typeParser, dumpBIR);
     Package mod = pkgParser.parsePackage();
     return mod;
 }
