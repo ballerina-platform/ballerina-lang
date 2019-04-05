@@ -20,16 +20,16 @@ package org.ballerinalang.stdlib.filepath.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.NotLinkException;
-import java.nio.file.Path;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * The native class to get real value of the path after evaluating any symbolic links.
@@ -39,23 +39,37 @@ import java.nio.file.Paths;
 @BallerinaFunction(
         orgName = Constants.ORG_NAME,
         packageName = Constants.PACKAGE_NAME,
-        functionName = "resolve",
+        functionName = "matches",
         isPublic = true
 )
-public class Resolve extends BlockingNativeCallableUnit {
+public class Matches extends BlockingNativeCallableUnit {
+
+    private static final String GLOB_SYNTAX_FLAVOR = "glob:";
 
     @Override
     public void execute(Context context) {
         String inputPath = context.getStringArgument(0);
-        try {
-            Path realPath = Files.readSymbolicLink(Paths.get(inputPath));
-            context.setReturnValues(new BString(realPath.toString()));
-        } catch (NotLinkException ex) {
-            context.setReturnValues(Utils.getPathError("NOT_LINK_ERROR", ex));
-        } catch (IOException ex) {
-            context.setReturnValues(Utils.getPathError("IO_ERROR", ex));
-        } catch (SecurityException ex) {
-            context.setReturnValues(Utils.getPathError("SECURITY_ERROR", ex));
+        String pattern = context.getStringArgument(1);
+        FileSystem fs = FileSystems.getDefault();
+        if (pattern != null) {
+            PathMatcher matcher;
+            try {
+                if (!pattern.startsWith(GLOB_SYNTAX_FLAVOR)) {
+                    matcher = fs.getPathMatcher(GLOB_SYNTAX_FLAVOR + pattern);
+                } else {
+                    matcher = fs.getPathMatcher(pattern);
+                }
+            } catch (PatternSyntaxException ex) {
+                context.setReturnValues(Utils.getPathError("INVALID_PATTERN", ex));
+                return;
+            }
+            if (inputPath == null) {
+                context.setReturnValues(new BBoolean(Boolean.FALSE));
+                return;
+            }
+            context.setReturnValues(new BBoolean(matcher.matches(Paths.get(inputPath))));
+        } else {
+            context.setReturnValues(Utils.getPathError("INVALID_PATTERN", "Pattern is null"));
         }
     }
 }

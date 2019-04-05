@@ -53,12 +53,12 @@ public class UtilsTest {
                 "/User/ballerina/path\\test\"}");
 
         // Get Path error without throwable.
-        BError error3 = Utils.getPathError(reason, null);
+        BError error3 = Utils.getPathError(reason, (Throwable) null);
         Assert.assertEquals(error3.getReason(), ERROR_REASON_PREFIX + reason);
         Assert.assertEquals(error3.getDetails().stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
 
         // Get Path error without both reason and throwable.
-        BError error4 = Utils.getPathError(null, null);
+        BError error4 = Utils.getPathError(null, (Throwable) null);
         Assert.assertEquals(error4.getReason(), ERROR_REASON_PREFIX + UNKNOWN_REASON);
         Assert.assertEquals(error4.getDetails().stringValue(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
 

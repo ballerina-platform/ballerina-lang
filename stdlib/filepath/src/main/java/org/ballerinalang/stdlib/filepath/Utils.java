@@ -45,18 +45,38 @@ public class Utils {
      * @return      Ballerina error object.
      */
     public static BError getPathError(String reason, Throwable error) {
+        BError bError;
+        if (error != null) {
+            if (error.getMessage() == null) {
+                bError = getPathError(reason, UNKNOWN_MESSAGE);
+            } else {
+                bError = getPathError(reason, error.getMessage());
+            }
+        } else {
+            bError = getPathError(reason, UNKNOWN_MESSAGE);
+        }
+        return bError;
+    }
+
+    /**
+     * Returns error struct of input type.
+     * Error type is generic ballerina error type. This utility to construct error struct from message.
+     *
+     * @param reason    Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
+     *                  default.
+     * @param details     Java throwable object to capture description of error struct. If throwable object is null,
+     *                  "Unknown Error" sets to message by default.
+     * @return      Ballerina error object.
+     */
+    public static BError getPathError(String reason, String details) {
         BMap<String, BValue> refData = new BMap<>(BTypes.typeError.detailType);
         if (reason != null) {
             reason = Constants.ERROR_REASON_PREFIX + reason;
         } else {
             reason = Constants.ERROR_REASON_PREFIX + UNKNOWN_REASON;
         }
-        if (error != null) {
-            if (error.getMessage() == null) {
-                refData.put("message", new BString(UNKNOWN_MESSAGE));
-            } else {
-                refData.put("message", new BString(error.getMessage()));
-            }
+        if (details != null) {
+            refData.put("message", new BString(details));
         } else {
             refData.put("message", new BString(UNKNOWN_MESSAGE));
         }

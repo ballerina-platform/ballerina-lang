@@ -355,6 +355,14 @@ public function relative(string base, string target) returns string|error {
 # + return - Resolved file path
 public function resolve(@sensitive string path) returns string|error = external;
 
+# Reports whether all of filename matches the provided pattern, not just a substring.
+# An error is returned if the pattern is malformed.
+#
+# + path - String value of the file path.
+# + pattern - String value of the target file path.
+# + return - True if filename of the path matches with the pattern, else false
+public function matches(string path, string pattern) returns boolean|error = external;
+
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value
