@@ -16,8 +16,8 @@ function mapAccessTest(int x, int y) returns (int) {
     y
     ;
     testMap["forth"] = x - y;
-    xx = <int> testMap.first;
-    yy = <int> testMap.second;
+    xx = <int>testMap.first;
+    yy = <int>testMap.second;
 
     return xx + yy;
 }
