@@ -5,7 +5,7 @@ type SampleError error<string, map<anydata|error>>;
 public function main() {
     // This error type binding pattern will destructure an `error` of type `SampleError` and create two variables as follows:
     // The value of the reason string in `SampleError` will be set to a new `string` variable `reason`.
-    // The value of the `detail mapping` will be set to a new `map<anydata|error>` variable `detail`.
+    // The value of the detail mapping will be set to a new `map<anydata|error>` variable `detail`.
     SampleError error(reason, detail) = getSampleError();
     io:println("Reason String: " + reason);
     io:println("Detail Mapping: " + io:sprintf("%s", detail));
