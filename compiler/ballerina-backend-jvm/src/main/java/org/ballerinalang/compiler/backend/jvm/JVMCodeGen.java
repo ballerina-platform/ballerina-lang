@@ -147,6 +147,7 @@ public class JVMCodeGen {
                 .filter(file -> file.getName().contains(BALLERINA_RUNTIME_JAR_NAME) && !file.getName().contains("api"))
                 .findFirst()
                 .orElseThrow(() -> new BLangCompilerException("ballerina runtime jar is not found"));
+
         ZipFile zipFile = new ZipFile(ballerinaRuntimeJar);
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
