@@ -134,8 +134,6 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns ((json, 
 
 function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
     JwtHeader jwtHeader = {};
-    map<any> customClaims = {};
-
     string[] keys = jwtHeaderJson.getKeys();
 
     foreach var key in keys {
@@ -147,22 +145,15 @@ function parseHeader(json jwtHeaderJson) returns (JwtHeader) {
             jwtHeader.cty = jwtHeaderJson[key].toString();
         } else if (key == KID) {
             jwtHeader.kid = jwtHeaderJson[key].toString();
-        } else {
-            if (jwtHeaderJson[key].length() > 0) {
-                customClaims[key] = convertToStringArray(jwtHeaderJson[key]);
-            } else {
-                customClaims[key] = jwtHeaderJson[key].toString();
-            }
         }
     }
-    jwtHeader.customClaims = customClaims;
     return jwtHeader;
 }
 
 function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
     string[] aud = [];
     JwtPayload jwtPayload = { iss: "", sub: "", aud: aud, exp: 0 };
-    map<any> customClaims = {};
+    map<json> customClaims = {};
     string[] keys = jwtPayloadJson.getKeys();
     foreach var key in keys {
         if (key == ISS) {
@@ -197,13 +188,8 @@ function parsePayload(json jwtPayloadJson) returns (JwtPayload) {
             } else {
                 jwtPayload.iat = 0;
             }
-        }
-        else {
-            if (jwtPayloadJson[key].length() > 0) {
-                customClaims[key] = convertToStringArray(jwtPayloadJson[key]);
-            } else {
-                customClaims[key] = jwtPayloadJson[key].toString();
-            }
+        } else {
+            customClaims[key] = jwtPayloadJson[key];
         }
     }
     jwtPayload.customClaims = customClaims;
