@@ -53,7 +53,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEd
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateObjectInitializerExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_INITIALIZER";
+    public static final String COMMAND = "CREATE_INITIALIZER";
 
     /**
      * {@inheritDoc}

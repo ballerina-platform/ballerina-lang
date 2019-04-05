@@ -183,3 +183,43 @@ function testCustomErrorWithMappingOfSelf() returns boolean {
                 e2.detail().err.reason() == ERROR_REASON_ONE && e2.detail().err.detail().length() == 0;
     return errOneInitSuccesful && errTwoInitSuccesful;
 }
+
+function testUnspecifiedErrorDetailFrozenness() returns boolean {
+    error e1 = error("reason 1");
+    map<anydata|error> m1 = e1.detail();
+    error? err = trap addValueToMap(m1, "k", 1);
+    return err is error && err.reason() == "{ballerina}InvalidUpdate";
+}
+
+function testErrorDetailCloneAndFreeze() returns boolean {
+    map<anydata|error> m = { one: 1 };
+    error e1 = error("reason 1", m);
+    map<anydata|error> m1 = e1.detail();
+    boolean cloneSuccessful = m !== m1 && m == m1;
+    error? err1 = trap addValueToMap(m1, "k", 1);
+
+    MyError e2 = error(ERROR_REASON_ONE, {});
+    map<MyError> m2 = { err: e2 };
+    MyError e3 = error(ERROR_REASON_TWO, m2);
+    map<MyError> m3 = e3.detail();
+    cloneSuccessful = m2 !== m3 && m2 == m3;
+    error? err2 = trap addValueToMap(m3, "k", e2);
+
+    return err1 is error && err1.reason() == "{ballerina}InvalidUpdate" &&
+            err2 is error && err2.reason() == "{ballerina}InvalidUpdate" && cloneSuccessful;
+}
+
+function addValueToMap(map<anydata|error> m, string key, anydata|error value) {
+    m[key] = value;
+}
+
+public function testRuntimeFailingWhenAssigningErrorToAny() {
+    map<any> m1 = { one: "a", two: "b" };
+    error errValOne = error("error reason one");
+
+    insertMemberToMap(m1, "three", errValOne); // panic
+}
+
+public function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
+    mapVal[index] = member;
+}

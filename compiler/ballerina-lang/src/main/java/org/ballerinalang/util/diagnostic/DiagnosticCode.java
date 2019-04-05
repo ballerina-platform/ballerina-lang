@@ -155,6 +155,7 @@ public enum DiagnosticCode {
     UNDEFINED_ACTION("undefined.action"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
+    EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),

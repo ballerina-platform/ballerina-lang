@@ -2469,14 +2469,26 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (lhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            // string + xml ==> (xml string) + xml
+            if (rhsExprTypeTag == TypeTags.XML) {
+                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                        binaryExpr.lhsExpr.pos, symTable.xmlType);
+                return;
+            }
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                                                     binaryExpr.lhsExpr.type);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.STRING && binaryExpr.opKind == OperatorKind.ADD) {
+            // xml + string ==> xml + (xml string)
+            if (lhsExprTypeTag == TypeTags.XML) {
+                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
+                return;
+            }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                                                    binaryExpr.rhsExpr.type);
+                    binaryExpr.rhsExpr.type);
             return;
         }
 
@@ -2488,7 +2500,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (rhsExprTypeTag == TypeTags.DECIMAL) {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                                                    binaryExpr.rhsExpr.type);
+                    binaryExpr.rhsExpr.type);
             return;
         }
 
@@ -3063,8 +3075,12 @@ public class Desugar extends BLangNodeVisitor {
         errConstExpr.reasonExpr = addConversionExprIfRequired(errConstExpr.reasonExpr, symTable.stringType);
         errConstExpr.reasonExpr = rewriteExpr(errConstExpr.reasonExpr);
         if (errConstExpr.detailsExpr == null) {
-            errConstExpr.detailsExpr = rewriteExpr(
-                    ASTBuilderUtil.createEmptyRecordLiteral(errConstExpr.pos, symTable.mapType));
+            errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.pos,
+                                                                 BLangBuiltInMethod.FREEZE,
+                                                                 Lists.of(rewriteExpr(
+                                                                         ASTBuilderUtil.createEmptyRecordLiteral(
+                                                                                 errConstExpr.pos,
+                                                                                 symTable.pureTypeConstrainedMap))));
         } else {
             errConstExpr.detailsExpr = visitUtilMethodInvocation(errConstExpr.detailsExpr.pos,
                                                                  BLangBuiltInMethod.FREEZE,
