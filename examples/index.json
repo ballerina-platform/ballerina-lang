@@ -466,6 +466,10 @@
                 "url": "strings"
             },
             {
+                "name": "File Path",
+                "url": "filepath"
+            },
+            {
                 "name": "Task Scheduler Appointment",
                 "url": "task-scheduler-appointment"
             },
@@ -948,6 +952,19 @@
             "name": "NATS Basic Example",
             "url": "nats-basic-client"
         }]
+    },
+    {
+        "title": "RabbitMQ",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "RabbitMQ Simple Producer",
+            "url": "rabbitmq-simple-producer"
+        },
+          {
+            "name": "RabbitMQ Simple Consumer",
+            "url": "rabbitmq-simple-consumer"
+          }]
     },
     {
         "title": "ActiveMQ Artemis",

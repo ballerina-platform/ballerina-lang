@@ -16,4 +16,9 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+    <Match>
+        <Class name="org.ballerinalang.net.grpc.proto.ServiceProtoBuilder" />
+        <Method name="process" />
+        <Bug pattern="BC_IMPOSSIBLE_CAST" />
+    </Match>
 </FindBugsFilter>

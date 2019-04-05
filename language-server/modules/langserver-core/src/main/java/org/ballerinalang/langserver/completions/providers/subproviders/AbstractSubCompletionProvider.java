@@ -205,6 +205,7 @@ public abstract class AbstractSubCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSOCKET));
         completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_GRPC));
         completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION));
         completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION));
         completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
