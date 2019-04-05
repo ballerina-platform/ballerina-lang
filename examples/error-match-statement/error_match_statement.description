@@ -1,4 +1,4 @@
 // The `match` statement in Ballerina only supports value based match patterns. There are static and structured
 // match patterns that can be used with the match clauses. Structured match patterns will take structured
 // binding patterns for matching. Error binding pattern is one of the structured binding patterns that can be used
-// with the match statement.
+// with the `match` statement.
