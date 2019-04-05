@@ -46,13 +46,13 @@ dependencies {
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
-
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.jvnet.mimepull:mimepull'
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-http')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
@@ -70,6 +70,12 @@ test {
     }
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 description = 'Ballerina - Http/WS'

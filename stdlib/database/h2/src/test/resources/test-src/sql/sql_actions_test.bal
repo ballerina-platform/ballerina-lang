@@ -731,6 +731,27 @@ function testBatchUpdate() returns int[] {
     return updateCount;
 }
 
+function testBatchUpdateSingleValParamArray() returns int[] {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    string[] parameters1 = ["Harry"];
+
+    string[] parameters2 = ["Ron"];
+
+    string[][] arrayofParamArrays = [parameters1, parameters2];
+
+    var ret = testDB->batchUpdate("Insert into Customers (firstName) values (?)", ...arrayofParamArrays);
+    int[] updateCount = getBatchUpdateCount(ret);
+    checkpanic testDB.stop();
+    return updateCount;
+}
+
 type myBatchType string|int|float;
 
 function testBatchUpdateWithValues() returns int[] {

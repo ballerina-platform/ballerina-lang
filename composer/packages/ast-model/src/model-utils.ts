@@ -140,3 +140,19 @@ export function isWorkerReceive(node: ASTNode): boolean | string {
     });
     return found;
 }
+
+export function extractWorkerReceive(node: ASTNode): WorkerReceive | undefined {
+    if (ASTKindChecker.isVariableDef(node)) {
+        if (node.variable.initialExpression &&
+            ASTKindChecker.isWorkerReceive(node.variable.initialExpression)) {
+            return node.variable.initialExpression;
+        }
+    }
+
+    if (ASTKindChecker.isAssignment(node)) {
+        if (ASTKindChecker.isWorkerReceive(node.expression)) {
+            return node.expression;
+        }
+    }
+    return;
+}

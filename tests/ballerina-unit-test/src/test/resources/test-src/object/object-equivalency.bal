@@ -674,3 +674,29 @@ function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {
 
     return (p4, p2);
 }
+
+type ObjectWithAnyTypeVariables object {
+    public any x;
+    public any y;
+
+    function __init() {
+        self.x = "B";
+        self.y = 100;
+    }
+};
+
+type ObjectWithoutAnyTypeVariables object {
+    public string x;
+    public int y;
+
+    function __init() {
+        self.x = "A";
+        self.y = 12;
+    }
+};
+
+function testInherentTypeViolationWithNilType() {
+    ObjectWithoutAnyTypeVariables o1 = new;
+    ObjectWithAnyTypeVariables o2 = o1;
+    o2.x = (); // panic
+}
