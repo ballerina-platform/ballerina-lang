@@ -5,5 +5,4 @@ $ ballerina run checkpanic.bal
 error: {ballerina}ConversionError {"message":"incompatible convert operation: 'string' value 'Invalid' cannot be converted as 'int'"}
         at ballerina/utils:simpleValueConvert(<native>)
            parse(checkpanic.bal:5)
-           scale(checkpanic.bal:14)
-           main(checkpanic.bal:24)
+           main(checkpanic.bal:19)

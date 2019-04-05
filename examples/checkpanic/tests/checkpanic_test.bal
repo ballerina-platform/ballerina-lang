@@ -18,8 +18,8 @@ public function mockPrint(any|error... s) {
 
 @test:Config
 function testFunc() {
-    error? e = trap main();
     // Invoking the main function
+    error? e = trap main();
     test:assertEquals(outputs[0], 120);
     test:assertTrue(e is error, msg = "expected main to panic");
     if (e is error) {

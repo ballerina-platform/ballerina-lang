@@ -5,22 +5,17 @@ function parse(string num) returns int|error {
     return int.convert(num);
 }
 
-function scale(string num) returns int {
+public function main() {
     // The `checkpanic` unary operator can be used to lift errors.
     // In this instance, `checkpanic` is used to lift the (potential) error
     // returned by the `parse()` function. If the actual value returned
     // by the function is an `error`, the function immediately `panics`
     // with the error.
-    int x = checkpanic parse(num);
-    return x * 10;
-}
-
-public function main() {
     // Passing a valid integer as a `string` will return an `int`.
-    int y = scale("12");
+    int y = checkpanic parse("120");
     io:println(y);
 
     // Passing a random `string` will result in a `panic`.
-    int z = scale("Invalid");
+    int z = checkpanic parse("Invalid");
     io:println(z);
 }
