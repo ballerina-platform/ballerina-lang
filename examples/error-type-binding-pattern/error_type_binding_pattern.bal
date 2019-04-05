@@ -25,7 +25,7 @@ public function main() {
     // Type of `vDetail` is inferred as `map<anydata|error>`.
     io:println("Detail Mapping: " + io:sprintf("%s", vDetail));
 
-    // Underscore '_' can be used to ignore either the `reason string` or the `detail mapping`.
+    // Underscore '_' can be used to ignore either the reason string or the detail mapping.
     error<string, Foo> error(_, fooRec) = getRecordConstrainedError();
     io:println("Detail Mapping: " + io:sprintf("%s", <Foo> fooRec));
 }
