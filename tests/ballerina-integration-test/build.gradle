@@ -98,6 +98,7 @@ test {
     dependsOn (":ballerina:build")
     
     maxParallelForks = 1
+    forkEvery=100
     systemProperty 'basedir', "$buildDir"
     systemProperty 'server.zip', configurations.ballerina.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"

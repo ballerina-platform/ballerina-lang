@@ -42,4 +42,4 @@ task test(type: Exec) {
     }
 }
 
-build.finalizedBy 'test'
+// build.finalizedBy 'test'
