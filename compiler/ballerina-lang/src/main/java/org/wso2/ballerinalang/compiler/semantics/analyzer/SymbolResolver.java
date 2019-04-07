@@ -283,12 +283,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return types.getConversionOperator(sourceType, targetType);
     }
 
-    public BSymbol resolveCastOperator(BType sourceType, BType targetType) {
-        return types.getCastOperator(sourceType, targetType);
+    public BSymbol resolveCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
+        return types.getCastOperator(expr, sourceType, targetType);
     }
 
-    public BSymbol resolveTypeCastOperator(BLangTypeConversionExpr conversionExpr, BType sourceType, BType targetType) {
-        return types.getTypeCastOperator(conversionExpr, sourceType, targetType);
+    public BSymbol resolveTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
+        return types.getTypeCastOperator(expr, sourceType, targetType);
     }
 
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
@@ -539,7 +539,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
     }
 
-    BSymbol getNumericConversionOrCastSymbol(BLangTypeConversionExpr conversionExpr, BType sourceType,
+    BSymbol getNumericConversionOrCastSymbol(BLangExpression expr, BType sourceType,
                                              BType targetType) {
         if (targetType.tag == TypeTags.UNION &&
                 ((BUnionType) targetType).getMemberTypes().stream()
@@ -555,7 +555,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (types.isBasicNumericType(sourceType)) {
                 // i.e., a conversion from a numeric type to another numeric type in a union.
                 // int|string u1 = <int|string> 1.0;
-                types.setImplicitCastExpr(conversionExpr.expr, sourceType, symTable.anyType);
+                types.setImplicitCastExpr(expr, sourceType, symTable.anyType);
                 return createTypeCastSymbol(sourceType, targetType);
             }
 

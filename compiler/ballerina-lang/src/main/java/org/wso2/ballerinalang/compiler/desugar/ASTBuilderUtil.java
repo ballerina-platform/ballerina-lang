@@ -397,7 +397,8 @@ public class ASTBuilderUtil {
         conversion.expr = varRef;
         conversion.type = target;
         conversion.targetType = target;
-        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef.type, target);
+        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef, varRef.type,
+                                                                                            target);
         return conversion;
     }
 

@@ -4092,7 +4092,7 @@ public class Desugar extends BLangNodeVisitor {
             return expr;
         }
 
-        BCastOperatorSymbol conversionSymbol;
+        BOperatorSymbol conversionSymbol;
         if (types.isValueType(lhsType)) {
             conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
@@ -4105,7 +4105,7 @@ public class Desugar extends BLangNodeVisitor {
             conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true, 
                                                                 InstructionCodes.NOP, null, null);
         } else {
-            conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(rhsType, lhsType);
+            conversionSymbol = (BOperatorSymbol) symResolver.resolveCastOperator(expr, rhsType, lhsType);
         }
 
         // Create a type cast expression
