@@ -2996,7 +2996,9 @@ public class BVM {
         int j = operands[1];
 
         BRefType bRefType = sf.refRegs[i];
-        if (checkIsType(bRefType, targetType)) {
+        if (bRefType == null) {
+            sf.refRegs[j] = null;
+        } else if (bRefType.getType() == targetType) {
             sf.refRegs[j] = bRefType;
         } else {
             handleTypeCastError(ctx, sf, j, bRefType.getType(), targetType);
