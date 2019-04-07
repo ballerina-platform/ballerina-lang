@@ -194,22 +194,33 @@ task extractLibs(type: Copy) {
     into path
 }
 
+// Fix for windows class path too long issue
+task pathingJar(type: Jar) {
+  appendix = "pathing"
+  doFirst {
+    manifest {
+      attributes "Class-Path": configurations.docerina.files.join(" ")
+    }
+  }
+}
+
 task generateDocs(type: JavaExec) {
+    dependsOn pathingJar
     dependsOn extractLibs
+    dependsOn ':docerina-gradle-plugin:build'
     inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
     outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
     systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
-
-    classpath = configurations.docerina
+    
+    classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
 
     def libs = "$buildDir/ballerina/"
     args("$libs", "$buildDir/api-docs")
 }
-
 
 task createApiDocsZip(type: Zip) {
     from generateDocs.outputs.files
