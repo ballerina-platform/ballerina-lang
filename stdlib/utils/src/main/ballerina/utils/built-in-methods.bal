@@ -18,7 +18,7 @@
 #
 # + value - Value to be cloned
 # + return - Clone of the given value
-function clone(anydata value) returns anydata = external;
+function clone(any value) returns anydata|error = external;
 
 # Stamp the value to given type.
 #
@@ -45,7 +45,7 @@ function simpleValueConvert(typedesc convertType, anydata value) returns anydata
 #
 # + value - Value to be frozen
 # + return - Frozen value
-function freeze(anydata value) returns anydata = external;
+function freeze(anydata value) returns anydata|error = external;
 
 # Check freeze status of given value.
 #

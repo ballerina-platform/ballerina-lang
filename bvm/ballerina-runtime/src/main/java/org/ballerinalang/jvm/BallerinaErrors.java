@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.MapValue;
  *
  * @since 0.995.0
  */
-public class JBLangVMErrors {
+public class BallerinaErrors {
     
     public static final String ERROR_MESSAGE_FIELD = "message";
 
