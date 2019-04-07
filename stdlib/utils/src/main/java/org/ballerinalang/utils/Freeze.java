@@ -24,9 +24,6 @@ import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -89,7 +86,7 @@ public class Freeze extends BlockingNativeCallableUnit {
     }
 
     public static Object freeze(Strand strand, Object value) {
-        
+
         if (value == null) {
             // assuming we reach here because the value is nil (()), the frozen value would also be nil.
             return null;
@@ -99,7 +96,8 @@ public class Freeze extends BlockingNativeCallableUnit {
             // If the value is of type error, return an error indicating an error cannot be frozen.
             // Freeze is only allowed on errors if they are part of a structure.
             return BallerinaErrors
-                    .createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
+                                 "'freeze()' not allowed on 'error'");
         }
         Status freezeStatus = new Status(State.MID_FREEZE);
         try {
@@ -107,12 +105,13 @@ public class Freeze extends BlockingNativeCallableUnit {
             // if freeze is successful, set the status as frozen and the value itself as the return value
             freezeStatus.setFrozen();
             return refValue;
-        } catch (JBLangFreezeException e) {
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
             // constituents to false, and return an error
             freezeStatus.setUnfrozen();
-            return BallerinaErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, e.getMessage());
-        } catch (JBallerinaException e) {
+            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.FREEZE_ERROR,
+                                               e.getMessage());
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
             // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
             // and its constituents to false, and panic
             freezeStatus.setUnfrozen();

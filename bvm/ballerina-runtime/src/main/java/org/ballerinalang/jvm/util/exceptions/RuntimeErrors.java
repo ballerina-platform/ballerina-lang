@@ -21,7 +21,7 @@ package org.ballerinalang.jvm.util.exceptions;
 /**
  * Error codes and Error keys to represent the runtime errors.
  */
-public enum JRuntimeErrors {
+public enum RuntimeErrors {
 
     CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE("casting.any.to.wrong.value.type", "RUNTIME_0001"),
     CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002"),
@@ -64,7 +64,7 @@ public enum JRuntimeErrors {
     private String errorMsgKey;
     private String errorCode;
 
-    JRuntimeErrors(String errorMessageKey, String errorCode) {
+    RuntimeErrors(String errorMessageKey, String errorCode) {
         this.errorMsgKey = errorMessageKey;
         this.errorCode = errorCode;
     }

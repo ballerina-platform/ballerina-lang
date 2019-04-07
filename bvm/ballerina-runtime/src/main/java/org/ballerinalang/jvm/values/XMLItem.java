@@ -39,7 +39,7 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -236,7 +236,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         if (localName == null || localName.isEmpty()) {
-            throw new JBallerinaException("localname of the attribute cannot be empty");
+            throw new BallerinaException("localname of the attribute cannot be empty");
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -282,7 +282,7 @@ public final class XMLItem extends XMLValue<OMNode> {
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                throw new JBallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
                         prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
@@ -503,7 +503,7 @@ public final class XMLItem extends XMLValue<OMNode> {
                 currentNode = ((OMElement) omNode);
                 break;
             default:
-                throw new JBallerinaException("not an " + XMLNodeType.ELEMENT);
+                throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         currentNode.removeChildren();
@@ -541,7 +541,7 @@ public final class XMLItem extends XMLValue<OMNode> {
                 currentNode = ((OMElement) omNode);
                 break;
             default:
-                throw new JBallerinaException("not an " + XMLNodeType.ELEMENT);
+                throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
@@ -574,7 +574,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public XMLValue<?> slice(int startIndex, int endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
-            throw new JBallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
+            throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
 
         if (startIndex == -1) {
@@ -590,7 +590,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         if (startIndex > endIndex) {
-            throw new JBallerinaException("invalid indices: " + startIndex + " < " + endIndex);
+            throw new BallerinaException("invalid indices: " + startIndex + " < " + endIndex);
         }
 
         return this;
@@ -705,7 +705,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public XMLValue<?> getItem(int index) {
         if (index != 0) {
-            throw new JBallerinaException("index out of range: index: " + index + ", size: 1");
+            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
         }
 
         return this;

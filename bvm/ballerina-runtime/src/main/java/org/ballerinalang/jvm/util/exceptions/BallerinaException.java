@@ -22,51 +22,51 @@ package org.ballerinalang.jvm.util.exceptions;
  *
  * @since 0.955.0
  */
-public class JBallerinaException extends RuntimeException {
+public class BallerinaException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
     private String detail = null;
 
-    public JBallerinaException() {
+    public BallerinaException() {
         super();
     }
 
     /**
-     * Constructs a new {@link JBallerinaException} with the specified error reason message.
+     * Constructs a new {@link BallerinaException} with the specified error reason message.
      *
      * @param reason Error Reason
      */
-    public JBallerinaException(String reason) {
+    public BallerinaException(String reason) {
         super(reason);
     }
 
     /**
-     * Constructs a new {@link JBallerinaException} with the specified error reason and detail message.
+     * Constructs a new {@link BallerinaException} with the specified error reason and detail message.
      *
      * @param reason Error Reason
      * @param detail Error Detail Entry
      */
-    public JBallerinaException(String reason, String detail) {
+    public BallerinaException(String reason, String detail) {
         super(reason);
         this.detail = detail;
     }
 
     /**
-     * Constructs a new {@link JBallerinaException} with the specified detail message and cause.
+     * Constructs a new {@link BallerinaException} with the specified detail message and cause.
      *
      * @param message Error message
      * @param cause   Cause
      */
-    public JBallerinaException(String message, Throwable cause) {
+    public BallerinaException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructs a new {@link JBallerinaException} with the cause.
+     * Constructs a new {@link BallerinaException} with the cause.
      *
      * @param cause Throwable to wrap by a ballerina exception
      */
-    public JBallerinaException(Throwable cause) {
+    public BallerinaException(Throwable cause) {
         super(cause);
     }
 

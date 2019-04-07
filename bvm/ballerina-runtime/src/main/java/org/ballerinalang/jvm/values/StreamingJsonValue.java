@@ -21,7 +21,7 @@ import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -93,7 +93,7 @@ public class StreamingJsonValue extends ArrayValue {
             gen.writeEndArray();
             gen.flush();
         } catch (IOException e) {
-            throw new JBallerinaException("error occurred while serializing data", e);
+            throw new BallerinaException("error occurred while serializing data", e);
         }
     }
 
@@ -141,7 +141,7 @@ public class StreamingJsonValue extends ArrayValue {
                 appendToCache(datasource.next());
             }
         } catch (Throwable t) {
-            throw new JBallerinaException("error occurred while building JSON: ", t);
+            throw new BallerinaException("error occurred while building JSON: ", t);
         }
     }
 }

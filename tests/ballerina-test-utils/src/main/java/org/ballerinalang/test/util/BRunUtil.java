@@ -21,7 +21,7 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.util.exceptions.JBLangRuntimeException;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -289,8 +289,8 @@ public class BRunUtil {
             jvmResult = method.invoke(null, jvmArgs);
         } catch (InvocationTargetException e) {
             Throwable t = e.getTargetException();
-            if (t instanceof JBLangRuntimeException) {
-                throw (JBLangRuntimeException) t;
+            if (t instanceof BLangRuntimeException) {
+                throw (BLangRuntimeException) t;
             }
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         } catch (NoSuchMethodException | IllegalAccessException e) {

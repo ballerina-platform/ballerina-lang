@@ -25,21 +25,20 @@ import java.util.ResourceBundle;
 /**
  * Utility class for handler error messages.
  */
-public class JBLangExceptionHelper {
+public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
 
-    public static JBLangRuntimeException getRuntimeException(JRuntimeErrors runtimeErrors, Object... params) {
+    public static BLangRuntimeException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        return new JBLangRuntimeException(errorMsg);
+        return new BLangRuntimeException(errorMsg);
     }
 
-    public static JBallerinaException getRuntimeException(String reason, JRuntimeErrors runtimeErrors, 
-                                                          Object... params) {
+    public static BallerinaException getRuntimeException(String reason, RuntimeErrors runtimeErrors, Object... params) {
         String errorDetail = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        return new JBLangRuntimeException(reason, errorDetail);
+        return new BLangRuntimeException(reason, errorDetail);
     }
 
-    public static String getErrorMessage(JRuntimeErrors runtimeErrors, Object... params) {
+    public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
         return MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
     }
 }

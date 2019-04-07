@@ -34,7 +34,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.JBLangRuntimeException;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -576,7 +576,7 @@ public class TypeChecker {
         return false;
     }
 
-    public static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
+    private static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues) {
         BType sourceType = getType(sourceValue);
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
@@ -804,8 +804,8 @@ public class TypeChecker {
         return false;
     }
 
-    private static JBLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
-        return new JBLangRuntimeException("incompatible types: '" + getType(sourceVal) +
+    private static BLangRuntimeException getTypeCastError(Object sourceVal, BType targetType) {
+        return new BLangRuntimeException("incompatible types: '" + getType(sourceVal) +
                                                  "' cannot be cast to '" + targetType + "'");
     }
 

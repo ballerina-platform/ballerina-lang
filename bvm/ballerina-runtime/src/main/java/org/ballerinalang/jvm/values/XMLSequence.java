@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -277,7 +277,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new JBallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).setChildren(seq);
@@ -295,7 +295,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new JBallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).addChildren(seq);
@@ -326,7 +326,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public XMLValue<?> slice(int startIndex, int endIndex) {
         if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
-            throw new JBallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
+            throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
         }
 
         if (startIndex == -1) {
@@ -342,7 +342,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (startIndex > endIndex) {
-            throw new JBallerinaException("invalid indices: " + startIndex + " < " + endIndex);
+            throw new BallerinaException("invalid indices: " + startIndex + " < " + endIndex);
         }
 
         int j = 0;
@@ -466,7 +466,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new JBallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).removeAttribute(qname);
@@ -481,7 +481,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (sequence.size() != 1) {
-            throw new JBallerinaException("not an " + XMLNodeType.ELEMENT);
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
         ((XMLItem) sequence.getRefValue(0)).removeChildren(qname);

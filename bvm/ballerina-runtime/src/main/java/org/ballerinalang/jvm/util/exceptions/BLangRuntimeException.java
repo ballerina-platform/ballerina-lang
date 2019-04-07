@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,28 +18,21 @@
 package org.ballerinalang.jvm.util.exceptions;
 
 /**
- * Represents an error that occurs in the Ballerina runtime, while attempting freezing a value.
+ * {@code BallerinaRuntimeException} represents an error happened in the Ballerina runtime.
  *
- * @since 0.985.0
+ * @since 0.8.0
  */
-public class JBLangFreezeException extends JBLangRuntimeException {
+public class BLangRuntimeException extends BallerinaException {
 
-    private String detail = null;
-
-    public JBLangFreezeException(String message) {
+    public BLangRuntimeException(String message) {
         super(message);
     }
-
-    public JBLangFreezeException(String message, String detail) {
-        super(message);
-        this.detail = detail;
+    
+    public BLangRuntimeException(String message, String detail) {
+        super(message, detail);
     }
 
-    public JBLangFreezeException(String message, Throwable cause) {
+    public BLangRuntimeException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public String getDetail() {
-        return detail;
     }
 }

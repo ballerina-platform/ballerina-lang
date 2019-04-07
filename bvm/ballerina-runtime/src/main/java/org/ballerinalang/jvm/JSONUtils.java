@@ -27,11 +27,11 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.JBLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
-import org.ballerinalang.jvm.util.exceptions.JRuntimeErrors;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -126,13 +126,13 @@ public class JSONUtils {
 
         try {
             return ((MapValue<String, Object>) json).get(elementName);
-        } catch (JBallerinaException e) {
+        } catch (BallerinaException e) {
             if (e.getDetail() != null) {
-                throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_GET_ERROR, e.getDetail());
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
             }
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_GET_ERROR, e.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_GET_ERROR, t.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
     }
 
@@ -153,11 +153,11 @@ public class JSONUtils {
 
         try {
             ((MapValue<String, Object>) json).put(elementName, element);
-        } catch (JBLangFreezeException e) {
+        } catch (BLangFreezeException e) {
             throw e;
         } catch (Throwable t) {
-            throw JBLangExceptionHelper.getRuntimeException(JBallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                    JRuntimeErrors.JSON_SET_ERROR, t.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
 
@@ -203,13 +203,13 @@ public class JSONUtils {
 
         try {
             return Lists.get((ArrayValue) jsonArray, index);
-        } catch (JBallerinaException e) {
+        } catch (BallerinaException e) {
             if (e.getDetail() != null) {
-                throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_GET_ERROR, e.getDetail());
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
             }
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_GET_ERROR, e.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_GET_ERROR, t.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
     }
 
@@ -229,19 +229,18 @@ public class JSONUtils {
         BArrayType jsonArray = (BArrayType) ((RefValue) json).getType();
         BType elementType = jsonArray.getElementType();
         if (!TypeChecker.checkIsType(element, elementType)) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE, elementType,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, elementType,
                     (element != null) ? TypeChecker.getType(element) : BTypes.typeNull);
         }
 
         try {
             Lists.add((ArrayValue) json, index, element);
-        } catch (JBLangFreezeException e) {
+        } catch (BLangFreezeException e) {
             throw e;
-        } catch (JBallerinaException e) {
-            throw JBLangExceptionHelper.getRuntimeException(e.getMessage(), JRuntimeErrors.JSON_SET_ERROR, 
-                                                            e.getDetail());
+        } catch (BallerinaException e) {
+            throw BLangExceptionHelper.getRuntimeException(e.getMessage(), RuntimeErrors.JSON_SET_ERROR, e.getDetail());
         } catch (Throwable t) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.JSON_SET_ERROR, t.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
 
@@ -251,11 +250,11 @@ public class JSONUtils {
      * @param json JSON to convert
      * @param mapType MapType which the JSON is converted to.
      * @return If the provided JSON is of object-type, this method will return a {@link MapValue} containing the values
-     *         of the JSON object. Otherwise a {@link JBallerinaException} will be thrown.
+     *         of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */
     public static MapValue<String, ?> jsonToMap(Object json, BMapType mapType) {
         if (json == null || !isJSONObject(json)) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -284,11 +283,11 @@ public class JSONUtils {
      * @param json JSON to convert
      * @param structType Type (definition) of the target record
      * @return If the provided JSON is of object-type, this method will return a {@link MapValue} containing the values
-     *         of the JSON object. Otherwise the method will throw a {@link JBallerinaException}.
+     *         of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
     public static MapValue<String, Object> convertJSONToRecord(Object json, BStructureType structType) {
         if (json == null || !isJSONObject(json)) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -328,7 +327,7 @@ public class JSONUtils {
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
-                    throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
                 }
                 // fall through
@@ -358,10 +357,10 @@ public class JSONUtils {
                 }
                 // fall through
             default:
-                throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                         getTypeName(jsonValue));
         }
-        throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                 getTypeName(jsonValue));
     }
 
@@ -402,8 +401,7 @@ public class JSONUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE,
-                                                                BTypes.typeJSON, type);
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON, type);
         }
     }
 
@@ -427,11 +425,11 @@ public class JSONUtils {
      * @param json JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
-     *         of the JSON array. Otherwise the method will throw a {@link JBallerinaException}.
+     *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
         if (!(json instanceof ArrayValue)) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
@@ -473,7 +471,7 @@ public class JSONUtils {
      */
     private static long jsonNodeToInt(Object json) {
         if (!(json instanceof Long)) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeInt, getTypeName(json));
         }
 
@@ -492,7 +490,7 @@ public class JSONUtils {
         } else if (json instanceof Float) {
             return ((Float) json).floatValue();
         } else {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
         }
     }
@@ -511,7 +509,7 @@ public class JSONUtils {
         } else if (json instanceof Float) {
             return (BigDecimal) json;
         } else {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeDecimal, getTypeName(json));
         }
     }
@@ -524,7 +522,7 @@ public class JSONUtils {
      */
     private static Boolean jsonNodeToBoolean(Object json) {
         if (!(json instanceof Boolean)) {
-            throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeBoolean, getTypeName(json));
         }
         return ((Boolean) json).booleanValue();
@@ -602,7 +600,7 @@ public class JSONUtils {
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
                             type);
             }
         }
@@ -694,7 +692,7 @@ public class JSONUtils {
                     json.put(key, convertMapToJSON((MapValue<String, ?>) value, (BJSONType) exptType));
                     break;
                 default:
-                    throw JBLangExceptionHelper.getRuntimeException(JRuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
                             type);
             }
         } catch (Exception e) {
@@ -716,6 +714,6 @@ public class JSONUtils {
 
     private static void handleError(Exception e, String fieldName) {
         String errorMsg = e.getCause() == null ? "error while mapping '" + fieldName + "': " : "";
-        throw new JBallerinaException(errorMsg + e.getMessage(), e);
+        throw new BallerinaException(errorMsg + e.getMessage(), e);
     }
 }

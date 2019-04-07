@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -55,9 +55,9 @@ public class JSONParser {
      * 
      * @param in input stream which contains the JSON content
      * @return JSON structure
-     * @throws JBallerinaException for any parsing error
+     * @throws BallerinaException for any parsing error
      */
-    public static Object parse(InputStream in) throws JBallerinaException {
+    public static Object parse(InputStream in) throws BallerinaException {
         return parse(in, Charset.defaultCharset().name());
     }
 
@@ -67,13 +67,13 @@ public class JSONParser {
      * @param in input stream which contains the JSON content
      * @param charsetName the character set name of the input stream
      * @return JSON structure
-     * @throws JBallerinaException for any parsing error
+     * @throws BallerinaException for any parsing error
      */
-    public static Object parse(InputStream in, String charsetName) throws JBallerinaException {
+    public static Object parse(InputStream in, String charsetName) throws BallerinaException {
         try {
             return parse(new InputStreamReader(new BufferedInputStream(in), charsetName));
         } catch (IOException e) {
-            throw new JBallerinaException("Error in parsing JSON data: " + e.getMessage(), e);
+            throw new BallerinaException("Error in parsing JSON data: " + e.getMessage(), e);
         }
     }
 
@@ -82,9 +82,9 @@ public class JSONParser {
      * 
      * @param jsonStr the string which contains the JSON content
      * @return JSON structure
-     * @throws JBallerinaException for any parsing error
+     * @throws BallerinaException for any parsing error
      */
-    public static Object parse(String jsonStr) throws JBallerinaException {
+    public static Object parse(String jsonStr) throws BallerinaException {
         return parse(new StringReader(jsonStr));
     }
 
@@ -93,9 +93,9 @@ public class JSONParser {
      * 
      * @param reader reader which contains the JSON content
      * @return JSON structure
-     * @throws JBallerinaException for any parsing error
+     * @throws BallerinaException for any parsing error
      */
-    public static Object parse(Reader reader) throws JBallerinaException {
+    public static Object parse(Reader reader) throws BallerinaException {
         StateMachine sm = tlStateMachine.get();
         try {
             return sm.execute(reader);
@@ -213,7 +213,7 @@ public class JSONParser {
             }
         }
 
-        public Object execute(Reader reader) throws JBallerinaException {
+        public Object execute(Reader reader) throws BallerinaException {
             State currentState = DOC_START_STATE;
             try {
                 char[] buff = new char[1024];
@@ -226,13 +226,13 @@ public class JSONParser {
                 }
                 currentState = currentState.transition(this, new char[] { EOF }, 0, 1);
                 if (currentState != DOC_END_STATE) {
-                    throw new JBallerinaException("invalid JSON document");
+                    throw new BallerinaException("invalid JSON document");
                 }
                 return this.currentJsonNode;
             } catch (IOException e) {
-                throw new JBallerinaException("Error reading JSON: " + e.getMessage());
+                throw new BallerinaException("Error reading JSON: " + e.getMessage());
             } catch (JsonParserException e) {
-                throw new JBallerinaException(e.getMessage() + " at line: " + this.line + " column: " + this.column);
+                throw new BallerinaException(e.getMessage() + " at line: " + this.line + " column: " + this.column);
             }
         }
 

@@ -21,9 +21,9 @@ import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -90,7 +90,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
 
     /**
      * Retrieve the value for the given key from map.
-     * A {@link JBallerinaException} will be thrown if the key does not exists.
+     * A {@link BallerinaException} will be thrown if the key does not exists.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -99,8 +99,8 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         readLock.lock();
         try {
             if (!containsKey(key)) {
-                throw new JBallerinaException(JBallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
-                                              "cannot find key '" + key + "'");
+                throw new BallerinaException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                        "cannot find key '" + key + "'");
             }
             return super.get(key);
         } finally {
@@ -307,9 +307,8 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     @Override
     public synchronized void attemptFreeze(Status freezeStatus) {
         if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            throw new JBLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
+            throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
         }
-
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
             super.values().forEach(val -> {
@@ -347,7 +346,7 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
             gen.serialize(this);
             gen.flush();
         } catch (IOException e) {
-            throw new JBallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
         return new String(byteOut.toByteArray());
     }

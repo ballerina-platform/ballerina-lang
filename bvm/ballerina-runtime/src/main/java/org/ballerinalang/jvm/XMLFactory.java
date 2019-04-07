@@ -38,7 +38,7 @@ import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.JBallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -87,7 +87,7 @@ public class XMLFactory {
                     "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
         } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
-            throw new JBallerinaException("Error initializing canonicalizer: " + e.getMessage());
+            throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
     }
 
@@ -121,7 +121,7 @@ public class XMLFactory {
             }
 
             if (children.hasNext()) {
-                throw new JBallerinaException("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
+                throw new BallerinaException("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
             }
 
             // Here the node is detached from the dummy root, and added to a
@@ -130,13 +130,13 @@ public class XMLFactory {
             OMDocument doc = OM_FACTORY.createOMDocument();
             doc.addChild(omNode);
             return new XMLItem(omNode);
-        } catch (JBallerinaException e) {
+        } catch (BallerinaException e) {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw new JBallerinaException(cause.getMessage());
+            throw new BallerinaException(cause.getMessage());
         } catch (Throwable e) {
-            throw new JBallerinaException("failed to parse xml: " + e.getMessage());
+            throw new BallerinaException("failed to parse xml: " + e.getMessage());
         }
     }
 
@@ -158,9 +158,9 @@ public class XMLFactory {
                 elementsSeq.add(i++, new XMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
-            throw new JBallerinaException(e.getCause().getMessage());
+            throw new BallerinaException(e.getCause().getMessage());
         } catch (Throwable e) {
-            throw new JBallerinaException("failed to create xml: " + e.getMessage());
+            throw new BallerinaException("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
     }
@@ -184,9 +184,9 @@ public class XMLFactory {
                 elementsSeq.add(index++, new XMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
-            throw new JBallerinaException(e.getCause().getMessage());
+            throw new BallerinaException(e.getCause().getMessage());
         } catch (Throwable e) {
-            throw new JBallerinaException("failed to create xml: " + e.getMessage());
+            throw new BallerinaException("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
     }
@@ -209,9 +209,9 @@ public class XMLFactory {
                 elementsSeq.add(i++, new XMLItem(docChildItr.next()));
             }
         } catch (DeferredParsingException e) {
-            throw new JBallerinaException(e.getCause().getMessage());
+            throw new BallerinaException(e.getCause().getMessage());
         } catch (Throwable e) {
-            throw new JBallerinaException("failed to create xml: " + e.getMessage());
+            throw new BallerinaException("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
     }
@@ -279,7 +279,7 @@ public class XMLFactory {
         if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
-            throw new JBallerinaException(
+            throw new BallerinaException(
                     "start and end tag names mismatch: '" + startTagName + "' and '" + endTagName + "'");
         }
 
