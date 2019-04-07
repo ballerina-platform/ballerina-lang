@@ -771,3 +771,15 @@ function testError_2() returns (boolean, boolean, boolean) {
     any|error f = e;
     return (f is MyError, f is error, f is MyErrorTwo);
 }
+
+function testClosedArrayAsOpenArray() returns boolean {
+    (int|string)[3] a = [1, "hello world", 2];
+    any b = a;
+    return b is anydata[] && b is (int|string)[];
+}
+
+function testClosedArrayAsInvalidClosedArray() returns boolean {
+    (int|string)[3] a = [1, "hello world", 2];
+    any b = a;
+    return b is (int|string)[4] || b is (int|string)[2];
+}

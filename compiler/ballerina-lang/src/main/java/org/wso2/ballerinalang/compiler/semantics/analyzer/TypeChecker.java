@@ -159,6 +159,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
+    private static final String TABLE_TNAME = "table";
 
     private Names names;
     private SymbolTable symTable;
@@ -1713,7 +1714,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
                         (couldHoldTableValues(lhsType, new ArrayList<>()) &&
                                  couldHoldTableValues(rhsType, new ArrayList<>()))) {
-                    dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, "table");
+                    dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
                 }
 
                 binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
