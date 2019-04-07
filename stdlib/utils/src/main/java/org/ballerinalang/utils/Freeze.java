@@ -98,7 +98,8 @@ public class Freeze extends BlockingNativeCallableUnit {
         if (refValue.getType().getTag() == TypeTags.ERROR) {
             // If the value is of type error, return an error indicating an error cannot be frozen.
             // Freeze is only allowed on errors if they are part of a structure.
-            return BallerinaErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
+            return BallerinaErrors
+                    .createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
         }
         Status freezeStatus = new Status(State.MID_FREEZE);
         try {

@@ -3530,11 +3530,7 @@ public class Desugar extends BLangNodeVisitor {
                                                               names.fromString(builtInMethod.getName()),
                                                               SymTag.FUNCTION);
         for (int i = 0; i < invokableSymbol.params.size(); i++) {
-            BType paramType = invokableSymbol.params.get(i).type;
-            if (paramType.tag == TypeTags.ERROR) {
-                continue;
-            }
-            requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), paramType));
+            requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), invokableSymbol.params.get(i).type));
         }
         BLangInvocation invocationExprMethod = ASTBuilderUtil
                 .createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
