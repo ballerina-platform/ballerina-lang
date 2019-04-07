@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.JBLangVMErrors;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.RefValue;
@@ -48,8 +48,8 @@ import java.util.HashMap;
         orgName = "ballerina",
         packageName = "utils",
         functionName = "clone",
-        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
 public class Clone extends BlockingNativeCallableUnit {
 
@@ -77,12 +77,14 @@ public class Clone extends BlockingNativeCallableUnit {
     }
 
     public static Object clone(Strand strand, Object value) {
-        RefValue refValue = (RefValue) value;
-        if (refValue == null) {
+        
+        if (value == null) {
             return null;
-        } else if (refValue.getType().getTag() == TypeTags.ERROR || !TypeChecker.checkIsLikeType(refValue, org
+        }
+        RefValue refValue = (RefValue) value;
+        if (refValue.getType().getTag() == TypeTags.ERROR || !TypeChecker.checkIsLikeType(refValue, org
                 .ballerinalang.jvm.types.BTypes.typePureType)) {
-            return JBLangVMErrors.createError(BallerinaErrorReasons.CLONE_ERROR, BLangExceptionHelper
+            return BallerinaErrors.createError(BallerinaErrorReasons.CLONE_ERROR, BLangExceptionHelper
                     .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refValue.getType()));
         }
         return refValue.copy(new HashMap<>());

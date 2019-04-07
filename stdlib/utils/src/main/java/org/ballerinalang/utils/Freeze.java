@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.JBLangVMErrors;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.JBLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.JBallerinaErrorReasons;
@@ -49,7 +49,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
         packageName = "utils",
         functionName = "freeze",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = {@ReturnType(type = TypeKind.ANYDATA)})
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) })
 public class Freeze extends BlockingNativeCallableUnit {
 
     @Override
@@ -89,14 +89,16 @@ public class Freeze extends BlockingNativeCallableUnit {
     }
 
     public static Object freeze(Strand strand, Object value) {
-        RefValue refValue = (RefValue) value;
-        if (refValue == null) {
+        
+        if (value == null) {
             // assuming we reach here because the value is nil (()), the frozen value would also be nil.
             return null;
-        } else if (refValue.getType().getTag() == TypeTags.ERROR) {
+        }
+        RefValue refValue = (RefValue) value;
+        if (refValue.getType().getTag() == TypeTags.ERROR) {
             // If the value is of type error, return an error indicating an error cannot be frozen.
             // Freeze is only allowed on errors if they are part of a structure.
-            return JBLangVMErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
+            return BallerinaErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, "'freeze()' not allowed on 'error'");
         }
         Status freezeStatus = new Status(State.MID_FREEZE);
         try {
@@ -108,12 +110,12 @@ public class Freeze extends BlockingNativeCallableUnit {
             // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
             // constituents to false, and return an error
             freezeStatus.setUnfrozen();
-            return JBLangVMErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, e.getMessage());
+            return BallerinaErrors.createError(JBallerinaErrorReasons.FREEZE_ERROR, e.getMessage());
         } catch (JBallerinaException e) {
             // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
             // and its constituents to false, and panic
             freezeStatus.setUnfrozen();
-            return JBLangVMErrors.createError(e.getMessage(), e.getDetail());
+            return BallerinaErrors.createError(e.getMessage(), e.getDetail());
         }
     }
 }
