@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -35,14 +35,14 @@ import org.testng.annotations.Test;
 /**
  * Test cases for reading constants.
  */
-public class ConstantTests {
+public class SimpleConstantAccessInBaloTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
-        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/constant.bal");
+        compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/constant-access.bal");
     }
 
     @Test
@@ -84,105 +84,7 @@ public class ConstantTests {
     public void testAccessTypeWithContInDef() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAccessTypeWithContInDef");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "C");
-    }
-
-    @Test
-    public void testConstInMapKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInMapKey");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "value");
-    }
-
-    @Test
-    public void testConstInMapValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInMapValue");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "value");
-    }
-
-    @Test
-    public void testConstInJsonKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInJsonKey");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "value");
-    }
-
-    @Test
-    public void testConstInJsonValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstInJsonValue");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "value");
-    }
-
-    @Test
-    public void testBooleanConstInUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstInUnion");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testIntConstInUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstInUnion");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
-    }
-
-    @Test
-    public void testByteConstInUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstInUnion");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
-    }
-
-    @Test
-    public void testFloatConstInUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstInUnion");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
-    }
-
-    @Test
-    public void testStringConstInUnion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstInUnion");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
-    }
-
-    @Test
-    public void testBooleanConstInTuple() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstInTuple");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
-    public void testIntConstInTuple() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstInTuple");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
-    }
-
-    @Test
-    public void testByteConstInTuple() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstInTuple");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
-    }
-
-    @Test
-    public void testFloatConstInTuple() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstInTuple");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
-    }
-
-    @Test
-    public void testStringConstInTuple() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstInTuple");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
+        Assert.assertEquals(returns[0].stringValue(), "X");
     }
 
     @Test
@@ -238,7 +140,7 @@ public class ConstantTests {
     public void testDecimalTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BDecimal) returns[0]).floatValue(), 4.0);
+        Assert.assertEquals(((BDecimal) returns[0]).floatValue(), 50.0);
     }
 
     @Test
@@ -253,27 +155,6 @@ public class ConstantTests {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
-    }
-
-    @Test
-    public void testFloatAsFiniteType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsFiniteType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
-    }
-
-    @Test
-    public void testNilWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithoutType");
-        Assert.assertNull(returns[0]);
-    }
-
-    @Test
-    public void testNilWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNilWithType");
-        Assert.assertNull(returns[0]);
     }
 
     @AfterClass
