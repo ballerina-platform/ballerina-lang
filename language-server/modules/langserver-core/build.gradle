@@ -91,12 +91,14 @@ CopySpec copyResourceSpec = copySpec {
 
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
-  appendix = "pathing"
-  doFirst {
-    manifest {
-      attributes "Class-Path": sourceSets.main.runtimeClasspath.join(" ")
+    appendix = "pathing"
+    doFirst {
+        manifest {
+            attributes "Class-Path": sourceSets.main.runtimeClasspath.files.collect {
+                it.toURL().toString().replaceFirst("file:/", "/")
+            }.join(' ')
+        }
     }
-  }
 }
 
 task generateIndex(type: JavaExec) {

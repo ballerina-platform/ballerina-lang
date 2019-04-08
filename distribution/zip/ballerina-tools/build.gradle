@@ -196,12 +196,14 @@ task extractLibs(type: Copy) {
 
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
-  appendix = "pathing"
-  doFirst {
-    manifest {
-      attributes "Class-Path": configurations.docerina.files.join(" ")
+    appendix = "pathing"
+    doFirst {
+        manifest {
+            attributes "Class-Path": configurations.docerina.files.collect {
+                it.toURL().toString().replaceFirst("file:/", "/")
+            }.join(' ')
+        }
     }
-  }
 }
 
 task generateDocs(type: JavaExec) {
