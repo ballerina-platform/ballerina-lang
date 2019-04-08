@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -104,49 +103,6 @@ public class LauncherUtils {
         loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
         runBal(sourceRootPath, sourcePath, args, offline, siddhiRuntimeFlag, experimentalFlag, srcPathStr, fullPath);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void runMain(ProgramFile programFile, String[] args) {
-        BValue[] result;
-        int statusCode = 0;
-        try {
-            result = BLangProgramRunner.runMainFunc(programFile, args);
-            if (result[0] != null && result[0].getType().getTag() == TypeTags.ERROR) {
-                // If an error occurred on main function execution, the program should terminate.
-                BError returnedError = (BError) result[0];
-                errStream.print(prepareErrorReturnedErrorMessage(returnedError));
-
-                if (returnedError.getDetails() != null) {
-                    statusCode = getStatusCode((BMap<String, BValue>) returnedError.getDetails());
-                }
-            } else if (programFile.isServiceEPAvailable()) {
-                return;
-            }
-        } catch (BLangUsageException | BallerinaException e) {
-            throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
-        }
-
-        try {
-            ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
-            ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex) {
-            // Ignore the error
-        }
-        Runtime.getRuntime().exit(statusCode);
-    }
-
-    public static void runServices(ProgramFile programFile) {
-        PrintStream outStream = System.out;
-
-        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-        programFile.setServerConnectorRegistry(serverConnectorRegistry);
-        serverConnectorRegistry.initServerConnectors();
-
-        outStream.println("Initiating service(s) in '" + programFile.getProgramFilePath() + "'");
-        BLangProgramRunner.runService(programFile);
-
-        serverConnectorRegistry.deploymentComplete();
     }
 
     public static Path getSourceRootPath(String sourceRoot) {
@@ -404,14 +360,32 @@ public class LauncherUtils {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
 
-        if (runServicesOnly) {
-            if (args.length > 0) {
-                throw LauncherUtils.createUsageExceptionWithHelp("arguments not allowed for services");
+        int statusCode = 0;
+        try {
+            BValue[] result = BLangProgramRunner.runProgram(programFile, args);
+            if (result[0] != null && result[0].getType().getTag() == TypeTags.ERROR) {
+                // If an error occurred on main function execution, the program should terminate.
+                BError returnedError = (BError) result[0];
+                errStream.print(prepareErrorReturnedErrorMessage(returnedError));
+
+                if (returnedError.getDetails() != null) {
+                    statusCode = getStatusCode((BMap<String, BValue>) returnedError.getDetails());
+                }
             }
-            runServices(programFile);
-        } else {
-            runMain(programFile, args);
+        } catch (BLangUsageException | BallerinaException e) {
+            throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }
+
+        if (statusCode != 0) {
+            try {
+                ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
+                ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ex) {
+                // Ignore the error
+            }
+            Runtime.getRuntime().exit(statusCode);
+        }
+
         BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
     }

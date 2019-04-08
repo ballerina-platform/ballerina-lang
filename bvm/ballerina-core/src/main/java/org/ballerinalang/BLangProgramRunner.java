@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -27,6 +28,8 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.PrintStream;
+
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
 /**
@@ -35,6 +38,31 @@ import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
  * @since 0.8.0
  */
 public class BLangProgramRunner {
+
+    public static BValue[] runProgram(ProgramFile programFile, String[] args) {
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(programFile, debugger);
+
+        BVMExecutor.invokePackageInitFunctions(programFile);
+
+        BValue[] returnVal = runMainFunc(programFile, args, debugger);
+
+        if (returnVal[0] != null) {
+            return returnVal;
+        }
+
+        PrintStream outStream = System.out;
+
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        programFile.setServerConnectorRegistry(serverConnectorRegistry);
+        serverConnectorRegistry.initServerConnectors();
+
+        outStream.println("Initiating service(s) in '" + programFile.getProgramFilePath() + "'");
+        BVMExecutor.invokePackageStartFunctions(programFile);
+
+        serverConnectorRegistry.deploymentComplete();
+        return returnVal;
+    }
 
     public static void runService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -58,17 +86,19 @@ public class BLangProgramRunner {
     }
 
     public static BValue[] runMainFunc(ProgramFile programFile, String[] args) {
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(programFile, debugger);
+        return runMainFunc(programFile, args, debugger);
+    }
+
+    public static BValue[] runMainFunc(ProgramFile programFile, String[] args, Debugger debugger) {
         BValue[] entryFuncResult;
         boolean mainRunSuccessful = false;
-        if (!programFile.isMainEPAvailable()) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
-        }
+
         PackageInfo entryPkgInfo = programFile.getEntryPackage();
         if (entryPkgInfo == null) {
             throw new BallerinaException("entry module not found in  '" + programFile.getProgramFilePath() + "'");
         }
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
 
         FunctionInfo functionInfo = getMainFunctionInfo(entryPkgInfo);
         try {
