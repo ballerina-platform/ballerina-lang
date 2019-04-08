@@ -1,20 +1,22 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This creates a simple topic listener.
+// This creates a simple topic listener. This example makes use of the ActiveMQ
+// Artemis broker for demonstration while it can be tried with other brokers
+// that support JMS.
 listener jms:TopicSubscriber subscriberEndpoint = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon?"
-            + "brokerlist='tcp://localhost:5672'",
+        initialContextFactory: 
+        "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "BallerinaTopic");
+    }, topicPattern = "MyTopic");
 
 // This binds the created subscriber to the listener service.
 service jmsListener on subscriberEndpoint {
 
     //This resource is invoked when a message is received.
     resource function onMessage(jms:TopicSubscriberCaller consumer,
-                                jms:Message message) {
+    jms:Message message) {
         // Retrieve the text message.
         var messageText = message.getTextMessageContent();
         if (messageText is string) {

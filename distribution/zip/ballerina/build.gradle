@@ -36,7 +36,6 @@ dependencies {
     dist 'org.quartz-scheduler:quartz:2.3.0'
     dist 'org.slf4j:slf4j-api:1.7.22'
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
-    dist 'org.wso2.andes.wso2:andes-client:3.2.55'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
