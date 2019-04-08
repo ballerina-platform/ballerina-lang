@@ -1,15 +1,15 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.apache.maven:maven-plugin-api:2.0'
-    implementation 'org.codehaus.plexus:plexus-utils:3.0.8'
-    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.apache.maven:maven-plugin-api'
+    implementation 'org.codehaus.plexus:plexus-utils'
+    implementation 'org.apache.commons:commons-lang3'
     implementation project(':ballerina-config')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-lang')
     implementation project(':docerina')
-    testCompile 'junit:junit:4.8.2'
-    compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.2'
+    testCompile 'junit:junit'
+    compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
 }
 
 description = 'Ballerina - Docerina Maven Plugin'
