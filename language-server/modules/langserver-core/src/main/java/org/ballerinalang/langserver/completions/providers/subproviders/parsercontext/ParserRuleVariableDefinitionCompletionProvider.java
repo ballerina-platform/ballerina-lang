@@ -188,9 +188,6 @@ public class ParserRuleVariableDefinitionCompletionProvider extends AbstractSubC
         
         List<BLangVariable> params = functionTypeNode.getParams();
         BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
-        boolean snippetSupport = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem()
-                .getSnippetSupport();
         String functionSignature = this.getFunctionSignature(params, returnBLangType);
         String body = this.getAnonFunctionSnippetBody(returnBLangType, params.size());
         String snippet = functionSignature + body;
@@ -199,7 +196,7 @@ public class ParserRuleVariableDefinitionCompletionProvider extends AbstractSubC
                 SnippetBlock.SnippetType.SNIPPET);
 
         // Populate the anonymous function signature completion item
-        completionItems.add(snippetBlock.build(context, snippetSupport));
+        completionItems.add(snippetBlock.build(context));
     }
 
     private String getFunctionSignature(List<BLangVariable> paramTypes, BLangType returnType)
@@ -227,9 +224,6 @@ public class ParserRuleVariableDefinitionCompletionProvider extends AbstractSubC
         List<BLangVariable> params = functionTypeNode.getParams();
         BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
         String paramSignature = this.getParamsSnippet(params, false);
-        boolean snippetSupport = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem()
-                .getSnippetSupport();
         StringBuilder signature = new StringBuilder(paramSignature);
         
         signature.append(" => ")
@@ -249,7 +243,7 @@ public class ParserRuleVariableDefinitionCompletionProvider extends AbstractSubC
                 SnippetBlock.SnippetType.SNIPPET);
 
         // Populate the anonymous function signature completion item
-        completionItems.add(snippetBlock.build(context, snippetSupport));
+        completionItems.add(snippetBlock.build(context));
     }
     
     private String getAnonFunctionSnippetBody(BLangType returnType, int numberOfParams) throws LSCompletionException {

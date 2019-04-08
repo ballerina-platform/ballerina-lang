@@ -197,6 +197,11 @@ public abstract class BIRNode {
          */
         public List<BIRBasicBlock> basicBlocks;
 
+        /**
+         * List of error entries in this function.
+         */
+        public List<BIRErrorEntry> errorTable;
+
         public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
             super(pos);
             this.name = name;
@@ -204,6 +209,7 @@ public abstract class BIRNode {
             this.type = type;
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
+            this.errorTable = new ArrayList<>();
         }
 
         @Override
@@ -226,6 +232,7 @@ public abstract class BIRNode {
             super(null);
             this.id = id;
             this.instructions = new ArrayList<>();
+            this.terminator = null;
         }
 
         @Override
@@ -246,6 +253,9 @@ public abstract class BIRNode {
          */
         public Name name;
 
+
+        public List<BIRFunction> attachedFuncs;
+
         /**
          * Visibility of this type definition.
          * 0 - package_private
@@ -256,16 +266,47 @@ public abstract class BIRNode {
 
         public BType type;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility, BType type) {
+        /**
+         * this is not serialized. it's used to keep the index of the def in the list.
+         * otherwise the writer has to *find* it in the list.
+         */
+        public int index;
+
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, Visibility visibility,
+                                 BType type, List<BIRFunction> attachedFuncs) {
             super(pos);
             this.name = name;
             this.visibility = visibility;
             this.type = type;
+            this.attachedFuncs = attachedFuncs;
         }
 
         @Override
         public void accept(BIRVisitor visitor) {
 
+        }
+    }
+
+    /**
+     * An error entry in the error table.
+     *
+     * @since 0.995.0
+     */
+    public static class BIRErrorEntry extends BIRNode {
+
+        public BIRBasicBlock trapBB;
+
+        public BIROperand errorOp;
+
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp) {
+            super(null);
+            this.trapBB = trapBB;
+            this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }

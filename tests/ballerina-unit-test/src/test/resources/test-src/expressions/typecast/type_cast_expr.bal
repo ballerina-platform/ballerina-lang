@@ -762,6 +762,23 @@ function testValueTypeToFiniteTypeCastNegative() {
     FooBarOne d = <FooBarOne> a;
 }
 
+type FooOneTrue 1|"foo"|true;
+
+function testFiniteTypeToFiniteTypeCastPositive() returns boolean {
+    FooBar a = "bar";
+    FooBarOne b = <FooBarOne> a;
+    boolean castSuccessful = a == b;
+
+    FooBarOne c = "foo";
+    FooOneTrue d = <FooOneTrue> c;
+    return castSuccessful && c == d;
+}
+
+function testFiniteTypeToFiniteTypeCastNegative() {
+    FooBarOne a = "bar";
+    FooOneTrue b = <FooOneTrue> a;
+}
+
 function testFunc(string s, int i) returns string {
     return string.convert(i) + s;
 }

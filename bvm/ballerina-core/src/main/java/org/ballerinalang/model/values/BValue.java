@@ -57,7 +57,7 @@ public interface BValue {
      *                      freeze result of this attempt
      */
     default void attemptFreeze(BVM.FreezeStatus freezeStatus) {
-        throw new BLangFreezeException("freeze not allowed on '" + getType() + "'");
+        throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
     }
 
     /**

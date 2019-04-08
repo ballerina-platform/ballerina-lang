@@ -71,7 +71,10 @@ function testFrozenTableUpdateBroken() {
     table<BarRecordThirteen> a5 = table{};
     BarRecordThirteen b1 = { barFieldOne: 100 };
     _ = a5.freeze();
-    _ = a5.add(b1);
+    error? err = a5.add(b1);
+    if err is error {
+        panic err;
+    }
 }
 
 // A frozen container value can refer only to immutable values:
@@ -85,7 +88,10 @@ function testFrozenStructureMembersFrozennessBroken() {
     table<BarRecordThirteen> a13 = table{};
     test:assertFalse(a13.isFrozen(), msg = "exected value to not be frozen");
     BarRecordThirteen a14 = { barFieldOne: 100 };
-    _ = a13.add(a14);
+    error? err = a13.add(a14);
+    if err is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
     _ = a13.freeze();
     test:assertTrue(a13.isFrozen(), msg = "exected value to be frozen");
     //test:assertTrue(a14.isFrozen(), msg = "expected value to be frozen");
@@ -101,34 +107,4 @@ function testFrozenStructureMembersFrozennessBroken() {
 }
 function testTableShapeOfContainters() {
 
-}
-
-// A frozen container value belongs to a type if and only if the type contains the shape of the
-// value. Thus after a container value is frozen, its inherent type does not provide additional
-// information that cannot be derived from the value. In other words, freezing a container
-// narrows its inherent type to a type that consists of just its current shape.
-// TODO: Need to consider the shape of a frozen container to be its type
-// TODO: Add tests for tables
-// https://github.com/ballerina-platform/ballerina-lang/issues/13189
-@test:Config {
-    groups: ["deviation"]
-}
-function testFrozenContainerShapeAndTypeBroken() {
-    map<map<string>|float> a5 = { one: { a: "a", bc: "b c" }, two: 1.0 };
-    map<string|boolean> a6 = { three: "3", four: "4" };
-    any a7 = a6;
-    var result = trap insertMemberToMap(a5, "three", a7);
-    test:assertTrue(result is error,
-                    msg = "expected to not be able to add a value that violates shape");
-    test:assertTrue(!(a7 is map<string>|float),
-                    msg = "expected value's type to not be of same type or sub type");
-
-    _ = a7.freeze();
-    result = trap insertMemberToMap(a5, "three", a7);
-    test:assertTrue(a7 is map<string>|float,
-                    msg = "expected value's type to match shape after freezing");
-    // test:assertTrue(!(result is error),
-    //                 msg = "expected to be able to add a frozen value that conforms to shape");
-    test:assertTrue((result is error),
-                    msg = "expected to not be able to add a frozen value that conforms to shape");
 }

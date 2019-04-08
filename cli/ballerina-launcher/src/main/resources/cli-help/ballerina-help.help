@@ -31,7 +31,7 @@ DESCRIPTION
          doc        Generate Ballerina API documentation
          grpc       Generate connector/service using protobuf   
                     definition
-         swagger    Generate client/service using openapi definition
+         openapi    Generate client/service using openapi definition
                     or export openapi file for a Ballerina service
          test       Test Ballerina program
          version    Print Ballerina version

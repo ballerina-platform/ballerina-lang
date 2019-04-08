@@ -32,7 +32,7 @@ function triggerTimer() {
 
     task:Scheduler timer = new(configuration);
     var result = timer.attach(timerService);
-    _ = timer.start();
+    checkpanic timer.start();
     runtime:sleep(4000);
 }
 

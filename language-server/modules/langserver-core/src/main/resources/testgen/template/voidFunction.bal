@@ -1,5 +1,10 @@
-@test:Config
-function ${testFunctionName}() {
-    // Invoke function with test values
+@test:Config {
+    dataProvider: "${testFunctionName}DataProvider"
+}
+function ${testFunctionName}(${testFunctionParams}) {
 ${actual}
+}
+
+function ${testFunctionName}DataProvider() returns (${dataProviderReturnType}) {
+    return ${dataProviderReturnValue};
 }

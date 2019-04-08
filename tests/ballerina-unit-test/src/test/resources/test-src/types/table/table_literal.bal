@@ -97,7 +97,7 @@ function checkTableCount(string tablePrefix) returns (int) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
@@ -112,12 +112,12 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     table<Person> dt4 = table{};
     table<Company> ct1 = table{};
 
-    _ = dt3.add(p1);
-    _ = dt3.add(p2);
+    checkpanic dt3.add(p1);
+    checkpanic dt3.add(p2);
 
-    _ = dt4.add(p3);
+    checkpanic dt4.add(p3);
 
-    _ = ct1.add(c1);
+    checkpanic ct1.add(c1);
 
     int count1 = dt3.count();
     int[] dt1data = [];
@@ -169,9 +169,9 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt3 = table{};
-    _ = dt3.add(p1);
-    _ = dt3.add(p2);
-    _ = dt3.add(p3);
+    checkpanic dt3.add(p1);
+    checkpanic dt3.add(p2);
+    checkpanic dt3.add(p3);
 
     int count1 = dt3.count();
     int[] dtdata1 = [];
@@ -203,9 +203,9 @@ function testLoopingTable() returns (string) {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     string names = "";
 
@@ -224,9 +224,9 @@ function testToJson() returns (json|error) {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     json j = check json.convert(dt);
     return j;
@@ -238,9 +238,9 @@ function testToXML() returns (xml|error) {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     xml x = check xml.convert(dt);
     return x;
@@ -254,9 +254,9 @@ function testPrintData() {
     table<Person> dt = table{
         { key id, key age,  salary, name, married }
     };
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
    io:println(dt);
 }
@@ -270,7 +270,7 @@ function testTableDrop() {
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
+    checkpanic dt.add(p1);
 }
 
 function testTableWithAllDataToJson() returns (json|error) {
@@ -280,8 +280,8 @@ function testTableWithAllDataToJson() returns (json|error) {
     TypeTest t2 = { id: 2, jsonData: j1, xmlData: x1 };
 
     table<TypeTest> dt3 = table{};
-    _ = dt3.add(t1);
-    _ = dt3.add(t2);
+    checkpanic dt3.add(t1);
+    checkpanic dt3.add(t2);
 
     json j = check json.convert(dt3);
     return j;
@@ -294,8 +294,8 @@ function testTableWithAllDataToXml() returns (xml|error) {
     TypeTest t2 = { id: 2, jsonData: j1, xmlData: x1 };
 
     table<TypeTest> dt3 = table{};
-    _ = dt3.add(t1);
-    _ = dt3.add(t2);
+    checkpanic dt3.add(t1);
+    checkpanic dt3.add(t2);
 
     xml x = check xml.convert(dt3);
     return x;
@@ -308,7 +308,7 @@ function testTableWithAllDataToStruct() returns (json, xml)|error {
     TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
 
     table<TypeTest> dt3 = table{};
-    _ = dt3.add(t1);
+    checkpanic dt3.add(t1);
 
     json jData = {};
     xml xData = xml ` `;
@@ -328,7 +328,7 @@ function testTableWithBlobDataToJson() returns (json|error) {
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
+    checkpanic dt3.add(t1);
 
     json j = check json.convert(dt3);
     return j;
@@ -340,7 +340,7 @@ function testTableWithBlobDataToXml() returns (xml|error) {
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
+    checkpanic dt3.add(t1);
 
     xml x = check xml.convert(dt3);
     return x;
@@ -352,7 +352,7 @@ function testTableWithBlobDataToStruct() returns (byte[]|error) {
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
+    checkpanic dt3.add(t1);
 
     byte[] bData = [];
     while (dt3.hasNext()) {
@@ -368,7 +368,7 @@ function testStructWithDefaultDataToJson() returns (json|error) {
     Person p1 = { id: 1 };
 
     table<Person> dt3 = table{};
-    _ = dt3.add(p1);
+    checkpanic dt3.add(p1);
 
     json j = check json.convert(dt3);
     return j;
@@ -378,7 +378,7 @@ function testStructWithDefaultDataToXml() returns (xml|error) {
     Person p1 = { id: 1 };
 
     table<Person> dt3 = table{};
-    _ = dt3.add(p1);
+    checkpanic dt3.add(p1);
 
     xml x = check xml.convert(dt3);
     return x;
@@ -389,7 +389,7 @@ function testStructWithDefaultDataToStruct() returns (int, float, string, boolea
     Person p1 = { id: 1 };
 
     table<Person> dt3 = table{};
-    _ = dt3.add(p1);
+    checkpanic dt3.add(p1);
 
     int iData = -1;
     float fData = -1;
@@ -422,8 +422,8 @@ function testTableWithArrayDataToJson() returns (json|error) {
         booleanArrData: boolArray2 };
 
     table<ArraTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
-    _ = dt3.add(t2);
+    checkpanic dt3.add(t1);
+    checkpanic dt3.add(t2);
 
     json j = check json.convert(dt3);
     return j;
@@ -445,8 +445,8 @@ function testTableWithArrayDataToXml() returns (xml|error) {
         booleanArrData: boolArray2 };
 
     table<ArraTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
-    _ = dt3.add(t2);
+    checkpanic dt3.add(t1);
+    checkpanic dt3.add(t2);
 
     xml x = check xml.convert(dt3);
     return x;
@@ -461,7 +461,7 @@ function testTableWithArrayDataToStruct() returns (int[], float[], string[], boo
         booleanArrData: boolArray };
 
     table<ArraTypeTest> dt3 = table{};
-    _ = dt3.add(t1);
+    checkpanic dt3.add(t1);
 
     int[] intArr = [];
     float[] floatArr = [];
@@ -486,9 +486,9 @@ function testTableRemoveSuccess() returns (int, json)|error {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     int count = check dt.remove(isBelow35);
     json j = check json.convert(dt);
@@ -502,9 +502,9 @@ function testTableRemoveSuccessMultipleMatch() returns (int, json)|error {
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     int count = check dt.remove(isJohn);
     json j = check json.convert(dt);
@@ -519,9 +519,9 @@ function testTableRemoveFailed() returns (int, json)|error {
 
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     int count = check dt.remove(isBelow35);
     json j = check json.convert(dt);
@@ -536,13 +536,13 @@ function testTableAddAndAccess() returns (string, string)|error {
 
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
 
     json j1 = check json.convert(dt);
     string s1 = j1.toString();
 
-    _ = dt.add(p3);
+    checkpanic dt.add(p3);
     json j2 = check json.convert(dt);
     string s2 = j2.toString();
 
@@ -555,9 +555,9 @@ function testRemoveWithInvalidRecordType() returns string {
     Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     string returnStr = "";
     var ret = dt.remove(isBelow35Invalid);
@@ -576,9 +576,9 @@ function testRemoveWithInvalidParamType() returns string {
 
 
     table<Person> dt = table{};
-    _ = dt.add(p1);
-    _ = dt.add(p2);
-    _ = dt.add(p3);
+    checkpanic dt.add(p1);
+    checkpanic dt.add(p2);
+    checkpanic dt.add(p3);
 
     string returnStr = "";
     var ret = dt.remove(isBelow35InvalidParam);

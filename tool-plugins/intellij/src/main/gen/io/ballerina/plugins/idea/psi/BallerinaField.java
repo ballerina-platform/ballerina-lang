@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaField extends BallerinaCompositeElement {
+public interface BallerinaField extends PsiElement {
 
   @Nullable
   PsiElement getDot();

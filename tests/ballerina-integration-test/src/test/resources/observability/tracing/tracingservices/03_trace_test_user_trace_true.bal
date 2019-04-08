@@ -30,21 +30,21 @@ service echoService2 on new http:Listener(9092) {
             panic response;
         }
         outResponse.setTextPayload("Hello, World!");
-        _ = caller->respond(outResponse);
-        _ = observe:finishSpan(spanId);
+        checkpanic caller->respond(outResponse);
+        checkpanic observe:finishSpan(spanId);
     }
 
     resource function resourceTwo(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -52,8 +52,8 @@ function callNextResource2(int parentSpanId) returns (http:Response|error) {
     http:Client httpEndpoint = new("http://localhost:9092/echoService", config = {});
     int spanId = check observe:startSpan("uSpanFour", parentSpanId = parentSpanId);
     http:Response resp = check httpEndpoint->get("/resourceTwo");
-    _ = observe:addTagToSpan(spanId = spanId, "Allowed", "Successful");
-    _ = observe:finishSpan(spanId);
-    _ = observe:addTagToSpan(spanId = spanId, "Disallowed", "Unsuccessful");
+    checkpanic observe:addTagToSpan(spanId = spanId, "Allowed", "Successful");
+    checkpanic observe:finishSpan(spanId);
+    error? err = observe:addTagToSpan(spanId = spanId, "Disallowed", "Unsuccessful");
     return resp;
 }

@@ -14,6 +14,15 @@ export class DiagramConfig {
 
     public statement = {
         actionHeight: STATEMENT_HEIGHT * 2,
+        expanded: {
+            bottomMargin: 10,
+            footer: 10,
+            header: 40,
+            labelGutter: 2,
+            margin: 20,
+            offset: 45,
+            rightMargin: 30,
+        },
         height: STATEMENT_HEIGHT,
         margin: {
             bottom: 0,

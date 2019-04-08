@@ -34,7 +34,7 @@ service participant1 on participant1EP01 {
         http:Response res = new;
         res.setTextPayload(state1.toString());
         state1.reset();
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     resource function testRemoteParticipantAbort(http:Caller ep, http:Request req) {
@@ -52,7 +52,7 @@ service participant1 on participant1EP01 {
             onAbort1("from block");
         }
         http:Response res = new;  res.statusCode = 200;
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     @transactions:Participant {
@@ -62,7 +62,7 @@ service participant1 on participant1EP01 {
     resource function noOp(http:Caller ep, http:Request req) {
         noOp_localParticipant();
         http:Response res = new;  res.statusCode = 200;
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     @http:ResourceConfig {
@@ -79,7 +79,7 @@ service participant1 on participant1EP01 {
         }
         http:Response res = new;  res.statusCode = 200;
         res.setTextPayload("Non infectable resource call successful");
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     @http:ResourceConfig {
@@ -92,7 +92,7 @@ service participant1 on participant1EP01 {
     resource function infectable(http:Caller ep, http:Request req) {
         infectable_localParticipant();
         http:Response res = new;  res.statusCode = 200;
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
     @http:ResourceConfig {
@@ -151,7 +151,7 @@ service participant1 on participant1EP01 {
         } else {
             res.statusCode = 500;
         }
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 
 
@@ -173,7 +173,7 @@ service participant1 on participant1EP01 {
             io:print("testSaveToDatabaseFailedInParticipant errored");
             res.statusCode = 500;
         }
-        _ = ep -> respond(res);
+        checkpanic ep->respond(res);
     }
 }
 

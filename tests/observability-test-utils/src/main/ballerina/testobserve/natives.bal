@@ -17,4 +17,4 @@
 # Get the mock tracers object.
 #
 # + return - Mock tracers object in json format
-public extern function getMockTracers () returns json;
+public function getMockTracers () returns json = external;

@@ -254,7 +254,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCastNegative");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<string>' cannot be cast to 'map<int>'"));
 
     }
@@ -273,7 +273,7 @@ public class ConstrainedMapTest {
     public void testConstrainedMapRefTypeCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Person>' cannot be cast to 'map<int>'"));
 
     }
@@ -347,7 +347,7 @@ public class ConstrainedMapTest {
     public void testStructNotEquivalentRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map<Employee>' cannot be cast to 'map<Person>'"));
     }
 
@@ -355,7 +355,7 @@ public class ConstrainedMapTest {
     public void testAnyMapToValueTypeRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<int>'"));
     }
 
@@ -363,7 +363,7 @@ public class ConstrainedMapTest {
     public void testAnyMapToRefTypeRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("incompatible types: 'map' cannot be cast to 'map<Employee>'"));
     }
 
@@ -430,7 +430,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                             "incompatible convert operation: 'json' value cannot be converted as 'PersonComplexTwo'");
     }
@@ -563,4 +563,11 @@ public class ConstrainedMapTest {
                 "testMapConstrainedStringNonExistingKeyRetrieve");
     }
 
+    @Test(description = "Test inherent type violation with nil value.",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"" +
+                  "invalid map insertion: expected value of type 'string', found 'null'\"\\}.*")
+    public void testInherentTypeViolationWithNilType() {
+        BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
+    }
 }

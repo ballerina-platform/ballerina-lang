@@ -44,13 +44,13 @@ public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implement
   @Override
   @Nullable
   public BallerinaObjectBody getObjectBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectBody.class);
+    return findChildByClass(BallerinaObjectBody.class);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
@@ -74,7 +74,7 @@ public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implement
   @Override
   @NotNull
   public PsiElement getObject() {
-    return notNullChild(findChildByType(OBJECT));
+    return findNotNullChildByType(OBJECT);
   }
 
 }

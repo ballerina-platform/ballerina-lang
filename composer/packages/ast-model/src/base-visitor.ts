@@ -105,6 +105,15 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
+  beginVisitCheckPanicExpr?(
+    node: Ballerina.CheckPanicExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitCheckPanicExpr?(
+    node: Ballerina.CheckPanicExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+
   beginVisitCompilationUnit?(
     node: Ballerina.CompilationUnit,
     parent?: Ballerina.ASTNode
@@ -183,12 +192,30 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
+  beginVisitErrorDestructure?(
+    node: Ballerina.ErrorDestructure,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitErrorDestructure?(
+    node: Ballerina.ErrorDestructure,
+    parent?: Ballerina.ASTNode
+  ): void;
+
   beginVisitErrorType?(
     node: Ballerina.ErrorType,
     parent?: Ballerina.ASTNode
   ): void;
   endVisitErrorType?(
     node: Ballerina.ErrorType,
+    parent?: Ballerina.ASTNode
+  ): void;
+
+  beginVisitErrorVariableRef?(
+    node: Ballerina.ErrorVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitErrorVariableRef?(
+    node: Ballerina.ErrorVariableRef,
     parent?: Ballerina.ASTNode
   ): void;
 

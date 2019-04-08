@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTableDataArray extends BallerinaCompositeElement {
+public interface BallerinaTableDataArray extends PsiElement {
 
   @Nullable
   BallerinaTableDataList getTableDataList();

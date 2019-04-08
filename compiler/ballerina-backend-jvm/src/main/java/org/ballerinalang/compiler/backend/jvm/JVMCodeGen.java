@@ -224,7 +224,7 @@ public class JVMCodeGen {
         }
     }
 
-    private static void emitBIRText(BIRNode.BIRPackage bir) {
+    public static void emitBIRText(BIRNode.BIRPackage bir) {
         BIREmitter birEmitter = new BIREmitter();
         String birText = birEmitter.emit(bir);
         console.println(birText);

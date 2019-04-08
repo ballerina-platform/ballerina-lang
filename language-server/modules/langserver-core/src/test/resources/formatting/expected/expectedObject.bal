@@ -65,11 +65,10 @@ public type Client client object {
 
     }
 
-    public remote extern function get(@sensitive string path, RequestMessage message) returns Response | error {
+    public remote function get(@sensitive string path, RequestMessage message) returns Response | error = external;
 
-    }
-
-    private extern function getConfig() {
-
-    }
+    private function getConfig()
+    =
+    external
+    ;
 }

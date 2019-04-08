@@ -25,17 +25,17 @@ public type Session client object {
         self.createSession(con, configuration);
     }
 
-    extern function createSession(Connection con, SessionConfiguration config);
+    function createSession(Connection con, SessionConfiguration config) = external;
 
     # Returns true if close was already called
     # 
     # + return - `true` if closed, `false` otherwise.
-    public extern function isClosed() returns boolean;
+    public function isClosed() returns boolean = external;
 
     # Closes the connection and release all its resources
     #
     # + return - `error` if an error occurs closing the connection or nil
-    public remote extern function close() returns error?;
+    public remote function close() returns error? = external;
 };
 
 # Configurations related to a Artemis Session.

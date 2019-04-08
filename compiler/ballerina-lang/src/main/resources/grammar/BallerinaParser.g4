@@ -57,7 +57,8 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? EXTERN? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody |
+     ASSIGN EXTERNAL SEMICOLON)
     ;
 
 lambdaFunction
@@ -108,7 +109,7 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? EXTERN? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
     ;
 
 annotationDefinition
@@ -701,6 +702,7 @@ expression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression             # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
     |   CHECK expression                                                    # checkedExpression
+    |   CHECKPANIC expression                                               # checkPanickedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -856,7 +858,7 @@ content
     ;
 
 comment
-    :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
+    :   XML_COMMENT_START (XMLCommentTemplateText expression RIGHT_BRACE)*? XMLCommentText*? XML_COMMENT_END
     ;
 
 element
@@ -877,14 +879,14 @@ emptyTag
     ;
 
 procIns
-    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
+    :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression RIGHT_BRACE)* XMLPIText
     ;
 
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
 text
-    :   (XMLTemplateText expression ExpressionEnd)+ XMLText?
+    :   (XMLTemplateText expression RIGHT_BRACE)+ XMLText?
     |   XMLText
     ;
 
@@ -894,16 +896,15 @@ xmlQuotedString
     ;
 
 xmlSingleQuotedString
-    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression ExpressionEnd)* XMLSingleQuotedString? SINGLE_QUOTE_END
+    :   SINGLE_QUOTE (XMLSingleQuotedTemplateString expression RIGHT_BRACE)* XMLSingleQuotedString? SINGLE_QUOTE_END
     ;
 
 xmlDoubleQuotedString
-    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression ExpressionEnd)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
+    :   DOUBLE_QUOTE (XMLDoubleQuotedTemplateString expression RIGHT_BRACE)* XMLDoubleQuotedString? DOUBLE_QUOTE_END
     ;
 
 xmlQualifiedName
     :   (XMLQName QNAME_SEPARATOR)? XMLQName
-    |   XMLTagExpressionStart expression ExpressionEnd
     ;
 
 stringTemplateLiteral

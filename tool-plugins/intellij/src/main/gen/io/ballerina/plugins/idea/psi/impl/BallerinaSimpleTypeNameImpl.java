@@ -44,37 +44,37 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
   @Override
   @Nullable
   public BallerinaAnyDataTypeName getAnyDataTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnyDataTypeName.class);
+    return findChildByClass(BallerinaAnyDataTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaAnyTypeName getAnyTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnyTypeName.class);
+    return findChildByClass(BallerinaAnyTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEmptyTupleLiteral.class);
+    return findChildByClass(BallerinaEmptyTupleLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaReferenceTypeName getReferenceTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReferenceTypeName.class);
+    return findChildByClass(BallerinaReferenceTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeDescTypeName getTypeDescTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeDescTypeName.class);
+    return findChildByClass(BallerinaTypeDescTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaValueTypeName getValueTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaValueTypeName.class);
+    return findChildByClass(BallerinaValueTypeName.class);
   }
 
   @Override
