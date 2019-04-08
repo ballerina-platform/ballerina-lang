@@ -146,4 +146,12 @@ public class ObjectEquivalencyTest {
         Assert.assertEquals(returns[0].stringValue(), "{age:45, name:\"Doe\", address:\"\"}");
         Assert.assertEquals(returns[1].stringValue(), "{age:35, name:\"John\", address:\"\"}");
     }
+
+    @Test(description = "Test inherent type violation with nil value.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"" +
+                    "invalid value for object field 'x': expected value of type 'string', found 'null'\"\\}.*")
+    public void testInherentTypeViolationWithNilType() {
+        BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
+    }
 }
