@@ -128,7 +128,6 @@ public type JWTAuthProvider object {
         runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
         authenticationContext.scheme = AUTH_TYPE_JWT;
         authenticationContext.authToken = jwtToken;
-        return ();
     }
 
 };
