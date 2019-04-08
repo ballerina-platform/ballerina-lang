@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BType;
 
 import java.util.Map;
@@ -34,10 +35,13 @@ public abstract class AbstractObjectValue implements ObjectValue {
         this.type = type;
     }
 
-    public abstract Object call(String funcName, Object... args);
+    @Override
+    public abstract Object call(Strand strand, String funcName, Object... args);
 
+    @Override
     public abstract Object get(String fieldName);
 
+    @Override
     public abstract void set(String fieldName, Object value);
 
     @Override

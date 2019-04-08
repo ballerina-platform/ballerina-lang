@@ -53,7 +53,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
     typeOwnerClass = moduleClass;
 
     // generate object value classes
-    ObjectGenerator objGen = new();
+    ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
 
     generateFrameClasses(module, pkgEntries);
@@ -81,7 +81,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module);
+        generateMethod(getFunction(func), cw, module, false);
     }
 
     cw.visitEnd();
@@ -102,7 +102,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     typeOwnerClass = moduleClass;
 
     // generate object value classes
-    ObjectGenerator objGen = new();
+    ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, pkgEntries);
 
     generateFrameClasses(module, pkgEntries);
@@ -136,7 +136,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module);
+        generateMethod(getFunction(func), cw, module, false);
     }
 
     foreach var (k,v) in lambdas {

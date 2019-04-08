@@ -147,6 +147,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -171,6 +172,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv env;
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
+    private ConstantValueChecker constantValueChecker;
 
     /**
      * Expected types or inherited types.
@@ -200,6 +202,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
+        this.constantValueChecker = ConstantValueChecker.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -937,13 +940,20 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
                 BType symbolType = symbol.type;
-                if (expType.tag == TypeTags.FINITE ||
+                if (symbolType != symTable.noType && expType.tag == TypeTags.FINITE ||
                         (expType.tag == TypeTags.UNION && ((BUnionType) expType).getMemberTypes().stream()
                                 .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
                                         types.isAssignable(symbolType, memType)))) {
                     actualType = symbolType;
                 } else {
                     actualType = ((BConstantSymbol) symbol).literalValueType;
+                }
+
+                // If the constant is on the LHS, modifications are not allowed.
+                // E.g. m.k = "10"; // where `m` is a constant.
+                if (varRefExpr.lhsVar) {
+                    actualType = symTable.semanticError;
+                    dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
@@ -1068,6 +1078,20 @@ public class TypeChecker extends BLangNodeVisitor {
         // Accessing all fields using * is only supported for XML.
         if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
+        }
+
+        // Check constant map literal access.
+        if (varRefType.tag == TypeTags.MAP) {
+            BLangExpression expression = fieldAccessExpr.getExpression();
+            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+                if (symbol.tag == SymTag.CONSTANT) {
+                    BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
+                    BLangRecordLiteral mapLiteral = (BLangRecordLiteral) constantSymbol.literalValue;
+                    // Retrieve the field access expression's value.
+                    constantValueChecker.checkValue(fieldAccessExpr.expr, fieldAccessExpr.field, mapLiteral);
+                }
+            }
         }
 
         // error lifting on lhs is not supported

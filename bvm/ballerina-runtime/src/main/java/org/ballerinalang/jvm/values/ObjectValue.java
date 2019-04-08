@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.Strand;
+
 /**
  * Interface to be implemented by all the ballerina objects.
  * 
@@ -24,7 +26,7 @@ package org.ballerinalang.jvm.values;
  */
 public interface ObjectValue extends RefValue {
 
-    Object call(String funcName, Object... args);
+    Object call(Strand strand, String funcName, Object... args);
 
     Object get(String fieldName);
 

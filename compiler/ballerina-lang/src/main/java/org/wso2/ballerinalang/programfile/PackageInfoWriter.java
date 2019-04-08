@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.MapCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
@@ -52,6 +53,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -134,6 +136,40 @@ public class PackageInfoWriter {
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
+                case CP_ENTRY_MAP:
+                    writeMapCPEntry(dataOutStream, (MapCPEntry) cpEntry);
+                    break;
+            }
+        }
+    }
+
+    private static void writeMapCPEntry(DataOutputStream dataOutStream, MapCPEntry mapCPEntry) throws IOException {
+        // Write size of the constant value map.
+        dataOutStream.writeInt(mapCPEntry.getConstantValueMap().size());
+
+        for (Map.Entry<KeyInfo, ConstantValue> entry : mapCPEntry.getConstantValueMap().entrySet()) {
+            KeyInfo key = entry.getKey();
+            ConstantValue value = entry.getValue();
+
+            // Write the key CP index.
+            dataOutStream.writeInt(key.cpIndex);
+
+            dataOutStream.writeBoolean(value.isSimpleLiteral);
+            if (value.isSimpleLiteral) {
+                // Write value type tag.
+                dataOutStream.writeInt(value.literalValueTypeTag);
+
+                // Write value.
+                if (value.literalValueTypeTag == TypeTags.NIL) {
+                    // Do nothing.
+                } else if (value.literalValueTypeTag == TypeTags.BOOLEAN) {
+                    dataOutStream.writeBoolean(value.booleanValue);
+                } else {
+                    dataOutStream.writeInt(value.valueCPEntryIndex);
+                }
+            } else {
+                // This situation occurs for any nested record literal.
+                dataOutStream.writeInt(value.valueCPEntryIndex);
             }
         }
     }
@@ -219,18 +255,85 @@ public class PackageInfoWriter {
         }
     }
 
-
     // Private methods
 
     private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
                                                  ConstantInfo[] constantInfos) throws IOException {
         dataOutStream.writeShort(constantInfos.length);
         for (ConstantInfo constantInfo : constantInfos) {
-            dataOutStream.writeInt(constantInfo.nameCPIndex);
-            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
-            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.key.cpIndex);
             dataOutStream.writeInt(constantInfo.flags);
+            dataOutStream.writeBoolean(constantInfo.isSimpleLiteral);
+            if (constantInfo.isSimpleLiteral) {
+
+                dataOutStream.writeInt(constantInfo.constantValue.finiteTypeSigCPIndex);
+                dataOutStream.writeInt(constantInfo.constantValue.valueTypeSigCPIndex);
+
+                // Write literal info.
+                writeSimpleLiteral(dataOutStream, constantInfo.constantValue);
+            } else {
+                // If the constant is a map literal, write the type signature CP index first.
+                dataOutStream.writeInt(constantInfo.valueTypeSigCPIndex);
+
+                // Write value CP entry index.
+                dataOutStream.writeInt(constantInfo.constantValue.valueCPEntryIndex);
+
+                // Write map literal info.
+                writeMapLiteral(dataOutStream, constantInfo.constantValue.constantValueMap);
+            }
+            // Write attribute info.
             writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+        }
+    }
+
+    private static void writeSimpleLiteral(DataOutputStream dataOutStream, ConstantValue constantValue)
+            throws IOException {
+        switch (constantValue.literalValueTypeTag) {
+            case TypeTags.BOOLEAN:
+                dataOutStream.writeBoolean(constantValue.booleanValue);
+                break;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+                dataOutStream.writeInt(constantValue.valueCPEntryIndex);
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + constantValue.literalValueTypeTag);
+        }
+    }
+
+    private static void writeMapLiteral(DataOutputStream dataOutStream, Map<KeyInfo, ConstantValue> constantValueMap)
+            throws IOException {
+        // Write the number of the key-value pairs in the record literal.
+        dataOutStream.writeInt(constantValueMap.size());
+        for (Map.Entry<KeyInfo, ConstantValue> entry : constantValueMap.entrySet()) {
+            // Write key CP index.
+            dataOutStream.writeInt(entry.getKey().cpIndex);
+
+            ConstantValue constantValue = entry.getValue();
+
+            dataOutStream.writeBoolean(constantValue.isSimpleLiteral);
+            dataOutStream.writeBoolean(constantValue.isConstRef);
+            if (constantValue.isSimpleLiteral) {
+                // Write value type signature CP entry.
+                dataOutStream.writeInt(constantValue.valueTypeSigCPIndex);
+
+                // If the value is a simple literal, write the simple literal info.
+                writeSimpleLiteral(dataOutStream, constantValue);
+            } else {
+                // If the value is a map literal, wrote the map literal type signature CP index first.
+                dataOutStream.writeInt(constantValue.recordLiteralSigCPIndex);
+
+                // Write value CP entry index. This is later used to reconstruct the record literal.
+                dataOutStream.writeInt(constantValue.valueCPEntryIndex);
+
+                // Write the map literal info.
+                writeMapLiteral(dataOutStream, constantValue.constantValueMap);
+            }
         }
     }
 

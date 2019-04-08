@@ -1781,17 +1781,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         FieldContext field = ctx.field();
         String fieldName;
+        DiagnosticPos fieldNamePos;
         FieldKind fieldType;
         if (field.Identifier() != null) {
             fieldName = field.Identifier().getText();
+            fieldNamePos = getCurrentPos(field);
             fieldType = FieldKind.SINGLE;
+
         } else {
             fieldName = field.MUL().getText();
+            // Set the position as same as field position.
+            fieldNamePos = getCurrentPos(field);
             fieldType = FieldKind.ALL;
         }
-
-        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldType,
-                ctx.field().NOT() != null);
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
+                fieldType, ctx.field().NOT() != null);
     }
 
     @Override
