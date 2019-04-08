@@ -26,7 +26,7 @@ public type TopicSubscriber object {
     *AbstractListener;
 
     public TopicSubscriberCaller consumerActions = new;
-    public Session? session;
+    public Session session;
     public string messageSelector = "";
 
     # Initialize the TopicSubscriber endpoint
@@ -59,8 +59,8 @@ public type TopicSubscriber object {
 
     # Register TopicSubscriber endpoint
     #
-    # + serviceType - Type descriptor of the service
-    # + data - Service annotations
+    # + serviceType - The service instance
+    # + name - Name of the service
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, string? name = ()) returns error? {
         return self.registerListener(serviceType, self.consumerActions, name);
@@ -74,7 +74,7 @@ public type TopicSubscriber object {
     #
     # + return - Nil or error upon failure to start
     public function __start() returns error? {
-        return ();
+        return self.start();
     }
 
     # Get TopicSubscriber actions handler
@@ -92,6 +92,7 @@ public type TopicSubscriber object {
     }
 
     function closeSubscriber(TopicSubscriberCaller actions) returns error? = external;
+    private function start() returns error? = external;
 };
 
 # Remote functions that topic subscriber endpoint could perform
@@ -123,13 +124,9 @@ public type TopicSubscriberCaller client object {
         var subscriber = self.topicSubscriber;
         if (subscriber is TopicSubscriber) {
             var session = subscriber.session;
-            if (session is Session) {
-                validateTopic(destination);
-                subscriber.createSubscriber(session, subscriber.messageSelector, destination);
-                log:printInfo("Subscriber created for topic " + destination.destinationName);
-            } else {
-                log:printInfo("Session is (), Topic subscriber is not properly initialized");
-            }
+            validateTopic(destination);
+            subscriber.createSubscriber(session, subscriber.messageSelector, destination);
+            log:printInfo("Subscriber created for topic " + destination.destinationName);
         } else {
             log:printInfo("Topic subscriber is not properly initialized");
         }

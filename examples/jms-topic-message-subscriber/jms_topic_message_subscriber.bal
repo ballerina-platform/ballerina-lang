@@ -1,11 +1,13 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This initializes a JMS connection with the provider.
+// This initializes a JMS connection with the provider. Here Connection and
+// Session are created explicitly to allow reusability.
+
 jms:Connection conn = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon"
-            + "?brokerlist='tcp://localhost:5672'"
+        initialContextFactory:
+         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616"
     });
 
 // This initializes a JMS session on top of the created connection.
