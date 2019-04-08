@@ -202,7 +202,7 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 # + objectType - object type
 # + name - name of the object
 function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, string name) {
-    // Create the record type
+    // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
     mv.visitInsn(DUP);
 
@@ -615,6 +615,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ERROR_VALUE);
     } else if (bType is bir:BMapType) {
         return io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BObjectType) {
+        return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||

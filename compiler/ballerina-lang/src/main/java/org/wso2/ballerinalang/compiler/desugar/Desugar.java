@@ -335,6 +335,11 @@ public class Desugar extends BLangNodeVisitor {
                 if (objectTypeNode.initFunction == null) {
                     objectTypeNode.initFunction = createDefaultObjectConstructor(objectTypeNode, env);
                 }
+
+                // Add init function to the attached function list
+                BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
+                objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
+
                 pkgNode.functions.add(objectTypeNode.initFunction);
                 pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
@@ -501,7 +506,8 @@ public class Desugar extends BLangNodeVisitor {
                 .filter(field -> !initFunctionStmts.containsKey(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
+                    initFunctionStmts.put(field.symbol,
+                            createObjectFieldUpdate(objectTypeNode.initFunction, field));
                 });
 
         // Adding init statements to the init function.
@@ -4382,6 +4388,21 @@ public class Desugar extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
+    private BLangAssignment createObjectFieldUpdate(BLangFunction function, BLangSimpleVariable variable) {
+        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, function.receiver.symbol);
+        BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, variable.name);
+        fieldAccess.symbol = variable.symbol;
+        fieldAccess.type = variable.type;
+
+        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignmentStmt.expr = variable.expr;
+        assignmentStmt.pos = variable.pos;
+        assignmentStmt.setVariable(fieldAccess);
+
+        SymbolEnv initFuncEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
+        return rewrite(assignmentStmt, initFuncEnv);
+    }
+
     private void addMatchExprDefaultCase(BLangMatchExpression bLangMatchExpression) {
         List<BType> exprTypes;
         List<BType> unmatchedTypes = new ArrayList<>();
@@ -4943,9 +4964,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create the receiver
         initFunction.receiver = ASTBuilderUtil.createReceiver(objectTypeNode.pos, objectTypeNode.type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                names.fromIdNode(initFunction.receiver.name), env.enclPkg.symbol.pkgID, objectTypeNode.type,
-                env.scope.owner);
-        env.scope.define(receiverSymbol.name, receiverSymbol);
+                names.fromIdNode(initFunction.receiver.name), env.enclPkg.symbol.pkgID, objectTypeNode.type, null);
         initFunction.receiver.symbol = receiverSymbol;
 
         initFunction.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
@@ -4957,9 +4976,11 @@ public class Desugar extends BLangNodeVisitor {
                 Names.OBJECT_INIT_SUFFIX.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                        initFunction.type, env.scope.owner, initFunction.body != null);
+                        initFunction.type, objectTypeNode.symbol.scope.owner, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
+        initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+        receiverSymbol.owner = initFunction.symbol;
 
         // Add return type as nil to the symbol
         initFunction.symbol.retType = symTable.nilType;
@@ -4973,9 +4994,8 @@ public class Desugar extends BLangNodeVisitor {
         BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
         objectSymbol.initializerFunc = new BAttachedFunction(Names.OBJECT_INIT_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.type);
-        objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
         objectTypeNode.initFunction = initFunction;
-        return initFunction;
+        return rewrite(initFunction, env);
     }
 
     private BLangExpression getInitExpr(BType type, BLangTypeInit typeInitExpr) {
