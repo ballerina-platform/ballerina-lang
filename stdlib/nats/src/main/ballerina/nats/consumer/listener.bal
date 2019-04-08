@@ -34,7 +34,7 @@ public type Listener object {
     # Binds the NATS consumer to a service.
     #
     # + serviceType - Type descriptor of the service.
-    # + data - Service annotations.
+    # + name - Name of the service.
     # + return - Nil or error upon failure to register listener.
     public function __attach(service serviceType, string? name = ()) returns error? {
         return self.create(serviceType, name);

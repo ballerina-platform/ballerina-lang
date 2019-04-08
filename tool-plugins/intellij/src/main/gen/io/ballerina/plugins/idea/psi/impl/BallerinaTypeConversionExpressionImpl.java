@@ -49,20 +49,8 @@ public class BallerinaTypeConversionExpressionImpl extends BallerinaExpressionIm
 
   @Override
   @Nullable
-  public BallerinaFunctionInvocation getFunctionInvocation() {
-    return findChildByClass(BallerinaFunctionInvocation.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaTypeName getTypeName() {
     return findChildByClass(BallerinaTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
   }
 
   @Override

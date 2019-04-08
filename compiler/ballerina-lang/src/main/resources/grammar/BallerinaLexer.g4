@@ -656,6 +656,7 @@ XMLEscapedSequence
     |   '\\${'
     |   '\\}'
     |   '\\{'
+    |   '&' ('gt' | 'lt' | 'amp') ';'
     ;
 
 fragment

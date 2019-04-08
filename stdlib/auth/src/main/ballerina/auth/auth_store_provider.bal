@@ -32,12 +32,10 @@ public type AuthStoreProvider object {
     public function getScopes(string username) returns string[];
 };
 
-//Dummy implementation, please fix
 public function AuthStoreProvider.authenticate(string username, string password) returns boolean {
     return true;
 }
 
-//Dummy implementation, please fix
 public function AuthStoreProvider.getScopes(string username) returns string[] {
     string[] val = [];
     return val;

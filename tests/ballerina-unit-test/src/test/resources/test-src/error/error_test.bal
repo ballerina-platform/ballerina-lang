@@ -212,3 +212,14 @@ function testErrorDetailCloneAndFreeze() returns boolean {
 function addValueToMap(map<anydata|error> m, string key, anydata|error value) {
     m[key] = value;
 }
+
+public function testRuntimeFailingWhenAssigningErrorToAny() {
+    map<any> m1 = { one: "a", two: "b" };
+    error errValOne = error("error reason one");
+
+    insertMemberToMap(m1, "three", errValOne); // panic
+}
+
+public function insertMemberToMap(map<any|error> mapVal, string index, any|error member) {
+    mapVal[index] = member;
+}
