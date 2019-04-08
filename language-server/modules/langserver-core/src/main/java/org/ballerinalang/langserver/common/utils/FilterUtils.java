@@ -26,6 +26,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -287,7 +288,8 @@ public class FilterUtils {
             BSymbol symbol = value.symbol;
             if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
                     || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
-                    || symbol instanceof BVarSymbol) && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                    || symbol instanceof BVarSymbol || symbol instanceof BConstantSymbol)
+                    && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 SymbolInfo entry = new SymbolInfo(name.toString(), value);
                 actionFunctionList.add(entry);
             }

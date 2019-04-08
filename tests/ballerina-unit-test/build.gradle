@@ -19,7 +19,7 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation project(':ballerina-jvm')
 
-    implementation 'com.h2database:h2:1.4.197'
+    implementation 'com.h2database:h2:1.4.199'
     implementation 'org.testng:testng:6.13.1'
     testCompile 'org.awaitility:awaitility:3.1.6'
     testCompile 'com.zaxxer:HikariCP:3.3.1'
@@ -84,7 +84,7 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 
 test {
     systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.config.file", "$buildDir/classes/java/test/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
     useTestNG() {
@@ -100,6 +100,8 @@ test {
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
 }

@@ -543,7 +543,8 @@ public class BCompileUtil {
         return value != null && Boolean.valueOf(value);
     }
 
-    private static CompileResult compileOnJBallerina(String sourceRoot, String packageName, SourceDirectory sourceDirectory) {
+    private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
+                                                     SourceDirectory sourceDirectory) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
         return compileOnJBallerina(context, sourceRoot, packageName);
