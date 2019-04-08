@@ -22,8 +22,10 @@ import java.math.MathContext;
 
 /**
  * Common functions used for handling discriminated float/decimal literals.
+ *
+ * @since 0.995
  */
-public class NumericLiteralSupport {
+public final class NumericLiteralSupport {
 
     private NumericLiteralSupport() {
     }
@@ -31,6 +33,13 @@ public class NumericLiteralSupport {
     public static final String FLOAT_DISCRIMINATOR = "f";
     public static final String DECIMAL_DISCRIMINATOR = "d";
 
+    /**
+     * Strip float/decimal discriminator suffixes from the input, if no discriminator suffixes are found original
+     * string is returned.
+     *
+     * @param literalValue numeric literal
+     * @return numeric literal without the discriminator suffixes
+     */
     public static String stripDiscriminator(String literalValue) {
         int length = literalValue.length();
         if (length < 2) {
@@ -59,6 +68,12 @@ public class NumericLiteralSupport {
         return false;
     }
 
+    /**
+     * Parse BigDecimal using DECIMAL128 math context.
+     *
+     * @param baseValue value to be parsed
+     * @return BigDecimal number.
+     */
     public static BigDecimal parseBigDecimal(Object baseValue) {
         String strValue = String.valueOf(baseValue);
         if (isDecimalDiscriminated(strValue)) {
@@ -67,6 +82,12 @@ public class NumericLiteralSupport {
         return new BigDecimal(strValue, MathContext.DECIMAL128);
     }
 
+    /**
+     * Check input for decimal discriminator suffix.
+     *
+     * @param literalValue literal to check
+     * @return true if decimal suffix is present, false otherwise
+     */
     public static boolean isDecimalDiscriminated(String literalValue) {
         int length = literalValue.length();
         // There should be at least 2 characters to form discriminated decimal literal.
@@ -77,6 +98,12 @@ public class NumericLiteralSupport {
         return (lastChar == 'd' || lastChar == 'D');
     }
 
+    /**
+     * Check input for float discriminator suffix.
+     *
+     * @param literalValue literal to check
+     * @return true if float suffix is present, false otherwise
+     */
     public static boolean isFloatDiscriminated(String literalValue) {
         int length = literalValue.length();
         // There should be at least 2 characters to form discriminated decimal literal.
