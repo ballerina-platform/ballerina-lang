@@ -113,8 +113,8 @@
                 "url": "error-match-statement"
             },
             {
-                "name": "Type Check Expression",
-                "url": "type-check-expression"
+                "name": "Type Test Expression",
+                "url": "type-test-expression"
             },
             {
                 "name": "Type Guard",
@@ -376,7 +376,7 @@
                 "url": "check"
             },
             {
-                "name": "Panic ",
+                "name": "Panic",
                 "url": "panic"
             },
             {
@@ -466,11 +466,11 @@
                 "url": "cache"
             },
             {
-                "name": "Config ",
+                "name": "Config",
                 "url": "config-api"
             },
             {
-                "name": "Log ",
+                "name": "Log",
                 "url": "log-api"
             },
             {
@@ -478,7 +478,7 @@
                 "url": "math-functions"
             },
             {
-                "name": "String ",
+                "name": "String",
                 "url": "strings"
             },
             {
@@ -996,11 +996,11 @@
                 "url": "artemis-anycast-session-producer"
             },
             {
-                "name": "Artemis simple MULTICAST consumer",
+                "name": "Artemis Simple MULTICAST Consumer",
                 "url": "artemis-multicast-consumer"
             },
             {
-                "name": "Artemis simple MULTICAST producer",
+                "name": "Artemis Simple MULTICAST Producer",
                 "url": "artemis-multicast-producer"
             }
         ]
