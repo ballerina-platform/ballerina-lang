@@ -8,7 +8,8 @@ function test(int x, string s) returns float {
     if (y is int) {
         f = x * 1.0 * y;
     } else {
-        // Runtime value is cast to correct type since Ballerina runtime can infer the correct type to error.
+        // The type of `y` within the else block would be `error`, since the `int`
+        // case is already handled by the `if` block.
         panic y;
     }
     return f;
@@ -29,7 +30,7 @@ public function main() {
     // Value `test` will serve as a function pointer to the `foo` function.
     io:println("Answer: " + foo(10, test));
     io:println("Answer: " + foo(10, getFunctionPointer()));
-    // Function pointer as a variable;
+    // Function pointer as a variable.
     function (int, string) returns (float) f = getFunctionPointer();
     io:println("Answer: " + foo(10, f));
 }
