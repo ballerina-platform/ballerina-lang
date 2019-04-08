@@ -13,7 +13,7 @@ below is and where the actual text of the license can be found.
 
 Name                                                                            Type           License
 ---------------------------------------------------------------------------------------------------------
-amqp-client-5.6.0.jar                                                           bundle         apache2   3859
+amqp-client-5.6.0.jar                                                           bundle         apach2+gpl2+mpl1   3859
 andes-client-3.2.87.jar                                                         bundle         apache2   3877
 antlr4-runtime-4.5.1.wso2v1.jar                                                 bundle         bsd       11767
 artemis-commons-2.7.0.jar                                                       jar            apache2   3893
@@ -124,7 +124,7 @@ llvm-6.0.1-1.4.2-windows-x86_64.jar                                             
 llvm-6.0.1-1.4.2.jar                                                            jar            apache2   3665
 llvm-platform-6.0.1-1.4.2.jar                                                   jar            apache2   3664
 metrics-core-3.1.0.jar                                                          bundle         apache2   3178
-mimepull-1.9.11.jar                                                             bundle         cddl1     3861
+mimepull-1.9.11.jar                                                             bundle         edl1     3861
 netty-buffer-4.1.34.Final.jar                                                   bundle         apache2   3835
 netty-codec-4.1.34.Final.jar                                                    bundle         apache2   3903
 netty-codec-http-4.1.34.Final.jar                                               bundle         apache2   3864
@@ -182,3 +182,5 @@ cddl+gpl       CDDL + GPLv2
                https://glassfish.dev.java.net/public/CDDL+GPL.html
 epl1           Eclipse Public License
                http://www.eclipse.org/legal/epl-v10.html
+edl1           Eclipse Distribution License - v 1.0
+               https://www.eclipse.org/org/documents/edl-v10.php
