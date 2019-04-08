@@ -19,7 +19,6 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
 
 import com.rabbitmq.client.Channel;
-
 import com.rabbitmq.client.DeliverCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
