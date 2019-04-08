@@ -836,7 +836,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // If it is marked as a closure variable then the following calculations are carried out.
         // 1) Find the resolved level i.e. the absolute level : level the variable was resolved from.
-        int absoluteLevel = findResolvedLevel(env, localVarRef.varSymbol);
+        int absoluteLevel = findResolvedLevel(env, (BVarSymbol) localVarRef.varSymbol);
 
         // self absolute level : level I'm currently in.
         int selfAbsoluteLevel = env.envCount;
@@ -1009,6 +1009,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
         result = packageVarRef;
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
+        result = constRef;
     }
 
     @Override

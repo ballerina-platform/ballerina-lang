@@ -26,7 +26,6 @@ import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.objectweb.asm.ClassWriter;
 
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.CLASS_WRITER;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
@@ -50,7 +49,7 @@ public class Init extends BlockingNativeCallableUnit {
         int flags = (int) context.getIntArgument(0);
 
         BMap<String, BValue> classWriterStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        ASMUtil.addNativeDataToObject(new ClassWriter(flags), classWriterStruct);
+        ASMUtil.addNativeDataToObject(new BallerinaClassWriter(flags), classWriterStruct);
     }
 }
 
