@@ -11,7 +11,7 @@ dependencies {
     testImplementation project(':testerina:testerina-core')
 
     testCompile'org.testng:testng:6.13.1'
-    testCompile 'com.h2database:h2:1.4.197'
+    testCompile 'com.h2database:h2:1.4.199'
     testCompile 'org.slf4j:slf4j-api:1.7.26'
     testCompile 'org.slf4j:slf4j-jdk14:1.7.26'
 

@@ -52,7 +52,7 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string  qualifiedMetricName = metric.name.replaceAll("/", "_");
+            string  qualifiedMetricName = metric.name.replaceAll("/", "_").replaceAll("\\.", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
