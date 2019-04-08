@@ -1441,12 +1441,13 @@ public class BLangPackageBuilder {
         exprNodeStack.push(invocationExpr);
     }
 
-    void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName,
+    void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
                                     FieldKind fieldType, boolean safeNavigate) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
+        fieldBasedAccess.field.pos = fieldNamePos;
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
         fieldBasedAccess.safeNavigate = safeNavigate;
