@@ -233,6 +233,22 @@ type InstructionEmitter object {
             print(" ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
             println(";");
+        } else if (ins is Wait) {
+            print(tabs);
+            self.opEmitter.emitOp(ins.lhsOp);
+            print(" = ");
+            print(ins.kind, " ");
+            int i = 0;
+            foreach var expr in ins.exprList {
+                if (i != 0) {
+                    print("|");
+                }
+                if (expr is VarRef) {
+                    self.opEmitter.emitOp(expr);
+                }
+                i = i + 1;
+            }
+            println(";");
         }
     }
 };

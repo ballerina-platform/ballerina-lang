@@ -237,6 +237,21 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
+    public void visit(BIRNonTerminator.Wait wait) {
+        sb.append("\t\t");
+        wait.lhsOp.accept(this);
+        sb.append(" = ");
+        sb.append(wait.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        int i = 0;
+        wait.exprList.forEach(expr -> {
+            if (i != 0) {
+                sb.append("|");
+            }
+            expr.accept(this);
+        });
+        sb.append(";\n");
+    }
+
     // Terminating instructions
 
     public void visit(BIRTerminator.Return birReturn) {

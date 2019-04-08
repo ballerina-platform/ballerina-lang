@@ -109,6 +109,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         birMove.lhsOp.accept(this);
     }
 
+    public void visit(BIRNonTerminator.Wait waitEntry) {
+        buf.writeByte(waitEntry.kind.getValue());
+        buf.writeInt(waitEntry.exprList.size());
+        for (BIROperand expr : waitEntry.exprList) {
+            expr.accept(this);
+        }
+        waitEntry.lhsOp.accept(this);
+    }
+
     public void visit(BIRTerminator.Call birCall) {
         buf.writeByte(birCall.kind.getValue());
         PackageID calleePkg = birCall.calleePkg;

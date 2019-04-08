@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -293,6 +294,24 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation invocationExpr) {
         createCall(invocationExpr, true);
+    }
+
+    private void createWait(BLangWaitExpr waitExpr) {
+        // This only supports wait for single future and alternate wait
+        List<BIROperand> exprList = new ArrayList<>();
+
+        waitExpr.exprList.forEach(expr -> {
+            expr.accept(this);
+            exprList.add(this.env.targetOperand);
+        });
+
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+
+        emit(new BIRNonTerminator.Wait(waitExpr.pos, exprList, lhsOp));
     }
 
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
@@ -756,6 +775,10 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, this.env.trapBB);
             this.env.enclBB = this.env.trapBB;
         }
+    }
+
+    public void visit(BLangWaitExpr waitExpr) {
+        createWait(waitExpr);
     }
 
     // private methods
