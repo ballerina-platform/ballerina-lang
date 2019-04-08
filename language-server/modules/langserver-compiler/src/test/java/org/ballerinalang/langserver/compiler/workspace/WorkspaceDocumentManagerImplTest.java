@@ -128,12 +128,12 @@ public class WorkspaceDocumentManagerImplTest {
         Range range1 = new Range(new Position(19, 0), new Position(19, 0));
         Range range2 = new Range(new Position(6, 0), new Position(11, 1));
         Range range3 = new Range(new Position(6, 0), new Position(6, 0));
-        String expected1 = new String(Files.readAllBytes(expected1Path)).replace("\n", LINE_SEPARATOR);
-        String expected2 = new String(Files.readAllBytes(expected2Path)).replace("\n", LINE_SEPARATOR);
-        String expected3 = new String(Files.readAllBytes(expected3Path)).replace("\n", LINE_SEPARATOR);
-        String update1 = new String(Files.readAllBytes(update1Path)).replace("\n", LINE_SEPARATOR);
-        String update2 = new String(Files.readAllBytes(update2Path)).replace("\n", LINE_SEPARATOR);
-        String update3 = new String(Files.readAllBytes(update3Path)).replace("\n", LINE_SEPARATOR);
+        String expected1 = new String(Files.readAllBytes(expected1Path)).replaceAll("\r?\n", LINE_SEPARATOR);
+        String expected2 = new String(Files.readAllBytes(expected2Path)).replaceAll("\r?\n", LINE_SEPARATOR);
+        String expected3 = new String(Files.readAllBytes(expected3Path)).replaceAll("\r?\n", LINE_SEPARATOR);
+        String update1 = new String(Files.readAllBytes(update1Path)).replaceAll("\r?\n", LINE_SEPARATOR);
+        String update2 = new String(Files.readAllBytes(update2Path)).replaceAll("\r?\n", LINE_SEPARATOR);
+        String update3 = new String(Files.readAllBytes(update3Path)).replaceAll("\r?\n", LINE_SEPARATOR);
         documentManager.updateFileRange(docUpdatePath1, range1, update1);
         documentManager.updateFileRange(docUpdatePath2, range2, update2);
         documentManager.updateFileRange(docUpdatePath3, range3, update3);

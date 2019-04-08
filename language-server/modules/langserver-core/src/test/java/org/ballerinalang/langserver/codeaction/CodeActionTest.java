@@ -23,7 +23,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
+import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
@@ -92,16 +94,16 @@ public class CodeActionTest {
             String title = left.get("title").getAsString();
             String command = left.get("command").getAsString();
             switch (command) {
-                case CommandConstants.CMD_ADD_DOCUMENTATION:
+                case AddDocumentationExecutor.COMMAND:
                     Assert.assertEquals(title, "Document This");
                     JsonArray args = left.get("arguments").getAsJsonArray();
                     JsonArray documentThisArr = documentThis.getAsJsonArray("arguments");
                     Assert.assertTrue(TestUtil.isArgumentsSubArray(args, documentThisArr));
                     break;
-                case CommandConstants.CMD_ADD_ALL_DOC:
+                case AddAllDocumentationExecutor.COMMAND:
                     Assert.assertEquals(title, "Document All");
                     break;
-                case CommandConstants.CMD_CREATE_INITIALIZER:
+                case CreateObjectInitializerExecutor.COMMAND:
                     Assert.assertEquals(title, "Create Initializer");
                     break;
                 default:
@@ -205,6 +207,7 @@ public class CodeActionTest {
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
                 {"variableAssignmentRequiredCodeAction.json", "createVariable.bal"},
+                {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"packagePull.json", "packagePull.bal"}
         };
     }

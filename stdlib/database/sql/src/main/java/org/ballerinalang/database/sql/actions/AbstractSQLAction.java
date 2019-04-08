@@ -342,7 +342,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         BValueArray parametersNew = new BValueArray();
         int paramCount = (int) parameters.size();
         for (int i = 0; i < paramCount; ++i) {
-            BRefType typeValue = parameters.getRefValue(i);
+            BValue typeValue = parameters.getBValue(i);
             BMap<String, BValue> paramStruct;
             if (typeValue.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
                     || typeValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
