@@ -439,28 +439,6 @@ public class BCompileUtil {
         return compiler.compile(packageName);
     }
 
-    /**
-     * Compile and run a ballerina file.
-     *
-     * @param sourceFilePath Path to the ballerina file.
-     */
-    public static void run(String sourceFilePath) {
-        // TODO: improve. How to get the output
-        CompileResult result = compile(sourceFilePath);
-        ProgramFile programFile = result.getProgFile();
-
-        // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0]);
-        } else {
-            LauncherUtils.runServices(programFile);
-        }
-    }
-
     public static String readFileAsString(String path) throws IOException {
         InputStream is = ClassLoader.getSystemResourceAsStream(path);
         InputStreamReader inputStreamREader = null;

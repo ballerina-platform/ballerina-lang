@@ -64,23 +64,6 @@ public class BLangProgramRunner {
         return returnVal;
     }
 
-    public static void runService(ProgramFile programFile) {
-        if (!programFile.isServiceEPAvailable()) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // Get the service package
-        PackageInfo servicesPackage = programFile.getEntryPackage();
-        if (servicesPackage == null) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
-
-        BVMExecutor.initProgramFile(programFile);
-    }
-
     public static void resumeStates(ProgramFile programFile) {
         new Thread(new RecoveryTask(programFile)).start();
     }

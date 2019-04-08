@@ -62,7 +62,7 @@ public class ExecutorUtils {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        BLangProgramRunner.runService(programFile);
+        BLangProgramRunner.runProgram(programFile, new String[0]);
     }
 
     /**
