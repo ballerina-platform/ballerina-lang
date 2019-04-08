@@ -69,7 +69,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
-    dist 'com.h2database:h2:1.4.197'
+    dist 'com.h2database:h2:1.4.199'
     dist 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
     dist 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
     dist 'commons-io:commons-io:2.6'

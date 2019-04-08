@@ -37,7 +37,6 @@ dependencies {
     implementation project(':ballerina-launcher')
 
     testImplementation 'org.slf4j:slf4j-jdk14'
-    testImplementation 'org.slf4j:slf4j-api'
     testImplementation 'com.h2database:h2'
     testImplementation 'org.testng:testng:'
     testImplementation 'commons-io:commons-io'
