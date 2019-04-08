@@ -243,12 +243,13 @@ public class BIREmitter extends BIRVisitor {
         sb.append(" = ");
         sb.append(wait.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         int i = 0;
-        wait.exprList.forEach(expr -> {
+        for (BIROperand expr : wait.exprList) {
             if (i != 0) {
                 sb.append("|");
             }
             expr.accept(this);
-        });
+            i++;
+        }
         sb.append(";\n");
     }
 
