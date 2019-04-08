@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run --experimental xa_transactions.bal
 [ballerina/http] started HTTP/WS endpoint 172.17.0.1:53599
 Create CUSTOMER table status: 0

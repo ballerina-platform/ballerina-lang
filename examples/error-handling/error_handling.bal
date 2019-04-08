@@ -1,13 +1,15 @@
 import ballerina/io;
 
 // Define a record to represent the error details.
+// This record can have fields of types that belong to `anydata|error`.
 type AccountNotFoundErrorData record {
     int accountID;
 };
 
-// User-defined `error` types can be introduced based on the `error` type.
-// The `reason` type descriptor (a subtype of `string`), and optionally a `detail`
-// type descriptor (a subtype of `record {}` or `map<anydata>`) need to be specified.
+// User-defined `error` types can be introduced by specifying a `reason` type-descriptor
+// and optionally a `detail` type-descriptor.
+// The `reason` type descriptor should be a subtype of `string` and the `detail`
+// type descriptor should be a subtype of `record {}` or `map<anydata|error>`.
 type AccountNotFoundError error<string, AccountNotFoundErrorData>;
 
 function getAccountBalance(int accountID) returns int|AccountNotFoundError {

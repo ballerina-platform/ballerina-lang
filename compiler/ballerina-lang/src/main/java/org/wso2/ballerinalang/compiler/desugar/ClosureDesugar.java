@@ -312,7 +312,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Add block map to the 0th position if a block map symbol is there.
         if (blockNode.mapSymbol != null) {
-            BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(blockNode.pos, symTable.mapType);
+            BLangRecordLiteral emptyRecord =
+                    ASTBuilderUtil.createEmptyRecordLiteral(blockNode.pos, blockNode.mapSymbol.type);
             BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(blockNode.pos,
                     blockNode.mapSymbol.name.value, blockNode.mapSymbol.type, emptyRecord,
                     blockNode.mapSymbol);

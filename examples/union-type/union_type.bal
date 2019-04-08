@@ -5,18 +5,10 @@ function println(string|int value) {
     io:println(value);
 }
 
-// This is a custom error's detail `record`.
-type KeyNotFoundErrorRecord record {
-    string key;
-};
-
-// This is a custom error.
-type KeyNotFoundError error<string, KeyNotFoundErrorRecord>;
-
-// This function returns either a `string` or a `KeyNotFoundError`.
-function getValue(string key) returns string|KeyNotFoundError {
+// This function returns either a `string` or an `error`.
+function getValue(string key) returns string|error {
     if (key == "") {
-        KeyNotFoundError err = error("key '" + key + "' not found", {key: key});
+        error err = error("key '" + key + "' not found");
         return err;
     } else {
         return "this is a value";
@@ -31,10 +23,10 @@ public function main() {
     println(101);
 
     // This function call returns a `string` value.
-    string|KeyNotFoundError valueOrError1 = getValue("name");
+    string|error valueOrError1 = getValue("name");
     io:println(valueOrError1);
 
     // This call returns an error.
-    string|KeyNotFoundError valueOrError2 = getValue("");
+    string|error valueOrError2 = getValue("");
     io:println(valueOrError2);
 }
