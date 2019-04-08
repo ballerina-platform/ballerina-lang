@@ -20,7 +20,7 @@
  import org.ballerinalang.jvm.Strand;
 
  /**
-  * represent a Ballerina future in Java.
+  * Represent a Ballerina future in Java.
   *
   * @since 0.995.0
   */
