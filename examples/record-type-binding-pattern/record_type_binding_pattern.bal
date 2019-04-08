@@ -24,8 +24,8 @@ public function main() {
     // This record type binding pattern will destructure a `record` of type `Person` and create three variables as follows:
     // The value of the field `name` in the `Person` record will be set to a new `string` variable `firstName`.
     // The value of the field `age` in the `Person` record will be set to a new `int` variable `personAge`.
-    // `...otherDetails` is a rest parameter. Since `Person` is an open record, a new `map<anydata>` variable
-    // `otherDetails` will be created with the remaining field values that have not been matched in the record binding pattern.
+    // `...otherDetails` is a rest parameter. Since `Person` is an open record, a new `map<anydata|error>` variable
+    // `otherDetails` will be created with the remaining fields that have not been matched in the record binding pattern.
     Person { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);
@@ -46,7 +46,7 @@ public function main() {
     io:println("Name: " + vFirstName);
     // Type of `vPersonAge` is inferred as `int`.
     io:println("Age: " + vPersonAge);
-    // Type of `vOtherDetails` will be `map<anydata>`.
+    // Type of `vOtherDetails` will be `map<anydata|error>`.
     io:println("Other Details: " + io:sprintf("%s", vOtherDetails));
 
     // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`, hence
@@ -55,7 +55,8 @@ public function main() {
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 
-    // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
+    // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
+    // destructured as follows:
     var { name: countryName, capital: {| name: capitalName |} } = getCountry();
     io:println("Country Name: " + countryName);
     io:println("Capital Name: " + capitalName);
