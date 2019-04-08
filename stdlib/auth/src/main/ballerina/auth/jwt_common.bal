@@ -49,13 +49,11 @@ const string IAT = "iat";
 # + typ - Media type of the JWT
 # + cty - Content type, convey structural information about the JWT
 # + kid - Key ID, hint indicating which key was used to secure the JWS
-# + customClaims - Map of custom claims
 public type JwtHeader record {|
     JwtSigningAlgorithm alg?;
     string typ?;
     string cty?;
     string kid?;
-    map<any> customClaims?;
 |};
 
 # Represents a JWT payload.
@@ -75,5 +73,5 @@ public type JwtPayload record {|
     int exp?;
     int nbf?;
     int iat?;
-    map<any> customClaims?;
+    map<json> customClaims?;
 |};
