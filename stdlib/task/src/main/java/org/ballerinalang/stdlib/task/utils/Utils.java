@@ -41,6 +41,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MONTHS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SECONDS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_CODE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_ERROR_MESSAGE;
@@ -70,7 +71,7 @@ public class Utils {
 
     public static String getCronExpressionFromAppointmentRecord(BValue record) throws SchedulingException {
         String cronExpression;
-        if (record instanceof BMap) {
+        if (RECORD_APPOINTMENT_DATA.equals(record.getType().getName())) {
             cronExpression = buildCronExpression((BMap) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.stringValue() + "\" is invalid.");
