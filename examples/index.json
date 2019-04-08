@@ -980,11 +980,11 @@
                 "url": "artemis-anycast-session-producer"
             },
             {
-                "name": "Artemis simple MULTICAST consumer",
+                "name": "Artemis Simple MULTICAST Consumer",
                 "url": "artemis-multicast-consumer"
             },
             {
-                "name": "Artemis simple MULTICAST producer",
+                "name": "Artemis Simple MULTICAST Producer",
                 "url": "artemis-multicast-producer"
             }
         ]
