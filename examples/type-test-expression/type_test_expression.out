@@ -1,5 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command.
+$ ballerina run type_test_expression.bal
 Is 'a' a string? true
 'a' is a string with value: Hello, world!
 Alex is a student

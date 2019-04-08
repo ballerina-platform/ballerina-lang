@@ -3,4 +3,4 @@
 // record has two fields named 'attributePrefix' and 'preserveNamespaces'.
 // The 'attributePrefix' field specifies the prefix added to XML attributes/namespace keys. 
 // The default value is '@'. The 'preserveNamespaces' field specifies whether to preserve 
-// namespace prefixes during conversion.
+// the namespace prefixes during the conversion.

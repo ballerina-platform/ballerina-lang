@@ -1,7 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and execute the `ballerina run` command.
 $ ballerina run type_guard.bal
-value: value1
-value is ()
-key 'key3' not found
-Address: {company:"Ballerina", position:"CEO"}
+value is an int: 10
+value + 1: 11
+- value is string|boolean: Hello World

@@ -19,6 +19,6 @@ function testFunc() {
     // Invoking the main function.
     main();
     test:assertEquals(outputs[0], "Answer: 48");
-    test:assertEquals(outputs[1], "Answer: 63");
+    test:assertEquals(outputs[1], "Answer: 72");
     test:assertEquals(outputs[2], "Answer: 15");
 }

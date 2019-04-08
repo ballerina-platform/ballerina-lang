@@ -21,7 +21,7 @@ public function main() {
 
     foreach string animal in animals {
 
-        // The value match can also be used with binary OR expression as below
+        // The value match can also be used with binary OR expression.
         match animal {
             "Mouse" => io:println("Mouse");
             "Dog"|"Canine" => io:println("Dog");
