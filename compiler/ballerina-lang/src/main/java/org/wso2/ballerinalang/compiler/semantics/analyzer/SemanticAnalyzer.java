@@ -1261,6 +1261,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         compoundAssignment.expr,
                         compoundAssignment.opKind,
                         opSymbol);
+                compoundAssignment.modifiedExpr.parent = compoundAssignment;
                 this.types.checkTypes(compoundAssignment.modifiedExpr,
                         Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
             }
