@@ -131,6 +131,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
     bir:Function? mainFunc = getMainFunc(module.functions);
     if (mainFunc is bir:Function) {
         generateMainMethod(mainFunc, cw, module);
+        generateLambdaForMain(mainFunc, cw, module);
         manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, sourceFileName);
     }
 

@@ -30,4 +30,6 @@ public class Strand {
     public Object[] frames;
     public int resumeIndex;
     public Future future;
+    public boolean blocked;
+    public Strand blockedOn;
 }
