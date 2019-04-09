@@ -95,7 +95,7 @@ under the License.
                     <exclude name="testOptionalArgsInNativeFunc" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.functions.AnonymousObjectTest" />
+            <class name="org.ballerinalang.test.object.AnonymousObjectTest" />
         </classes>
     </test>
 </suite>
