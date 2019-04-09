@@ -306,9 +306,6 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
      */
     @Override
     public synchronized void attemptFreeze(Status freezeStatus) {
-        if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
-        }
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
             super.values().forEach(val -> {

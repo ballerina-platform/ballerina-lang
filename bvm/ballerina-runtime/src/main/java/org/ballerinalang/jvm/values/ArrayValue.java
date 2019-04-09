@@ -542,14 +542,10 @@ public class ArrayValue implements RefValue {
             return;
         }
         this.freezeStatus = freezeStatus;
-        if (elementType == null || !(elementType.getTag() == TypeTags.INT_TAG ||
-                elementType.getTag() == TypeTags.STRING_TAG || elementType.getTag() == TypeTags.BOOLEAN_TAG ||
-                elementType.getTag() == TypeTags.FLOAT_TAG || elementType.getTag() == TypeTags.BYTE_TAG)) {
+        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object refValue = this.getRefValue(i);
-                if (refValue instanceof RefValue) {
-                    ((RefValue) refValue).attemptFreeze(freezeStatus);
-                }
+                ((RefValue) refValue).attemptFreeze(freezeStatus);
             }
         }
     }
