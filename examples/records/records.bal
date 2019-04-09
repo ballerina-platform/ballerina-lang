@@ -1,12 +1,17 @@
 import ballerina/io;
 
+// This defines an open record type named `Student` which in addition to the fields defined here, allows additional
+// `string` fields.
 type Student record {
     string name;
     int age;
     Grades grades;
+    // This is a `string` typed rest field. All additional fields should be of the rest field's type or a subtype of it.
+    // In the absence of an explicit rest field, an implicit rest field of type `anydata|error` is assumed.
     string...;
 };
 
+// This defines a closed record type named `Grades`. Closed records are defined using the `{|` and `|}` delimiters.
 type Grades record {|
     int maths;
     int physics;
@@ -21,17 +26,17 @@ public function main() {
                     grades: {maths: 80, physics: 75, chemistry: 65}};
     io:println(john);
 
-    // This is an example of field-based access of `record` fields. The return type of this expression is the
+    // This is an example of field-based access of record fields. The return type of this expression is the
     // type of the field. If it is an open record and the specified key is not present in the record at run time,
-    // it will result in a `panic`. If it is a closed `record`, accessing an undefined key will result in a compilation error.
+    // it will result in a `panic`. If it is a closed record, accessing an undefined key will result in a compilation error.
     io:println(john.name);
 
-    // This is an example of index-based access of `record` fields. The return type of this expression is `T?`, where
-    // `T` is the type of the field. If it is an open `record` and the specified key is not present in the `record` at run time,
-    // `()` will be returned. If it is a closed `record`, accessing an undefined key will result in a compilation error.
+    // This is an example of index-based access of record fields. The return type of this expression is `T?`, where
+    // `T` is the type of the field. If it is an open record and the specified key is not present in the record at run time,
+    // `()` will be returned. If it is a closed record, accessing an undefined key will result in a compilation error.
     io:println(john["name"]);
 
-    // This fetches a field of a nested `record`.
+    // This fetches a field of a nested record.
     io:println(john.grades.maths);
 
     Student peter = {name: "Peter", age: 19,
@@ -43,7 +48,7 @@ public function main() {
     io:println(john);
 
     // This adds an additional field not defined in the record type descriptor above.
-    // Note that an attempt to add additional fields to a closed `record` results in compile errors.
+    // Note that an attempt to add additional fields to a closed record results in compile errors.
     // e.g., `peter.grades.ict = 77;` will result in a compile error.
     peter.department = "Computer Science";
     io:println(peter);

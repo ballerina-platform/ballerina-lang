@@ -1,3 +1,0 @@
-// In Ballerina, objects can have functions attached to them. These functions can be defined inside of
-// the object or outside of the object. To define a function outside of the object, first declare the
-// function signature inside the object.
