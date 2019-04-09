@@ -336,7 +336,7 @@ public type HttpSecureClient client object {
 # + return - Created secure HTTP client
 public function createHttpSecureClient(string url, ClientEndpointConfig config) returns Client|error {
     HttpSecureClient httpSecureClient;
-    if (config.auth is AuthConfig) {
+    if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
         return httpSecureClient;
     } else {
@@ -354,7 +354,7 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 # `error` if an error occurred during the HTTP client invocation
 function generateSecureRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns boolean|error {
     var auth = config.auth;
-    if (auth is AuthConfig) {
+    if (auth is OutboundAuthConfig) {
         var authConfig = auth["config"];
         if (auth.scheme == BASIC_AUTH) {
             if (authConfig is BasicAuthConfig) {
@@ -906,7 +906,7 @@ function updateTokenCache(json responsePayload, CachedToken tokenCache, int cloc
 function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConfig config) returns boolean {
     if (retryRequired && res.statusCode == UNAUTHORIZED_401) {
         var auth = config.auth;
-        if (auth is AuthConfig) {
+        if (auth is OutboundAuthConfig) {
             var authConfig = auth.config;
             if (auth.scheme == OAUTH2 && authConfig is OAuth2AuthConfig) {
                 var grantType = authConfig.grantType;
@@ -935,7 +935,7 @@ function isRetryRequired(boolean retryRequired, Response res, ClientEndpointConf
 # + return - Returns `error` if an error occurred during the HTTP client invocation
 function updateRequest(Request req, ClientEndpointConfig config, CachedToken tokenCache) returns error? {
     var auth = config.auth;
-    if (auth is AuthConfig) {
+    if (auth is OutboundAuthConfig) {
         var authConfig = auth.config;
         if (authConfig is OAuth2AuthConfig) {
             string authToken;
