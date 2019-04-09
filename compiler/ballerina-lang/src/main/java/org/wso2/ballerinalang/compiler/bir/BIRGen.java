@@ -196,14 +196,10 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // Create variable declaration for function params
-        for (BLangVariable requiredParam : astFunc.requiredParams) {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(requiredParam.pos, requiredParam.symbol.type,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
-            birFunc.localVars.add(birVarDcl);
-
-            // We maintain a mapping from variable symbol to the bir_variable declaration.
-            // This is required to pull the correct bir_variable declaration for variable references.
-            this.env.symbolVarMap.put(requiredParam.symbol, birVarDcl);
+        astFunc.requiredParams.forEach(requiredParam -> addParam(birFunc, requiredParam));
+        astFunc.defaultableParams.forEach(defaultableParam -> addParam(birFunc, defaultableParam.var));
+        if (astFunc.restParam != null) {
+            addParam(birFunc, astFunc.restParam);
         }
 
         // Create the entry basic block
@@ -222,6 +218,16 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.clear();
     }
 
+    private void addParam(BIRFunction birFunc, BLangVariable requiredParam) {
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(requiredParam.pos, requiredParam.symbol.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG);
+        birFunc.localVars.add(birVarDcl);
+
+        // We maintain a mapping from variable symbol to the bir_variable declaration.
+        // This is required to pull the correct bir_variable declaration for variable references.
+        this.env.symbolVarMap.put(requiredParam.symbol, birVarDcl);
+    }
+
 
     // Statements
 
@@ -233,7 +239,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Due to the current algorithm, some basic blocks will not contain any instructions or a terminator.
         // These basic blocks will be remove by the optimizer, but for now just add a return terminator
         BIRBasicBlock enclBB = this.env.enclBB;
-        if (enclBB.instructions.size() == 0 && enclBB.terminator == null) {
+        if (enclBB.instructions.size() == 0 && enclBB.terminator == null && this.env.returnBB != null) {
             enclBB.terminator = new BIRTerminator.GOTO(null, this.env.returnBB);
         }
     }
@@ -309,23 +315,15 @@ public class BIRGen extends BLangNodeVisitor {
             args.add(this.env.targetOperand);
         }
 
-        //TODO: We unroll this array for now because LLVM side can't handle arrays yet, remove this later
+        for (BLangExpression namedArg : invocationExpr.namedArgs) {
+            namedArg.accept(this);
+            args.add(this.env.targetOperand);
+        }
+
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
-            if (arg instanceof BLangArrayLiteral) {
-                BLangArrayLiteral arrArg = (BLangArrayLiteral) arg;
-                List<BLangExpression> exprs = arrArg.exprs;
-                for (BLangExpression expr : exprs) {
-                    if (expr instanceof BLangTypeConversionExpr) {
-                        BLangExpression innerExpr = ((BLangTypeConversionExpr) expr).expr;
-                        innerExpr.accept(this);
-                        args.add(this.env.targetOperand);
-                    } else {
-                        expr.accept(this);
-                        args.add(this.env.targetOperand);
-                    }
-                }
-            }
+            arg.accept(this);
+            args.add(this.env.targetOperand);
         }
 
         BIROperand lhsOp = null;
@@ -659,20 +657,33 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangLocalVarRef astVarRefExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
+        BSymbol varSymbol = astVarRefExpr.symbol;
 
         if (variableStore) {
-            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+            BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(varSymbol));
             emit(new Move(astVarRefExpr.pos, this.env.targetOperand, varRef));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astVarRefExpr.type,
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
-            BIROperand fromVarRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+
+            BIRVariableDcl varDecl;
+            if (isSelfVar(varSymbol)) {
+                varDecl = new BIRVariableDcl(varSymbol.type, varSymbol.name, VarScope.FUNCTION, VarKind.SELF);
+            } else {
+                varDecl = this.env.symbolVarMap.get(varSymbol);
+            }
+            BIROperand fromVarRef = new BIROperand(varDecl);
+
             emit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
+    }
+
+    private boolean isSelfVar(BSymbol symbol) {
+        return Names.SELF.equals(symbol.name);
     }
 
     public void visit(BLangPackageVarRef astPackageVarRefExpr) {
@@ -914,7 +925,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void generateMappingAccess(BLangIndexBasedAccess astIndexBasedAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
-
+        InstructionKind insKind;
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -924,8 +935,13 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, InstructionKind.MAP_STORE,
-                    varRefRegIndex, keyRegIndex, rhsOp));
+            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+                insKind = InstructionKind.OBJECT_STORE;
+            } else {
+                insKind = InstructionKind.MAP_STORE;
+            }
+            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
+                    rhsOp));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);
@@ -938,8 +954,13 @@ public class BIRGen extends BLangNodeVisitor {
             astIndexBasedAccessExpr.indexExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
 
-            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
-                    keyRegIndex, varRefRegIndex));
+            if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+                insKind = InstructionKind.OBJECT_LOAD;
+            } else {
+                insKind = InstructionKind.MAP_LOAD;
+            }
+            emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
+                    varRefRegIndex));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;

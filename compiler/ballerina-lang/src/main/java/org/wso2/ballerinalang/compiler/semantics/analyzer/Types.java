@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -1791,7 +1792,12 @@ public class Types {
                 }
                 break;
             case TypeTags.FLOAT:
-                double baseDoubleVal = Double.parseDouble(String.valueOf(baseValue));
+                String baseValueStr = String.valueOf(baseValue);
+                String originalValue = baseLiteral.originalValue != null ? baseLiteral.originalValue : baseValueStr;
+                if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
+                    return false;
+                }
+                double baseDoubleVal = Double.parseDouble(baseValueStr);
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDoubleVal = ((Long) candidateValue).doubleValue();
@@ -1802,14 +1808,17 @@ public class Types {
                 }
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal baseDecimalVal = new BigDecimal(String.valueOf(baseValue), MathContext.DECIMAL128);
+                BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
                 BigDecimal candidateDecimalVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
                         candidateTypeTag == TypeTags.DECIMAL) {
-                    candidateDecimalVal = new BigDecimal(String.valueOf(candidateValue), MathContext.DECIMAL128);
+                    if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {
+                        return false;
+                    }
+                    candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                 }
                 break;

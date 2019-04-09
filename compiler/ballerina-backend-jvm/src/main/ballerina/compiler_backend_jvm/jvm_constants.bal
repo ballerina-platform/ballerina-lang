@@ -226,6 +226,7 @@ const string FUTURE_VALUE = "org/ballerinalang/jvm/Strand";
 const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
+const string STRAND = "org/ballerinalang/jvm/Strand";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
