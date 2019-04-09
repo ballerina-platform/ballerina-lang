@@ -63,7 +63,7 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     }
 
     private void setUpDatabase() throws SQLException {
-        String baseDir = System.getProperty("ballerina.home");
+        String baseDir = System.getProperty("libdir");
         String dbDirectory = Paths.get(baseDir, "tempdb")
                 .toAbsolutePath().toString() + File.separator;
         String dbScriptPath = Paths
