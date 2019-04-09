@@ -106,7 +106,7 @@
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
-            <!-- <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/> -->
+            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
             <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
             <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
@@ -128,7 +128,7 @@
 
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
-            <!-- <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/> -->
+             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
         </classes>
     </test>
@@ -186,7 +186,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
-            <!-- <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/> -->
+            <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ByteArrayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
@@ -262,7 +262,7 @@
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-            <!-- <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/> -->
+            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
@@ -274,9 +274,9 @@
 
     <test name="artemis-test" parallel="false">
         <classes>
-            <!-- <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons" /> -->
-            <!-- <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest" /> -->
-            <!-- <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest" /> -->
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
         </classes>
     </test>
 </suite>

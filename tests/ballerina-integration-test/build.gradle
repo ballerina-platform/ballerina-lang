@@ -100,7 +100,7 @@ test {
     maxParallelForks = 1
     forkEvery=100
     systemProperty 'basedir', "$buildDir"
-    systemProperty 'ballerina.home', "$buildDir"
+    systemProperty 'libdir', "$buildDir"
     systemProperty 'server.zip', configurations.ballerina.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
