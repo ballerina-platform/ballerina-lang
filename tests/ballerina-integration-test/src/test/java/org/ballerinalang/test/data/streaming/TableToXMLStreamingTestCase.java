@@ -63,9 +63,8 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     }
 
     private void setUpDatabase() throws SQLException {
-        // TODO: Remove use of "target" directory once maven build is removed
-        String baseDir = System.getProperty("basedir");
-        String dbDirectory = Paths.get(baseDir.contains("build") ? baseDir : "target", "tempdb")
+        String baseDir = System.getProperty("ballerina.home");
+        String dbDirectory = Paths.get(baseDir, "tempdb")
                 .toAbsolutePath().toString() + File.separator;
         String dbScriptPath = Paths
                 .get("data", "streaming", "datafiles", "streaming_test_data.sql").toString();
