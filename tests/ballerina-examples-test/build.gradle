@@ -56,7 +56,7 @@ task test {
     mustRunAfter ':ballerina-integration-test:test'
     dependsOn ballerinaInit
     
-    outputs.dir("${distPath}/examples/taget")
+    outputs.dir("${distPath}/examples/target")
     outputs.cacheIf{ true }
 
     inputs.files("${distPath}/examples")
