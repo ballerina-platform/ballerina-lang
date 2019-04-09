@@ -81,7 +81,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module, false);
+        generateMethod(getFunction(func), cw, module);
     }
 
     cw.visitEnd();
@@ -136,7 +136,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module, false);
+        generateMethod(getFunction(func), cw, module);
     }
 
     foreach var (k,v) in lambdas {

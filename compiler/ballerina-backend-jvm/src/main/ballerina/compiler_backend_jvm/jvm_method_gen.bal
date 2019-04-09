@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, boolean isAttachedFunction) {
+function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
 
     string currentPackageName = getPackageName(module.org.value, module.name.value);
 
@@ -27,7 +27,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
     int access = ACC_PUBLIC;
     int localVarOffset;
-    if (isAttachedFunction) {
+    if !(attachedType is ()) {
         localVarOffset = 1;
 
         // add the self as the first local var
@@ -252,7 +252,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         j += 1;
     }
 
-    var frameName = currentPackageName + funcName + "Frame";
+    string frameName = getFrameClassName(currentPackageName, currentPackageName, attachedType);
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
@@ -839,15 +839,16 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, func, pkgEntries);
+                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=typeDef.typeValue);
             }
         }
     }
 }
 
-function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries) {
-    var currentFunc = getFunction(untaint func);
-    var frameClassName = pkgName + cleanupFunctionName(currentFunc.name.value) + "Frame";
+function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
+                                        bir:BType? attachedType = ()) {
+    bir:Function currentFunc = getFunction(untaint func);
+    string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw);
@@ -867,6 +868,20 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
 
     cw.visitEnd();
     pkgEntries[frameClassName + ".class"] = cw.toByteArray();
+}
+
+function getFrameClassName(string pkgName, string funcName, bir:BType attachedType) returns string {
+    string frameClassName = pkgName;
+    if (attachedType is bir:BObjectType) {
+        frameClassName += cleanupTypeName(attachedType.name.value) + "/";
+    }
+
+    return frameClassName + cleanupFunctionName(funcName) + "Frame";
+}
+
+# Cleanup type name by replacing '$' with '_'.
+function cleanupTypeName(string name) returns string {
+    return name.replace("$","_");
 }
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
