@@ -24,7 +24,7 @@ public type DummyObject abstract object {
     #              `doThatOnObject` function.
     # + return - This is the description for the return value of
     #            `doThatOnObject` function.
-    public function doThatOnObject(string paramOne) returns (boolean);
+    public function doThatOnObject(string paramOne) returns boolean;
 };
 
 // This is the documentation attachment for the `DummyRecord` record.

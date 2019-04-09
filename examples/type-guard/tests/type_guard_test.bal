@@ -10,16 +10,20 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+    foreach var value in s {
+        outputs[counter] = value;
+        counter += 1;
+    }
 }
 
 @test:Config
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "value: value1");
-    test:assertEquals(outputs[1], "value is ()");
-    test:assertEquals(outputs[2], "key 'key3' not found");
-    test:assertEquals(outputs[3], "Address: {company:\"Ballerina\", position:\"CEO\"}");
+    test:assertEquals(outputs[0], "value is an int: ");
+    test:assertEquals(outputs[1], 10);
+    test:assertEquals(outputs[2], "value + 1: ");
+    test:assertEquals(outputs[3], 11);
+    test:assertEquals(outputs[4], "- value is string|boolean: ");
+    test:assertEquals(outputs[5], "Hello World");
 }

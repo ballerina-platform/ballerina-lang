@@ -58,7 +58,7 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(LSContext ctx) {
+    public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
         if (ctx == null) {
             return null;
         }

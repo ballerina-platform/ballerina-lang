@@ -79,7 +79,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinElseIf.json", "function"},
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
-                {"completionWithinTransaction.json", "function"},
+//                {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},

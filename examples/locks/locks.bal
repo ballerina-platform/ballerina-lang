@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Shared counter variable among multiple workers.
+// The `counter` variable will be shared among multiple workers.
 int counter = 0;
 
 public function main() {
@@ -10,29 +10,28 @@ public function main() {
 }
 
 type Counter object {
-    //Shared field among same object instances.
     int count = 0;
 
     public function update() {
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the field variable and increment the count.
-                // The `count` field of same object instance is locked.
+                // Lock the `count` field variable and increment the `count`.
+                // The `count` field of the same object instance will be locked.
                 self.count = self.count + 1;
             }
         }
     }
 };
-// Shared object instance among multiple workers.
+// The `counterObj` object instance will be shared among multiple workers.
 Counter counterObj = new;
 
 function process() {
     worker w1 {
         counterObj.update();
-        // Lock the shared variable and increment the counter.
+        // Lock the shared `counter` variable and increment the `counter`.
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared variable and increment the counter.
+                // Lock the shared `counter` variable and increment the `counter`.
                 counter = counter + 1;
             }
         }
@@ -41,7 +40,7 @@ function process() {
         counterObj.update();
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared variable and increment the counter.
+                // Lock the shared `counter` variable and increment the `counter`.
                 counter = counter + 1;
             }
         }
@@ -50,7 +49,7 @@ function process() {
         counterObj.update();
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared variable and increment the counter.
+                // Lock the shared `counter` variable and increment the `counter`.
                 counter = counter + 1;
             }
         }
@@ -59,11 +58,11 @@ function process() {
         counterObj.update();
         foreach var i in 1 ... 1000 {
             lock {
-                // Lock the shared variable and increment the counter.
+                // Lock the shared `counter` variable and increment the `counter`.
                 counter = counter + 1;
             }
         }
     }
-    // Wait for all workers to complete
+    // Wait for all workers to complete.
     var result = wait {w1,w2,w3,w4};
 }

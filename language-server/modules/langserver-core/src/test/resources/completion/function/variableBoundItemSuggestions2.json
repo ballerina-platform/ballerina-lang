@@ -18,7 +18,7 @@
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "map(function(string value) returns (any) {\n\t${1}\n})",
+      "insertText": "map(function (string value) returns any {\n\t${1}\n})",
       "insertTextFormat": "Snippet"
     },
     {

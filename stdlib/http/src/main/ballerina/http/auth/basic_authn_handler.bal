@@ -28,6 +28,7 @@ const string AUTH_CACHE = "basic_auth_cache";
 # + name - Authentication handler name
 # + authStoreProvider - AuthStoreProvider instance
 public type HttpBasicAuthnHandler object {
+
     public string name = "basic";
     public auth:AuthStoreProvider authStoreProvider = new;
 

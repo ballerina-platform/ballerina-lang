@@ -1,4 +1,4 @@
 // Ballerina locks are used for concurrency management. The encapsulating block of statements will acquire
 // the locks for each global or service level variable reference that is used within the block or for any
 // field access of an object or a record. When there is nested field access (Eg: record within a record)
-// all the filed accesses will be locked.
+// all the field accesses of the records will be locked.

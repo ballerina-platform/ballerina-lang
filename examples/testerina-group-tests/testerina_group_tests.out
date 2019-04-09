@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 # Note that you need to have the ballerina-tools distribution
 # installed in order to run this command.
 $ ballerina test testerina_group_tests.bal --groups g1 --groups g2
