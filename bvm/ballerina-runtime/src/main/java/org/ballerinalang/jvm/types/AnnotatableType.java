@@ -40,6 +40,6 @@ public abstract class AnnotatableType extends BType {
 
     public MapValue getAnnotation(String pkgPath, String name) {
         String key = pkgPath + ":" + name;
-        return annotations.get(key);
+        return this.annotations.get(key);
     }
 }
