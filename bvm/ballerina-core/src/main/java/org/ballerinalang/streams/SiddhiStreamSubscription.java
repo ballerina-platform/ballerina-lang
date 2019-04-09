@@ -42,8 +42,8 @@ public class SiddhiStreamSubscription extends StreamSubscription {
     private final InputHandler inputHandler;
 
     SiddhiStreamSubscription(BStream stream, InputHandler inputHandler,
-                             StreamSubscrptionManager streamSubscrptionManager) {
-        super(streamSubscrptionManager);
+                             StreamSubscriptionManager streamSubscriptionManager) {
+        super(streamSubscriptionManager);
         this.stream = stream;
         this.inputHandler = inputHandler;
     }

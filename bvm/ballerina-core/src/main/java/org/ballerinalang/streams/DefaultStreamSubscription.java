@@ -38,8 +38,8 @@ public class DefaultStreamSubscription extends StreamSubscription {
     private BFunctionPointer functionPointer;
 
     DefaultStreamSubscription(BStream stream, BFunctionPointer functionPointer,
-                              StreamSubscrptionManager streamSubscrptionManager) {
-        super(streamSubscrptionManager);
+                              StreamSubscriptionManager streamSubscriptionManager) {
+        super(streamSubscriptionManager);
         this.stream = stream;
         this.functionPointer = functionPointer;
     }

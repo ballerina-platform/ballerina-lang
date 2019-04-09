@@ -24,7 +24,7 @@ import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
-import org.ballerinalang.streams.StreamSubscrptionManager;
+import org.ballerinalang.streams.StreamSubscriptionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class BStream implements BRefType<Object> {
 
     private String streamId = "";
 
-    private StreamSubscrptionManager streamSubscrptionManager;
+    private StreamSubscriptionManager streamSubscriptionManager;
 
     /**
      * The name of the underlying broker topic representing the stream object.
@@ -57,7 +57,7 @@ public class BStream implements BRefType<Object> {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw new BallerinaException("a stream cannot be declared without a constraint");
         }
-        this.streamSubscrptionManager = StreamSubscrptionManager.getInstance();
+        this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         if (constraintType instanceof BIndexedType) {
@@ -115,7 +115,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("incompatible types: value of type:" + dataType
                     + " cannot be added to a stream of type:" + this.constraintType);
         }
-        streamSubscrptionManager.sendMessage(this, data);
+        streamSubscriptionManager.sendMessage(this, data);
     }
 
     /**
@@ -131,7 +131,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
                                                  + " accepting:" + this.constraintType);
         }
-        streamSubscrptionManager.registerMessageProcessor(this, functionPointer);
+        streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
 
     public void subscribe(InputHandler inputHandler) {
@@ -139,6 +139,6 @@ public class BStream implements BRefType<Object> {
                 && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaException("Streaming Support is only available with streams accepting objects");
         }
-        streamSubscrptionManager.registerMessageProcessor(this, inputHandler);
+        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
     }
 }

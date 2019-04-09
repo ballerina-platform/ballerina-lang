@@ -32,33 +32,37 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * The {@link StreamSubscrptionManager} manages the streams subscriptions. It is responsible for registering
+ * The {@link StreamSubscriptionManager} manages the streams subscriptions. It is responsible for registering
  * subscriptions for streams and sending events to correct stream through the subscription.
  *
  * @since 0.995.0
  */
-public class StreamSubscrptionManager implements Observer {
+public class StreamSubscriptionManager implements Observer {
 
     private Map<String, List<StreamSubscription>> processors = new HashMap<>();
 
-    private static StreamSubscrptionManager streamSubscrptionManager = new StreamSubscrptionManager();
+    private static StreamSubscriptionManager streamSubscriptionManager = new StreamSubscriptionManager();
 
-    private StreamSubscrptionManager() {
+    private StreamSubscriptionManager() {
 
     }
 
-    public static StreamSubscrptionManager getInstance() {
-        return streamSubscrptionManager;
+    public static StreamSubscriptionManager getInstance() {
+        return streamSubscriptionManager;
     }
 
     public void registerMessageProcessor(BStream stream,  BFunctionPointer functionPointer) {
-        processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>());
-        processors.get(stream.topicName).add(new DefaultStreamSubscription(stream, functionPointer, this));
+        synchronized (this) {
+            processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
+                    .add(new DefaultStreamSubscription(stream, functionPointer, this));
+        }
     }
 
     public void registerMessageProcessor(BStream stream, InputHandler inputHandler) {
-        processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>());
-        processors.get(stream.topicName).add(new SiddhiStreamSubscription(stream, inputHandler, this));
+        synchronized (this) {
+            processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
+                    .add(new SiddhiStreamSubscription(stream, inputHandler, this));
+        }
 
     }
 
