@@ -173,7 +173,7 @@ function checkCast(jvm:MethodVisitor mv, bir:BType targetType) {
 
 function getTargetClass(bir:BType sourceType, bir:BType targetType) returns string {
     string targetTypeClass = "";
-    if (targetType is bir:BArrayType) {
+    if (targetType is bir:BArrayType || targetType is bir:BTupleType) {
         targetTypeClass = ARRAY_VALUE;
     } else if (targetType is bir:BMapType) {
         targetTypeClass = MAP_VALUE;

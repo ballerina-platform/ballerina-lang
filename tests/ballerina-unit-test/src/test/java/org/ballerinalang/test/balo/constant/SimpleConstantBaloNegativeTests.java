@@ -56,11 +56,11 @@ public class SimpleConstantBaloNegativeTests {
                 offset += 7, 28);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
                 offset += 9, 26);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0f', found 'float'",
                 offset += 9, 27);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0f', found 'float'",
                 offset += 7, 30);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0', found 'float'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0d', found 'float'",
                 offset += 9, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
                 " 'string'", offset += 9, 28);

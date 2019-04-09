@@ -40,7 +40,7 @@ function testOptionalTypeDescriptors() {
     test:assertEquals(msn.one, sv, msg = "expected value to be the assigned value");
     test:assertEquals(msn.two, (), msg = "expected value to be the assigned value");
 
-    utils:assertPanic(function () { anyMap["three"] = <decimal> 1.0; },
+    utils:assertPanic(function () { anyMap["three"] = 1.0d; },
                       "{ballerina}InherentTypeViolation",
                       "invalid error on inherent type violating map insertion");
 }

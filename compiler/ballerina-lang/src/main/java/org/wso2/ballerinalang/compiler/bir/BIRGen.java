@@ -315,23 +315,15 @@ public class BIRGen extends BLangNodeVisitor {
             args.add(this.env.targetOperand);
         }
 
-        //TODO: We unroll this array for now because LLVM side can't handle arrays yet, remove this later
+        for (BLangExpression namedArg : invocationExpr.namedArgs) {
+            namedArg.accept(this);
+            args.add(this.env.targetOperand);
+        }
+
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
-            if (arg instanceof BLangArrayLiteral) {
-                BLangArrayLiteral arrArg = (BLangArrayLiteral) arg;
-                List<BLangExpression> exprs = arrArg.exprs;
-                for (BLangExpression expr : exprs) {
-                    if (expr instanceof BLangTypeConversionExpr) {
-                        BLangExpression innerExpr = ((BLangTypeConversionExpr) expr).expr;
-                        innerExpr.accept(this);
-                        args.add(this.env.targetOperand);
-                    } else {
-                        expr.accept(this);
-                        args.add(this.env.targetOperand);
-                    }
-                }
-            }
+            arg.accept(this);
+            args.add(this.env.targetOperand);
         }
 
         BIROperand lhsOp = null;
