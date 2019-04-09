@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BObjectType;
 
 /**
  * Interface to be implemented by all the ballerina objects.
@@ -28,7 +29,27 @@ public interface ObjectValue extends RefValue {
 
     Object call(Strand strand, String funcName, Object... args);
 
+    BObjectType getType();
+
     Object get(String fieldName);
+
+    long getIntValue(String fieldName);
+
+    double getFloatValue(String fieldName);
+
+    String getStringValue(String fieldName);
+
+    boolean getBooleanValue(String fieldName);
+
+    MapValue getMapValue(String fieldName);
+
+    ObjectValue getObjectValue(String fieldName);
+
+    ArrayValue getArrayValue(String fieldName);
+
+    void addNativeData(String key, Object data);
+
+    Object getNativeData(String key);
 
     void set(String fieldName, Object value);
 }
