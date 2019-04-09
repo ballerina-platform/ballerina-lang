@@ -873,7 +873,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
 function getFrameClassName(string pkgName, string funcName, bir:BType attachedType) returns string {
     string frameClassName = pkgName;
     if (attachedType is bir:BObjectType) {
-        frameClassName += cleanupTypeName(attachedType.name.value) + "/";
+        frameClassName += cleanupTypeName(attachedType.name.value) + "_";
     }
 
     return frameClassName + cleanupFunctionName(funcName) + "Frame";
