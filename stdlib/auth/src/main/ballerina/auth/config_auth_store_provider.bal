@@ -22,8 +22,7 @@ import ballerina/runtime;
 const string CONFIG_USER_SECTION = "b7a.users";
 
 # Represents configurations that required for Config auth store.
-#
-public type ConfigAuthProviderConfig record {|
+public type ConfigAuthStoreProviderConfig record {|
 |};
 
 # Represents Ballerina configuration file based auth store provider.
@@ -31,13 +30,13 @@ public type ConfigAuthProviderConfig record {|
 # + configAuthProviderConfig - Config auth store configurations
 public type ConfigAuthStoreProvider object {
 
-    public ConfigAuthProviderConfig configAuthProviderConfig;
+    public ConfigAuthStoreProviderConfig configAuthStoreProviderConfig;
 
     # Create an Config auth store with the given configurations.
     #
     # + configAuthProviderConfig -  Config auth store configurations
-    public function __init(ConfigAuthProviderConfig configAuthProviderConfig) {
-        self.configAuthProviderConfig = configAuthProviderConfig;
+    public function __init(ConfigAuthStoreProviderConfig configAuthStoreProviderConfig) {
+        self.configAuthStoreProviderConfig = configAuthStoreProviderConfig;
     }
 
     # Attempts to authenticate with username and password.

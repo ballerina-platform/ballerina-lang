@@ -16,7 +16,7 @@
 
 # Represents the auth store provider. Any type of implementation, such as
 # LDAP, JDBC, file based, etc. should be object-wise similar
-public type AuthStoreProvider object {
+public type AuthProvider object {
 
     # Authenticate with username and password
     #
@@ -32,11 +32,11 @@ public type AuthStoreProvider object {
     public function getScopes(string username) returns string[];
 };
 
-public function AuthStoreProvider.authenticate(string username, string password) returns boolean {
+public function AuthProvider.authenticate(string username, string password) returns boolean {
     return true;
 }
 
-public function AuthStoreProvider.getScopes(string username) returns string[] {
+public function AuthProvider.getScopes(string username) returns string[] {
     string[] val = [];
     return val;
 }

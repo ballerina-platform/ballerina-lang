@@ -41,7 +41,7 @@ import ballerina/runtime;
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
-public type LdapAuthProviderConfig record {|
+public type LdapAuthStoreProviderConfig record {|
     string domainName;
     string connectionURL;
     string connectionName;
@@ -76,19 +76,19 @@ public type SecureClientSocket record {|
 
 # Represents Ballerina configuration for LDAP based auth store provider
 #
-# + ldapAuthProviderConfig - LDAP auth store configurations
+# + ldapAuthStoreProviderConfig - LDAP auth store configurations
 # + instanceId - Endpoint instance id
 public type LdapAuthStoreProvider object {
 
-    public LdapAuthProviderConfig ldapAuthProviderConfig;
+    public LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig;
     public string instanceId;
 
     # Create an LDAP auth store with the given configurations.
     #
-    # + ldapAuthProviderConfig -  LDAP auth store configurations
+    # + ldapAuthStoreProviderConfig -  LDAP auth store configurations
     # + instanceId - Endpoint instance id
-    public function __init(LdapAuthProviderConfig ldapAuthProviderConfig, string instanceId) {
-        self.ldapAuthProviderConfig = ldapAuthProviderConfig;
+    public function __init(LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig, string instanceId) {
+        self.ldapAuthStoreProviderConfig = ldapAuthStoreProviderConfig;
         self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
     }
@@ -102,7 +102,7 @@ public type LdapAuthStoreProvider object {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
+            principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             principal.username = username;
         }

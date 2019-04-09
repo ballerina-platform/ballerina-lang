@@ -80,7 +80,7 @@ public type JWTAuthProvider object {
         }
     }
 
-    function authenticateFromCache(string jwtToken) returns JwtPayload|() {
+    function authenticateFromCache(string jwtToken) returns JwtPayload? {
         var cachedJwt = trap <CachedJwt>self.jwtAuthProviderConfig.jwtCache.get(jwtToken);
         if (cachedJwt is CachedJwt) {
             // convert to current time and check the expiry time
@@ -94,7 +94,6 @@ public type JWTAuthProvider object {
                 self.jwtAuthProviderConfig.jwtCache.remove(jwtToken);
             }
         }
-        return ();
     }
 
     function addToAuthenticationCache(string jwtToken, int exp, JwtPayload payload) {
