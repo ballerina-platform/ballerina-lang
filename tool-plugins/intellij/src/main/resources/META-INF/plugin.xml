@@ -10,8 +10,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Ballerina code folding support.</li>
-        <li>Spellchecking support.</li>
+        <li>Improved performance, stability and reduced plugin size with “Lsp4IntelliJ” language client support.</li>
+        <li>Ballerina language server based code formatting.</li>
         <li>Minor bug fixes and improvements.</li>
       </ul>
     ]]>
