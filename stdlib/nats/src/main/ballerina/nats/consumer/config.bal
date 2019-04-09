@@ -30,4 +30,4 @@ public type ConsumerConfigData record {|
 |};
 
 # Service descriptor data generated at compile time. This is for internal use.
-public annotation <service> ConsumerConfig ConsumerConfigData;
+public annotation ConsumerConfigData ConsumerConfig on service;

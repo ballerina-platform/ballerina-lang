@@ -298,6 +298,46 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#dualAttachPoint}.
+	 * @param ctx the parse tree
+	 */
+	void enterDualAttachPoint(BallerinaParser.DualAttachPointContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#dualAttachPoint}.
+	 * @param ctx the parse tree
+	 */
+	void exitDualAttachPoint(BallerinaParser.DualAttachPointContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#dualAttachPointIdent}.
+	 * @param ctx the parse tree
+	 */
+	void enterDualAttachPointIdent(BallerinaParser.DualAttachPointIdentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#dualAttachPointIdent}.
+	 * @param ctx the parse tree
+	 */
+	void exitDualAttachPointIdent(BallerinaParser.DualAttachPointIdentContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#sourceOnlyAttachPoint}.
+	 * @param ctx the parse tree
+	 */
+	void enterSourceOnlyAttachPoint(BallerinaParser.SourceOnlyAttachPointContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#sourceOnlyAttachPoint}.
+	 * @param ctx the parse tree
+	 */
+	void exitSourceOnlyAttachPoint(BallerinaParser.SourceOnlyAttachPointContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#sourceOnlyAttachPointIdent}.
+	 * @param ctx the parse tree
+	 */
+	void enterSourceOnlyAttachPointIdent(BallerinaParser.SourceOnlyAttachPointIdentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#sourceOnlyAttachPointIdent}.
+	 * @param ctx the parse tree
+	 */
+	void exitSourceOnlyAttachPointIdent(BallerinaParser.SourceOnlyAttachPointIdentContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#workerDeclaration}.
 	 * @param ctx the parse tree
 	 */

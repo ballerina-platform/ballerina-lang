@@ -1,7 +1,7 @@
 import ballerina/io;
 
-function contains(string source, string substring) returns (boolean) {
-    return source.contains(substring);
+function contains(string sourceString, string substring) returns (boolean) {
+    return sourceString.contains(substring);
 }
 
 function equalsIgnoreCase(string s1, string s2) returns (boolean) {
@@ -24,16 +24,16 @@ function lastIndexOf(string s, string str) returns (int) {
     return s.lastIndexOf(str);
 }
 
-function replace(string s, string source, string target) returns (string) {
-    return s.replace(source, target);
+function replace(string s, string sourceString, string target) returns (string) {
+    return s.replace(sourceString, target);
 }
 
-function replaceAll(string s, string source, string target) returns (string) {
-    return s.replaceAll(source, target);
+function replaceAll(string s, string sourceString, string target) returns (string) {
+    return s.replaceAll(sourceString, target);
 }
 
-function replaceFirst(string s, string source, string target) returns (string) {
-    return s.replaceFirst(source, target);
+function replaceFirst(string s, string sourceString, string target) returns (string) {
+    return s.replaceFirst(sourceString, target);
 }
 
 function substring(string s, int beginIndex, int endIndex) returns (string) {

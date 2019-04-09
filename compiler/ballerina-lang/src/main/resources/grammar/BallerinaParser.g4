@@ -113,7 +113,7 @@ objectFunctionDefinition
     ;
 
 annotationDefinition
-    :   PUBLIC? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
+    :   PUBLIC? CONST? ANNOTATION typeName? Identifier (ON attachmentPoint (COMMA attachmentPoint)*)? SEMICOLON
     ;
 
 constantDefinition
@@ -131,16 +131,33 @@ channelType
     ;
 
 attachmentPoint
-    :   SERVICE
+    :   dualAttachPoint
+    |   sourceOnlyAttachPoint
+    ;
+
+dualAttachPoint
+    : SOURCE? dualAttachPointIdent
+    ;
+
+dualAttachPointIdent
+    :   TYPE
     |   RESOURCE
     |   FUNCTION
     |   REMOTE
-    |   OBJECT
-    |   CLIENT
-    |   LISTENER
-    |   TYPE
     |   PARAMETER
-    |   ANNOTATION
+    |   SERVICE
+    |   LISTENER
+    ;
+
+sourceOnlyAttachPoint
+    :   SOURCE sourceOnlyAttachPointIdent
+    ;
+
+sourceOnlyAttachPointIdent
+    :   ANNOTATION
+    |   EXTERNAL
+    |   VAR
+    |   CONST
     ;
 
 workerDeclaration

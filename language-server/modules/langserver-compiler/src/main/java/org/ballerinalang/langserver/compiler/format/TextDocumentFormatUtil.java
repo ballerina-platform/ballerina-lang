@@ -237,9 +237,9 @@ public class TextDocumentFormatUtil {
                     && node instanceof BLangAnnotation) {
                 JsonArray attachmentPoints = new JsonArray();
                 ((BLangAnnotation) node)
-                        .getAttachPoints()
+                        .getPoints()
                         .stream()
-                        .map(AttachPoint::getValue)
+                        .map(AttachPoint.Point::getValue)
                         .map(JsonPrimitive::new)
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);

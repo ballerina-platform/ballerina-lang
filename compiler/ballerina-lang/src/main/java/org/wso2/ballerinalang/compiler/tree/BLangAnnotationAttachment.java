@@ -35,7 +35,7 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
 
     public BLangExpression expr;
     public BLangIdentifier annotationName;
-    public Set<AttachPoint> attachPoints;
+    public Set<AttachPoint.Point> attachPoints;
     public BLangIdentifier pkgAlias;
     public BAnnotationSymbol annotationSymbol;
 

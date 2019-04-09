@@ -256,12 +256,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.FUNCTION);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
-                annotationAttachment.attachPoints.add(AttachPoint.RESOURCE);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
             }
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE)) {
-                annotationAttachment.attachPoints.add(AttachPoint.REMOTE);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.REMOTE);
             }
             this.analyzeDef(annotationAttachment, funcEnv);
         });
@@ -307,7 +307,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.TYPE);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
             annotationAttachment.accept(this);
         });
     }
@@ -406,7 +406,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         annotationNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.ANNOTATION);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
         });
     }
@@ -426,7 +426,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (annotationSymbol.attachPoints > 0 && !Symbols.isAttachPointPresent(annotationSymbol.attachPoints,
                 AttachPoints.asMask(annAttachmentNode.attachPoints))) {
             String msg = annAttachmentNode.attachPoints.stream()
-                    .map(AttachPoint::getValue)
+                    .map(AttachPoint.Point::getValue)
                     .collect(Collectors
                     .joining(","));
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
@@ -468,14 +468,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
             varNode.annAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.CHANNEL);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.CHANNEL);
                 annotationAttachment.accept(this);
             });
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.TYPE);
+                annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
                 if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                    annotationAttachment.attachPoints.add(AttachPoint.LISTENER);
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.LISTENER);
                 }
                 annotationAttachment.accept(this);
             });
@@ -1772,7 +1772,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.SERVICE);
+            annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
             this.analyzeDef(annotationAttachment, serviceEnv);
         });
 

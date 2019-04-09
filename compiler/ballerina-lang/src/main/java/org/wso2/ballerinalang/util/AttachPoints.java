@@ -39,9 +39,9 @@ public class AttachPoints {
     public static final int ANNOTATION = PARAMETER << 1;
     public static final int CHANNEL = ANNOTATION << 1;
 
-    public static int asMask(Set<AttachPoint> attachPoints) {
+    public static int asMask(Set<AttachPoint.Point> attachPoints) {
         int mask = 0;
-        for (AttachPoint point : attachPoints) {
+        for (AttachPoint.Point point : attachPoints) {
             switch (point) {
                 case SERVICE:
                     mask |= SERVICE;

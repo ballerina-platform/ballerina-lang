@@ -201,7 +201,7 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         pkgAlias.setValue(PROTOCOL_PACKAGE_GRPC);
         annoAttachment.pkgAlias = pkgAlias;
-        annoAttachment.attachPoints.add(AttachPoint.SERVICE);
+        annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString

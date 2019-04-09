@@ -589,7 +589,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addAttachPoint(AttachPoint.getAttachmentPoint(ctx.getText()), getWS(ctx));
+
+        AttachPoint attachPoint;
+        if (ctx.dualAttachPoint() != null) {
+            if (ctx.dualAttachPoint().SOURCE() != null) {
+                attachPoint = AttachPoint.getAttachmentPoint(ctx.dualAttachPoint().getChild(1).getText(), true);
+            } else {
+                attachPoint = AttachPoint.getAttachmentPoint(ctx.getText(), false);
+            }
+        } else {
+            // source-only-attach-point
+            attachPoint = AttachPoint.getAttachmentPoint(ctx.sourceOnlyAttachPoint().getChild(1).getText(), true);
+        }
+        this.pkgBuilder.addAttachPoint(attachPoint, getWS(ctx));
     }
 
     @Override

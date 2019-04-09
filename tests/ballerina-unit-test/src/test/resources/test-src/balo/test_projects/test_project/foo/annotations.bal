@@ -7,4 +7,4 @@ public type SomeConfiguration record {
     }   recordVal;
 };
 
-public annotation<function> ConfigAnnotation SomeConfiguration;
+public annotation SomeConfiguration ConfigAnnotation on function;

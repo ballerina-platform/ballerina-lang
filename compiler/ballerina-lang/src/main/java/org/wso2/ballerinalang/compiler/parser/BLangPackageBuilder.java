@@ -2097,7 +2097,7 @@ public class BLangPackageBuilder {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
         while (!attachPointStack.empty()) {
-            annotationNode.attachPoints.add(attachPointStack.pop());
+            annotationNode.addAttachPoint(attachPointStack.pop());
         }
         if (isTypeAttached) {
             annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();
