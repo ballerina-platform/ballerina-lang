@@ -82,7 +82,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectAtatchedFunctions(mv, bType.attachedFunctions);
+            addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType);
         }
     }
 }
@@ -291,7 +291,8 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 #
 # + mv - method visitor
 # + attachedFunctions - attached functions to be added
-function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions) {
+function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions,
+                                        bir:BObjectType objType) {
     // Create the attached function array
     mv.visitLdcInsn(attachedFunctions.length());
     mv.visitInsn(L2I);
@@ -304,7 +305,7 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitInsn(L2I);
 
             // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc);
+            createObjectAttachedFunction(mv, attachedFunc, objType);
 
             // Add the member to the array
             mv.visitInsn(AASTORE);
@@ -321,12 +322,17 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 #
 # + mv - method visitor
 # + attachedFunc - object attached function
-function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc) {
+function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc,
+                                        bir:BObjectType objType) {
     mv.visitTypeInsn(NEW, ATTACHED_FUNCTION);
     mv.visitInsn(DUP);
 
     // Load function name
     mv.visitLdcInsn(attachedFunc.name.value);
+
+    // Load the parent object type
+    loadType(mv, objType);
+    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
 
     // Load the field type
     loadType(mv, attachedFunc.funcType);
@@ -341,8 +347,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
-            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, FUNCTION_TYPE),
-            false);
+                        io:sprintf("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE), false);
 }
 
 // -------------------------------------------------------
