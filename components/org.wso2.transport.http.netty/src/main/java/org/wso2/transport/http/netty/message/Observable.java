@@ -49,4 +49,6 @@ public interface Observable {
     void notifyGetListener(HttpContent content);
 
     void notifyReadInterest();
+
+    Listener getListener();
 }

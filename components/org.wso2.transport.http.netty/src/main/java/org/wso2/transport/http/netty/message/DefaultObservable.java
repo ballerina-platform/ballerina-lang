@@ -60,4 +60,9 @@ public class DefaultObservable implements Observable {
             listener.resumeReadInterest();
         }
     }
+
+    @Override
+    public Listener getListener() {
+        return this.listener;
+    }
 }

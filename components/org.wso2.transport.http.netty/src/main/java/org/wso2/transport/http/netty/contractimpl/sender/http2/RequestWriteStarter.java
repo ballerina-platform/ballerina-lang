@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.Http2BackPressureListener;
+import org.wso2.transport.http.netty.message.Http2InboundContentListener;
+import org.wso2.transport.http.netty.message.Listener;
 
 /**
  * Starts writing HTTP/2 request content.
@@ -52,7 +54,11 @@ public class RequestWriteStarter {
 
     private void setBackPressureListener() {
         if (outboundMsgHolder.getRequest().isPassthrough()) {
-            outboundMsgHolder.getBackPressureObservable().setListener(new Http2BackPressureListener());
+            Listener inboundListener = outboundMsgHolder.getRequest().getListener();
+            if (inboundListener instanceof Http2InboundContentListener) {
+                outboundMsgHolder.getBackPressureObservable().setListener(
+                    new Http2BackPressureListener((Http2InboundContentListener) inboundListener));
+            }
         } else {
             outboundMsgHolder.getBackPressureObservable().setListener(new DefaultBackPressureListener());
         }

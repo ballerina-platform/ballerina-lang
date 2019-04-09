@@ -7,6 +7,8 @@ import io.netty.handler.codec.http2.Http2Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Represents the HTTP/2 inbound content listener.
  */
@@ -15,7 +17,9 @@ public class Http2InboundContentListener implements Listener {
 
     private int streamId;
     private Http2Connection http2Connection;
-    private boolean applicationConsumedBytes = true;
+    private boolean appConsumeRequired = true;
+    private boolean resumeRead = true;
+    private AtomicInteger unconsumedBytes = new AtomicInteger();
 
     public Http2InboundContentListener(int streamId, Http2Connection http2Connection) {
         this.streamId = streamId;
@@ -30,8 +34,12 @@ public class Http2InboundContentListener implements Listener {
      */
     @Override
     public void onAdd(HttpContent httpContent) {
-        if (!applicationConsumedBytes) {
-            updateLocalFlowController(httpContent);
+        if (!appConsumeRequired && resumeRead) {
+            updateLocalFlowController(httpContent.content().readableBytes());
+        }
+
+        if (!resumeRead) {
+            unconsumedBytes.getAndAdd(httpContent.content().readableBytes());
         }
     }
 
@@ -42,20 +50,32 @@ public class Http2InboundContentListener implements Listener {
      */
     @Override
     public void onRemove(HttpContent httpContent) {
-        if (applicationConsumedBytes) {
-            updateLocalFlowController(httpContent);
+        if (appConsumeRequired && resumeRead) {
+            updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
 
+    /**
+     * Disable app consume flag so that window updates will be issued to the peer.
+     */
     @Override
     public void resumeReadInterest() {
-        applicationConsumedBytes = false;
+        appConsumeRequired = false;
     }
 
-    private void updateLocalFlowController(HttpContent httpContent) {
+    public void stopByteConsumption() {
+        resumeRead = false;
+    }
+
+    public void resumeByteConsumption() {
+        updateLocalFlowController(unconsumedBytes.get());
+        resumeRead = true;
+    }
+
+    private void updateLocalFlowController(int consumedBytes) {
         Http2Stream stream = http2Connection.stream(streamId);
         try {
-            http2Connection.local().flowController().consumeBytes(stream, httpContent.content().readableBytes());
+            http2Connection.local().flowController().consumeBytes(stream, consumedBytes);
         } catch (Http2Exception e) {
             LOG.error("Error updating flow controller. {} ", e.getCause());
         }

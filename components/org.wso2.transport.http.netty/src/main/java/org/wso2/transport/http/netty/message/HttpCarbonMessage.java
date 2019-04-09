@@ -555,4 +555,8 @@ public class HttpCarbonMessage {
             fullHttpMessageFuture.notifyFailure(exception);
         }
     }
+
+    public Listener getListener() {
+        return this.contentObservable.getListener();
+    }
 }

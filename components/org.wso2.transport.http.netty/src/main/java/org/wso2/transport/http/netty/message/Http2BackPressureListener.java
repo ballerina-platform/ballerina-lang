@@ -23,15 +23,21 @@ package org.wso2.transport.http.netty.message;
  */
 public class Http2BackPressureListener implements BackPressureListener {
 
+    private Http2InboundContentListener inboundListenerHook;
 
+    public Http2BackPressureListener(Http2InboundContentListener inboundListenerHook) {
+        this.inboundListenerHook = inboundListenerHook;
+    }
 
     @Override
     public void onUnWritable() {
-
+        //Stop consuming bytes which will eventually stop the window updates to the peer
+        inboundListenerHook.stopByteConsumption();
     }
 
     @Override
     public void onWritable() {
-
+        //Immediately consume outstanding unconsumed bytes to resume window updates to the peer
+        inboundListenerHook.resumeByteConsumption();
     }
 }
