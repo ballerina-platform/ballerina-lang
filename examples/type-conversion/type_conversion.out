@@ -1,5 +1,5 @@
 # To run the program, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run type_conversion.bal
 Employee to Person, name: Jack Sparrow
 map<any> to Person, name: Jack Sparrow

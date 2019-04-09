@@ -57,7 +57,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "ADD_ALL_DOC";
+    public static final String COMMAND = "ADD_ALL_DOC";
 
     /**
      * {@inheritDoc}

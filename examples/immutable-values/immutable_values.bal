@@ -1,12 +1,13 @@
 import ballerina/io;
 
-// Define a `Department` record that only has `anydata` typed fields
+// Define a `Department` record that only has `anydata|error` typed fields.
+// (A record with fields only of types `anydata` or `error` belongs to `anydata`)
 type Department record {
     string name;
     int id;
 };
 
-// Define an `Employee` object
+// Define an `Employee` object.
 type Employee object {
     string name;
 
@@ -45,7 +46,8 @@ public function main() {
     // Create a `Department` record.
     Department d = { name: "finance", id: 1100 };
 
-    // Create a `map` that may hold `anydata` typed values.
+    // Create a `map` that may hold `anydata|error` typed values.
+    // (`map<anydata|error>` belongs to `anydata`)
     map<any> m3 = { stringVal: "str", intVal: 1, recVal: d };
 
     // Attempt freezing `m3`. Note how the return type could now be an `error`, since there is the possibility that a
@@ -61,7 +63,7 @@ public function main() {
     // Create an `Employee` object.
     Employee e = new("Anne");
 
-    // Now, create a `map` that may hold `anydata` values, and add the non-anydata object `Employee` too.
+    // Now, create a `map` that may hold `anydata|error` values, and add the non-anydata object `Employee` too.
     map<any> m4 = { stringVal: "str", intVal: 1, objVal: e };
 
     // Attempt freezing `m4`.

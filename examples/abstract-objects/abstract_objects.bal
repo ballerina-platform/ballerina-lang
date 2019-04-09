@@ -1,14 +1,14 @@
 import ballerina/io;
 
-// Define an abstract object called `Person`. It should only describe the
-// type of each field and method. Note that an abstract object cannot have
-// a constructor method, or any attached functions.
+// Define an abstract object called `Person`. It should only contain 
+// fields and method declarations. An abstract object cannot have
+// an initializer or method definitions.
 type Person abstract object {
     public int age;
     public string firstName;
     public string lastName;
 
-    // Function declarations can be within the object. But the function cannot 
+    // Method declarations can be within the object. But the method cannot
     // have a body.
     function getFullName() returns string;
 
@@ -16,21 +16,21 @@ type Person abstract object {
 };
 
 // Define a non-abstract object called `Employee`, which is structurally equivalent
-// to `Person`. Note that a non-abstract object cannot have any member functions
+// to `Person`. Note that a non-abstract object cannot have any methods
 // without a body.
 type Employee object {
     public int age;
     public string firstName;
     public string lastName;
 
-    // Non-abstract object can have a constructor method.
+    // Non-abstract objects can have initializers.
     function __init(int age, string firstName, string lastName) {
         self.age = age;
         self.firstName = firstName;
         self.lastName = lastName;
     }
 
-    // Member function should have a body.
+    // Methods should have a body either within the object or as outside method definitions.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
@@ -39,7 +39,7 @@ type Employee object {
     function checkAndModifyAge(int condition, int a);
 };
 
-// Implement the declared function.
+// Implement the declared method.
 function Employee.checkAndModifyAge(int condition, int a) {
     if (self.age < condition) {
         self.age = a;
