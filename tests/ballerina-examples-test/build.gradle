@@ -15,10 +15,14 @@ dependencies {
     ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
 }
 
-task copyDistribution(type: Copy) {
+task copyDistribution() {
     dependsOn ":ballerina-tools:build"
-    from file(configurations.ballerinaTools.asPath)
-    into "$buildDir/extractedDistribution"
+    doFirst {
+        copy {
+            from file(configurations.ballerinaTools.asPath)
+            into "$buildDir/extractedDistribution"
+        }
+    }
 }
 
 task ballerinaInit(type: Exec) {
