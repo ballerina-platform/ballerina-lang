@@ -525,8 +525,8 @@ public class TypeTestExprTest {
     }
 
     @Test
-    public void testFiniteTypeAsFiniteTypeTrue() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
+    public void testUnionWithFiniteTypeAsFiniteTypeTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeTrue");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -535,13 +535,29 @@ public class TypeTestExprTest {
     }
 
     @Test
-    public void testFiniteTypeAsFiniteTypeFalse() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeFalse");
+    public void testUnionWithFiniteTypeAsFiniteTypeFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeFalse");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsFiniteTypeTrue() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testFiniteTypeAsFiniteTypeFalse() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeFalse");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -608,5 +624,17 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test
+    public void testClosedArrayAsOpenArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsOpenArray");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testClosedArrayAsInvalidClosedArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayAsInvalidClosedArray");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

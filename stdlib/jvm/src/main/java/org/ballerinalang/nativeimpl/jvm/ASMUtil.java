@@ -41,6 +41,11 @@ public class ASMUtil {
     public static final String JVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "jvm";
     public static final String NATIVE_KEY = "native";
 
+    public static final String OBJECT_DESC = "Ljava/lang/Object;";
+    public static final String FUNCTION_DESC = "Ljava/util/function/Function;";
+    public static final String STRING_DESC = "Ljava/lang/String;";
+    public static final String METHOD_TYPE_DESC = "Ljava/lang/invoke/MethodType;";
+
     public static BMap<String, BValue> newObject(Context context, String type) {
 
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(JVM_PKG_PATH);

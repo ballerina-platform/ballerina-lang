@@ -23,7 +23,7 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -33,7 +33,7 @@ service echo on echoEP {
     resource function message_worker(http:Caller caller, http:Request req) {
         worker w1 {
             http:Response res = new;
-            _ = caller->respond(res);
+            checkpanic caller->respond(res);
         }
         worker w2 {
             int x = 0;
@@ -55,7 +55,7 @@ service echo on echoEP {
             payloadData = payload;
         }
         self.serviceLevelStr = untaint payloadData;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -65,7 +65,7 @@ service echo on echoEP {
     resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(self.serviceLevelStr);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -77,7 +77,7 @@ service echo on echoEP {
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
         res.removeAllHeaders();
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -87,7 +87,7 @@ service echo on echoEP {
     resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(self.serviceLevelStringVar);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -97,7 +97,7 @@ service echo on echoEP {
     resource function connstValueAsAttributeValue(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("constant path test");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -129,7 +129,7 @@ service echo on echoEP {
             string errMsg = <string> params.detail().message;
             res.setPayload(untaint errMsg);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -139,7 +139,7 @@ service echo on echoEP {
     resource function modify11(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 204;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -151,7 +151,7 @@ service echo on echoEP {
         http:Response res = new;
         res.setPayload(untaint payload);
         res.statusCode = 200;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -164,6 +164,6 @@ service hello on echoEP {
 
     @http:ResourceConfig
     resource function echo(http:Caller caller, http:Request req) {
-        _ = caller->respond("Uninitialized configs");
+        checkpanic caller->respond("Uninitialized configs");
     }
 }

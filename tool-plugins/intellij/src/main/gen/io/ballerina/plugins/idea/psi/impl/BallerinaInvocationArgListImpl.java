@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaInvocationArgListImpl extends BallerinaCompositeElementImpl implements BallerinaInvocationArgList {
+public class BallerinaInvocationArgListImpl extends ASTWrapperPsiElement implements BallerinaInvocationArgList {
 
   public BallerinaInvocationArgListImpl(@NotNull ASTNode node) {
     super(node);

@@ -50,7 +50,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
-        filteredList.removeIf(CommonUtil.invalidSymbolsPredicate().or(attachedOrSelfKeywordFilter()));
+        filteredList.removeIf(this.attachedOrSelfKeywordFilter());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
@@ -63,24 +63,20 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
     }
 
     private List<CompletionItem> getStaticCompletionItems(LSContext context) {
-        boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem()
-                .getSnippetSupport();
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Add the xmlns snippet
-        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context, supportSnippet));
+        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context));
         // Add the var keyword
-        completionItems.add(Snippet.KW_VAR.get().build(context, supportSnippet));
+        completionItems.add(Snippet.KW_VAR.get().build(context));
         // Add the error snippet
-        completionItems.add(Snippet.DEF_ERROR.get().build(context, supportSnippet));
+        completionItems.add(Snippet.DEF_ERROR.get().build(context));
 
         return completionItems;
     }
 
     private List<CompletionItem> getTypeguardDestructuredItems(List<SymbolInfo> symbolInfoList, LSContext ctx) {
-        boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
         return symbolInfoList.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BUnionType)
                 .map(symbolInfo -> {
@@ -89,7 +85,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
                     String symbolName = symbolInfo.getScopeEntry().symbol.name.getValue();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
-                    String snippet = IntStream.range(0, members.size()).mapToObj(value -> {
+                    String snippet = IntStream.range(0, members.size() - 1).mapToObj(value -> {
                         BType bType = members.get(value);
                         String placeHolder = "\t${" + (value + 1) + "}";
                         return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx) + ") {"
@@ -98,7 +94,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
 
                     return new SnippetBlock(label, snippet, detail,
-                            SnippetBlock.SnippetType.SNIPPET).build(ctx, isSnippet);
+                            SnippetBlock.SnippetType.SNIPPET).build(ctx);
                 }).collect(Collectors.toList());
     }
 }

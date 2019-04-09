@@ -88,5 +88,13 @@ under the License.
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
         </packages>
+
+        <classes>
+            <class name="org.ballerinalang.test.functions.FunctionSignatureTest" >
+                <methods>
+                    <exclude name="testOptionalArgsInNativeFunc" />
+                </methods>
+            </class>
+        </classes>
     </test>
 </suite>

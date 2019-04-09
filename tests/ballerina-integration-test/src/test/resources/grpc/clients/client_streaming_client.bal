@@ -39,7 +39,7 @@ function testClientStreaming(string[] args) returns (string) {
             io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
         }
     }
-    _ = ep->complete();
+    checkpanic ep->complete();
 
     int waitCount = 0;
     while(total < 1) {

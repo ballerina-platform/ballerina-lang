@@ -18,6 +18,7 @@
 package org.ballerinalang.test.error;
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -59,14 +60,14 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "errorConstructReasonTest");
 
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, ERROR1);
-        Assert.assertEquals(((BError) returns[0]).details.stringValue(), EMPTY_CURLY_BRACE);
+        Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
         Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertEquals(((BError) returns[1]).reason, ERROR2);
-        Assert.assertEquals(((BError) returns[1]).details.stringValue(), EMPTY_CURLY_BRACE);
+        Assert.assertEquals(((BError) returns[1]).getReason(), ERROR2);
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
         Assert.assertTrue(returns[2] instanceof BError);
-        Assert.assertEquals(((BError) returns[2]).reason, ERROR3);
-        Assert.assertEquals(((BError) returns[2]).details.stringValue(), EMPTY_CURLY_BRACE);
+        Assert.assertEquals(((BError) returns[2]).getReason(), ERROR3);
+        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue(), EMPTY_CURLY_BRACE);
         Assert.assertEquals(returns[3].stringValue(), ERROR1);
         Assert.assertEquals(returns[4].stringValue(), ERROR2);
         Assert.assertEquals(returns[5].stringValue(), ERROR3);
@@ -79,14 +80,14 @@ public class ErrorTest {
         String detail2 = "{\"message\":\"msg2\"}";
         String detail3 = "{\"message\":\"msg3\"}";
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, ERROR1);
-        Assert.assertEquals(((BError) returns[0]).details.stringValue().trim(), detail1);
+        Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue().trim(), detail1);
         Assert.assertTrue(returns[1] instanceof BError);
-        Assert.assertEquals(((BError) returns[1]).reason, ERROR2);
-        Assert.assertEquals(((BError) returns[1]).details.stringValue().trim(), detail2);
+        Assert.assertEquals(((BError) returns[1]).getReason(), ERROR2);
+        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue().trim(), detail2);
         Assert.assertTrue(returns[2] instanceof BError);
-        Assert.assertEquals(((BError) returns[2]).reason, ERROR3);
-        Assert.assertEquals(((BError) returns[2]).details.stringValue().trim(), detail3);
+        Assert.assertEquals(((BError) returns[2]).getReason(), ERROR3);
+        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue().trim(), detail3);
         Assert.assertEquals(returns[3].stringValue().trim(), detail1);
         Assert.assertEquals(returns[4].stringValue().trim(), detail2);
         Assert.assertEquals(returns[5].stringValue().trim(), detail3);
@@ -132,8 +133,8 @@ public class ErrorTest {
     public void customErrorDetailsTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:(), data:\"test\"}");
-        Assert.assertEquals(((BError) returns[0]).details.getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).details.getType().getName(), "TrxErrorData");
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
     }
 
     @Test
@@ -175,29 +176,70 @@ public class ErrorTest {
         Assert.assertEquals(array.getString(5), "1");
     }
 
+    @Test
+    public void testGenericErrorWithDetailRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGenericErrorWithDetailRecord");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, CONST_ERROR_REASON);
+        Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
     }
 
     @Test(dataProvider = "constAsReasonTests")
     public void testErrorWithConstantAsReason(String testFunction) {
         BValue[] returns = BRunUtil.invoke(compileResult, testFunction);
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, CONST_ERROR_REASON);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).details).get("message").stringValue(),
+        Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "error detail message");
     }
 
     @Test
+    public void testCustomErrorWithMappingOfSelf() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCustomErrorWithMappingOfSelf");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testUnspecifiedErrorDetailFrozenness() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnspecifiedErrorDetailFrozenness");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testErrorDetailCloneAndFreeze() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testErrorDetailCloneAndFreeze");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
+        BAssertUtil.validateError(negativeCompileResult, 2,
+                                  "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
+        BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', " +
+                "expected a subtype of 'record { }' or 'map<anydata|error>'", 40, 33);
+        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean'," +
+                " expected a subtype of 'record { }' or 'map<anydata|error>'", 41, 36);
+        BAssertUtil.validateError(negativeCompileResult, 5,
+                                  "invalid error reason type '1.0f', expected a subtype of 'string'", 44, 7);
+        BAssertUtil.validateError(negativeCompileResult, 6,
+                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
+        BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 42);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 41);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")

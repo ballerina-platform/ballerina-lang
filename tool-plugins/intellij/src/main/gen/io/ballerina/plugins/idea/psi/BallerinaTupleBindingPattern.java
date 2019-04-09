@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTupleBindingPattern extends BallerinaCompositeElement {
+public interface BallerinaTupleBindingPattern extends PsiElement {
 
   @NotNull
   List<BallerinaBindingPattern> getBindingPatternList();

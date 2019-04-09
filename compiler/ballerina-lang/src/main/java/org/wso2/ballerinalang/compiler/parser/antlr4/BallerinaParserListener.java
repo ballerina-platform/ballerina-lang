@@ -1802,6 +1802,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitCheckedExpression(BallerinaParser.CheckedExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code checkPanickedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code checkPanickedExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code bitwiseExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2065,6 +2077,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstantExpression(BallerinaParser.ConstantExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#constantExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstantExpression(BallerinaParser.ConstantExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeDescExpr}.
 	 * @param ctx the parse tree

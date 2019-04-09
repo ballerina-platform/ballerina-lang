@@ -2080,6 +2080,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBitwiseExpression(BallerinaParser.BitwiseExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2339,6 +2351,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConstantExpression(BallerinaParser.ConstantExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConstantExpression(BallerinaParser.ConstantExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

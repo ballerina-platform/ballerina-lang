@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.types.decimaltype;
 
+import org.ballerinalang.model.util.DecimalValueKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
@@ -58,7 +59,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test positive decimal value assignment")
     public void testDecimalValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalValue", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -68,7 +69,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test negative decimal value assignment")
     public void testNegativeDecimalValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testNegativeDecimalValue", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testNegativeDecimalValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -78,7 +79,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal value assignment by a return value")
     public void testDecimalValueAssignmentByReturnValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalValueAssignmentByReturnValue", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalValueAssignmentByReturnValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -88,7 +89,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal addition")
     public void testDecimalAddition() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalAddition", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -98,7 +99,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal subtraction")
     public void testDecimalSubtraction() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalSubtraction", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalSubtraction");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -108,7 +109,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal multiplication")
     public void testDecimalMultiplication() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalMultiplication", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalMultiplication");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -118,7 +119,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal division")
     public void testDecimalDivision() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalDivision", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalDivision");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -131,7 +132,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal modulus")
     public void testDecimalModulus() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalModulus", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalModulus");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -141,7 +142,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal negation")
     public void testDecimalNegation() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalNegation", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalNegation");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
@@ -151,7 +152,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal comparison operations")
     public void testDecimalComparisonOperations() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalComparisonOperations", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalComparisonOperations");
         Assert.assertEquals(returns.length, 6);
         for (int i = 0; i < 6; i++) {
             Assert.assertSame(returns[i].getClass(), BBoolean.class);
@@ -183,7 +184,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test assigning an int literal to a decimal variable")
     public void testIntLiteralAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntLiteralAssignment", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testIntLiteralAssignment");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         Assert.assertSame(returns[1].getClass(), BDecimal.class);
@@ -193,5 +194,77 @@ public class BDecimalValueTest {
                 "Invalid decimal value returned.");
         Assert.assertTrue(value2.decimalValue().compareTo(new BigDecimal("15", MathContext.DECIMAL128)) == 0,
                 "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test assigning positive hexadecimal literal without power and floating point")
+    public void testHexAssignment1() {
+        BValue[] returns = BRunUtil.invoke(result, "testHexAssignment1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDecimal.class);
+        BDecimal value = (BDecimal) returns[0];
+        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("74736", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test assigning negative hexadecimal literal without power and floating point")
+    public void testHexAssignment7() {
+        BValue[] returns = BRunUtil.invoke(result, "testHexAssignment7");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDecimal.class);
+        BDecimal value = (BDecimal) returns[0];
+        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("-74736", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test a complex expression including hexadecimal literals")
+    public void testHexComplexExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testHexComplexExpression");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BDecimal.class);
+        BDecimal value = (BDecimal) returns[0];
+        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("381.1061220240414588528678304239401",
+                        MathContext.DECIMAL128)) == 0, "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test positively signed literal assignment")
+    public void testPositivelySignedLiteralAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testPositivelySignedLiteralAssignment");
+        Assert.assertEquals(returns.length, 3);
+        for (int i = 0; i < returns.length; i++) {
+            Assert.assertSame(returns[i].getClass(), BDecimal.class);
+        }
+        BDecimal value1 = (BDecimal) returns[0];
+        BDecimal value2 = (BDecimal) returns[1];
+        BDecimal value3 = (BDecimal) returns[2];
+        Assert.assertTrue(value1.decimalValue().compareTo(new BigDecimal("12.23", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(value2.decimalValue().compareTo(new BigDecimal("0.0", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(value3.decimalValue().compareTo(new BigDecimal("+0.00", MathContext.DECIMAL128)) == 0,
+                "Invalid decimal value returned.");
+    }
+
+    @Test(description = "Test decimal array literal without decimal discriminator")
+    public void testDecimalArrayLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalArrayValue", new BValue[]{});
+        Assert.assertEquals(returns[0], new BDecimal("1.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("2.0", DecimalValueKind.OTHER));
+    }
+
+    @Test(description = "Test decimal array literal with decimal discriminator")
+    public void testDiscriminatedDecimalArrayLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalArrayValueWithDiscriminator", new BValue[]{});
+        Assert.assertEquals(returns[0], new BDecimal("1.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("2.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[2], new BDecimal("3000.0", DecimalValueKind.OTHER));
+    }
+
+    @Test(description = "Test decimal array literal with decimal discriminator")
+    public void testDiscriminatedDecimalLiteral() {
+        BValue[] returns = BRunUtil.invoke(result, "testDiscriminatedDecimalLiterals", new BValue[]{});
+        Assert.assertEquals(returns[0], new BDecimal("3.22", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("0.0", DecimalValueKind.ZERO));
+        Assert.assertEquals(returns[2], new BDecimal("3.141592653589793238462643383279502", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[3], new BDecimal("3.141592653589793238462643383279503", DecimalValueKind.OTHER));
     }
 }

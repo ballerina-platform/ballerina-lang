@@ -70,7 +70,7 @@ function testSummaryWithoutTags() returns (float) {
 
 function registerAndIncrement() returns (float) {
     observe:Gauge gauge = new("register_response_size");
-    _ = gauge.register();
+    checkpanic gauge.register();
     gauge.increment();
     return gauge.getValue();
 }

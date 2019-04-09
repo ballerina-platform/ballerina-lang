@@ -44,13 +44,13 @@ public class BallerinaInvocationReferenceImpl extends BallerinaVariableReference
   @Override
   @NotNull
   public BallerinaInvocation getInvocation() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaInvocation.class));
+    return findNotNullChildByClass(BallerinaInvocation.class);
   }
 
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
 }

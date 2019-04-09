@@ -79,7 +79,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinElseIf.json", "function"},
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
-                {"completionWithinTransaction.json", "function"},
+//                {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},
@@ -97,6 +97,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeGuardSuggestions3.json", "function"},
                 {"typeGuardSuggestions4.json", "function"},
                 {"typeguardDestruct1.json", "function"},
+                {"completionAfterIf1.json", "function"},
+                {"completionAfterIf2.json", "function"},
         };
     }
 }

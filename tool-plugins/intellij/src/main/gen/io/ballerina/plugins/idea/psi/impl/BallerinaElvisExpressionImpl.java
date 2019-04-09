@@ -50,7 +50,7 @@ public class BallerinaElvisExpressionImpl extends BallerinaExpressionImpl implem
   @Override
   @NotNull
   public PsiElement getElvis() {
-    return notNullChild(findChildByType(ELVIS));
+    return findNotNullChildByType(ELVIS);
   }
 
 }

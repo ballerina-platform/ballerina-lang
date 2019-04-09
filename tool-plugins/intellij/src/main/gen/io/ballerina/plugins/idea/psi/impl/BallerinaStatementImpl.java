@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implements BallerinaStatement {
+public class BallerinaStatementImpl extends ASTWrapperPsiElement implements BallerinaStatement {
 
   public BallerinaStatementImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,157 +45,157 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
   @Override
   @Nullable
   public BallerinaAbortStatement getAbortStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAbortStatement.class);
+    return findChildByClass(BallerinaAbortStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaAssignmentStatement getAssignmentStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAssignmentStatement.class);
+    return findChildByClass(BallerinaAssignmentStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaBreakStatement getBreakStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBreakStatement.class);
+    return findChildByClass(BallerinaBreakStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCompoundAssignmentStatement.class);
+    return findChildByClass(BallerinaCompoundAssignmentStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaContinueStatement getContinueStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaContinueStatement.class);
+    return findChildByClass(BallerinaContinueStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaErrorDestructuringStatement getErrorDestructuringStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaErrorDestructuringStatement.class);
+    return findChildByClass(BallerinaErrorDestructuringStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaExpressionStmt getExpressionStmt() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionStmt.class);
+    return findChildByClass(BallerinaExpressionStmt.class);
   }
 
   @Override
   @Nullable
   public BallerinaForeachStatement getForeachStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaForeachStatement.class);
+    return findChildByClass(BallerinaForeachStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaForeverStatement getForeverStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaForeverStatement.class);
+    return findChildByClass(BallerinaForeverStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaForkJoinStatement getForkJoinStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaForkJoinStatement.class);
+    return findChildByClass(BallerinaForkJoinStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaIfElseStatement getIfElseStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaIfElseStatement.class);
+    return findChildByClass(BallerinaIfElseStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaLockStatement getLockStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaLockStatement.class);
+    return findChildByClass(BallerinaLockStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaNamespaceDeclarationStatement getNamespaceDeclarationStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaNamespaceDeclarationStatement.class);
+    return findChildByClass(BallerinaNamespaceDeclarationStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaPanicStatement getPanicStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaPanicStatement.class);
+    return findChildByClass(BallerinaPanicStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaRecordDestructuringStatement getRecordDestructuringStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRecordDestructuringStatement.class);
+    return findChildByClass(BallerinaRecordDestructuringStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaRetryStatement getRetryStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRetryStatement.class);
+    return findChildByClass(BallerinaRetryStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaReturnStatement getReturnStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReturnStatement.class);
+    return findChildByClass(BallerinaReturnStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaStreamingQueryStatement getStreamingQueryStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStreamingQueryStatement.class);
+    return findChildByClass(BallerinaStreamingQueryStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaThrowStatement getThrowStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaThrowStatement.class);
+    return findChildByClass(BallerinaThrowStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaTransactionStatement getTransactionStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTransactionStatement.class);
+    return findChildByClass(BallerinaTransactionStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaTryCatchStatement getTryCatchStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTryCatchStatement.class);
+    return findChildByClass(BallerinaTryCatchStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaVariableDefinitionStatement getVariableDefinitionStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableDefinitionStatement.class);
+    return findChildByClass(BallerinaVariableDefinitionStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaWhileStatement getWhileStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWhileStatement.class);
+    return findChildByClass(BallerinaWhileStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaWorkerSendAsyncStatement getWorkerSendAsyncStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWorkerSendAsyncStatement.class);
+    return findChildByClass(BallerinaWorkerSendAsyncStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaMatchStatement getMatchStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaMatchStatement.class);
+    return findChildByClass(BallerinaMatchStatement.class);
   }
 
   @Override
   @Nullable
   public BallerinaTupleDestructuringStatement getTupleDestructuringStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTupleDestructuringStatement.class);
+    return findChildByClass(BallerinaTupleDestructuringStatement.class);
   }
 
 }

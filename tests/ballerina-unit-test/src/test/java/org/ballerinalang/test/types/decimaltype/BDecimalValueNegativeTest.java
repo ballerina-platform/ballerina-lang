@@ -33,7 +33,7 @@ public class BDecimalValueNegativeTest {
     @Test
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
 
         int index = 0;
 
@@ -41,10 +41,23 @@ public class BDecimalValueNegativeTest {
                 " '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
 
-        expectedError = "extraneous input 'd'";
+        expectedError = "extraneous input 'g'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 21);
 
         expectedError = "extraneous input '23.04'";
-        BAssertUtil.validateError(compileResult, index, expectedError, 26, 18);
+        BAssertUtil.validateError(compileResult, index++, expectedError, 26, 18);
+
+        expectedError = "invalid token 'xX1231'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 29, 19);
+
+        expectedError = "invalid token 'X1231'";
+        BAssertUtil.validateError(compileResult, index, expectedError, 32, 20);
+    }
+
+    @Test
+    void testDecimalValueNegativeLiteral() {
+        CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative_literal.bal");
+        Assert.assertEquals(negative.getErrorCount(), 1);
+        BAssertUtil.validateError(negative, 0, "incompatible types: expected 'decimal', found 'float'", 20, 17);
     }
 }

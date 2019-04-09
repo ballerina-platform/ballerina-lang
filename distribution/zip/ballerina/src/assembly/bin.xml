@@ -105,6 +105,7 @@
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-encoding:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
+                <include>org.ballerinalang:ballerina-filepath:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
@@ -113,6 +114,7 @@
                 <include>org.ballerinalang:ballerina-socket:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
                 <include>org.ballerinalang:ballerina-activemq-artemis:jar</include>
+                <include>org.ballerinalang:ballerina-rabbitmq:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
@@ -129,6 +131,7 @@
                 <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
+                <include>org.ballerinalang:ballerina-nats:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-runtime:jar</include>
@@ -185,6 +188,8 @@
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
                 <include>com.jcraft:jzlib</include>
+                <include>io.nats:java-nats-streaming</include>
+                <include>io.nats:jnats</include>
 
                 <!-- Artemis connector dependencies -->
                 <include>org.apache.activemq:artemis-core-client</include>
@@ -196,6 +201,9 @@
                 <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
                 <include>io.netty:netty-transport-native-epoll</include>
                 <include>io.netty:netty-transport-native-kqueue</include>
+
+                <!-- RabbitMQ connector dependencies -->
+                <include>com.rabbitmq:amqp-client:jar</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
@@ -222,7 +230,6 @@
 
                 <!-- JMS connector dependencies -->
                 <include>javax.jms:javax.jms-api:jar</include>
-                <include>org.wso2.andes.wso2:andes-client:jar</include>
                 <include>org.wso2.securevault:org.wso2.securevault:jar</include>
 
                 <!-- Check-pointing dependencies -->

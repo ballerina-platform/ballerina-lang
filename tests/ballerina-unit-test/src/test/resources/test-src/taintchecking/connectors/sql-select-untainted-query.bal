@@ -16,6 +16,6 @@ public function testSelectWithUntaintedQuery(string... args) {
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return;
 }

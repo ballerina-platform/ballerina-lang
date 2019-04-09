@@ -137,8 +137,8 @@ function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAut
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
 # + return - ListenerAuthConfig instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns (
-            ListenerAuthConfig?) {
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData)
+                                                                              returns ListenerAuthConfig? {
     if (annData.length() == 0) {
         return ();
     }

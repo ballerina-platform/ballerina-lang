@@ -261,7 +261,7 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
     return true;
 }
 
-function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns (boolean) {
+function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
     if (jwtHeader.alg == "") {
         return false;
     }
@@ -352,7 +352,7 @@ function validateAudience(JwtPayload jwtPayload, JWTValidatorConfig config) retu
     }
 }
 
-function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns (boolean) {
+function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config) returns boolean {
     //Convert current time which is in milliseconds to seconds.
     int expTime = jwtPayload.exp;
     if (config.clockSkew > 0){
@@ -361,7 +361,7 @@ function validateExpirationTime(JwtPayload jwtPayload, JWTValidatorConfig config
     return expTime > time:currentTime().time / 1000;
 }
 
-function validateNotBeforeTime(JwtPayload jwtPayload) returns (boolean) {
+function validateNotBeforeTime(JwtPayload jwtPayload) returns boolean {
     return time:currentTime().time > (jwtPayload["nbf"] ?: 0);
 }
 

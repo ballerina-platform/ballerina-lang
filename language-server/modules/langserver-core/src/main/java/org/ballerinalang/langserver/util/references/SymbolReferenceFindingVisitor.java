@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -44,12 +45,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -605,6 +608,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+        this.acceptNode(checkPanickedExpr.expr);
+    }
+
+    @Override
     public void visit(BLangWaitExpr awaitExpr) {
         awaitExpr.exprList.forEach(this::acceptNode);
     }
@@ -627,6 +635,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
         this.acceptNode(conversionExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangTypeInit connectorInitExpr) {
+        connectorInitExpr.argsExpr.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        this.acceptNode(bLangNamedArgsExpression.expr);
     }
 
     private void acceptNode(BLangNode node) {

@@ -14,13 +14,15 @@ export const LifeLine: React.StatelessComponent<{
     model: SimpleBBox,
     title: string,
     icon: string,
-    astModel?: ASTNode
+    astModel?: ASTNode,
+    activeRange?: [number, number]
 }> = ({
     model,
     title,
     children,
     astModel,
-    icon
+    icon,
+    activeRange
 }) => {
 
         const topLabel = { x: 0, y: 0 };
@@ -51,7 +53,12 @@ export const LifeLine: React.StatelessComponent<{
 
         return (
             <g className={classNames("life-line", `life-line-${icon}`)}>
-                <line {...lifeLine} />
+                <line {...lifeLine} strokeDasharray={(activeRange ? 4 : 0)} />
+                {activeRange && <line
+                    x1={lifeLine.x1} x2={lifeLine.x2}
+                    y1={activeRange[0]}
+                    y2={activeRange[1]}
+                /> }
                 <rect {...topBox} />
                 <rect {...bottomBox} />
                 {!astModel && <text {...topLabel}>{title}</text>}
