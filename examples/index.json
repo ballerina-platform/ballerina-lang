@@ -588,6 +588,10 @@
                 "url": "kubernetes-deployment"
             },
             {
+                "name": "OpenShift Deployment",
+                "url": "openshift-deployment"
+            },
+            {
                 "name": "AWS Lambda Deployment",
                 "url": "awslambda-deployment"
             }
