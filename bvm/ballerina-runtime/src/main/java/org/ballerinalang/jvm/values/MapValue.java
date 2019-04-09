@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
