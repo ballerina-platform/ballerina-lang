@@ -152,3 +152,9 @@ function testPositivelySignedLiteralAssignment() returns (decimal, decimal, deci
     decimal d5 = d1 + d4;
     return (d1, d2, d5);
 }
+
+// Test decimal inference for binary expressions of literals
+function testDecimalInferenceInMapContext() returns map<decimal> {
+    map<decimal> md = { a: 33.3d, b: 33.3, c: 0.1, d: 1, e: 10000000000000000000000.123 };
+    return md;
+}
