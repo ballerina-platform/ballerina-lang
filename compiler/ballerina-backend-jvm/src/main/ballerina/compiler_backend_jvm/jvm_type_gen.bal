@@ -435,6 +435,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTupleType) {
         loadTupleType(mv, bType);
         return;
+    } else if (bType is bir:Self) {
+        if (bType.bType is bir:BErrorType) {
+            // Todo: Handle for recursive user defined error types.
+            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
+            return;
+        }
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType.bType));
+        panic err;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
