@@ -31,7 +31,7 @@ function testLooksLikeArray() {
 
 @test:Config {}
 function testLooksLikeTuple() {
-    (int|boolean, string|float, decimal) c = (false, 1.0, <decimal>5.2);
+    (int|boolean, string|float, decimal) c = (false, 1.0, 5.2d);
     var result2 = (boolean, float, decimal).stamp(c);
     test:assertTrue(result2 is (boolean, float, decimal), msg = EXPECTED_STAMPING_TO_BE_SUCCESSFUL_FAILURE_MESSAGE);
 }
