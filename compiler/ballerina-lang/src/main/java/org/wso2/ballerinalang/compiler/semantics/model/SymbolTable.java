@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeofOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -559,6 +560,9 @@ public class SymbolTable {
 //        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
+
+        // Define typeof build-in function.
+        defineTypeofOperator();
     }
 
     private void defineBuiltinMethods() {
@@ -595,6 +599,9 @@ public class SymbolTable {
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType);
         defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType);
+
+        // typeof operator related methods
+        defineBuiltinMethod(BLangBuiltInMethod.TYPEOF, anyType, typeDesc);
     }
 
     private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType) {
@@ -664,6 +671,16 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType, sourceType,
                                                                          this.rootPkgSymbol, opcode, safe);
+        rootScope.define(symbol.name, symbol);
+    }
+
+    private void defineTypeofOperator() {
+        List<BType> paramTypes = Lists.of(this.anyType);
+        BType retType = this.typeDesc;
+
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        BTypeofOperatorSymbol symbol = new BTypeofOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.anyType,
+                this.rootPkgSymbol, InstructionCodes.NOP, false);
         rootScope.define(symbol.name, symbol);
     }
     

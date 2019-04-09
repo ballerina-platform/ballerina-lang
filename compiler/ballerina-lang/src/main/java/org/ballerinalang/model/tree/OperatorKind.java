@@ -40,6 +40,7 @@ public enum OperatorKind {
     IS_ASSIGNABLE("isassignable"),
     NOT("!"),
     LENGTHOF("lengthof"),
+    TYPEOF("typeof"),
     UNTAINT("untaint"),
     INCREMENT("++"),
     DECREMENT("--"),

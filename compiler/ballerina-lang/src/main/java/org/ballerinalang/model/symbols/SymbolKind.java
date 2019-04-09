@@ -46,6 +46,7 @@ public enum SymbolKind {
 
     CAST_OPERATOR,
     CONVERSION_OPERATOR,
+    TYPEOF_OPERATOR,
 
     XMLNS,
     SCOPE,

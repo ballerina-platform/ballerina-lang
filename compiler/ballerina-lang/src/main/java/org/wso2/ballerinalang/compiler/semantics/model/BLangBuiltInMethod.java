@@ -50,6 +50,8 @@ public enum BLangBuiltInMethod {
 
     CONVERT("convert", true),
 
+    TYPEOF("typeof", true),
+
     SIMPLE_VALUE_CONVERT("simpleValueConvert", true),
     
     CALL("call", true),
