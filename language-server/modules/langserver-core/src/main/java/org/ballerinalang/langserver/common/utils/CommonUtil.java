@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -53,6 +55,8 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -229,22 +233,22 @@ public class CommonUtil {
     /**
      * Get the previous default token from the given start index.
      *
-     * @param tokenStream Token Stream
-     * @param startIndex  Start token index
-     * @return {@link Token}    Previous default token
+     * @param tokenStream                   Token Stream
+     * @param startIndex                    Start token index
+     * @return {@link Optional<Token>}      Previous default token
      */
-    public static Token getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
+    public static Optional<Token> getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
         return getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
     }
 
     /**
      * Get the next default token from the given start index.
      *
-     * @param tokenStream Token Stream
-     * @param startIndex  Start token index
-     * @return {@link Token}    Previous default token
+     * @param tokenStream                   Token Stream
+     * @param startIndex                    Start token index
+     * @return {@link Optional<Token>}      Previous default token
      */
-    public static Token getNextDefaultToken(TokenStream tokenStream, int startIndex) {
+    public static Optional<Token> getNextDefaultToken(TokenStream tokenStream, int startIndex) {
         return getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
     }
 
@@ -258,15 +262,15 @@ public class CommonUtil {
      */
     public static List<Token> getNDefaultTokensToLeft(TokenStream tokenStream, int n, int startIndex) {
         List<Token> tokens = new ArrayList<>();
-        Token t;
+        Optional<Token> token;
         while (n > 0) {
-            t = getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
-            if (t == null) {
+            token = getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
+            if (!token.isPresent()) {
                 return new ArrayList<>();
             }
-            tokens.add(t);
+            tokens.add(token.get());
             n--;
-            startIndex = t.getTokenIndex();
+            startIndex = token.get().getTokenIndex();
         }
 
         return Lists.reverse(tokens);
@@ -275,17 +279,20 @@ public class CommonUtil {
     /**
      * Get the Nth Default token to the left of current token index.
      *
-     * @param tokenStream Token Stream to traverse
-     * @param startIndex  Start position of the token stream
-     * @param offset      Number of tokens to traverse left
-     * @return {@link Token}    Nth Token
+     * @param tokenStream                   Token Stream to traverse
+     * @param startIndex                    Start position of the token stream
+     * @param offset                        Number of tokens to traverse left
+     * @return {@link Optional<Token>}      Nth Token
      */
-    public static Token getNthDefaultTokensToLeft(TokenStream tokenStream, int startIndex, int offset) {
-        Token token = null;
+    public static Optional<Token> getNthDefaultTokensToLeft(TokenStream tokenStream, int startIndex, int offset) {
+        Optional<Token> token = Optional.empty();
         int indexCounter = startIndex;
         for (int i = 0; i < offset; i++) {
             token = getPreviousDefaultToken(tokenStream, indexCounter);
-            indexCounter = token.getTokenIndex();
+            if (!token.isPresent()) {
+                break;
+            }
+            indexCounter = token.get().getTokenIndex();
         }
 
         return token;
@@ -344,7 +351,7 @@ public class CommonUtil {
         return itemList.subList(itemList.size() - n, itemList.size());
     }
 
-    private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
+    private static Optional<Token> getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
         Token token = null;
         while (true) {
             startIndex += direction;
@@ -356,7 +363,7 @@ public class CommonUtil {
                 break;
             }
         }
-        return token;
+        return Optional.ofNullable(token);
     }
 
     /**
@@ -1029,9 +1036,9 @@ public class CommonUtil {
      * @return {@link String}   Combined package name
      */
     public static String getPackageNameComponentsCombined(BLangImportPackage importPackage) {
-        return String.join(".", importPackage.pkgNameComps.stream()
+        return importPackage.pkgNameComps.stream()
                 .map(id -> id.value)
-                .collect(Collectors.toList()));
+                .collect(Collectors.joining("."));
     }
 
     /**
@@ -1044,6 +1051,14 @@ public class CommonUtil {
         return snippet
                 .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
                 .replaceAll("(\\$\\{\\d\\})", "");
+    }
+
+    public static BallerinaParser prepareParser(String content) {
+        ANTLRInputStream inputStream = new ANTLRInputStream(content);
+        BallerinaLexer lexer = new BallerinaLexer(inputStream);
+        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+
+        return new BallerinaParser(commonTokenStream);
     }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,

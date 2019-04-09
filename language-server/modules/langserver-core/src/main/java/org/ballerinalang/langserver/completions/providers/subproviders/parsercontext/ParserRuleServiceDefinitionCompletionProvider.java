@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -54,8 +55,11 @@ public class ParserRuleServiceDefinitionCompletionProvider extends AbstractSubCo
         // Backtrack the tokens from the head of the popped tokens in order determine the cursor position
         tokenScanner:
         while (true) {
-            Token token = CommonUtil.getPreviousDefaultToken(tokenStream, startIndex);
-            String tokenString = token.getText();
+            Optional<Token> token = CommonUtil.getPreviousDefaultToken(tokenStream, startIndex);
+            if (!token.isPresent()) {
+                break;
+            }
+            String tokenString = token.get().getText();
             switch (tokenString) {
                 case ItemResolverConstants.SERVICE:
                 case ItemResolverConstants.ON:
@@ -67,7 +71,7 @@ public class ParserRuleServiceDefinitionCompletionProvider extends AbstractSubCo
                     break;
             }
 
-            startIndex = token.getTokenIndex();
+            startIndex = token.get().getTokenIndex();
         }
 
         switch (stopToken) {

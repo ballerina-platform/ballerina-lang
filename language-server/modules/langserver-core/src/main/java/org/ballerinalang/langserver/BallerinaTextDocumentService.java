@@ -158,6 +158,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
 
             try {
+                CompletionUtil.getPrunedSource(context);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                         CompletionCustomErrorStrategy.class,
                                                                         false);

@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -231,25 +232,25 @@ public class CompletionSubRuleParser {
 
         while (true) {
             if (startIndex > tokenStream.size()
-                    || CommonUtil.getPreviousDefaultToken(tokenStream, startIndex) == null) {
+                    || !CommonUtil.getPreviousDefaultToken(tokenStream, startIndex).isPresent()) {
                 return false;
             }
-            Token token = CommonUtil.getPreviousDefaultToken(tokenStream, startIndex);
-            if (token == null || terminalTokens.contains(token.getText())) {
+            Optional<Token> token = CommonUtil.getPreviousDefaultToken(tokenStream, startIndex);
+            if (!token.isPresent() || terminalTokens.contains(token.get().getText())) {
                 return false;
             }
-            if (token.getText().equals(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)) {
+            if (token.get().getText().equals(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)) {
                 // Breaks when we meet the first annotation start before the given start index
                 break;
-            } else if (token.getText().equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
-                startIndex = token.getTokenIndex();
+            } else if (token.get().getText().equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
+                startIndex = token.get().getTokenIndex();
                 // For each annotation found, capture the package alias
                 if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD
-                        .equals(CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 2).getText())) {
-                    pkgAlias = CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 3).getText();
+                        .equals(CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 2).get().getText())) {
+                    pkgAlias = CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 3).get().getText();
                 }
             } else {
-                startIndex = token.getTokenIndex();
+                startIndex = token.get().getTokenIndex();
             }
         }
 
@@ -258,21 +259,24 @@ public class CompletionSubRuleParser {
             if (startIndex > tokenStream.size()) {
                 return false;
             }
-            Token token = CommonUtil.getNextDefaultToken(tokenStream, startIndex);
-            int tokenLine = token.getLine() - 1;
-            int tokenCol = token.getCharPositionInLine();
-            if (terminalTokens.contains(token.getText())
+            Optional<Token> token = CommonUtil.getNextDefaultToken(tokenStream, startIndex);
+            if (!token.isPresent()) {
+                return false;
+            }
+            int tokenLine = token.get().getLine() - 1;
+            int tokenCol = token.get().getCharPositionInLine();
+            if (terminalTokens.contains(token.get().getText())
                     || line < tokenLine
                     || (line == tokenLine - 1 && col - 1 < tokenCol)) {
                 break;
-            } else if (UtilSymbolKeys.OPEN_BRACE_KEY.equals(token.getText())) {
+            } else if (UtilSymbolKeys.OPEN_BRACE_KEY.equals(token.get().getText())) {
                 fieldsQueue.add(tempTokenString);
-            } else if (UtilSymbolKeys.CLOSE_BRACE_KEY.equals(token.getText())) {
+            } else if (UtilSymbolKeys.CLOSE_BRACE_KEY.equals(token.get().getText())) {
                 fieldsQueue.remove();
-            } else if (!UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(token.getText())) {
-                tempTokenString = token.getText();
+            } else if (!UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(token.get().getText())) {
+                tempTokenString = token.get().getText();
             }
-            startIndex = token.getTokenIndex();
+            startIndex = token.get().getTokenIndex();
         }
 
         annotationName = fieldsQueue.poll();
@@ -294,14 +298,17 @@ public class CompletionSubRuleParser {
             if (tokenStream == null || index >= tokenStream.size()) {
                 break;
             }
-            Token token = CommonUtil.getNextDefaultToken(tokenStream, index);
-            if (token.getText().equals(UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY)) {
-                break;
-            } else if (flagsMap.containsKey(token.getText())) {
-                nodeType = flagsMap.get(token.getText());
+            Optional<Token> token = CommonUtil.getNextDefaultToken(tokenStream, index);
+            if (!token.isPresent()) {
                 break;
             }
-            index = token.getTokenIndex();
+            if (token.get().getText().equals(UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY)) {
+                break;
+            } else if (flagsMap.containsKey(token.get().getText())) {
+                nodeType = flagsMap.get(token.get().getText());
+                break;
+            }
+            index = token.get().getTokenIndex();
         }
         
         return nodeType;
@@ -342,19 +349,19 @@ public class CompletionSubRuleParser {
             if (currentTokenIndex < 0) {
                 break;
             }
-            Token token = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
-            if (token == null) {
+            Optional<Token> token = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
+            if (!token.isPresent()) {
                 return;
             }
-            String tokenString = token.getText();
-            tokenStack.push(token);
+            String tokenString = token.get().getText();
+            tokenStack.push(token.get());
             if (tokenString.equals(ItemResolverConstants.SERVICE)
                     || tokenString.equals(ItemResolverConstants.FUNCTION)
                     || tokenString.equals(ItemResolverConstants.TYPE)
                     || tokenString.equals(ItemResolverConstants.ENDPOINT)) {
                 break;
             }
-            currentTokenIndex = token.getTokenIndex();
+            currentTokenIndex = token.get().getTokenIndex();
         }
         Collections.reverse(tokenStack);
         ctx.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, tokenStack);
