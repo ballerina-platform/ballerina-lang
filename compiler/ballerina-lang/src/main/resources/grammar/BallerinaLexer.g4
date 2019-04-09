@@ -289,8 +289,8 @@ HexadecimalFloatingPointLiteral
     ;
 
 DecimalFloatingPointNumber
-    :   DecimalNumeral ExponentPart
-    |   DottedDecimalNumber ExponentPart?
+    :   DecimalNumeral ExponentPart DecimalFloatSelector?
+    |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
 fragment
@@ -311,6 +311,11 @@ SignedInteger
 fragment
 Sign
     :   [+-]
+    ;
+
+fragment
+DecimalFloatSelector
+    : [dDfF]
     ;
 
 fragment

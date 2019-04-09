@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -2426,7 +2427,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value, ctx.getText());
         } else if (ctx.floatingPointLiteral() != null) {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getNodeValue(ctx, node), node.getText());
+                String nodeValue = getNodeValue(ctx, node);
+                int literalTypeTag = NumericLiteralSupport.isDecimalDiscriminated(nodeValue)
+                        ? TypeTags.DECIMAL : TypeTags.FLOAT;
+                this.pkgBuilder.addLiteralValue(pos, ws, literalTypeTag, nodeValue, node.getText());
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, getHexNodeValue(ctx, node), node.getText());
             }

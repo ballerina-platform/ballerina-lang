@@ -40,24 +40,13 @@ function testDecimal(decimal d1, decimal d2, decimal d3, decimal d4) {
 function decimalValueDataProvider() returns decimal[][] {
     return [
         // DecimalFloatingPointNumber
-        [<decimal>100e+12, <decimal>100E+12, <decimal>100e12, <decimal>100E12],
-        [<decimal>100e-2, <decimal>100E-2, <decimal>1000e-3, <decimal>10E-1],
-        [<decimal>0e2, <decimal>0E2, <decimal>0e-2, <decimal>0e-2],
-        [<decimal>0.0, <decimal>.0, <decimal>0.0, <decimal>0.00],
-        [<decimal>22.2, <decimal>22.2e0, <decimal>22.2E0, <decimal>2.22E1],
-        [<decimal>.0e+12, <decimal>.00E+12, <decimal>0.0e12, <decimal>0.00E12],
-        [<decimal>1.0e-12, <decimal>1.00E-12, <decimal>1.0e-12, <decimal>1.00E-12],
-
-        // HexFloatingPointLiteral
-        [<decimal>0x1p+12, <decimal>0x1P+12, <decimal>0x1p12, <decimal>0x1P12],
-        [<decimal>0X2p+12, <decimal>0X2P+12, <decimal>0X2p12, <decimal>0X2P12],
-        [<decimal>0X500p-1, <decimal>0X500P-1, <decimal>0X500p-1, <decimal>0X500P-1],
-        [<decimal>0x500p-1, <decimal>0x500P-1, <decimal>0x500p-1, <decimal>0x500P-1],
-        [<decimal>0xaap+12, <decimal>0xAAP+12, <decimal>0xaAp12, <decimal>0xAaP12],
-        [<decimal>0x0.a, <decimal>0x.a, <decimal>0x0.A, <decimal>0x0.A0],
-        [<decimal>0X22.F, <decimal>0X22.F, <decimal>0X22.f, <decimal>0X22.f0],
-        [<decimal>0x0.ap0, <decimal>0x.ap0, <decimal>0x0.Ap0, <decimal>0x0.A0p0],
-        [<decimal>0X22.FP0, <decimal>0X22.FP0, <decimal>0X22.fP0, <decimal>0X22.f0P0]
+        [100e+12d, 100E+12d, 100e12d, 100E12],
+        [100e-2d, 100E-2d, 1000e-3d, 10E-1],
+        [0e2d, 0E2d, 0e-2d, 0e-2],
+        [0.0d, .0d, 0.0d, 0.00],
+        [22.2d, 22.2e0d, 22.2E0d, 2.22E1],
+        [.0e+12d, .00E+12d, 0.0e12d, 0.00E12],
+        [1.0e-12d, 1.00E-12d, 1.0e-12d, 1.00E-12]
     ];
 }
 
@@ -66,7 +55,7 @@ function decimalValueDataProvider() returns decimal[][] {
 // treated as being equal.
 @test:Config {}
 function testDecimalZeroValues() {
-    decimal d1 = <decimal>+0.0;
-    decimal d2 = <decimal>-0.0;
+    decimal d1 = +0.0d;
+    decimal d2 = -0.0d;
     test:assertTrue(d1 == d2, msg = "expected +0.0 and -0.0 to be of same value");
 }
