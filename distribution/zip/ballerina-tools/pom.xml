@@ -238,12 +238,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-llvm</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jvm</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -335,18 +329,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-bir</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-llvm</artifactId>
-        </dependency>
-        <!--dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-backend-llvm</artifactId>
-        </dependency-->
-        <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>llvm-platform</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -469,7 +451,6 @@
                                 ballerina-utils,
                                 ballerina-websub,
                                 ballerina-privacy,
-                                ballerina-llvm,
                                 ballerina-jvm,
                                 ballerina-bir,
                                 <!-- other artifacts -->
@@ -669,11 +650,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/testerina-core-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-llvm-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

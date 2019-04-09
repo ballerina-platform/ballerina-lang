@@ -123,13 +123,6 @@
             <includes>
                 <include>org.ballerinalang:ballerina-bir:jar</include>
 
-                <!-- LLVM related jars-->
-                <include>org.ballerinalang:ballerina-llvm:jar</include>
-                <include>org.ballerinalang:ballerina-backend-llvm:jar</include>
-                <include>org.bytedeco.javacpp-presets:llvm-platform:jar</include>
-                <include>org.bytedeco.javacpp-presets:llvm:jar</include>
-                <include>org.bytedeco:javacpp:jar</include>
-
                 <!-- JVM Target related jars-->
                 <include>org.ballerinalang:ballerina-jvm:jar</include>
                 <include>org.ballerinalang:ballerina-backend-jvm:jar</include>
