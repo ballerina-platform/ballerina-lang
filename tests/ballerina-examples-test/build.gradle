@@ -25,29 +25,10 @@ task copyDistribution() {
     }
 }
 
-// task ballerinaInit(type: Exec) {
-//     dependsOn copyDistribution
-//     def distPath = "$buildDir/extractedDistribution"
-
-//     outputs.dir("${distPath}/examples/.ballerina")
-//     outputs.file("${distPath}/examples/Ballerina.toml")
-//     outputs.dir("${distPath}/examples/.ballerina/repo/")
-//     outputs.cacheIf{ true }
-
-// 	PatternSet patternSet = new PatternSet();
-//     patternSet.exclude("**/.ballerina/**");
-//     patternSet.exclude("**/Ballerina.toml");
-//     patternSet.exclude("**/ballerina-internal.log")
-//     inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
-
-    
-// }
-
 task test {
     dependsOn copyDistribution
     def distPath = "$buildDir/extractedDistribution"
     mustRunAfter ':ballerina-integration-test:test'
-    // dependsOn ballerinaInit
     outputs.dir("${distPath}/examples/target")
     outputs.dir("${distPath}/examples/.ballerina/repo/")
     outputs.cacheIf{ true }
@@ -100,8 +81,7 @@ task test {
                            'gauge-metrics',
                            'counter-metrics',
                            'xml-functions',
-                           'openapi-to-ballerina', 
-                           'record-io']
+                           'openapi-to-ballerina']
 
         def inputFile = new File( "${distPath}/examples/index.json")
         def categories = new JsonSlurper().parseText(inputFile.text)
@@ -136,4 +116,4 @@ task test {
    }
 }
 
-check.finalizedBy(test)
+// check.finalizedBy(test)
