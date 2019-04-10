@@ -29,9 +29,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewError;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
@@ -151,5 +155,19 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    
+    public void visit(NewXMLElement newXMLElement) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewXMLQName newXMLQName) {
+        throw new AssertionError();
+    }
+
+    public void visit(NewXMLText newXMLText) {
+        throw new AssertionError();
+    }
+
+    public void visit(XMLSeqStore xmlAddChild) {
+        throw new AssertionError();
+    }
 }

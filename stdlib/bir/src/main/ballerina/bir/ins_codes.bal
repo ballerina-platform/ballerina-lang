@@ -38,6 +38,12 @@ public const int INS_OBJECT_STORE = 33;
 public const int INS_OBJECT_LOAD = 34;
 public const int INS_PANIC = 35;
 
+public const int INS_NEW_XML_ELEMENT = 36;
+public const int INS_NEW_XML_QNAME = 37;
+public const int INS_NEW_XML_TEXT = 38;
+public const int INS_XML_SEQ_STORE = 39;
+public const int INS_XML_SEQ_LOAD = 40;
+
 // Binary expression related instructions.
 public const int INS_ADD = 50;
 public const int INS_SUB = 51;

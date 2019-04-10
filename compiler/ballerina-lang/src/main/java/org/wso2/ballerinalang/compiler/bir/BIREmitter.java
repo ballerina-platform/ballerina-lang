@@ -24,8 +24,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -269,7 +273,50 @@ public class BIREmitter extends BIRVisitor {
         birPanic.errorOp.accept(this);
         sb.append(";\n");
     }
-    
+
+    @Override
+    public void visit(NewXMLElement newXMLElement) {
+        sb.append("\t\t");
+        newXMLElement.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLElement.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLElement.startTagOp.accept(this);
+        sb.append(" ");
+        newXMLElement.endTagOp.accept(this);
+        sb.append(" ");
+        newXMLElement.defaultNsURIOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLQName newXMLQName) {
+        sb.append("\t\t");
+        newXMLQName.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLQName.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLQName.localnameOp.accept(this);
+        sb.append(" ");
+        newXMLQName.nsURIOp.accept(this);
+        sb.append(" ");
+        newXMLQName.prefixOp.accept(this);
+        sb.append(";\n");
+    }
+
+    @Override
+    public void visit(NewXMLText newXMLQText) {
+        sb.append("\t\t");
+        newXMLQText.lhsOp.accept(this);
+        sb.append(" = ").append(newXMLQText.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        newXMLQText.textOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(XMLSeqStore xmlAddChild) {
+        sb.append("\t\t");
+        xmlAddChild.lhsOp.accept(this);
+        sb.append(" = ").append(xmlAddChild.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        xmlAddChild.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
     // Operands
     public void visit(BIROperand birOp) {
         sb.append(birOp.variableDcl.name);

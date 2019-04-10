@@ -25,6 +25,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLQName;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLText;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLSeqStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
@@ -257,10 +261,41 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.detailOp.accept(this);
     }
 
-
     public void visit(BIRTerminator.Panic birPanic) {
         buf.writeByte(birPanic.kind.getValue());
         birPanic.errorOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLElement newXMLElement) {
+        buf.writeByte(newXMLElement.kind.getValue());
+        newXMLElement.lhsOp.accept(this);
+        newXMLElement.startTagOp.accept(this);
+        newXMLElement.endTagOp.accept(this);
+        newXMLElement.defaultNsURIOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLText newXMLText) {
+        buf.writeByte(newXMLText.kind.getValue());
+        newXMLText.lhsOp.accept(this);
+        newXMLText.textOp.accept(this);
+    }
+
+    @Override
+    public void visit(NewXMLQName newXMLQName) {
+        buf.writeByte(newXMLQName.kind.getValue());
+        newXMLQName.lhsOp.accept(this);
+        newXMLQName.localnameOp.accept(this);
+        newXMLQName.nsURIOp.accept(this);
+        newXMLQName.prefixOp.accept(this);
+    }
+
+    @Override
+    public void visit(XMLSeqStore xmlAddChild) {
+        buf.writeByte(xmlAddChild.kind.getValue());
+        xmlAddChild.lhsOp.accept(this);
+        xmlAddChild.rhsOp.accept(this);
     }
 
     // private methods

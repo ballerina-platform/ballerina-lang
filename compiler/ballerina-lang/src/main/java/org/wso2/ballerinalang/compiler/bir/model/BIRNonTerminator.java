@@ -356,4 +356,102 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             visitor.visit(this);
         }
     }
+
+    /**
+     * New XML element instruction
+     * <p>
+     * e.g.: {@code <foo>content</foo>}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLElement extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand startTagOp;
+        public BIROperand endTagOp;
+        public BIROperand defaultNsURIOp;
+
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
+                BIROperand defaultNsURIOp) {
+            super(pos, InstructionKind.NEW_XML_ELEMENT);
+            this.lhsOp = lhsOp;
+            this.startTagOp = startTagOp;
+            this.endTagOp = endTagOp;
+            this.defaultNsURIOp = defaultNsURIOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName instruction
+     * <p>
+     * e.g.: '{@code ns0:foo}' or '{@code {http://nsuri/}foo}'
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand localnameOp;
+        public BIROperand nsURIOp;
+        public BIROperand prefixOp;
+
+        public NewXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand localnameOp, BIROperand nsURIOp,
+                BIROperand prefixOp) {
+            super(pos, InstructionKind.NEW_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.localnameOp = localnameOp;
+            this.nsURIOp = nsURIOp;
+            this.prefixOp = prefixOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLText extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLText(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_TEXT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * XML sequence store expression.
+     *
+     * @since 0.995.0
+     */
+    public static class XMLSeqStore extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public XMLSeqStore(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.XML_SEQ_STORE);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

@@ -165,6 +165,36 @@ public type FuncBodyParser object {
             var detailsOp = self.parseVarRef();
             NewError newError = {kind:kind, lhsOp:lhsOp, reasonOp:reasonOp, detailsOp:detailsOp};
             return newError;
+        } else if (kindTag == INS_NEW_XML_ELEMENT) {
+            kind = INS_KIND_NEW_XML_ELEMENT;
+            var lhsOp = self.parseVarRef();
+            var startTagOp = self.parseVarRef();
+            var endTagOp = self.parseVarRef();
+            var defaultNsURIOp = self.parseVarRef();
+            NewXMLElement newXMLElement = {kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp, 
+                                           defaultNsURIOp:defaultNsURIOp};
+            return newXMLElement;
+        } else if (kindTag == INS_NEW_XML_QNAME) {
+            kind = INS_KIND_NEW_XML_QNAME;
+            var lhsOp = self.parseVarRef();
+            var localnameOp = self.parseVarRef();
+            var nsURIOp = self.parseVarRef();
+            var prefixOp = self.parseVarRef();
+            NewXMLQName newXMLQName = {kind:kind, lhsOp:lhsOp, localnameOp:localnameOp, nsURIOp:nsURIOp, 
+                                       prefixOp:prefixOp};
+            return newXMLQName;
+        } else if (kindTag == INS_NEW_XML_TEXT) {
+            kind = INS_KIND_NEW_XML_TEXT;
+            var lhsOp = self.parseVarRef();
+            var textOp = self.parseVarRef();
+            NewXMLText newXMLText = {kind:kind, lhsOp:lhsOp, textOp:textOp};
+            return newXMLText;
+        } else if (kindTag == INS_XML_SEQ_STORE) {
+            kind = INS_KIND_XML_SEQ_STORE;
+            var lhsOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            XMLSeqStore xmlSeqStore = {kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            return xmlSeqStore;
         } else {
             return self.parseBinaryOpInstruction(kindTag);
         }

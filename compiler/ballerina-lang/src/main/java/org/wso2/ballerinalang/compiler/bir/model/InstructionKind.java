@@ -47,6 +47,11 @@ public enum InstructionKind {
     OBJECT_STORE((byte) 33),
     OBJECT_LOAD((byte) 34),
     PANIC((byte) 35),
+    NEW_XML_ELEMENT((byte) 36),
+    NEW_XML_QNAME((byte) 37),
+    NEW_XML_TEXT((byte) 38),
+    XML_SEQ_STORE((byte) 39),
+    XML_SEQ_LOAD((byte) 40),
 
     // Binary expression related instructions.
     ADD((byte) 50),

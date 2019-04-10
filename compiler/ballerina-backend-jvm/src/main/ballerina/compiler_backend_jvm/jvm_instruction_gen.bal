@@ -466,6 +466,9 @@ type InstructionGenerator object {
         } else if (bType is bir:BRecordType) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
             self.mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+        } else if (bType is bir:BXMLType) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+            self.mv.visitTypeInsn(CHECKCAST, XML_VALUE);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
         }
@@ -516,7 +519,8 @@ type InstructionGenerator object {
                     bType is bir:BErrorType ||
                     bType is bir:BJSONType ||
                     bType is bir:BFutureType ||
-                    bType is bir:BObjectType) {
+                    bType is bir:BObjectType ||
+                    bType is bir:BXMLType) {
             self.mv.visitVarInsn(ALOAD, valueIndex);
         } else {
             error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -554,7 +558,8 @@ type InstructionGenerator object {
                         bType is bir:BErrorType ||
                         bType is bir:BJSONType ||
                         bType is bir:BFutureType ||
-                        bType is bir:BObjectType) {
+                        bType is bir:BObjectType ||
+                        bType is bir:BXMLType) {
             self.mv.visitVarInsn(ASTORE, valueIndex);
         } else {
             error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
@@ -588,6 +593,40 @@ type InstructionGenerator object {
         loadType(self.mv, objectNewIns.typeDef.typeValue);
         self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.generateVarStore(objectNewIns.lhsOp.variableDcl);
+    }
+
+    function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
+        self.generateVarLoad(newXMLElement.startTagOp.variableDcl);
+        self.generateVarLoad(newXMLElement.endTagOp.variableDcl);
+        self.generateVarLoad(newXMLElement.defaultNsURIOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
+                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
+        self.generateVarStore(newXMLElement.lhsOp.variableDcl);
+    }
+
+    function generateNewXMLQNameIns(bir:NewXMLQName newXMLQName) {
+        self.mv.visitTypeInsn(NEW, XML_QNAME);
+        self.mv.visitInsn(DUP);
+        self.generateVarLoad(newXMLQName.localnameOp.variableDcl);
+        self.generateVarLoad(newXMLQName.nsURIOp.variableDcl);
+        self.generateVarLoad(newXMLQName.prefixOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESPECIAL, XML_QNAME, "<init>",
+                io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+        self.generateVarStore(newXMLQName.lhsOp.variableDcl);
+    }
+
+    function generateNewXMLTextIns(bir:NewXMLText newXMLText) {
+        self.generateVarLoad(newXMLText.textOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLText",
+                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+        self.generateVarStore(newXMLText.lhsOp.variableDcl);
+    }
+
+    function generateXMLStoreIns(bir:XMLSeqStore xmlStoreIns) {
+        self.generateVarLoad(xmlStoreIns.lhsOp.variableDcl);
+        self.generateVarLoad(xmlStoreIns.rhsOp.variableDcl);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "addChildren", io:sprintf("(L%s;)V", XML_VALUE),
+                                        false);
     }
 };
 

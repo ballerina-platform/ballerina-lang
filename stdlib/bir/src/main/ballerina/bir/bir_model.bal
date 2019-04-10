@@ -96,12 +96,17 @@ public const INS_KIND_IS_LIKE = "IS_LIKE";
 public const INS_KIND_TYPE_TEST = "TYPE_TEST";
 public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
 public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
+public const INS_KIND_NEW_XML_ELEMENT = "NEW_XML_ELEMENT";
+public const INS_KIND_NEW_XML_QNAME = "NEW_XML_QNAME";
+public const INS_KIND_NEW_XML_TEXT = "NEW_XML_QNAME";
+public const INS_KIND_XML_SEQ_STORE = "XML_SEQ_STORE";
 
-public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST | 
+public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
                                 INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD | INS_KIND_TYPE_CAST | INS_KIND_IS_LIKE |
                                 INS_KIND_TYPE_TEST | BinaryOpInstructionKind | INS_KIND_OBJECT_STORE |
-                                INS_KIND_OBJECT_LOAD;
+                                INS_KIND_OBJECT_LOAD | INS_KIND_NEW_XML_ELEMENT | INS_KIND_NEW_XML_QNAME |
+                                INS_KIND_XML_SEQ_STORE;
 
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -194,6 +199,9 @@ public type BTypeByte TYPE_BYTE;
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
+public const TYPE_XML = "xml";
+public type BXMLType TYPE_XML;
+
 public type BArrayType record {|
     ArrayState state;
     BType eType;
@@ -258,7 +266,7 @@ public type BFutureType record {|
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
-                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self;
+                  BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BXMLType;
 
 public type ModuleID record {|
     string org = "";
@@ -406,4 +414,32 @@ public type Return record {|
 public type Panic record {|
     TerminatorKind kind;
     VarRef errorOp;
+|};
+
+public type NewXMLElement record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef startTagOp;
+    VarRef endTagOp;
+    VarRef defaultNsURIOp;
+|};
+
+public type NewXMLQName record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef localnameOp;
+    VarRef nsURIOp;
+    VarRef prefixOp;
+|};
+
+public type XMLSeqStore record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef rhsOp;
+|};
+
+public type NewXMLText record {|
+    InstructionKind kind;
+    VarRef lhsOp;
+    VarRef textOp;
 |};
