@@ -14,9 +14,15 @@ const BLOCK_NODE = "blockNode";
 const INTEGER_LITERAL = "integerLiteral";
 const QUO_STRING_LITERAL = "quotedStringLiteral";
 const ERROR_NODE = "errorNode";
+const RECORD_LITERAL_NODE = "recordLiteralNode";
+const RECORD_KEY_VALUE_NODE = "recordKeyValueNode";
+const RECORD_KEY_NODE = "recordKeyNode";
+const TUPLE_LITERAL_NODE = "tupleLiteralNode";
+const EMPTY_TUPLE_LITERAL_NODE = "emptyTupleLiteralNode";
 
 type NodeKind PACKAGE_NODE|FUNCTION_NODE|STATEMENT_NODE|VAR_DEF_STATEMENT_NODE|VAR_DEC_STATEMENT_NODE|EXPRESSION_NODE|
-BINARY_EXP_NODE|IDENTIFIER_NODE|VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL | ERROR_NODE;
+BINARY_EXP_NODE|IDENTIFIER_NODE|VAR_REF_NODE | FN_SIGNATURE_NODE | BLOCK_NODE | INTEGER_LITERAL | QUO_STRING_LITERAL |
+ERROR_NODE | RECORD_LITERAL_NODE | RECORD_KEY_VALUE_NODE | RECORD_KEY_NODE | TUPLE_LITERAL_NODE | EMPTY_TUPLE_LITERAL_NODE;
 
 const INT_TYPE = "int";
 const STRING_TYPE = "string";
@@ -28,8 +34,10 @@ const MINUS_OP = "-";
 const DIVISION_OP = "/";
 const MULTIPLICATION_OP = "*";
 const ERROR_OP = "invalidOperator";
+const COLON_OP = ":";
+const COMMA_OP = ",";
 
-type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP;
+type OperatorKind PLUS_OP|MINUS_OP|DIVISION_OP|MULTIPLICATION_OP|ERROR_OP|COLON_OP |COMMA_OP;
 
 type Node record {
     NodeKind nodeKind;
@@ -39,13 +47,15 @@ type Node record {
 
 public type PackageNode record {
     *Node;
-    FunctionNode[] functionList;
+    DefinitionNode[] definitionList;
 };
+
+type DefinitionNode FunctionNode | ErrorNode;
 
 type FunctionNode record {
     *Node;
-    FunctionSignatureNode fnSignature;
-    BlockNode blockNode;
+    FunctionSignatureNode? fnSignature;
+    BlockNode? blockNode;
 };
 
 //function identifier ()
@@ -75,7 +85,7 @@ type VariableDefinitionStatementNode record {
     ExpressionNode? expression;
 };
 
-type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier;
+type ExpressionNode BinaryExpressionNode | SimpleLiteral | VarRefIdentifier | RecordLiteralNode | TupleLiteralNode;
 
 type BinaryExpressionNode record {
     *Node;
@@ -93,8 +103,33 @@ type VarRefIdentifier record {
     *Node;
     string varIdentifier;
 };
+//LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+type RecordLiteralNode record {
+    *Node;
+     RecordKeyValueNode[] recordkeyValueList;
+};
+//recordKey COLON expression
+type RecordKeyValueNode record {
+    *Node;
+    RecordKeyNode recordKeyNode;
+    OperatorKind operatorKind;
+    ExpressionNode recordValueExpression;
 
-type SimpleLiteral IntegerLiteralNode | QuotedStringLiteralNode;
+};
+//Identifier |   expression
+type RecordKeyNode record {
+    *Node;
+    IdentifierNode recordKey?;
+    ExpressionNode recordExpression?;
+
+};
+//LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
+type TupleLiteralNode record{
+    *Node;
+    ExpressionNode[] tupleExprList?;
+};
+
+type SimpleLiteral IntegerLiteralNode | QuotedStringLiteralNode| EmptyTupleLiteralNode;
 
 type IntegerLiteralNode record {
     *Node;
@@ -104,4 +139,8 @@ type IntegerLiteralNode record {
 type QuotedStringLiteralNode record {
     *Node;
     string stringLiteral;
+};
+
+type EmptyTupleLiteralNode record {
+    *Node;
 };

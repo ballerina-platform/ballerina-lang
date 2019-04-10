@@ -25,9 +25,10 @@ const int MULTIPLICATION = 20;
 const int LEXER_ERROR_TOKEN = 21;
 const int COLON = 22;
 const int PARSER_ERROR_TOKEN = 23;
+const int COMMA = 24;
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
 "EOF", "NUMBER", "EQUAL_TO", "STRICT_EQAULITY", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
-"SUBSTRACTION", "DIVISION", "MULTIPLICATION","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN"];
+"SUBSTRACTION", "DIVISION", "MULTIPLICATION","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA"];
 
 int position = 0;
 int lineNum = 1;
@@ -84,7 +85,11 @@ public type Lexer object {
 				tokenIndex += 1;
 				return { tokenType: COLON, text: currChar, startPos: position, endPos: position, lineNumber:
 				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
-			} else if (currChar == "=") {
+			} else if (currChar == ","){
+				tokenIndex += 1;
+				return { tokenType: COMMA, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
+			}else if (currChar == "=") {
                 if (self.buffer.lookAhead() == "=") {
                     currChar = self.nextLexeme();
                     position += 1;
