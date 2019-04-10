@@ -19,7 +19,7 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation project(':ballerina-jvm')
 
-    implementation 'com.h2database:h2:1.4.197'
+    implementation 'com.h2database:h2:1.4.199'
     implementation 'org.testng:testng:6.13.1'
     testCompile 'org.awaitility:awaitility:3.1.6'
     testCompile 'com.zaxxer:HikariCP:3.3.1'

@@ -37,7 +37,7 @@ function testBelongsToWithArrays() {
 
 @test:Config {}
 function testBelongsToWithTuples() {
-    (int|boolean, string|float, decimal) a3 = (false, 1.0, <decimal>5.2);
+    (int|boolean, string|float, decimal) a3 = (false, 1.0, 5.2d);
     anydata a4 = a3;
     if !(a4 is (anydata, anydata, decimal)) || !(a4 is (int|boolean, string|float, decimal)) {
         test:assertFail(msg = EXPECTED_VALUE_TO_BELONG_TO_TYPE_FAILURE_MESSAGE);

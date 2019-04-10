@@ -591,3 +591,12 @@ function testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess () retur
     map<string?> testMap = {};
     return testMap["nonexist"];
 }
+
+function testInherentTypeViolationWithNilType() {
+    map<string> m = { one: "one" };
+    insertNilToMap(m);
+}
+
+function insertNilToMap(map<any> m) {
+    m.two = (); // panic
+}

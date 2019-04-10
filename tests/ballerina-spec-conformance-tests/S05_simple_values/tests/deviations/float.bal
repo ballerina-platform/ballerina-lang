@@ -42,8 +42,8 @@ import ballerina/test;
 //function testDecimalBroken() {
 //    decimal d1 = 0.;
 //    decimal d2 = 0x0.;
-//    test:assertTrue(d1, <decimal>0.0, msg = "expected decimal values to be equal");
-//    test:assertTrue(d2, <decimal>0.0, msg = "expected decimal values to be equal");
+//    test:assertTrue(d1, 0.0d, msg = "expected decimal values to be equal");
+//    test:assertTrue(d2, 0.0d, msg = "expected decimal values to be equal");
 //}
 
 // The multiple bit patterns that IEEE 754 treats as NaN are considered to be the same value in Ballerina
@@ -60,8 +60,8 @@ function testFloatingPointNaNValuesBroken() {
     //test:assertTrue(f1 === f2, msg = "expected +0.0 and -0.0 to be of same value");
     test:assertTrue(f1 !== f2, msg = "expected +0.0 and -0.0 to be different values");
 
-    decimal d1 = <decimal>+0.0/0.0;
-    decimal d2 = <decimal>-0.0/0.0;
+    decimal d1 = +0.0d/0.0d;
+    decimal d2 = -0.0d/0.0d;
     //test:assertTrue(d1 == d2, msg = "expected +0.0 and -0.0 to be of same value");
     test:assertTrue(d1 != d2, msg = "expected +0.0 and -0.0 to be of same value");
     //test:assertTrue(d1 === d2, msg = "expected +0.0 and -0.0 to be of same value");
@@ -82,8 +82,8 @@ function testFloatingPointZeroValuesBroken() {
     //test:assertTrue(f1 !== f2, msg = "expected +0.0 and -0.0 to be distinct values");
     test:assertTrue(f1 === f2, msg = "expected +0.0 and -0.0 to be the same value");
 
-    decimal d1 = <decimal>+0.0;
-    decimal d2 = <decimal>-0.0;
+    decimal d1 = +0.0d;
+    decimal d2 = -0.0d;
     //test:assertTrue(d1 !== d2, msg = "expected +0.0 and -0.0 to be distinct values");
     test:assertTrue(d1 === d2, msg = "expected +0.0 and -0.0 to be distinct values");
     test:assertTrue(d1 == d2, msg = "expected +0.0 and -0.0 to be of same value");

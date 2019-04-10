@@ -449,3 +449,14 @@ function testFiniteTypesAsUnionsAsBroaderTypes_2() returns boolean {
     Z c = b;
     return assignmentSuccessful && b == c && c == 2.0;
 }
+
+type t 1.0f|1.0d;
+type t2 2.22f|3.33d;
+function testFiniteTypesWithDiscriminatedMembers() returns (any, any, any, any, any) {
+    t a = 1.0f;
+    t b = 1.0d;
+    t|t2 c = 2.22;
+    t|t2 d = 2.22f;
+    t|t2 e = 3.33d;
+    return (a, b, c, d, e);
+}

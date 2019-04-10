@@ -85,16 +85,16 @@ public class JmsUtils {
         return configParams;
     }
 
-    public static Connection createConnection(Struct connectionConfig) {
+    public static Connection createConnection(BMap<String, BValue> connectionConfig) {
         Map<String, String> configParams = new HashMap<>();
 
-        String initialContextFactory = connectionConfig.getStringField(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY);
+        String initialContextFactory = connectionConfig.get(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY).stringValue();
         configParams.put(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY, initialContextFactory);
 
-        String providerUrl = connectionConfig.getStringField(JmsConstants.ALIAS_PROVIDER_URL);
+        String providerUrl = connectionConfig.get(JmsConstants.ALIAS_PROVIDER_URL).stringValue();
         configParams.put(JmsConstants.ALIAS_PROVIDER_URL, providerUrl);
 
-        String factoryName = connectionConfig.getStringField(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME);
+        String factoryName = connectionConfig.get(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME).stringValue();
         configParams.put(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME, factoryName);
 
         preProcessIfWso2MB(configParams);
@@ -104,10 +104,11 @@ public class JmsUtils {
         configParams.forEach(properties::put);
 
         //check for additional jndi properties
-        Map<String, Value> props = connectionConfig.getMapField(JmsConstants.PROPERTIES_MAP);
+        @SuppressWarnings(JmsConstants.UNCHECKED)
+        Map<String, BValue> props = ((BMap<String, BValue>) connectionConfig.get(JmsConstants.PROPERTIES_MAP)).getMap();
         if (props != null) {
-            for (Map.Entry<String, Value> entry : props.entrySet()) {
-                properties.put(entry.getKey(), entry.getValue().getStringValue());
+            for (Map.Entry<String, BValue> entry : props.entrySet()) {
+                properties.put(entry.getKey(), entry.getValue().stringValue());
             }
         }
 
@@ -116,10 +117,10 @@ public class JmsUtils {
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
             String username = null;
             String password = null;
-            if (connectionConfig.getRefField(JmsConstants.ALIAS_USERNAME) != null &&
-                    connectionConfig.getRefField(JmsConstants.ALIAS_PASSWORD) != null) {
-                username = connectionConfig.getRefField(JmsConstants.ALIAS_USERNAME).getStringValue();
-                password = connectionConfig.getRefField(JmsConstants.ALIAS_PASSWORD).getStringValue();
+            if (connectionConfig.get(JmsConstants.ALIAS_USERNAME) != null &&
+                    connectionConfig.get(JmsConstants.ALIAS_PASSWORD) != null) {
+                username = connectionConfig.get(JmsConstants.ALIAS_USERNAME).stringValue();
+                password = connectionConfig.get(JmsConstants.ALIAS_PASSWORD).stringValue();
             }
 
             if (!JmsUtils.isNullOrEmptyAfterTrim(username) && password != null) {

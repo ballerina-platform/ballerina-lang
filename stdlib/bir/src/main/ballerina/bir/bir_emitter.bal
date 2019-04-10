@@ -72,6 +72,18 @@ public type BirEmitter object {
     function emitTypeDef(TypeDef bTypeDef) {
         print(bTypeDef.visibility, " type ", bTypeDef.name.value, " ");
         self.typeEmitter.emitType(bTypeDef.typeValue);
+
+        println();
+        Function?[]? funcs = bTypeDef.attachedFuncs;
+        if (funcs is Function?[]) {
+            foreach var func in funcs {
+                if (func is Function) {
+                    self.emitFunction(func);
+                    println();
+                }
+            }
+        }
+
         println(";");
     }
 

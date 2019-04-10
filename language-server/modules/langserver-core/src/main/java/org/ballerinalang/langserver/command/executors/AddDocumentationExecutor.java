@@ -44,7 +44,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class AddDocumentationExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "ADD_DOC";
+    public static final String COMMAND = "ADD_DOC";
 
     /**
      * {@inheritDoc}

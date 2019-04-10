@@ -179,9 +179,20 @@ public class BCompileUtil {
             // TODO: orgName is anon, fix it.
             PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
             effectiveSource = pkgId.getName().getValue();
+
+            if (jBallerinaTestsEnabled()) {
+                return compileOnJBallerina(rootPath.toString(), effectiveSource);
+            }
+
             return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
         } else {
             effectiveSource = packageName;
+
+            if (jBallerinaTestsEnabled()) {
+                return compileOnJBallerina(rootPath.toString(), effectiveSource,
+                        new FileSystemProjectDirectory(rootPath));
+            }
+
             return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
                     new FileSystemProjectDirectory(rootPath));
         }
@@ -532,15 +543,21 @@ public class BCompileUtil {
         return value != null && Boolean.valueOf(value);
     }
 
-
-    private static CompileResult compileOnJBallerina(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-
+    private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
+                                                     SourceDirectory sourceDirectory) {
         CompilerContext context = new CompilerContext();
+        context.put(SourceDirectory.class, sourceDirectory);
+        return compileOnJBallerina(context, sourceRoot, packageName);
+    }
+
+    public static CompileResult compileOnJBallerina(String sourceRoot, String packageName) {
+        CompilerContext context = new CompilerContext();
+        return compileOnJBallerina(context, sourceRoot, packageName);
+    }
+
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName) {
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRoot.toString());
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -552,7 +569,8 @@ public class BCompileUtil {
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         byte[] compiledJar = JVMCodeGen.generateJarBinary(bLangPackage, context, packageName);
         JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(compiledJar);
-        String entryClassName = FileUtils.cleanupFileExtension(packageName);
+        String entryClassName = FileUtils.cleanupFileExtension(packageName).replace('.', '_');
+        entryClassName = getQualifiedClassName(bLangPackage.packageID.orgName.value, packageName, entryClassName);
         Class<?> clazz = classLoader.loadClass(entryClassName);
 
         // invoke the init function
@@ -566,6 +584,20 @@ public class BCompileUtil {
 
         compileResult.setEntryClass(clazz);
         return compileResult;
+    }
+
+    private static String getQualifiedClassName(String orgName, String packageName, String className) {
+        if (!Names.ANON_ORG.value.equals(orgName) && !Names.DEFAULT_PACKAGE.value.equals(packageName)) {
+            return orgName + "." + packageName.replace('.', '_') + "." + className.replace('.', '_');
+        }
+        return className;
+    }
+
+    private static CompileResult compileOnJBallerina(String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compileOnJBallerina(sourceRoot.toString(), packageName);
     }
 
     private static String cleanupFunctionName(BLangFunction function) {

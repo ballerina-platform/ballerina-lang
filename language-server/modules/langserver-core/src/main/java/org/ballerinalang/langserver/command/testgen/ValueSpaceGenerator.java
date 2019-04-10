@@ -292,6 +292,10 @@ public class ValueSpaceGenerator {
                 String[] resultBlob = new String[]{"0"};
                 populateValueSpace(resultBlob, template, () -> String.valueOf("0"));
                 break;
+            case "error":
+                String[] resultErr = new String[]{"0"};
+                populateValueSpace(resultErr, template, () -> "error(\"\")");
+                break;
             default:
                 String[] result = new String[]{"()"};
                 populateValueSpace(result, template, () -> "()");

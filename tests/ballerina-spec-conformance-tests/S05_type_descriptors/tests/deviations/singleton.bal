@@ -29,12 +29,12 @@ map<string> strMap = {
 };
 
 // type INT_POSITIVE_ONE +1;
-// type FLOAT_NEGATIVE_TWO <float> -2.0;
-// type FLOAT_TWO <float> 2.0;
-// type FLOAT_POSITIVE_TWO <float> +2.0;
-// type DECIMAL_NEGATIVE_THREE <decimal> -3.0;
-// type DECIMAL_THREE <decimal> 3.0;
-// type DECIMAL_POSITIVE_THREE <decimal> +3.0;
+// type FLOAT_NEGATIVE_TWO -2.0f;
+// type FLOAT_TWO 2.0f;
+// type FLOAT_POSITIVE_TWO +2.0f;
+// type DECIMAL_NEGATIVE_THREE -3.0d;
+// type DECIMAL_THREE 3.0d;
+// type DECIMAL_POSITIVE_THREE +3.0d;
 // type MAP_VAR_REF strMap;
 
 @test:Config {
@@ -44,23 +44,23 @@ function testSingletonTypeDescriptorsBroken() {
     // INT_POSITIVE_ONE s1 = +1;
     // test:assertEquals(s1, +1, msg = "expected value to be equal to singleton value");
 
-    // FLOAT_NEGATIVE_TWO s2 = <float> -2.0;
+    // FLOAT_NEGATIVE_TWO s2 = -2.0f;
     // test:assertEquals(s2, -2.0, msg = "expected value to be equal to singleton value");
 
-    // FLOAT_TWO s3 = <float> 2.0;
+    // FLOAT_TWO s3 = 2.0f;
     // test:assertEquals(s3, 2.0, msg = "expected value to be equal to singleton value");
 
-    // FLOAT_POSITIVE_TWO s4 = <float> +2.0;
+    // FLOAT_POSITIVE_TWO s4 = +2.0f;
     // test:assertEquals(s4, +2.0, msg = "expected value to be equal to singleton value");
 
-    // DECIMAL_NEGATIVE_THREE s5 = <decimal> -3.0;
-    // test:assertEquals(s5, <decimal> -3.0, msg = "expected value to be equal to singleton value");
+    // DECIMAL_NEGATIVE_THREE s5 = -3.0d;
+    // test:assertEquals(s5, -3.0d, msg = "expected value to be equal to singleton value");
 
-    // DECIMAL_THREE s6 = <decimal> 3.0;
-    // test:assertEquals(s6, <decimal> 3.0, msg = "expected value to be equal to singleton value");
+    // DECIMAL_THREE s6 = 3.0d;
+    // test:assertEquals(s6, 3.0d, msg = "expected value to be equal to singleton value");
 
-    // DECIMAL_POSITIVE_THREE s7 = <decimal> +3.0;
-    // test:assertEquals(s7, <decimal> +3.0, msg = "expected value to be equal to singleton value");
+    // DECIMAL_POSITIVE_THREE s7 = +3.0d;
+    // test:assertEquals(s7, +3.0d, msg = "expected value to be equal to singleton value");
 
     // MAP_VAR_REF s8 = {
     //     one: "test string 1",

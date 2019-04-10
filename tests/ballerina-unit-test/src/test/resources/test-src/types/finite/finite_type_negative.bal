@@ -91,3 +91,20 @@ function testInvalidAssignmentToDifferentType() {
     StringOrInt s3 = 5;
     int s4 = s3;
 }
+
+type t 1.0f|1.0d;
+type t2 2.22f|3.33d;
+type t3 1.0d|2.0f;
+function testFiniteTypesWithDiscriminatedMembers() returns (any, any, any, any, any) {
+    t a = 1.0f;
+    t b = 1.0d;
+    t3 ta = 2.0;
+    t3 tb = 1.0f;
+    t3 tc = 1.0;
+    t|t2 c = 2.22;
+    t|t2 d = 2.22f;
+    t|t2 e = 3.33;
+    t|t2 f = 3.334d;
+    return (a, b, c, d, e);
+}
+

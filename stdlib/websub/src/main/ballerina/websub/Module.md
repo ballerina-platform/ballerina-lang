@@ -41,6 +41,67 @@ This module allows introducing a WebSub Subscriber Service with `onIntentVerific
 
 A WebSub compliant hub based on the Ballerina Message Broker is also available. This can be used as a remote hub or to be used by publishers who want to have their own internal hub. Ballerina's WebSub hub honors specified lease periods and supports authenticated content distribution.
 
+##### Enabling Basic Auth support for the hub
+
+The Ballerina WebSub Hub can be secured by enforcing authentication (Basic Authentication) and optionally authorization. 
+`AuthProvider` and `authConfig` need to be specified for the hub listener and service respectively. If the 
+`authStoreProvider` of the `AuthProvider` is set as "config", usernames and passwords for authentication and scopes 
+for authorization would be read from a config toml file.
+A user can specify `AuthProvider` as follows and set it to the `hubListenerConfig` record passed when starting the hub.
+
+``` ballerina
+http:AuthProvider basicAuthProvider = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
+
+http:ServiceEndpointConfiguration hubListenerConfig = {
+    authProviders: [basicAuthProvider],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+};
+
+var val = websub:startHub(new http:Listener (9191, config =  hubListenerConfig));
+```
+In addition to the `AuthProvider` for listener, a user also has to specify the `authConfig` properties at service 
+config level. 
+
+ 
+It can be populated by providing `authConfig` via a toml formatted file under the `b7a.websub.hub.auth` alias.
+Recognized users can also be mentioned in the same file which permits auth providers to read. 
+
+```
+["b7a.websub.hub.auth"]
+enabled=true  // enables the authentication
+scopes="scope1" // defines the scope of possible users
+
+["b7a.users"]
+
+["b7a.users.tom"]
+password="1234"
+scopes="scope1"
+```
+
+Once the hub is secured over basic auth, a subscriber should provide the relevant `auth` config in the 
+`subscriptionClientConfig` field of the subscriber service annotation.
+
+```ballerina
+@websub:SubscriberServiceConfig {
+    path: "/ordereventsubscriber",
+    subscriptionClientConfig: {
+        auth: {
+            scheme: http:BASIC_AUTH,
+            username: "tom",
+            password: "1234"
+        }
+    }
+}
+```
+
 ##### Enabling data persistence for the hub
 
 The Ballerina WebSub Hub supports persistence of topic and subscription data that needs to be restored when the hub is 
