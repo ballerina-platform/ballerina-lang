@@ -582,7 +582,7 @@ type InstructionGenerator object {
     }
 
     function generateObjectNewIns(bir:NewInstance objectNewIns) {
-        string className = self.currentPackageName + objectNewIns.typeDef.name.value;
+        string className = self.currentPackageName + cleanupTypeName(objectNewIns.typeDef.name.value);
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadType(self.mv, objectNewIns.typeDef.typeValue);

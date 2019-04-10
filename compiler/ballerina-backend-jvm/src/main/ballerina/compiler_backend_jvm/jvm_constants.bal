@@ -227,6 +227,7 @@ const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
 const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
+const string STRING_BUILDER = "java/lang/StringBuilder";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -245,3 +246,5 @@ const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 
+// exception classes
+const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
