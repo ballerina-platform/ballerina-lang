@@ -114,6 +114,8 @@ task generateIndex(type: JavaExec) {
 }
 
 task createZip(type: Zip) {
+    dependsOn createBalHome
+    dependsOn generateIndex
     with copyJarSpec
     with copyResourceSpec
 }
@@ -123,8 +125,6 @@ artifacts {
 }
 
 build {
-    dependsOn createBalHome
-    dependsOn generateIndex
     dependsOn createZip
 }
 
