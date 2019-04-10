@@ -323,8 +323,9 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
 # + auth - The auth config to use at the hub, if specified
 # + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
 #            else `error` if an error occurred
-function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode, SubscriptionChangeRequest
-                                            subscriptionChangeRequest, http:AuthConfig? auth, int remainingRedirects)
+function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode,
+                                            SubscriptionChangeRequest subscriptionChangeRequest,
+                                            http:OutboundAuthConfig? auth, int remainingRedirects)
     returns @tainted SubscriptionChangeResponse|error {
 
     if (mode == MODE_SUBSCRIBE) {
@@ -333,8 +334,9 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
     return unsubscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
 }
 
-function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,
-                              int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse| error {
+function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest,
+                              http:OutboundAuthConfig? auth, int remainingRedirects = 0)
+             returns @tainted SubscriptionChangeResponse| error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = { auth: auth });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
@@ -342,8 +344,9 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
                               remainingRedirects);
 }
 
-function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest, http:AuthConfig? auth,
-                                int remainingRedirects = 0) returns @tainted SubscriptionChangeResponse|error {
+function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest,
+                                http:OutboundAuthConfig? auth, int remainingRedirects = 0)
+             returns @tainted SubscriptionChangeResponse|error {
     http:Client clientEndpoint = new http:Client(hubUrl, config = {
         auth: auth
     });

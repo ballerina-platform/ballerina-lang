@@ -29,10 +29,8 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 service hubService =
 @http:ServiceConfig {
     basePath: BASE_PATH,
-    authConfig: {
-        authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false)
-        },
+    auth: {
+        enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false),
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
 }
@@ -550,12 +548,12 @@ function buildWebSubLinkHeader(string hub, string topic) returns (string) {
 
 # Construct an array of groups from the comma separed group string passed
 #
-# + groupString - comma separated string of groups
-# + return - array of groups, nil if the groups string is empty/nil
-function getArray(string groupString) returns string[]? {
+# + groupString - Comma separated string of groups
+# + return - Array of groups
+function getArray(string groupString) returns string[] {
     string[] groupsArr = [];
     if (groupString.length() == 0) {
-        return ();
+        return groupsArr;
     }
     return groupString.split(",");
 }
