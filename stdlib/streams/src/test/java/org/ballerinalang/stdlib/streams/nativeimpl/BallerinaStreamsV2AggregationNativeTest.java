@@ -43,7 +43,7 @@ public class BallerinaStreamsV2AggregationNativeTest {
         result = BCompileUtil.compile("test-src/native/streamingv2-native-aggregation-unit-test.bal");
     }
 
-    @Test(description = "Test streaming query with aggregation and group by.")
+    @Test(description = "Test streaming query with aggregation and group by.", enabled = false)
     public void testAggregationQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startAggregationQuery");
         Assert.assertNotNull(outputEvents);

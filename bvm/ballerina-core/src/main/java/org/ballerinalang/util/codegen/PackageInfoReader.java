@@ -43,6 +43,8 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
@@ -77,6 +79,7 @@ import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.MapCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
@@ -89,6 +92,8 @@ import org.wso2.ballerinalang.compiler.TypeCreator;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.ConstantValue;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -103,6 +108,11 @@ import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.model.types.TypeTags.BYTE_TAG;
+import static org.ballerinalang.model.types.TypeTags.DECIMAL_TAG;
+import static org.ballerinalang.model.types.TypeTags.FLOAT_TAG;
+import static org.ballerinalang.model.types.TypeTags.INT_TAG;
+import static org.ballerinalang.model.types.TypeTags.STRING_TAG;
 import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
@@ -269,9 +279,140 @@ public class PackageInfoReader {
                         .getCPEntry(uniqueNameCPIndex);
 
                 return new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
+            case CP_ENTRY_MAP:
+                return getMapConstantPoolEntry(constantPool);
             default:
                 throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
+    }
+
+    private ConstantPoolEntry getMapConstantPoolEntry(ConstantPool constantPool) throws IOException {
+        // We use this map to recreate `KeyInfo -> ConstantValue` mapping.
+        LinkedHashMap<KeyInfo, ConstantValue> valueMap = new LinkedHashMap<>();
+
+        // We use this BMap to generate actual value which will be loaded to the VM.
+        BMap<String, BRefType> bValueMap = new BMap<>();
+
+        // Read the size of the record literal.
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+
+            int keyCPIndex = dataInStream.readInt();
+            UTF8CPEntry keyCPEntry = (UTF8CPEntry) constantPool.getCPEntry(keyCPIndex);
+
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+            if (isSimpleLiteral) {
+                BMap<String, BRefType> tempMap = readSimpleLiteral(constantPool, valueMap, keyCPEntry);
+                for (String key : tempMap.keys()) {
+                    bValueMap.put(key, tempMap.get(key));
+                }
+            } else {
+                // This situation occurs for any nested record literal. This is the index of the constant pool entry
+                // which contains the corresponding MapCPEntry.
+                int constantValueCPEntryIndex = dataInStream.readInt();
+                MapCPEntry mapCPEntry = (MapCPEntry) constantPool.getCPEntry(constantValueCPEntryIndex);
+
+                // Any nested map literal will be already in the constant pool. Corresponding BMap is also generated
+                // when the constant pool is generated. So we just need to get the corresponding value from the
+                // MapCPEntry and add it to the bValueMap.
+                bValueMap.put(keyCPEntry.getValue(), mapCPEntry.getBMap());
+
+                // Create the key.
+                KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+
+                // Create the value.
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.valueCPEntryIndex = constantValueCPEntryIndex;
+                constantValue.constantValueMap = mapCPEntry.getConstantValueMap();
+
+                // Add the key-value pair to the valueMap.
+                valueMap.put(keyInfo, constantValue);
+            }
+        }
+        return new MapCPEntry(valueMap, bValueMap);
+    }
+
+    private BMap<String, BRefType> readSimpleLiteral(ConstantPool constantPool,
+                                                     LinkedHashMap<KeyInfo, ConstantValue> valueMap,
+                                                     UTF8CPEntry keyCPEntry) throws IOException {
+        BMap<String, BRefType> bValueMap;
+
+        // Read value type tag.
+        int typeTag = dataInStream.readInt();
+
+        // Create a new constant value.
+        ConstantValue constantValue = new ConstantValue();
+        constantValue.literalValueTypeTag = typeTag;
+        constantValue.isSimpleLiteral = true;
+
+        // Create a new key info.
+        KeyInfo keyInfo = new KeyInfo(keyCPEntry.getValue());
+        valueMap.put(keyInfo, constantValue);
+
+        // Populate the BMap accordingly.
+        if (typeTag == TypeTags.NULL_TAG) {
+            BMapType bMapType = new BMapType(BTypes.typeNull);
+            bValueMap = new BMap<>(bMapType);
+
+            bValueMap.put(keyCPEntry.getValue(), null);
+        } else if (typeTag == TypeTags.BOOLEAN_TAG) {
+            boolean value = dataInStream.readBoolean();
+
+            BMapType bMapType = new BMapType(BTypes.typeBoolean);
+            bValueMap = new BMap<>(bMapType);
+
+            constantValue.booleanValue = value;
+            BBoolean bBoolean = new BBoolean(value);
+            bValueMap.put(keyCPEntry.getValue(), bBoolean);
+        } else {
+            int valueCPIndex = dataInStream.readInt();
+            constantValue.valueCPEntryIndex = valueCPIndex;
+
+            BMapType bMapType;
+            ConstantPoolEntry cpEntry = constantPool.getCPEntry(valueCPIndex);
+
+            switch (typeTag) {
+                case INT_TAG:
+                    bMapType = new BMapType(BTypes.typeInt);
+                    bValueMap = new BMap<>(bMapType);
+
+                    BInteger bInteger = new BInteger(((IntegerCPEntry) cpEntry).getValue());
+                    bValueMap.put(keyCPEntry.getValue(), bInteger);
+                    break;
+                case BYTE_TAG:
+                    bMapType = new BMapType(BTypes.typeByte);
+                    bValueMap = new BMap<>(bMapType);
+
+                    BByte bByte = new BByte(((IntegerCPEntry) cpEntry).getValue());
+                    bValueMap.put(keyCPEntry.getValue(), bByte);
+                    break;
+                case FLOAT_TAG:
+                    bMapType = new BMapType(BTypes.typeFloat);
+                    bValueMap = new BMap<>(bMapType);
+
+                    BFloat bFloat = new BFloat(((FloatCPEntry) cpEntry).getValue());
+                    bValueMap.put(keyCPEntry.getValue(), bFloat);
+                    break;
+                case DECIMAL_TAG:
+                    bMapType = new BMapType(BTypes.typeDecimal);
+                    bValueMap = new BMap<>(bMapType);
+
+                    BDecimal bDecimal = new BDecimal(new BigDecimal(((UTF8CPEntry) cpEntry).getValue(),
+                            MathContext.DECIMAL128));
+                    bValueMap.put(keyCPEntry.getValue(), bDecimal);
+                    break;
+                case STRING_TAG:
+                    bMapType = new BMapType(BTypes.typeString);
+                    bValueMap = new BMap<>(bMapType);
+
+                    BString bString = new BString(((UTF8CPEntry) cpEntry).getValue());
+                    bValueMap.put(keyCPEntry.getValue(), bString);
+                    break;
+                default:
+                    throw new RuntimeException("unexpected type tag");
+            }
+        }
+        return bValueMap;
     }
 
     public void readEntryPoint() throws IOException {
@@ -608,22 +749,97 @@ public class PackageInfoReader {
     }
 
     private void readConstantInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
-        // Read constant name cp index and ignore.
-        dataInStream.readInt();
-
-        // Read finite type cp index and ignore.
-        dataInStream.readInt();
-
-        // Read value type cp index and ignore.
+        // Read and ignore constant name CP index.
         dataInStream.readInt();
 
         // Read and ignore flags.
         dataInStream.readInt();
 
+        // Read isSimpleLiteral flag.
+        boolean isSimpleLiteral = dataInStream.readBoolean();
+
+        if (isSimpleLiteral) {
+            // Read and ignore finite type CP index.
+            dataInStream.readInt();
+
+            // Read the value type CP index and get type.
+            int valueTypeSigCPIndex = dataInStream.readInt();
+            UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
+            RuntimeTypeCreator typeCreator = new RuntimeTypeCreator(packageInfo);
+            BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreator, resNameUTF8Entry.getValue());
+
+            readSimpleLiteral(type);
+        } else {
+            // Read and ignore value CP index.
+            dataInStream.readInt();
+
+            // Read and ignore value CP entry index.
+            dataInStream.readInt();
+
+            // Read and ignore map constant value.
+            readMapLiteral(packageInfo);
+        }
+
         // Read and ignore attributes.
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             getAttributeInfo(packageInfo, constantPool);
+        }
+    }
+
+    private void readSimpleLiteral(BType type) throws IOException {
+        switch (type.getTag()) {
+            case TypeTags.BOOLEAN_TAG:
+                // Read and ignore boolean value.
+                dataInStream.readBoolean();
+                break;
+            case INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case FLOAT_TAG:
+            case DECIMAL_TAG:
+            case STRING_TAG:
+                // Read and ignore int value.
+                dataInStream.readInt();
+                break;
+            case TypeTags.NULL_TAG:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + type.getTag());
+        }
+    }
+
+    private void readMapLiteral(PackageInfo packageInfo) throws IOException {
+        // Read size of the map literal.
+        int size = dataInStream.readInt();
+        for (int i = 0; i < size; i++) {
+            // Read and ignore constant name CP index.
+            dataInStream.readInt();
+
+            // Read isSimpleLiteral flag.
+            boolean isSimpleLiteral = dataInStream.readBoolean();
+
+            // Read and ignore isConstRef flag.
+            dataInStream.readBoolean();
+
+            if (isSimpleLiteral) {
+                // Read the value type CP index and get type.
+                int valueTypeSigCPIndex = dataInStream.readInt();
+                UTF8CPEntry resNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(valueTypeSigCPIndex);
+                RuntimeTypeCreator typeCreator = new RuntimeTypeCreator(packageInfo);
+                BType type = this.typeSigReader.getBTypeFromDescriptor(typeCreator, resNameUTF8Entry.getValue());
+
+                // Read simple literal info.
+                readSimpleLiteral(type);
+            } else {
+                // Read record literal type signature CP index.
+                dataInStream.readInt();
+
+                // Read value CP entry index.
+                dataInStream.readInt();
+
+                // Read map literal info.
+                readMapLiteral(packageInfo);
+            }
         }
     }
 
@@ -1424,7 +1640,7 @@ public class PackageInfoReader {
                     break;
                 case InstructionCodes.FLUSH:
                     int retReg = codeStream.readInt();
-                    int workerCount  = codeStream.readInt();
+                    int workerCount = codeStream.readInt();
                     String[] workerList = new String[workerCount];
                     for (int wrkCount = 0; wrkCount < workerCount; wrkCount++) {
                         int channelRefCPIndex = codeStream.readInt();
@@ -1460,6 +1676,7 @@ public class PackageInfoReader {
                 case InstructionCodes.SGSTORE:
                 case InstructionCodes.BGSTORE:
                 case InstructionCodes.RGSTORE:
+                case InstructionCodes.MCONST:
                     int pkgRefCPIndex = codeStream.readInt();
                     i = codeStream.readInt();
                     j = codeStream.readInt();
@@ -1502,7 +1719,7 @@ public class PackageInfoReader {
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
                     WorkerDataChannelInfo dataChannelInfo = channelRefCPEntry.getWorkerDataChannelInfo();
-                    boolean channelInSameStrand =  opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
+                    boolean channelInSameStrand = opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
                             .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
                             .equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
