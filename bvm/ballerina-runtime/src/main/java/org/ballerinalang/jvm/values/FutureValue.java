@@ -30,7 +30,7 @@
 
      public Object result;
 
-     public FutureValue() {
-         this.strand = new Strand();
+     public FutureValue(Strand strand) {
+         this.strand = strand;
      }
  }

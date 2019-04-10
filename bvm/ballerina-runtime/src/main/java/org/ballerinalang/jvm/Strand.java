@@ -33,4 +33,8 @@ public class Strand {
     public boolean blocked;
     public Strand blockedOn;
     public Scheduler scheduler;
+
+    public Strand(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
 }

@@ -41,8 +41,8 @@ public class Scheduler {
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function) {
-        FutureValue future = new FutureValue();
-        future.strand.scheduler = this;
+        Strand newStrand = new Strand(this);
+        FutureValue future = new FutureValue(newStrand);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         runnableList.add(item);
