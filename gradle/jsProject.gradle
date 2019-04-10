@@ -42,4 +42,6 @@ task test(type: Exec) {
     }
 }
 
-// build.finalizedBy 'test'
+build {
+    dependsOn 'test'
+}

@@ -8,7 +8,7 @@ configurations {
 }
 
 task npmBuild(type: Exec, overwrite: true) {
-    mustRunAfter 'npmInstall'
+    dependsOn npmInstall
     dependsOn(':composer-library:build')
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
@@ -23,7 +23,6 @@ task npmBuild(type: Exec, overwrite: true) {
 }
 
 task assemble(overwrite: true) {
-    dependsOn npmInstall
     dependsOn npmBuild
     dependsOn(':composer-library:assemble')
 }
