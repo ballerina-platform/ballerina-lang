@@ -59,6 +59,6 @@ public class AttachedFunction extends BFunctionType {
 
     @Override
     public String getAnnotationKey() {
-        return parent.getAnnotationKey() + "." + type.getAnnotationKey();
+        return parent.getAnnotationKey() + "." + funcName;
     }
 }
