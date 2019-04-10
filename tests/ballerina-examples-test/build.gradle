@@ -116,4 +116,4 @@ task test {
    }
 }
 
-// check.finalizedBy(test)
+check.finalizedBy(test)

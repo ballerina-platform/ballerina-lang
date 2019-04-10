@@ -7,23 +7,25 @@ configurations {
     }
 }
 
-task npmBuild(type: Exec, overwrite: true) {
+task npmBuild(overwrite: true) {
     dependsOn npmInstall
     dependsOn(':composer-library:build')
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
 
     doFirst {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'run', 'package'
-        } else {
-            commandLine 'npm', 'run', 'package'
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'package'
+            } else {
+                commandLine 'npm', 'run', 'package'
+            }
         }
     }
 }
 
 task assemble(overwrite: true) {
-    dependsOn npmBuild
+    dependsOn 'npmBuild'
     dependsOn(':composer-library:assemble')
 }
 

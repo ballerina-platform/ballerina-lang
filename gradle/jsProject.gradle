@@ -1,47 +1,54 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'base'
 
-task npmInstall(type: Exec) {
+task npmInstall() {
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
     doFirst {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'install'
-        } else {
-            commandLine 'npm', 'install'
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'install'
+            } else {
+                commandLine 'npm', 'install'
+            }
         }
+        
     }
 }
 
-task npmBuild(type: Exec) {
-    mustRunAfter 'npmInstall'
+task npmBuild() {
+    dependsOn npmInstall
     doFirst {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'run', 'build'
-        } else {
-            commandLine 'npm', 'run', 'build'
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'build'
+            } else {
+                commandLine 'npm', 'run', 'build'
+            }
         }
     }
 }
 
 assemble {
-    dependsOn npmInstall
     dependsOn npmBuild
 }
 
-task test(type: Exec) {
+task test() {
     onlyIf {
         !assemble.state.upToDate
     }
     doFirst {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'test'
-        } else {
-            commandLine 'npm', 'test'
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'test'
+            } else {
+                commandLine 'npm', 'test'
+            }
         }
     }
 }
 
 build {
-    dependsOn 'test'
+    dependsOn assemble
+    finalizedBy test
 }
