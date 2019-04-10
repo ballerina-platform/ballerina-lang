@@ -234,7 +234,7 @@ public type TestConfig record {|
     map<string> m;
 |};
 
-public annotation<function> testAnnotation TestConfig;
+public annotation TestConfig testAnnotation on function;
 
 @testAnnotation {
     s: sConst,

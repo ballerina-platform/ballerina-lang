@@ -35,45 +35,49 @@ public class AttachPoint {
     public enum Point {
         //TODO check with composer team and remove string representations.
         /**
-         * Indicates Service Attach point.
+         * Indicates Type Attach point.
          */
-        SERVICE("service"),
+        TYPE("type"),
         /**
          * Indicates Resource Attach point.
          */
         RESOURCE("resource"),
         /**
-         * Indicates REMOTE Attach point.
-         */
-        REMOTE("remote"),
-        /**
          * Indicates Function Attach point.
          */
         FUNCTION("function"),
         /**
-         * Indicates Object Attach point.
+         * Indicates REMOTE Attach point.
          */
-        OBJECT("object"),
-        /**
-         * Indicates client Attach point.
-         */
-        CLIENT("client"),
-        /**
-         * Indicates Type Attach point.
-         */
-        TYPE("type"),
-        /**
-         * Indicates listener Attach point.
-         */
-        LISTENER("listener"),
+        REMOTE("remote"),
         /**
          * Indicates Parameter Attach point.
          */
         PARAMETER("parameter"),
         /**
-         * Indicates Annotation Attach point.
+         * Indicates Service Attach point.
+         */
+        SERVICE("service"),
+        /**
+         * Indicates Object Attach point.
+         */
+        LISTENER("listener"),
+        /**
+         * Indicates listener Attach point.
          */
         ANNOTATION("annotation"),
+        /**
+         * Indicates external Attach point.
+         */
+        EXTERNAL("external"),
+        /**
+         * Indicates var Attach point.
+         */
+        VAR("var"),
+        /**
+         * Indicates const Attach point.
+         */
+        CONST("const"),
         /**
          * Indicate Channel Attach point.
          */
