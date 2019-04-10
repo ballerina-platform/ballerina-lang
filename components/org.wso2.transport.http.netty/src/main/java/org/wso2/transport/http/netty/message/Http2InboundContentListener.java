@@ -1,12 +1,15 @@
 package org.wso2.transport.http.netty.message;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2LocalFlowController;
 import io.netty.handler.codec.http2.Http2Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,12 +21,16 @@ public class Http2InboundContentListener implements Listener {
     private int streamId;
     private Http2Connection http2Connection;
     private boolean appConsumeRequired = true;
-    private boolean resumeRead = true;
+    private AtomicBoolean resumeRead = new AtomicBoolean(true);
     private AtomicInteger unconsumedBytes = new AtomicInteger();
+    private Http2LocalFlowController http2LocalFlowController;
+    private ChannelHandlerContext channelHandlerContext;
 
-    public Http2InboundContentListener(int streamId, Http2Connection http2Connection) {
+    public Http2InboundContentListener(int streamId, ChannelHandlerContext ctx, Http2Connection http2Connection) {
         this.streamId = streamId;
         this.http2Connection = http2Connection;
+        this.http2LocalFlowController = http2Connection.local().flowController();
+        this.channelHandlerContext = ctx;
     }
 
     /**
@@ -34,12 +41,12 @@ public class Http2InboundContentListener implements Listener {
      */
     @Override
     public void onAdd(HttpContent httpContent) {
-        if (!appConsumeRequired && resumeRead) {
+        if (!appConsumeRequired && resumeRead.get()) {
             updateLocalFlowController(httpContent.content().readableBytes());
         }
 
-        if (!resumeRead) {
-            unconsumedBytes.getAndAdd(httpContent.content().readableBytes());
+        if (!resumeRead.get()) {
+            unconsumedBytes.addAndGet(httpContent.content().readableBytes());
         }
     }
 
@@ -50,7 +57,7 @@ public class Http2InboundContentListener implements Listener {
      */
     @Override
     public void onRemove(HttpContent httpContent) {
-        if (appConsumeRequired && resumeRead) {
+        if (appConsumeRequired && resumeRead.get()) {
             updateLocalFlowController(httpContent.content().readableBytes());
         }
     }
@@ -63,21 +70,26 @@ public class Http2InboundContentListener implements Listener {
         appConsumeRequired = false;
     }
 
-    public void stopByteConsumption() {
-        resumeRead = false;
+    //Always gets called from ballerina thread
+    void stopByteConsumption() {
+        resumeRead.set(false);
     }
 
-    public void resumeByteConsumption() {
+    //Always gets called from I/O thread.
+    void resumeByteConsumption() {
         updateLocalFlowController(unconsumedBytes.get());
-        resumeRead = true;
+        resumeRead.set(true);
     }
 
+    //This method content should only be executed in an I/O thread
     private void updateLocalFlowController(int consumedBytes) {
-        Http2Stream stream = http2Connection.stream(streamId);
-        try {
-            http2Connection.local().flowController().consumeBytes(stream, consumedBytes);
-        } catch (Http2Exception e) {
-            LOG.error("Error updating flow controller. {} ", e.getCause());
-        }
+        channelHandlerContext.channel().eventLoop().execute(() -> {
+            Http2Stream stream = http2Connection.stream(streamId);
+            try {
+                http2LocalFlowController.consumeBytes(stream, consumedBytes);
+            } catch (Http2Exception e) {
+                LOG.error("Error updating flow controller. {} ", e.getCause());
+            }
+        });
     }
 }

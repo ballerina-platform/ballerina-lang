@@ -32,9 +32,11 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder
 public final class Http2RemoteFlowControlListener implements Http2RemoteFlowController.Listener {
     private static final Logger LOG = LoggerFactory.getLogger(Http2RemoteFlowControlListener.class);
     private Http2ClientChannel http2ClientChannel;
+    private Http2RemoteFlowController http2RemoteFlowController;
 
     public Http2RemoteFlowControlListener(Http2ClientChannel http2ClientChannel) {
         this.http2ClientChannel = http2ClientChannel;
+        this.http2RemoteFlowController = http2ClientChannel.getConnection().remote().flowController();
     }
 
     @Override
@@ -43,8 +45,8 @@ public final class Http2RemoteFlowControlListener implements Http2RemoteFlowCont
         if (outboundMsgHolder == null) {
             return;
         }
-        if (http2ClientChannel.getConnection().remote().flowController().isWritable(stream)) {
-
+        //Netty flow controller methods should only be called from the I/O thread.
+        if (http2RemoteFlowController.isWritable(stream)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("In thread {}. Stream {} is writable. State {} ", Thread.currentThread().getName(),
                           stream.id(), stream.state());

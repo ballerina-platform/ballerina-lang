@@ -29,6 +29,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * {@code OutboundMsgHolder} holds data related to a single outbound invocation.
@@ -49,7 +50,7 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
     private boolean firstContentWritten;
-    private boolean streamWritable = true;
+    private AtomicBoolean streamWritable = new AtomicBoolean(true);
     private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
 
     public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
@@ -222,12 +223,14 @@ public class OutboundMsgHolder {
         this.firstContentWritten = firstContentWritten;
     }
 
-    public synchronized boolean isStreamWritable() {
-        return streamWritable;
+    //Gets called from ballerina thread
+    boolean isStreamWritable() {
+        return streamWritable.get();
     }
 
-    public synchronized void setStreamWritable(boolean streamWritable) {
-        this.streamWritable = streamWritable;
+    //Gets called from I/O thread.
+    public void setStreamWritable(boolean streamWritable) {
+        this.streamWritable.set(streamWritable);
     }
 
     public BackPressureObservable getBackPressureObservable() {
