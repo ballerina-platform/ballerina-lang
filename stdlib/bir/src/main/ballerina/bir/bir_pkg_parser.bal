@@ -90,6 +90,11 @@ public type PackageParser object {
         ImportModule[] importModules = self.parseImportMods();
         TypeDef?[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
+
+        // Parse type def bodies after parsing global vars.
+        // This is done avoid cyclic dependencies.
+        self.parseTypeDefBodies(typeDefs);
+
         Function?[] funcs = self.parseFunctions(typeDefs);
 
         return { importModules : importModules,
@@ -146,16 +151,18 @@ public type PackageParser object {
             i = i + 1;
         }
 
-        i = 0;
-        while i < numTypeDefs {
-            var typeValue = typeDefs[i].typeValue;
-            if (typeValue is BObjectType || typeValue is BRecordType) {
-                typeDefs[i].attachedFuncs = self.parseFunctions(typeDefs);
-            }
-            i = i + 1;
-        }
-
         return typeDefs;
+    }
+
+    function parseTypeDefBodies(TypeDef?[] typeDefs) {
+        int numTypeDefs = typeDefs.length();
+
+        foreach var typeDef in typeDefs {
+            BType typeValue = typeDef.typeValue;
+            if (typeValue is BObjectType || typeValue is BRecordType) {
+                typeDef.attachedFuncs = self.parseFunctions(typeDefs);
+            }
+        }
     }
 
     function parseTypeDef() returns TypeDef {

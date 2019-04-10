@@ -65,6 +65,8 @@ public class BIRBinaryWriter {
         writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
         // Write global vars
         writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
+        // Write type def bodies
+        writeTypeDefBodies(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
         writeFunctions(birbuf, typeWriter, birPackage.functions);
 
@@ -94,9 +96,27 @@ public class BIRBinaryWriter {
         });
     }
 
+    /**
+     * Write the type definitions. Only the container will be written, to avoid
+     * cyclic dependencies with global vars.
+     * 
+     * @param buf ByteBuf
+     * @param typeWriter Type writer
+     * @param birTypeDefList Type definitions list
+     */
     private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
         birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
+    }
+
+    /**
+     * Write the body of the type definitions.
+     * 
+     * @param buf ByteBuf
+     * @param typeWriter Type writer
+     * @param birTypeDefList Type definitions list
+     */
+    private void writeTypeDefBodies(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
         birTypeDefList.forEach(typeDef -> writeAttachedFuncs(buf, typeWriter, typeDef));
     }
 

@@ -152,10 +152,6 @@ public type BirEmitter object {
         print("\t|\t");
         self.opEmitter.emitOp(errorEntry.errorOp);
     }
-
-    function emitVis(int i) {
-
-    }
 };
 
 type InstructionEmitter object {
