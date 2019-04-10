@@ -73,15 +73,29 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
-            return mapStore;
+            FieldAccess mapLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return mapLoad;
+        } else if (kindTag == INS_OBJECT_STORE) {
+            kind = INS_KIND_OBJECT_STORE;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess objectStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return objectStore;
+        } else if (kindTag == INS_OBJECT_LOAD) {
+            kind = INS_KIND_OBJECT_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess objectLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return objectLoad;
         } else if (kindTag == INS_ARRAY_LOAD) {
             kind = INS_KIND_ARRAY_LOAD;
             var lhsOp = self.parseVarRef();
             var keyOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            FieldAccess mapStore = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
-            return mapStore;
+            FieldAccess arrayLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
+            return arrayLoad;
         } else if (kindTag == INS_NEW_ARRAY) {
             var bType = self.typeParser.parseType();
             kind = INS_KIND_NEW_ARRAY;
@@ -236,13 +250,13 @@ public type FuncBodyParser object {
          int eCol = self.reader.readInt32();
          return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol};
      }
-    
-    public function parseVarRef() returns VarRef {
-        var kind = parseVarKind(self.reader);
-        var varScope = parseVarScope(self.reader);
-        var varName = self.reader.readStringCpRef();
 
-        var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName);
+    public function parseVarRef() returns VarRef {
+        VarKind kind = parseVarKind(self.reader);
+        VarScope varScope = parseVarScope(self.reader);
+        string varName = self.reader.readStringCpRef();
+
+        var decl = getDecl(self.globalVarMap, self.localVarMap, varScope, varName, kind);
         return {typeValue : decl.typeValue, variableDcl : decl};
     }
 
@@ -296,7 +310,8 @@ public type FuncBodyParser object {
 
 };
 
-function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName) returns VariableDcl {
+function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, VarScope varScope, string varName, 
+        VarKind kind) returns VariableDcl {
     if (varScope == VAR_SCOPE_GLOBAL) {
         var possibleDcl = globalVarMap[varName];
         if (possibleDcl is VariableDcl) {
@@ -306,6 +321,16 @@ function getDecl(map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, Va
             panic err;
         }
     }
+
+    // for self referrence, create a dummy varDecl
+    if (kind == VAR_KIND_SELF) {
+        VariableDcl varDecl = { kind : kind, 
+                                varScope : varScope, 
+                                name : {value : varName}
+                              };
+        return varDecl;
+    }
+
     var possibleDcl = localVarMap[varName];
     if (possibleDcl is VariableDcl) {
         return possibleDcl;

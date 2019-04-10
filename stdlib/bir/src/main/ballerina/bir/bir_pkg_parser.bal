@@ -205,19 +205,22 @@ public type PackageParser object {
 public function parseVarKind(BirChannelReader reader) returns VarKind {
     int b = reader.readInt8();
     if (b == 1) {
-        LocalVarKind local = "LOCAL";
+        LocalVarKind local = VAR_KIND_LOCAL;
         return local;
     } else if (b == 2) {
-        ArgVarKind arg = "ARG";
+        ArgVarKind arg = VAR_KIND_ARG;
         return arg;
     } else if (b == 3) {
-        TempVarKind temp = "TEMP";
+        TempVarKind temp = VAR_KIND_TEMP;
         return temp;
     } else if (b == 4) {
-        ReturnVarKind ret = "RETURN";
+        ReturnVarKind ret = VAR_KIND_RETURN;
         return ret;
     } else if (b == 5) {
-        GlobalVarKind ret = "GLOBAL";
+        GlobalVarKind ret = VAR_KIND_GLOBAL;
+        return ret;
+    }  else if (b == 6) {
+        SelfVarKind ret = VAR_KIND_SELF;
         return ret;
     } 
     error err = error("unknown var kind tag " + b);

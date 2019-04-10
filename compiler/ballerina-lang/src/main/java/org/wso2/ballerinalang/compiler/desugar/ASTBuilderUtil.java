@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -861,5 +862,15 @@ public class ASTBuilderUtil {
             argsExpr.add(varRef);
         }
         return argsExpr;
+    }
+
+    static BLangXMLTextLiteral createXMLTextLiteralNode(BLangBinaryExpr parent, BLangExpression concatExpr,
+                                                        DiagnosticPos pos, BType type) {
+        BLangXMLTextLiteral xmlTextLiteral = new BLangXMLTextLiteral();
+        xmlTextLiteral.concatExpr = concatExpr;
+        xmlTextLiteral.pos = pos;
+        xmlTextLiteral.parent = parent;
+        xmlTextLiteral.type = type;
+        return xmlTextLiteral;
     }
 }

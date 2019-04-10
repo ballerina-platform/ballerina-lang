@@ -50,7 +50,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
-        filteredList.removeIf(CommonUtil.invalidSymbolsPredicate().or(attachedOrSelfKeywordFilter()));
+        filteredList.removeIf(this.attachedOrSelfKeywordFilter());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
@@ -85,7 +85,7 @@ public class StatementCompletionProvider extends AbstractSubCompletionProvider {
                     String symbolName = symbolInfo.getScopeEntry().symbol.name.getValue();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
-                    String snippet = IntStream.range(0, members.size()).mapToObj(value -> {
+                    String snippet = IntStream.range(0, members.size() - 1).mapToObj(value -> {
                         BType bType = members.get(value);
                         String placeHolder = "\t${" + (value + 1) + "}";
                         return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx) + ") {"

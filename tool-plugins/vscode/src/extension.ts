@@ -54,9 +54,9 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export function activate(context: ExtensionContext): void {
+export function activate(context: ExtensionContext): Promise<any> {
     ballerinaExtInstance.setContext(context);
-    ballerinaExtInstance.init(onBeforeInit).then(() => {
+    return ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
         // Enable Ballerina diagram
         activateDiagram(ballerinaExtInstance);

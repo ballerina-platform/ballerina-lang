@@ -56,7 +56,7 @@ public type DurableTopicSubscriber object {
     # Binds the durable topic subscriber endpoint to a service
     #
     # + serviceType - Type descriptor of the service
-    # + data - Service annotations
+    # + name - The name of the service
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, string? name = ()) returns error? {
         return self.registerListener(serviceType, self.consumerActions, name);
@@ -71,8 +71,9 @@ public type DurableTopicSubscriber object {
     #
     # + return - Nil or error upon failure to start
     public function __start() returns error? {
-        return ();
+        return self.start();
     }
+    private function start() returns error? = external;
 
     # Return the subscrber caller actions
     #

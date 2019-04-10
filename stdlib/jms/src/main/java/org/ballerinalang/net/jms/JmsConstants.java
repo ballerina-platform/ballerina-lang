@@ -40,6 +40,7 @@ public class JmsConstants {
 
     // Others
     private static final String COLON = ":";
+    public static final String COUNTDOWN_LATCH = "countdown-latch";
 
     // The object types
     public static final String QUEUE_RECEIVER_OBJ_NAME = "QueueReceiver";
@@ -145,6 +146,10 @@ public class JmsConstants {
 
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
+
+    public static final String NON_DAEMON_THREAD_RUNNING = "non-daemon-thread-running.";
+    public static final String ARTEMIS_ICF = "artemis";
+
 
     private static Map<String, String> mappingParameters;
 
