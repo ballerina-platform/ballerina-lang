@@ -17,22 +17,26 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.MapValue;
+
 import java.util.StringJoiner;
 
 /**
- * {@code BAttachedFunction} represents a attached function in Ballerina.
+ * {@code AttachedFunction} represents a attached function in Ballerina.
  *
  * @since 0.995.0
  */
-public class BAttachedFunction {
+public class AttachedFunction extends BFunctionType {
 
     public String funcName;
     public BFunctionType type;
     public int flags;
+    public BObjectType parent;
 
-    public BAttachedFunction(String funcName, BFunctionType type, int flags) {
+    public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, int flags) {
         this.funcName = funcName;
         this.type = type;
+        this.parent = parent;
         this.flags = flags;
     }
 
@@ -43,5 +47,18 @@ public class BAttachedFunction {
             sj.add(type.getName());
         }
         return sj.toString();
+    }
+
+    public void addAnnotation(String key, MapValue annotation) {
+        this.type.addAnnotation(key, annotation);
+    }
+
+    public MapValue getAnnotation(String pkgPath, String name) {
+        return this.type.getAnnotation(pkgPath, name);
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return parent.getAnnotationKey() + "." + funcName;
     }
 }
