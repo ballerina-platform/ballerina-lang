@@ -24,3 +24,15 @@ function testInvlaidDecimalValue() {
     int|decimal md1 = 0x33p0;
     int|decimal md2 = 22.22;
 }
+
+// Test invalid decimal inference.
+function testInvalidDecimalInference() {
+    decimal a = 1.0 / 2.0f;
+    decimal b = 1.0 + 2.0f;
+    decimal c = 1.0d + 2.0f;
+    decimal d = 1.0 * 2.0f;
+    decimal e = 1.0f + 2.0;
+    decimal f = 1.0f - 2.0;
+    float k = 2.0;
+    decimal g = 1.0 * 2.0 + 0.002 / k;
+}

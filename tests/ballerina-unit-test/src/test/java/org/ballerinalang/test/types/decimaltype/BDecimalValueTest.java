@@ -280,4 +280,14 @@ public class BDecimalValueTest {
         Assert.assertEquals(map.get("d"), new BDecimal("1", DecimalValueKind.OTHER));
         Assert.assertEquals(map.get("e"), new BDecimal("10000000000000000000000.123", DecimalValueKind.OTHER));
     }
+
+    @Test(description = "Test decimal inference on binary literals")
+    public void testDecimalInferenceOnBinaryExpressions() {
+        BValue[] returns = BRunUtil.invoke(result, "decimalInferenceInLiterals");
+        Assert.assertEquals(returns[0], new BDecimal("0.5", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("3.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[2], new BDecimal("-1.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[3], new BDecimal("2.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[4], new BDecimal("10000.5051", DecimalValueKind.OTHER));
+    }
 }
