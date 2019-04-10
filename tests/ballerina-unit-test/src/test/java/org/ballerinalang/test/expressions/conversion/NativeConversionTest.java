@@ -742,7 +742,7 @@ public class NativeConversionTest {
         Assert.assertEquals(map.get("fromFloat").stringValue(), "234.45");
         Assert.assertEquals(map.get("fromString").stringValue(), "hello");
         Assert.assertEquals(map.get("fromInt").stringValue(), "200");
-        Assert.assertEquals(map.get("fromDecimal").stringValue(), "23.45599999999999951683093968313187");
+        Assert.assertEquals(map.get("fromDecimal").stringValue(), "23.456");
         Assert.assertEquals(map.get("fromByte").stringValue(), "5");
         Assert.assertEquals(map.get("fromBoolean").stringValue(), "true");
     }
@@ -756,7 +756,7 @@ public class NativeConversionTest {
                                                                                              MathContext.DECIMAL128));
         Assert.assertEquals((map.get("fromString")).stringValue(), "10.33");
         Assert.assertEquals(map.get("fromInt").stringValue(), "200.0");
-        Assert.assertEquals(((BDecimal) map.get("fromDecimal")).decimalValue(), new BigDecimal(23.456,
+        Assert.assertEquals(((BDecimal) map.get("fromDecimal")).decimalValue(), new BigDecimal("23.456",
                                                                                                MathContext.DECIMAL128));
         Assert.assertEquals(map.get("fromByte").stringValue(), "5.0");
         Assert.assertEquals(map.get("fromBoolean").stringValue(), "1.0");

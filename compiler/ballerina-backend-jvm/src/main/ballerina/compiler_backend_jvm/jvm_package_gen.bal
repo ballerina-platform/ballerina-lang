@@ -81,7 +81,7 @@ public function generateImportedPackage(bir:Package module, map<byte[]> pkgEntri
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module, false);
+        generateMethod(getFunction(func), cw, module);
     }
 
     cw.visitEnd();
@@ -137,7 +137,7 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     // generate methods
     foreach var func in module.functions {
-        generateMethod(getFunction(func), cw, module, false);
+        generateMethod(getFunction(func), cw, module);
     }
 
     foreach var (k,v) in lambdas {
@@ -163,31 +163,24 @@ function lookupModule(bir:ImportModule importModule, bir:BIRContext birContext) 
 }
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string name = sourceFileName;
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/" + sourceFileName;
+        return orgName + "/" + cleanupName(moduleName) + "/" + cleanupName(sourceFileName);
     }
-    return name;
+    return cleanupName(sourceFileName);
 }
 
 function getMainClassName(string orgName, string moduleName, string sourceFileName) returns string {
-    string name = sourceFileName;
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "." + moduleName + "." + sourceFileName;
+        return orgName + "." + cleanupName(moduleName) + "." + cleanupName(sourceFileName);
     }
-    return name;
+    return cleanupName(sourceFileName);
 }
 
 function getPackageName(string orgName, string moduleName) returns string {
-    string name = "";
-
     if (!moduleName.equalsIgnoreCase(".") && !orgName.equalsIgnoreCase("$anon")) {
-        name = orgName + "/" + moduleName + "/";
+        return orgName + "/" + cleanupName(moduleName) + "/";
     }
-
-    return name;
+    return "";
 }
 
 function getPackageAndFunctionName(string key) returns (string, string) {
@@ -196,4 +189,8 @@ function getPackageAndFunctionName(string key) returns (string, string) {
     string functionName = key.substring(index + 1, key.length());
 
     return (pkgName, functionName);
+}
+
+function cleanupName(string name) returns string {
+    return name.replace(".","_");
 }

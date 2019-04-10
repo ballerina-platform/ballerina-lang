@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.types.uniontypes;
 
+import org.ballerinalang.model.util.DecimalValueKind;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -103,6 +105,15 @@ public class UnionTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BValueArray) returns[0]).getString(0), "FOO");
         Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BAR");
+    }
+
+    @Test(description = "Test union type LHS with float/decimal literals")
+    public void testUnionLhsWithDiscriminatedFloatDecimalLiterals() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionLhsWithDiscriminatedFloatDecimalLiterals");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.0);
+        Assert.assertEquals(returns[2], new BDecimal("1.0", DecimalValueKind.OTHER));
     }
 
     @Test(description = "Test negative cases")
