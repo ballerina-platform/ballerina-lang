@@ -20,6 +20,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.backend.jvm.JVMCodeGen;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
@@ -577,7 +578,7 @@ public class BCompileUtil {
         String funcName = cleanupFunctionName(((BLangPackage) compileResult.getAST()).initFunction);
         try {
             Method method = clazz.getDeclaredMethod(funcName, Strand.class);
-            method.invoke(null, new Strand());
+            method.invoke(null, new Strand(new Scheduler()));
         } catch (Exception e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
