@@ -8,7 +8,7 @@
     {
       "label": "MockListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Mock server endpoint which does not open a listening port."
       },
@@ -18,7 +18,7 @@
     {
       "label": "Listener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
@@ -28,7 +28,7 @@
     {
       "label": "WebSocketListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WebSocket service endpoint."
       },
