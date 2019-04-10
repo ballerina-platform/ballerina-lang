@@ -243,5 +243,7 @@ const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/BAttachedFunction";
 
+// types related constants
+const string TYPES_ERROR =  "typeError";
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
