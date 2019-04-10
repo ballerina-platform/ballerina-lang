@@ -74,12 +74,12 @@ public type Listener object {
 
 public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
-    var authConfig = self.config["auth"];
-    if (authConfig is InboundAuthConfig[]) {
-        if (authConfig.length() > 0) {
+    var auth = self.config["auth"];
+    if (auth is ListenerAuth) {
+        if (auth.authConfig.length() > 0) {
             var secureSocket = self.config.secureSocket;
             if (secureSocket is ServiceSecureSocket) {
-                addAuthFiltersForSecureListener(self.config, self.instanceId);
+                addAuthFiltersForSecureListener(self.config);
             } else {
                 error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
                 panic err;
@@ -140,10 +140,7 @@ public type RequestLimits record {|
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
-# + auth - Array of inbound authentication configurations
-# + scopes - Array of scopes
-# + positiveAuthzCache - Caching configurations for positive authorizations
-# + negativeAuthzCache - Caching configurations for negative authorizations
+# + auth - Listener authenticaton configurations
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
@@ -154,13 +151,27 @@ public type ServiceEndpointConfiguration record {|
     Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    InboundAuthConfig[] auth?;
+    ListenerAuth auth?;
+|};
+
+# Authentication configurations for the listener.
+#
+# + authConfig - Array of inbound authentication configurations
+# + scopes - Array of scopes
+# + positiveAuthzCache - Caching configurations for positive authorizations
+# + negativeAuthzCache - Caching configurations for negative authorizations
+public type ListenerAuth record {|
+    InboundAuthConfig[] authConfig;
     string[] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
 |};
 
-type InboundAuthConfig record {|
+# Inbound authentication configurations with handlers and providers.
+#
+# + authnHandler - Authentication handler
+# + authProviders - Array of auth providers
+public type InboundAuthConfig record {|
     AuthnHandler authnHandler;
     auth:AuthProvider[] authProviders;
 |};
@@ -230,38 +241,41 @@ public const KEEPALIVE_NEVER = "NEVER";
 # Add authn and authz filters
 #
 # + config - `ServiceEndpointConfiguration` instance
-# + instanceId - Endpoint instance id
-function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) {
+function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
     Filter[] authFilters = [];
-    var authConfig = config["auth"];
-    AuthnFilter authnFilter = new(authConfig);
-    authFilters[0] = authnFilter;
 
-    var scopes = config["scopes"];
-    cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
-                                        capacity = config.positiveAuthzCache.capacity,
-                                        evictionFactor = config.positiveAuthzCache.evictionFactor);
-    cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
-                                        capacity = config.negativeAuthzCache.capacity,
-                                        evictionFactor = config.negativeAuthzCache.evictionFactor);
-    AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
-    AuthzFilter authzFilter = new(authzHandler, scopes);
-    authFilters[1] = authzFilter;
+    var auth = config["auth"];
+    if (auth is ListenerAuth) {
+        InboundAuthConfig[] authConfig = auth.authConfig;
+        AuthnFilter authnFilter = new(authConfig);
+        authFilters[0] = authnFilter;
 
-    if (config.filters.length() == 0) {
-        // can add authn and authz filters directly
-        config.filters = authFilters;
-    } else {
-        Filter[] newFilters = authFilters;
-        // add existing filters next
-        int i = 0;
-        while (i < config.filters.length()) {
-            newFilters[i + (newFilters.length())] = config.filters[i];
-            i = i + 1;
+        var scopes = auth["scopes"];
+        cache:Cache positiveAuthzCache = new(expiryTimeMillis = auth.positiveAuthzCache.expiryTimeMillis,
+                                            capacity = auth.positiveAuthzCache.capacity,
+                                            evictionFactor = auth.positiveAuthzCache.evictionFactor);
+        cache:Cache negativeAuthzCache = new(expiryTimeMillis = auth.negativeAuthzCache.expiryTimeMillis,
+                                            capacity = auth.negativeAuthzCache.capacity,
+                                            evictionFactor = auth.negativeAuthzCache.evictionFactor);
+        AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+        AuthzFilter authzFilter = new(authzHandler, scopes);
+        authFilters[1] = authzFilter;
+
+        if (config.filters.length() == 0) {
+            // can add authn and authz filters directly
+            config.filters = authFilters;
+        } else {
+            Filter[] newFilters = authFilters;
+            // add existing filters next
+            int i = 0;
+            while (i < config.filters.length()) {
+                newFilters[i + (newFilters.length())] = config.filters[i];
+                i = i + 1;
+            }
+            config.filters = newFilters;
         }
-        config.filters = newFilters;
     }
 }
 

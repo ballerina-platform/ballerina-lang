@@ -22,9 +22,9 @@ import ballerina/reflect;
 # + authConfig - Array of inbound authentication configurations
 public type AuthnFilter object {
 
-    public InboundAuthConfig[]? authConfig;
+    public InboundAuthConfig[] authConfig;
 
-    public function __init(InboundAuthConfig[]? authConfig) {
+    public function __init(InboundAuthConfig[] authConfig) {
         self.authConfig = authConfig;
     }
 
@@ -37,14 +37,11 @@ public type AuthnFilter object {
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean authenticated = true;
         var resourceAuthConfig = getResourceAuthConfig(context);
-        var resourceInboundAuthConfig = resourceAuthConfig["auth"];
+        var resourceInboundAuthConfig = resourceAuthConfig["authConfig"];
         if (resourceInboundAuthConfig is InboundAuthConfig[]) {
             authenticated = handleAuthnRequest(resourceInboundAuthConfig, request);
         } else {
-            var authConfig = self.authConfig;
-            if (authConfig is InboundAuthConfig[]) {
-                authenticated = handleAuthnRequest(authConfig, request);
-            }
+            authenticated = handleAuthnRequest(self.authConfig, request);
         }
         return isAuthnSuccessful(caller, authenticated);
     }

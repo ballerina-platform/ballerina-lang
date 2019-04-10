@@ -57,11 +57,11 @@ public function extractBasicAuthHeaderValue(Request req) returns string? {
     }
 }
 
-function getResourceAuthConfig(FilterContext context) returns ServiceResourceAuthConfig? {
+function getResourceAuthConfig(FilterContext context) returns ServiceResourceAuth? {
     // get authn details from the resource level
-    ServiceResourceAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
+    ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
-    ServiceResourceAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
+    ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
         reflect:getServiceAnnotations(context.serviceRef));
     // check if authentication is enabled
     boolean resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
@@ -71,11 +71,11 @@ function getResourceAuthConfig(FilterContext context) returns ServiceResourceAut
     }
 
     // check if auth providers are given at resource level
-    if (resourceLevelAuthAnn is ServiceResourceAuthConfig) {
+    if (resourceLevelAuthAnn is ServiceResourceAuth) {
         return resourceLevelAuthAnn;
     } else {
         // no auth providers found in resource level, try in service level
-        if (serviceLevelAuthAnn is ServiceResourceAuthConfig) {
+        if (serviceLevelAuthAnn is ServiceResourceAuth) {
             return serviceLevelAuthAnn;
         }
     }
@@ -88,7 +88,7 @@ function getResourceAuthConfig(FilterContext context) returns ServiceResourceAut
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
 # + return - ListenerAuthConfig instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuthConfig? {
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuth? {
     if (annData.length() == 0) {
         return ();
     }
@@ -110,12 +110,12 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
     }
 }
 
-function isResourceSecured(ServiceResourceAuthConfig? resourceLevelAuthAnn,
-                           ServiceResourceAuthConfig? serviceLevelAuthAnn) returns boolean {
+function isResourceSecured(ServiceResourceAuth? resourceLevelAuthAnn,
+                           ServiceResourceAuth? serviceLevelAuthAnn) returns boolean {
     boolean secured = true;
-    if (resourceLevelAuthAnn is ServiceResourceAuthConfig) {
+    if (resourceLevelAuthAnn is ServiceResourceAuth) {
         secured = resourceLevelAuthAnn.enabled;
-    } else if (serviceLevelAuthAnn is ServiceResourceAuthConfig) {
+    } else if (serviceLevelAuthAnn is ServiceResourceAuth) {
         secured = serviceLevelAuthAnn.enabled;
     }
     return secured;

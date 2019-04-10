@@ -28,7 +28,7 @@
 # + chunking - Configures the chunking behaviour for the service
 # + cors - The cross origin resource sharing configurations for the service
 # + versioning - The version of the service to be used
-# + auth - Authentication configurations for securing the service
+# + auth - Authentication configurations for secure the service
 public type HttpServiceConfig record {|
     Listener?[] endpoints = [];
     string host = "b7a.default";
@@ -37,7 +37,7 @@ public type HttpServiceConfig record {|
     Chunking chunking = CHUNKING_AUTO;
     CorsConfig cors = {};
     Versioning versioning = {};
-    ServiceResourceAuthConfig auth?;
+    ServiceResourceAuth auth?;
 |};
 
 # Configurations for CORS support.
@@ -119,7 +119,7 @@ public type HttpResourceConfig record {|
     CorsConfig cors = {};
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade = ();
-    ServiceResourceAuthConfig auth?;
+    ServiceResourceAuth auth?;
 |};
 
 # Resource configuration to upgrade from HTTP to WebSocket.
@@ -134,11 +134,11 @@ public type WebSocketUpgradeConfig record {|
 # Configures the authentication scheme for a service or a resource.
 #
 # + enabled - Specifies whether authentication is enabled
-# + auth - Array of inbound authentication configurations
+# + authConfig - Array of inbound authentication configurations
 # + scopes - Array of scopes
-public type ServiceResourceAuthConfig record {|
+public type ServiceResourceAuth record {|
     boolean enabled = true;
-    InboundAuthConfig[] auth?;
+    InboundAuthConfig[] authConfig?;
     string[] scopes?;
 |};
 
