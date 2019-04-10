@@ -7,8 +7,7 @@ configurations {
     }
 }
 
-task npmBuild(overwrite: true) {
-    dependsOn npmInstall
+npmBuild() {
     dependsOn(':composer-library:build')
     outputs.dir("$buildDir/out")
     outputs.cacheIf { true } 
