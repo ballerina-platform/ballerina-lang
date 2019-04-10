@@ -14,19 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/auth;
 import ballerina/reflect;
 
 # Representation of the Authentication filter.
 #
-# + authnHandlerChain - The Authentication handler chain
+# + authConfig - Array of inbound authentication configurations
 public type AuthnFilter object {
 
-    public AuthnHandlerChain authnHandlerChain;
+    public InboundAuthConfig[]? authConfig;
 
-    public function __init(AuthnHandlerChain authnHandlerChain) {
-        self.authnHandlerChain = authnHandlerChain;
+    public function __init(InboundAuthConfig[]? authConfig) {
+        self.authConfig = authConfig;
     }
 
     # Request filter method which attempts to authenticated the request.
@@ -36,22 +35,18 @@ public type AuthnFilter object {
     # + context - A filter context
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        // get auth config for this resource
-        boolean authenticated = false;
-        var (isSecured, authProviders) = getResourceAuthConfig(context);
-        if (isSecured) {
-            // if auth providers are there, use those to authenticate
-            if (authProviders.length() > 0) {
-                authenticated = self.authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, request);
-            } else {
-                // if not, try to authenticate using any of available authn handlers
-                authenticated = self.authnHandlerChain.handle(request);
-            }
+        boolean authenticated = true;
+        var resourceAuthConfig = getResourceAuthConfig(context);
+        var resourceInboundAuthConfig = resourceAuthConfig["auth"];
+        if (resourceInboundAuthConfig is InboundAuthConfig[]) {
+            authenticated = handleAuthnRequest(resourceInboundAuthConfig, request);
         } else {
-            // not secured, no need to authenticate
-            return isAuthnSuccesfull(caller, true);
+            var authConfig = self.authConfig;
+            if (authConfig is InboundAuthConfig[]) {
+                authenticated = handleAuthnRequest(authConfig, request);
+            }
         }
-        return isAuthnSuccesfull(caller, authenticated);
+        return isAuthnSuccessful(caller, authenticated);
     }
 
     public function filterResponse(Response response, FilterContext context) returns boolean {
@@ -59,12 +54,33 @@ public type AuthnFilter object {
     }
 };
 
+function handleAuthnRequest(InboundAuthConfig[] inboundAuthConfig, Request request) returns boolean {
+    foreach InboundAuthConfig authConfig in inboundAuthConfig {
+        AuthnHandler authnHandler = authConfig.authnHandler;
+        auth:AuthProvider[] authProviders = authConfig.authProviders;
+        if (authProviders.length() > 0) {
+            foreach auth:AuthProvider provider in authProviders {
+                if (authnHandler.canHandle(request)) {
+                    boolean authnSuccessful = authnHandler.handle(request);
+                    if (authnSuccessful) {
+                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                        // required to look through other providers. The authenticator chain is using "OR" combination of
+                        // provider results.
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 # Verifies if the authentication is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccesfull(Caller caller, boolean authenticated) returns boolean {
+function isAuthnSuccessful(Caller caller, boolean authenticated) returns boolean {
     Response response = new;
     if (!authenticated) {
         response.statusCode = 401;
@@ -76,87 +92,4 @@ function isAuthnSuccesfull(Caller caller, boolean authenticated) returns boolean
         return false;
     }
     return true;
-}
-
-# Checks if the resource is secured.
-#
-# + context - A filter context
-# + return - A tuple of whether the resource is secured and the list of auth provider ids
-function getResourceAuthConfig(FilterContext context) returns (boolean, string[]) {
-    boolean resourceSecured;
-    string[] authProviderIds = [];
-    // get authn details from the resource level
-    ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-        reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
-    ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-        reflect:getServiceAnnotations(context.serviceRef));
-    // check if authentication is enabled
-    resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
-    // if resource is not secured, no need to check further
-    if (!resourceSecured) {
-        return (resourceSecured, authProviderIds);
-    }
-    // check if auth providers are given at resource level
-    var resourceProviders = resourceLevelAuthAnn.authProviders;
-    if (resourceProviders is string[]) {
-        authProviderIds = resourceProviders;
-    } else {
-        // no auth providers found in resource level, try in service level
-        var serviceProviders = serviceLevelAuthAnn.authProviders;
-        if (serviceProviders is string[]) {
-            authProviderIds = serviceProviders;
-        }
-    }
-    return (resourceSecured, authProviderIds);
-}
-
-function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
-             returns boolean {
-    boolean isSecured;
-    var resourceAuthn = resourceLevelAuthAnn.authentication;
-    if (resourceAuthn is Authentication) {
-        isSecured = resourceAuthn.enabled;
-    } else {
-        // if not found at resource level, check in the service level
-        var serviceAuthn = serviceLevelAuthAnn.authentication;
-        if (serviceAuthn is Authentication) {
-            isSecured = serviceAuthn.enabled;
-        } else {
-            // if still authentication annotation is nil, means the user has not specified that the service
-            // should be secured. However since the authn filter has been engaged, need to authenticate.
-            isSecured = true;
-        }
-    }
-    return isSecured;
-}
-
-# Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
-# from the service level, if it  is not there in the resource level.
-#
-# + annotationModule - Annotation module name
-# + annotationName - Annotation name
-# + annData - Array of annotationData instances
-# + return - ListenerAuthConfig instance if its defined, else nil
-function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData)
-                                                                              returns ListenerAuthConfig? {
-    if (annData.length() == 0) {
-        return ();
-    }
-    reflect:annotationData|() authAnn = ();
-    foreach var ann in annData {
-        if (ann.name == annotationName && ann.moduleName == annotationModule) {
-            authAnn = ann;
-            break;
-        }
-    }
-    if (authAnn is reflect:annotationData) {
-        if (annotationName == RESOURCE_ANN_NAME) {
-            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
-            return resourceConfig.authConfig;
-        } else if (annotationName == SERVICE_ANN_NAME) {
-            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
-            return serviceConfig.authConfig;
-        }
-    }
-    return ();
 }

@@ -40,19 +40,11 @@ public const OAUTH2 = "OAUTH2";
 # JWT authentication scheme.
 public const JWT_AUTH = "JWT_AUTH";
 
-# Authentication storage providers for BasicAuth scheme.
-public type AuthStoreProvider CONFIG_AUTH_STORE|LDAP_AUTH_STORE;
-
-# Configuration file based authentication storage.
-public const CONFIG_AUTH_STORE = "CONFIG_AUTH_STORE";
-# LDAP based authentication storage.
-public const LDAP_AUTH_STORE = "LDAP_AUTH_STORE";
-
 # Extracts the basic authentication header value from the request.
 #
 # + req - Request instance
 # + return - Value of the basic authentication header, or nil if not found
-public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
+public function extractBasicAuthHeaderValue(Request req) returns string? {
     // extract authorization header
     var headerValue = trap req.getHeader(AUTH_HEADER);
     if (headerValue is string) {
@@ -63,14 +55,68 @@ public function extractBasicAuthHeaderValue(Request req) returns (string|()) {
             return "Error in retrieving header " + AUTH_HEADER + ": " + reason;
         });
     }
-    return ();
 }
 
-# Error handler.
+function getResourceAuthConfig(FilterContext context) returns ServiceResourceAuthConfig? {
+    // get authn details from the resource level
+    ServiceResourceAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
+        reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
+    ServiceResourceAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
+        reflect:getServiceAnnotations(context.serviceRef));
+    // check if authentication is enabled
+    boolean resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
+    // if resource is not secured, no need to check further
+    if (!resourceSecured) {
+        return ();
+    }
+
+    // check if auth providers are given at resource level
+    if (resourceLevelAuthAnn is ServiceResourceAuthConfig) {
+        return resourceLevelAuthAnn;
+    } else {
+        // no auth providers found in resource level, try in service level
+        if (serviceLevelAuthAnn is ServiceResourceAuthConfig) {
+            return serviceLevelAuthAnn;
+        }
+    }
+}
+
+# Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
+# from the service level, if it  is not there in the resource level.
 #
-# + message - Error message
-# + return - Error populated with the message
-function handleError(string message) returns (error) {
-    error e = error(message);
-    return e;
+# + annotationModule - Annotation module name
+# + annotationName - Annotation name
+# + annData - Array of annotationData instances
+# + return - ListenerAuthConfig instance if its defined, else nil
+function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuthConfig? {
+    if (annData.length() == 0) {
+        return ();
+    }
+    reflect:annotationData? authAnn = ();
+    foreach var ann in annData {
+        if (ann.name == annotationName && ann.moduleName == annotationModule) {
+            authAnn = ann;
+            break;
+        }
+    }
+    if (authAnn is reflect:annotationData) {
+        if (annotationName == RESOURCE_ANN_NAME) {
+            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
+            return resourceConfig.auth;
+        } else if (annotationName == SERVICE_ANN_NAME) {
+            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
+            return serviceConfig.auth;
+        }
+    }
+}
+
+function isResourceSecured(ServiceResourceAuthConfig? resourceLevelAuthAnn,
+                           ServiceResourceAuthConfig? serviceLevelAuthAnn) returns boolean {
+    boolean secured = true;
+    if (resourceLevelAuthAnn is ServiceResourceAuthConfig) {
+        secured = resourceLevelAuthAnn.enabled;
+    } else if (serviceLevelAuthAnn is ServiceResourceAuthConfig) {
+        secured = serviceLevelAuthAnn.enabled;
+    }
+    return secured;
 }

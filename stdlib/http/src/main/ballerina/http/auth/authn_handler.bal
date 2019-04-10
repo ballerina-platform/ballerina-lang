@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Representation of Authentication handler for HTTP traffic.
 #
 # + name - Name of the http authn handler
-public type HttpAuthnHandler abstract object {
+public type AuthnHandler abstract object {
 
     public string name = "";
 

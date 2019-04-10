@@ -74,10 +74,9 @@ public type Listener object {
 
 public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
-    var authProviders = self.config.authProviders;
-    if (authProviders is AuthProvider[]) {
-        var providers = authProviders;
-        if (providers.length() > 0) {
+    var authConfig = self.config["auth"];
+    if (authConfig is InboundAuthConfig[]) {
+        if (authConfig.length() > 0) {
             var secureSocket = self.config.secureSocket;
             if (secureSocket is ServiceSecureSocket) {
                 addAuthFiltersForSecureListener(self.config, self.instanceId);
@@ -141,7 +140,8 @@ public type RequestLimits record {|
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
-# + authProviders - The array of authentication providers which are used to authenticate the users
+# + auth - Array of inbound authentication configurations
+# + scopes - Array of scopes
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ServiceEndpointConfiguration record {|
@@ -150,12 +150,19 @@ public type ServiceEndpointConfiguration record {|
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
     RequestLimits? requestLimits = ();
+    //TODO: update as a optional field
     Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    AuthProvider[]? authProviders = ();
+    InboundAuthConfig[] auth?;
+    string[] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
+|};
+
+type InboundAuthConfig record {|
+    AuthnHandler authnHandler;
+    auth:AuthProvider[] authProviders;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -210,19 +217,6 @@ public type AuthCacheConfig record {|
     float evictionFactor = 1;
 |};
 
-# Configuration for authentication providers.
-#
-# + id - Authentication provider instance id
-# + scheme - Authentication scheme
-# + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
-# + config - Configuration related to the selected authentication provider.
-public type AuthProvider record {|
-    string id = "";
-    InboundAuthScheme? scheme = ();
-    AuthStoreProvider? authStoreProvider = ();
-    auth:LdapAuthProviderConfig|auth:ConfigAuthProviderConfig|auth:JWTAuthProviderConfig? config = ();
-|};
-
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
 
@@ -240,125 +234,34 @@ public const KEEPALIVE_NEVER = "NEVER";
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
+    Filter[] authFilters = [];
+    var authConfig = config["auth"];
+    AuthnFilter authnFilter = new(authConfig);
+    authFilters[0] = authnFilter;
+
+    var scopes = config["scopes"];
+    cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
+                                        capacity = config.positiveAuthzCache.capacity,
+                                        evictionFactor = config.positiveAuthzCache.evictionFactor);
+    cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
+                                        capacity = config.negativeAuthzCache.capacity,
+                                        evictionFactor = config.negativeAuthzCache.evictionFactor);
+    AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+    AuthzFilter authzFilter = new(authzHandler, scopes);
+    authFilters[1] = authzFilter;
+
     if (config.filters.length() == 0) {
         // can add authn and authz filters directly
-        config.filters = createAuthFiltersForSecureListener(config, instanceId);
+        config.filters = authFilters;
     } else {
-        Filter[] newFilters = createAuthFiltersForSecureListener(config, instanceId);
+        Filter[] newFilters = authFilters;
         // add existing filters next
         int i = 0;
         while (i < config.filters.length()) {
-        newFilters[i + (newFilters.length())] = config.filters[i];
-        i = i + 1;
+            newFilters[i + (newFilters.length())] = config.filters[i];
+            i = i + 1;
         }
         config.filters = newFilters;
-    }
-}
-
-# Create an array of auth and authz filters.
-#
-# + config - `ServiceEndpointConfiguration` instance
-# + instanceId - Endpoint instance id
-# + return - Array of Filters comprising of authn and authz Filters
-function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
-    // parse and create authentication handlers
-    AuthHandlerRegistry registry = new;
-    Filter[] authFilters = [];
-    var authProviderList = config.authProviders;
-    if (authProviderList is AuthProvider[]) {
-        if (authProviderList.length() > 0) {
-            foreach var provider in authProviderList {
-                if (provider.id.length() > 0) {
-                    registry.add(provider.id, createAuthHandler(provider, instanceId));
-                } else {
-                    string providerId = system:uuid();
-                    registry.add(providerId, createAuthHandler(provider, instanceId));
-                }
-            }
-
-            AuthnHandlerChain authnHandlerChain = new(registry);
-            AuthnFilter authnFilter = new(authnHandlerChain);
-            cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
-            capacity = config.positiveAuthzCache.capacity,
-            evictionFactor = config.positiveAuthzCache.evictionFactor);
-            cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
-            capacity = config.negativeAuthzCache.capacity,
-            evictionFactor = config.negativeAuthzCache.evictionFactor);
-            auth:AuthStoreProvider authStoreProvider = new;
-
-            foreach var provider in authProviderList {
-                var authProviderConfig = provider.config;
-                if (provider.scheme == BASIC_AUTH) {
-                    if (provider.authStoreProvider == LDAP_AUTH_STORE) {
-                        if (authProviderConfig is auth:LdapAuthProviderConfig) {
-                            auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
-                            authStoreProvider = ldapAuthStoreProvider;
-                        } else {
-                            error e = error("LDAP auth provider config not provided");
-                            panic e;
-                        }
-                    } else if (provider.authStoreProvider == CONFIG_AUTH_STORE) {
-                        auth:ConfigAuthStoreProvider configAuthStoreProvider;
-                        if (authProviderConfig is auth:ConfigAuthProviderConfig) {
-                            configAuthStoreProvider = new(authProviderConfig);
-                        } else {
-                            configAuthStoreProvider = new({});
-                        }
-                        authStoreProvider = configAuthStoreProvider;
-                    } else {
-                        error configError = error("Unsupported auth store provider");
-                        panic configError;
-                    }
-                }
-            }
-
-            HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
-            AuthzFilter authzFilter = new(authzHandler);
-            authFilters[0] = authnFilter;
-            authFilters[1] = authzFilter;
-        }
-    }
-    return authFilters;
-}
-
-function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
-    var authProviderConfig = authProvider.config;
-    if (authProvider.scheme == BASIC_AUTH) {
-        auth:AuthStoreProvider authStoreProvider = new;
-        if (authProvider.authStoreProvider == CONFIG_AUTH_STORE) {
-            auth:ConfigAuthStoreProvider configAuthStoreProvider;
-            if (authProviderConfig is auth:ConfigAuthProviderConfig) {
-                configAuthStoreProvider = new(authProviderConfig);
-            } else {
-                configAuthStoreProvider = new({});
-            }
-            authStoreProvider = configAuthStoreProvider;
-        } else if (authProvider.authStoreProvider == LDAP_AUTH_STORE) {
-            if (authProviderConfig is auth:LdapAuthProviderConfig) {
-                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
-                authStoreProvider = ldapAuthStoreProvider;
-            } else {
-                error e = error("LDAP auth provider config not provided");
-                panic e;
-            }
-        } else {
-            error e = error("Unsupported auth store provider");
-            panic e;
-        }
-        HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-        return basicAuthHandler;
-    } else if (authProvider.scheme == JWT_AUTH){
-        if (authProviderConfig is auth:JWTAuthProviderConfig) {
-            auth:JWTAuthProvider jwtAuthProvider = new(authProviderConfig);
-            HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-            return jwtAuthnHandler;
-        } else {
-            error e = error("JWT auth provider config not provided");
-            panic e;
-        }
-    } else {
-        error e = error("Unsupported auth scheme");
-        panic e;
     }
 }
 
