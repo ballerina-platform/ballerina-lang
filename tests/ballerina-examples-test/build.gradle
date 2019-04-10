@@ -25,41 +25,54 @@ task copyDistribution() {
     }
 }
 
-task ballerinaInit(type: Exec) {
-    dependsOn copyDistribution
-    def distPath = "$buildDir/extractedDistribution"
+// task ballerinaInit(type: Exec) {
+//     dependsOn copyDistribution
+//     def distPath = "$buildDir/extractedDistribution"
 
-    outputs.dir("${distPath}/examples/.ballerina")
-    outputs.file("${distPath}/examples/Ballerina.toml")
-    outputs.cacheIf{ true }
+//     outputs.dir("${distPath}/examples/.ballerina")
+//     outputs.file("${distPath}/examples/Ballerina.toml")
+//     outputs.dir("${distPath}/examples/.ballerina/repo/")
+//     outputs.cacheIf{ true }
 
-	PatternSet patternSet = new PatternSet();
-    patternSet.exclude("**/.ballerina/**");
-    patternSet.exclude("**/Ballerina.toml");
-    inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
+// 	PatternSet patternSet = new PatternSet();
+//     patternSet.exclude("**/.ballerina/**");
+//     patternSet.exclude("**/Ballerina.toml");
+//     patternSet.exclude("**/ballerina-internal.log")
+//     inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
 
-    doFirst {
-        //Initialize Ballerina project
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            //TODO: Need to verify with windows
-            workingDir "${distPath}/examples"
-            commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'init'
-        } else {
-            workingDir "${distPath}/examples"
-            commandLine "${distPath}/bin/./ballerina", 'init'
-        }
-    }
-}
+    
+// }
 
 task test {
+    dependsOn copyDistribution
     def distPath = "$buildDir/extractedDistribution"
     mustRunAfter ':ballerina-integration-test:test'
-    dependsOn ballerinaInit
-    
+    // dependsOn ballerinaInit
     outputs.dir("${distPath}/examples/target")
+    outputs.dir("${distPath}/examples/.ballerina/repo/")
     outputs.cacheIf{ true }
 
-    inputs.files("${distPath}/examples")
+    PatternSet patternSet = new PatternSet();
+    patternSet.exclude("**/.ballerina/**");
+    patternSet.exclude("**/Ballerina.toml");
+    patternSet.exclude("**/Ballerina.lock");
+    patternSet.exclude("**/ballerina-internal.log")
+    inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
+    
+    doFirst {
+        exec {
+            //Initialize Ballerina project
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                workingDir "${distPath}/examples"
+                commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'init'
+            } else {
+                workingDir "${distPath}/examples"
+                commandLine "${distPath}/bin/./ballerina", 'init'
+            }
+        }
+
+    }
 
     doLast {
         // TODO: run examples list as dynamic tasks
@@ -87,7 +100,8 @@ task test {
                            'gauge-metrics',
                            'counter-metrics',
                            'xml-functions',
-                           'openapi-to-ballerina']
+                           'openapi-to-ballerina', 
+                           'record-io']
 
         def inputFile = new File( "${distPath}/examples/index.json")
         def categories = new JsonSlurper().parseText(inputFile.text)
