@@ -31,9 +31,9 @@ task test() {
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'test'
+                commandLine 'cmd', '/c', 'npm', 'run', 'test'
             } else {
-                commandLine 'npm', 'test'
+                commandLine 'npm', 'run', 'test'
             }
         }
     }
