@@ -115,5 +115,4 @@ task test {
         }
    }
 }
-// TODO: fix examples and renable
-// build.finalizedBy(test)
+

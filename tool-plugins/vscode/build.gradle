@@ -5,11 +5,20 @@ configurations {
     dist {
       transitive false
     }
+    ballerinaTools
 }
 
 npmBuild() {
+    PatternSet patternSet = new PatternSet();
+	patternSet.exclude("**/out/**");
+    patternSet.exclude("**/*.vsix/**");
+    patternSet.exclude("**/coverage/**");
+
+    FileTree src = files('.').asFileTree;
+    inputs.files(src.matching(patternSet))
+
     dependsOn(':composer-library:build')
-    outputs.dir("$buildDir/out")
+    outputs.dir("out")
     outputs.cacheIf { true } 
 
     doFirst {
@@ -30,4 +39,26 @@ task assemble(overwrite: true) {
 
 dependencies {
     dist project(':composer-library')
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
+}
+
+task test(type: Exec) {
+    dependsOn ":ballerina-tools:build"
+    onlyIf {
+        !assemble.state.upToDate
+    }
+    def resourcePath = configurations.ballerinaTools.asPath
+    doFirst {
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'test'
+            } else {
+                commandLine 'npm', 'run', 'test'
+            }
+        }
+    }
+}
+
+build {
+    // dependsOn test
 }
