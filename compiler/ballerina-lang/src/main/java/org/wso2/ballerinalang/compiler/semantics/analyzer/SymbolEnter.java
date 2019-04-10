@@ -1040,7 +1040,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             // Constant might not have a typeNode.
             if (constant.typeNode != null) {
-                dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+                dlog.error(constant.typeNode.pos, DiagnosticCode.UNSUPPORTED_CONSTANT_TYPE, constant.typeNode);
             }
         }
     }
@@ -1074,7 +1074,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.MAP:
                 return isAllowedMapConstraintType(((BLangConstrainedType) typeNode).constraint);
             default:
-                dlog.error(typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, typeNode);
+                dlog.error(typeNode.pos, DiagnosticCode.UNSUPPORTED_CONSTANT_TYPE, typeNode);
                 break;
         }
         // Return true anyway since otherwise there will be two errors logged for this.
