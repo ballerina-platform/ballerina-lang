@@ -161,7 +161,8 @@ public class Compiler {
             outStream.println("Compiling source");
         }
         List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild);
-        if (this.dlog.errorCount > 0) {
+        // If it is a build and dlog is not empty, compilation should fail
+        if (isBuild && this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages;
