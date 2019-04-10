@@ -184,6 +184,9 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                 }
             } else if (inst is bir:TypeTest) {
                 instGen.generateTypeTestIns(inst);
+            } else if (inst is bir:Wait) {
+                jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
+                instGen.generateWaitIns(inst, termGen, func, returnVarRefIndex, yieldLabel);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;

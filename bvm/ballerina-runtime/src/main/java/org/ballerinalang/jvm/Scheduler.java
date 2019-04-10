@@ -74,11 +74,6 @@ public class Scheduler {
         while (!runnableList.isEmpty()) {
             SchedulerItem item = runnableList.poll();
             Object result = item.function.apply(item.params);
-            if (item.future.strand.yield) {
-                item.future.strand.yield = false;
-                runnableList.add(item);
-                continue;
-            }
 
             //TODO: Need to improve for performance and support conditional waits
             if (item.future.strand.blocked) {
@@ -87,11 +82,20 @@ public class Scheduler {
                 continue;
             }
 
+            if (item.future.strand.yield) {
+                item.future.strand.yield = false;
+                runnableList.add(item);
+                continue;
+            }
+
             //strand has completed execution
             item.future.result = result;
+            item.future.isDone = true;
             ArrayList<SchedulerItem> blockedItems = blockedList.get(item.future.strand);
             if (blockedItems != null) {
+                item.future.strand.blocked = false;
                 blockedItems.forEach(strand -> runnableList.add(item));
+                blockedList.remove(item.future.strand);
             }
         }
     }

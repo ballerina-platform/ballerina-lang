@@ -30,6 +30,8 @@
 
      public Object result;
 
+     public boolean isDone;
+
      public FutureValue() {
          this.strand = new Strand();
      }

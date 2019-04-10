@@ -539,6 +539,56 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE, OBJECT), false);
         self.generateVarStore(typeTestIns.lhsOp.variableDcl);
     }
+
+    function generateWaitIns(bir:Wait waitInst, TerminatorGenerator termGen, bir:Function func, int returnVarRefIndex, 
+        jvm:Label yieldLabel) {
+        // TODO : need to fix to support multiple waits
+        bir:VarRef? futureVal = waitInst.exprList[0];
+        if (futureVal is bir:VarRef) {
+            self.generateVarLoad(futureVal.variableDcl);
+        }
+
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "isDone", "Z");
+        jvm:Label label = new;
+        self.mv.visitJumpInsn(IFNE, label);
+        jvm:Label label2 = new;
+        self.mv.visitLabel(label2);
+        // strand.blocked = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blocked", "Z");
+
+        // strand.blockedOn = future.strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                self.generateVarLoad(varDecl);
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOn", io:sprintf("L%s;", STRAND));
+
+        // strand.yield = true
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitInsn(ICONST_1);
+        self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
+        // return
+        termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
+        // self.mv.visitJumpInsn(GOTO, yieldLabel);
+        self.mv.visitLabel(label);
+
+        // future.result = lhs
+        if (futureVal is bir:VarRef) {
+            bir:VariableDcl? varDecl = futureVal.variableDcl;
+            if (varDecl is bir:VariableDcl) {
+                self.generateVarLoad(varDecl);
+            }  
+        }
+        self.mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+        checkCastFromObject(waitInst.lhsOp.typeValue, self.mv);
+        self.generateVarStore(waitInst.lhsOp.variableDcl);
+    }
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType bType) {
