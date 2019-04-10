@@ -181,18 +181,8 @@ type TerminatorGenerator object {
         // load the strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
 
-        // update the function name by adding the type name as prefix
-        string methodName = callIns.name.value;
-        bir:BType attachedType = selfArg.typeValue;
-        if (attachedType is bir:BObjectType) {
-            methodName = attachedType.name.value + "_" + methodName;
-        } else {
-            error err = error(io:sprintf("Attached function call is not supported for type %s", attachedType));
-            panic err;
-        }
-
         // load the function name as the second argument
-        self.mv.visitLdcInsn(methodName);
+        self.mv.visitLdcInsn(callIns.name.value);
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.length() - 1;
