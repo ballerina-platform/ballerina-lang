@@ -306,7 +306,9 @@ type TerminatorGenerator object {
     
     function genAsyncCallTerm(bir:AsyncCall callIns, string funcName) {
 
-        self.mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "getInstance", io:sprintf("()L%s;", SCHEDULER), false);
+        // Load the scheduler from strand
+        self.mv.visitVarInsn(ALOAD, 0);
+        self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
 
         //create an object array of args
         self.mv.visitIntInsn(BIPUSH, callIns.args.length() + 1);

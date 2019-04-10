@@ -303,7 +303,7 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = Scheduler.getInstance();
+            Scheduler scheduler = new Scheduler();
             FutureValue futureValue = scheduler.schedule(jvmArgs, func);
             scheduler.execute();
             jvmResult = futureValue.result;

@@ -617,7 +617,9 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
     }
 
-    mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "getInstance", io:sprintf("()L%s;", SCHEDULER), false);
+    mv.visitTypeInsn(NEW, SCHEDULER);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "()V", false);
     
     string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
@@ -646,12 +648,13 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitInsn(DUP);
 
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+    mv.visitInsn(DUP);
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
 
     // start the scheduler
-    mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "getInstance", io:sprintf("()L%s;", SCHEDULER), false);
+    mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "execute", "()V", false);
 
     // At this point we are done executing all the functions including asyncs    
