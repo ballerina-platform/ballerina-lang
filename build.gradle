@@ -30,7 +30,3 @@ dependencies {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
     }
 }
-
-gradle.taskGraph.beforeTask { Task task ->
-    println "executing"
-}
