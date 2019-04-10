@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -325,6 +326,21 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     @Override
     public BType getType() {
         return type;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+            super.values().forEach(val -> {
+                if (val instanceof RefValue) {
+                    ((RefValue) val).attemptFreeze(freezeStatus);
+                }
+            });
+        }
     }
 
     /**

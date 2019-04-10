@@ -246,5 +246,7 @@ const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 
+// types related constants
+const string TYPES_ERROR =  "typeError";
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
