@@ -22,6 +22,10 @@
 # streams:CURRENT, there are 3 types of StreamEvents. They are streams:EXPIRED, streams:RESET, streams:TIMER. An expired
 # event is used to remove the state of its respective current event. A reset event is used to completely wipe the
 # state and a timer event is used to trigger the `process` method of a particular processor in timely manner.
+#
+# + eventType - description
+# + timestamp - description
+# + data - description
 public type StreamEvent object {
     public EventType eventType;
     public int timestamp;
@@ -40,6 +44,7 @@ public type StreamEvent object {
     }
 
     # Returns a copy of the stream event instance.
+    #
     # + return - A copy of the `StreamEvent` object with its state.
     public function copy() returns StreamEvent {
         StreamEvent clone = new(self.cloneData(), self.eventType, self.timestamp);
@@ -47,6 +52,7 @@ public type StreamEvent object {
     }
 
     # Adds key values pairs in a given map to the field `data`.
+    #
     # + eventData - map of anydata values to be added to field `data`.
     public function addData(map<anydata> eventData) {
         foreach var (k, v) in eventData {
@@ -55,6 +61,7 @@ public type StreamEvent object {
     }
 
     # Adds an attribute of an event to the map with its value.
+    #
     # + key - The key of the map entry.
     # + val - Respective value of the `key`.
     public function addAttribute(string key, anydata val) {
@@ -78,6 +85,10 @@ public type StreamEvent object {
 };
 
 # This record represents a stream event which can be persisted.
+#
+# + eventType - description
+# + timestamp - description
+# + data - description
 public type SnapshottableStreamEvent record {|
     EventType eventType = "CURRENT";
     int timestamp = 0;

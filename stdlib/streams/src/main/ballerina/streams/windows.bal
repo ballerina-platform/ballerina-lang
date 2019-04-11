@@ -64,6 +64,11 @@ public type Window abstract object {
 #            }
 #        }
 # The `length` window should only have one parameter (<int> windowLength)
+#
+# + size - description
+# + linkedList - description
+# + windowParameters - description
+# + nextProcessPointer - description
 public type LengthWindow object {
     *Window;
     *Snapshotable;
@@ -179,7 +184,7 @@ public type LengthWindow object {
 };
 
 # The `length` function creates a `LengthWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -356,7 +361,7 @@ public type TimeWindow object {
 };
 
 # The `time` function creates a `TimeWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -377,6 +382,13 @@ public function time(any[] windowParameters, function (StreamEvent?[])? nextProc
 #            }
 #        }
 # The `lengthBatch` window should only have one parameter (<int> windowBatchLength)
+#
+# + length - description
+# + windowParameters - description
+# + count - description
+# + resetEvent - description
+# + currentEventQueue - description
+# + nextProcessPointer - description
 public type LengthBatchWindow object {
     *Window;
     *Snapshotable;
@@ -537,7 +549,7 @@ public type LengthBatchWindow object {
 };
 
 # The `lengthBatch` function creates a `LengthBatchWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -730,7 +742,7 @@ public type TimeBatchWindow object {
 };
 
 # The `timeBatch` function creates a `TimeBatchWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -751,6 +763,12 @@ public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nex
 #            }
 #        }
 # The `externalTime` window should only have two parameters (timestamp field, <int> windowTime)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + expiredEventQueue - description
+# + nextProcessPointer - description
+# + timeStamp - description
 public type ExternalTimeWindow object {
     *Window;
     *Snapshotable;
@@ -921,7 +939,7 @@ public type ExternalTimeWindow object {
 };
 
 # The `externalTime` function creates a `ExternalTimeWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -1406,7 +1424,7 @@ public type ExternalTimeBatchWindow object {
 };
 
 # The `externalTimeBatch` function creates a `ExternalTimeBatchWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -1604,7 +1622,7 @@ public type TimeLengthWindow object {
 };
 
 # The `timeLength` function creates a `TimeLengthWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -1624,6 +1642,14 @@ public function timeLength(any[] windowParameters, function (StreamEvent?[])? ne
 #            }
 #        }
 # The `uniqueLength` window should only have two parameters (stream field, <int> windowLength)
+#
+# + uniqueKey - description
+# + length - description
+# + windowParameters - description
+# + count - description
+# + uniqueMap - description
+# + expiredEventChunk - description
+# + nextProcessPointer - description
 public type UniqueLengthWindow object {
     *Window;
     *Snapshotable;
@@ -1821,7 +1847,7 @@ public type UniqueLengthWindow object {
 };
 
 # The `uniqueLength` function creates a `UniqueLengthWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -2001,7 +2027,7 @@ public type DelayWindow object {
 };
 
 # The `delay` function creates a `DelayWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -2107,6 +2133,7 @@ public type SortWindow object {
     }
 
     # The `process` function process the incoming events to the events and update the current state of the window.
+    #
     # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
         LinkedList streamEventChunk = new;
@@ -2220,7 +2247,7 @@ public type SortWindow object {
 };
 
 # The `sort` function creates a `SortWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -2406,7 +2433,7 @@ public type TimeAccumulatingWindow object {
 };
 
 # The `timeAccum` function creates a `TimeAccumulatingWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -2609,7 +2636,7 @@ public type HoppingWindow object {
 };
 
 # The `hopping` function creates a `HoppingWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
@@ -2841,7 +2868,7 @@ public type TimeOrderWindow object {
 };
 
 # The `timeOrder` function creates a `TimeOrderWindow` object and returns it.
-# + windnowParameters - Arguments which should be passed with the window function in the streams query in the order
+# + windowParameters - Arguments which should be passed with the window function in the streams query in the order
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
