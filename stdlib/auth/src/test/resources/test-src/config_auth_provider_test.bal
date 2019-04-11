@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/encoding;
 
-function testCreateConfigAuthProvider() returns (auth:ConfigAuthStoreProvider) {
+function testCreateConfigAuthProvider() returns auth:ConfigAuthStoreProvider {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
     return configAuthStoreProvider;
 }

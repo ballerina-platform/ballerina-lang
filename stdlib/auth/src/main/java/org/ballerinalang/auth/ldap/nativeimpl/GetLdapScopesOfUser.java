@@ -55,7 +55,7 @@ import javax.naming.ldap.Rdn;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",
-        functionName = "LdapAuthStoreProvider.getScopesOfUser",
+        functionName = "LdapAuthStoreProvider.getScopes",
         args = {@Argument(name = "username", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true)

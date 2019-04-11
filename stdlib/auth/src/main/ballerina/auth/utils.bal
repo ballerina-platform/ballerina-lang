@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/encoding;
+
 # Constant for the auth error code.
 public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
 
@@ -34,3 +36,18 @@ public const string CONFIG_PREFIX_SHA384 = "@sha384:";
 
 # Prefix used to denote that the config value is a SHA-512 hash.
 public const string CONFIG_PREFIX_SHA512 = "@sha512:";
+
+# Extracts the username and password from credential value.
+#
+# + credential - Credential value
+# + return - A `string` tuple with the extracted username and password or `error` occured while extracting credentials
+function extractUsernameAndPassword(string credential) returns (string, string)|error {
+    string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
+    string[] decodedCredentials = decodedHeaderValue.split(":");
+    if (decodedCredentials.length() != 2) {
+        error err = error(AUTH_ERROR_CODE, {message: "Incorrect credential format. Format should be username:password" });
+        return err;
+    } else {
+        return (decodedCredentials[0], decodedCredentials[1]);
+    }
+}

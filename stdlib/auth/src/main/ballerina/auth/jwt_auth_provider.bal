@@ -40,9 +40,9 @@ public type JWTAuthProvider object {
     #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
-            var payload = self.authenticateFromCache(jwtToken);
+            var payload = authenticateFromCache(self.jwtAuthProviderConfig, jwtToken);
             if (payload is JwtPayload) {
-                self.setAuthenticationContext(payload, jwtToken);
+                setAuthenticationContext(payload, jwtToken);
                 return true;
             } else {
                 return false;
@@ -73,61 +73,13 @@ public type JWTAuthProvider object {
 
         var payload = validateJwt(jwtToken, jwtValidatorConfig);
         if (payload is JwtPayload) {
-            self.setAuthenticationContext(payload, jwtToken);
-            self.addToAuthenticationCache(jwtToken, payload.exp, payload);
+            setAuthenticationContext(payload, jwtToken);
+            addToAuthenticationCache(self.jwtAuthProviderConfig, jwtToken, payload.exp, payload);
             return true;
         } else {
             return payload;
         }
     }
-
-    function authenticateFromCache(string jwtToken) returns JwtPayload? {
-        var cachedJwt = trap <CachedJwt>self.jwtAuthProviderConfig.jwtCache.get(jwtToken);
-        if (cachedJwt is CachedJwt) {
-            // convert to current time and check the expiry time
-            if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
-                JwtPayload payload = cachedJwt.jwtPayload;
-                log:printDebug(function() returns string {
-                    return "Authenticate user :" + payload.sub + " from cache";
-                });
-                return payload;
-            } else {
-                self.jwtAuthProviderConfig.jwtCache.remove(jwtToken);
-            }
-        }
-    }
-
-    function addToAuthenticationCache(string jwtToken, int exp, JwtPayload payload) {
-        CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp};
-        self.jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedJwt);
-        log:printDebug(function() returns string {
-            return "Add authenticated user :" + payload.sub + " to the cache";
-        });
-    }
-
-    function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
-        runtime:Principal principal = runtime:getInvocationContext().principal;
-        principal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
-        // By default set sub as username.
-        principal.username = jwtPayload.sub;
-        principal.claims = jwtPayload.customClaims;
-        if (jwtPayload.customClaims.hasKey(SCOPES)) {
-            var scopeString = jwtPayload.customClaims[SCOPES];
-            if (scopeString is string) {
-                principal.scopes = scopeString.split(" ");
-            }
-        }
-        if (jwtPayload.customClaims.hasKey(USERNAME)) {
-            var name = jwtPayload.customClaims[USERNAME];
-            if (name is string) {
-                principal.username = name;
-            }
-        }
-        runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
-        authenticationContext.scheme = AUTH_TYPE_JWT;
-        authenticationContext.authToken = jwtToken;
-    }
-
 };
 
 const string SCOPES = "scope";
@@ -162,3 +114,50 @@ public type CachedJwt record {|
     JwtPayload jwtPayload;
     int expiryTime;
 |};
+
+function authenticateFromCache(JWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken) returns JwtPayload? {
+    var cachedJwt = trap <CachedJwt>jwtAuthProviderConfig.jwtCache.get(jwtToken);
+    if (cachedJwt is CachedJwt) {
+        // convert to current time and check the expiry time
+        if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
+            JwtPayload payload = cachedJwt.jwtPayload;
+            log:printDebug(function() returns string {
+                return "Authenticate user :" + payload.sub + " from cache";
+            });
+            return payload;
+        } else {
+            jwtAuthProviderConfig.jwtCache.remove(jwtToken);
+        }
+    }
+}
+
+function addToAuthenticationCache(JWTAuthProviderConfig jwtAuthProviderConfig, string jwtToken, int exp, JwtPayload payload) {
+    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp};
+    jwtAuthProviderConfig.jwtCache.put(jwtToken, cachedJwt);
+    log:printDebug(function() returns string {
+        return "Add authenticated user :" + payload.sub + " to the cache";
+    });
+}
+
+function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
+    runtime:Principal principal = runtime:getInvocationContext().principal;
+    principal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
+    // By default set sub as username.
+    principal.username = jwtPayload.sub;
+    principal.claims = jwtPayload.customClaims;
+    if (jwtPayload.customClaims.hasKey(SCOPES)) {
+        var scopeString = jwtPayload.customClaims[SCOPES];
+        if (scopeString is string) {
+            principal.scopes = scopeString.split(" ");
+        }
+    }
+    if (jwtPayload.customClaims.hasKey(USERNAME)) {
+        var name = jwtPayload.customClaims[USERNAME];
+        if (name is string) {
+            principal.username = name;
+        }
+    }
+    runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
+    authenticationContext.scheme = AUTH_TYPE_JWT;
+    authenticationContext.authToken = jwtToken;
+}

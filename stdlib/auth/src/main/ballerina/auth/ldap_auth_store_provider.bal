@@ -98,20 +98,21 @@ public type LdapAuthStoreProvider object {
     # Authenticate with username and password.
     #
     # + credential - Credential value
-    # + return - True if authentication is a success, else false or `error` that occured while extracting credentials
+    # + return - True if authentication is a success, else false or `error` occured while extracting credentials
     public function authenticate(string credential) returns boolean|error {
         if (credential == EMPTY_STRING) {
             return false;
         }
         string username;
         string password;
-        (username, password) = check extractCredentials(credential);
+        (username, password) = check extractUsernameAndPassword(credential);
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
             principal.userId = self.ldapAuthStoreProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             principal.username = username;
+            principal.scopes = self.getScopes(username);
         }
         return isAuthenticated;
     }
@@ -120,10 +121,7 @@ public type LdapAuthStoreProvider object {
     #
     # + username - Username
     # + return - Array of groups for the user denoted by the username
-    public function getScopes(string username) returns string[] {
-        // Reads the groups for the username
-        return self.getScopesOfUser(username);
-    }
+    public function getScopes(string username) returns string[] = external;
 
     # Authenticate with username and password.
     #
@@ -131,12 +129,6 @@ public type LdapAuthStoreProvider object {
     # + password - Password
     # + return - true if authentication is a success, else false
     public function doAuthenticate(string username, string password) returns boolean = external;
-
-    # Reads the scope(s) for the user with the given username.
-    #
-    # + username - Username
-    # + return - Array of groups for the user denoted by the username
-    public function getScopesOfUser(string username) returns string[] = external;
 };
 
 # Initailizes LDAP connection context.
