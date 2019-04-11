@@ -169,4 +169,19 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             pipeliningGroup.shutdownGracefully().sync();
         }
     }
+
+    /**
+     * This method is for shutting down the connectors without a delay.
+     *
+     * @throws InterruptedException when interrupted by some other event
+     */
+    public void shutdownNow() throws InterruptedException {
+        allChannels.close();
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
+        clientGroup.shutdownGracefully();
+        if (pipeliningGroup != null) {
+            pipeliningGroup.shutdownGracefully();
+        }
+    }
 }
