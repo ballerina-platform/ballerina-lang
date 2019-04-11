@@ -55,7 +55,7 @@ public class BallerinaStreamsV2StatePersistenceTest {
         conf.addConfiguration("b7a.streaming.persistence.interval", 1L);
     }
 
-    @Test(description = "Test streaming state persistence")
+    @Test(description = "Test streaming state persistence", enabled = false)
     public void testStreamingStatePersistence() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startQuery");
         Assert.assertNotNull(outputTeacherEvents);

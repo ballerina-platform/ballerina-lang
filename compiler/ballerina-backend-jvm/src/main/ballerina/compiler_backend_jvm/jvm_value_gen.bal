@@ -39,7 +39,7 @@ public type ObjectGenerator object {
     // Private methods
 
     private function getObjectValueClassName(string objTypeName) returns string {
-        return getPackageName(self.module.org.value, self.module.name.value) + objTypeName;
+        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(objTypeName);
     }
 
     private function createObjectValueClass(bir:BObjectType objectType, string className, bir:TypeDef typeDef) 
@@ -55,7 +55,7 @@ public type ObjectGenerator object {
             self.createObjectMethods(cw, attachedFuncs);
         }
 
-        self.createInit(cw);
+        self.createObjectInit(cw);
         self.createCallMethod(cw, objectType.attachedFunctions, className);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
@@ -75,13 +75,13 @@ public type ObjectGenerator object {
     private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
-                generateMethod(func, cw, self.module, true);
+                generateMethod(func, cw, self.module, attachedType = self.currentObjectType);
             }
         }
     }
 
-    private function createInit(jvm:ClassWriter cw) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
+    private function createObjectInit(jvm:ClassWriter cw) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), (), ());
         mv.visitCode();
 
         // load super
@@ -89,7 +89,7 @@ public type ObjectGenerator object {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
-        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
@@ -154,7 +154,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel);
+        self.createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
         mv.visitMaxs(funcs.length() + 10, funcs.length() + 10);
         mv.visitEnd();
     }
@@ -187,7 +187,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel);
+        self.createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(fields.length() + 10, fields.length() + 10);
         mv.visitEnd();
     }
@@ -223,7 +223,7 @@ public type ObjectGenerator object {
             i += 1;
         }
 
-        self.createDefaultCase(mv, defaultCaseLabel);
+        self.createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
         mv.visitMaxs(fields.length() + 10, fields.length() + 10);
         mv.visitEnd();
     }
@@ -248,12 +248,21 @@ public type ObjectGenerator object {
         return labels;
     }
 
-    private function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel) {
+    private function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex) {
         mv.visitLabel(defaultCaseLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
+        mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
         mv.visitInsn(DUP);
-        mv.visitLdcInsn("error!");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>",
+
+        // Create error message
+        mv.visitTypeInsn(NEW, STRING_BUILDER);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn("No such field or method: ");
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", io:sprintf("(L%s;)V", STRING_VALUE), false);
+        mv.visitVarInsn(ALOAD, nameRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", io:sprintf("()L%s;", STRING_VALUE), false);
+
+        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
                 io:sprintf("(L%s;)V", STRING_VALUE), false);
         mv.visitInsn(ATHROW);
     }
@@ -292,9 +301,7 @@ public type ObjectGenerator object {
 };
 
 function getName(any node, bir:BObjectType? objectType) returns string {
-    if (node is bir:BAttachedFunction && objectType is bir:BObjectType) {
-        return objectType.name.value + "_" + node.name.value;
-    } else if (node is NamedNode) {
+    if (node is NamedNode) {
         return node.name.value;
     } else {
         error err = error(io:sprintf("Invalid node: %s", node));

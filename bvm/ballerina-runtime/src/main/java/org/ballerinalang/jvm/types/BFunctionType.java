@@ -24,7 +24,7 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
-public class BFunctionType extends BType {
+public class BFunctionType extends AnnotatableType {
 
     public BType[] paramTypes;
     public BType retType;
@@ -111,5 +111,10 @@ public class BFunctionType extends BType {
     @Override
     public String toString() {
         return getTypeName(paramTypes, retType);
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return this.typeName;
     }
 }

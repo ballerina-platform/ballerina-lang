@@ -582,12 +582,26 @@ type InstructionGenerator object {
     }
 
     function generateObjectNewIns(bir:NewInstance objectNewIns) {
-        string className = self.currentPackageName + objectNewIns.typeDef.name.value;
+        string className = self.currentPackageName + cleanupTypeName(objectNewIns.typeDef.name.value);
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);
         loadType(self.mv, objectNewIns.typeDef.typeValue);
-        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
         self.generateVarStore(objectNewIns.lhsOp.variableDcl);
+
+        // todo : check if this is a new service object creation and process its annotation
+        boolean isServiceType = false;
+
+        if (isServiceType) {
+            string varName = "#0";
+            string pkgClassName = lookupFullQualifiedClassName(self.currentPackageName + varName);
+            self.mv.visitFieldInsn(GETSTATIC, pkgClassName, varName, io:sprintf("L%s;", MAP_VALUE));
+            loadType(self.mv, objectNewIns.typeDef.typeValue);
+            self.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+            self.mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processObjectAnnotations",
+                                        io:sprintf("(L%s;L%s;)V", MAP_VALUE, OBJECT_TYPE), false);
+        }
     }
 };
 
