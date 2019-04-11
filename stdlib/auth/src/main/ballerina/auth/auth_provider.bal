@@ -14,29 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the auth store provider. Any type of implementation, such as
-# LDAP, JDBC, file based, etc. should be object-wise similar
-public type AuthProvider object {
+# Represents the auth provider. Any type of implementation, such as LDAP, JDBC, file based, etc.
+# should be object-wise similar
+public type AuthProvider abstract object {
 
-    # Authenticate with username and password
+    # Authenticate with credential value passed.
     #
-    # + username - user name
-    # + password - password
-    # + return - true if authentication is a success, else false
-    public function authenticate(string username, string password) returns boolean;
-
-    # Reads the scope(s) for the user with the given username
-    #
-    # + username - user name
-    # + return - array of groups for the user denoted by the username
-    public function getScopes(string username) returns string[];
+    # + credential - Credential value
+    # + return - True if authentication is a success, else false or `error` occurred
+    public function authenticate(string credential) returns boolean|error;
 };
-
-public function AuthProvider.authenticate(string username, string password) returns boolean {
-    return true;
-}
-
-public function AuthProvider.getScopes(string username) returns string[] {
-    string[] val = [];
-    return val;
-}

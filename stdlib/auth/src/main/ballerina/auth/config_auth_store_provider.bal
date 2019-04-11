@@ -27,8 +27,10 @@ public type ConfigAuthStoreProviderConfig record {|
 
 # Represents Ballerina configuration file based auth store provider.
 #
-# + configAuthProviderConfig - Config auth store configurations
+# + configAuthStoreProviderConfig - Config auth store configurations
 public type ConfigAuthStoreProvider object {
+
+    *AuthProvider;
 
     public ConfigAuthStoreProviderConfig configAuthStoreProviderConfig;
 
@@ -39,16 +41,18 @@ public type ConfigAuthStoreProvider object {
         self.configAuthStoreProviderConfig = configAuthStoreProviderConfig;
     }
 
-    # Attempts to authenticate with username and password.
+    # Attempts to authenticate with credential.
     #
-    # + user - user name
-    # + password - password
-    # + return - true if authentication is a success, else false
-    public function authenticate(string user, string password) returns boolean {
-        if (user == EMPTY_STRING || password == EMPTY_STRING) {
+    # + credential - Credential
+    # + return - True if authentication is a success, else false or `error` that occured while extracting credentials
+    public function authenticate(string credential) returns boolean|error {
+        if (credential == EMPTY_STRING) {
             return false;
         }
-        string passwordFromConfig = self.readPassword(user);
+        string username;
+        string password;
+        (username, password) = check extractCredentials(credential);
+        string passwordFromConfig = self.readPassword(username);
         boolean isAuthenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
         if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
@@ -69,34 +73,34 @@ public type ConfigAuthStoreProvider object {
         }
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = user;
-            principal.username = user;
+            principal.userId = username;
+            principal.username = username;
         }
         return isAuthenticated;
     }
 
     # Extract password hash from the configuration file.
     #
-    # + configValue - config value to extract the password from
-    # + return - password hash extracted from the configuration field
+    # + configValue - Config value to extract the password from
+    # + return - Password hash extracted from the configuration field
     public function extractHash(string configValue) returns string {
         return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}"));
     }
 
     # Reads the scope(s) for the user with the given username.
     #
-    # + username - username
-    # + return - array of groups for the user denoted by the username
+    # + username - Username
+    # + return - Array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
         // first read the user id from user->id mapping
-        // reads the groups for the userid
+        // reads the groups for the user-id
         return self.getArray(self.getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
     }
 
     # Reads the password hash for a user.
     #
-    # + username - username
-    # + return - password hash read from userstore, or nil if not found
+    # + username - Username
+    # + return - Password hash read from userstore, or nil if not found
     public function readPassword(string username) returns string {
         // first read the user id from user->id mapping
         // read the hashed password from the userstore file, using the user id
@@ -109,8 +113,8 @@ public type ConfigAuthStoreProvider object {
 
     # Construct an array of groups from the comma separed group string passed.
     #
-    # + groupString - comma separated string of groups
-    # + return - array of groups, nil if the groups string is empty/nil
+    # + groupString - Comma separated string of groups
+    # + return - Array of groups, nil if the groups string is empty/nil
     public function getArray(string groupString) returns (string[]) {
         string[] groupsArr = [];
         if (groupString.length() == 0) {
@@ -119,3 +123,18 @@ public type ConfigAuthStoreProvider object {
         return groupString.split(",");
     }
 };
+
+# Extracts the username and password from credential value.
+#
+# + credential - Credential value
+# + return - A `string` tuple with the extracted username and password or `error` that occured while extracting credentials
+function extractCredentials(string credential) returns (string, string)|error {
+    string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
+    string[] decodedCredentials = decodedHeaderValue.split(":");
+    if (decodedCredentials.length() != 2) {
+        error err = error(AUTH_ERROR_CODE, {message: "Incorrect credential format" });
+        return err;
+    } else {
+        return (decodedCredentials[0], decodedCredentials[1]);
+    }
+}

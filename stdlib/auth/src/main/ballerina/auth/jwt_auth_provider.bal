@@ -19,23 +19,24 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 
-# Represents a JWT Authenticator
-#
+# Represents a JWT Authenticator.
 public type JWTAuthProvider object {
+
+    *AuthProvider;
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
 
-    # Provides authentication based on the provided jwt token
+    # Provides authentication based on the provided jwt token.
     #
     # + jwtAuthProviderConfig - JWT authentication provider configurations
     public function __init(JWTAuthProviderConfig jwtAuthProviderConfig) {
         self.jwtAuthProviderConfig = jwtAuthProviderConfig;
     }
 
-    # Authenticate with a jwt token
+    # Authenticate with a jwt token.
     #
     # + jwtToken - Jwt token extracted from the authentication header
-    # + return - true if authentication is successful, false otherwise.
+    # + return - True if authentication is successful, false otherwise.
     #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.jwtAuthProviderConfig.jwtCache.hasKey(jwtToken)) {
@@ -134,7 +135,7 @@ const string GROUPS = "groups";
 const string USERNAME = "name";
 const string AUTH_TYPE_JWT = "jwt";
 
-# Represents JWT validator configurations
+# Represents JWT validator configurations.
 #
 # + issuer - Identifier of the token issuer
 # + audience - Identifier of the token recipients
@@ -153,7 +154,7 @@ public type JWTAuthProviderConfig record {|
     cache:Cache jwtCache = new;
 |};
 
-# Represents parsed and cached JWT
+# Represents parsed and cached JWT.
 #
 # + jwtPayload - Parsed JWT payload
 # + expiryTime - Expiry time of the JWT

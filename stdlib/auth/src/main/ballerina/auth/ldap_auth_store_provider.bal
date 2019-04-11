@@ -74,11 +74,13 @@ public type SecureClientSocket record {|
     string trustedCertFile = "";
 |};
 
-# Represents Ballerina configuration for LDAP based auth store provider
+# Represents Ballerina configuration for LDAP based auth store provider.
 #
 # + ldapAuthStoreProviderConfig - LDAP auth store configurations
 # + instanceId - Endpoint instance id
 public type LdapAuthStoreProvider object {
+
+    *AuthProvider;
 
     public LdapAuthStoreProviderConfig ldapAuthStoreProviderConfig;
     public string instanceId;
@@ -93,12 +95,17 @@ public type LdapAuthStoreProvider object {
         initLdapConnectionContext(self, instanceId);
     }
 
-    # Authenticate with username and password
+    # Authenticate with username and password.
     #
-    # + username - user name
-    # + password - password
-    # + return - true if authentication is a success, else false
-    public function authenticate(string username, string password) returns boolean {
+    # + credential - Credential value
+    # + return - True if authentication is a success, else false or `error` that occured while extracting credentials
+    public function authenticate(string credential) returns boolean|error {
+        if (credential == EMPTY_STRING) {
+            return false;
+        }
+        string username;
+        string password;
+        (username, password) = check extractCredentials(credential);
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:Principal principal = runtime:getInvocationContext().principal;
@@ -109,30 +116,30 @@ public type LdapAuthStoreProvider object {
         return isAuthenticated;
     }
 
-    # Reads the scope(s) for the user with the given username
+    # Reads the scope(s) for the user with the given username.
     #
-    # + username - username
-    # + return - array of groups for the user denoted by the username
+    # + username - Username
+    # + return - Array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
         // Reads the groups for the username
         return self.getScopesOfUser(username);
     }
 
-    # Authenticate with username and password
+    # Authenticate with username and password.
     #
-    # + username - user name
-    # + password - password
+    # + username - Username
+    # + password - Password
     # + return - true if authentication is a success, else false
     public function doAuthenticate(string username, string password) returns boolean = external;
 
-    # Reads the scope(s) for the user with the given username
+    # Reads the scope(s) for the user with the given username.
     #
-    # + username - username
-    # + return - array of groups for the user denoted by the username
+    # + username - Username
+    # + return - Array of groups for the user denoted by the username
     public function getScopesOfUser(string username) returns string[] = external;
 };
 
-# Initailizes LDAP connection context
+# Initailizes LDAP connection context.
 #
 # + ldapAuthStoreProvider - LdapAuthStoreProvider provider object
 # + instanceId - Unique id generated to identify an endpoint
