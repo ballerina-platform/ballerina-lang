@@ -23,7 +23,7 @@ http:AuthProvider jwtAuthProvider4 = {
         audience: ["ballerina.io"],
         certificateAlias: "cert",
         trustStore: {
-            path: "../../../src/test/resources/auth/testtruststore.p12",
+            path: "${ballerina.home}/../../../src/test/resources/auth/testtruststore.p12",
             password: "ballerina"
         }
     }

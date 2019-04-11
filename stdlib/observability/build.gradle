@@ -8,7 +8,7 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime-api')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
-    implementation 'io.opentracing:opentracing-api:0.31.0'
+    implementation 'io.opentracing:opentracing-api'
 
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
@@ -17,9 +17,9 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-test-common')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-api:1.7.22'
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-api'
+    testCompile 'org.slf4j:slf4j-simple'
 }
 
 test {
@@ -32,7 +32,7 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-    systemProperty "java.util.logging.config.file", "$buildDir/logging.properties"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 

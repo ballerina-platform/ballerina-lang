@@ -1,10 +1,10 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
-    implementation 'org.slf4j:slf4j-api:1.7.22'
     implementation project(':toml-parser')
-    implementation 'org.apache.commons:commons-lang3:3.5'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.apache.commons:commons-lang3'
 }
 
 description = 'Ballerina - Config API'
