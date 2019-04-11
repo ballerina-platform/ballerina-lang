@@ -49,9 +49,9 @@ import java.util.function.Predicate;
         orgName = "ballerina",
         packageName = "utils",
         functionName = "stamp",
-        args = {@Argument(name = "stampType", type = TypeKind.TYPEDESC),
-                @Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+        args = {@Argument(name = "convertType", type = TypeKind.TYPEDESC),
+                @Argument(name = "value", type = TypeKind.ANY)},
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
 public class Stamp extends BlockingNativeCallableUnit {
 

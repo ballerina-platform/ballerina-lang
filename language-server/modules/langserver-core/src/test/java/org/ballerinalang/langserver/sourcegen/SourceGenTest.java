@@ -141,7 +141,8 @@ public class SourceGenTest {
                 "too-many-args-to-return-1.bal", "file_ops.bal", "valid-service.bal", "match_stmt_basic.bal",
                 "checkpoint.bal", "http_load_balancer_test.bal", "content_based_routing_test.bal", "http_cors_test.bal",
                 "header_based_routing_test.bal", "http_compression_test.bal", "http_access_logs_test.bal",
-                "immutable_values_test.bal", "trap_error_test.bal", "http_redirects_test.bal"};
+                "immutable_values_test.bal", "trap_error_test.bal", "http_redirects_test.bal",
+                "xml-native-functions.bal"};
 
         FileVisitor(List<File> ballerinaFiles) {
             this.files = ballerinaFiles;

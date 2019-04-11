@@ -5,14 +5,14 @@ dependencies {
     implementation project(':ballerina-streaming:siddhi-query-compiler')
     implementation project(':ballerina-streaming:siddhi-annotations')
     annotationProcessor project(':ballerina-streaming:siddhi-annotations')
-    implementation 'org.slf4j:slf4j-simple:1.7.22'
-    implementation 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
-    implementation 'org.quartz-scheduler:quartz:2.3.0'
-    implementation 'io.dropwizard.metrics:metrics-core:3.1.0'
-    implementation 'com.google.code.gson:gson:2.7'
-    implementation 'com.google.guava:guava:19.0'
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.awaitility:awaitility:3.0.0'
+    implementation 'org.slf4j:slf4j-simple'
+    implementation 'org.wso2.orbit.com.lmax:disruptor'
+    implementation 'org.quartz-scheduler:quartz'
+    implementation 'io.dropwizard.metrics:metrics-core'
+    implementation 'com.google.code.gson:gson'
+    implementation 'com.google.guava:guava'
+    testCompile 'org.testng:testng'
+    testCompile 'org.awaitility:awaitility'
 }
 
 description = 'Ballerina - Streaming - Siddhi Core'

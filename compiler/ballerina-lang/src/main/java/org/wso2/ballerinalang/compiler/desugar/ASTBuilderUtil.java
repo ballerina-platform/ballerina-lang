@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -397,7 +398,8 @@ public class ASTBuilderUtil {
         conversion.expr = varRef;
         conversion.type = target;
         conversion.targetType = target;
-        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef.type, target);
+        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef, varRef.type,
+                                                                                            target);
         return conversion;
     }
 
@@ -465,6 +467,7 @@ public class ASTBuilderUtil {
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
+        invokeLambda.name = createIdentifier(pos, invokableSymbol.name.value);
         invokeLambda.requiredArgs.addAll(requiredArgs);
         invokeLambda.namedArgs
                 .addAll(generateArgExprs(pos, namedArgs, invokableSymbol.defaultableParams, symResolver));
@@ -861,5 +864,15 @@ public class ASTBuilderUtil {
             argsExpr.add(varRef);
         }
         return argsExpr;
+    }
+
+    static BLangXMLTextLiteral createXMLTextLiteralNode(BLangBinaryExpr parent, BLangExpression concatExpr,
+                                                        DiagnosticPos pos, BType type) {
+        BLangXMLTextLiteral xmlTextLiteral = new BLangXMLTextLiteral();
+        xmlTextLiteral.concatExpr = concatExpr;
+        xmlTextLiteral.pos = pos;
+        xmlTextLiteral.parent = parent;
+        xmlTextLiteral.type = type;
+        return xmlTextLiteral;
     }
 }

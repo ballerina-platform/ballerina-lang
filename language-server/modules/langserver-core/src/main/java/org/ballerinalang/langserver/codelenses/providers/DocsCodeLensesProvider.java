@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
+import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
@@ -112,7 +113,7 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
                                                             String.valueOf(nodePosition.getLine()));
             List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
             command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                                  CommandConstants.CMD_ADD_DOCUMENTATION, args);
+                                  AddDocumentationExecutor.COMMAND, args);
             lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
         }
     }

@@ -53,7 +53,7 @@ export const Statement: React.StatelessComponent<{
                     h: viewState.bBox.h,
                     statement: {
                         text: label,
-                        textWidth: viewState.bBox.labelWidth,
+                        textWidth: viewState.expandContext.labelWidth,
                         x: viewState.bBox.x + config.statement.padding.left,
                         y: viewState.bBox.y,
                     },
