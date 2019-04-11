@@ -115,7 +115,7 @@ public class WorkspaceDocument {
             while (j < newTextList.size()) {
                 String changeText = newTextList.get(j);
                 String prefix = (j == 0) ? sLine.substring(0, start.getCharacter()) : "";
-                String suffix = (j == newTextList.size()- 1) ? eLine.substring(end.getCharacter()) : "";
+                String suffix = (j == newTextList.size() - 1) ? eLine.substring(end.getCharacter()) : "";
                 String mLine = prefix + changeText + suffix;
                 oldTextLines.add(start.getLine() + j, mLine);
                 j++;
