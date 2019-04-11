@@ -2099,7 +2099,8 @@ public class Desugar extends BLangNodeVisitor {
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             if (varRefExpr.symbol.tag == SymTag.CONSTANT) {
                 BConstantSymbol symbol = (BConstantSymbol) varRefExpr.symbol;
-                if (((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag == TypeTags.MAP) {
+                if (((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag == TypeTags.MAP ||
+                        ((BConstantSymbol) varRefExpr.symbol).literalValueTypeTag == TypeTags.RECORD) {
                     // Create a new constant reference.
                     genVarRefExpr = new BLangConstRef(symbol);
                 } else {

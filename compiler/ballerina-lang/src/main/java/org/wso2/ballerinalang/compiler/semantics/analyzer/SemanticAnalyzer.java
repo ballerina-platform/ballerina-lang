@@ -2013,9 +2013,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
             for (BLangExpression literal : typeNode.valueSpace) {
                 if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
-                // Check type for the literals in the value space to update to the correct types. Otherwise, we won't
-                // be able to differentiate between decimal, float and int, byte as the type of the literals in the
-                // above cases would be float and int respectively.
+                    // Check type for the literals in the value space to update to the correct types. Otherwise, we
+                    // won't
+                    // be able to differentiate between decimal, float and int, byte as the type of the literals in the
+                    // above cases would be float and int respectively.
                     typeChecker.checkExpr(literal, env, constant.symbol.literalValueType);
                 }
             }
@@ -2026,6 +2027,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(expression.pos, DiagnosticCode.TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS);
                 return;
             }
+
+            if (constant.typeNode.type.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) constant.typeNode.type;
+                if (!recordType.sealed) {
+                    constant.type = symTable.semanticError;
+                    dlog.error(constant.typeNode.pos, DiagnosticCode.UNSEALED_RECORDS_CANNOT_BE_USED_AS_CONSTANT_TYPE);
+                    return;
+                }
+                boolean unsupportedTypesPresent = false;
+                for (BField field : recordType.fields) {
+                    if (!isAllowedConstantType(field.type)) {
+                        unsupportedTypesPresent = true;
+                        dlog.error(field.pos, DiagnosticCode.UNSUPPORTED_CONSTANT_RECORD_FIELD_TYPE, field.type);
+                    }
+                }
+                if (unsupportedTypesPresent) {
+                    constant.type = symTable.semanticError;
+                    return;
+                }
+            }
+
             constant.symbol.type = constant.symbol.literalValueType =
                     typeChecker.checkExpr(expression, env, constant.typeNode.type);
             constant.symbol.literalValueTypeTag = constant.symbol.literalValueType.tag;
@@ -2038,6 +2060,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     // Private methods
+
+    private boolean isAllowedConstantType(BType type) {
+        switch (type.tag) {
+            case TypeTags.BOOLEAN:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.NIL:
+                return true;
+        }
+        return false;
+    }
 
     private void checkConstantExpression(BLangExpression expression) {
         // Recursively check whether all the nested expressions in the provided expression are constants or can be

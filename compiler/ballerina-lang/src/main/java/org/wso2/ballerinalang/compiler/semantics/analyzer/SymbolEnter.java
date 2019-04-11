@@ -1054,6 +1054,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
             case TypeTags.NIL:
+            case TypeTags.RECORD:
                 return true;
             case TypeTags.MAP:
                 return isAllowedMapConstraintType(typeNode);

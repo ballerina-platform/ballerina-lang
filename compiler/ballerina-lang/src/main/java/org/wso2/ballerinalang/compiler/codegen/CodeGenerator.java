@@ -2175,9 +2175,17 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Iterate through key-value pairs.
         for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
+            // Get the key expression.
+            BLangExpression keyExpression = keyValue.key.expr;
 
-            // Get the key. Key will always be a literal.
-            String key = ((BLangLiteral) keyValue.key.expr).value.toString();
+            // Get the key.
+            String key;
+            if (keyExpression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                key = ((BLangSimpleVarRef) keyExpression).variableName.value;
+            } else {
+                key = ((BLangLiteral) keyExpression).value.toString();
+            }
+
             BLangExpression valueExpr = keyValue.valueExpr;
             if (valueExpr.getKind() == NodeKind.LITERAL || valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral literal = (BLangLiteral) valueExpr;
