@@ -28,6 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static org.ballerinalang.model.types.TypeKind.BOOLEAN;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.FUNCTION_DESC;
@@ -49,6 +50,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.STRING_DESC;
         args = {
                 @Argument(name = "className", type = STRING),
                 @Argument(name = "lambdaName", type = STRING),
+                @Argument(name = "isVoid", type = BOOLEAN)
         }
 )
 public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
@@ -58,15 +60,26 @@ public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
 
         String className = context.getStringArgument(0);
         String lambdaName = context.getStringArgument(1);
+        boolean isVoid = context.getBooleanArgument(0);
 
 
         //Function<Object[], Object> - create a dynamic lambda invocation with object[] param and returns object
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        mv.visitInvokeDynamicInsn("apply", "()" + FUNCTION_DESC,
-                new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
-                        "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;"
-                        + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
-                        + METHOD_TYPE_DESC + ")Ljava/lang/invoke/CallSite;", false),
+        Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
+                "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;"
+                + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
+                + METHOD_TYPE_DESC + ")Ljava/lang/invoke/CallSite;", false);
+
+        if (isVoid) {
+            mv.visitInvokeDynamicInsn("accept", "()Ljava/util/function/Consumer;", handle,
+                    new Object[]{Type.getType("(" + OBJECT_DESC + ")V"),
+                            new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
+                                    "([" + OBJECT_DESC + ")V", false),
+                            Type.getType("([" + OBJECT_DESC + ")V")});
+            return;
+        }
+
+        mv.visitInvokeDynamicInsn("apply", "()" + FUNCTION_DESC, handle,
                 new Object[]{Type.getType("(" + OBJECT_DESC + ")" + OBJECT_DESC),
                         new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
                                 "([" + OBJECT_DESC + ")" + OBJECT_DESC, false),
