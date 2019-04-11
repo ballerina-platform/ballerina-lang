@@ -5,23 +5,60 @@ configurations {
     dist {
       transitive false
     }
+    ballerinaTools
 }
 
-task npmBuild(type: Exec) {
-    outputs.dir("$buildDir/out")
+npmBuild() {
+    PatternSet patternSet = new PatternSet();
+	patternSet.exclude("**/out/**");
+    patternSet.exclude("**/*.vsix/**");
+    patternSet.exclude("**/coverage/**");
+
+    FileTree src = files('.').asFileTree;
+    inputs.files(src.matching(patternSet))
+
+    dependsOn(':composer-library:build')
+    outputs.dir("out")
     outputs.cacheIf { true } 
 
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'package'
-    } else {
-        commandLine 'npm', 'run', 'package'
+    doFirst {
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'package'
+            } else {
+                commandLine 'npm', 'run', 'package'
+            }
+        }
     }
+}
+
+task assemble(overwrite: true) {
+    dependsOn 'npmBuild'
+    dependsOn(':composer-library:assemble')
 }
 
 dependencies {
     dist project(':composer-library')
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
+}
+
+task test(type: Exec) {
+    dependsOn ":ballerina-tools:build"
+    onlyIf {
+        !assemble.state.upToDate
+    }
+    def resourcePath = configurations.ballerinaTools.asPath
+    doFirst {
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', 'npm', 'run', 'test'
+            } else {
+                commandLine 'npm', 'run', 'test'
+            }
+        }
+    }
 }
 
 build {
-    dependsOn npmBuild
+    // dependsOn test
 }

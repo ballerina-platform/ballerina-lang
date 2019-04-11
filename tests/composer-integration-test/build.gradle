@@ -1,0 +1,30 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+apply from: "$rootDir/gradle/jsProject.gradle"
+
+configurations {
+    ballerinaTools
+}
+
+dependencies {
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'zip')
+}
+
+task unzipToolsZip(type: Copy){
+    from file(configurations.ballerinaTools.asPath)
+    into "${buildDir}/ballerina-tools"
+}
+
+task npmBuild(type: Exec) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'cmd', '/c', 'npm', 'run', 'build'
+    } else {
+        commandLine 'npm', 'run', 'build'
+    }
+}
+
+build {
+    dependsOn unzipToolsZip
+    dependsOn npmBuild
+}
+
+description = 'Ballerina - Tools Integration Test'

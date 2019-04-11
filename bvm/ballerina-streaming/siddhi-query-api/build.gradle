@@ -1,8 +1,8 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.slf4j:slf4j-simple:1.7.22'
-    testCompile 'org.testng:testng:6.13.1'
+    implementation 'org.slf4j:slf4j-simple'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Streaming - Siddhi Query API'
