@@ -30,24 +30,24 @@ const EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE =
 @test:Config {}
 function testTupleTypedBindingPattern() {
     (int, string, float, decimal, boolean, (), int[]) (var1, var2, var3, var4, _, var6, var7) =
-        (10, "string", 15.5, <decimal>19.9, true, (), [1, 2, 3]);
+        (10, "string", 15.5, 19.9d, true, (), [1, 2, 3]);
 
     test:assertEquals(var1, 10, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var2, "string", msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var3, 15.5, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
-    test:assertEquals(var4, <decimal>19.9, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(var4, 19.9d, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var6, (), msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var7, <int[]>[1, 2, 3], msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
 }
 
 @test:Config {}
 function testImpliedTupleTypedBindingPattern() {
-    var (var1, var2, var3, var4, _, var6, var7) = (10, "string", 15.5, <decimal>19.9, true, (), [1, 2, 3]);
+    var (var1, var2, var3, var4, _, var6, var7) = (10, "string", 15.5, 19.9d, true, (), [1, 2, 3]);
 
     test:assertEquals(var1, 10, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var2, "string", msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var3, 15.5, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
-    test:assertEquals(var4, <decimal>19.9, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
+    test:assertEquals(var4, 19.9d, msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var6, (), msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
     test:assertEquals(var7, <int[]>[1, 2, 3], msg = EXPECTED_TUPLE_DESTRUCTURE_TO_VAR_DEF_FAILURE_MESSAGE);
 }

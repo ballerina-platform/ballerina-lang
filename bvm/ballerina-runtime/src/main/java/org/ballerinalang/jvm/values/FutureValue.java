@@ -32,7 +32,7 @@
 
      public boolean isDone;
 
-     public FutureValue() {
-         this.strand = new Strand();
+     public FutureValue(Strand strand) {
+         this.strand = strand;
      }
  }

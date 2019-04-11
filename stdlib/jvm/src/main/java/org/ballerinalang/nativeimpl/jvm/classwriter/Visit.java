@@ -26,7 +26,6 @@ import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.objectweb.asm.ClassWriter;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
@@ -55,13 +54,13 @@ public class Visit extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
 
-        ClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
+        BallerinaClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
         int versionNumber = (int) context.getIntArgument(0);
         int access = (int) context.getIntArgument(1);
         String name = context.getStringArgument(0);
         String superName = context.getStringArgument(1);
         String[] interfaces = getInterfaces(context.getNullableRefArgument(2));
-        cw.visit(versionNumber, access, name, null, superName, interfaces);
+        cw.visitClass(versionNumber, access, name, null, superName, interfaces);
     }
 
     private String[] getInterfaces(BValue value) {

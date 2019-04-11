@@ -86,4 +86,9 @@ public class BRecordType extends BStructureType {
         }
         return sj.toString();
     }
+
+    @Override
+    public String getAnnotationKey() {
+        return this.typeName;
+    }
 }

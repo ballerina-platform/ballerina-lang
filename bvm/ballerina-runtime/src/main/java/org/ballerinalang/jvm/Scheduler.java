@@ -34,8 +34,6 @@ public class Scheduler {
     private LinkedList<SchedulerItem> runnableList = new LinkedList<>();
     private Map<Strand, ArrayList<SchedulerItem>> blockedList = new HashMap<>();
 
-    private static Scheduler scheduler = null;
-
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      * @param params - parameters to be passed to the function
@@ -43,29 +41,13 @@ public class Scheduler {
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function) {
-        FutureValue future = new FutureValue();
+        Strand newStrand = new Strand(this);
+        FutureValue future = new FutureValue(newStrand);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         runnableList.add(item);
         return future;
     }
-
-    /**
-     * Get an instance of the Scheduler.
-     * @return - scheduler instance
-     */
-    public static Scheduler getInstance() {
-        if (scheduler == null) {
-            synchronized (Scheduler.class) {
-                if (scheduler == null) {
-                    scheduler = new Scheduler();
-                }
-            }
-        }
-        return scheduler;
-    }
-
-    private Scheduler(){}
 
     /**
      * Executes tasks that are submitted to the Scheduler.

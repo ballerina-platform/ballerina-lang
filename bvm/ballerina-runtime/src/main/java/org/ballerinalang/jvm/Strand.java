@@ -32,4 +32,11 @@ public class Strand {
     public Future future;
     public boolean blocked;
     public Strand blockedOn;
+    public Scheduler scheduler;
+
+    public Strand(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    public Strand (){}
 }

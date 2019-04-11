@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Paths;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -55,8 +56,8 @@ public class MicroTransactionTestCase extends BaseTest {
     @BeforeClass(groups = "transactions-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort, participant2ServicePort};
-        sqlServer = new SQLDBUtils.FileBasedTestDatabase(DBType.H2, "transaction" + File.separator + "data.sql",
-                SQLDBUtils.DB_DIRECTORY, DB_NAME);
+        String dbScriptPath = Paths.get("transaction", "data.sql").toString();
+        sqlServer = new SQLDBUtils.FileBasedTestDatabase(DBType.H2, dbScriptPath, SQLDBUtils.DB_DIRECTORY, DB_NAME);
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "transaction").getAbsolutePath();
         String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1", "--experimental"};

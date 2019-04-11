@@ -135,3 +135,10 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
     return returnValues;
 }
+
+function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns ((float|decimal), (float|decimal), (float|decimal)) {
+    float|decimal a = 1.0;
+    float|decimal b = 1.0f;
+    float|decimal c = 1.0d;
+    return (a, b, c);
+}
