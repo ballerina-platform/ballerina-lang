@@ -172,10 +172,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
     /**
      * This method is for shutting down the connectors without a delay.
-     *
-     * @throws InterruptedException when interrupted by some other event
-     */
-    public void shutdownNow() throws InterruptedException {
+     **/
+    public void shutdownNow() {
         allChannels.close();
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
