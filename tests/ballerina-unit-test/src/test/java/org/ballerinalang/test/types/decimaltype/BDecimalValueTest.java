@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.decimaltype;
 import org.ballerinalang.model.util.DecimalValueKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -266,5 +267,27 @@ public class BDecimalValueTest {
         Assert.assertEquals(returns[1], new BDecimal("0.0", DecimalValueKind.ZERO));
         Assert.assertEquals(returns[2], new BDecimal("3.141592653589793238462643383279502", DecimalValueKind.OTHER));
         Assert.assertEquals(returns[3], new BDecimal("3.141592653589793238462643383279503", DecimalValueKind.OTHER));
+    }
+
+    @Test(description = "Test decimal inference for binary literal expressions")
+    public void testDecimalTypeInferenceInBinaryLiteralExpressions() {
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalInferenceInMapContext", new BValue[]{});
+        BMap<String, BDecimal> map = (BMap<String, BDecimal>) returns[0];
+
+        Assert.assertEquals(map.get("a"), new BDecimal("33.3", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("b"), new BDecimal("33.3", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("c"), new BDecimal("0.1", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("d"), new BDecimal("1", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("e"), new BDecimal("10000000000000000000000.123", DecimalValueKind.OTHER));
+    }
+
+    @Test(description = "Test decimal inference on binary literals")
+    public void testDecimalInferenceOnBinaryExpressions() {
+        BValue[] returns = BRunUtil.invoke(result, "decimalInferenceInLiterals");
+        Assert.assertEquals(returns[0], new BDecimal("0.5", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[1], new BDecimal("3.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[2], new BDecimal("-1.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[3], new BDecimal("2.0", DecimalValueKind.OTHER));
+        Assert.assertEquals(returns[4], new BDecimal("10000.5051", DecimalValueKind.OTHER));
     }
 }

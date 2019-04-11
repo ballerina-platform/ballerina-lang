@@ -95,8 +95,11 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     string orgName = module.org.value;
     string moduleName = module.name.value;
-
     string moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName, untaint sourceFileName);
+    string pkgName = getPackageName(orgName, moduleName);
+
+    // generate class name mappings for functions and global vars
+    generateClassNameMappings(module, pkgName, moduleClass);
 
     // TODO: remove once the package init class is introduced
     typeOwnerClass = moduleClass;
@@ -113,24 +116,17 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     generateUserDefinedTypeFields(cw, module.typeDefs);
 
-    string pkgName = getPackageName(orgName, moduleName);
-
-    // populate global variable to class name mapping and generate them
+    // generate global variables
     foreach var globalVar in module.globalVars {
         if (globalVar is bir:GlobalVariableDcl) {
-            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
             generatePackageVariable(globalVar, cw);
         }
-    }
-
-    // populate function to class name mapping
-    foreach var func in module.functions {
-        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
     }
 
     bir:Function? mainFunc = getMainFunc(module.functions);
     if (mainFunc is bir:Function) {
         generateMainMethod(mainFunc, cw, module);
+        generateLambdaForMain(mainFunc, cw, module);
         manifestEntries["Main-Class"] = getMainClassName(orgName, moduleName, sourceFileName);
     }
 
@@ -147,6 +143,20 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
 
     byte[] classContent = cw.toByteArray();
     pkgEntries[moduleClass + ".class"] = classContent;
+}
+
+function generateClassNameMappings(bir:Package module, string pkgName, string moduleClass) {
+    // populate global variable to class name mapping
+    foreach var globalVar in module.globalVars {
+        if (globalVar is bir:GlobalVariableDcl) {
+            fullQualifiedClassNames[pkgName + globalVar.name.value] = moduleClass;
+        }
+    }
+
+    // populate function to class name mapping
+    foreach var func in module.functions {
+        fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
+    }
 }
 
 function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {

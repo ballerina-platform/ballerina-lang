@@ -21,9 +21,6 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Class Writer for generating ballerina classes.
  * 
@@ -31,8 +28,7 @@ import java.util.Map;
  */
 public class BallerinaClassWriter extends ClassWriter {
 
-    // A map containing already generated classes, and their super class.
-    private static Map<String, String> generatedClasses = new HashMap<>();
+    private static final String OBJECT_CLASS = "java/lang/Object";
 
     public BallerinaClassWriter(int flags) {
         super(flags);
@@ -44,26 +40,45 @@ public class BallerinaClassWriter extends ClassWriter {
 
     public final void visitClass(int version, int access, String className, String signature, String superName,
                                  String[] interfaces) {
-        generatedClasses.put(className, superName);
         super.visit(version, access, className, signature, superName, interfaces);
     }
 
     /**
      * Returns the common super type of the two given types. If any of the classes are 
-     * generated ones, then their super class is used to find the common super type. It 
-     * is assumed that the super classes are compile time known classes. If the super classes
-     * are also generated ones, this method must be overridden to to handle such cases.
+     * not found, assume its a generated or to-be generated class and return 
+     * {@link Object} as the super type.
      */
     @Override
     protected String getCommonSuperClass(String type1, String type2) {
-        if (generatedClasses.containsKey(type1)) {
-            type1 = generatedClasses.get(type1);
+        ClassLoader classLoader = getClassLoader();
+        Class<?> class1;
+
+        try {
+            class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
+        } catch (Exception e) {
+            return OBJECT_CLASS;
         }
 
-        if (generatedClasses.containsKey(type2)) {
-            type1 = generatedClasses.get(type2);
+        Class<?> class2;
+        try {
+            class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
+        } catch (Exception e) {
+            return OBJECT_CLASS;
         }
 
-        return super.getCommonSuperClass(type1, type2);
+        if (class1.isAssignableFrom(class2)) {
+            return type1;
+        } else if (class2.isAssignableFrom(class1)) {
+            return type2;
+        } else if (class1.isInterface() || class2.isInterface()) {
+            return OBJECT_CLASS;
+        }
+
+        class1 = class1.getSuperclass();
+        while (!class1.isAssignableFrom(class2)) {
+            class1 = class1.getSuperclass();
+        }
+
+        return class1.getName().replace('.', '/');
     }
 }
