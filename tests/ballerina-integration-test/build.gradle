@@ -94,6 +94,7 @@ dependencies {
 }
 
 test {
+    exclude "**/*"
     // make sure ballerina zip is built before test run
     dependsOn (":ballerina:build")
     
