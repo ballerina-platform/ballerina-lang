@@ -12,14 +12,13 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':lib-creator')
+    implementation 'org.quartz-scheduler:quartz'
 
-    implementation 'org.quartz-scheduler:quartz:2.3.0'
-
-    testCompile 'commons-codec:commons-codec:1.9'
-    testCompile 'org.awaitility:awaitility:3.0.0'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
-    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'org.testng:testng'
     testCompile project(':ballerina-launcher')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 
 test {
@@ -32,6 +31,15 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+    systemProperty "ballerina.home", "$buildDir"
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 description = 'Ballerina - Task'

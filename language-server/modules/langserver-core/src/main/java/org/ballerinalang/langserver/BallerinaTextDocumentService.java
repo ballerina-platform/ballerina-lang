@@ -410,7 +410,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     String msg = e.getMessage();
                     LOGGER.error("Error while retrieving code lenses " + ((msg != null) ? ": " + msg : ""), e);
                 }
-                return new ArrayList<>();
+                // Source compilation failed, serve from cache
+                return documentManager.getCodeLenses(compilationPath);
             } finally {
                 lock.ifPresent(Lock::unlock);
             }

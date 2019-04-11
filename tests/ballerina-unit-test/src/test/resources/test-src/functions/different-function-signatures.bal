@@ -128,6 +128,7 @@ function funcWithNilDefaultParamExpr_1(string? s = ()) returns string? {
 
 type Student record {
     int a = 0;
+    anydata...;
 };
 
 function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {

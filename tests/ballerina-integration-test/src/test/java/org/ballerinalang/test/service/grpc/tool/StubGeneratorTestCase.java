@@ -47,8 +47,7 @@ public class StubGeneratorTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        resourceDir = Paths.get(new File(StubGeneratorTestCase.class.getProtectionDomain().getCodeSource()
-                .getLocation().toURI().getPath()).getAbsolutePath());
+        resourceDir = Paths.get("src", "test", "resources").toAbsolutePath();
     }
 
     @Test

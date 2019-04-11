@@ -60,7 +60,6 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
 
-    public int typeTag;
     public Object value;
     public String originalValue;
 

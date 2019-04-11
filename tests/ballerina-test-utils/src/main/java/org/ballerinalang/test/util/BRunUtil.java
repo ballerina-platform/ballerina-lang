@@ -19,11 +19,13 @@ package org.ballerinalang.test.util;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
@@ -52,6 +54,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Utility methods for run Ballerina functions.
@@ -251,7 +254,6 @@ public class BRunUtil {
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmParamTypes.size() + 1];
         jvmParamTypes[0] = Strand.class;
-        jvmArgs[0] = new Strand();
 
         for (int i = 0; i < bvmParamTypes.size(); i++) {
             org.wso2.ballerinalang.compiler.semantics.model.types.BType type = bvmParamTypes.get(i);
@@ -286,14 +288,25 @@ public class BRunUtil {
 
         try {
             Method method = clazz.getDeclaredMethod(functionName, jvmParamTypes);
-            jvmResult = method.invoke(null, jvmArgs);
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getTargetException();
-            if (t instanceof BLangRuntimeException) {
-                throw (BLangRuntimeException) t;
-            }
-            throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            Function<Object[], Object> func = a -> {
+                try {
+                    return method.invoke(null, a);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                } catch (InvocationTargetException e) {
+                    Throwable t = e.getTargetException();
+                    if (t instanceof BLangRuntimeException) {
+                        throw (BLangRuntimeException) t;
+                    }
+                    throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
+                }
+            };
+
+            Scheduler scheduler = new Scheduler();
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func);
+            scheduler.execute();
+            jvmResult = futureValue.result;
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
 
