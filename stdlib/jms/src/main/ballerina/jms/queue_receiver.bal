@@ -27,7 +27,7 @@ public type QueueReceiver object {
     *AbstractListener;
 
     public QueueReceiverCaller consumerActions = new;
-    public Session? session;
+    public Session session;
     public string messageSelector = "";
     public string identifier = "";
 
@@ -36,7 +36,7 @@ public type QueueReceiver object {
     # + c - The JMS Session object or Configurations related to the receiver
     # + queueName - Name of the queue
     # + messageSelector - The message selector for the queue
-    # + identifier - Unique identifier for the reciever
+    # + identifier - Unique identifier for the receiver
     public function __init(Session|ReceiverEndpointConfiguration c, string? queueName = (), string messageSelector = "",
                            string identifier = "") {
         self.consumerActions.queueReceiver = self;
@@ -61,8 +61,8 @@ public type QueueReceiver object {
 
     # Binds the queue receiver endpoint to a service
     #
-    # + serviceType - Type descriptor of the service to bind to
-    # + data - Name of the service
+    # + serviceType - The service instance
+    # + name - Name of the service
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, string? name = ()) returns error? {
         return self.registerListener(serviceType, self.consumerActions, name);
@@ -72,13 +72,14 @@ public type QueueReceiver object {
 
     function createQueueReceiver(Session? session, string messageSelector, string|Destination dest) = external;
 
-    # Starts the endpoint. Function is ignored by the receiver endpoint
+    # Starts the endpoint
     #
     # + return - Nil or error upon failure to start
     public function __start() returns error? {
-        return ();
-        // Ignore
+        return self.start();
     }
+
+    private function start() returns error? = external;
 
     # Retrieves the QueueReceiver consumer action handler
     #
@@ -127,13 +128,8 @@ public type QueueReceiverCaller client object {
         var queueReceiver = self.queueReceiver;
         if (queueReceiver is QueueReceiver) {
             var session = queueReceiver.session;
-            if (session is Session) {
-                validateQueue(destination);
-                queueReceiver.createQueueReceiver(session, queueReceiver.messageSelector, destination);
-            } else {
-                log:printInfo("Session is (), Message receiver is not properly initialized for queue " +
-                        destination.destinationName);
-            }
+            validateQueue(destination);
+            queueReceiver.createQueueReceiver(session, queueReceiver.messageSelector, destination);
         } else {
             log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
         }

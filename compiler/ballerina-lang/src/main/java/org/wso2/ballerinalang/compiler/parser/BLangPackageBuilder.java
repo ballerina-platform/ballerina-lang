@@ -218,6 +218,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1219,7 +1220,7 @@ public class BLangPackageBuilder {
     void addLiteralValue(DiagnosticPos pos, Set<Whitespace> ws, int typeTag, Object value, String originalValue) {
         BLangLiteral litExpr;
         // If numeric literal create a numeric literal expression; otherwise create a literal expression
-        if (typeTag < TypeTags.DECIMAL) {
+        if (typeTag <= TypeTags.DECIMAL) {
             litExpr = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else {
             litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
@@ -1432,12 +1433,13 @@ public class BLangPackageBuilder {
         exprNodeStack.push(invocationExpr);
     }
 
-    void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName,
+    void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
                                     FieldKind fieldType, boolean safeNavigate) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
         fieldBasedAccess.field = (BLangIdentifier) createIdentifier(fieldName);
+        fieldBasedAccess.field.pos = fieldNamePos;
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
         fieldBasedAccess.safeNavigate = safeNavigate;
@@ -1897,7 +1899,16 @@ public class BLangPackageBuilder {
             BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             finiteTypeNode.addWS(finiteTypeWsStack.pop());
             while (!exprNodeStack.isEmpty()) {
-                finiteTypeNode.valueSpace.add((BLangExpression) exprNodeStack.pop());
+                ExpressionNode expressionNode = exprNodeStack.pop();
+                NodeKind exprKind = expressionNode.getKind();
+                if (exprKind == NodeKind.LITERAL || exprKind == NodeKind.NUMERIC_LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) expressionNode;
+                    String strVal = String.valueOf(literal.value);
+                    if (literal.type.tag == TypeTags.FLOAT || literal.type.tag == TypeTags.DECIMAL) {
+                        literal.value = NumericLiteralSupport.stripDiscriminator(strVal);
+                    }
+                }
+                finiteTypeNode.valueSpace.add((BLangExpression) expressionNode);
             }
 
             // Reverse the collection so that they would appear in the correct order.

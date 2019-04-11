@@ -28,7 +28,6 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +37,6 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @since 0.995.0
  */
-@Ignore
 public class ErrorTest {
 
     private CompileResult compileResult;

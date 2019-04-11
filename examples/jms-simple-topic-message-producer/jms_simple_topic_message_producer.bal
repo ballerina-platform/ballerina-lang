@@ -1,13 +1,16 @@
 import ballerina/jms;
 import ballerina/log;
 
-// This creates a topic publisher.
+// This creates a topic publisher.  This example makes use of the ActiveMQ'
+// Artemis broker for demonstration while it can be tried with other brokers
+// that support JMS.
+
 jms:TopicPublisher topicPublisher = new({
-        initialContextFactory: "bmbInitialContextFactory",
-        providerUrl: "amqp://admin:admin@carbon/carbon"
-            + "?brokerlist='tcp://localhost:5672'",
+        initialContextFactory: 
+        "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
+        providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "BallerinaTopic");
+    }, topicPattern = "MyTopic");
 
 public function main() {
     // This creates a Text message.

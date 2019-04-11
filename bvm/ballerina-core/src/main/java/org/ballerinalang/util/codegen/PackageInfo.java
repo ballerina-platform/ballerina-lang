@@ -90,10 +90,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     }
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
-        if (constantPoolEntries.contains(cpEntry)) {
-            return constantPoolEntries.indexOf(cpEntry);
-        }
-
+        // We don't need to check for duplicate entries here since compiler should make sure there wont be any
+        // duplicate entries. So at this point, if there are any duplicates, that means they were added on purpose.
         constantPoolEntries.add(cpEntry);
         return constantPoolEntries.size() - 1;
     }
