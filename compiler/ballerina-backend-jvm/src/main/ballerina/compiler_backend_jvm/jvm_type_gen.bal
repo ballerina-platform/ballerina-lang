@@ -389,11 +389,6 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
 #
 # + bType - type to load
 function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType == ()) {
-        mv.visitInsn(ACONST_NULL);
-        return;
-    }
-
     string typeFieldName = "";
     if (bType is bir:BTypeInt) {
         typeFieldName = "typeInt";
@@ -405,7 +400,7 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeBoolean";
     } else if (bType is bir:BTypeByte) {
         typeFieldName = "typeByte";
-    } else if (bType is bir:BTypeNil) {
+    } else if (bType is bir:BTypeNil || bType is ()) {
         typeFieldName = "typeNull";
     } else if (bType is bir:BTypeAny) {
         typeFieldName = "typeAny";
