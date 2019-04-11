@@ -134,11 +134,11 @@ public type WebSocketUpgradeConfig record {|
 # Configures the authentication scheme for a service or a resource.
 #
 # + enabled - Specifies whether authentication is enabled
-# + authConfig - Array of inbound authentication configurations
+# + authnHandlers - Array of authentication handlers
 # + scopes - Array of scopes
 public type ServiceResourceAuth record {|
     boolean enabled = true;
-    InboundAuthConfig[] authConfig?;
+    AuthnHandler[] authnHandlers?;
     string[] scopes?;
 |};
 

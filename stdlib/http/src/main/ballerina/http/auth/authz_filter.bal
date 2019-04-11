@@ -40,7 +40,7 @@ public type AuthzFilter object {
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean authorized = true;
-        var resourceAuthConfig = getResourceAuthConfig(context);
+        var resourceAuthConfig = getServiceResourceAuthConfig(context);
         var resourceInboundScopes = resourceAuthConfig["scopes"];
         if (resourceInboundScopes is string[]) {
             authorized = handleAuthzRequest(self.authzHandler, request, context, resourceInboundScopes);

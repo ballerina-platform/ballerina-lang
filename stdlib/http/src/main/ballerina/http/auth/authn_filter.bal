@@ -19,13 +19,13 @@ import ballerina/reflect;
 
 # Representation of the Authentication filter.
 #
-# + authConfig - Array of inbound authentication configurations
+# + authnHandlers - Array of authentication handlers
 public type AuthnFilter object {
 
-    public InboundAuthConfig[] authConfig;
+    public AuthnHandler[] authnHandlers;
 
-    public function __init(InboundAuthConfig[] authConfig) {
-        self.authConfig = authConfig;
+    public function __init(AuthnHandler[] authnHandlers) {
+        self.authnHandlers = authnHandlers;
     }
 
     # Request filter method which attempts to authenticated the request.
@@ -36,12 +36,12 @@ public type AuthnFilter object {
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean authenticated = true;
-        var resourceAuthConfig = getResourceAuthConfig(context);
-        var resourceInboundAuthConfig = resourceAuthConfig["authConfig"];
-        if (resourceInboundAuthConfig is InboundAuthConfig[]) {
-            authenticated = handleAuthnRequest(resourceInboundAuthConfig, request);
+        var resourceAuthConfig = getServiceResourceAuthConfig(context);
+        var resourceAuthHandlers = resourceAuthConfig["authnHandlers"];
+        if (resourceAuthHandlers is AuthnHandler[]) {
+            authenticated = handleAuthnRequest(resourceAuthHandlers, request);
         } else {
-            authenticated = handleAuthnRequest(self.authConfig, request);
+            authenticated = handleAuthnRequest(self.authnHandlers, request);
         }
         return isAuthnSuccessful(caller, authenticated);
     }
@@ -51,21 +51,15 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthnRequest(InboundAuthConfig[] inboundAuthConfig, Request request) returns boolean {
-    foreach InboundAuthConfig authConfig in inboundAuthConfig {
-        AuthnHandler authnHandler = authConfig.authnHandler;
-        auth:AuthProvider[] authProviders = authConfig.authProviders;
-        if (authProviders.length() > 0) {
-            foreach auth:AuthProvider provider in authProviders {
-                if (authnHandler.canHandle(request)) {
-                    boolean authnSuccessful = authnHandler.handle(request);
-                    if (authnSuccessful) {
-                        // If one of the authenticators from the chain could successfully authenticate the user, it is not
-                        // required to look through other providers. The authenticator chain is using "OR" combination of
-                        // provider results.
-                        return true;
-                    }
-                }
+function handleAuthnRequest(AuthnHandler[] authnHandlers, Request request) returns boolean {
+    foreach AuthnHandler authnHandler in authnHandlers {
+        if (authnHandler.canHandle(request)) {
+            boolean authnSuccessful = authnHandler.handle(request);
+            if (authnSuccessful) {
+                // If one of the authenticators from the chain could successfully authenticate the user, it is not
+                // required to look through other providers. The authenticator chain is using "OR" combination of
+                // provider results.
+                return true;
             }
         }
     }

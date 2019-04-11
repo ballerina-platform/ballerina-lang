@@ -76,7 +76,7 @@ public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
     var auth = self.config["auth"];
     if (auth is ListenerAuth) {
-        if (auth.authConfig.length() > 0) {
+        if (auth.authnHandlers.length() > 0) {
             var secureSocket = self.config.secureSocket;
             if (secureSocket is ServiceSecureSocket) {
                 addAuthFiltersForSecureListener(self.config);
@@ -156,24 +156,15 @@ public type ServiceEndpointConfiguration record {|
 
 # Authentication configurations for the listener.
 #
-# + authConfig - Array of inbound authentication configurations
+# + authnHandlers - Array of authentication handlers
 # + scopes - Array of scopes
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ListenerAuth record {|
-    InboundAuthConfig[] authConfig;
+    AuthnHandler[] authnHandlers;
     string[] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-|};
-
-# Inbound authentication configurations with handlers and providers.
-#
-# + authnHandler - Authentication handler
-# + authProviders - Array of auth providers
-public type InboundAuthConfig record {|
-    AuthnHandler authnHandler;
-    auth:AuthProvider[] authProviders;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -248,8 +239,8 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 
     var auth = config["auth"];
     if (auth is ListenerAuth) {
-        InboundAuthConfig[] authConfig = auth.authConfig;
-        AuthnFilter authnFilter = new(authConfig);
+        AuthnHandler[] authnHandlers = auth.authnHandlers;
+        AuthnFilter authnFilter = new(authnHandlers);
         authFilters[0] = authnFilter;
 
         var scopes = auth["scopes"];
@@ -277,6 +268,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
             config.filters = newFilters;
         }
     }
+    // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
 }
 
 //////////////////////////////////

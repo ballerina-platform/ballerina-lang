@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/log;
+import ballerina/reflect;
+
 # Auth annotation module.
 const string ANN_MODULE = "ballerina/http";
 # Resource level annotation name.
@@ -57,14 +60,19 @@ public function extractBasicAuthHeaderValue(Request req) returns string? {
     }
 }
 
-function getResourceAuthConfig(FilterContext context) returns ServiceResourceAuth? {
+# Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
+# from the service level, if it is not there in the resource level.
+#
+# + context - `FilterContext` instance
+# + return - `ServiceResourceAuth` instance if its defined, else nil
+function getServiceResourceAuthConfig(FilterContext context) returns ServiceResourceAuth? {
     // get authn details from the resource level
     ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
         reflect:getServiceAnnotations(context.serviceRef));
     // check if authentication is enabled
-    boolean resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
+    boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
     // if resource is not secured, no need to check further
     if (!resourceSecured) {
         return ();
@@ -81,13 +89,12 @@ function getResourceAuthConfig(FilterContext context) returns ServiceResourceAut
     }
 }
 
-# Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
-# from the service level, if it  is not there in the resource level.
+# Retrieves and return the auth annotation with the given module name, annotation name and annotation data.
 #
 # + annotationModule - Annotation module name
 # + annotationName - Annotation name
 # + annData - Array of annotationData instances
-# + return - ListenerAuthConfig instance if its defined, else nil
+# + return - `ServiceResourceAuth` instance if its defined, else nil
 function getAuthAnnotation(string annotationModule, string annotationName, reflect:annotationData[] annData) returns ServiceResourceAuth? {
     if (annData.length() == 0) {
         return ();
@@ -110,8 +117,13 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
     }
 }
 
-function isResourceSecured(ServiceResourceAuth? resourceLevelAuthAnn,
-                           ServiceResourceAuth? serviceLevelAuthAnn) returns boolean {
+# Check for the service or the resource is secured by evaluating the enabled flag configured by the user.
+#
+# + resourceLevelAuthAnn - Resource level auth annotations
+# + serviceLevelAuthAnn - Service level auth annotations
+# + return - Whether the service or resource secured or not
+function isServiceResourceSecured(ServiceResourceAuth? resourceLevelAuthAnn,
+                                  ServiceResourceAuth? serviceLevelAuthAnn) returns boolean {
     boolean secured = true;
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
         secured = resourceLevelAuthAnn.enabled;

@@ -4,7 +4,7 @@ import ballerina/http;
 function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
     auth:AuthProvider authProvider = configAuthStoreProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "123Basic xxxxxx";
     inRequest.setHeader("123Authorization", basicAuthHeaderValue);
@@ -14,7 +14,7 @@ function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
 function testCanHandleHttpBasicAuth() returns boolean {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
     auth:AuthProvider authProvider = configAuthStoreProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic xxxxxx";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
@@ -24,7 +24,7 @@ function testCanHandleHttpBasicAuth() returns boolean {
 function testHandleHttpBasicAuthFailure() returns boolean {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
     auth:AuthProvider authProvider = configAuthStoreProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic YW1pbGE6cHFy";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
@@ -34,7 +34,7 @@ function testHandleHttpBasicAuthFailure() returns boolean {
 function testHandleHttpBasicAuth() returns boolean {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
     auth:AuthProvider authProvider = configAuthStoreProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic aXN1cnU6eHh4";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);

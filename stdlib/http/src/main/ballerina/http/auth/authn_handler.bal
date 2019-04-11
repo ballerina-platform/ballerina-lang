@@ -15,11 +15,7 @@
 // under the License.
 
 # Representation of Authentication handler for HTTP traffic.
-#
-# + name - Name of the http authn handler
 public type AuthnHandler abstract object {
-
-    public string name = "";
 
     # Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
     #
