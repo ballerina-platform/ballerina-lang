@@ -68,7 +68,7 @@ public type Scheduler object {
     # Creates the timer events.
     # +return - Returns error if sending timer events failed.
     public function sendTimerEvents() returns error? {
-        any? first = self.toNotifyQueue.getFirst();
+        any first = self.toNotifyQueue.getFirst();
         int currentTime = time:currentTime().time;
         while (first != () && <int>first - currentTime <= 0) {
             _ = self.toNotifyQueue.removeFirst();
