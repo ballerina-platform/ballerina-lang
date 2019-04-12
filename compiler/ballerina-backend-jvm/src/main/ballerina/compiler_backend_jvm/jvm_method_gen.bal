@@ -49,6 +49,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv, module.typeDefs);
+
+        mv.visitTypeInsn(NEW, typeOwnerClass);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+        mv.visitVarInsn(ASTORE, 1);
+        mv.visitLdcInsn(currentPackageName);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/values/ValueCreator", "addValueCreator",
+                            "(Ljava/lang/String;Lorg/ballerinalang/jvm/values/ValueCreator;)V", false);
+
     }
 
     // generate method body
@@ -851,7 +861,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
-    generateDefaultConstructor(cw);
+    generateDefaultConstructor(cw, OBJECT);
 
     int k = 0;
     bir:VariableDcl?[] localVars = currentFunc.localVars;
@@ -924,11 +934,11 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {
     fv.visitEnd();
 }
 
-function generateDefaultConstructor(jvm:ClassWriter cw) {
+function generateDefaultConstructor(jvm:ClassWriter cw, string ownerClass) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", (), ());
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, OBJECT, "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, ownerClass, "<init>", "()V", false);
     mv.visitInsn(RETURN);
     mv.visitMaxs(1, 1);
     mv.visitEnd();

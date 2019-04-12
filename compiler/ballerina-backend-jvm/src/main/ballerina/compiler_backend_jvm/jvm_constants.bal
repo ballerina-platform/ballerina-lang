@@ -228,6 +228,7 @@ const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
 const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
 const string STRAND = "org/ballerinalang/jvm/Strand";
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
