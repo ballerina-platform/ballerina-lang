@@ -56,3 +56,16 @@ public function bar(int|error x) returns int|error {
     }
     return x;
 }
+
+public function testSelfReferencingError() returns error {
+    MyError cause = error("root cause", {msg: "root cause msg"});
+    MyError e = error("actual error", {msg: "actual error msg", cause: cause});
+    return e;
+}
+
+type MyError error<string, MyErrorData>;
+
+type MyErrorData record {|
+    string msg = "";
+    MyError? cause = ();
+|};

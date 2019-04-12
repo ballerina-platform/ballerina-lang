@@ -693,4 +693,16 @@ public class TypesTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
         Assert.assertEquals(returns[3].stringValue(), "february");
     }
+
+    @Test
+    public void testSelfReferencingRecord() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSelfReferencingRecord");
+        Assert.assertEquals((result[0]).stringValue(), "{a:2, f:{a:1}}");
+    }
+
+    @Test
+    public void testSelfReferencingObject() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "testSelfReferencingObject");
+        Assert.assertEquals((result[0]).stringValue(), "{a:3, f:()}");
+    }
 }

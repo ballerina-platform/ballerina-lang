@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
@@ -55,7 +56,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -501,6 +504,11 @@ public class BRunUtil {
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
                         new BObjectType(null, objectType.getName(), objectType.getPackagePath(), objectType.flags);
+                Map<String, BField> fields = new HashMap<>();
+                for (org.ballerinalang.jvm.types.BField field : objectType.getFields().values()) {
+                    fields.put(field.name, new BField(getBVMType(field.type), field.name, field.flags));
+                }
+                bvmObjectType.setFields(fields);
                 return bvmObjectType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
