@@ -19,13 +19,13 @@
 package org.wso2.transport.http.netty.message;
 
 /**
- * HTTP/2 back pressure listener. Should be used only for passthrough scenario.
+ * HTTP/2 back pressure listener for passthrough scenario.
  */
-public class Http2BackPressureListener implements BackPressureListener {
+public class Http2PassthroughBackPressureListener implements BackPressureListener {
 
     private Http2InboundContentListener inboundListenerHook;
 
-    public Http2BackPressureListener(Http2InboundContentListener inboundListenerHook) {
+    public Http2PassthroughBackPressureListener(Http2InboundContentListener inboundListenerHook) {
         this.inboundListenerHook = inboundListenerHook;
     }
 

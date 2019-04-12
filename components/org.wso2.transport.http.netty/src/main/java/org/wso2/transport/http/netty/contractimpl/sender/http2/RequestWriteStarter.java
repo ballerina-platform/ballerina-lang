@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.sender.http2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
-import org.wso2.transport.http.netty.message.Http2BackPressureListener;
+import org.wso2.transport.http.netty.message.Http2PassthroughBackPressureListener;
 import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Listener;
 
@@ -57,7 +57,7 @@ public class RequestWriteStarter {
             Listener inboundListener = outboundMsgHolder.getRequest().getListener();
             if (inboundListener instanceof Http2InboundContentListener) {
                 outboundMsgHolder.getBackPressureObservable().setListener(
-                    new Http2BackPressureListener((Http2InboundContentListener) inboundListener));
+                    new Http2PassthroughBackPressureListener((Http2InboundContentListener) inboundListener));
             }
         } else {
             outboundMsgHolder.getBackPressureObservable().setListener(new DefaultBackPressureListener());
