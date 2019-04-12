@@ -218,12 +218,6 @@ public class ArrayValue implements RefValue {
         refValues[(int) index] = value;
     }
 
-    public void add(long index, ArrayValue value) {
-        handleFrozenArrayValue();
-        prepareForAdd(index, refValues.length);
-        refValues[(int) index] = value;
-    }
-
     public void add(long index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);

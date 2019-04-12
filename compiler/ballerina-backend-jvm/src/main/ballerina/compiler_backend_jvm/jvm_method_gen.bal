@@ -589,7 +589,7 @@ function generateReturnType(bir:BType? bType) returns string {
                 bType is bir:BJSONType) {
         return io:sprintf(")L%s;", OBJECT);
     } else if (bType is bir:BObjectType) {
-        return io:sprintf("L%s;", OBJECT_VALUE);
+        return io:sprintf(")L%s;", OBJECT_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;

@@ -27,8 +27,10 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -441,6 +443,15 @@ public class BRunUtil {
                 return new BError(getBVMType(errorValue.getType()), errorValue.getReason(), details);
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return null;
+            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+                ObjectValue jvmObject = (ObjectValue) value;
+                org.ballerinalang.jvm.types.BObjectType jvmObjectType = jvmObject.getType();
+                BMap<String, BRefType<?>> bvmObject = new BMap<>(getBVMType(jvmObjectType));
+
+                for (String key : jvmObjectType.getFields().keySet()) {
+                    bvmObject.put(key, getBVMValue(jvmObject.get(key)));
+                }
+                return bvmObject;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -486,6 +497,11 @@ public class BRunUtil {
                 return new BMapType(getBVMType(mapType.getConstrainedType()));
             case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
                 return BTypes.typePureType;
+            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+                org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
+                BObjectType bvmObjectType =
+                        new BObjectType(null, objectType.getName(), objectType.getPackagePath(), objectType.flags);
+                return bvmObjectType;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }
@@ -529,7 +545,6 @@ public class BRunUtil {
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
-
 
         return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
     }
