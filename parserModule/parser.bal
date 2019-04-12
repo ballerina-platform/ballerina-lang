@@ -352,8 +352,8 @@ type Parser object {
 	//				leftExpr: expr1, rightExpr: expr2 };
 	//			expStack.push(bExpr);
 	//		}
-	//	}else if (self.LAToken(1) == ADD || self.LAToken(1) == SUBSTRACTION || self.LAToken(1) == DIVISION || self.
-	//		LAToken(1) == MULTIPLICATION ){
+	//	}else if (self.LAToken(1) == ADD || self.LAToken(1) == SUBSTRACTION || self.LAToken(1) == DIV || self.
+	//		LAToken(1) == MUL ){
 	//			while (oprStack.opPrecedence(oprStack.peek()) >= oprStack.opPrecedence(self.LAToken(1))) {
 	//				Token operator = oprStack.pop();
 	//				OperatorKind opKind = self.matchOperatorType(operator);
@@ -368,8 +368,8 @@ type Parser object {
 	//			if (self.LAToken(1) == ADD) {
 	//				Token add = self.matchToken(ADD, EXPRESSION_NODE);
 	//				oprStack.push(add);
-	//			} else if (self.LAToken(1) == MULTIPLICATION){
-	//				Token multply = self.matchToken(MULTIPLICATION, EXPRESSION_NODE);
+	//			} else if (self.LAToken(1) == MUL){
+	//				Token multply = self.matchToken(MUL, EXPRESSION_NODE);
 	//				oprStack.push(multply);
 	//			} else if (self.LAToken(1) == SUBSTRACTION){
 	//				Token subs = self.matchToken(SUBSTRACTION, EXPRESSION_NODE);
@@ -420,7 +420,7 @@ type Parser object {
 	//    | <varaiable reference>
 	//    | <recod literal>
 	//    | expression ( ADD | SUB ) expression
-	//    | expression (DIVISION | MULTIPLICATION) expression
+	//    | expression (DIV | MUL) expression
 	//expression is parsed using shunting yard algorithm
 	function parseExpression2() returns boolean {
 		if (self.LAToken(1) == LPAREN) {
@@ -475,8 +475,8 @@ type Parser object {
 				expOperand = false;
 				return true;
 			}
-		} else if (self.LAToken(1) == ADD || self.LAToken(1) == SUBSTRACTION || self.LAToken(1) == DIVISION || self.
-			LAToken(1) == MULTIPLICATION ||self.LAToken(1) == COMMA ) {
+		} else if (self.LAToken(1) == ADD || self.LAToken(1) == SUB || self.LAToken(1) == DIV || self.
+			LAToken(1) == MUL ||self.LAToken(1) == COMMA ) {
 			if (expOperand == true) {
 				Token invalidToken = self.deleteToken();
 				errTokens[errCount] = invalidToken;
@@ -498,11 +498,11 @@ type Parser object {
 				if (self.LAToken(1) == ADD) {
 					Token add = self.matchToken(ADD, EXPRESSION_NODE);
 					oprStack.push(add);
-				} else if (self.LAToken(1) == MULTIPLICATION){
-					Token multply = self.matchToken(MULTIPLICATION, EXPRESSION_NODE);
+				} else if (self.LAToken(1) == MUL){
+					Token multply = self.matchToken(MUL, EXPRESSION_NODE);
 					oprStack.push(multply);
-				} else if (self.LAToken(1) == SUBSTRACTION){
-					Token subs = self.matchToken(SUBSTRACTION, EXPRESSION_NODE);
+				} else if (self.LAToken(1) == SUB){
+					Token subs = self.matchToken(SUB, EXPRESSION_NODE);
 					oprStack.push(subs);
 				}else if (self.LAToken (1) == COMMA){
 					Token comma1 = self.matchToken(COMMA, EXPRESSION_NODE);
@@ -727,11 +727,11 @@ type Parser object {
 	function matchOperatorType(Token operator) returns OperatorKind {
 		if (tokenNames[operator.tokenType] == "ADD") {
 			return PLUS_OP;
-		} else if (tokenNames[operator.tokenType] == "SUBSTRACTION"){
+		} else if (tokenNames[operator.tokenType] == "SUB"){
 			return MINUS_OP;
-		} else if (tokenNames[operator.tokenType] == "DIVISION"){
+		} else if (tokenNames[operator.tokenType] == "DIV"){
 			return DIVISION_OP;
-		} else if (tokenNames[operator.tokenType] == "MULTIPLICATION") {
+		} else if (tokenNames[operator.tokenType] == "MUL") {
 			return MULTIPLICATION_OP;
 		}else if(tokenNames[operator.tokenType] == "COLON"){
 			return COLON_OP;
@@ -775,9 +775,9 @@ type OperatorStack object {
 	function opPrecedence(int opToken) returns int {
 		if(opToken == COMMA){
 			return 0;
-		}else if (opToken == ADD || opToken == SUBSTRACTION) {
+		}else if (opToken == ADD || opToken == SUB) {
 			return 1;
-		} else if (opToken == DIVISION || opToken == MULTIPLICATION){
+		} else if (opToken == DIV || opToken == MUL){
 			return 2;
 		}else if (opToken == COLON){
 			return 3;
@@ -830,7 +830,7 @@ type ExprStack object {
 //    | <simple literal>
 //    | <varaiable reference>
 //    | expression ( ADD | SUB ) expression
-//    | expression (DIVISION | MULTIPLICATION) expression
+//    | expression (DIV | MUL) expression
 //
 //Simple Literal
 //    | IntegerLiteral //[0-9]
