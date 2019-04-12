@@ -205,6 +205,13 @@ public function length(any[] windowParameters, function (StreamEvent?[])? nextPr
 #            }
 #        }
 # The `time` window should only have one parameter (<int> windowTime)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + expiredEventQueue - description
+# + nextProcessPointer - description
+# + lastTimestamp - description
+# + scheduler - description
 public type TimeWindow object {
     *Window;
     *Snapshotable;
@@ -570,6 +577,14 @@ public function lengthBatch(any[] windowParameters, function (StreamEvent?[])? n
 #            }
 #        }
 # The `timeBatch` window should only have one parameter (<int> windowBatchTime)
+#
+# + timeInMilliSeconds - description
+# + windowParameters - description
+# + nextEmitTime - description
+# + currentEventQueue - description
+# + resetEvent - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type TimeBatchWindow object {
     *Window;
     *Snapshotable;
@@ -962,6 +977,25 @@ public function externalTime(any[] windowParameters, function (StreamEvent?[])? 
 #        }
 # The `externalTimeBatch` window should only have two to five parameters (timestamp field, <int> windowTime, <int>
 # startTime, <int> timeout, <boolean> replaceTimestampWithBatchEndTime)
+#
+# + timeToKeep - description
+# + currentEventChunk - description
+# + expiredEventChunk - description
+# + resetEvent - description
+# + startTime - description
+# + isStartTimeEnabled - description
+# + replaceTimestampWithBatchEndTime - description
+# + flushed - description
+# + endTime - description
+# + schedulerTimeout - description
+# + lastScheduledTime - description
+# + lastCurrentEventTime - description
+# + nextProcessPointer - description
+# + timeStamp - description
+# + storeExpiredEvents - description
+# + outputExpectsExpiredEvents - description
+# + windowParameters - description
+# + scheduler - description
 public type ExternalTimeBatchWindow object {
     *Window;
     *Snapshotable;
@@ -1445,6 +1479,14 @@ public function externalTimeBatch(any[] windowParameters, function (StreamEvent?
 #            }
 #        }
 # The `timeLength` window should only have two parameters (<int> windowTime, <int> windowLength)
+#
+# + timeInMilliSeconds - description
+# + length - description
+# + windowParameters - description
+# + count - description
+# + expiredEventChunk - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type TimeLengthWindow object {
     *Window;
     *Snapshotable;
@@ -1867,6 +1909,13 @@ public function uniqueLength(any[] windowParameters, function (StreamEvent?[])? 
 #            }
 #        }
 # The `delay` window should only have one parameter (<int> delayTime)
+#
+# + delayInMilliSeconds - description
+# + windowParameters - description
+# + delayedEventQueue - description
+# + lastTimestamp - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type DelayWindow object {
     *Window;
     *Snapshotable;
@@ -2048,6 +2097,15 @@ public function delay(any[] windowParameters, function (StreamEvent?[])? nextPro
 #        }
 # The `sort` window should have three or more odd no of parameters (<int> windowLength, stream field, <string>
 # order1,  stream field, <string> order2, ...)
+#
+# + lengthToKeep - description
+# + windowParameters - description
+# + sortedWindow - description
+# + fields - description
+# + sortTypes - description
+# + nextProcessPointer - description
+# + fieldFuncs - description
+# + mergeSort - description
 public type SortWindow object {
     *Window;
     *Snapshotable;
@@ -2269,6 +2327,14 @@ public function sort(any[] windowParameters, function (StreamEvent?[])? nextProc
 #            }
 #        }
 # Time accumulating window should only have one parameter (<int> timePeriod)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + currentEventQueue - description
+# + resetEvent - description
+# + nextProcessPointer - description
+# + lastTimestamp - description
+# + scheduler - description
 public type TimeAccumulatingWindow object {
     *Window;
     *Snapshotable;
@@ -2455,6 +2521,15 @@ public function timeAccum(any[] windowParameters, function (StreamEvent?[])? nex
 #            }
 #        }
 # Hopping window should only have two parameters (<int> windowTime, <int> hoppingTime)
+#
+# + timeInMilliSeconds - description
+# + hoppingTime - description
+# + windowParameters - description
+# + nextEmitTime - description
+# + currentEventQueue - description
+# + resetEvent - description
+# + nextProcessPointer - description
+# + scheduler - description
 public type HoppingWindow object {
     *Window;
     *Snapshotable;
@@ -2657,6 +2732,16 @@ public function hopping(any[] windowParameters, function (StreamEvent?[])? nextP
 #            }
 #        }
 # `timeOrder` window should only have three parameters (timestamp field, <int> windowTime, <boolean> dropOlderEvents)
+#
+# + timeInMillis - description
+# + windowParameters - description
+# + expiredEventQueue - description
+# + nextProcessPointer - description
+# + timestamp - description
+# + lastTimestamp - description
+# + dropOlderEvents - description
+# + mergeSort - description
+# + scheduler - description
 public type TimeOrderWindow object {
     *Window;
     *Snapshotable;
