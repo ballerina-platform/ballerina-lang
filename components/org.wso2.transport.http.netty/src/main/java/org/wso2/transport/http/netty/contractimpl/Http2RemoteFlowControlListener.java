@@ -45,7 +45,7 @@ public final class Http2RemoteFlowControlListener implements Http2RemoteFlowCont
         if (outboundMsgHolder == null) {
             return;
         }
-        //Netty flow controller methods should only be called from the I/O thread.
+        //Netty flow controller methods should only be called from an I/O thread.
         if (http2RemoteFlowController.isWritable(stream)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("In thread {}. Stream {} is writable. State {} ", Thread.currentThread().getName(),
