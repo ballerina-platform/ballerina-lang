@@ -90,7 +90,7 @@ public class LSDefaultCompletionItemProvider implements LSCompletionProvider {
                               new ParserRuleStatementCompletionProvider());
         contextToProvider.put(CompletionItemsContext.PR_WORKER_TRIGGER_WORKER_STMT,
                               new ParserRuleTriggerWorkerCompletionProvider());
-        contextToProvider.put(CompletionItemsContext.PR_WORKER_VARIABLE_DEF_STMT,
+        contextToProvider.put(CompletionItemsContext.PR_VARIABLE_DEFINITION,
                               new ParserRuleVariableDefinitionCompletionProvider());
         contextToProvider.put(CompletionItemsContext.PR_GLOBAL_VARIABLE_DEFINITION,
                               new ParserRuleGlobalVariableDefinitionCompletionProvider());
@@ -133,6 +133,10 @@ public class LSDefaultCompletionItemProvider implements LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext context, CompletionItemsContext completionItemsContext)
             throws LSCompletionProviderException {
         AbstractSubCompletionProvider subItemProvider = contextToProvider.get(completionItemsContext);
-        return subItemProvider.resolveItems(context);
+        if (subItemProvider != null) {
+            return subItemProvider.resolveItems(context);
+        }
+        throw new LSCompletionProviderException(
+                "Couldn't find completion item provider for the context: " + completionItemsContext.name());
     }
 }

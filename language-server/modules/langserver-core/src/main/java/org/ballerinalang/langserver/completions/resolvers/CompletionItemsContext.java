@@ -51,7 +51,6 @@ public enum CompletionItemsContext {
     ANNOTATION_ATTACHMENT,
     PR_WORKER_REPLY,
     PR_WORKER_INTERACTION,
-    PR_WORKER_VARIABLE_DEF_STMT,
     PR_WORKER_TRIGGER_WORKER_STMT,
     PR_WORKER_STMT,
     PR_SERVICE_ENDPOINT_ATTACHMENT,
@@ -183,7 +182,6 @@ public enum CompletionItemsContext {
             case MATCH:
             case ANNOTATION_ATTACHMENT:
             case PR_WORKER_REPLY:
-            case PR_WORKER_VARIABLE_DEF_STMT:
             case PR_WORKER_TRIGGER_WORKER_STMT:
             case PR_SERVICE_ENDPOINT_ATTACHMENT:
             case PR_SERVICE_DEFINITION:
