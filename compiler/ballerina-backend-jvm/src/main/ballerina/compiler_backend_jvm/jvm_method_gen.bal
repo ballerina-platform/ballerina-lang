@@ -56,8 +56,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(currentPackageName);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/values/ValueCreator", "addValueCreator",
-                            "(Ljava/lang/String;Lorg/ballerinalang/jvm/values/ValueCreator;)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
+                                io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
 
     }
 
