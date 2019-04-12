@@ -426,8 +426,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 }
 
 function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string className, string lambdaName) {
-    bir:BType lhsType = callIns.lhsOp.typeValue;
-    bir:BType returnType = ();
+    bir:BType? lhsType = callIns.lhsOp.typeValue;
+    bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
     } else {
@@ -737,14 +737,16 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
     // load and cast param values
-    bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
+    bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
 
     int paramIndex = 1;
     foreach var paramType in paramTypes {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitIntInsn(BIPUSH, paramIndex);
-        mv.visitInsn(AALOAD);
-        castFromString(paramType, mv);
+        if (paramType is bir:BType) {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitInsn(AALOAD);
+            castFromString(paramType, mv);
+        }
         paramIndex += 1;
     }
 
@@ -1000,7 +1002,7 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     pkgEntries[frameClassName + ".class"] = cw.toByteArray();
 }
 
-function getFrameClassName(string pkgName, string funcName, bir:BType attachedType) returns string {
+function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {
     string frameClassName = pkgName;
     if (attachedType is bir:BObjectType) {
         frameClassName += cleanupTypeName(attachedType.name.value) + "_";

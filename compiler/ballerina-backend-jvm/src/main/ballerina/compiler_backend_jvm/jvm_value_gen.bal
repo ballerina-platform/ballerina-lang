@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+    // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -125,17 +125,19 @@ public type ObjectGenerator object {
             // load strand
             mv.visitVarInsn(ALOAD, 1);
 
-            bir:BType[] paramTypes = func.funcType.paramTypes;
+            bir:BType?[] paramTypes = func.funcType.paramTypes;
             int j = 0;
             foreach var paramType in paramTypes {
-                // load parameters
-                mv.visitVarInsn(ALOAD, 3);
+                if (paramType is bir:BType) {
+                    // load parameters
+                    mv.visitVarInsn(ALOAD, 3);
 
-                // load j'th parameter
-                mv.visitLdcInsn(j);
-                mv.visitInsn(L2I);
-                mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, paramType);
+                    // load j'th parameter
+                    mv.visitLdcInsn(j);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(AALOAD);
+                    addUnboxInsn(mv, paramType);
+                }
                 j += 1;
             }
 
