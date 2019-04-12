@@ -62,7 +62,7 @@ public type TypeParser object {
     public int TYPE_TAG_SERVICE = TYPE_TAG_OBJECT;
     public int TYPE_TAG_SELF = 50;
 
-    BType[] compositeStack = [];
+    BType?[] compositeStack = [];
     int compositeStackI = 0;
 
     public function __init(BirChannelReader reader) {
@@ -110,9 +110,13 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_JSON){
             return TYPE_JSON;
         } else if (typeTag == self.TYPE_TAG_SELF){
-            int selfIndex = self.reader.readInt32();
-            Self t = {bType: self.compositeStack[self.compositeStackI - 1]};
-            return t;
+            BType? stackElem = self.compositeStack[self.compositeStackI - 1];
+
+            if (stackElem is BType) {
+                int selfIndex = self.reader.readInt32();
+                Self t = {bType: stackElem};
+                return t;
+            }
         }
         error err = error("Unknown type tag :" + typeTag);
         panic err;
@@ -219,11 +223,11 @@ public type TypeParser object {
         return err;
     }
 
-    function parseTypes() returns BType[] {
+    function parseTypes() returns BType?[] {
         int count = self.reader.readInt32();
         int i = 0;
 
-        BType[] types = [];
+        BType?[] types = [];
         while (i < count) {
             types[types.length()] = self.parseType();
             i = i + 1;

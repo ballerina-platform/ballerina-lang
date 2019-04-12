@@ -245,11 +245,11 @@ public type BObjectField record {
 };
 
 public type BUnionType record {|
-   BType[]  members;
+   BType?[]  members;
 |};
 
 public type BTupleType record {|
-   BType[]  tupleTypes;
+   BType?[]  tupleTypes;
 |};
 
 public type BFutureType record {|
@@ -269,7 +269,7 @@ public type ModuleID record {|
 |};
 
 public type BInvokableType record {
-    BType[] paramTypes = [];
+    BType?[] paramTypes = [];
     BType retType?;
 };
 
