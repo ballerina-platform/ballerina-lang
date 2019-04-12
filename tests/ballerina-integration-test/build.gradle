@@ -20,6 +20,7 @@ dependencies {
     implementation project(':ballerina-builtin')
     implementation project(':ballerina-system')
     implementation project(':ballerina-io')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-grpc')
@@ -94,7 +95,6 @@ dependencies {
 }
 
 test {
-    exclude "**/*"
     // make sure ballerina zip is built before test run
     dependsOn (":ballerina:build")
     
