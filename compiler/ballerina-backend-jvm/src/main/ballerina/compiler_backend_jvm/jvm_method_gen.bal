@@ -260,7 +260,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         j += 1;
     }
 
-    string frameName = getFrameClassName(currentPackageName, currentPackageName, attachedType);
+    string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");

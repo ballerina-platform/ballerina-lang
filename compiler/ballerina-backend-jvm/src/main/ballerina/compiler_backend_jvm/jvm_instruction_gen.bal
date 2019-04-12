@@ -628,8 +628,8 @@ type InstructionGenerator object {
         self.mv.visitInsn(ICONST_1);
         self.mv.visitFieldInsn(PUTFIELD, STRAND, "yield", "Z");
         // return
-        // termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
-        self.mv.visitJumpInsn(GOTO, yieldLabel);
+        termGen.genReturnTerm({kind:"RETURN"}, returnVarRefIndex, func);
+        // self.mv.visitJumpInsn(GOTO, yieldLabel);
         self.mv.visitLabel(label);
 
         // future.result = lhs

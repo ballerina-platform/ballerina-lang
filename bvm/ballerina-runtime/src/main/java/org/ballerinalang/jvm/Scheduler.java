@@ -77,12 +77,6 @@ public class Scheduler {
                 result = item.function.apply(item.params);
             }
 
-            if (item.future.strand.yield) {
-                item.future.strand.yield = false;
-                runnableList.add(item);
-                continue;
-            }
-
             //TODO: Need to improve for performance and support conditional waits
             if (item.future.strand.blocked) {
                 blockedList.putIfAbsent(item.future.strand.blockedOn, new ArrayList<>());
