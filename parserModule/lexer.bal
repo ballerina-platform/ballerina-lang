@@ -12,23 +12,36 @@ const int IDENTIFIER = 7;
 const int EQUALITY = 8;
 const int EOF = 9;
 const int NUMBER = 10;
-const int EQUAL_TO = 11;
-const int STRICT_EQAULITY = 12;
+const int EQUAL = 11;
+const int REF_EQUAL = 12;
 const int STRING_LITERAL = 13;
 const int DOUBLE_QUOTE = 14;
 const int FUNCTION = 15;
 const int INT = 16;
 const int STRING = 17;
-const int SUBSTRACTION = 18;
+const int SUB = 18;
 const int DIVISION = 19;
 const int MULTIPLICATION = 20;
 const int LEXER_ERROR_TOKEN = 21;
 const int COLON = 22;
 const int PARSER_ERROR_TOKEN = 23;
 const int COMMA = 24;
+const int DOT = 25;
+const int RANGE = 26;
+const int ELLIPSIS = 27;
+const int HALF_OPEN_RANGE = 28;
+const int LEFT_BRACKET = 29;
+const int RIGHT_BRACKET = 30;
+const int QUESTION_MARK = 31;
+const int ELVIS = 32;
+const int HASH = 33;
+const int EQUAL_GT = 34;
+const int COMPOUND_ADD = 35;
 string[] tokenNames = ["LBRACE", "RBRACE", "LPAREN", "RPAREN", "ADD", "ASSIGN", "SEMICOLON", "IDENTIFIER", "EQUALITY",
-"EOF", "NUMBER", "EQUAL_TO", "STRICT_EQAULITY", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
-"SUBSTRACTION", "DIVISION", "MULTIPLICATION","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA"];
+"EOF", "NUMBER", "EQUAL", "REF_EQUAL", "STRING_LITERAL", "DOUBLE_QUOTE", "FUNCTION", "INT", "STRING",
+"SUB", "DIVISION", "MULTIPLICATION","LEXER_ERROR_TOKEN","COLON","PARSER_ERROR_TOKEN","COMMA",
+"DOT","RANGE","ELLIPSIS","HALF_OPEN_RANGE","LEFT_BRACKET","RIGHT_BRACKET","QUESTION_MARK","ELVIS","HASH",
+"EQUAL_GT","COMPOUND_ADD"];
 
 int position = 0;
 int lineNum = 1;
@@ -97,13 +110,19 @@ public type Lexer object {
                         currChar = self.nextLexeme();
                         position += 1;
 						tokenIndex += 1;
-                        return { tokenType: STRICT_EQAULITY, text: "===", startPos: position - 2 , endPos:position,
+                        return { tokenType: REF_EQUAL, text: "===", startPos: position - 2 , endPos:position,
                             lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
                     }
 					tokenIndex += 1;
-                    return { tokenType: EQUAL_TO, text: "==", startPos: position - 1 , endPos:position, lineNumber:
+                    return { tokenType: EQUAL, text: "==", startPos: position - 1 , endPos:position, lineNumber:
                     lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
-                }
+                }else if (self.buffer.lookAhead() == ">"){
+					currChar = self.nextLexeme();
+					position += 1;
+					tokenIndex += 1;
+					return { tokenType: EQUAL_GT, text: "=>", startPos: position - 1 , endPos:position, lineNumber:
+					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				}
 				tokenIndex += 1;
                 return { tokenType: ASSIGN, text: currChar, startPos: position, endPos: position, lineNumber:
                 lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
@@ -112,17 +131,71 @@ public type Lexer object {
                 return { tokenType: SEMICOLON, text: currChar, startPos: position, endPos: position, lineNumber:
                 lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
             } else if (currChar == "+") {
+				if (self.buffer.lookAhead() == "=") {
+					currChar = self.nextLexeme();
+					position += 1;
+					tokenIndex += 1;
+					return { tokenType: COMPOUND_ADD, text: "+=", startPos: position - 1 , endPos:position, lineNumber:
+					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				}
 				tokenIndex += 1;
                 return { tokenType: ADD, text: currChar, startPos: position, endPos: position, lineNumber: lineNum , index: tokenIndex, whiteSpace: getWhiteSpace()};
             } else if (currChar == "-") {
 				tokenIndex += 1;
-                return { tokenType: SUBSTRACTION, text: currChar, startPos: position, endPos: position, lineNumber:
+                return { tokenType: SUB, text: currChar, startPos: position, endPos: position, lineNumber:
                 lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
             } else if (currChar == "*") {
 				tokenIndex += 1;
                 return { tokenType: MULTIPLICATION, text: currChar, startPos: position, endPos: position, lineNumber
                 : lineNum  , index: tokenIndex, whiteSpace: getWhiteSpace()};
-            } else if (currChar == "/") {
+            }else if(currChar == "."){
+				if (self.buffer.lookAhead() == ".") {
+					currChar = self.nextLexeme();
+					position += 1;
+					if (self.buffer.lookAhead() == ".") {
+						currChar = self.nextLexeme();
+						position += 1;
+						tokenIndex += 1;
+						return { tokenType: ELLIPSIS, text: "...", startPos: position - 2 , endPos:position,
+							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+					}else if (self.buffer.lookAhead() == "<"){
+						currChar = self.nextLexeme();
+						position += 1;
+						tokenIndex += 1;
+						return { tokenType: HALF_OPEN_RANGE, text: "..<", startPos: position - 2 , endPos:position,
+							lineNumber: lineNum, index: tokenIndex, whiteSpace: getWhiteSpace() };
+					}
+					tokenIndex += 1;
+					return { tokenType: RANGE, text: "..", startPos: position - 1 , endPos:position, lineNumber:
+					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				}
+				tokenIndex += 1;
+				return { tokenType: DOT, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+			}else if(currChar == "["){
+				tokenIndex += 1;
+				return { tokenType: LEFT_BRACKET, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+			} else if (currChar == "]"){
+				tokenIndex += 1;
+				return { tokenType: RIGHT_BRACKET, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+			}else if(currChar == "?"){
+				if (self.buffer.lookAhead() == ":") {
+					currChar = self.nextLexeme();
+					position += 1;
+					tokenIndex += 1;
+					return { tokenType: ELVIS, text: "?:", startPos: position - 1 , endPos:position, lineNumber:
+					lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+				}
+				tokenIndex += 1;
+				return { tokenType: QUESTION_MARK, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum, index: tokenIndex , whiteSpace: getWhiteSpace() };
+			}else if (currChar == "#"){
+				tokenIndex += 1;
+				return { tokenType: HASH, text: currChar, startPos: position, endPos: position, lineNumber:
+				lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
+			}else if (currChar == "/") {
 				tokenIndex += 1;
                 return { tokenType: DIVISION, text: currChar, startPos: position, endPos: position, lineNumber:
                 lineNum , index: tokenIndex, whiteSpace: getWhiteSpace() };
