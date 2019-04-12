@@ -18,7 +18,9 @@
 package org.ballerinalang;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -39,42 +41,60 @@ import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
  */
 public class BLangProgramRunner {
 
-    public static BValue[] runProgram(ProgramFile programFile, String[] args) {
+    public static BValue[] runProgram(ProgramFile programFile, FunctionInfo functionInfo, String[] args) {
+        BValue[] bValArgs;
+        if (functionInfo != null) {
+            bValArgs = extractEntryFuncArgs(functionInfo, args);
+        } else {
+            bValArgs = new BValue[0];
+        }
+        return runProgram(programFile, functionInfo, bValArgs);
+    }
+
+    public static BValue[] runProgram(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
+        return runProgram(programFile, debugger, functionInfo, args);
+    }
 
+    public static BValue[] runProgram(ProgramFile programFile, Debugger debugger, FunctionInfo functionInfo,
+                                      BValue... args) {
         BVMExecutor.invokePackageInitFunctions(programFile);
 
-        BValue[] returnVal = runMainFunc(programFile, args, debugger);
+        BValue[] returnVal = null;
 
-        if (returnVal[0] != null) {
+        if (functionInfo != null) {
+            returnVal = runMainFunc(programFile, functionInfo, args, debugger);
+        }
+
+        if (returnVal != null && returnVal[0] != null && returnVal[0].getType().getTag() == TypeTags.ERROR_TAG) {
             return returnVal;
         }
 
-        PrintStream outStream = System.out;
-
-        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-        programFile.setServerConnectorRegistry(serverConnectorRegistry);
-        serverConnectorRegistry.initServerConnectors();
-
-        outStream.println("Initiating service(s) in '" + programFile.getProgramFilePath() + "'");
-        BVMExecutor.invokePackageStartFunctions(programFile);
-
-        serverConnectorRegistry.deploymentComplete();
+        if (programFile.isServiceEPAvailable()) {
+            executeListenPhase(programFile);
+        }
         return returnVal;
+    }
+
+    public static BValue[] runProgram(ProgramFile programFile, String... args) {
+        return runProgram(programFile, null, args);
+    }
+
+    public static BValue[] runProgram(ProgramFile programFile, BValue... args) {
+        return runProgram(programFile, null, args);
+    }
+
+    public static BValue[] runProgram(ProgramFile programFile) {
+        return runProgram(programFile, null, new BValue[0]);
     }
 
     public static void resumeStates(ProgramFile programFile) {
         new Thread(new RecoveryTask(programFile)).start();
     }
 
-    public static BValue[] runMainFunc(ProgramFile programFile, String[] args) {
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
-        return runMainFunc(programFile, args, debugger);
-    }
-
-    public static BValue[] runMainFunc(ProgramFile programFile, String[] args, Debugger debugger) {
+    public static BValue[] runMainFunc(ProgramFile programFile, FunctionInfo functionInfo, BValue[] args,
+                                       Debugger debugger) {
         BValue[] entryFuncResult;
         boolean mainRunSuccessful = false;
 
@@ -83,10 +103,9 @@ public class BLangProgramRunner {
             throw new BallerinaException("entry module not found in  '" + programFile.getProgramFilePath() + "'");
         }
 
-        FunctionInfo functionInfo = getMainFunctionInfo(entryPkgInfo);
         try {
-            entryFuncResult = BVMExecutor.executeEntryFunction(programFile, functionInfo,
-                                                               extractEntryFuncArgs(functionInfo, args));
+            entryFuncResult = BVMExecutor.executeFunction(programFile, functionInfo, args);
+            BVMScheduler.waitForStrandCompletion();
             mainRunSuccessful = true;
         } finally {
             if (!mainRunSuccessful || !programFile.isServiceEPAvailable()) {
@@ -115,5 +134,18 @@ public class BLangProgramRunner {
             throw new BLangUsageException(errorMsg);
         }
         return functionInfo;
+    }
+
+    private static void executeListenPhase(ProgramFile programFile) {
+        PrintStream outStream = System.out;
+
+        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
+        programFile.setServerConnectorRegistry(serverConnectorRegistry);
+        serverConnectorRegistry.initServerConnectors();
+
+        outStream.println("Initiating service(s) in '" + programFile.getProgramFilePath() + "'");
+        BVMExecutor.invokePackageStartFunctions(programFile);
+
+        serverConnectorRegistry.deploymentComplete();
     }
 }
