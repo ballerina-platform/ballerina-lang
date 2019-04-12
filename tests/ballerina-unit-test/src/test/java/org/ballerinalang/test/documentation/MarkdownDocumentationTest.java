@@ -464,4 +464,22 @@ public class MarkdownDocumentationTest {
                 "           return description line 2\n" +
                 "           return description line 3");
     }
+
+    @Test(description = "Test lambda in object init")
+    public void testMarkdownWithLambdaInObjectInit() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_with_lambda.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+
+        PackageNode packageNode = compileResult.getAST();
+        BLangMarkdownDocumentation documentationAttachment =
+                packageNode.getTypeDefinitions().get(0).getMarkdownDocumentationAttachment();
+        Assert.assertNotNull(documentationAttachment);
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for TimeOrderWindow.\n");
+
+        LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
+        Assert.assertEquals(parameters.size(), 1);
+        Assert.assertEquals(parameters.get(0).getParameterName().getValue(), "f");
+        Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "documentation");
+    }
 }
