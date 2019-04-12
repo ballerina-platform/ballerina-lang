@@ -426,8 +426,26 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 }
 
 function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string className, string lambdaName) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
+    bir:BType lhsType = callIns.lhsOp.typeValue;
+    bir:BType returnType = ();
+    if (lhsType is bir:BFutureType) {
+        returnType = lhsType.returnType;
+    } else {
+        error err = error( "JVM generation is not supported for async return type " +
+                                        io:sprintf("%s", lhsType));
+        panic err;
+    }
+
+    boolean isVoid = returnType is bir:BTypeNil;
+    jvm:MethodVisitor mv;
+    if (isVoid) {
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
+                                io:sprintf("([L%s;)V", OBJECT), (), ());
+    } else {
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, lambdaName, 
                                 io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
+    }
+
     mv.visitCode();
 
     bir:VarRef?[] paramTypes = callIns.args;
@@ -450,20 +468,14 @@ function generateLambdaMethod(bir:AsyncCall callIns, jvm:ClassWriter cw, string 
         paramIndex += 1;
     }
 
-    bir:BType lhsType = callIns.lhsOp.typeValue;
-    bir:BType returnType;
-    if (lhsType is bir:BFutureType) {
-        returnType = lhsType.returnType;
-    } else {
-        error err = error( "JVM generation is not supported for async return type " +
-                                        io:sprintf("%s", lhsType));
-        panic err;
-    }
-
     mv.visitMethodInsn(INVOKESTATIC, className, callIns.name.value, getMethodDesc(paramBTypes, returnType), false);
     
-    generateObjectCast(returnType, mv);
-    mv.visitInsn(ARETURN);
+    if (isVoid) {
+        mv.visitInsn(RETURN);
+    } else {
+        generateObjectCast(returnType, mv);
+        mv.visitInsn(ARETURN);
+    }
     mv.visitMaxs(0,0);
     mv.visitEnd();
 }
@@ -602,15 +614,6 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
-    if (hasInitFunction(pkg)) {
-        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, mainClass, initFuncName, 
-                "(Lorg/ballerinalang/jvm/Strand;)V", false);
-    }
-
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
 
     if (!isVoidFunction) {
@@ -620,6 +623,21 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "()V", false);
+
+    if (hasInitFunction(pkg)) {
+        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, 1);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+
+        // schedule the init method
+        string lambdaName = io:sprintf("$lambda$%s$%s$%s$", pkgName, mainClass, initFuncName);
+        mv.visitInvokeDynamicInsn(mainClass, lambdaName, true);
+
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+        mv.visitInsn(POP);
+    }
     
     string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
     bir:BType[] paramTypes = userMainFunc.typeValue.paramTypes;
@@ -640,11 +658,17 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 
     // invoke the user's main method
     string lambdaName = "$lambda$main$";
-    mv.visitInvokeDynamicInsn(mainClass, lambdaName);
+    mv.visitInvokeDynamicInsn(mainClass, lambdaName, isVoidFunction);
 
     //submit to the scheduler
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
-        io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+    if (isVoidFunction) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
+    } else {
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
+            io:sprintf("([L%s;L%s;)L%s;", OBJECT, FUNCTION, FUTURE_VALUE), false);
+    }
+    
     mv.visitInsn(DUP);
 
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
@@ -684,8 +708,17 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
 # + cw - class visitor
 # + pkg - package
 function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$lambda$main$", 
+    bir:BType returnType = userMainFunc.typeValue.retType;
+    boolean isVoidFunc = returnType is bir:BTypeNil;
+    
+    jvm:MethodVisitor mv;
+    if (isVoidFunc) {
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$lambda$main$", 
+                            io:sprintf("([L%s;)V", OBJECT), (), ());
+    } else {
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$lambda$main$", 
                             io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
+    }
     mv.visitCode();
 
     //load strand as first arg
@@ -709,12 +742,34 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
-    bir:BType returnType = userMainFunc.typeValue.retType;
     mv.visitMethodInsn(INVOKESTATIC, mainClass, userMainFunc.name.value, getMethodDesc(paramTypes, returnType), false);
-    generateObjectCast(returnType, mv);
-    mv.visitInsn(ARETURN);
+    if (isVoidFunc) {
+        mv.visitInsn(RETURN);
+    } else {
+        generateObjectCast(returnType, mv);
+        mv.visitInsn(ARETURN);
+    }
     mv.visitMaxs(0,0);
     mv.visitEnd();
+
+    //need to generate lambda for package Init as well, if exist
+    if(hasInitFunction(pkg)) {
+        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+            io:sprintf("$lambda$%s$%s$%s$", pkgName, mainClass, initFuncName), 
+            io:sprintf("([L%s;)V", OBJECT), (), ());
+        mv.visitCode();
+         //load strand as first arg
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ICONST_0);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, STRAND);
+
+        mv.visitMethodInsn(INVOKESTATIC, mainClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0,0);
+        mv.visitEnd();
+    }
 }
 
 # Generate cast instruction from String to target type
