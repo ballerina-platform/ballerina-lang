@@ -64,6 +64,9 @@ public class AttachPoints {
                 case PARAMETER:
                     mask |= PARAMETER;
                     break;
+                case RETURN:
+                    mask |= RETURN;
+                    break;
                 case SERVICE:
                     mask |= SERVICE;
                     break;

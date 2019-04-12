@@ -53,6 +53,6 @@ function funcWithAnnotatedParam(@sensitive string s) returns string {
     return s;
 }
 
-function funcWithAnnotatedReturn(string s) returns @untained string {
+function funcWithAnnotatedReturn(string s) returns @untainted string {
     return untaint s;
 }

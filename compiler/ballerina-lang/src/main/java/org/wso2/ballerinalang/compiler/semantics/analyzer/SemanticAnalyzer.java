@@ -266,6 +266,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(annotationAttachment, funcEnv);
         });
 
+        if (funcNode.returnTypeNode != null) {
+            funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
+                this.analyzeDef(annotationAttachment, funcEnv);
+            });
+        }
+
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
         funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
         if (funcNode.restParam != null) {
@@ -430,11 +437,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (annotationSymbol.attachPoints > 0 && !Symbols.isAttachPointPresent(annotationSymbol.attachPoints,
                 AttachPoints.asMask(annAttachmentNode.attachPoints))) {
             String msg = annAttachmentNode.attachPoints.stream()
-                    .map(AttachPoint.Point::getValue)
-                    .collect(Collectors
-                    .joining(","));
-            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
-                    annotationSymbol, msg);
+                    .map(point -> point.name().toLowerCase())
+                    .collect(Collectors.joining(", "));
+            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED, annotationSymbol, msg);
         }
         // Validate Annotation Attachment data struct against Annotation Definition struct.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol);
@@ -467,22 +472,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 symbolEnter.defineNode(varNode, env);
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                });
+            } else {
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.PARAMETER);
+                    annotationAttachment.accept(this);
+                });
             }
-        }
-
-        if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
-            varNode.annAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.CHANNEL);
-                annotationAttachment.accept(this);
-            });
         } else {
-            varNode.annAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
-                if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                    annotationAttachment.attachPoints.add(AttachPoint.Point.LISTENER);
-                }
-                annotationAttachment.accept(this);
-            });
+            if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.CHANNEL);
+                    annotationAttachment.accept(this);
+                });
+            } else {
+                varNode.annAttachments.forEach(annotationAttachment -> {
+                    if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.LISTENER);
+                    } else if (Symbols.isFlagOn(varNode.symbol.flags, Flags.SERVICE)) {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
+                    } else {
+                        annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    }
+                    annotationAttachment.accept(this);
+                });
+            }
         }
 
         BType lhsType = varNode.symbol.type;

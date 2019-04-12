@@ -15,10 +15,10 @@
 // under the License.
 
 # Denote that the parameter is security sensitive hence tainted data should not be accepted.
-public annotation sensitive on type, parameter;
+public annotation sensitive on parameter;
 
 # Denote that the return value is tainted.
-public annotation tainted on type, parameter;
+public annotation tainted on return;
 
 # Denote that the return value is untainted.
-public annotation untainted on type, parameter;
+public annotation untainted on return;

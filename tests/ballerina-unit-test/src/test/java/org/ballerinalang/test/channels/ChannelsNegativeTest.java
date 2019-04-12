@@ -75,6 +75,6 @@ public class ChannelsNegativeTest {
         Assert.assertEquals(result.getDiagnostics()[4].getPosition().getStartLine(), 27, "Wrong channel annotation " +
                 "position line number");
         Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "annotation 'ballerina/builtin:sensitive' is " +
-                "not allowed in channel", "@sensitive annotation for channels error message");
+                "not allowed on channel", "@sensitive annotation for channels error message");
     }
 }
