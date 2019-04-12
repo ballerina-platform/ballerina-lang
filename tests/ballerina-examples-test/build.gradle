@@ -116,3 +116,6 @@ task test {
    }
 }
 
+build {
+    dependsOn test
+}
