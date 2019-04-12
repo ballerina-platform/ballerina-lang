@@ -62,10 +62,6 @@ public enum Flag {
      */
     LISTENER,
     /**
-     * Indicates Flagged node is deprecated.
-     */
-    DEPRECATED,
-    /**
      * Indicates Flagged node is a read only node.
      */
     READONLY,

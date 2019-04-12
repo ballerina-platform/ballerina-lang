@@ -23,7 +23,7 @@ import ballerina/system;
 listener http:Listener participant2EP02 = new(8890);
 
 h2:Client testDB = new({
-    path: "../../../target/tempdb/",
+    path: "../../tempdb/",
     name: "TEST_SQL_CONNECTOR",
     username: "SA",
     password: "",

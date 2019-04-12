@@ -1,6 +1,5 @@
-/**
+/*
  * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
@@ -14,55 +13,121 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- **/
+ */
 package org.ballerinalang.jvm;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.ballerinalang.jvm.values.FutureValue;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Simple scheduler for JBallerina.
+ * Strand scheduler for JBallerina.
  *
  * @since 0.995.0
  */
 public class Scheduler {
 
-    public static ExecutorService executorService = Executors.newFixedThreadPool(3);;
+    private LinkedList<SchedulerItem> runnableList = new LinkedList<>();
+    private Map<Strand, ArrayList<SchedulerItem>> blockedList = new HashMap<>();
 
-    public static Strand schedule(Object[] params, Function function) {
-        Strand strand = new Strand();
-        AsyncExecutor async = new AsyncExecutor(function, params);
-        strand.future = executorService.submit(async);
-
-        return strand;
+    /**
+     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
+     * @param params - parameters to be passed to the function
+     * @param function - function to be executed
+     * @return - Reference to the scheduled task
+     */
+    public FutureValue schedule(Object[] params, Function function) {
+        FutureValue future = createFuture();
+        params[0] = future.strand;
+        SchedulerItem item = new SchedulerItem(function, params, future);
+        runnableList.add(item);
+        return future;
     }
 
-    public static void shutdown() {
-        executorService.shutdown();
+    /**
+     * Add a void returning task to the runnable list, which will eventually be executed by the Scheduler.
+     * @param params - parameters to be passed to the function
+     * @param consumer - consumer to be executed
+     * @return - Reference to the scheduled task
+     */
+    public FutureValue schedule(Object[] params, Consumer consumer) {
+        FutureValue future = createFuture();
+        params[0] = future.strand;
+        SchedulerItem item = new SchedulerItem(consumer, params, future);
+        runnableList.add(item);
+        return future;
     }
 
+    /**
+     * Executes tasks that are submitted to the Scheduler.
+     */
+    public void execute() {
+        while (!runnableList.isEmpty()) {
+            SchedulerItem item = runnableList.poll();
+            Object result = null;
+
+            if (item.isVoid) {
+                item.consumer.accept(item.params);
+            } else {
+                result = item.function.apply(item.params);
+            }
+
+            if (item.future.strand.yield) {
+                item.future.strand.yield = false;
+                runnableList.add(item);
+                continue;
+            }
+
+            //TODO: Need to improve for performance and support conditional waits
+            if (item.future.strand.blocked) {
+                blockedList.putIfAbsent(item.future.strand.blockedOn, new ArrayList<>());
+                blockedList.get(item.future.strand.blockedOn).add(item);
+                continue;
+            }
+
+            //strand has completed execution
+            item.future.result = result;
+            ArrayList<SchedulerItem> blockedItems = blockedList.get(item.future.strand);
+            if (blockedItems != null) {
+                blockedItems.forEach(strand -> runnableList.add(item));
+            }
+        }
+    }
+
+    private FutureValue createFuture() {
+        Strand newStrand = new Strand(this);
+        return new FutureValue(newStrand);
+    }
 }
 
 /**
- * A callable implementation to invoke a given ballerina function asynchronously.
- * @param <T>
+ * Represent an executable item in Scheduler.
  *
  * @since 0.995.0
  */
-class AsyncExecutor<T> implements Callable<T> {
-
+class SchedulerItem {
     Function function;
+    Consumer consumer;
+    boolean isVoid;
     Object[] params;
+    FutureValue future;
 
-    public AsyncExecutor(Function function, Object[] params) {
+    public SchedulerItem(Function function, Object[] params, FutureValue future) {
+        this.future = future;
         this.function = function;
         this.params = params;
+        this.isVoid = false;
     }
 
-    @Override
-    public T call() {
-        return (T) function.apply(params);
+    public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
+        this.future = future;
+        this.consumer = consumer;
+        this.params = params;
+        this.isVoid = true;
     }
 }

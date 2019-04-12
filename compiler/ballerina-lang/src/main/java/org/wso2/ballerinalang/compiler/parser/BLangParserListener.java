@@ -483,14 +483,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
 
-        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         int annotationCount = ctx.annotationAttachment().size();
 
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
 
-        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, deprecatedDocExists, annotationCount,
-                isPrivate, isPublic);
+        this.pkgBuilder.addObjectFieldVariable(currentPos, ws, name, exprAvailable, annotationCount, isPrivate,
+                isPublic);
     }
 
     /**
@@ -521,10 +520,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean nativeFunc = ctx.EXTERNAL() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                resourceFunc, nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists,
-                ctx.annotationAttachment().size());
+                resourceFunc, nativeFunc, bodyExists, markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -3280,18 +3277,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDeprecatedAttachment(BallerinaParser.DeprecatedAttachmentContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
-        this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
     }
 
     @Override

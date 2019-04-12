@@ -15,8 +15,12 @@ configurations {
     balo
     bin
     balSource
+    staticArtifacts
+    staticFiles
     source
     zip
+    resourceFiles
+    balx
 }
 
 dependencies {
@@ -104,6 +108,7 @@ dependencies {
     distBal project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-h2', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-internal', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jms', configuration: 'baloImplementation')
@@ -126,6 +131,8 @@ dependencies {
     distBal project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-privacy', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-builtin', configuration: 'balSource')
@@ -137,6 +144,7 @@ dependencies {
     balSource project(path: ':ballerina-grpc', configuration: 'balSource')
     balSource project(path: ':ballerina-h2', configuration: 'balSource')
     balSource project(path: ':ballerina-http', configuration: 'balSource')
+    balSource project(path: ':ballerina-encoding', configuration: 'balSource')
     balSource project(path: ':ballerina-internal', configuration: 'balSource')
     balSource project(path: ':ballerina-io', configuration: 'balSource')
     balSource project(path: ':ballerina-jms', configuration: 'balSource')
@@ -159,6 +167,8 @@ dependencies {
     balSource project(path: ':ballerina-activemq-artemis', configuration: 'balSource')
     balSource project(path: ':ballerina-rabbitmq', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
+    balSource project(path: ':ballerina-privacy', configuration: 'balSource')
+    balSource project(path: ':ballerina-utils', configuration: 'balSource')
 
     dist project(':ballerina-auth')
     dist project(':ballerina-builtin')
@@ -172,6 +182,7 @@ dependencies {
     dist project(':ballerina-grpc')
     dist project(':ballerina-h2')
     dist project(':ballerina-http')
+    dist project(':ballerina-encoding')
     dist project(':ballerina-internal')
     dist project(':ballerina-io')
     dist project(':ballerina-jms')
@@ -185,6 +196,7 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
+    dist project(':ballerina-runtime')
     dist project(':ballerina-socket')
     dist project(':ballerina-sql')
     dist project(':ballerina-streaming:siddhi-annotations')
@@ -197,6 +209,7 @@ dependencies {
     dist project(':ballerina-time')
     dist project(':ballerina-transactions')
     dist project(':ballerina-websub')
+    dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':strip-bouncycastle')
@@ -206,6 +219,9 @@ dependencies {
     dist project(':ballerina-rabbitmq')
     dist project(':ballerina-nats')
 
+    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+
+    staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }
 
 def basePath = '/' + project.name + '-' + project.version
@@ -220,16 +236,41 @@ CopySpec copyBaloSpec = copySpec {
     into(basePath + '/lib')
 }
 
+CopySpec copyBalxSpec = copySpec {
+    from configurations.balx
+    into(basePath + '/lib/balx')
+}
+
 CopySpec copyBinSpec = copySpec {
     from ('bin')
     filter { line -> line.replace('${project.version}', "${project.version}") }
     into(basePath + '/bin')
 }
 
+CopySpec copyStaticSpec = copySpec {
+    from configurations.staticArtifacts.files
+    into(basePath + '/')
+}
+
+CopySpec copyResourceSpec = copySpec {
+    from files('resources')
+    into(basePath + '/bre')
+}
+
+CopySpec copySrcBaloSpec = copySpec {
+    from configurations.balSource.files
+    into("$basePath/src")
+}
+
+
 task createZip(type: Zip) {
     with copyJarSpec
     with copyBaloSpec
     with copyBinSpec
+    with copyStaticSpec
+    with copyResourceSpec
+    with copySrcBaloSpec
+    with copyBalxSpec
 }
 
 artifacts {
@@ -237,6 +278,8 @@ artifacts {
     balo configurations.distBal.files
     source configurations.balSource.files
     bin file('bin')
+    staticFiles configurations.staticArtifacts.files
+    resourceFiles file('resources')
     zip file: file("$buildDir/distributions/${basePath}.zip"), builtBy: createZip
 }
 
