@@ -19,6 +19,11 @@
 # is an array of function pointers which returns the field values to be sorted. `sortTypes` is an array of string
 # specifying whether the sort order (ascending or descending). Internally this processor uses a `MergeSort` object
 # to sort.
+#
+# + nextProcessorPointer - description
+# + fieldFuncs - description
+# + sortTypes - description
+# + mergeSort - description
 public type OrderBy object {
 
     public function (StreamEvent?[]) nextProcessorPointer;
@@ -37,6 +42,7 @@ public type OrderBy object {
     }
 
     # Sorts the given array of stream events according to the given parameters (fieldFuncs and sortTypes).
+    #
     # + streamEvents - The array of stream events to be sorted.
     public function process(StreamEvent?[] streamEvents) {
         self.mergeSort.topDownMergeSort(streamEvents);
@@ -45,11 +51,13 @@ public type OrderBy object {
 };
 
 # Creates an `OrderBy` object and return it.
-# + nextPrcessorPointer - A function pointer to the `process` function of the next processor.
+#
+# + nextProcessorPointer - A function pointer to the `process` function of the next processor.
 # + fields - An array of function pointers which each returns a field by which the events are sorted. Events are
 #            sorted by the first field, if there are elements of same value, the second field is used and so on.
 # + sortFieldMetadata - sortTypes of the fields (`streams:ASCENDING` or `streams:DESCENDING`). First element is the
 #                       sort type of the first element of `fields` and so on.
+#
 # + return - Returns a `OrderBy` object.
 public function createOrderBy(function (StreamEvent?[]) nextProcessorPointer,
                               (function (map<anydata>) returns anydata)?[] fields, string[] sortFieldMetadata)
@@ -60,6 +68,9 @@ public function createOrderBy(function (StreamEvent?[]) nextProcessorPointer,
 # This object implements the merge sort algorithm to sort the provided value arrays. `fieldFuncs` are function pointers
 # which returns the field values of each stream event's `data` map's values. `sortTypes` are an array of (
 # streams:ASCENDING or streams:DESCENDING).
+#
+# + fieldFuncs - description
+# + sortTypes - description
 public type MergeSort object {
 
     public (function (map<anydata>) returns anydata)?[] fieldFuncs;
@@ -72,6 +83,7 @@ public type MergeSort object {
     }
 
     # Sorts the given stream events using the merge sort algorithm.
+    #
     # + events - The array of stream events to be sorted.
     public function topDownMergeSort(StreamEvent?[] events) {
         int index = 0;

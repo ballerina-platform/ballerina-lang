@@ -17,6 +17,10 @@
 import ballerina/reflect;
 
 # The `Node` object represents a node in the linkedlist data structure.
+#
+# + data - description
+# + next - description
+# + prev - description
 public type Node object {
     public any? data;
     public Node? next;
@@ -30,6 +34,12 @@ public type Node object {
 };
 
 # The `LinkedList` object which represents the linked list data structure.
+#
+# + first - description
+# + last - description
+# + curr - description
+# + size - description
+# + ascend - description
 public type LinkedList object {
     public Node? first;
     public Node? last;
@@ -46,6 +56,7 @@ public type LinkedList object {
     }
 
     # Checks if the linked list is empty.
+    #
     # + return - Returns `true` if the linked list is empty, otherwise returns `false`.
     public function isEmpty() returns boolean {
         var value = self.first;
@@ -70,6 +81,7 @@ public type LinkedList object {
     }
 
     # Returns true if the linked list has more elements starting from the current cursor location.
+    #
     # + return - Returns `true` if there are more elements onwards from the current cursor location, otherwise `false`.
     public function hasNext() returns boolean {
         var c = self.curr;
@@ -82,6 +94,7 @@ public type LinkedList object {
     }
 
     # Returns `true` if there are prior elements to the current element/cursor location, otherwise false.
+    #
     # + return - Returns true, if there are elements prior to the current cursor location, otherwise `false`.
     public function hasPrevious() returns boolean {
         var c = self.curr;
@@ -94,6 +107,7 @@ public type LinkedList object {
     }
 
     # Returns the next element of the linked list and moves the cursor to the next element.
+    #
     # + return - The next element from the current cursor location.
     public function next() returns any? {
         if (self.hasNext()) {
@@ -114,6 +128,7 @@ public type LinkedList object {
     }
 
     # Returns the previous element of the linked list and moves the cursor to the previous element.
+    #
     # + return - The previous element from the current cursor location.
     public function previous() returns any? {
         if (self.hasPrevious()) {
@@ -144,6 +159,7 @@ public type LinkedList object {
     }
 
     # Returns the current number of elements in the linked list.
+    #
     # + return - The number of elements in the linked list.
     public function getSize() returns int {
         return self.size;
@@ -174,12 +190,14 @@ public type LinkedList object {
     }
 
     # Removes the first occurence of the element pass as `elem` and return `true` of the removal is successful.
+    #
     # + return - Return `true` if removal is successful otherwise `false`.
     public function removeFirstOccurrence(any? elem) returns boolean {
         return self.remove(elem);
     }
 
     # Removes the first occurence of the element pass as `elem` and return `true` of the removal is successful.
+    #
     # + return - Return `true` if removal is successful otherwise `false`.
     public function remove(any? elem) returns boolean {
         // TODO: find a way to loop, and implement properly
@@ -219,6 +237,7 @@ public type LinkedList object {
     }
 
     # Returns the first element of the linked list, without moving the cursor.
+    #
     # + return - First element of the linked list.
     public function getFirst() returns any? {
         var n = self.first;
@@ -230,6 +249,7 @@ public type LinkedList object {
     }
 
     # Returns the last element of the linked list, without moving the cursor.
+    #
     # + return - Last element of the linked list.
     public function getLast() returns any? {
         var n = self.last;
@@ -241,18 +261,21 @@ public type LinkedList object {
     }
 
     # Adds a new element to the front of the linked list without moving the cursor.
+    #
     # + data - Data to be added to the front of the linked list.
     public function addFirst(any data) {
         self.linkFirst(data);
     }
 
     # Adds a new element to the end of the linked list without moving the cursor.
+    #
     # + data - Data to be added to the end of the linked list.
     public function addLast(any data) {
         self.linkLast(data);
     }
 
     # Removes the first element in the linked list without moving the cursor.
+    #
     # + return - Returns the removed element.
     public function removeFirst() returns any? {
         var f = self.first;
@@ -264,6 +287,7 @@ public type LinkedList object {
     }
 
     # Removes the last element in the linked list without moving the cursor.
+    #
     # + return - Returns the removed element.
     public function removeLast() returns any? {
         var l = self.last;
@@ -275,6 +299,7 @@ public type LinkedList object {
     }
 
     # Insert a new element before the current cursor location.
+    #
     # + data - Data to be inserted.
     public function insertBeforeCurrent(any data) {
         var c = self.curr;
@@ -398,6 +423,7 @@ public type LinkedList object {
     }
 
     # Returns the first element which is added to the linked list.
+    #
     # + return - The dequeued element.
     public function dequeue() returns any? {
         var value = self.first;
@@ -416,6 +442,7 @@ public type LinkedList object {
     }
 
     # Creates an array from the elements in the linked list and return it. The cursor will not be changed.
+    #
     # + return - An array of elements in the linked list.
     public function asArray() returns any[] {
         any[] arr = [self.size - 1];
@@ -438,7 +465,8 @@ public type LinkedList object {
     }
 
     # Adds elements of an array to the current cursor location and moves the cursor to the end of the list.
-    # + return - The array to be added to the linked list.
+    #
+    # + data - The array to be added to the linked list.
     public function addAll(any[] data) {
         foreach any d in data {
             self.addLast(d);
@@ -450,6 +478,7 @@ public type LinkedList object {
 public type IntSort object {
 
     # Sorts a given array of int values.
+    #
     # + arr - The array of int values to be sorted.
     public function sort(int[] arr) {
         self.sortInternal(arr, 0, arr.length() - 1);

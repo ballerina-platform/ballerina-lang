@@ -19,6 +19,14 @@
 # processor, `Having` processor.. etc. The `streamName` is the stream of the join and its attached
 # window is `'windowInstance`. The `tableName` is the name of the table with which the stream is joined. The
 # `joinType` is the type of the join and it can be any value defined by `streams:JoinType`.
+#
+# + tableQuery - description
+# + nextProcessor - description
+# + windowInstance - description
+# + streamName - description
+# + tableName - description
+# + joinType - description
+# + lockField - description
 public type TableJoinProcessor object {
     private function (StreamEvent s) returns map<anydata>[] tableQuery;
     private function (StreamEvent?[]) nextProcessor;
@@ -101,11 +109,13 @@ public type TableJoinProcessor object {
 };
 
 # Creates a `TableJoinProcessor` and return it.
-# + nextPrcessor - The function pointer to `process` function of the next processor, which can be a `Select` processor,
+#
+# + nextProcessor - The function pointer to `process` function of the next processor, which can be a `Select` processor,
 #                  `Aggregator` processor, `Having` processor.. etc
 # + joinType - The type of the join and it can be any value defined by `streams:JoinType`.
 # + tableQuery - The function pointer to a function which retrieves the records from the table and joins w ith
 #               each stream event.
+#
 # + return - Returns a `TableJoinProcessor` object.
 public function createTableJoinProcessor(function (StreamEvent?[])  nextProcessor, JoinType joinType,
                                          function (StreamEvent s) returns map<anydata>[] tableQuery)
