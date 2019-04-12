@@ -12,8 +12,15 @@ type ACTION GET|POST;
 // Integer constant.
 const int I = 125;
 
-public function main() {
+// Constants of `map` type can be defined as well. The constraint of these constant maps should be either a simple type
+// or an another map type which should eventually have a simple type constraint. `var` cannot be used to declare
+// constant maps, so the correct type should be present when declaring the constant.
+const map<string> data = {  "user": "Ballerina", "ID": "1234" };
 
+// Constant with a nested map literals.
+const map<map<string>> complexData = { "data": data, "data2": { "user": "WSO2" }};
+
+public function main() {
     // This is identical to the code line `ACTION get = "GET";`.
     ACTION get = GET;
     testAction(get);
@@ -25,6 +32,15 @@ public function main() {
     int value = I + 10;
     io:println(value);
 
+    io:println(data);
+    io:println(complexData);
+
+    // Values of a constant map can be accessed and used as usual.
+    io:println(complexData.data.user);
+
+    // But updating a constant map will produce a compile time error. Eg -
+    // data.ID = "4321";
+    // data.newField = 10;
 }
 
 function testAction(ACTION action) {
