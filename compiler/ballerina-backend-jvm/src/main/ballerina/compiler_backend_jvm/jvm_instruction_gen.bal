@@ -429,13 +429,26 @@ type InstructionGenerator object {
         }
 
         string valueDesc;
-        if (varRefType is bir:BArrayType && varRefType.eType is bir:BTypeByte) {
-            self.mv.visitInsn(L2I);
-            self.mv.visitInsn(I2B);
-            valueDesc = "B";
+        if (varRefType is bir:BArrayType) {
+            if (varRefType.eType is bir:BTypeByte) {
+                self.mv.visitInsn(L2I);
+                self.mv.visitInsn(I2B);
+                valueDesc = "B";
+            } else if (varRefType.eType is bir:BTypeInt) {
+                valueDesc = "J";
+            } else if (varRefType.eType is bir:BTypeString) {
+                valueDesc = io:sprintf("L%s;", STRING_VALUE);
+            } else if (varRefType.eType is bir:BTypeBoolean) {
+                valueDesc = "Z";
+            } else if (varRefType.eType is bir:BTypeFloat) {
+                valueDesc = "D";
+            } else {
+                valueDesc = io:sprintf("L%s;", OBJECT);
+            }
         } else {
-            valueDesc = getTypeDesc(inst.rhsOp.variableDcl.typeValue);
+            valueDesc = io:sprintf("L%s;", OBJECT);
         }
+
         self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "add", io:sprintf("(J%s)V", valueDesc), false);
     }
 
@@ -458,7 +471,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
                                         false);
         } else if (bType is bir:BTypeBoolean) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)J", false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)Z", false);
         } else if (bType is bir:BTypeByte) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
         } else if (bType is bir:BTypeFloat) {
