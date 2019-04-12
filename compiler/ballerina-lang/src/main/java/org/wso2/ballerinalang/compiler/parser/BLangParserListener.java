@@ -289,7 +289,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // Since the function definition's super parent is CompilationUnit and it is the only super parent for
         // FunctionDefinition, following cast is safe.
         int annotCount = ((BallerinaParser.CompilationUnitContext) ctx.parent.parent).annotationAttachment().size();
-        this.pkgBuilder.startFunctionDef(annotCount);
+        this.pkgBuilder.startFunctionDef(annotCount, false);
     }
 
     /**
