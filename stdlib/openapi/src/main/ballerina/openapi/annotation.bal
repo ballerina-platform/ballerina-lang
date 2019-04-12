@@ -229,7 +229,7 @@ public annotation ClientInformation ClientConfig on service;
 public annotation ServiceInformation ServiceInfo on service;
 
 # Annotation for additional OpenAPI information of a Ballerina resource.
-public annotation ResourceInformation ResourceInfo on resource;
+public annotation ResourceInformation ResourceInfo on resource function;
 
 # Annotation for multi OpenAPI operation information of a Ballerina resource.
-public annotation MultiResourceInformation MultiResourceInfo on resource;
+public annotation MultiResourceInformation MultiResourceInfo on resource function;

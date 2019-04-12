@@ -28,11 +28,13 @@ import java.util.Set;
  */
 public class AttachPoints {
     public static final int TYPE = 1;
-    public static final int RESOURCE = TYPE << 1;
-    public static final int FUNCTION = RESOURCE << 1;
-    public static final int REMOTE = FUNCTION << 1;
-    public static final int PARAMETER = REMOTE << 1;
-    public static final int SERVICE = PARAMETER << 1;
+    public static final int OBJECT = TYPE << 1;
+    public static final int FUNCTION = OBJECT << 1;
+    public static final int OBJECT_METHOD = FUNCTION << 1;
+    public static final int RESOURCE = OBJECT_METHOD << 1;
+    public static final int PARAMETER = RESOURCE << 1;
+    public static final int RETURN = PARAMETER << 1;
+    public static final int SERVICE = RETURN << 1;
     public static final int LISTENER = SERVICE << 1;
     public static final int ANNOTATION = LISTENER << 1;
     public static final int EXTERNAL = ANNOTATION << 1;
@@ -47,14 +49,17 @@ public class AttachPoints {
                 case TYPE:
                     mask |= TYPE;
                     break;
-                case RESOURCE:
-                    mask |= RESOURCE;
+                case OBJECT:
+                    mask |= OBJECT;
                     break;
                 case FUNCTION:
                     mask |= FUNCTION;
                     break;
-                case REMOTE:
-                    mask |= REMOTE;
+                case OBJECT_METHOD:
+                    mask |= OBJECT_METHOD;
+                    break;
+                case RESOURCE:
+                    mask |= RESOURCE;
                     break;
                 case PARAMETER:
                     mask |= PARAMETER;

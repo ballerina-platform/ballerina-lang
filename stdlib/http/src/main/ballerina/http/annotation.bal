@@ -150,4 +150,4 @@ public type Authentication record {|
 |};
 
 # The annotation which is used to configure an HTTP resource.
-public annotation HttpResourceConfig ResourceConfig on resource;
+public annotation HttpResourceConfig ResourceConfig on resource function;

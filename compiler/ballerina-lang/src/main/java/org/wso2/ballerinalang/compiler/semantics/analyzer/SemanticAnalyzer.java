@@ -260,8 +260,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
             }
-            if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.REMOTE)) {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.REMOTE);
+            if (funcNode.attachedOuterFunction) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
             }
             this.analyzeDef(annotationAttachment, funcEnv);
         });
@@ -308,6 +308,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
+            if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
+            }
+
             annotationAttachment.accept(this);
         });
     }

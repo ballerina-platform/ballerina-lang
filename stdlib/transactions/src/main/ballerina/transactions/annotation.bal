@@ -28,4 +28,4 @@ public type TransactionParticipantConfig record {|
 /////////////////////////////////////////
 
 # The annotation which is used to configure local transaction participant function.
-public annotation TransactionParticipantConfig Participant on function, resource;
+public annotation TransactionParticipantConfig Participant on function;

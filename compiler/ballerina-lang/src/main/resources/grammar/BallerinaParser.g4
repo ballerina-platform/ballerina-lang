@@ -140,11 +140,10 @@ dualAttachPoint
     ;
 
 dualAttachPointIdent
-    :   TYPE
-    |   RESOURCE
-    |   FUNCTION
-    |   REMOTE
+    :   OBJECT? TYPE
+    |   (OBJECT | RESOURCE)? FUNCTION
     |   PARAMETER
+    |   RETURN
     |   SERVICE
     |   LISTENER
     ;

@@ -33,27 +33,34 @@ public class AttachPoint {
      * @since 0.974.0
      */
     public enum Point {
-        //TODO check with composer team and remove string representations.
         /**
          * Indicates Type Attach point.
          */
         TYPE("type"),
         /**
-         * Indicates Resource Attach point.
+         * Indicates Object Type Attach point.
          */
-        RESOURCE("resource"),
+        OBJECT("objecttype"),
         /**
          * Indicates Function Attach point.
          */
         FUNCTION("function"),
         /**
-         * Indicates REMOTE Attach point.
+         * Indicates Object Method Attach point.
          */
-        REMOTE("remote"),
+        OBJECT_METHOD("objectfunction"),
+        /**
+         * Indicates Resource Attach point.
+         */
+        RESOURCE("resourcefunction"),
         /**
          * Indicates Parameter Attach point.
          */
         PARAMETER("parameter"),
+        /**
+         * Indicates Return Attach point.
+         */
+        RETURN("return"),
         /**
          * Indicates Service Attach point.
          */
@@ -111,5 +118,9 @@ public class AttachPoint {
             }
         }
         return null;
+    }
+
+    public boolean isSource() {
+        return source;
     }
 }

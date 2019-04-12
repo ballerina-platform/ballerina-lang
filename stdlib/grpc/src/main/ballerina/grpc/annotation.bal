@@ -53,7 +53,7 @@ public type GrpcResourceConfig record {|
 |};
 
 # Service resource configuration. Sets only for server streaming service.
-public annotation GrpcResourceConfig ResourceConfig on resource;
+public annotation GrpcResourceConfig ResourceConfig on resource function;
 
 # Service descriptor data. This is for internal use.
 #
