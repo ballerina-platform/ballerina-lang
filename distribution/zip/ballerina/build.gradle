@@ -196,6 +196,7 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
+    dist project(':ballerina-runtime')
     dist project(':ballerina-socket')
     dist project(':ballerina-sql')
     dist project(':ballerina-streaming:siddhi-annotations')
