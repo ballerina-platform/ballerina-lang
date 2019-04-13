@@ -281,6 +281,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_REQUIRE_RECORD, recordType);
             }
         }
+
+        if (!annotationNode.flagSet.contains(Flag.CONSTANT) &&
+                annotationNode.getAttachPoints().stream().anyMatch(attachPoint -> attachPoint.source)) {
+            dlog.error(annotationNode.pos, DiagnosticCode.ANNOTATION_REQUIRES_CONST);
+        }
     }
 
     @Override

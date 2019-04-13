@@ -2086,7 +2086,7 @@ public class BLangPackageBuilder {
     }
 
     void endAnnotationDef(Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos, boolean publicAnnotation,
-                          boolean isTypeAttached) {
+                          boolean isTypeAttached, boolean isConst) {
         BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.addWS(ws);
         BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
@@ -2096,9 +2096,15 @@ public class BLangPackageBuilder {
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
+
+        if (isConst) {
+            annotationNode.flagSet.add(Flag.CONSTANT);
+        }
+
         while (!attachPointStack.empty()) {
             annotationNode.addAttachPoint(attachPointStack.pop());
         }
+
         if (isTypeAttached) {
             annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();
         }

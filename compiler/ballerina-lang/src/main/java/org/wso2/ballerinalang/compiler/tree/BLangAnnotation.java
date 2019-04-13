@@ -71,6 +71,10 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
         return new ArrayList<>(points);
     }
 
+    public Set<AttachPoint> getAttachPoints() {
+        return attachPoints;
+    }
+
     @Override
     public TypeNode getTypeNode() {
         return typeNode;

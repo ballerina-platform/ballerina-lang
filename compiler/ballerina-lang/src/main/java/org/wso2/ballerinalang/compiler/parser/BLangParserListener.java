@@ -549,8 +549,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         boolean isTypeAttached = ctx.typeName() != null;
+        boolean isConst = ctx.CONST() != null;
         this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(),
-                getCurrentPosFromIdentifier(ctx.Identifier()), publicAnnotation, isTypeAttached);
+                                         getCurrentPosFromIdentifier(ctx.Identifier()), publicAnnotation,
+                                         isTypeAttached, isConst);
     }
 
     /**

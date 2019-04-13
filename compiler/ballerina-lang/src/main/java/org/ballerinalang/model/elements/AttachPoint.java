@@ -119,8 +119,4 @@ public class AttachPoint {
         }
         return null;
     }
-
-    public boolean isSource() {
-        return source;
-    }
 }

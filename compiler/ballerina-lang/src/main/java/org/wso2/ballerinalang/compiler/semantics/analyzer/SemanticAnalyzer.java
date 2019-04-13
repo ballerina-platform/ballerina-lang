@@ -256,12 +256,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.symbol.params.forEach(param -> param.flags |= Flags.FUNCTION_FINAL);
 
         funcNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
-            }
-            if (funcNode.attachedOuterFunction) {
+            } else if (funcNode.attachedOuterFunction || funcNode.attachedFunction) {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
+            } else {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
             }
             this.analyzeDef(annotationAttachment, funcEnv);
         });
