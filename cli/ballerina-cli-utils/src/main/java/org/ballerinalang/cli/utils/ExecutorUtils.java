@@ -19,6 +19,7 @@ package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 
@@ -31,6 +32,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Util class for packaging both pull and push.
@@ -50,7 +54,9 @@ public class ExecutorUtils {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        return BLangProgramRunner.runMainFunc(programFile, args);
+        FunctionInfo mainFunc = Objects.requireNonNull(programFile).getEntryPackage()
+                .getFunctionInfo(MAIN_FUNCTION_NAME);
+        return BLangProgramRunner.runProgram(programFile, mainFunc, args);
     }
     
     /**

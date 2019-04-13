@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.launcher.util;
 
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -75,7 +76,10 @@ public class BCompileUtil {
      */
     public static CompileResult compileAndSetup(String sourceFilePath) {
         CompileResult compileResult = compile(sourceFilePath, CompilerPhase.CODE_GEN);
-        BRunUtil.invokePackageInit(compileResult);
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
+        BLangProgramRunner.runProgram(compileResult.getProgFile());
         return compileResult;
     }
 
@@ -89,7 +93,10 @@ public class BCompileUtil {
      */
     public static CompileResult compileAndSetup(Object obj, String sourceRoot, String packageName) {
         CompileResult compileResult = compile(obj, sourceRoot, packageName);
-        BRunUtil.invokePackageInit(compileResult, packageName);
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
+        BLangProgramRunner.runProgram(compileResult.getProgFile());
         return compileResult;
     }
 
@@ -387,6 +394,7 @@ public class BCompileUtil {
 
         if (programFile != null) {
             ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            pFile.setProgramFilePath(Paths.get(packageName));
             comResult.setProgFile(pFile);
         }
         return comResult;
