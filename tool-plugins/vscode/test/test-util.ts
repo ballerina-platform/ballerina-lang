@@ -25,8 +25,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const TEST_RESOURCES = process.env.RESOURCE_PATH || __dirname + '/../../target/test/';
-console.log("*******************************************************************", process.env.RESOURCE_PATH)
+const TEST_RESOURCES = __dirname + '/../../extractedDistribution/';
 const PLATFORM_PREFIX = /ballerina-tools-/;
 
 
