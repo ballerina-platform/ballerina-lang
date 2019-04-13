@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        (documentationString? deprecatedAttachment? annotationAttachment* definition)*
+        (documentationString? annotationAttachment* definition)*
         EOF
     ;
 
@@ -91,7 +91,7 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
@@ -109,7 +109,7 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION callableUnitSignature (callableUnitBody | (ASSIGN EXTERNAL)? SEMICOLON)
     ;
 
 annotationDefinition
@@ -117,7 +117,7 @@ annotationDefinition
     ;
 
 constantDefinition
-    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? CONST typeName? Identifier ASSIGN constantExpression SEMICOLON
     ;
 
 globalVariableDefinition
@@ -724,6 +724,11 @@ expression
     |   typeDescExpr                                                        # typeAccessExpression
     ;
 
+constantExpression
+    :   simpleLiteral
+    |   recordLiteral
+    ;
+
 typeDescExpr
     : typeName
     ;
@@ -1050,35 +1055,6 @@ timeScale
     |   DAY | DAYS
     |   MONTH | MONTHS
     |   YEAR | YEARS
-    ;
-
-// Deprecated parsing.
-
-deprecatedAttachment
-    :   DeprecatedTemplateStart deprecatedText? DeprecatedTemplateEnd
-    ;
-
-deprecatedText
-    :   deprecatedTemplateInlineCode (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
-    |   DeprecatedTemplateText  (DeprecatedTemplateText | deprecatedTemplateInlineCode)*
-    ;
-
-deprecatedTemplateInlineCode
-    :   singleBackTickDeprecatedInlineCode
-    |   doubleBackTickDeprecatedInlineCode
-    |   tripleBackTickDeprecatedInlineCode
-    ;
-
-singleBackTickDeprecatedInlineCode
-    :   SBDeprecatedInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
-    ;
-
-doubleBackTickDeprecatedInlineCode
-    :   DBDeprecatedInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
-    ;
-
-tripleBackTickDeprecatedInlineCode
-    :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
 // Markdown documentation

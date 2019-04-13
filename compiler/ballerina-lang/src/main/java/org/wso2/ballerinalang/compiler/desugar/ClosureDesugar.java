@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -836,7 +835,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // If it is marked as a closure variable then the following calculations are carried out.
         // 1) Find the resolved level i.e. the absolute level : level the variable was resolved from.
-        int absoluteLevel = findResolvedLevel(env, localVarRef.varSymbol);
+        int absoluteLevel = findResolvedLevel(env, (BVarSymbol) localVarRef.varSymbol);
 
         // self absolute level : level I'm currently in.
         int selfAbsoluteLevel = env.envCount;
@@ -1009,6 +1008,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
         result = packageVarRef;
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
+        result = constRef;
     }
 
     @Override
@@ -1238,11 +1242,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         result = workerNode;
-    }
-
-    @Override
-    public void visit(BLangDeprecatedNode deprecatedNode) {
-        /* Ignore */
     }
 
     @Override

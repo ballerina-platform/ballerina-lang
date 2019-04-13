@@ -90,7 +90,7 @@ public class ClientSocketTest {
     }
 
     @Test(description = "Write some content, then shutdown the write and try to write it again",
-          dependsOnMethods = "testOneWayWrite")
+          dependsOnMethods = "testOneWayWrite", enabled = false)
     public void testShutdownWrite() {
         String firstMsg = "Hello Ballerina1";
         String secondMsg = "Hello Ballerina2";
@@ -102,7 +102,7 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), firstMsg);
     }
 
-    @Test(description = "Test echo behavior", dependsOnMethods = "testShutdownWrite")
+    @Test(description = "Test echo behavior", dependsOnMethods = "testOneWayWrite")
     public void testClientEcho() {
         String msg = "Hello Ballerina echo";
         BValue[] args = { new BString(msg) };

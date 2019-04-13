@@ -1316,6 +1316,7 @@
                 <artifactId>netty-resolver</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <!-- This dependency is required for WebSocket Compression -->
             <dependency>
                 <groupId>com.jcraft</groupId>
                 <artifactId>jzlib</artifactId>
@@ -1356,6 +1357,16 @@
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
                 <version>${handlebars.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.commonmark</groupId>
+                <artifactId>commonmark</artifactId>
+                <version>${commonmark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.commonmark</groupId>
+                <artifactId>commonmark-ext-gfm-tables</artifactId>
+                <version>${commonmark.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -1437,6 +1448,11 @@
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.v3.models.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.parser.v3</groupId>
+                <artifactId>swagger-parser-v2-converter</artifactId>
+                <version>${swagger.parser.v2.converter.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -1634,11 +1650,6 @@
             </dependency>
             <!-- JMS connector dependencies -->
             <dependency>
-                <groupId>org.wso2.transport.jms</groupId>
-                <artifactId>transport-jms</artifactId>
-                <version>${wso2.transport.jms.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.jms</groupId>
                 <artifactId>javax.jms-api</artifactId>
                 <version>${javax.jms.version}</version>
@@ -1647,11 +1658,6 @@
                 <groupId>org.bytedeco.javacpp-presets</groupId>
                 <artifactId>llvm-platform</artifactId>
                 <version>${javacpp.llvm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.andes.wso2</groupId>
-                <artifactId>andes-client</artifactId>
-                <version>${andes.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.securevault</groupId>
@@ -1715,6 +1721,12 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>artemis-commons</artifactId>
                 <version>${artemis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>artemis-server</artifactId>
+                <version>${artemis.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
@@ -2441,6 +2453,7 @@
         <testng.version>6.14.3</testng.version>
         <commons.io.version>2.6</commons.io.version>
         <handlebars.version>4.1.2</handlebars.version>
+        <commonmark.version>0.11.0</commonmark.version>
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
@@ -2491,7 +2504,6 @@
         <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.3</javax-transaction-version>
         <quartz.version>2.3.1</quartz.version>
-        <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.9.8</jackson-core.version>
         <mimepull.version>1.9.11</mimepull.version>
         <broker.version>0.970.5</broker.version>
@@ -2556,10 +2568,8 @@
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
         <!-- JMS Connector -->
-        <wso2.transport.jms.version>6.0.51</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
-        <andes.client.version>3.2.87</andes.client.version>
         <wso2.securevault.version>1.1.2</wso2.securevault.version>
 
         <!-- Artemis connector -->

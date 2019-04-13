@@ -620,7 +620,7 @@ function testConversionFromUnionWithNumericBasicTypes() returns boolean {
     float f1 = <float> u1;
     boolean conversionSuccessful = f1 == f;
 
-    float|int|string u2 = <float> 110.5;
+    float|int|string u2 = 110.5f;
     decimal|boolean d1 = <decimal|boolean> u2;
     return conversionSuccessful && d1 == d;
 }

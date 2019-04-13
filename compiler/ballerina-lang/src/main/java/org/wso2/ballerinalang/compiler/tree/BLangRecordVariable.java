@@ -52,7 +52,6 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     public BLangRecordVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
         this.variableList = new ArrayList<>();
     }
 

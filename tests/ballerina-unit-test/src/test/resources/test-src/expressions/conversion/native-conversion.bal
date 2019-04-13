@@ -963,7 +963,7 @@ function testRecordToJsonWithIsJson() returns boolean {
 function testImplicitConversionToInt() returns map<any>|error {
     json operationReq = {"fromString": "10", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     int a = check int.convert(operationReq.fromInt);
     int b = check int.convert(operationReq.fromString);
@@ -977,7 +977,7 @@ function testImplicitConversionToInt() returns map<any>|error {
 function testImplicitConversionToFloat() returns map<any>|error {
     json operationReq = {"fromString": "10.2", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     float a = check float.convert(operationReq.fromInt);
     float b = check float.convert(operationReq.fromString);
@@ -993,7 +993,7 @@ function testImplicitConversionToByte() returns map<any>|error {
     anydata fromInt = <int>2 ;
     any fromFloat = <float>4.45;
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 3.456;
+    anydata fromDecimal = 3.456d;
     any fromBoolean = true;
     byte a = check byte.convert(fromInt);
     byte b = check byte.convert(fromString);
@@ -1007,7 +1007,7 @@ function testImplicitConversionToByte() returns map<any>|error {
 function testImplicitConversionToString() returns map<any>|error {
     json operationReq = {"fromString": "hello", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     string a = check string.convert(operationReq.fromInt);
     string b = check string.convert(operationReq.fromString);
@@ -1021,7 +1021,7 @@ function testImplicitConversionToString() returns map<any>|error {
 function testImplicitConversionToDecimal() returns map<any>|error {
     json operationReq = {"fromString": "10.33", "fromInt": 200, "fromFloat":234.45};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = true;
     decimal a = check decimal.convert(operationReq.fromInt);
     decimal b = check decimal.convert(operationReq.fromString);
@@ -1035,7 +1035,7 @@ function testImplicitConversionToDecimal() returns map<any>|error {
 function testImplicitConversionToBoolean() returns map<any>|error {
     json operationReq = {"fromString": "true", "fromInt": 0, "fromFloat":0.0};
     any fromByte = <byte> 5;
-    anydata fromDecimal = <decimal> 23.456;
+    anydata fromDecimal = 23.456d;
     any fromBoolean = false;
     boolean a = check boolean.convert(operationReq.fromInt);
     boolean b = check boolean.convert(operationReq.fromString);
