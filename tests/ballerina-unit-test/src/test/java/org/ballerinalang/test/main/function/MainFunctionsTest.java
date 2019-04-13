@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,8 +37,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -74,7 +77,7 @@ public class MainFunctionsTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get ("test_main_with_nil_return.bal"), false, true);
         resetTempOut();
-        BValue[] result = BLangProgramRunner.runMainFunc(programFile, new String[]{});
+        BValue[] result = runMain(programFile, new String[]{});
         assertEquals(tempOutStream.toString(), "nil returning main invoked",
                             "expected the main function to be invoked");
         assertEquals(result.length, 1, "expected the main function to return a single value");
@@ -86,7 +89,7 @@ public class MainFunctionsTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get ("test_main_with_error_return.bal"), false, true);
         resetTempOut();
-        BValue[] result = BLangProgramRunner.runMainFunc(programFile, new String[]{});
+        BValue[] result = runMain(programFile, new String[]{});
         assertEquals(tempOutStream.toString(), "error returning main invoked",
                             "expected the main function to be invoked");
         assertEquals(result.length, 1, "expected the main function to return a single value");
@@ -99,7 +102,7 @@ public class MainFunctionsTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get ("test_main_with_error_or_nil_return.bal"), false, true);
         resetTempOut();
-        BValue[] result = BLangProgramRunner.runMainFunc(programFile, new String[]{"error", "1"});
+        BValue[] result = runMain(programFile, new String[]{"error", "1"});
         assertEquals(tempOutStream.toString(), "error? returning main invoked",
                             "expected the main function to be invoked");
         assertTrue(result[0] instanceof BError, "expected error to be returned");
@@ -111,7 +114,7 @@ public class MainFunctionsTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get ("test_main_with_error_or_nil_return.bal"), false, true);
         resetTempOut();
-        BValue[] result = BLangProgramRunner.runMainFunc(programFile, new String[]{"nil", "0"});
+        BValue[] result = runMain(programFile, new String[]{"nil", "0"});
         assertEquals(tempOutStream.toString(), "error? returning main invoked",
                             "expected the main function to be invoked");
         assertTrue(result[0] == null, "expected nil to be returned");
@@ -122,7 +125,7 @@ public class MainFunctionsTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get ("test_main_with_error_or_nil_return.bal"), false, true);
         resetTempOut();
-        BValue[] result = BLangProgramRunner.runMainFunc(programFile, new String[]{"user_def_error", "1"});
+        BValue[] result = runMain(programFile, new String[]{"user_def_error", "1"});
         assertEquals(tempOutStream.toString(), "error? returning main invoked",
                             "expected the main function to be invoked");
         assertTrue(result[0] instanceof BError, "expected error to be returned");
@@ -156,5 +159,11 @@ public class MainFunctionsTest {
         tempOutStream.close();
         tempOutStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(tempOutStream));
+    }
+
+    private BValue[] runMain(ProgramFile programFile, String[] args) {
+        FunctionInfo mainFunc = Objects.requireNonNull(programFile).getEntryPackage().getFunctionInfo(
+                MAIN_FUNCTION_NAME);
+        return BLangProgramRunner.runProgram(programFile, mainFunc, args);
     }
 }
