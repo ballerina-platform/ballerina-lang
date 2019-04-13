@@ -18,96 +18,96 @@ import ballerina/auth;
 import ballerina/encoding;
 
 function testCreateConfigAuthProvider() returns auth:ConfigAuthStoreProvider {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     return configAuthStoreProvider;
 }
 
 function testAuthenticationOfNonExistingUser() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "amila:abc";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationOfNonExistingPassword() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "isuru:xxy";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthentication() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "isuru:xxx";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationWithEmptyUsername() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = ":xxx";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationWithEmptyPassword() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "isuru:";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationWithEmptyPasswordAndInvalidUsername() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "invalid:";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationWithEmptyUsernameAndEmptyPassword() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = ":";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationSha256() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "hashedSha256:xxx";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationSha384() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "hashedSha384:xxx";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationSha512() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "hashedSha512:xxx";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationPlain() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "plain:plainpassword";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationSha512Negative() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "hashedSha512:xxx ";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);
 }
 
 function testAuthenticationPlainNegative() returns boolean|error {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     string usernameAndPassword = "plain:plainpassword ";
     string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
     return configAuthStoreProvider.authenticate(credential);

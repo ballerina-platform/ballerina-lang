@@ -2,7 +2,7 @@ import ballerina/auth;
 import ballerina/http;
 
 function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     auth:AuthProvider authProvider = configAuthStoreProvider;
     http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
@@ -12,7 +12,7 @@ function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
 }
 
 function testCanHandleHttpBasicAuth() returns boolean {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     auth:AuthProvider authProvider = configAuthStoreProvider;
     http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
@@ -22,7 +22,7 @@ function testCanHandleHttpBasicAuth() returns boolean {
 }
 
 function testHandleHttpBasicAuthFailure() returns boolean {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     auth:AuthProvider authProvider = configAuthStoreProvider;
     http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
@@ -32,7 +32,7 @@ function testHandleHttpBasicAuthFailure() returns boolean {
 }
 
 function testHandleHttpBasicAuth() returns boolean {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new({});
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     auth:AuthProvider authProvider = configAuthStoreProvider;
     http:BasicAuthnHandler handler = new(authProvider);
     http:Request inRequest = createRequest();
