@@ -638,17 +638,22 @@ XMLTemplateText
     ;
 
 XMLText
-    :   XMLBracesSequence* (XMLTextChar XMLBracesSequence*)+
-    |   XMLBracesSequence (XMLTextChar XMLBracesSequence?)*
-    |   XMLBracesSequence+
+    :   XMLTextChar+
     ;
 
 fragment
 XMLTextChar
-    :   ~[<&$`{}]
+    :   ~[<&$`{]
     |   '\\' [`]
     |   XML_WS
     |   XMLEscapedSequence
+    |   DollarSequence
+    |   XMLBracesSequence
+    ;
+
+fragment
+DollarSequence
+    :  '$'+ LookAheadTokenIsNotOpenBrace
     ;
 
 fragment
@@ -741,6 +746,7 @@ fragment
 XMLDoubleQuotedStringChar
     :   ~[$<"{}\\]
     |   XMLEscapedSequence
+    |   DollarSequence
     ;
 
 
