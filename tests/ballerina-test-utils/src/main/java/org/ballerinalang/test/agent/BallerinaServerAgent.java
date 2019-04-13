@@ -109,9 +109,13 @@ public class BallerinaServerAgent {
                     CtClass cc = cp.get("org.ballerinalang.BLangProgramRunner");
 
                     CtClass programFileClass = cp.get("org.ballerinalang.util.codegen.ProgramFile");
-                    CtClass[] paramArgs = new CtClass[]{programFileClass};
+                    CtClass debuggerClass = cp.get("org.ballerinalang.util.debugger.Debugger");
+                    CtClass functionInfoClass = cp.get("org.ballerinalang.util.codegen.FunctionInfo");
+                    CtClass bValueClass = cp.get("org.ballerinalang.model.values.BValue[]");
+                    CtClass[] paramArgs =
+                            new CtClass[]{programFileClass, debuggerClass, functionInfoClass, bValueClass};
 
-                    CtMethod m = cc.getDeclaredMethod("runService", paramArgs);
+                    CtMethod m = cc.getDeclaredMethod("runProgram", paramArgs);
                     m.insertAfter("org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();");
                     byte[] byteCode = cc.toBytecode();
                     cc.detach();
