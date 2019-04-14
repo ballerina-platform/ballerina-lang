@@ -39,9 +39,11 @@ public type AuthnFilter object {
         var resourceAuthConfig = getServiceResourceAuthConfig(context);
         var resourceAuthHandlers = resourceAuthConfig["authnHandlers"];
         if (resourceAuthHandlers is AuthnHandler[]) {
-            authenticated = handleAuthnRequest(resourceAuthHandlers, request);
-        } else {
-            authenticated = handleAuthnRequest(self.authnHandlers, request);
+            if (resourceAuthHandlers.length() > 0) {
+                authenticated = handleAuthnRequest(resourceAuthHandlers, request);
+            } else {
+                authenticated = handleAuthnRequest(self.authnHandlers, request);
+            }
         }
         return isAuthnSuccessful(caller, authenticated);
     }
