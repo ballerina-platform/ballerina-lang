@@ -3,24 +3,23 @@ import ballerina/log;
 
 // Create a JWT authentication provider with the relevant configuration
 // parameters. 
-http:AuthProvider jwtAuthProvider = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer:"ballerina",
-        audience: ["ballerina.io"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider = new({
+    issuer: "ballerina",
+    audience: ["ballerina.io"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
 // The endpoint used here is `http:Listener`. The JWT authentication
 // provider is set to this endpoint using the `authProviders` attribute. The
 // developer has the option to override the authentication and authorization
 // at the service and resource levels.
 listener http:Listener ep = new(9090, config = {
-    authProviders:[jwtAuthProvider],
+    auth: {
+        authnHandlers: [jwtAuthProvider]
+    },
     // The secure hello world sample uses https.
     secureSocket: {
         keyStore: {
@@ -32,8 +31,8 @@ listener http:Listener ep = new(9090, config = {
 
 @http:ServiceConfig {
     basePath: "/hello",
-    authConfig: {
-        authentication: { enabled: true }
+    auth: {
+        enabled: true
     }
 }
 // Auth configuration comprises of two parts - authentication & authorization.
@@ -48,7 +47,7 @@ service echo on ep {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/sayHello",
-        authConfig: {
+        auth: {
             scopes: ["hello"]
         }
     }

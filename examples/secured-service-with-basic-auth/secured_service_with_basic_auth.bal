@@ -1,17 +1,18 @@
+import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
-http:AuthProvider basicAuthProvider = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider = new();
+http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 // The endpoint used here is `http:Listener`, which by default tries to
 // authenticate and authorize each request. The developer has the option to
 // override the authentication and authorization at the service level and
 // resource level.
 listener http:Listener ep = new(9090, config = {
-    authProviders: [basicAuthProvider],
+    auth: {
+        authnHandlers: [basicAuthProvider]
+    },
     // The secure hello world sample uses https.
     secureSocket: {
         keyStore: {
@@ -23,8 +24,8 @@ listener http:Listener ep = new(9090, config = {
 
 @http:ServiceConfig {
     basePath: "/hello",
-    authConfig: {
-        authentication: { enabled: true },
+    auth: {
+        enabled: true,
         scopes: ["scope1"]
     }
 }
@@ -41,7 +42,7 @@ service echo on ep {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/sayHello",
-        authConfig: {
+        auth: {
             scopes: ["scope2"]
         }
     }

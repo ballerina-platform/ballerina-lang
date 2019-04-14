@@ -1,3 +1,4 @@
+import ballerina/auth;
 import ballerina/config;
 import ballerina/http;
 import ballerina/log;
@@ -31,13 +32,13 @@ public function main() {
 }
 
 // Create a basic authentication provider with the relevant configurations.
-http:AuthProvider basicAuthProvider = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider = new;
+http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 listener http:Listener ep  = new(9090, config = {
-    authProviders: [basicAuthProvider],
+    auth: {
+        authnHandlers: [basicAuthProvider]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -48,8 +49,8 @@ listener http:Listener ep  = new(9090, config = {
 
 @http:ServiceConfig {
     basePath: "/hello",
-    authConfig: {
-        authentication: { enabled: true }
+    auth: {
+        enabled: true
     }
 }
 service echo on ep {
