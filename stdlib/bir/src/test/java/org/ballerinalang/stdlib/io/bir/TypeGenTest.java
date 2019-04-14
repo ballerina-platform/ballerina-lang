@@ -3,7 +3,6 @@ package org.ballerinalang.stdlib.io.bir;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
