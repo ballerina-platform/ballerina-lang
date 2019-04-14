@@ -2,7 +2,9 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
-auth:ConfigAuthStoreProvider basicAuthProvider = new();
+// Create a Basic authentication handler with the relevant configuration
+// parameters.
+auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 // The endpoint used here is `http:Listener`, which by default tries to
@@ -25,13 +27,12 @@ listener http:Listener ep = new(9090, config = {
 @http:ServiceConfig {
     basePath: "/hello",
     auth: {
-        enabled: true,
         scopes: ["scope1"]
     }
 }
 // Auth configuration comprises of two parts - authentication & authorization.
-// Authentication can be enabled by setting the `authentication:{enabled:true}`
-// annotation attribute. 
+// Authentication can be disabled by setting the `enabled: flag` annotation
+// attribute, if needed.
 // Authorization is based on scopes, where a scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as
 // the scope.
@@ -48,9 +49,9 @@ service echo on ep {
     }
     // The authentication and authorization settings can be overridden at
     // resource level.
-    // The hello resource would inherit the `authentication:{enabled:true}`
-    // flag from the service level, and override the scope defined in the
-    // service level (i.e., scope1) with scope2.
+    // The hello resource would inherit the `enabled: true` flag from the
+    // service level which is set automatically, and override the scope
+    // defined in the service level (i.e., scope1) with scope2.
     resource function hello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {

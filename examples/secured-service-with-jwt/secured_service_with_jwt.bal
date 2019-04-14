@@ -1,3 +1,4 @@
+import ballerina/auth;
 import ballerina/http;
 import ballerina/log;
 
@@ -12,13 +13,17 @@ auth:JWTAuthProvider jwtAuthProvider = new({
         password: "ballerina"
     }
 });
+
+// Create a JWT authentication handler with the created JWT auth provider
+http:JwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+
 // The endpoint used here is `http:Listener`. The JWT authentication
-// provider is set to this endpoint using the `authProviders` attribute. The
+// handler is set to this endpoint using the `authnHandlers` attribute. The
 // developer has the option to override the authentication and authorization
 // at the service and resource levels.
 listener http:Listener ep = new(9090, config = {
     auth: {
-        authnHandlers: [jwtAuthProvider]
+        authnHandlers: [jwtAuthnHandler]
     },
     // The secure hello world sample uses https.
     secureSocket: {
@@ -30,14 +35,10 @@ listener http:Listener ep = new(9090, config = {
 });
 
 @http:ServiceConfig {
-    basePath: "/hello",
-    auth: {
-        enabled: true
-    }
+    basePath: "/hello"
 }
 // Auth configuration comprises of two parts - authentication & authorization.
-// Authentication can be enabled by setting the `authentication:{enabled:true}`
-// flag.
+// Authentication can be disabled by setting the `enabled: false` flag, if needed.
 // Authorization is based on scopes, where a scope maps to one or more groups.
 // For a user to access a resource, the user should be in the same groups as
 // the scope.
@@ -53,8 +54,9 @@ service echo on ep {
     }
     // The authentication and authorization settings can be overridden at
     // resource level.
-    // The hello resource would inherit the `authentication:{enabled:true}` flag
-    // from the service level, and define `hello` as the scope for the resource.
+    // The hello resource would inherit the `enabled: true` flag from the
+    // service level which is set automatically, and define `hello` as the
+    // scope for the resource.
     resource function hello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
