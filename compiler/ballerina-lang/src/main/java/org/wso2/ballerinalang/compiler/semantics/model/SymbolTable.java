@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -52,6 +53,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -63,6 +66,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -124,6 +128,7 @@ public class SymbolTable {
     public BErrorType errorType;
     public BUnionType pureType;
     public BMapType pureTypeConstrainedMap;
+    public BFiniteType trueType;
 
     public BPackageSymbol builtInPackageSymbol;
     public BPackageSymbol utilsPackageSymbol;
@@ -192,6 +197,11 @@ public class SymbolTable {
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
         this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);
         this.errorType.detailType = this.pureTypeConstrainedMap;
+
+        BLangLiteral trueLiteral = new BLangLiteral();
+        trueLiteral.type = this.booleanType;
+        trueLiteral.value = Boolean.TRUE;
+        this.trueType = new BFiniteType(null, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
 
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();

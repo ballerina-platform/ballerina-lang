@@ -135,6 +135,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -265,12 +266,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             this.analyzeDef(annotationAttachment, funcEnv);
         });
+        validateAnnotationAttachmentCount(funcNode, funcNode.annAttachments);
 
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
                 this.analyzeDef(annotationAttachment, funcEnv);
             });
+            validateAnnotationAttachmentCount(funcNode.returnTypeNode, funcNode.returnTypeAnnAttachments);
         }
 
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
@@ -321,6 +324,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             annotationAttachment.accept(this);
         });
+        validateAnnotationAttachmentCount(typeDefinition, typeDefinition.annAttachments);
     }
 
     @Override
@@ -420,6 +424,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
         });
+        validateAnnotationAttachmentCount(annotationNode, annotationNode.annAttachments);
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
@@ -441,22 +446,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     .collect(Collectors.joining(", "));
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED, annotationSymbol, msg);
         }
-        // Validate Annotation Attachment data struct against Annotation Definition struct.
+        // Validate Annotation Attachment expression against Annotation Definition type.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol);
-    }
-
-    private void validateAnnotationAttachmentExpr(BLangAnnotationAttachment annAttachmentNode, BAnnotationSymbol
-            annotationSymbol) {
-        if (annotationSymbol.attachedType == null) {
-            if (annAttachmentNode.expr != null) {
-                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_NO_VALUE,
-                        annotationSymbol.name);
-            }
-            return;
-        }
-        if (annAttachmentNode.expr != null) {
-            this.typeChecker.checkExpr(annAttachmentNode.expr, env, annotationSymbol.attachedType.type);
-        }
     }
 
     public void visit(BLangSimpleVariable varNode) {
@@ -501,6 +492,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 });
             }
         }
+        validateAnnotationAttachmentCount(varNode, varNode.annAttachments);
 
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
@@ -1796,6 +1788,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
             this.analyzeDef(annotationAttachment, serviceEnv);
         });
+        validateAnnotationAttachmentCount(serviceNode, serviceNode.annAttachments);
 
         if (serviceNode.isAnonymousServiceValue) {
             return;
@@ -2241,6 +2234,45 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 varRefExpr.type = originSymbol.type;
             }
         }
+    }
+
+    private void validateAnnotationAttachmentExpr(BLangAnnotationAttachment annAttachmentNode,
+                                                  BAnnotationSymbol annotationSymbol) {
+        if (annotationSymbol.attachedType == null ||
+                types.isAssignable(annotationSymbol.attachedType.type, symTable.trueType)) {
+            if (annAttachmentNode.expr != null) {
+                this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE,
+                                annotationSymbol.name);
+            }
+            return;
+        }
+
+
+        // At this point the type is a subtype of  map<anydata>|record{ anydata...; } or
+        // map<anydata>[]|record{ anydata...; }[], thus an expression is required.
+        if (annAttachmentNode.expr == null) {
+            this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
+                            annotationSymbol.name);
+            return;
+        }
+
+        BType annotType = annotationSymbol.attachedType.type;
+        this.typeChecker.checkExpr(annAttachmentNode.expr, env,
+                                   annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
+    }
+
+    private void validateAnnotationAttachmentCount(BLangNode node, List<BLangAnnotationAttachment> attachments) {
+        Map<BAnnotationSymbol, Integer> attachmentCounts = new HashMap<>();
+        for (BLangAnnotationAttachment attachment : attachments) {
+            attachmentCounts.merge(attachment.annotationSymbol, 1, Integer::sum);
+        }
+
+        attachmentCounts.forEach((symbol, count) -> {
+            if ((symbol.attachedType == null || symbol.attachedType.type.tag != TypeTags.ARRAY) && count > 1) {
+                this.dlog.error(node.pos, DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES,
+                                symbol.name);
+            }
+        });
     }
 
     /**

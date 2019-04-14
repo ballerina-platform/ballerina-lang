@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -275,10 +276,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
         if (annotationNode.typeNode != null) {
-            BType recordType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
-            annotationSymbol.attachedType = recordType.tsymbol;
-            if (recordType != symTable.semanticError && recordType.tag != TypeTags.RECORD) {
-                dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_REQUIRE_RECORD, recordType);
+            BType type = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
+            annotationSymbol.attachedType = type.tsymbol;
+            if (!isValidAnnotationType(type)) {
+                dlog.error(annotationNode.typeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
         }
 
@@ -1088,6 +1089,28 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         // Return true anyway since otherwise there will be two errors logged for this.
         return true;
+    }
+
+    private boolean isValidAnnotationType(BType type) {
+        if (type == symTable.semanticError) {
+            return false;
+        }
+
+        switch (type.tag) {
+            case TypeTags.RECORD:
+//                BRecordType recordType = (BRecordType) type;
+//                return recordType.fields.stream().allMatch(field -> types.isAnydata(field.type)) &&
+//                        (recordType.sealed || types.isAnydata(recordType.restFieldType));
+            case TypeTags.MAP:
+//                return types.isAnydata(((BMapType) type).constraint);
+                return true;
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                return (elementType.tag == TypeTags.MAP || elementType.tag == TypeTags.RECORD) &&
+                        isValidAnnotationType(elementType);
+        }
+
+        return types.isAssignable(type, symTable.trueType);
     }
 
     private boolean hasAnnotation(List<BLangAnnotationAttachment> annotationAttachmentList, String expectedAnnotation) {

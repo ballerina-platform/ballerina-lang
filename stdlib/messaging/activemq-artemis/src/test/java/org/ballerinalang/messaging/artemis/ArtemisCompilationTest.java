@@ -58,7 +58,8 @@ public class ArtemisCompilationTest {
                                                                    .toAbsolutePath().toString());
 
         assertExpectedDiagnosticsLength(compileResult);
-        BAssertUtil.validateError(compileResult, 0, "There cannot be more than one Artemis service annotations", 29, 1);
+        BAssertUtil.validateError(compileResult, 0, "cannot specify more than one annotation value for annotation " +
+                "'ServiceConfig'", 29, 1);
     }
 
     @Test(description = "One service annotation is mandatory")

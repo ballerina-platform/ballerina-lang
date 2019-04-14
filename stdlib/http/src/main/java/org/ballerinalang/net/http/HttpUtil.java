@@ -1043,32 +1043,12 @@ public class HttpUtil {
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service
                 .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+        return (annotationList == null || annotationList.isEmpty()) ? null : annotationList.get(0);
     }
 
     public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+        return (annotationList == null || annotationList.isEmpty()) ? null : annotationList.get(0);
     }
 
 //    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {

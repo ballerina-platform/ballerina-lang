@@ -67,28 +67,27 @@ public class ResourceSignatureValidator {
                 count++;
             }
         }
-        if (count > 1) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                               "There cannot be more than one resource annotations");
-        } else if (count == 1) {
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
-                if (((BLangSimpleVarRef) (keyValue.key).expr).variableName
-                        .getValue().equals("webSocketUpgrade")) {
-                    if (annVals.size() > 1) {
-                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                           "Invalid configurations for WebSocket upgrade resource");
-                    } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.size() == 1) {
-                        if (!((BLangSimpleVarRef) (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs).get(
-                                0).key.expr).variableName.getValue().equals("upgradeService")) {
-                            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                                               "An upgradeService need to be specified for the WebSocket upgrade " +
-                                                       "resource");
-                        }
-                    } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.isEmpty()) {
+
+        if (count != 1) {
+            return;
+        }
+
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
+            if (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals("webSocketUpgrade")) {
+                if (annVals.size() > 1) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                                       "Invalid configurations for WebSocket upgrade resource");
+                } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.size() == 1) {
+                    if (!((BLangSimpleVarRef) (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs).get(
+                            0).key.expr).variableName.getValue().equals("upgradeService")) {
                         dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
                                            "An upgradeService need to be specified for the WebSocket upgrade " +
                                                    "resource");
                     }
+                } else if (((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs.isEmpty()) {
+                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+                                       "An upgradeService need to be specified for the WebSocket upgrade " +
+                                               "resource");
                 }
             }
         }

@@ -47,7 +47,7 @@ public class ServiceConfigurationTest {
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 1);
         Assert.assertEquals(diag[0].getMessage(),
-                            "multiple service configuration annotations found in service : helloWorldServiceConfig");
+                            "cannot specify more than one annotation value for annotation 'ServiceConfig'");
     }
 
     @Test(description = "Test for configuring a service")
