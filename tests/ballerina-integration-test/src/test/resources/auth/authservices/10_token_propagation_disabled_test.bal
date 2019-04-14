@@ -14,16 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
 // token propagation is set to false by default
-http:AuthProvider basicAuthProvider10 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider10 = new;
+http:BasicAuthnHandler basicAuthnHandler10 = new(basicAuthProvider10);
 
 listener http:Listener listener10_1 = new(9190, config = {
-    authProviders: [basicAuthProvider10],
+    auth: {
+        authnHandlers: [basicAuthnHandler10]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -56,21 +57,22 @@ service passthroughService on listener10_1 {
     }
 }
 
-http:AuthProvider jwtAuthProvider10 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "ballerina",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider10 = new({
+    issuer: "ballerina",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+http:JwtAuthnHandler jwtAuthnHandler10 = new(jwtAuthProvider10);
 
 listener http:Listener listener10_2 = new(9195, config = {
-    authProviders: [jwtAuthProvider10],
+    auth: {
+        authnHandlers: [jwtAuthnHandler10]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

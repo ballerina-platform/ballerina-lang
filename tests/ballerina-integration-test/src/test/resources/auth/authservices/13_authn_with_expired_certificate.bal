@@ -14,23 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider jwtAuthProvider4 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer:"ballerina",
-        audience: ["ballerina.io"],
-        certificateAlias: "cert",
-        trustStore: {
-            path: "../../../src/test/resources/auth/testtruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider13 = new({
+    issuer:"ballerina",
+    audience: ["ballerina.io"],
+    certificateAlias: "cert",
+    trustStore: {
+        path: "../../../src/test/resources/auth/testtruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+http:JwtAuthnHandler jwtAuthnHandler13 = new(jwtAuthProvider13);
 
 listener http:Listener listener13 = new(9101, config = {
-    authProviders:[jwtAuthProvider4],
+    auth: {
+        authnHandlers: [jwtAuthnHandler13]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

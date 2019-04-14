@@ -14,23 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider15 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example1",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider15_1 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+http:JwtAuthnHandler jwtAuthnHandler15_1 = new(jwtAuthProvider15_1);
 
 listener http:Listener listener15_1 = new(9103, config = {
-    authProviders: [basicAuthProvider15],
+    auth: {
+        authnHandlers: [jwtAuthnHandler15_1]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -66,28 +68,29 @@ service passthroughService15 on listener15_1 {
     }
 }
 
-http:AuthProvider jwtAuthProvider15 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example1",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+auth:JWTAuthProvider jwtAuthProvider15_2 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+});
+
+http:JwtAuthnHandler jwtAuthnHandler15_2 = new(jwtAuthProvider15_2);
+
+listener http:Listener listener15_2 = new(9104, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler15_2]
+    },
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
-};
-
-listener http:Listener listener15_2 = new(9104, config = {
-        authProviders: [jwtAuthProvider15],
-        secureSocket: {
-            keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password: "ballerina"
-            }
-        }
-    });
+});
 
 @http:ServiceConfig { basePath: "/nyseStock" }
 service nyseStockQuote15 on listener15_2 {

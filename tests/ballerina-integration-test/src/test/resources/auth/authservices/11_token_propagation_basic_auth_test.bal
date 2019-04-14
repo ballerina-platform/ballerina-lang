@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider11 = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider11 = new;
+http:BasicAuthnHandler basicAuthnHandler11 = new(basicAuthProvider11);
 
 listener http:Listener listener11 = new(9192, config = {
-    authProviders: [basicAuthProvider11],
+    auth: {
+        authnHandlers: [basicAuthnHandler11]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -70,28 +71,29 @@ service passthroughService03 on listener11 {
     }
 }
 
-http:AuthProvider jwtAuthProvider03 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "ballerina",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+auth:JWTAuthProvider jwtAuthProvider11 = new({
+    issuer: "ballerina",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+});
+
+http:JwtAuthnHandler jwtAuthnHandler11 = new(jwtAuthProvider11);
+
+listener http:Listener listener2 = new(9193, config = {
+    auth: {
+        authnHandlers: [jwtAuthnHandler11]
+    },
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
-};
-
-listener http:Listener listener2 = new(9193, config = {
-        authProviders: [jwtAuthProvider03],
-        secureSocket: {
-            keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password: "ballerina"
-            }
-        }
-    });
+});
 
 @http:ServiceConfig { basePath: "/nyseStock" }
 service nyseStockQuote03 on listener2 {

@@ -14,36 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider jwtAuthProvider1 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example1",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider08_1 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
 
-http:AuthProvider jwtAuthProvider2 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example2",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider08_2 = new({
+    issuer: "example2",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+
+http:JwtAuthnHandler jwtAuthnHandler08_1 = new(jwtAuthProvider08_1);
+http:JwtAuthnHandler jwtAuthnHandler08_2 = new(jwtAuthProvider08_2);
 
 listener http:Listener listener08 = new(9099, config = {
-    authProviders: [jwtAuthProvider1, jwtAuthProvider2],
+    auth: {
+        authnHandlers: [jwtAuthnHandler08_1, jwtAuthnHandler08_2]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

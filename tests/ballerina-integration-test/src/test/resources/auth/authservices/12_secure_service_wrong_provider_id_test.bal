@@ -14,16 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider12 = {
-    id: "basic1",
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+auth:ConfigAuthStoreProvider basicAuthProvider12_1 = new;
+auth:ConfigAuthStoreProvider basicAuthProvider12_2 = new;
+http:BasicAuthnHandler basicAuthnHandler12_1 = new(basicAuthProvider12_1);
+http:BasicAuthnHandler basicAuthnHandler12_2 = new(basicAuthProvider12_2);
 
 listener http:Listener listener12 = new(9194, config = {
-    authProviders: [basicAuthProvider12],
+    auth: {
+        authnHandlers: [basicAuthnHandler12_1]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -34,9 +36,9 @@ listener http:Listener listener12 = new(9194, config = {
 
 @http:ServiceConfig {
     basePath: "/echo",
-    authConfig: {
-        authProviders: ["basic2"],
-        authentication: { enabled: true },
+    auth: {
+        authnHandlers: [basicAuthnHandler12_2],
+        enabled: true,
         scopes: ["scope2"]
     }
 }

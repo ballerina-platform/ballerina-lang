@@ -14,23 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider basicAuthProvider17 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example1",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider17_1 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+http:JwtAuthnHandler jwtAuthnHandler17_1 = new(jwtAuthProvider17_1);
 
 listener http:Listener listener17_1 = new(9107, config = {
-    authProviders: [basicAuthProvider17],
+    auth: {
+        authnHandlers: [jwtAuthnHandler17_1]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -78,21 +80,22 @@ service passthroughService17 on listener17_1 {
     }
 }
 
-http:AuthProvider jwtAuthProvider17 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "example2aaaaaaaaaaaaaa",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider17_2 = new({
+    issuer: "example2aaaaaaaaaaaaaa",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+http:JwtAuthnHandler jwtAuthnHandler17_2 = new(jwtAuthProvider17_2);
 
 listener http:Listener listener17_2 = new(9108, config = {
-        authProviders: [jwtAuthProvider17],
+        auth: {
+            authnHandlers: [jwtAuthnHandler17_2]
+        },
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

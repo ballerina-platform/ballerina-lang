@@ -14,23 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/http;
 
-http:AuthProvider jwtAuthProvider3 = {
-    scheme: http:JWT_AUTH,
-    config: {
-        issuer: "ballerina",
-        audience: ["ballerina"],
-        certificateAlias: "ballerina",
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
+auth:JWTAuthProvider jwtAuthProvider09 = new({
+    issuer: "ballerina",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
     }
-};
+});
+
+http:JwtAuthnHandler jwtAuthnHandler09 = new(jwtAuthProvider09);
 
 listener http:Listener listener09 = new(9100, config = {
-    authProviders: [jwtAuthProvider3],
+    auth: {
+        authnHandlers: [jwtAuthnHandler09]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -40,7 +42,7 @@ listener http:Listener listener09 = new(9100, config = {
 });
 
 @http:ServiceConfig {
-    authConfig: {
+    auth: {
         scopes: ["test-scope"]
     }
 }

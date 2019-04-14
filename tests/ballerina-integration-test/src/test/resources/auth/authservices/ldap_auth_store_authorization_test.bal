@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:LdapAuthProviderConfig ldapConfig = {
+auth:LdapAuthStoreProviderConfig ldapConfig01 = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9389",
     connectionName: "uid=admin,ou=system",
@@ -40,15 +40,13 @@ auth:LdapAuthProviderConfig ldapConfig = {
     retryAttempts: 3
 };
 
-http:AuthProvider authProvider = {
-    id: "basic02",
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:LDAP_AUTH_STORE,
-    config: ldapConfig
-};
+auth:LdapAuthStoreProvider ldapAuthStoreProvider01 = new(ldapConfig01, "ldap01");
+http:BasicAuthnHandler ldapAuthnHandler01 = new(ldapAuthStoreProvider01);
 
 listener http:Listener authEP = new(9097, config = {
-    authProviders: [authProvider],
+    auth: {
+        authnHandlers: [ldapAuthnHandler01]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -59,8 +57,8 @@ listener http:Listener authEP = new(9097, config = {
 
 @http:ServiceConfig {
     basePath: "/auth",
-    authConfig: {
-        authentication: { enabled: true }
+    auth: {
+        enabled: true
     }
 }
 service authService on authEP {
@@ -68,7 +66,7 @@ service authService on authEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/failAuthz",
-        authConfig: {
+        auth: {
             scopes: ["admin", "support"]
         }
     }
