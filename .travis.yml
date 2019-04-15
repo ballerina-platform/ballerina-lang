@@ -43,7 +43,7 @@ install:
 
 script:
   - if [ "$BUILD_TYPE" = "MAVEN" ]; then mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN; fi
-  - if [ "$BUILD_TYPE" = "GRADLE" ]; then travis_wait 20 ./gradlew build --console=plain --stacktrace -scan; fi
+  - if [ "$BUILD_TYPE" = "GRADLE" ]; then travis_wait 45 ./gradlew build --console=plain --stacktrace -scan; fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
