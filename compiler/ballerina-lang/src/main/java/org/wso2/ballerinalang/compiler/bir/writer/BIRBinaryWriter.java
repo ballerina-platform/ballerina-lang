@@ -67,6 +67,8 @@ public class BIRBinaryWriter {
         writeTypeDefs(birbuf, typeWriter, insWriter, birPackage.typeDefs);
         // Write global vars
         writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
+        // Write type def bodies
+        writeTypeDefBodies(birbuf, typeWriter, insWriter, birPackage.typeDefs);
         // Write functions
         writeFunctions(birbuf, typeWriter, insWriter, birPackage.functions);
 
@@ -96,10 +98,32 @@ public class BIRBinaryWriter {
         });
     }
 
-    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter,  BIRInstructionWriter insWriter,
-                               List<BIRTypeDefinition> birTypeDefList) {
+
+    /**
+     * Write the type definitions. Only the container will be written, to avoid
+     * cyclic dependencies with global vars.
+     * 
+     * @param buf ByteBuf
+     * @param typeWriter Type writer
+     * @param insWriter Instruction writer              
+     * @param birTypeDefList Type definitions list
+     */
+    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
+                List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
         birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, insWriter, typeDef));
+    }
+
+    /**
+     * Write the body of the type definitions.
+     * 
+     * @param buf ByteBuf
+     * @param typeWriter Type writer
+     * @param birTypeDefList Type definitions list
+     */
+    private void writeTypeDefBodies(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
+                                    List<BIRTypeDefinition> birTypeDefList) {
+        birTypeDefList.forEach(typeDef -> writeAttachedFuncs(buf, typeWriter, insWriter, typeDef));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
@@ -116,7 +140,15 @@ public class BIRBinaryWriter {
         }
     }
 
-    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter,  BIRInstructionWriter insWriter,
+    private void writeAttachedFuncs(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
+                                    BIRTypeDefinition typeDef) {
+        int defType = typeDef.type.tag;
+        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
+            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
+        }
+    }
+
+    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
                            BIRTypeDefinition typeDef) {
         insWriter.writePosition(typeDef.pos);
         // Type name CP Index
@@ -124,11 +156,6 @@ public class BIRBinaryWriter {
         // Visibility
         buf.writeByte(typeDef.visibility.value());
         typeDef.type.accept(typeWriter);
-
-        int defType = typeDef.type.tag;
-        if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
-            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
-        }
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,

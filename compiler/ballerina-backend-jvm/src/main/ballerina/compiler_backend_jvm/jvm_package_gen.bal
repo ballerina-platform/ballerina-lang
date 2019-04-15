@@ -144,22 +144,18 @@ public function generateEntryPackage(bir:Package module, string sourceFileName, 
             }
         }
 
-        // populate function to class name mapping
-        foreach var func in v.functions {
-            fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
-        }
-
-       
-        if (isInitClass && mainFunc is bir:Function) {
-            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
-            manifestEntries["Main-Class"] = moduleClass;
-        }
-
         // generate methods
         foreach var func in v.functions {
+            fullQualifiedClassNames[pkgName + getFunction(func).name.value] = moduleClass;
             generateMethod(getFunction(func), cw, module);
         }
 
+        if (isInitClass && mainFunc is bir:Function) {
+            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass);
+            generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+            manifestEntries["Main-Class"] = moduleClass;
+        }
+        
         foreach var (name, call) in v.lambdaCalls {
             generateLambdaMethod(call[0], cw, call[1], name);
         }

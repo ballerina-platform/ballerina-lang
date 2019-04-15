@@ -52,7 +52,7 @@ public type BirEmitter object {
         self.emitGlobalVars();
         println();
         println("// Function Definitions");
-        self.emitFunctions();
+        self.emitFunctions(self.pkg.functions, "");
         println("################################## End bir program ##################################");
     }
     
@@ -72,20 +72,15 @@ public type BirEmitter object {
     }
 
     function emitTypeDef(TypeDef bTypeDef) {
-        print(bTypeDef.visibility, " type ", bTypeDef.name.value, " ");
-        self.typeEmitter.emitType(bTypeDef.typeValue);
-
-        println();
-        Function?[]? funcs = bTypeDef.attachedFuncs;
-        if (funcs is Function?[]) {
-            foreach var func in funcs {
-                if (func is Function) {
-                    self.emitFunction(func);
-                    println();
-                }
-            }
+        string visibility =  bTypeDef.visibility;
+        print(visibility.toLower(), " type ", bTypeDef.name.value, " ");
+        if (bTypeDef.typeValue is BObjectType){
+            println("{");
+            self.emitFunctions(bTypeDef.attachedFuncs ?: [], "\t");
+            print("}");
+        } else {
+            self.typeEmitter.emitType(bTypeDef.typeValue);
         }
-
         println(";");
     }
 
@@ -99,22 +94,23 @@ public type BirEmitter object {
         }
     }
 
-    function emitFunctions() {
-        foreach var bFunction in self.pkg.functions {
+    function emitFunctions(Function?[] funcs, string tabs) {
+        foreach var bFunction in funcs {
             if (bFunction is Function) {
-                self.emitFunction(bFunction);
+                self.emitFunction(bFunction, tabs);
                 println();
             }
         }
     }
-
-    function emitFunction(Function bFunction) {
+    
+    function emitFunction(Function bFunction, string tabs) {
         self.posEmitter.emitPosition(bFunction.pos);
-        print(" ", bFunction.visibility, " function ", bFunction.name.value, " ");
+        string visibility =  bFunction.visibility;
+        print(tabs, visibility.toLower(), " function ", bFunction.name.value, " ");
         self.typeEmitter.emitType(bFunction.typeValue);
         println(" {");
         foreach var v in bFunction.localVars {
-            self.typeEmitter.emitType(v.typeValue, tabs = "\t\t");
+            self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
             print(" ");
             if (v.name.value == "%0") {
                 print("%ret");
@@ -126,7 +122,7 @@ public type BirEmitter object {
         println();// empty line
         foreach var b in bFunction.basicBlocks {
             if (b is BasicBlock) {
-                self.emitBasicBlock(b, "\t\t");
+                self.emitBasicBlock(b, tabs + "\t");
                 println();// empty line
             }
         }
@@ -139,7 +135,7 @@ public type BirEmitter object {
                 println();// empty line
             }
         }
-        println("}");
+        println(tabs, "}");
     }
 
     function emitBasicBlock(BasicBlock bBasicBlock, string tabs) {
@@ -226,8 +222,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            println(ins.typeDef);
-            //self.typeEmitter.emitType();
+            print(ins.typeDef.name.value);
             println(";");
         } else if (ins is NewError) {
             print(tabs);
@@ -359,9 +354,12 @@ type TypeEmitter object {
     function emitObjectType(BObjectType bObjectType, string tabs) {
         print(tabs, "object {");
         foreach var f in bObjectType.fields {
-            print(tabs + "\t", f.visibility, " ");
-            self.emitType(f.typeValue);
-            print(" ", f.name.value);
+            if (f is BObjectField){
+                string visibility = f.visibility;
+                print(tabs + "\t", visibility.toLower(), " ");
+                self.emitType(f.typeValue);
+                print(" ", f.name.value);
+            }
         }
         print(tabs, "}");
     }

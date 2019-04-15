@@ -65,7 +65,7 @@ public class MessagePayloadTest extends ArtemisTestCommons {
 
     }
 
-    @Test(description = "Tests the sending of a byte[] message to a queue")
+    @Test(description = "Tests the sending of a byte[] message to a queue", dependsOnMethods = "testSendString")
     public void testSendByteArray() {
         String errorLog = "byte[] message [1, 2, 2, 3, 3, 2]";
         String functionName = "testSendByteArray";
@@ -73,7 +73,7 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the sending of a map<string> message to a queue")
+    @Test(description = "Tests the sending of a map<string> message to a queue", dependsOnMethods = "testSendByteArray")
     public void testSendMapString() {
         String errorLog = "map<string> message {\"name\":\"Riyafa\", \"hello\":\"world\"}";
         String functionName = "testSendMapString";
@@ -81,7 +81,7 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the sending of a map<int> message to a queue")
+    @Test(description = "Tests the sending of a map<int> message to a queue", dependsOnMethods = "testSendMapString")
     public void testSendMapInt() {
         String errorLog = "map<int> message {\"num\":1, \"num2\":2}";
         String functionName = "testSendMapInt";
@@ -90,7 +90,7 @@ public class MessagePayloadTest extends ArtemisTestCommons {
     }
 
 
-    @Test(description = "Tests the sending of a map<float> message to a queue")
+    @Test(description = "Tests the sending of a map<float> message to a queue", dependsOnMethods = "testSendMapInt")
     public void testSendMapFloat() {
         String errorLog = "map<float> message {\"numf1\":1.1, \"numf2\":1.2}";
         String functionName = "testSendMapFloat";
@@ -98,7 +98,7 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the sending of a map<byte> message to a queue")
+    @Test(description = "Tests the sending of a map<byte> message to a queue", dependsOnMethods = "testSendMapFloat")
     public void testSendMapByte() {
         String errorLog = "map<byte> message {\"byte1\":1, \"byte2\":7}";
         String functionName = "testSendMapByte";
@@ -106,7 +106,7 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the sending of a map<boolean> message to a queue")
+    @Test(description = "Tests the sending of a map<boolean> message to a queue", dependsOnMethods = "testSendMapByte")
     public void testSendMapBoolean() {
         String errorLog = "map<boolean> message {\"first\":true, \"second\":false}";
         String functionName = "testSendMapBoolean";
@@ -114,7 +114,8 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the sending of a map<byte[]> message to a queue")
+    @Test(description = "Tests the sending of a map<byte[]> message to a queue",
+            dependsOnMethods = "testSendMapBoolean")
     public void testSendMapByteArray() {
         String errorLog = "map<byte[]> message {\"array2\":[5], \"array1\":[1, 2, 3]}";
         String functionName = "testSendMapByteArray";
@@ -122,7 +123,8 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the sending of different types of properties with a message to a queue")
+    @Test(description = "Tests the sending of different types of properties with a message to a queue",
+            dependsOnMethods = "testSendMapByteArray")
     public void testSendProperties() {
         String errorLog =
                 "string property Hello again!, int property 123, float property 1.111, boolean property true, byte " +
@@ -132,7 +134,8 @@ public class MessagePayloadTest extends ArtemisTestCommons {
         testSend(multiCastResult, errorLog + MULTICAST_MSG, functionName);
     }
 
-    @Test(description = "Tests the closing of the producer, session and connection")
+    @Test(description = "Tests the closing of the producer, session and connection",
+            dependsOnMethods = "testSendProperties")
     public void testClose() {
         String functionName = "testClose";
         CompileResult result = BCompileUtil.compile(sourcePath.resolve("close.bal").toAbsolutePath().toString());

@@ -14,11 +14,11 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
 
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
-    testCompile 'commons-codec:commons-codec:1.9'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testCompile 'commons-codec:commons-codec'
+    testCompile 'org.apache.ws.commons.axiom:axiom-dom'
 }
 
 description = 'Ballerina - I/O'

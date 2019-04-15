@@ -56,7 +56,7 @@ public type ObjectGenerator object {
             self.createObjectMethods(cw, attachedFuncs);
         }
 
-        self.createInit(cw);
+        self.createObjectInit(cw);
         self.createCallMethod(cw, objectType.attachedFunctions, className);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
@@ -81,8 +81,8 @@ public type ObjectGenerator object {
         }
     }
 
-    private function createInit(jvm:ClassWriter cw) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", BTYPE), (), ());
+    private function createObjectInit(jvm:ClassWriter cw) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), (), ());
         mv.visitCode();
 
         // load super
@@ -90,7 +90,7 @@ public type ObjectGenerator object {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
-        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);

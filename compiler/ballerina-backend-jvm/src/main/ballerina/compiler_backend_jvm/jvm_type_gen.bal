@@ -80,7 +80,7 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectAtatchedFunctions(mv, bType.attachedFunctions);
+            addObjectAtatchedFunctions(mv, bType.attachedFunctions, bType);
         }
     }
 }
@@ -289,7 +289,8 @@ function createObjectField(jvm:MethodVisitor mv, bir:BObjectField field) {
 #
 # + mv - method visitor
 # + attachedFunctions - attached functions to be added
-function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions) {
+function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?[] attachedFunctions,
+                                        bir:BObjectType objType) {
     // Create the attached function array
     mv.visitLdcInsn(attachedFunctions.length());
     mv.visitInsn(L2I);
@@ -302,7 +303,7 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitInsn(L2I);
 
             // create and load attached function
-            createObjectAttachedFunction(mv, attachedFunc);
+            createObjectAttachedFunction(mv, attachedFunc, objType);
 
             // Add the member to the array
             mv.visitInsn(AASTORE);
@@ -319,12 +320,17 @@ function addObjectAtatchedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 #
 # + mv - method visitor
 # + attachedFunc - object attached function
-function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc) {
+function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunction attachedFunc,
+                                        bir:BObjectType objType) {
     mv.visitTypeInsn(NEW, ATTACHED_FUNCTION);
     mv.visitInsn(DUP);
 
     // Load function name
     mv.visitLdcInsn(attachedFunc.name.value);
+
+    // Load the parent object type
+    loadType(mv, objType);
+    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
 
     // Load the field type
     loadType(mv, attachedFunc.funcType);
@@ -339,8 +345,7 @@ function createObjectAttachedFunction(jvm:MethodVisitor mv, bir:BAttachedFunctio
     mv.visitInsn(L2I);
 
     mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
-            io:sprintf("(L%s;L%s;I)V", STRING_VALUE, FUNCTION_TYPE),
-            false);
+                        io:sprintf("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE), false);
 }
 
 // -------------------------------------------------------
@@ -382,11 +387,6 @@ function createErrorType(jvm:MethodVisitor mv, bir:BErrorType errorType, string 
 #
 # + bType - type to load
 function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType == ()) {
-        mv.visitInsn(ACONST_NULL);
-        return;
-    }
-
     string typeFieldName = "";
     if (bType is bir:BTypeInt) {
         typeFieldName = "typeInt";
@@ -398,7 +398,7 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
         typeFieldName = "typeBoolean";
     } else if (bType is bir:BTypeByte) {
         typeFieldName = "typeByte";
-    } else if (bType is bir:BTypeNil) {
+    } else if (bType is bir:BTypeNil || bType is ()) {
         typeFieldName = "typeNull";
     } else if (bType is bir:BTypeAny) {
         typeFieldName = "typeAny";
@@ -433,6 +433,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTupleType) {
         loadTupleType(mv, bType);
         return;
+    } else if (bType is bir:Self) {
+        if (bType.bType is bir:BErrorType) {
+            // Todo: Handle for recursive user defined error types.
+            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
+            return;
+        }
+        error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType.bType));
+        panic err;
     } else {
         error err = error("JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
