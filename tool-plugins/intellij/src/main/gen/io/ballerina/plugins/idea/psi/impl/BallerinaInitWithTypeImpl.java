@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaInitWithTypeImpl extends BallerinaCompositeElementImpl implements BallerinaInitWithType {
+public class BallerinaInitWithTypeImpl extends ASTWrapperPsiElement implements BallerinaInitWithType {
 
   public BallerinaInitWithTypeImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaInitWithTypeImpl extends BallerinaCompositeElementImpl imp
   @Override
   @Nullable
   public BallerinaInvocationArgList getInvocationArgList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaInvocationArgList.class);
+    return findChildByClass(BallerinaInvocationArgList.class);
   }
 
   @Override
   @NotNull
   public BallerinaUserDefineTypeName getUserDefineTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaUserDefineTypeName.class));
+    return findNotNullChildByClass(BallerinaUserDefineTypeName.class);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class BallerinaInitWithTypeImpl extends BallerinaCompositeElementImpl imp
   @Override
   @NotNull
   public PsiElement getNew() {
-    return notNullChild(findChildByType(NEW));
+    return findNotNullChildByType(NEW);
   }
 
 }

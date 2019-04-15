@@ -5,7 +5,7 @@ type MyUnion int|boolean;
 type MyUnion2 string|byte;
 
 // expected: ()
-() nilType;
+() nilType = ();
 
 // expected: int
 int intType = 42;

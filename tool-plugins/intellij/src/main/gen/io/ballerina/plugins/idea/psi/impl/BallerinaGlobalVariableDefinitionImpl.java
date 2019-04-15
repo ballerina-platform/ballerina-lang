@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaGlobalVariableDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaGlobalVariableDefinition {
+public class BallerinaGlobalVariableDefinitionImpl extends ASTWrapperPsiElement implements BallerinaGlobalVariableDefinition {
 
   public BallerinaGlobalVariableDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaCompositeEle
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaChannelType getChannelType() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaChannelType.class);
+    return findChildByClass(BallerinaChannelType.class);
   }
 
   @Override

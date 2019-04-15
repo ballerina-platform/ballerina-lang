@@ -4,10 +4,9 @@ public type userPB record {
     string address = "";
 };
 
-public type closedUserPB record {
+public type closedUserPB record {|
     int age = 0;
     string name = "";
     string address = "";
     string zipcode = "";
-    !...;
-};
+|};

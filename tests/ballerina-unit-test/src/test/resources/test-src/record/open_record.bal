@@ -166,15 +166,29 @@ function testAdditionOfARestField() returns Person {
     return p;
 }
 
-function testAnydataRestFieldRHSAccess() returns anydata {
+type MyError error<string, map<error>>;
+
+function testAdditionOfErrorsForDefaultRestField() returns boolean {
+    error e1 = error("err reason");
+    error e2 = error("err reason 2", { str: "string value", err: e1 });
+    MyError e3 = error("err reason 3", { e1: e1, e2: e2 });
+
+    Person p = { name: "Foo", mname: "Bar", age: 25, height: 5.9, e1: e1 };
+    p.e2 = e2;
+    p.e3 = e3;
+    return <string> p.name == "Foo" && <string> p.mname == "Bar" && <int> p.age == 25 && p.e1 === e1 && p.e2 === e2 &&
+                p.e3 === e3;
+}
+
+function testAnydataOrErrorRestFieldRHSAccess() returns anydata|error {
     Person p = {};
-    anydata name = p.firstName;
+    anydata|error name = p.firstName;
     return name;
 }
 
-function testAnydataRestFieldRHSIndexAccess() returns anydata {
+function testAnydataOrErrorRestFieldRHSIndexAccess() returns anydata|error {
     Person p = {};
-    anydata name = p["firstName"];
+    anydata|error name = p["firstName"];
     return name;
 }
 

@@ -19,11 +19,10 @@ type Person1 record {
     int age;
 };
 
-type AnotherPerson1 record {
+type AnotherPerson1 record {|
     string name;
     int age;
-    !...;
-};
+|};
 
 function testClosedToClosedAssignment1() returns AnotherPerson1 {
     Person1 p = {name:"John Doe", age:25};
@@ -31,11 +30,10 @@ function testClosedToClosedAssignment1() returns AnotherPerson1 {
     return ap;
 }
 
-type AnotherPerson2 record {
+type AnotherPerson2 record {|
     string name;
     int|float age;
-    !...;
-};
+|};
 
 function testClosedToClosedAssignment2() returns AnotherPerson2 {
     Person1 p = {name:"John Doe", age:25};
@@ -43,12 +41,11 @@ function testClosedToClosedAssignment2() returns AnotherPerson2 {
     return ap;
 }
 
-type AnotherPerson3 record {
+type AnotherPerson3 record {|
     string name;
     int age;
     float weight?;
-    !...;
-};
+|};
 
 function testClosedToClosedAssignment3() returns AnotherPerson3 {
     Person1 p = {name:"John Doe", age:25};
@@ -56,11 +53,10 @@ function testClosedToClosedAssignment3() returns AnotherPerson3 {
     return ap;
 }
 
-type AnotherPerson4 record {
+type AnotherPerson4 record {|
     string name;
     int age?;
-    !...;
-};
+|};
 
 function testReqFieldToOptField() returns AnotherPerson4 {
     Person1 p = {name:"John Doe", age:25};

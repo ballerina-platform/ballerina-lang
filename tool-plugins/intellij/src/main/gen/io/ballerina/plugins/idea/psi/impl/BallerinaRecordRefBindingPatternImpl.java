@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordRefBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaRecordRefBindingPattern {
+public class BallerinaRecordRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaRecordRefBindingPattern {
 
   public BallerinaRecordRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaRecordRefBindingPatternImpl extends BallerinaCompositeElem
   @Override
   @Nullable
   public BallerinaEntryRefBindingPattern getEntryRefBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEntryRefBindingPattern.class);
+    return findChildByClass(BallerinaEntryRefBindingPattern.class);
   }
 
   @Override
   @NotNull
   public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override

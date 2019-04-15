@@ -208,6 +208,6 @@ public class WaitForAnyActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest24", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BError);
-        Assert.assertEquals(((BError) vals[0]).reason, "A hazardous error occured!!! Abort immediately!!");
+        Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occured!!! Abort immediately!!");
     }
 }

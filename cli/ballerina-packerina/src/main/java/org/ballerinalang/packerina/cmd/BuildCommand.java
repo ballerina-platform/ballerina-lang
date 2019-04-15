@@ -180,7 +180,7 @@ public class BuildCommand implements BLauncherCmd {
 
             if (jvmTarget) {
                 BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                        offline, lockEnabled, skiptests, experimentalFlag);
+                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
             } else {
                 BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                         offline, lockEnabled, skiptests, experimentalFlag);

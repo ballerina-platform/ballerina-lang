@@ -14,13 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Student record {
+type Student record {|
     string name;
     string status;
     string batch;
     string school;
-    !...;
-};
+|};
 
 type Employee record {
     string name;

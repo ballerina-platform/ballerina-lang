@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
@@ -69,6 +70,15 @@ public class BIRInstructionWriter extends BIRVisitor {
         birBasicBlock.terminator.accept(this);
     }
 
+    public void writeErrorTable(List<BIRNode.BIRErrorEntry> errorEntries) {
+        buf.writeInt(errorEntries.size());
+        errorEntries.forEach(birErrorEntry -> birErrorEntry.accept(this));
+    }
+
+    public void visit(BIRNode.BIRErrorEntry errorEntry) {
+        addCpAndWriteString(errorEntry.trapBB.id.value);
+        errorEntry.errorOp.accept(this);
+    }
 
     // Terminating instructions
 
@@ -106,6 +116,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int nameCPIndex = addStringCPEntry(calleePkg.name.value);
         int versionCPIndex = addStringCPEntry(calleePkg.version.value);
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
         buf.writeInt(birCall.args.size());
@@ -119,6 +130,28 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeByte(0);
         }
         addCpAndWriteString(birCall.thenBB.id.value);
+    }
+
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        buf.writeByte(birAsyncCall.kind.getValue());
+        PackageID calleePkg = birAsyncCall.calleePkg;
+        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
+        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
+        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
+        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeInt(pkgIndex);
+        buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
+        buf.writeInt(birAsyncCall.args.size());
+        for (BIROperand arg : birAsyncCall.args) {
+            arg.accept(this);
+        }
+        if (birAsyncCall.lhsOp != null) {
+            buf.writeByte(1);
+            birAsyncCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
+        addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
@@ -140,6 +173,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BOOLEAN:
@@ -166,6 +200,13 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewStructure.type.accept(typeWriter);
         birNewStructure.lhsOp.accept(this);
     }
+
+    public void visit(BIRNonTerminator.NewInstance newInstance) {
+        buf.writeByte(newInstance.kind.getValue());
+        buf.writeInt(newInstance.def.index);
+        newInstance.lhsOp.accept(this);
+    }
+
 
     public void visit(NewArray birNewArray) {
         buf.writeByte(birNewArray.kind.getValue());
@@ -216,6 +257,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.detailOp.accept(this);
     }
 
+
+    public void visit(BIRTerminator.Panic birPanic) {
+        buf.writeByte(birPanic.kind.getValue());
+        birPanic.errorOp.accept(this);
+    }
 
     // private methods
 

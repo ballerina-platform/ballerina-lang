@@ -7,12 +7,11 @@ type Student record {
     string...;
 };
 
-type Grades record {
+type Grades record {|
     int maths;
     int physics;
     int chemistry;
-    !...;
-};
+|};
 
 public function main() {
     // This creates a `Student` record. Since all the fields are required and none of the fields

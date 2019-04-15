@@ -47,8 +47,8 @@ public class ClosedRecordEquivalencyRulesTest {
     public void testClosedRecordNegatives() {
         CompileResult negative = BCompileUtil.compile("test-src/record/equiv_rules_neg_cr_to_cr.bal");
         assertEquals(negative.getErrorCount(), 2);
-        validateError(negative, 0, "incompatible types: expected 'AnotherPerson', found 'Person1'", 30, 24);
-        validateError(negative, 1, "incompatible types: expected 'AnotherPerson', found 'Person2'", 41, 24);
+        validateError(negative, 0, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
+        validateError(negative, 1, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
     }
 
     @Test(description = "Test assigning a closed record to a cloesd record type variable")
@@ -101,15 +101,15 @@ public class ClosedRecordEquivalencyRulesTest {
         CompileResult openRecToClosedRec = BCompileUtil.compile("test-src/record/equivalency_rules_or_to_cr.bal");
         int index = 0;
         assertEquals(openRecToClosedRec.getErrorCount(), 5);
-        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson1', found 'Person1'", 30,
+        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson1', found 'Person1'", 29,
                       25);
-        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson2', found 'Person1'", 42,
+        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson2', found 'Person1'", 40,
                       25);
-        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 55,
+        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson3', found 'Person1'", 52,
                       25);
-        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson4', found 'Person1'", 67,
+        validateError(openRecToClosedRec, index++, "incompatible types: expected 'AnotherPerson4', found 'Person1'", 63,
                       25);
-        validateError(openRecToClosedRec, index, "incompatible types: expected 'AnotherPerson4', found 'Person2'", 78,
+        validateError(openRecToClosedRec, index, "incompatible types: expected 'AnotherPerson4', found 'Person2'", 74,
                       25);
     }
 }

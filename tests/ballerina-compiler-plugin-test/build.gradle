@@ -1,7 +1,7 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation 'org.slf4j:slf4j-api'
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
@@ -9,8 +9,8 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-test-utils')
 
-    implementation 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
+    implementation 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
 }
 
 description = 'Ballerina - Compiler plugin tests'

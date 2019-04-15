@@ -99,7 +99,7 @@ function testInsertTableData() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -116,7 +116,7 @@ function testCreateTable() returns int {
     if (result is sql:UpdateResult) {
         returnValue = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnValue;
 }
 
@@ -133,7 +133,7 @@ function testUpdateTableData() returns int {
     if (result is sql:UpdateResult) {
         updateCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return updateCount;
 }
 
@@ -153,7 +153,7 @@ function testGeneratedKeyOnInsert() returns (int, int) {
         count = x.updatedRowCount;
         generatedKey = <int>x.generatedKeys.CUSTOMERID;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (count, generatedKey);
 }
 
@@ -176,7 +176,7 @@ function testGeneratedKeyOnInsertEmptyResults() returns (int|string) {
     } else {
         returnVal = x.reason();
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnVal;
 }
 
@@ -201,7 +201,7 @@ function testGeneratedKeyWithColumn() returns int {
     if (x is sql:UpdateResult) {
         generatedID = <int>x.generatedKeys.CUSTOMERID;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return generatedID;
 }
 
@@ -215,7 +215,7 @@ function testSelectData() returns string {
         });
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ResultCustomers);
     string firstName = getTableFirstNameColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return firstName;
 }
 
@@ -247,7 +247,7 @@ function testSelectIntFloatData() returns (int, int, float, float, decimal) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (int_type, long_type, float_type, double_type, decimal_type);
 }
 
@@ -261,7 +261,7 @@ function testQueryParameters() returns string {
         });
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, 1);
     string firstName = getTableFirstNameColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return firstName;
 }
 
@@ -277,7 +277,7 @@ function testQueryParameters2() returns string {
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 1 };
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = ?", ResultCustomers, p1);
     string firstName = getTableFirstNameColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return firstName;
 }
 
@@ -303,7 +303,7 @@ function testInsertTableDataWithParameters() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -322,7 +322,7 @@ function testInsertTableDataWithParameters2() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -342,7 +342,7 @@ function testInsertTableDataWithParameters3() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -358,7 +358,7 @@ function testArrayofQueryParameters() returns string {
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
     float[] doubleArray = [233.4, 433.4];
-    decimal[] decimalArray = [1233.4, 1433.4];
+    decimal[] decimalArray = [1233.4d, 1433.4d];
     sql:Parameter para0 = { sqlType: sql:TYPE_VARCHAR, value: "Johhhn" };
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: intDataArray };
     sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: stringDataArray };
@@ -369,7 +369,7 @@ function testArrayofQueryParameters() returns string {
         lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?) or creditLimit in (?)",
         ResultCustomers, para0, para1, para2, para3, para4);
     string firstName = getTableFirstNameColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return firstName;
 }
 
@@ -403,7 +403,7 @@ function testBoolArrayofQueryParameters() returns int {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return value;
 }
 
@@ -441,7 +441,7 @@ function testBlobArrayQueryParameter() returns int {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return value;
 }
 
@@ -478,7 +478,7 @@ function testINParameters() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -511,7 +511,7 @@ function testBlobInParameter() returns (int, byte[]) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (insertCount, blobVal);
 }
 
@@ -558,7 +558,7 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i, l, f, d, b, s, n, dec, real);
 }
 
@@ -619,7 +619,7 @@ function testINParametersWithDirectVariables() returns (int, int, float,
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (i, l, f, d, b, s, n, dec, real);
 }
 
@@ -656,7 +656,7 @@ function testNullINParameterValues() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -678,7 +678,7 @@ function testNullINParameterBlobValue() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -695,7 +695,7 @@ function testEmptySQLType() returns int {
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
@@ -727,7 +727,28 @@ function testBatchUpdate() returns int[] {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
     int[] updateCount = getBatchUpdateCount(ret);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
+    return updateCount;
+}
+
+function testBatchUpdateSingleValParamArray() returns int[] {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    string[] parameters1 = ["Harry"];
+
+    string[] parameters2 = ["Ron"];
+
+    string[][] arrayofParamArrays = [parameters1, parameters2];
+
+    var ret = testDB->batchUpdate("Insert into Customers (firstName) values (?)", ...arrayofParamArrays);
+    int[] updateCount = getBatchUpdateCount(ret);
+    checkpanic testDB.stop();
     return updateCount;
 }
 
@@ -751,7 +772,7 @@ function testBatchUpdateWithValues() returns int[] {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     int[] updateCount = getBatchUpdateCount(ret);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return updateCount;
 }
 
@@ -779,7 +800,7 @@ function testBatchUpdateWithVariables() returns int[] {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     int[] updateCount = getBatchUpdateCount(ret);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return updateCount;
 }
 
@@ -834,7 +855,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     var dt = testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
         ResultCount);
     int count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (updateCount, count);
 }
 
@@ -850,7 +871,7 @@ function testBatchUpdateWithNullParam() returns int[] {
     var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('Alex','Smith',20,3400.5,'Colombo')");
     int[] updateCount = getBatchUpdateCount(ret);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return updateCount;
 }
 
@@ -908,7 +929,7 @@ function testDateTimeInParameters() returns int[] {
     }
     returnValues[2] = insertCount3;
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnValues;
 }
 
@@ -928,14 +949,14 @@ function testDateTimeNullInValues() returns string {
     sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: () };
     sql:Parameter?[] parameters = [para0, para1, para2, para3, para4];
 
-    _ = testDB->update("Insert into DateTimeTypes
+    _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 33", ResultDates);
     json j = getJsonConversionResult(dt);
     string data = io:sprintf("%s", j);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return data;
 }
 
@@ -969,7 +990,7 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     j = getJsonConversionResult(dt4);
     s4 = io:sprintf("%s", j);
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (s1, s2, s3, s4);
 }
 
@@ -1006,7 +1027,7 @@ function testSelectLoadToMemory() returns (CustomerFullName[], CustomerFullName[
             i += 1;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
@@ -1039,7 +1060,7 @@ function testLoadToMemorySelectAfterTableClose() returns (CustomerFullName[], Cu
             e = ret;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (fullNameArray1, fullNameArray2, e);
 }
 
@@ -1064,7 +1085,7 @@ function testCloseConnectionPool(string connectionCountQuery)
         });
     var dt = testDB->select(connectionCountQuery, ResultCount);
     int count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
@@ -1121,10 +1142,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
+            retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": string.convert(tableOrError.detail().message) };
+        retVal = { "Error": <string> tableOrError.detail().message };
     }
     return retVal;
 }
@@ -1136,11 +1157,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
         } else {
-            string errorXML = string.convert(xmlConversionResult.detail().message);
+            string errorXML = <string> xmlConversionResult.detail().message;
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else {
-        string errorXML = string.convert(tableOrError.detail().message);
+        string errorXML = <string> tableOrError.detail().message;
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;

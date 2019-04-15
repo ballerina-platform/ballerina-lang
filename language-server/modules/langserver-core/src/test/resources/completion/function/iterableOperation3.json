@@ -6,271 +6,322 @@
   "source": "function/source/iterableOperation3.bal",
   "items": [
     {
-      "label":"isSingleton()(boolean)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Check whether the XML sequence contains only a single element.\n"
+      "label": "isSingleton()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nCheck whether the XML sequence contains only a single element.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"isSingleton()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "isSingleton()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"isEmpty()(boolean)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Check whether the XML sequence is empty.\n"
+      "label": "isEmpty()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nCheck whether the XML sequence is empty.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"isEmpty()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "isEmpty()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"elements()(xml)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Get all the items that are of element type in an XML sequence.\n"
+      "label": "elements()(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nGet all the items that are of element type in an XML sequence.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"elements()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "elements()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"select(string qname)(xml)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Get all the items that are of element type, and matches the given qualified name, in an XML sequence.\n"
+      "label": "select(string qname)(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nGet all the items that are of element type, and matches the given qualified name, in an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Qualified name of the element  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"select(${1:qname})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "select(${1:qname})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"getItemType()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Get the type of a XML as a string. If the XML is singleton, type can be one of \u0027element\u0027, \u0027text\u0027, \u0027comment\u0027 or \u0027pi\u0027.\nReturns an empty string if the XML is not a singleton.\n"
+      "label": "getItemType()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nGet the type of a XML as a string. If the XML is singleton, type can be one of \u0027element\u0027, \u0027text\u0027, \u0027comment\u0027 or \u0027pi\u0027.\nReturns an empty string if the XML is not a singleton.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"getItemType()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "getItemType()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"getElementName()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.\n"
+      "label": "getElementName()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nGet the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"getElementName()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "getElementName()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"getTextValue()(string)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Get the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the\nsequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If\nthe XML is a text item, then the text is returned. Otherwise, an empty string is returned.\n"
+      "label": "getTextValue()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nGet the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the\nsequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If\nthe XML is a text item, then the text is returned. Otherwise, an empty string is returned.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"getTextValue()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "getTextValue()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"setChildren(xml children)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.\n"
+      "label": "setChildren(xml children)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nSet the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.\n  \n  \n---    \n**Parameters**  \n- _children_  \n    children  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"setChildren(${1:children})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "setChildren(${1:children});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"copy()(xml)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Make a deep copy of an XML.\n"
+      "label": "copy()(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nMake a deep copy of an XML.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"copy()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "copy()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"strip()(xml)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Strips any text items from an XML sequence that are all whitespace.\n"
+      "label": "strip()(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nStrips any text items from an XML sequence that are all whitespace.\n  \n  \n---    \n**Parameters**  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"strip()",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "strip()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"slice(int startIndex, int endIndex)(xml)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Slice and return a subsequence of the an XML sequence.\n"
+      "label": "slice(int startIndex, int endIndex)(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nSlice and return a subsequence of the an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _startIndex_  \n    Start index, inclusive  \n  \n- _endIndex_  \n    End index, exclusive  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"slice(${1:startIndex}, ${2:endIndex})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "slice(${1:startIndex}, ${2:endIndex})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"setAttributes(map attributes)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Sets the attributes to the provided attributes map.\n"
+      "label": "setAttributes(map attributes)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nSets the attributes to the provided attributes map.\n  \n  \n---    \n**Parameters**  \n- _attributes_  \n    Attributes map  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"setAttributes(${1:attributes})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "setAttributes(${1:attributes});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"toJSON($anonType$builtin$11 options)(json)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Converts a XML object to a JSON representation.\n"
+      "label": "toJSON($anonType$builtin$11 options)(json)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a XML object to a JSON representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    xmlOptions struct for XML to JSON conversion properties  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"toJSON(${1:options})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "toJSON(${1:options})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"selectDescendants(string qname)(xml)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Searches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n"
+      "label": "selectDescendants(string qname)(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nSearches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Qualified name of the element  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"selectDescendants(${1:qname})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "selectDescendants(${1:qname})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"removeAttribute(string qname)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Remove an attribute from an XML.\n"
+      "label": "removeAttribute(string qname)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nRemove an attribute from an XML.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Qualified name of the attribute  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"removeAttribute(${1:qname})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "removeAttribute(${1:qname});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"appendChildren(xml children)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Append children to an XML if its an element type XML. Error otherwise.\nNew children will be appended at the end of the existing children.\n"
+      "label": "appendChildren(xml children)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nAppend children to an XML if its an element type XML. Error otherwise.\nNew children will be appended at the end of the existing children.\n  \n  \n---    \n**Parameters**  \n- _children_  \n    children  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"appendChildren(${1:children})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "appendChildren(${1:children});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"removeChildren(string qname)",
-      "kind":"Function",
-      "detail":"Function",
-      "documentation":{
-        "left":"Remove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n"
+      "label": "removeChildren(string qname)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nRemove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n  \n  \n---    \n**Parameters**  \n- _qname_  \n    Namespace qualified name of the children to be removed  \n"
+        }
       },
-      "sortText":"121",
-      "insertText":"removeChildren(${1:qname})",
-      "insertTextFormat":"Snippet"
+      "sortText": "121",
+      "insertText": "removeChildren(${1:qname});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"foreach(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"foreach(function(xml v) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "foreach(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "foreach(function(xml v) {\n\t${1}\n});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"map(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"map(function(xml v) returns (any) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "map(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "map(function (xml v) returns any {\n\t${1}\n})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"filter(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"filter(function(xml v) returns (boolean) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "filter(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "filter(function(xml v) returns (boolean) {\n\t${1}\n})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"count()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"count();",
-      "insertTextFormat":"Snippet"
+      "label": "count()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "count()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"length()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"length();",
-      "insertTextFormat":"Snippet"
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"freeze()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"freeze();",
-      "insertTextFormat":"Snippet"
+      "label": "freeze()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "freeze()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"isFrozen()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"isFrozen();",
-      "insertTextFormat":"Snippet"
+      "label": "isFrozen()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "isFrozen()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"stamp(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"stamp(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "stamp(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "stamp(${1})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"clone()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"clone();",
-      "insertTextFormat":"Snippet"
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"convert(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"convert(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "convert(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

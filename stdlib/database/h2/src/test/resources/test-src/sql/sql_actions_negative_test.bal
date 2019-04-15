@@ -43,7 +43,7 @@ function testSelectData() returns string {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
     returnData = io:sprintf("%s", j);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnData;
 }
 
@@ -65,10 +65,10 @@ function testGeneratedKeyOnInsert() returns int|string {
     if (x is sql:UpdateResult) {
         ret = x.generatedKeys.length();
     } else {
-        ret = string.convert(x.detail().message);
+        ret = <string> x.detail().message;
     }
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return ret;
 }
 
@@ -85,11 +85,11 @@ function testUpdateReslt() returns int|string {
 
     var x = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 3, 5000.75, 'USA')");
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     if (x is sql:UpdateResult) {
         x.updatedRowCount = 0;
     } else {
-        ret = string.convert(x.detail().message);
+        ret = <string> x.detail().message;
     }
     return ret;
 }
@@ -131,9 +131,9 @@ function testBatchUpdate() returns string {
             returnVal = "success";
         }
     } else {
-        returnVal = string.convert(x.detail().message);
+        returnVal = <string> x.detail().message;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnVal;
 }
 
@@ -161,9 +161,9 @@ function testInvalidArrayofQueryParameters() returns string {
             returnData = j.reason();
         }
     } else {
-        returnData = string.convert(x.detail().message);
+        returnData = <string> x.detail().message;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnData;
 }
 
@@ -174,10 +174,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
+            retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": string.convert(tableOrError.detail().message) };
+        retVal = { "Error": <string> tableOrError.detail().message };
     }
     return retVal;
 }

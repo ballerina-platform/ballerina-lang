@@ -24,15 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaPackageNameStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaPackageNameImpl extends BallerinaNamedElementImpl<BallerinaPackageNameStub> implements BallerinaPackageName {
-
-  public BallerinaPackageNameImpl(@NotNull BallerinaPackageNameStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaPackageNameImpl extends ASTWrapperPsiElement implements BallerinaPackageName {
 
   public BallerinaPackageNameImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,7 +45,7 @@ public class BallerinaPackageNameImpl extends BallerinaNamedElementImpl<Ballerin
   @Override
   @NotNull
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

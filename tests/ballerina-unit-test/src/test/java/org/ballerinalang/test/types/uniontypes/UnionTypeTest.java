@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.types.uniontypes;
 
+import org.ballerinalang.model.util.DecimalValueKind;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -105,13 +107,22 @@ public class UnionTypeTest {
         Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BAR");
     }
 
+    @Test(description = "Test union type LHS with float/decimal literals")
+    public void testUnionLhsWithDiscriminatedFloatDecimalLiterals() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionLhsWithDiscriminatedFloatDecimalLiterals");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.0);
+        Assert.assertEquals(returns[2], new BDecimal("1.0", DecimalValueKind.OTHER));
+    }
+
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
         int i = 0;
         Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'OpenBar|OpenFoo'", 46, 26);
-        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|ClosedFoo'", 47, 30);
-        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|OpenBar'", 48, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 51, 31);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'OpenBar|OpenFoo'", 42, 26);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|ClosedFoo'", 43, 30);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|OpenBar'", 44, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 47, 31);
     }
 }

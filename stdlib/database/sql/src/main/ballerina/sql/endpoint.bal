@@ -72,20 +72,20 @@ public type Client client object {
     }
 };
 
-extern function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
-   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error;
+function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
+   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
 
-extern function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
-   returns @tainted table<record {}>[]|()|error;
+function nativeCall(Client sqlClient, @sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+   returns @tainted table<record {}>[]|()|error = external;
 
-extern function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
-                             Param... parameters) returns UpdateResult|error;
+function nativeUpdate(Client sqlClient, @sensitive string sqlQuery, string[]? keyColumns = (),
+                             Param... parameters) returns UpdateResult|error = external;
 
-extern function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
-    returns int[]|error;
+function nativeBatchUpdate(Client sqlClient, @sensitive string sqlQuery, Param[]... parameters)
+    returns int[]|error = external;
 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + sqlClient - The Client object which represents the connection pool.
-public extern function close(Client sqlClient) returns error?;
+public function close(Client sqlClient) returns error? = external;
 

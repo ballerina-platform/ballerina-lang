@@ -260,7 +260,7 @@ function testFrozenMapUpdate() {
     map<any> m1 = { one: "1", two: 2 };
     map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
-    _ = m2.freeze();
+    _ = checkpanic m2.freeze();
     m2.one = 22;
 }
 
@@ -268,14 +268,14 @@ function testFrozenMapRemoval() {
     map<any> m1 = { one: "1", two: 2 };
     map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
-    _ = m2.freeze();
+    _ = checkpanic m2.freeze();
     _ = m2.remove("one");
 }
 
 function testFrozenMapClear() {
     map<any> m1 = { one: "1", two: 2 };
 
-    _ = m1.freeze();
+    _ = checkpanic m1.freeze();
     m1.clear();
 }
 
@@ -283,7 +283,7 @@ function testFrozenInnerMapUpdate() {
     map<any> m1 = { one: "1", two: 2 };
     map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
-    _ = m2.freeze();
+    _ = checkpanic m2.freeze();
     m1["one"] = 12;
 }
 
@@ -291,7 +291,7 @@ function testFrozenInnerMapRemoval() returns error? {
     map<any> m1 = { one: "1", two: 2 };
     map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
-    _ = m2.freeze();
+    _ = checkpanic m2.freeze();
     map<any> m3 = check trap <map<any>> m2.mapVal;
     _ = m3.remove("one");
     return ();
@@ -301,7 +301,7 @@ function testFrozenInnerMapClear() {
     map<any> m1 = { one: "1", two: 2 };
     map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
-    _ = m2.freeze();
+    _ = checkpanic m2.freeze();
     m1.clear();
 }
 
@@ -315,7 +315,7 @@ function testFrozenAnyArrayAddition() {
     Employee e1 = { name: "Em", id: 1000 };
     int[] i = [1, 2];
     any[] i1 = [i, e1];
-    _ = i1.freeze();
+    _ = checkpanic i1.freeze();
     i1[3] = "freeze addition";
 }
 
@@ -323,7 +323,7 @@ function testFrozenAnyArrayUpdate() returns error? {
     Employee e1 = { name: "Em", id: 1000 };
     int[] i = [1, 2];
     any[] i1 = [i, e1];
-    _ = i1.freeze();
+    _ = checkpanic i1.freeze();
     Employee e2 = check trap <Employee> i1[1];
     i1[1] = 100;
     return ();
@@ -333,7 +333,7 @@ function testFrozenAnyArrayElementUpdate() returns error? {
     Employee e1 = { name: "Em", id: 1000 };
     int[] i = [1, 2];
     any[] i1 = [i, e1];
-    _ = i1.freeze();
+    _ = checkpanic i1.freeze();
     Employee e2 = check trap <Employee> i1[1];
     e2["name"] = "Zee";
     return ();
@@ -373,7 +373,7 @@ function testFrozenTableAddition() {
     };
     Employee e = { id: 5, name: "Anne" };
     _ = empTable.freeze();
-    _ = empTable.add(e);
+    checkpanic empTable.add(e);
 }
 
 function testFrozenTableRemoval() {
@@ -386,7 +386,7 @@ function testFrozenTableRemoval() {
         ]
     };
     _ = empTable.freeze();
-    _ = empTable.remove(isIdTwo);
+    _ = checkpanic empTable.remove(isIdTwo);
 }
 
 function testSimpleUnionFreeze() returns boolean {
@@ -525,7 +525,7 @@ function testValidSelfReferencingValueFreeze() returns (string, boolean) {
 function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
     map<any> m = { one: 1 };
     map<any> m2 = { two: 2 };
-    _ = m.freeze();
+    _ = checkpanic m.freeze();
 
     m2.m = m;
     PersonObj p = new("Em");
@@ -558,6 +558,15 @@ function testErrorValueFreeze() returns string {
     return (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
 }
 
+function testStructureWithErrorValueFreeze() returns boolean {
+    string errReason = "test error";
+    error e = error(errReason);
+    map<any|error> m = { err: e };
+
+    map<any|error>|error res = m.freeze();
+    return res is map<any|error> && res.err === e && res === m;
+}
+
 function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {
     json j = { hello: "world "};
     json[] a = [j, "ballerina", 2, 10.3];
@@ -574,18 +583,16 @@ function insertElement(json[] jArr, int index, json val) returns boolean {
     return true;
 }
 
-type Employee record {
+type Employee record {|
     int id;
     string name;
-    !...;
-};
+|};
 
-type DeptEmployee record {
+type DeptEmployee record {|
     int id;
     string name;
     Dept dept;
-    !...;
-};
+|};
 
 type Dept record {
     string code;

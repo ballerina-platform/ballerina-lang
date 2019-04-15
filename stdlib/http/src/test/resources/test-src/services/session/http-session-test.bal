@@ -22,7 +22,7 @@ service sample on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -39,7 +39,7 @@ service sample on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -56,7 +56,7 @@ service sample on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -74,7 +74,7 @@ service sample on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -91,7 +91,7 @@ service sample on sessionEP {
         } else {
             res.setTextPayload(result);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -109,7 +109,7 @@ service sample on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(myName);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -133,7 +133,7 @@ service sample on sessionEP {
         } else if (payload is error) {
             res.setTextPayload("Error");
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -161,7 +161,7 @@ service counter on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(string.convert(sessionCounter));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -186,7 +186,7 @@ service counter on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(sessionCounter));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -206,7 +206,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(myName);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -233,7 +233,7 @@ service sample2 on sessionEP {
         } else if (payload is error) {
             res.setTextPayload("Error");
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -249,7 +249,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload("arraysize:" + arrsize);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -264,7 +264,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(arr[0]);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -283,7 +283,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -301,7 +301,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -315,7 +315,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -331,7 +331,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -356,7 +356,7 @@ service sample2 on sessionEP {
             v1 = <string>attributes[arr[1]];
             res.setTextPayload(arr[1] + ":" + v1);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -373,7 +373,7 @@ service sample2 on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload("value" + ":" + v0);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -386,7 +386,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(id);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -401,7 +401,7 @@ service sample2 on sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(id);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -414,7 +414,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(stat));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -427,7 +427,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -441,7 +441,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -454,7 +454,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -468,7 +468,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -482,7 +482,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -496,7 +496,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload("done");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -510,7 +510,7 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -528,6 +528,6 @@ service sample2 on sessionEP {
 
         http:Response res = new;
         res.setTextPayload(myName);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

@@ -20,10 +20,8 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaNamespaceDeclarationStub;
 
-public interface BallerinaNamespaceDeclaration extends BallerinaNamedElement, StubBasedPsiElement<BallerinaNamespaceDeclarationStub> {
+public interface BallerinaNamespaceDeclaration extends PsiElement {
 
   @Nullable
   PsiElement getQuotedStringLiteral();

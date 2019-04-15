@@ -11,7 +11,7 @@ service channelService on new http:Listener(9600) {
         map<any> key = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
         result = <- chn,key;
         response.setJsonPayload(result, contentType = "application/json");
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 
 
@@ -25,6 +25,6 @@ service channelService on new http:Listener(9600) {
         result -> chn,key;
 
         response.setJsonPayload(result, contentType = "application/json");
-        _ = caller -> respond(response);
+        checkpanic caller->respond(response);
     }
 }

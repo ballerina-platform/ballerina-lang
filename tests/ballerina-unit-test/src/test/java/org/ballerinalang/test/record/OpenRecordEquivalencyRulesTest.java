@@ -61,9 +61,9 @@ public class OpenRecordEquivalencyRulesTest {
         CompileResult negative = BCompileUtil.compile("test-src/record/equiv_rules_neg_cr_to_or.bal");
         int index = 0;
         assertEquals(negative.getErrorCount(), 3);
-        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 29, 24);
-        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 40, 24);
-        validateError(negative, index, "incompatible types: expected 'AnotherPerson', found 'Person3'", 53, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
+        validateError(negative, index, "incompatible types: expected 'AnotherPerson', found 'Person3'", 50, 24);
     }
 
     @Test(description = "Test assigning a closed record to an open record type variable")

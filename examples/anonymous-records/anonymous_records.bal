@@ -4,11 +4,10 @@ public type Person record {
     string name;
     int age;
     // This is an anonymous record type descriptor.
-    record {
+    record {|
         string city;
         string country;
-        !...;
-    } address;
+    |} address;
 };
 
 public function main() {
@@ -24,28 +23,27 @@ public function main() {
     // Since anonymous records do not have a type name associated with them,
     // the record descriptor itself has to be specified when declaring
     // variables of an anonymous record type.
-    record {
+    record {|
         string city;
         string country;
-        !...;
-    } adr = { city: "London", country: "UK" };
+    |} adr = { city: "London", country: "UK" };
 
     Person jane = { name: "Jane Doe", age: 20, address: adr };
     io:println(jane);
 
-    anydata[] fields = toFieldsArray(john);
+    (anydata|error)[] fields = toFieldsArray(john);
     io:println(fields);
 }
 
-// This function accepts any record with data typed fields
-// (i.e., `anydata` fields). Anonymous record types are implicitly public.
+// This function accepts any record with pure typed fields
+// (i.e., `anydata` or `error` fields). Anonymous record types are implicitly public.
 // Hence, non-public normal records will never be structurally equivalent
 // to anonymous records even if they have the same fields.
-function toFieldsArray(record {} anydataRecord) returns anydata[] {
-    anydata[] fields = [];
+function toFieldsArray(record {} pureRecord) returns (anydata|error)[] {
+    (anydata|error)[] fields = [];
     int i = 0;
 
-    foreach var (_, field) in anydataRecord {
+    foreach var (_, field) in pureRecord {
         fields[i] = field;
         i += 1;
     }

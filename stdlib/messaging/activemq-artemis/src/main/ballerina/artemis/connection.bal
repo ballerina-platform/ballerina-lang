@@ -29,15 +29,15 @@ public type Connection client object {
         self.createConnection(url, configuration);
     }
 
-    extern function createConnection(string url, ConnectionConfiguration config);
+    function createConnection(string url, ConnectionConfiguration config) = external;
 
     # Returns true if close was already called.
     # 
     # + return - `true` if closed, `false` otherwise
-    public extern function isClosed() returns boolean;
+    public function isClosed() returns boolean = external;
 
     # Closes the connection and release all its resources.
-    public remote extern function close();
+    public remote function close() = external;
 };
 
 # Configurations related to a Artemis `Connection`.
@@ -53,7 +53,7 @@ public type Connection client object {
 # + maxRetryInterval - The maximum retry interval (in the case a retry interval multiplier has been specified)
 # + reconnectAttempts - The maximum number of attempts to retry connection in case of failure
 # + initialConnectAttempts - The maximum number of attempts to establish an initial connection
-public type ConnectionConfiguration record {
+public type ConnectionConfiguration record {|
     //Add this once working
     int timeToLive = 60000;
     int callTimeout = 30000;
@@ -66,5 +66,4 @@ public type ConnectionConfiguration record {
     int maxRetryInterval = 2000;
     int reconnectAttempts = 0;
     int initialConnectAttempts = 1;
-    !...;
-};
+|};

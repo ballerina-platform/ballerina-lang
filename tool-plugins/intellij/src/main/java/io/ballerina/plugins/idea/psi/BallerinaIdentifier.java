@@ -18,20 +18,12 @@ package io.ballerina.plugins.idea.psi;
 
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import io.ballerina.plugins.idea.psi.impl.BallerinaElementFactory;
-import io.ballerina.plugins.idea.psi.reference.BallerinaFieldReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaInvocationReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaNameReferenceReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaObjectFunctionReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaOrgReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaTypeReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,45 +56,6 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
     @Override
     public PsiReference getReference() {
         // Note - Don't need to return references for definitions.
-        PsiElement parent = getParent();
-        if (parent instanceof BallerinaOrgName) {
-            return new BallerinaOrgReference(this);
-        } else if (parent instanceof BallerinaNameReference) {
-            return new BallerinaNameReferenceReference(this);
-        } else if (parent instanceof BallerinaAnyIdentifierName) {
-            PsiElement superParent = parent.getParent();
-            if (superParent instanceof BallerinaInvocation) {
-                return new BallerinaInvocationReference(this);
-            } else if (!(superParent instanceof BallerinaCallableUnitSignature)) {
-                return new BallerinaNameReferenceReference(this);
-            }
-        new BallerinaNameReferenceReference(this);
-        } else if (parent instanceof BallerinaAttachedObject) {
-            return new BallerinaTypeReference(this);
-        } else if (parent instanceof BallerinaCallableUnitSignature) {
-            BallerinaFunctionDefinition ballerinaFunctionDefinition = PsiTreeUtil.getParentOfType(parent,
-                    BallerinaFunctionDefinition.class);
-            if (ballerinaFunctionDefinition != null) {
-                BallerinaAttachedObject attachedObject = ballerinaFunctionDefinition.getAttachedObject();
-                if (attachedObject != null) {
-                    return new BallerinaObjectFunctionReference(this);
-                }
-            }
-        } else if (parent instanceof BallerinaField) {
-            return new BallerinaFieldReference(this);
-        } else if (parent instanceof BallerinaTypeInitExpression) {
-            return new BallerinaNameReferenceReference(this);
-        } else if (parent instanceof BallerinaPackageName) {
-            BallerinaImportDeclaration importDeclaration = PsiTreeUtil.getParentOfType(parent,
-                    BallerinaImportDeclaration.class);
-            if (importDeclaration != null) {
-                if (importDeclaration.getOrgName() == null && importDeclaration.getCompletePackageName() == null) {
-                    return new BallerinaOrgReference(this);
-                }
-            }
-        } else if (parent instanceof PsiErrorElement) {
-            return new BallerinaNameReferenceReference(this);
-        }
         return null;
     }
 }

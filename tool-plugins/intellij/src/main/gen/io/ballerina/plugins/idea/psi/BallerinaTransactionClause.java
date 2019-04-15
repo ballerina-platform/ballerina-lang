@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTransactionClause extends BallerinaCompositeElement {
+public interface BallerinaTransactionClause extends PsiElement {
 
   @Nullable
   BallerinaBlock getBlock();

@@ -315,10 +315,10 @@
       ]
     },
     {
-      "label":"ballerina/swagger",
+      "label":"ballerina/openapi",
       "kind":"Module",
       "detail":"Package",
-      "insertText":"swagger",
+      "insertText":"openapi",
       "additionalTextEdits":[
         {
           "range":{
@@ -331,7 +331,7 @@
               "character":0
             }
           },
-          "newText":"import ballerina/swagger;\n"
+          "newText":"import ballerina/openapi;\n"
         }
       ]
     },
@@ -607,12 +607,6 @@
           "newText":"import ballerina/h2;\n"
         }
       ]
-    },
-    {
-      "label":"ballerina/builtin",
-      "kind":"Module",
-      "detail":"Package",
-      "insertText":"builtin"
     },
     {
       "label":"ballerina/math",

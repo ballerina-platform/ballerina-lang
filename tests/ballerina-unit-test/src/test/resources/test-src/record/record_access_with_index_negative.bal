@@ -8,12 +8,11 @@ function testUndeclaredAttributeAccess() {
     Department dpt = {};
     dpt["id"] = "HR";
 }
-
-type Department record {
+      
+type Department record {|
     string dptName = "";
     int count = 0;
-    !...;
-};
+|};
 
 function testInvalidTypeOfIndexExpression1() {
     Department dpt = {};
@@ -39,11 +38,10 @@ type Foo record {
     float fieldThree;
 };
 
-type Bar record {
+type Bar record {|
     string|boolean fieldOne;
     int fieldTwo;
-    !...;
-};
+|};
 
 function testFiniteTypeAsIndex() {
     FiniteOne f1 = "fieldOne";

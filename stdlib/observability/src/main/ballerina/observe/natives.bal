@@ -25,7 +25,7 @@ final map<string> DEFAULT_TAGS = {};
 # + spanName - Name of the span
 # + tags - Tags to be associated to the span
 # + return - SpanId of the started span
-public extern function startRootSpan(string spanName, map<string>? tags = ()) returns int;
+public function startRootSpan(string spanName, map<string>? tags = ()) returns int = external;
 
 # Start a span and create child relationship to current active span or user specified span.
 #
@@ -33,7 +33,7 @@ public extern function startRootSpan(string spanName, map<string>? tags = ()) re
 # + tags - Tags to be associated to the span
 # + parentSpanId - Id of the parent span or -1 if parent span should be taken from system trace
 # + return - SpanId of the started span
-public extern function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error;
+public function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error = external;
 
 # Add a key value pair as a tag to the span.
 #
@@ -41,25 +41,25 @@ public extern function startSpan(string spanName, map<string>? tags = (), int pa
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
 # + return - An error if an error occured while attaching tag to the span
-public extern function addTagToSpan(int spanId = -1, string tagKey, string tagValue) returns error?;
+public function addTagToSpan(int spanId = -1, string tagKey, string tagValue) returns error? = external;
 
 # Finish the current span.
 #
 # + spanId - Id of span to finish
 # + return - An error if an error occured while finishing the span
-public extern function finishSpan(int spanId) returns error?;
+public function finishSpan(int spanId) returns error? = external;
 
 # Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
 #
 # + return - Array of all registered metrics.
-public extern function getAllMetrics() returns Metric[];
+public function getAllMetrics() returns Metric[] = external;
 
 # Retrieves the specific metric that is described by the given name and tags.
 #
 # + name - Name of the metric to lookup.
 # + tags - The key/value pair tags that associated with the metric that should be looked up.
 # + return - The metric instance.
-public extern function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge|();
+public function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge? = external;
 
 # This represents the metric type - counter, that can be only increased by an integer number.
 #
@@ -95,30 +95,30 @@ public type Counter object {
     }
 
     # Performs the necessary native operations during the initialization of the counter.
-    extern function initialize();
+    function initialize() = external;
 
     # Register the counter metric instance with the Metric Registry.
     #
     # + return - Returns error if there is any metric registered already with the same name
     #            but different parameters or in a different kind.
-    public extern function register() returns error?;
+    public function register() returns error? = external;
 
     # Unregister the counter metric instance with the Metric Registry.
-    public extern function unregister();
+    public function unregister() = external;
 
     # Increment the counter's value by an amount.
     #
     # + amount - The amount by which the value needs to be increased. The amount is defaulted as 1 and will be
     #            used if there is no amount passed in.
-    public extern function increment(int amount = 1);
+    public function increment(int amount = 1) = external;
 
     # Resets the counter's value to zero.
-    public extern function reset();
+    public function reset() = external;
 
     # Retrieves the counter's current value.
     #
     # + return - The current value of the counter.
-    public extern function getValue() returns (int);
+    public function getValue() returns int = external;
 
 };
 
@@ -158,44 +158,44 @@ public type Gauge object {
     }
 
     # Performs the necessary native operations during the initialization of the gauge.
-    extern function initialize();
+    function initialize() = external;
 
     # Register the gauge metric instance with the Metric Registry.
     #
     # + return - Returns error if there is any metric registered already with the same name
     #            but different parameters or in a different kind.
-    public extern function register() returns error?;
+    public function register() returns error? = external;
 
     # Unregister the counter metric instance with the Metric Registry.
-    public extern function unregister();
+    public function unregister() = external;
 
     # Increment the gauge's value by an amount.
     #
     # + amount - The amount by which the value of gauge needs to be increased.
     #            The amount is defaulted as 1.0 and will be used if there is no amount passed in.
-    public extern function increment(float amount = 1.0);
+    public function increment(float amount = 1.0) = external;
 
     # Decrement the gauge's value by an amount.
     #
     # + amount - The amount by which the value of gauge needs to be decreased.
     #            The amount is defaulted as 1.0 and will be used if there is no amount passed in.
-    public extern function decrement(float amount = 1.0);
+    public function decrement(float amount = 1.0) = external;
 
     # Sets the instantaneous value for gauge.
     #
     # + amount - The instantaneous value that needs to be set as gauge value.
-    public extern function setValue(float amount);
+    public function setValue(float amount) = external;
 
     # Retrieves the gauge's current value.
     #
     # + return - The current value of the gauge.
-    public extern function getValue() returns float;
+    public function getValue() returns float = external;
 
     # Retrieves statistics snapshots based on the statistics configs of the gauge.
     #
     # + return - Array of the statistics snapshots.
     #            If there is no statisticsConfigs provided, then it will be nil.
-    public extern function getSnapshot() returns (Snapshot[]?);
+    public function getSnapshot() returns Snapshot[]? = external;
 
 };
 

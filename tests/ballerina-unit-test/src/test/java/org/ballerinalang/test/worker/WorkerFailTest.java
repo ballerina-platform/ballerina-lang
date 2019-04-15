@@ -213,17 +213,14 @@ public class WorkerFailTest {
     }
 
     @Test
-    public void invalidWorkerNameAsDefault() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-as-default.bal");
-        Assert.assertEquals(result.getErrorCount(), 4);
-        BAssertUtil.validateError(result, 0, "explicit workers cannot be named as 'default' " +
-                "since the function already has an implicit worker named 'default'", 4, 5);
-        BAssertUtil.validateError(result, 1, "explicit workers cannot be named as 'default' " +
-                "since the function already has an implicit worker named 'default'", 15, 5);
-        BAssertUtil.validateError(result, 2, "worker send/receive interactions are invalid; worker(s) cannot " +
-                "move onwards from the state: '[x -> default,  <- default]'", 15, 5);
-        BAssertUtil.validateError(result, 3, "explicit workers cannot be named as 'default' " +
-                "since the function already has an implicit worker named 'default'", 25, 9);
-
+    public void invalidUsagesOfDefault() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-usage-of-default.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        BAssertUtil.validateError(result, 0, "mismatched input 'default'. expecting Identifier", 18, 12);
+        BAssertUtil.validateError(result, 1, "mismatched input 'default'. expecting Identifier", 29, 16);
+        BAssertUtil.validateError(result, 2, "invalid token 'default'", 36, 12);
+        BAssertUtil.validateError(result, 3, "invalid token 'default'", 41, 9);
+        BAssertUtil.validateError(result, 4, "invalid token 'default'", 43, 13);
+        BAssertUtil.validateError(result, 5, "extraneous input 'default'", 44, 16);
     }
 }

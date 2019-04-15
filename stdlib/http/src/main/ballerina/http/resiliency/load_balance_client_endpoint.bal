@@ -165,12 +165,11 @@ public type LoadBalanceClient client object {
 # + message - An error message explaining about the error
 # + statusCode - HTTP status code of the LoadBalanceActionError
 # + httpActionErr - Array of errors occurred at each endpoint
-public type LoadBalanceActionErrorData record {
+public type LoadBalanceActionErrorData record {|
     string message = "";
     int statusCode = 0;
     error?[] httpActionErr = [];
-    !...;
-};
+|};
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
 
@@ -341,7 +340,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + auth - HTTP authentication releated configurations
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
-public type LoadBalanceClientEndpointConfiguration record {
+public type LoadBalanceClientEndpointConfiguration record {|
     CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     string httpVersion = "1.1";
@@ -358,8 +357,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     AuthConfig? auth = ();
     LoadBalancerRule? lbRule = ();
     boolean failover = true;
-    !...;
-};
+|};
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
                                                      TargetService target) returns ClientEndpointConfig {

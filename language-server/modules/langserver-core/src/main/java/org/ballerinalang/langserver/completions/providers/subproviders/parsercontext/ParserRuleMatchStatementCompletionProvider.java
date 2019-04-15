@@ -78,7 +78,7 @@ public class ParserRuleMatchStatementCompletionProvider extends AbstractSubCompl
             filteredList.forEach(symbolInfo -> {
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {
                     BSymbol scopeEntrySymbol = symbolInfo.getScopeEntry().symbol;
-                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, ctx));
+                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol));
                 }
             });
         } else {
@@ -87,10 +87,10 @@ public class ParserRuleMatchStatementCompletionProvider extends AbstractSubCompl
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
                         && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED)) {
-                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, ctx));
+                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol));
                 } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
                         && bSymbol instanceof BVarSymbol) {
-                    fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
+                    fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems);
                     String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
                     completionItems.add(BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol,
                                                                              symbolInfo.getSymbolName(), typeName));
@@ -125,24 +125,24 @@ public class ParserRuleMatchStatementCompletionProvider extends AbstractSubCompl
         return signature.toString();
     }
 
-    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol func, LSContext ctx) {
+    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol func) {
         String functionSignature = getFunctionSignature(func);
-        String variableValuePattern = getVariableValueDestructurePattern(ctx);
+        String variableValuePattern = getVariableValueDestructurePattern();
         String variableValueSnippet = this.generateMatchSnippet(variableValuePattern);
 
         return BFunctionCompletionItemBuilder.build(func, functionSignature,
                                                     functionSignature + " " + variableValueSnippet);
     }
 
-    private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems, LSContext ctx) {
+    private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems) {
         BType symbolType = varSymbol.getType();
         String varName = varSymbol.getName().getValue();
         if (symbolType instanceof BTupleType || symbolType instanceof BRecordType) {
-            String fixedValuePattern = "\t" + generateMatchPattern(getStructuredFixedValueMatch(symbolType), ctx);
+            String fixedValuePattern = "\t" + generateMatchPattern(getStructuredFixedValueMatch(symbolType));
             String fixedValueSnippet = this.generateMatchSnippet(fixedValuePattern);
             completionItems.add(this.getVariableCompletionItem(varSymbol, fixedValueSnippet, varName));
         } else {
-            String variableValuePattern = "\t" + getVariableValueDestructurePattern(ctx);
+            String variableValuePattern = "\t" + getVariableValueDestructurePattern();
             String variableValueSnippet = this.generateMatchSnippet(variableValuePattern);
             completionItems.add(this.getVariableCompletionItem(varSymbol, variableValueSnippet, varName));
         }

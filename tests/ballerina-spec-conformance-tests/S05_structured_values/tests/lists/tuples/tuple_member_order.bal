@@ -67,15 +67,13 @@ function testObjectTupleMemberOrder() {
     test:assertEquals(tuple3[0], a10, msg = EXPECTED_VALUE_NOT_FOUND_AT_INDEX_FAILURE_MESSAGE + "0");
 }
 
-public type FooRecordEight record {
+public type FooRecordEight record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordEight record {
+public type BarRecordEight record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectEight object {
     public string fooFieldOne;

@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -49,6 +51,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLAttributesType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+
+import java.util.LinkedList;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -57,9 +62,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
  * @since 0.995.0
  */
 public class BIRTypeWriter implements TypeVisitor {
+    public static final int TYPE_TAG_SELF = 50;
     private final ByteBuf buff;
 
     private final ConstantPool cp;
+    private final BMapType anydataMapType =
+            new BMapType(TypeTags.MAP, new BAnydataType(TypeTags.ANYDATA, null), null);
+    private LinkedList<Object> compositeStack = new LinkedList<>();
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
@@ -91,8 +100,12 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BErrorType bErrorType) {
         buff.writeByte(bErrorType.tag);
+        BTypeSymbol tsymbol = bErrorType.tsymbol;
+        compositeStack.push(tsymbol);
         bErrorType.reasonType.accept(this);
         bErrorType.detailType.accept(this);
+        Object popped = compositeStack.pop();
+        assert popped == tsymbol;
     }
 
     @Override
@@ -117,13 +130,19 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BJSONType bjsonType) {
-        throwUnimplementedError(bjsonType);
+        buff.writeByte(bjsonType.tag);
     }
 
     @Override
     public void visit(BMapType bMapType) {
         buff.writeByte(bMapType.tag);
         bMapType.constraint.accept(this);
+    }
+
+    @Override
+    public void visit(BFutureType bFutureType) {
+        buff.writeByte(bFutureType.tag);
+        bFutureType.constraint.accept(this);
     }
 
     @Override
@@ -171,7 +190,9 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeByte(bUnionType.tag);
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
-            memberType.accept(this);
+            if (!writeSelfRef(memberType.tsymbol)) {
+                memberType.accept(this);
+            }
         }
     }
 
@@ -191,8 +212,13 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BObjectType bObjectType) {
-        buff.writeByte(bObjectType.tag);
         BObjectTypeSymbol tsymbol = (BObjectTypeSymbol) bObjectType.tsymbol;
+        if (writeSelfRef(bObjectType.tsymbol)) {
+            return;
+        }
+        compositeStack.push(tsymbol);
+
+        buff.writeByte(bObjectType.tag);
         buff.writeInt(addStringCPEntry(tsymbol.name.value));
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields) {
@@ -201,12 +227,24 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeByte(getVisibility(field.symbol).value());
             field.type.accept(this);
         }
+        Object popped = compositeStack.pop();
+        assert popped == tsymbol;
         buff.writeInt(tsymbol.attachedFuncs.size());
         for (BAttachedFunction attachedFunc : tsymbol.attachedFuncs) {
             buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
             buff.writeByte(getVisibility(attachedFunc.symbol).value());
             attachedFunc.type.accept(this);
         }
+    }
+
+    private boolean writeSelfRef(BTypeSymbol tsymbol) {
+        int i = compositeStack.indexOf(tsymbol);
+        if (i >= 0) {
+            buff.writeByte(TYPE_TAG_SELF);
+            buff.writeInt(i);
+            return true;
+        }
+        return false;
     }
 
     @Override

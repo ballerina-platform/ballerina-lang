@@ -19,7 +19,7 @@ packageName
     ;
 
 version
-    :   (VERSION Identifier)
+    :   VERSION Identifier
     ;
 
 importDeclaration
@@ -53,15 +53,15 @@ serviceBodyMember
     ;
 
 callableUnitBody
-    : LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
+    :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? EXTERN? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    :   FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
     ;
 
 arrowFunction
@@ -78,7 +78,7 @@ callableUnitSignature
     ;
 
 typeDefinition
-    :   (PUBLIC)? TYPE Identifier finiteType SEMICOLON
+    :   PUBLIC? TYPE Identifier finiteType SEMICOLON
     ;
 
 objectBody
@@ -109,11 +109,11 @@ sealedLiteral
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE|RESOURCE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? EXTERN? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
-    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
+    :   PUBLIC? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
     ;
 
 constantDefinition
@@ -122,13 +122,12 @@ constantDefinition
 
 globalVariableDefinition
     :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
-    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   PUBLIC? VAR Identifier ASSIGN expression SEMICOLON
+    |   PUBLIC? FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
 channelType
-    : CHANNEL (LT typeName GT)
+    : CHANNEL LT typeName GT
     ;
 
 attachmentPoint
@@ -168,7 +167,7 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
-    |   ABSTRACT? CLIENT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                              # objectTypeNameLabel
+    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
@@ -205,12 +204,12 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MAP (LT typeName GT)
-    |   TYPE_FUTURE (LT typeName GT)
+    :   TYPE_MAP LT typeName GT
+    |   TYPE_FUTURE LT typeName GT
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON
-    |   TYPE_TABLE (LT typeName GT)
-    |   TYPE_STREAM (LT typeName GT)
+    |   TYPE_TABLE LT typeName GT
+    |   TYPE_STREAM LT typeName GT
     |   SERVICE
     |   errorTypeName
     |   functionTypeName
@@ -365,7 +364,7 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :  ifClause elseIfClause* elseClause?
+    :   ifClause elseIfClause* elseClause?
     ;
 
 ifClause
@@ -468,7 +467,7 @@ foreachStatement
     ;
 
 intRangeExpression
-    :   (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET|RIGHT_PARENTHESIS)
+    :   (LEFT_BRACKET | LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET | RIGHT_PARENTHESIS)
     ;
 
 whileStatement
@@ -597,7 +596,7 @@ transactionStatement
     ;
 
 committedAbortedClauses
-    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
+    :   (committedClause? abortedClause?) | (abortedClause? committedClause?)
     ;
 
 transactionClause
@@ -663,10 +662,10 @@ expression
     |   errorConstructorExpr                                                # errorConstructorExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression  # unaryExpression
+    |   LT typeName GT expression                                           # typeConversionExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT) expression             # unaryExpression
     |   tupleLiteral                                                        # bracedOrTupleExpression
-    |	CHECK expression										            # checkedExpression
+    |   CHECK expression                                                    # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -766,8 +765,8 @@ formalParameterList
     ;
 
 simpleLiteral
-    :   (SUB)? integerLiteral
-    |   (SUB)? floatingPointLiteral
+    :   SUB? integerLiteral
+    |   SUB? floatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
@@ -883,8 +882,8 @@ stringTemplateContent
 
 
 anyIdentifierName
-    : Identifier
-    | reservedWord
+    :   Identifier
+    |   reservedWord
     ;
 
 reservedWord
@@ -938,8 +937,8 @@ limitClause
 
 selectClause
     :   SELECT (MUL| selectExpressionList )
-            groupByClause?
-            havingClause?
+        groupByClause?
+        havingClause?
     ;
 
 selectExpressionList
@@ -962,14 +961,6 @@ streamingAction
     :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-setClause
-    :   SET setAssignmentClause (COMMA setAssignmentClause)*
-    ;
-
-setAssignmentClause
-    :   variableReference ASSIGN expression
-    ;
-
 streamingInput
     :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
         whereClause? (AS alias=Identifier)?
@@ -980,7 +971,7 @@ joinStreamingInput
     ;
 
 outputRateLimit
-    :   OUTPUT (ALL | LAST | FIRST) EVERY ( DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS )
+    :   OUTPUT (ALL | LAST | FIRST) EVERY (DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS)
     |   OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
     ;
 

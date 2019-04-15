@@ -160,8 +160,6 @@ public abstract class AbstractSubCompletionProvider {
     protected List<CompletionItem> getVarDefCompletionItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
-                .getCompletionItem().getSnippetSupport();
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
         filteredList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -177,16 +175,16 @@ public abstract class AbstractSubCompletionProvider {
         // Add the packages completion items.
         completionItems.addAll(getPackagesCompletionItems(context));
         // Add the check keyword
-        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context, snippetCapability);
+        CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context);
         completionItems.add(checkKeyword);
         // Add the wait keyword
-        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(context, snippetCapability);
+        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(context);
         completionItems.add(waitKeyword);
         // Add But keyword item
-        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context, snippetCapability);
+        CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(context);
         completionItems.add(butKeyword);
         // Add the trap expression keyword
-        CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(context, snippetCapability);
+        CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(context);
         completionItems.add(trapExpression);
 
         return completionItems;
@@ -200,31 +198,29 @@ public abstract class AbstractSubCompletionProvider {
      * @return {@link List}     List of populated completion items
      */
     protected List<CompletionItem> addTopLevelItems(LSContext context) {
-        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(getStaticItem(context, Snippet.KW_IMPORT, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_MAIN_FUNCTION, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSOCKET, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_RECORD, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.KW_TYPE, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.KW_FINAL, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.KW_CONST, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.KW_EXTERN, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.DEF_ERROR, snippetCapability));
-        completionItems.add(getStaticItem(context, Snippet.KW_LISTENER, snippetCapability));
+        completionItems.add(getStaticItem(context, Snippet.KW_IMPORT));
+        completionItems.add(getStaticItem(context, Snippet.DEF_FUNCTION));
+        completionItems.add(getStaticItem(context, Snippet.DEF_MAIN_FUNCTION));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSOCKET));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_WEBSUB));
+        completionItems.add(getStaticItem(context, Snippet.DEF_SERVICE_GRPC));
+        completionItems.add(getStaticItem(context, Snippet.DEF_ANNOTATION));
+        completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION));
+        completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
+        completionItems.add(getStaticItem(context, Snippet.DEF_RECORD));
+        completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
+        completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC));
+        completionItems.add(getStaticItem(context, Snippet.KW_FINAL));
+        completionItems.add(getStaticItem(context, Snippet.KW_CONST));
+        completionItems.add(getStaticItem(context, Snippet.DEF_ERROR));
+        completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
         return completionItems;
     }
 
-    private CompletionItem getStaticItem(LSContext ctx, Snippet snippet, boolean isSnippet) {
-        return snippet.get().build(ctx, isSnippet);
+    protected CompletionItem getStaticItem(LSContext ctx, Snippet snippet) {
+        return snippet.get().build(ctx);
     }
 
 
@@ -296,7 +292,7 @@ public abstract class AbstractSubCompletionProvider {
     protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)
+            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
                     || (UtilSymbolKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
                     && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
         };

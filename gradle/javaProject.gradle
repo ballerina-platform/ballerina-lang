@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
+apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
@@ -9,6 +10,29 @@ dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:7.8.2'
 
     implementation 'org.slf4j:slf4j-api:1.7.22'
+    implementation enforcedPlatform('org.ballerinalang:ballerina-parent:0.990.4-SNAPSHOT')
+    
+    constraints {
+        implementation 'commons-codec:commons-codec:1.9'
+        implementation 'commons-logging:commons-logging:1.1.1'
+        implementation 'org.apache.mina:mina-core:2.0.16'
+        implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
+        implementation 'com.atlassian.commonmark:commonmark:0.11.0'
+        implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
+        implementation 'org.apache.activemq:artemis-server:2.6.3'
+        implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.0.0-rc3'
+        implementation 'com.h2database:h2:1.4.199'
+        implementation 'org.testcontainers:testcontainers:1.7.2'
+        implementation 'org.testcontainers:postgresql:1.7.2'
+        implementation 'org.testcontainers:mysql:1.7.2'
+        implementation 'mysql:mysql-connector-java:5.1.46'
+        implementation 'org.postgresql:postgresql:42.2.1'
+
+        // Lang Server Dependencies
+        implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
+        implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
+        implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    }
 }
 
 sourceCompatibility = '1.8'
@@ -40,5 +64,10 @@ spotbugsTest {
 }
 
 test {
+    systemProperty "ballerina.home", "$buildDir"
     systemProperty "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog"
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }

@@ -36,7 +36,7 @@ service HelloWorld14 on new grpc:Listener(9104) {
         }
 
         // Sends `completed` notification to caller.
-        _ = caller->complete();
+        checkpanic caller->complete();
     }
 }
 

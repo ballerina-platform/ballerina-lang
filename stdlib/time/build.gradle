@@ -2,12 +2,27 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-builtin')
-    testCompile project(':ballerina-launcher')
-    testCompile 'org.testng:testng:6.13.1'
+    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-logging')
+    implementation project(':ballerina-runtime-api')
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
 }
 
 description = 'Ballerina - Time'
+
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}

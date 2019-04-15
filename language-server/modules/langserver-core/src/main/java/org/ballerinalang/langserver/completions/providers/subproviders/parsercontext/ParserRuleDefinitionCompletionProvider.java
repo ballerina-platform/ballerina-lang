@@ -48,8 +48,7 @@ public class ParserRuleDefinitionCompletionProvider extends AbstractSubCompletio
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         if (poppedTokens.size() >= 1) {
             // Provides completions after public keyword
-            completionItems.addAll(addTopLevelItems(ctx));
-            completionItems.addAll(getBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+            completionItems.addAll(new ParserRuleGlobalVariableDefinitionCompletionProvider().resolveItems(ctx));
         }
 
         if (!consumedTokens.get(0).equals(UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {

@@ -4,11 +4,10 @@ type RecordOne record {
     string var1;
 };
 
-type RecordTwo record {
+type RecordTwo record {|
     string var1;
     int var2;
-    !...;
-};
+|};
 
 type RecordThree record {
     string var1;

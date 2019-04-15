@@ -44,13 +44,13 @@ public class BallerinaTypeAccessExprInvocationReferenceImpl extends BallerinaVar
   @Override
   @NotNull
   public BallerinaInvocation getInvocation() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaInvocation.class));
+    return findNotNullChildByClass(BallerinaInvocation.class);
   }
 
   @Override
   @NotNull
   public BallerinaTypeAccessExpression getTypeAccessExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeAccessExpression.class));
+    return findNotNullChildByClass(BallerinaTypeAccessExpression.class);
   }
 
 }

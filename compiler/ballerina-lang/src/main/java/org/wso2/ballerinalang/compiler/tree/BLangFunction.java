@@ -24,11 +24,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @since 0.94
@@ -45,13 +47,14 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public boolean interfaceFunction;
 
-    public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
-
+    public TreeMap<Integer, BVarSymbol> paramClosureMap = new TreeMap<>();
+    public BVarSymbol mapSymbol;
     public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 
-    public BInvokableSymbol originalFuncSymbol;
+    // Used to track uninitialized closure variables in DataFlowAnalyzer.
+    public Set<ClosureVarSymbol> closureVarSymbols = new LinkedHashSet<>();
 
-    public boolean isTypeChecked = false;
+    public BInvokableSymbol originalFuncSymbol;
 
     public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
 
@@ -77,5 +80,4 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public String toString() {
         return "BLangFunction: " + super.toString();
     }
-    
 }

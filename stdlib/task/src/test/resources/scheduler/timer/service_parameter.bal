@@ -28,8 +28,8 @@ function attachTimer() {
     };
 
     task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
-    _ = timer.attach(timerService, attachment = person);
-    _ = timer.start();
+    checkpanic timer.attach(timerService, attachment = person);
+    checkpanic timer.start();
 }
 
 string result = "";

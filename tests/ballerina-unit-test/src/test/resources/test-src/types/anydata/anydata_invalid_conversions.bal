@@ -169,7 +169,6 @@ type Foo record {
     anydata... // TODO: Remove this line once the default rest field type is changed to anydata
 };
 
-type ClosedFoo record {
+type ClosedFoo record {|
     int ca;
-    !...;
-};
+|};

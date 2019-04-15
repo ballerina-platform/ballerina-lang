@@ -21,10 +21,8 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub;
 
-public interface BallerinaAnnotationDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaAnnotationDefinitionStub> {
+public interface BallerinaAnnotationDefinition extends BallerinaTopLevelDefinition {
 
   @NotNull
   List<BallerinaAttachmentPoint> getAttachmentPointList();

@@ -117,9 +117,8 @@ public class LauncherUtils {
                 BError returnedError = (BError) result[0];
                 errStream.print(prepareErrorReturnedErrorMessage(returnedError));
 
-                if (returnedError.details != null) {
-                    BMap<String, BValue> details =  (BMap<String, BValue>) returnedError.details;
-                    statusCode = getStatusCode(details);
+                if (returnedError.getDetails() != null) {
+                    statusCode = getStatusCode((BMap<String, BValue>) returnedError.getDetails());
                 }
             } else if (programFile.isServiceEPAvailable()) {
                 return;

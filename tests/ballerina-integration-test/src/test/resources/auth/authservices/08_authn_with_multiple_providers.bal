@@ -55,6 +55,6 @@ listener http:Listener listener08 = new(9099, config = {
 service echo8 on listener08 {
 
     resource function test8(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

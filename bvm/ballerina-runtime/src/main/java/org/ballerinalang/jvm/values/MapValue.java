@@ -18,14 +18,12 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -87,6 +85,34 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         } finally {
             readLock.unlock();
         }
+    }
+
+    public Long getIntValue(String key) {
+        return (Long) get(key);
+    }
+
+    public Double getFloatValue(String key) {
+        return (Double) get(key);
+    }
+
+    public String getStringValue(String key) {
+        return (String) get(key);
+    }
+
+    public Boolean getBooleanValue(String key) {
+        return (Boolean) get(key);
+    }
+
+    public MapValue getMapValue(String key) {
+        return (MapValue) get(key);
+    }
+
+    public ObjectValue getObjectValue(String key) {
+        return (ObjectValue) get(key);
+    }
+
+    public ArrayValue getArrayValue(String key) {
+        return (ArrayValue) get(key);
     }
 
     /**
@@ -248,29 +274,17 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
         readLock.lock();
         StringJoiner sj = new StringJoiner(", ", "{", "}");
         try {
-            switch (type.getTag()) {
-                case TypeTags.OBJECT_TYPE_TAG:
-                    for (Map.Entry<String, BField> field : ((BObjectType) this.type).getFields().entrySet()) {
-                        if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
-                            continue;
-                        }
-                        String fieldName = field.getKey();
-                        Object fieldVal = get(fieldName);
-                        sj.add(fieldName + ":" + getStringValue(fieldVal));
-                    }
-                    break;
-                case TypeTags.JSON_TAG:
-                    return getJSONString();
-                default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
-                    for (Iterator<Map.Entry<K, V>> i = super.entrySet().iterator(); i.hasNext();) {
-                        String key;
-                        Map.Entry<K, V> e = i.next();
-                        key = keySeparator + e.getKey() + keySeparator;
-                        Object value = e.getValue();
-                        sj.add(key + ":" + getStringValue(value));
-                    }
-                    break;
+            if (type.getTag() == TypeTags.JSON_TAG) {
+                return getJSONString();
+            }
+
+            String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+            for (Iterator<Map.Entry<K, V>> i = super.entrySet().iterator(); i.hasNext();) {
+                String key;
+                Map.Entry<K, V> e = i.next();
+                key = keySeparator + e.getKey() + keySeparator;
+                Object value = e.getValue();
+                sj.add(key + ":" + getStringValue(value));
             }
             return sj.toString();
         } finally {
@@ -312,6 +326,21 @@ public class MapValue<K, V> extends LinkedHashMap<K, V> implements RefValue {
     @Override
     public BType getType() {
         return type;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+            super.values().forEach(val -> {
+                if (val instanceof RefValue) {
+                    ((RefValue) val).attemptFreeze(freezeStatus);
+                }
+            });
+        }
     }
 
     /**

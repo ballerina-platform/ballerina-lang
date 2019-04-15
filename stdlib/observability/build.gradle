@@ -1,19 +1,39 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-builtin')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
-
-    testCompile project(':ballerina-launcher')
-    testCompile 'org.testng:testng:6.13.1'
-    implementation 'io.opentracing:opentracing-api:0.31.0'
+    implementation project(':ballerina-runtime-api')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
+    implementation 'io.opentracing:opentracing-api'
+
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-test-common')
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-api'
+    testCompile 'org.slf4j:slf4j-simple'
+}
+
+test {
+    doFirst {
+        copy {
+            from "$buildDir/generated-balo/repo/ballerina"
+            into "$buildDir/lib/repo/ballerina"
+        }
+    }
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 }
 
 description = 'Ballerina - Observability'

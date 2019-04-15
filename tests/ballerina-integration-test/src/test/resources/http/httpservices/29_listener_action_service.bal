@@ -30,7 +30,7 @@ service echo on echoEP {
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload(self.serviceLevelStringVar);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
         self.serviceLevelStringVar = "respond";
         io:println("Service Level Variable : " + self.serviceLevelStringVar);
     }
@@ -41,7 +41,7 @@ service echo on echoEP {
     }
     resource function round1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
         self.serviceLevelStringVar = "redirect";
         io:println("Service Level Variable : " + self.serviceLevelStringVar);
     }

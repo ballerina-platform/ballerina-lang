@@ -67,7 +67,7 @@ public class WorkerFlushTest {
 
         BValue[] returns = BRunUtil.invoke(result, "errorTest");
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, "error3");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
     }
 
     @Test
@@ -90,7 +90,7 @@ public class WorkerFlushTest {
 
         BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, "err");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "err");
     }
 
     @Test

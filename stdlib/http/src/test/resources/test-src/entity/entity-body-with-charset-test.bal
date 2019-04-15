@@ -188,6 +188,6 @@ service echo on mockEP {
         } else {
             response.setPayload(untaint <string>payload.detail().message);
         }
-        _ = caller->respond(response);
+        checkpanic caller->respond(response);
     }
 }

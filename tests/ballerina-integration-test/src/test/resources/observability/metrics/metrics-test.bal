@@ -42,7 +42,7 @@ service metricsTest on new http:Listener(9090){
                 string result = jData.toString();
                 http:Response resp = new;
                 resp.setTextPayload(untaint result);
-                _ = caller -> respond(resp);
+                checkpanic caller->respond(resp);
             }  else {
                 error err = error ("error occurred 1111");
                 panic err;

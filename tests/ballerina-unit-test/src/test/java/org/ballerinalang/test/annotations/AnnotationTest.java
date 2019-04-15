@@ -87,7 +87,7 @@ public class AnnotationTest {
     public void testInvalidChildAnnotation() {
         CompileResult resNegative = BCompileUtil.compile("test-src/lang/annotations/invalid-child-annotation.bal");
         Assert.assertEquals(resNegative.getErrorCount(), 3);
-        BAssertUtil.validateError(resNegative, 0, "invalid usage of record literal with type 'anydata'", 1, 12);
+        BAssertUtil.validateError(resNegative, 0, "invalid literal for type 'anydata|error'", 1, 12);
         BAssertUtil.validateError(resNegative, 1, "missing non-defaultable required record field 'value'", 1, 6);
         BAssertUtil.validateError(resNegative, 2, "missing non-defaultable required record field 'prop'", 1, 6);
     }

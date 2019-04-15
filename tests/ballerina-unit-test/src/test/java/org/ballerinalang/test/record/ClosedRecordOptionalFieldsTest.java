@@ -49,7 +49,7 @@ public class ClosedRecordOptionalFieldsTest {
         int i = 0;
         Assert.assertEquals(negativeResult.getErrorCount(), 2);
         BAssertUtil.validateError(negativeResult, i++, "a default value specified for optional field 'age'", 22, 5);
-        BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 35, 17);
+        BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 33, 17);
     }
 
     @Test(description = "Test creating a record with a non-defaultable required field")

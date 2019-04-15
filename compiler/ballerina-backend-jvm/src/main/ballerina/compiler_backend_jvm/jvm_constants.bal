@@ -216,6 +216,7 @@ const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
 const string BYTE_VALUE = "java/lang/Byte";
+const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 
 const string OBJECT = "java/lang/Object";
 const string MAP = "java/util/Map";
@@ -223,6 +224,12 @@ const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
 const string ARRAY_LIST = "java/util/ArrayList";
 const string LIST = "java/util/List";
 const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
+const string SCHEDULER = "org/ballerinalang/jvm/Scheduler";
+const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
+const string STRAND = "org/ballerinalang/jvm/Strand";
+const string FUNCTION = "java/util/function/Function";
+const string CONSUMER = "java/util/function/Consumer";
+const string STRING_BUILDER = "java/lang/StringBuilder";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -236,4 +243,12 @@ const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
 const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
-const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/BAttachedFunction";
+const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
+
+// service objects, annotation processing related classes
+const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
+
+// types related constants
+const string TYPES_ERROR =  "typeError";
+// exception classes
+const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";

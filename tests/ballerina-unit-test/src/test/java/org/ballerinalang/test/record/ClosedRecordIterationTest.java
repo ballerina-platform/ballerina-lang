@@ -53,56 +53,56 @@ public class ClosedRecordIterationTest {
         int index = 0;
         Assert.assertEquals(closedRecNegatives.getErrorCount(), 17);
         BAssertUtil.validateError(closedRecNegatives, index++, "operation 'sum' does not support given collection type",
-                                  24, 15);
+                                  21, 15);
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "operation 'average' does not support given collection type",
-                                  28, 15);
+                                  25, 15);
         BAssertUtil.validateError(closedRecNegatives, index++, "operation 'max' does not support given collection type",
-                                  32, 15);
+                                  29, 15);
         BAssertUtil.validateError(closedRecNegatives, index++, "operation 'min' does not support given collection type",
-                                  36, 15);
+                                  33, 15);
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "invalid tuple binding pattern; member variable count mismatch with member type count",
-                43, 17);
+                40, 17);
 
-        BAssertUtil.validateError(closedRecNegatives, index++, "undefined symbol 'val'", 44, 19);
+        BAssertUtil.validateError(closedRecNegatives, index++, "undefined symbol 'val'", 41, 19);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'", 53, 15);
+                                  "too many variables are defined for iterable type 'ClosedPerson'", 50, 15);
 
         // Test invalid map iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'", 62, 18);
+                                  "too many variables are defined for iterable type 'ClosedPerson'", 59, 18);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'map', found '(any) collection'", 66, 18);
+                                  "incompatible types: expected 'map', found '(any) collection'", 63, 18);
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'map', found '(string,any,string) collection'",
-                                  70, 18);
+                                  67, 18);
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'ClosedPerson', found '(string,any) collection'",
-                                  74, 33);
+                                  71, 33);
 
         // Test invalid filter iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'", 84, 21);
+                                  "too many variables are defined for iterable type 'ClosedPerson'", 81, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible lambda function types: expected 'boolean', found 'string'", 88, 21);
+                                  "incompatible lambda function types: expected 'boolean', found 'string'", 85, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many return arguments are defined for operation 'filter'", 92, 21);
+                                  "too many return arguments are defined for operation 'filter'", 89, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'ClosedPerson', found '(string,any) collection'",
-                                  96, 36);
+                                  93, 36);
 
         // Test mismatching chained iterable op return values
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'map<int>', found 'map<float>'",
-                                  122, 10);
+                                  119, 10);
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'int[]', found 'float[]'",
-                                  149, 10);
+                                  146, 10);
     }
 
     @Test

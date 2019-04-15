@@ -22,10 +22,9 @@ public const ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";
 # The Artemis error record.
 #
 # + message - the error message.
-public type ArtemisError record {
+public type ArtemisError record {|
     string message?;
-    !...;
-};
+|};
 
 # The url configuration for `Producer` and `Consumer`.
 #
@@ -33,13 +32,12 @@ public type ArtemisError record {
 # + port - The port
 # + username - The username
 # + password - The password
-public type URLConfiguration record {
+public type URLConfiguration record {|
     string host;
     int port;
     string username?;
     string password?;
-    !...;
-};
+|};
 
 # Determines how messages are sent to the queues associated with an address.
 public type RoutingType MULTICAST | ANYCAST;

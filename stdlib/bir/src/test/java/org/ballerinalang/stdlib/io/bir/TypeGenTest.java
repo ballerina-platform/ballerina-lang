@@ -11,6 +11,7 @@ import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -49,7 +50,7 @@ public class TypeGenTest {
 
     @BeforeClass
     public void readTestBalx() throws IOException {
-        Path filepath = Paths.get("target/bir_test.balx");
+        Path filepath = Paths.get(System.getProperty(BLangConstants.BALLERINA_HOME), "bir_test.balx");
         ProgramFileReader programFileReader = new ProgramFileReader();
         programFile = programFileReader.readProgram(filepath);
         Debugger debugger = new Debugger(programFile);
@@ -86,9 +87,13 @@ public class TypeGenTest {
         ConstantPool cp = new ConstantPool();
         byte[] typeBinary = serializeBType(type, cp);
         byte[] cpBinary = cp.serialize();
-        BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
-        Assert.assertEquals(testParseTypes[0].stringValue(), source,
-                            "Unable to recover type info from " + Arrays.toString(typeBinary));
+        try {
+            BValue[] testParseTypes = executeTestFuncInBalx(typeBinary, cpBinary);
+            Assert.assertEquals(testParseTypes[0].stringValue(), source,
+                                "Unable to recover type info from " + Arrays.toString(typeBinary));
+        } catch (Exception e) {
+            throw new AssertionError("Error deserializeing" + Arrays.toString(typeBinary), e);
+        }
 
     }
 

@@ -91,7 +91,7 @@ service PizzaService on new http:MockListener(9090) {
     }
     resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        checkpanic conn->respond(res);
     }
 }
 

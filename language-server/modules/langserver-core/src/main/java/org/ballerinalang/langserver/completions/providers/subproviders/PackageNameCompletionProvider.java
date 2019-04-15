@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
@@ -51,19 +52,26 @@ public class PackageNameCompletionProvider extends AbstractSubCompletionProvider
             String orgName = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.SLASH_KEYWORD_KEY) - 1);
             completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
         } else if (poppedTokens.contains(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
-            completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
+            completionItems.addAll(this.getItemsIncludingOrgName(packagesList));
         }
 
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getOrgNameCompletionItems(List<BallerinaPackage> packagesList) {
+    private ArrayList<CompletionItem> getItemsIncludingOrgName(List<BallerinaPackage> packagesList) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         packagesList.forEach(pkg -> {
+            String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
+            // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
+            CompletionItem fullPkgImport = getImportCompletion(fullPkgNameLabel, fullPkgNameLabel);
+            fullPkgImport.setSortText(Priority.PRIORITY120.toString());
+            completionItems.add(fullPkgImport);
             if (!orgNames.contains(pkg.getOrgName())) {
-                completionItems.add(getImportCompletion(pkg.getOrgName(), (pkg.getOrgName() + "/")));
+                CompletionItem orgNameImport = getImportCompletion(pkg.getOrgName(), (pkg.getOrgName() + "/"));
+                orgNameImport.setSortText(Priority.PRIORITY110.toString());
+                completionItems.add(orgNameImport);
                 orgNames.add(pkg.getOrgName());
             }
         });
@@ -79,8 +87,8 @@ public class PackageNameCompletionProvider extends AbstractSubCompletionProvider
             String label = ballerinaPackage.getPackageName();
             if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
                 pkgNameLabels.add(label);
-                String insertText = label + ";";
-                completionItems.add(getImportCompletion(label, insertText));
+                // Do not add the semi colon at the end of the insert text since the user might type the as keyword
+                completionItems.add(getImportCompletion(label, label));
             }
         });
         

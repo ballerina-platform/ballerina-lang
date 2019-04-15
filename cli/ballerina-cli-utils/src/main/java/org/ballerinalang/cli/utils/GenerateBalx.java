@@ -34,6 +34,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 /**
  * Class providing utility methods to generate balx from bal.
@@ -50,6 +51,10 @@ public class GenerateBalx {
             targetPath = args[2];
         } else {
             targetPath = prjctDir.resolve(sourcePath).toString();
+        }
+
+        if (args.length > 3) {
+            System.setProperty(BALLERINA_INSTALL_DIR_PROP, args[3]);
         }
 
         CompilerContext context = new CompilerContext();

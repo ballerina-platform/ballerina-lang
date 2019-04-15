@@ -37,13 +37,13 @@ public type Listener object {
     public function __stop() returns error? {
         return self.stop();
     }
-    public function __attach(service serviceType, map<any> annotationData) returns error? {
+    public function __attach(service serviceType, string? name = ()) returns error? {
         return self.createConsumer(serviceType);
     }
 
-    extern function start() returns error?;
-    extern function createConsumer(service serviceType) returns error?;
-    extern function stop() returns error?;
+    function start() returns error? = external;
+    function createConsumer(service serviceType) returns error? = external;
+    function stop() returns error? = external;
 };
 
 # The configuration for an Artemis consumer service.
@@ -52,13 +52,12 @@ public type Listener object {
 # + queueConfig - the configuration for the queue to consume from
 # + filter - only messages which match this filter will be consumed
 # + browseOnly - whether the ClientConsumer will only browse the queue or consume messages
-public type ArtemisServiceConfig record {
+public type ArtemisServiceConfig record {|
     boolean autoAck = true;
     QueueConfiguration queueConfig;
     string? filter = ();
     boolean browseOnly = false;
-    !...;
-};
+|};
 
 public annotation<service> ServiceConfig ArtemisServiceConfig;
 
@@ -78,7 +77,7 @@ public annotation<service> ServiceConfig ArtemisServiceConfig;
 # + purgeOnNoConsumers - whether to delete the contents of the queue when the last consumer disconnects
 # + exclusive - whether the queue should be exclusive
 # + lastValue - whether the queue should be lastValue
-public type QueueConfiguration record {
+public type QueueConfiguration record {|
     string queueName;
     string? addressName = ();
     boolean autoCreated = true;
@@ -90,5 +89,4 @@ public type QueueConfiguration record {
     boolean purgeOnNoConsumers = false;
     boolean exclusive = false;
     boolean lastValue = false;
-    !...;
-};
+|};

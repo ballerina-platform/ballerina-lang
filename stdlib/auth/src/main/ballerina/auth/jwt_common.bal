@@ -50,14 +50,13 @@ const string IAT = "iat";
 # + cty - Content type, convey structural information about the JWT
 # + kid - Key ID, hint indicating which key was used to secure the JWS
 # + customClaims - Map of custom claims
-public type JwtHeader record {
+public type JwtHeader record {|
     JwtSigningAlgorithm alg?;
     string typ?;
     string cty?;
     string kid?;
     map<any> customClaims?;
-    !...;
-};
+|};
 
 # Represents a JWT payload.
 # + iss - Issuer, identifies the principal that issued the JWT
@@ -68,7 +67,7 @@ public type JwtHeader record {
 # + nbf - Not before, identifies the time before which the JWT must not be accepted
 # + iat - Issued at, identifies the time at which the JWT was issued
 # + customClaims - Map of custom claims
-public type JwtPayload record {
+public type JwtPayload record {|
     string iss?;
     string sub?;
     string[] aud?;
@@ -77,5 +76,4 @@ public type JwtPayload record {
     int nbf?;
     int iat?;
     map<any> customClaims?;
-    !...;
-};
+|};

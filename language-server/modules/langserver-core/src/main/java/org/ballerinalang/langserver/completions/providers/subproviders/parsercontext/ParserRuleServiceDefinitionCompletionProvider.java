@@ -70,14 +70,12 @@ public class ParserRuleServiceDefinitionCompletionProvider extends AbstractSubCo
             startIndex = token.getTokenIndex();
         }
 
-        boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
-
         switch (stopToken) {
             case ItemResolverConstants.ON : {
                 // suggest all the visible, defined listeners
                 List<SymbolInfo> filtered = this.filterListenerVariables(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
                 completionItems.addAll(this.getCompletionItemList(filtered, ctx));
-                completionItems.add(Snippet.KW_NEW.get().build(ctx, isSnippet));
+                completionItems.add(Snippet.KW_NEW.get().build(ctx));
                 break;
             }
             case ItemResolverConstants.NEW: {
@@ -96,7 +94,7 @@ public class ParserRuleServiceDefinitionCompletionProvider extends AbstractSubCo
             }
             default: {
                 // Fill the on keyword completion item
-                completionItems.add(Snippet.KW_ON.get().build(ctx, isSnippet));
+                completionItems.add(Snippet.KW_ON.get().build(ctx));
                 break;
             }
         }

@@ -42,7 +42,7 @@ public interface Task {
      * @param context Ballerina context which runs the services.
      * @throws SchedulingException When there is a failure to stop the task after maximum number of runs specified.
      */
-    void run(Context context) throws SchedulingException;
+    void start(Context context) throws SchedulingException;
 
     /**
      * Stop the task.

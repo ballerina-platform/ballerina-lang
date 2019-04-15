@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm;
 
+import java.util.concurrent.Future;
+
 /**
  * Strand base class used with jvm code generation for functions.
  *
@@ -27,4 +29,12 @@ public class Strand {
     public boolean yield;
     public Object[] frames;
     public int resumeIndex;
+    public Future future;
+    public boolean blocked;
+    public Strand blockedOn;
+    public Scheduler scheduler;
+
+    public Strand(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
 }
