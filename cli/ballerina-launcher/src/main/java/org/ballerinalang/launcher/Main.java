@@ -88,6 +88,7 @@ public class Main {
 
             // Run command
             RunCmd runCmd = new RunCmd();
+            cmdParser.addSubcommand(BallerinaCliCommands.RUN, runCmd);
             runCmd.setParentCmdParser(cmdParser);
 
             // Set stop at positional before the other commands are added as sub commands, to enforce ordering only
