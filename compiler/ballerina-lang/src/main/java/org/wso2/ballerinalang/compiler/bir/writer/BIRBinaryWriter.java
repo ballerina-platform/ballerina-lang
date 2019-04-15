@@ -51,6 +51,8 @@ public class BIRBinaryWriter {
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, typeWriter, cp);
+
 
         // Write the package details in the form of constant pool entry
         int orgCPIndex = addStringCPEntry(birPackage.org.value);
@@ -58,16 +60,15 @@ public class BIRBinaryWriter {
         int versionCPIndex = addStringCPEntry(birPackage.version.value);
         int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         birbuf.writeInt(pkgIndex);
-        birbuf.writeInt(addStringCPEntry(birPackage.sourceFileName.value));
 
         //Write import module declarations
         writeImportModuleDecls(birbuf, birPackage.importModules);
         // Write type defs
-        writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
+        writeTypeDefs(birbuf, typeWriter, insWriter, birPackage.typeDefs);
         // Write global vars
         writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
         // Write functions
-        writeFunctions(birbuf, typeWriter, birPackage.functions);
+        writeFunctions(birbuf, typeWriter, insWriter, birPackage.functions);
 
         // Write the constant pool entries.
         // TODO Only one constant pool is available for now. This will change in future releases
@@ -95,9 +96,10 @@ public class BIRBinaryWriter {
         });
     }
 
-    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
+    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter,  BIRInstructionWriter insWriter,
+                               List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
-        birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
+        birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, insWriter, typeDef));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
@@ -114,7 +116,9 @@ public class BIRBinaryWriter {
         }
     }
 
-    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {
+    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter,  BIRInstructionWriter insWriter,
+                           BIRTypeDefinition typeDef) {
+        insWriter.writePosition(typeDef.pos);
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Visibility
@@ -123,18 +127,19 @@ public class BIRBinaryWriter {
 
         int defType = typeDef.type.tag;
         if (defType == TypeTags.OBJECT || defType == TypeTags.RECORD) {
-            writeFunctions(buf, typeWriter, typeDef.attachedFuncs);
+            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
         }
     }
 
-    private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRNode.BIRFunction> birFunctionList) {
+    private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
+                                List<BIRNode.BIRFunction> birFunctionList) {
         buf.writeInt(birFunctionList.size());
-        birFunctionList.forEach(func -> writeFunction(buf, typeWriter, func));
+        birFunctionList.forEach(func -> writeFunction(buf, typeWriter, insWriter, func));
     }
 
-    private void writeFunction(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRFunction birFunction) {
+    private void writeFunction(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
+                               BIRNode.BIRFunction birFunction) {
 
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(buf, typeWriter, cp);
         // Write Position
         insWriter.writePosition(birFunction.pos);
         // Function name CP Index
