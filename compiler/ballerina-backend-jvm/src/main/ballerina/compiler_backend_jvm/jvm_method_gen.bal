@@ -50,14 +50,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv, module.typeDefs);
 
-        mv.visitTypeInsn(NEW, typeOwnerClass);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
-        mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(currentPackageName);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
-                                io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
+        if (!"".equalsIgnoreCase(currentPackageName)) {
+            mv.visitTypeInsn(NEW, typeOwnerClass);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+            mv.visitVarInsn(ASTORE, 1);
+            mv.visitLdcInsn(currentPackageName);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
+                                    io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
+        }
 
     }
 
