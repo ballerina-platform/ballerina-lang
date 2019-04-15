@@ -3567,7 +3567,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangInvocation visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
+    BLangInvocation visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
                                                       List<BLangExpression> requiredArgs) {
         BInvokableSymbol invokableSymbol
                 = (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),

@@ -20,6 +20,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -54,7 +56,9 @@ public class AnnotationDesugar {
     private static final CompilerContext.Key<AnnotationDesugar> ANNOTATION_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
+    private final Desugar desugar;
     private final SymbolTable symTable;
+    private final Types types;
     private final Names names;
 
     public static AnnotationDesugar getInstance(CompilerContext context) {
@@ -67,7 +71,9 @@ public class AnnotationDesugar {
 
     private AnnotationDesugar(CompilerContext context) {
         context.put(ANNOTATION_DESUGAR_KEY, this);
+        this.desugar = Desugar.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -173,7 +179,8 @@ public class AnnotationDesugar {
     private void initAnnotation(BLangAnnotationAttachment attachment, BLangSimpleVariable annotationMapEntryVar,
                                 BLangBlockStmt target, BSymbol parentSymbol, int index) {
         BLangSimpleVariable annotationVar = null;
-        if (attachment.annotationSymbol.attachedType != null) {
+        if (attachment.annotationSymbol.attachedType != null &&
+                !types.isAssignable(attachment.annotationSymbol.attachedType.type, symTable.trueType)) {
             // create: AttachedType annotationVar = { annotation-expression }
             annotationVar = ASTBuilderUtil.createVariable(attachment.pos,
                     attachment.annotationName.value, attachment.annotationSymbol.attachedType.type);
@@ -184,11 +191,23 @@ public class AnnotationDesugar {
 
         // create: annotationMapEntryVar["name$index"] = annotationVar;
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(target.pos, target);
+
+        BLangExpression annotationVarExpr;
         if (annotationVar != null) {
-            assignmentStmt.expr = ASTBuilderUtil.createVariableRef(target.pos, annotationVar.symbol);
+            annotationVarExpr = ASTBuilderUtil.createVariableRef(target.pos, annotationVar.symbol);
         } else {
-            assignmentStmt.expr = ASTBuilderUtil.createLiteral(target.pos, symTable.nilType, null);
+            // Handle scenarios where type is a subtype of `true` explicitly or implicitly (by omission).
+            annotationVarExpr = ASTBuilderUtil.wrapToConversionExpr(symTable.trueType,
+                                                                    ASTBuilderUtil.createLiteral(target.pos,
+                                                                                                 symTable.booleanType,
+                                                                                                 Boolean.TRUE),
+                                                                    symTable, types);
         }
+
+//        assignmentStmt.expr = desugar.visitUtilMethodInvocation(annotationVarExpr.pos, BLangBuiltInMethod.FREEZE,
+//                                                                Lists.of(annotationVarExpr));
+        assignmentStmt.expr = annotationVarExpr;
+
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = target.pos;
         indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType,
