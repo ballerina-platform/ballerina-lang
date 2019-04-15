@@ -143,7 +143,8 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName) {
-        Path rootPath = Paths.get(sourceRoot);
+        String filePath = concatFileName(sourceRoot, resourceDir);
+        Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
         return getCompileResult(packageName, rootPath, packagePath);
     }
