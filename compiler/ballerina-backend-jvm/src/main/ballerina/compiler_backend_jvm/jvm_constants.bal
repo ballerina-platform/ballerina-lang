@@ -249,3 +249,6 @@ const string PRINT_STACKTRACE_ON_MAIN_METHOD_ERROR = "printStackTraceOnMainMetho
 
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
+
+// Name of the class to which the types will be added as static fields.
+const string INIT_CLASS_NAME = "$Init";
