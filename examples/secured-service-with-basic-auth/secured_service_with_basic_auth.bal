@@ -13,7 +13,7 @@ http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 // resource level.
 listener http:Listener ep = new(9090, config = {
     auth: {
-        authnHandlers: [basicAuthProvider]
+        authnHandlers: [basicAuthnHandler]
     },
     // The secure hello world sample uses https.
     secureSocket: {

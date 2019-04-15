@@ -31,13 +31,13 @@ public function main() {
     }
 }
 
-// Create a basic authentication provider with the relevant configurations.
+// Create a basic authentication handler with the relevant configurations.
 auth:ConfigAuthStoreProvider basicAuthProvider = new;
 http:BasicAuthnHandler basicAuthnHandler = new(basicAuthProvider);
 
 listener http:Listener ep  = new(9090, config = {
     auth: {
-        authnHandlers: [basicAuthProvider]
+        authnHandlers: [basicAuthnHandler]
     },
     secureSocket: {
         keyStore: {

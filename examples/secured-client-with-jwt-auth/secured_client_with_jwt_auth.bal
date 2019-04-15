@@ -38,7 +38,8 @@ public function main() {
     }
 }
 
-// Create a JWT authentication provider with the relevant configurations.
+// Create a JWT authentication provider with the relevant configuration
+// parameters.
 auth:JWTAuthProvider jwtAuthProvider = new({
     issuer: "ballerina",
     audience: ["ballerina.io"],
@@ -49,9 +50,12 @@ auth:JWTAuthProvider jwtAuthProvider = new({
     }
 });
 
+// Create a JWT authentication handler with the created JWT auth provider
+http:JwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+
 listener http:Listener ep = new(9090, config = {
     auth: {
-        authnHandlers: [jwtAuthProvider]
+        authnHandlers: [jwtAuthnHandler]
     },
     secureSocket: {
         keyStore: {
