@@ -36,12 +36,11 @@ public type AuthnFilter object {
     # + return - True if the filter succeeds
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean authenticated = true;
-        var resourceAuthConfig = getServiceResourceAuthConfig(context);
-        var resourceAuthHandlers = resourceAuthConfig["authnHandlers"];
-        if (resourceAuthHandlers is AuthnHandler[]) {
-            if (resourceAuthHandlers.length() > 0) {
-                authenticated = handleAuthnRequest(resourceAuthHandlers, request);
-            } else {
+        var authnHandlers = getAuthnHandlers(context);
+        if (authnHandlers is AuthnHandler[]) {
+            authenticated = handleAuthnRequest(authnHandlers, request);
+        } else {
+            if (authnHandlers) {
                 authenticated = handleAuthnRequest(self.authnHandlers, request);
             }
         }

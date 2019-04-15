@@ -60,33 +60,105 @@ public function extractBasicAuthHeaderValue(Request req) returns string? {
     }
 }
 
-# Tries to retrieve the annotation value for authentication hierarchically - first from the resource level and then
+# Tries to retrieve the authentication handlers hierarchically - first from the resource level and then
 # from the service level, if it is not there in the resource level.
 #
 # + context - `FilterContext` instance
-# + return - `ServiceResourceAuth` instance if its defined, else nil
-function getServiceResourceAuthConfig(FilterContext context) returns ServiceResourceAuth? {
+# + return - Authentication handlers or whether it is needed to engage listener level handlers or not
+function getAuthnHandlers(FilterContext context) returns AuthnHandler[]|boolean {
+    ServiceResourceAuth? resourceLevelAuthAnn;
+    ServiceResourceAuth? serviceLevelAuthAnn;
+    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+
+     // check if authentication is enabled for resource and service
+    boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
+    boolean serviceSecured = isServiceResourceSecured(serviceLevelAuthAnn);
+
+    // if resource is not secured, no need to check further
+    if (!resourceSecured) {
+        return false;
+    }
+    // check if auth providers are given at resource level
+    if (resourceLevelAuthAnn is ServiceResourceAuth) {
+        var resourceAuthHandlers = resourceLevelAuthAnn["authnHandlers"];
+        if (resourceAuthHandlers is AuthnHandler[]) {
+            if (resourceAuthHandlers.length() > 0) {
+                return resourceAuthHandlers;
+            }
+        }
+    }
+
+    // if service is not secured, no need to check further
+    if (!serviceSecured) {
+        return true;
+    }
+    // no auth providers found in resource level, try in service level
+    if (serviceLevelAuthAnn is ServiceResourceAuth) {
+        var serviceAuthHandlers = serviceLevelAuthAnn["authnHandlers"];
+        if (serviceAuthHandlers is AuthnHandler[]) {
+            if (serviceAuthHandlers.length() > 0) {
+                return serviceAuthHandlers;
+            }
+        }
+    }
+    return true;
+}
+
+# Tries to retrieve the authorization scopes hierarchically - first from the resource level and then
+# from the service level, if it is not there in the resource level.
+#
+# + context - `FilterContext` instance
+# + return - Authorization scopes or whether it is needed to engage listener level scopes or not
+function getScopes(FilterContext context) returns string[]|boolean {
+    ServiceResourceAuth? resourceLevelAuthAnn;
+    ServiceResourceAuth? serviceLevelAuthAnn;
+    (resourceLevelAuthAnn, serviceLevelAuthAnn) = getServiceResourceAuthConfig(context);
+
+    // check if authentication is enabled for resource and service
+    boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn);
+    boolean serviceSecured = isServiceResourceSecured(serviceLevelAuthAnn);
+
+    // if resource is not secured, no need to check further
+    if (!resourceSecured) {
+        return false;
+    }
+    // check if auth providers are given at resource level
+    if (resourceLevelAuthAnn is ServiceResourceAuth) {
+        var resourceScopes = resourceLevelAuthAnn["scopes"];
+        if (resourceScopes is string[]) {
+            if (resourceScopes.length() > 0) {
+                return resourceScopes;
+            }
+        }
+    }
+
+    // if service is not secured, no need to check further
+    if (!serviceSecured) {
+        return true;
+    }
+    // no auth providers found in resource level, try in service level
+    if (serviceLevelAuthAnn is ServiceResourceAuth) {
+        var serviceScopes = serviceLevelAuthAnn["scopes"];
+        if (serviceScopes is string[]) {
+            if (serviceScopes.length() > 0) {
+                return serviceScopes;
+            }
+        }
+    }
+    return true;
+}
+
+# Retrieve the authentication annotation value for resource level and service level.
+#
+# + context - `FilterContext` instance
+# + return - Resource level and service level authentication annotations
+function getServiceResourceAuthConfig(FilterContext context) returns (ServiceResourceAuth?, ServiceResourceAuth?) {
     // get authn details from the resource level
     ServiceResourceAuth? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
         reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ServiceResourceAuth? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
         reflect:getServiceAnnotations(context.serviceRef));
-    // check if authentication is enabled
-    boolean resourceSecured = isServiceResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
-    // if resource is not secured, no need to check further
-    if (!resourceSecured) {
-        return ();
-    }
-
-    // check if auth providers are given at resource level
-    if (resourceLevelAuthAnn is ServiceResourceAuth) {
-        return resourceLevelAuthAnn;
-    } else {
-        // no auth providers found in resource level, try in service level
-        if (serviceLevelAuthAnn is ServiceResourceAuth) {
-            return serviceLevelAuthAnn;
-        }
-    }
+    return (resourceLevelAuthAnn, serviceLevelAuthAnn);
 }
 
 # Retrieves and return the auth annotation with the given module name, annotation name and annotation data.
@@ -119,16 +191,12 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
 
 # Check for the service or the resource is secured by evaluating the enabled flag configured by the user.
 #
-# + resourceLevelAuthAnn - Resource level auth annotations
-# + serviceLevelAuthAnn - Service level auth annotations
+# + serviceResourceAuth - Service or resource auth annotation
 # + return - Whether the service or resource secured or not
-function isServiceResourceSecured(ServiceResourceAuth? resourceLevelAuthAnn,
-                                  ServiceResourceAuth? serviceLevelAuthAnn) returns boolean {
+function isServiceResourceSecured(ServiceResourceAuth? serviceResourceAuth) returns boolean {
     boolean secured = true;
-    if (resourceLevelAuthAnn is ServiceResourceAuth) {
-        secured = resourceLevelAuthAnn.enabled;
-    } else if (serviceLevelAuthAnn is ServiceResourceAuth) {
-        secured = serviceLevelAuthAnn.enabled;
+    if (serviceResourceAuth is ServiceResourceAuth) {
+        secured = serviceResourceAuth.enabled;
     }
     return secured;
 }
