@@ -32,9 +32,9 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {
 
-    private final int servicePort = 9094;
-    private final int servicePortForExpiredCertificateTest = 9101;
-    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9102;
+    private final int servicePort = 9093;
+    private final int servicePortForExpiredCertificateTest = 9097;
+    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9098;
 
     @Test(description = "Auth with JWT signed with expired trusted certificate")
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {
@@ -61,7 +61,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
                 "18xqUzweCRL-DLAAYwjbzGQ56ekbEdAg02sFco4aozOyt8OUDwS9cH_JlhUn2JEHmVKaatljEnfgRc8fOW6Y5IJ7dOPp7ra5e" +
                 "00sk7JwYY8wKaZWxAGSgRpWgTY6C4XRjGIsR5ZWQdXCAnV27idGDrtR2uG4YQwCWUCzA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                        .getServiceURLHttps(servicePortForExpiredCertificateTest, "echo13/test13"),
+                        .getServiceURLHttps(servicePortForExpiredCertificateTest, "echo/test"),
                 headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
@@ -93,7 +93,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
                 "00sk7JwYY8wKaZWxAGSgRpWgTY6C4XRjGIsR5ZWQdXCAnV27idGDrtR2uG4YQwCWUCzA");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance
                         .getServiceURLHttps(servicePortForExpiredCertificateTestWithNoExpiryValidation,
-                                "echo14/test14"), headersMap, serverInstance.getServerHome());
+                                "echo/test"), headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }

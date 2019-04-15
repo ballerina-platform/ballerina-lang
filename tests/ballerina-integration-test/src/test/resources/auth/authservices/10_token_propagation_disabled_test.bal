@@ -21,7 +21,7 @@ import ballerina/http;
 auth:ConfigAuthStoreProvider basicAuthProvider10 = new;
 http:BasicAuthnHandler basicAuthnHandler10 = new(basicAuthProvider10);
 
-listener http:Listener listener10_1 = new(9190, config = {
+listener http:Listener listener10_1 = new(9099, config = {
     auth: {
         authnHandlers: [basicAuthnHandler10]
     },
@@ -34,10 +34,10 @@ listener http:Listener listener10_1 = new(9190, config = {
 });
 
 // client will not propagate JWT
-http:Client nyseEP = new("https://localhost:9195");
+http:Client nyseEP = new("https://localhost:9100");
 
 @http:ServiceConfig { basePath: "/passthrough" }
-service passthroughService on listener10_1 {
+service passthroughService10 on listener10_1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -69,7 +69,7 @@ auth:JWTAuthProvider jwtAuthProvider10 = new({
 
 http:JwtAuthnHandler jwtAuthnHandler10 = new(jwtAuthProvider10);
 
-listener http:Listener listener10_2 = new(9195, config = {
+listener http:Listener listener10_2 = new(9100, config = {
     auth: {
         authnHandlers: [jwtAuthnHandler10]
     },
@@ -82,7 +82,7 @@ listener http:Listener listener10_2 = new(9195, config = {
 });
 
 @http:ServiceConfig { basePath: "/nyseStock" }
-service nyseStockQuote on listener10_2 {
+service nyseStockQuote10 on listener10_2 {
 
     @http:ResourceConfig {
         methods: ["GET"],

@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:JWTAuthProvider jwtAuthProvider17_1 = new({
+auth:JWTAuthProvider jwtAuthProvider14_1 = new({
     issuer: "example1",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -27,11 +27,11 @@ auth:JWTAuthProvider jwtAuthProvider17_1 = new({
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler17_1 = new(jwtAuthProvider17_1);
+http:JwtAuthnHandler jwtAuthnHandler14_1 = new(jwtAuthProvider14_1);
 
-listener http:Listener listener17_1 = new(9107, config = {
+listener http:Listener listener14_1 = new(9107, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler17_1]
+        authnHandlers: [jwtAuthnHandler14_1]
     },
     secureSocket: {
         keyStore: {
@@ -41,7 +41,7 @@ listener http:Listener listener17_1 = new(9107, config = {
     }
 });
 
-http:Client nyseEP17 = new("https://localhost:9108", config = {
+http:Client nyseEP14 = new("https://localhost:9108", config = {
     auth: {
         scheme: http:JWT_AUTH,
         config: {
@@ -60,14 +60,14 @@ http:Client nyseEP17 = new("https://localhost:9108", config = {
 });
 
 @http:ServiceConfig { basePath: "/passthrough" }
-service passthroughService17 on listener17_1 {
+service passthroughService14 on listener14_1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP17->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP14->get("/nyseStock/stocks", message = untaint clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -80,7 +80,7 @@ service passthroughService17 on listener17_1 {
     }
 }
 
-auth:JWTAuthProvider jwtAuthProvider17_2 = new({
+auth:JWTAuthProvider jwtAuthProvider14_2 = new({
     issuer: "example2aaaaaaaaaaaaaa",
     audience: ["ballerina"],
     certificateAlias: "ballerina",
@@ -90,11 +90,11 @@ auth:JWTAuthProvider jwtAuthProvider17_2 = new({
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler17_2 = new(jwtAuthProvider17_2);
+http:JwtAuthnHandler jwtAuthnHandler14_2 = new(jwtAuthProvider14_2);
 
-listener http:Listener listener17_2 = new(9108, config = {
+listener http:Listener listener14_2 = new(9108, config = {
         auth: {
-            authnHandlers: [jwtAuthnHandler17_2]
+            authnHandlers: [jwtAuthnHandler14_2]
         },
         secureSocket: {
             keyStore: {
@@ -105,7 +105,7 @@ listener http:Listener listener17_2 = new(9108, config = {
     });
 
 @http:ServiceConfig { basePath: "/nyseStock" }
-service nyseStockQuote17 on listener17_2 {
+service nyseStockQuote14 on listener14_2 {
 
     @http:ResourceConfig {
         methods: ["GET"],

@@ -32,7 +32,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class ResourceLevelAuthTest extends AuthBaseTest {
 
-    private final int servicePort = 9093;
+    private final int servicePort = 9092;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccessWithResourceLevelConfigs() throws Exception {

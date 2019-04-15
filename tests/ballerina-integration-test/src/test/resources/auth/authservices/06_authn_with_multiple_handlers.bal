@@ -17,21 +17,33 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:JWTAuthProvider jwtAuthProvider13 = new({
-    issuer:"ballerina",
-    audience: ["ballerina.io"],
-    certificateAlias: "cert",
+auth:JWTAuthProvider jwtAuthProvider06_1 = new({
+    issuer: "example1",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
     trustStore: {
-        path: "../../../src/test/resources/auth/testtruststore.p12",
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
         password: "ballerina"
     }
 });
 
-http:JwtAuthnHandler jwtAuthnHandler13 = new(jwtAuthProvider13);
+auth:JWTAuthProvider jwtAuthProvider06_2 = new({
+    issuer: "example2",
+    audience: ["ballerina"],
+    certificateAlias: "ballerina",
+    trustStore: {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        password: "ballerina"
+    }
+});
 
-listener http:Listener listener13 = new(9101, config = {
+
+http:JwtAuthnHandler jwtAuthnHandler06_1 = new(jwtAuthProvider06_1);
+http:JwtAuthnHandler jwtAuthnHandler06_2 = new(jwtAuthProvider06_2);
+
+listener http:Listener listener06 = new(9095, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler13]
+        authnHandlers: [jwtAuthnHandler06_1, jwtAuthnHandler06_2]
     },
     secureSocket: {
         keyStore: {
@@ -41,9 +53,12 @@ listener http:Listener listener13 = new(9101, config = {
     }
 });
 
-service echo13 on listener13 {
+@http:ServiceConfig {
+    basePath: "/echo"
+}
+service echo06 on listener06 {
 
-    resource function test13 (http:Caller caller, http:Request req) {
-        checkpanic caller -> respond(());
+    resource function test(http:Caller caller, http:Request req) {
+        checkpanic caller->respond(());
     }
 }

@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:LdapAuthStoreProviderConfig ldapConfig02 = {
+auth:LdapAuthStoreProviderConfig ldapConfig01 = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9389",
     connectionName: "uid=admin,ou=system",
@@ -40,12 +40,12 @@ auth:LdapAuthStoreProviderConfig ldapConfig02 = {
     retryAttempts: 3
 };
 
-auth:LdapAuthStoreProvider ldapAuthStoreProvider02 = new(ldapConfig02, "ldap01");
-http:BasicAuthnHandler ldapAuthnHandler02 = new(ldapAuthStoreProvider02);
+auth:LdapAuthStoreProvider ldapAuthStoreProvider01 = new(ldapConfig01, "ldap01");
+http:BasicAuthnHandler ldapAuthnHandler01 = new(ldapAuthStoreProvider01);
 
-listener http:Listener ep = new(9096, config = {
+listener http:Listener authEP = new(9110, config = {
     auth: {
-        authnHandlers: [ldapAuthnHandler02]
+        authnHandlers: [ldapAuthnHandler01]
     },
     secureSocket: {
         keyStore: {
@@ -56,31 +56,12 @@ listener http:Listener ep = new(9096, config = {
 });
 
 @http:ServiceConfig {
-    basePath: "/ldapAuth",
+    basePath: "/auth",
     auth: {
         enabled: true
     }
 }
-service helloService on ep {
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/disableAuthz"
-    }
-    resource function disableAuthz(http:Caller caller, http:Request req) {
-        checkpanic caller->respond("Hello, World!!!");
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/enableAuthz",
-        auth: {
-            scopes: ["test"]
-        }
-    }
-    resource function enableAuthz(http:Caller caller, http:Request req) {
-        checkpanic caller->respond("Hello, World!!!");
-    }
+service authService on authEP {
 
     @http:ResourceConfig {
         methods: ["GET"],

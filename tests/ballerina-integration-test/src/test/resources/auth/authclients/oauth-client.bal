@@ -17,7 +17,7 @@
 import ballerina/http;
 
 // Test the client credentials grant type with valid credentials
-http:Client clientEP1 = new("https://localhost:9095", config = {
+http:Client clientEP1 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -33,7 +33,7 @@ http:Client clientEP1 = new("https://localhost:9095", config = {
     });
 
 // Test the client credentials grant type with invalid client credentials
-http:Client clientEP2 = new("https://localhost:9095", config = {
+http:Client clientEP2 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -49,7 +49,7 @@ http:Client clientEP2 = new("https://localhost:9095", config = {
     });
 
 // Test the client credentials grant type with a post-body bearer and valid credentials
-http:Client clientEP3 = new("https://localhost:9095", config = {
+http:Client clientEP3 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -66,7 +66,7 @@ http:Client clientEP3 = new("https://localhost:9095", config = {
     });
 
 // Test the client credentials grant type with a post-body bearer and invalid credentials
-http:Client clientEP4 = new("https://localhost:9095", config = {
+http:Client clientEP4 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -83,7 +83,7 @@ http:Client clientEP4 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with valid credentials
-http:Client clientEP5 = new("https://localhost:9095", config = {
+http:Client clientEP5 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -101,7 +101,7 @@ http:Client clientEP5 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with valid credentials and a valid refresh config
-http:Client clientEP6 = new("https://localhost:9095", config = {
+http:Client clientEP6 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -123,7 +123,7 @@ http:Client clientEP6 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with an invalid username, password, and a valid refresh config
-http:Client clientEP7 = new("https://localhost:9095", config = {
+http:Client clientEP7 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -145,7 +145,7 @@ http:Client clientEP7 = new("https://localhost:9095", config = {
     });
 
 // Test the password grant type with a bearer without credentials and a valid username and password
-http:Client clientEP8 = new("https://localhost:9095", config = {
+http:Client clientEP8 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -162,7 +162,7 @@ http:Client clientEP8 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with valid credentials and without a refresh config
-http:Client clientEP9 = new("https://localhost:9095", config = {
+http:Client clientEP9 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -175,7 +175,7 @@ http:Client clientEP9 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with an invalid access token and without a refresh config
-http:Client clientEP10 = new("https://localhost:9095", config = {
+http:Client clientEP10 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -188,7 +188,7 @@ http:Client clientEP10 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with an invalid access token and a valid refresh config
-http:Client clientEP11 = new("https://localhost:9095", config = {
+http:Client clientEP11 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -208,7 +208,7 @@ http:Client clientEP11 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode (with the retrying request set as false) with an invalid access token and without a refresh config
-http:Client clientEP12 = new("https://localhost:9095", config = {
+http:Client clientEP12 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -222,7 +222,7 @@ http:Client clientEP12 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode (with the retrying request set as false) with an invalid access token and a valid refresh config
-http:Client clientEP13 = new("https://localhost:9095", config = {
+http:Client clientEP13 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {
@@ -243,7 +243,7 @@ http:Client clientEP13 = new("https://localhost:9095", config = {
     });
 
 // Test the direct token mode with an invalid access token and an invalid refresh config
-http:Client clientEP14 = new("https://localhost:9095", config = {
+http:Client clientEP14 = new("https://localhost:9195", config = {
         auth: {
             scheme: http:OAUTH2,
             config: {

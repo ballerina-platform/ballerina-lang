@@ -17,14 +17,12 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:ConfigAuthStoreProvider basicAuthProvider12_1 = new;
-auth:ConfigAuthStoreProvider basicAuthProvider12_2 = new;
-http:BasicAuthnHandler basicAuthnHandler12_1 = new(basicAuthProvider12_1);
-http:BasicAuthnHandler basicAuthnHandler12_2 = new(basicAuthProvider12_2);
+auth:ConfigAuthStoreProvider basicAuthProvider04 = new;
+http:BasicAuthnHandler basicAuthnHandler04 = new(basicAuthProvider04);
 
-listener http:Listener listener12 = new(9194, config = {
+listener http:Listener listener04 = new(9093, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler12_1]
+        authnHandlers: [basicAuthnHandler04]
     },
     secureSocket: {
         keyStore: {
@@ -37,18 +35,24 @@ listener http:Listener listener12 = new(9194, config = {
 @http:ServiceConfig {
     basePath: "/echo",
     auth: {
-        authnHandlers: [basicAuthnHandler12_2],
         enabled: true,
         scopes: ["scope2"]
     }
 }
-service echo12 on listener12 {
+service echo04 on listener04 {
+
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function test(http:Caller caller, http:Request req) {
+        checkpanic caller->respond(());
+    }
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/test"
+        path: "/path/{id}"
     }
-    resource function echo(http:Caller caller, http:Request req) {
+    resource function path(http:Caller caller, http:Request req, string id) {
         checkpanic caller->respond(());
     }
 }

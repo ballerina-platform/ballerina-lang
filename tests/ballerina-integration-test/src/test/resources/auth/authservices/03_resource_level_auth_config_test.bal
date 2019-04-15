@@ -33,22 +33,18 @@ listener http:Listener listener03 = new(9092, config = {
 });
 
 @http:ServiceConfig {
-    basePath: "/echo",
-    auth: {
-        enabled: true,
-        scopes: ["xxx"]
-    }
+    basePath: "/echo"
 }
 service echo03 on listener03 {
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/test",
         auth: {
-            scopes: ["scope2", "scope4"]
+            enabled: true,
+            scopes: ["scope4"]
         }
     }
-    resource function echo(http:Caller caller, http:Request req) {
+    resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }

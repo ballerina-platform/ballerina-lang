@@ -32,35 +32,95 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthzConfigInheritanceTest extends AuthBaseTest {
 
-    private final int servicePort = 9092;
+    private final int servicePort = 9091;
 
-    @Test(description = "Authn and authz success test case")
-    public void testAuthSuccessWithInheritedAuthzConfigs() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                .getServiceURLHttps(servicePort, "echo/test"), headers, serverInstance.getServerHome());
+    @Test(description = "Service level valid scopes and resource level valid scopes test case")
+    public void testValidAuthHeaders1() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test1"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @Test(description = "Authn success and authz failure test case")
-    public void testAuthzFailureWithInheritedAuthzConfigs() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                .getServiceURLHttps(servicePort, "echo/test"), headers, serverInstance.getServerHome());
+    @Test(description = "Service level valid scopes and resource level invalid scopes test case")
+    public void testValidAuthHeaders2() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test2"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
-    @Test(description = "Authn and authz failure test case")
-    public void testAuthFailureWithInheritedAuthzConfigs() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance
-                .getServiceURLHttps(servicePort, "echo/test"), headers, serverInstance.getServerHome());
+    @Test(description = "Service level valid scopes and resource level scopes not given test case")
+    public void testValidAuthHeaders3() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo1/test3"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Service level invalid scopes and resource level valid scopes test case")
+    public void testValidAuthHeaders4() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Service level invalid scopes and resource level invalid scopes test case")
+    public void testValidAuthHeaders5() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Service level invalid scopes and resource level scopes not given test case")
+    public void testValidAuthHeaders6() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo2/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Service level scopes not given and resource level valid scopes test case")
+    public void testValidAuthHeaders7() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test1"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Service level scopes not given and resource level invalid scopes test case")
+    public void testValidAuthHeaders8() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test2"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+    }
+
+    @Test(description = "Service level scopes not given and resource level scopes not given test case")
+    public void testValidAuthHeaders9() throws Exception {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo3/test3"),
+                headersMap, serverInstance.getServerHome());
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 }

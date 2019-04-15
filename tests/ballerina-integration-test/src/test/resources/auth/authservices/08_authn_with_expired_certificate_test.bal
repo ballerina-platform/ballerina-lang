@@ -17,12 +17,21 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:ConfigAuthStoreProvider basicAuthProvider07 = new;
-http:BasicAuthnHandler basicAuthnHandler07 = new(basicAuthProvider07);
+auth:JWTAuthProvider jwtAuthProvider08 = new({
+    issuer:"ballerina",
+    audience: ["ballerina.io"],
+    certificateAlias: "cert",
+    trustStore: {
+        path: "../../../src/test/resources/auth/testtruststore.p12",
+        password: "ballerina"
+    }
+});
 
-listener http:Listener listener07 = new(9098, config = {
+http:JwtAuthnHandler jwtAuthnHandler08 = new(jwtAuthProvider08);
+
+listener http:Listener listener08 = new(9097, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler07]
+        authnHandlers: [jwtAuthnHandler08]
     },
     secureSocket: {
         keyStore: {
@@ -32,9 +41,12 @@ listener http:Listener listener07 = new(9098, config = {
     }
 });
 
-service echo7 on listener07 {
+@http:ServiceConfig {
+    basePath: "/echo"
+}
+service echo08 on listener08 {
 
-    resource function test7(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+    resource function test(http:Caller caller, http:Request req) {
+        checkpanic caller -> respond(());
     }
 }

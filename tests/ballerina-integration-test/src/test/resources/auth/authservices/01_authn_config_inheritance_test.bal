@@ -33,23 +33,59 @@ listener http:Listener listener01 = new(9090, config = {
 });
 
 @http:ServiceConfig {
-    basePath: "/echo",
+    basePath: "/echo1",
     auth: {
-        enabled: true,
-        scopes: ["xxx", "aaa"]
+        enabled: true
     }
 }
-service echo01 on listener01 {
+service echo01_1 on listener01 {
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/test",
+        auth: {
+            enabled: true
+        }
+    }
+    resource function test1(http:Caller caller, http:Request req) {
+        checkpanic caller->respond(());
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
         auth: {
             enabled: false
         }
     }
-    resource function echo(http:Caller caller, http:Request req) {
+    resource function test2(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }
 
+@http:ServiceConfig {
+    basePath: "/echo2",
+    auth: {
+        enabled: false
+    }
+}
+service echo01_2 on listener01 {
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        auth: {
+            enabled: true
+        }
+    }
+    resource function test1(http:Caller caller, http:Request req) {
+        checkpanic caller->respond(());
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        auth: {
+            enabled: false
+        }
+    }
+    resource function test2(http:Caller caller, http:Request req) {
+        checkpanic caller->respond(());
+    }
+}

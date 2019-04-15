@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,18 +18,19 @@ import ballerina/auth;
 import ballerina/http;
 
 auth:JWTAuthProvider jwtAuthProvider09 = new({
-    issuer: "ballerina",
-    audience: ["ballerina"],
-    certificateAlias: "ballerina",
+    issuer:"ballerina",
+    audience: ["ballerina.io"],
+    certificateAlias: "cert",
+    validateCertificate: false,
     trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+        path: "../../../src/test/resources/auth/testtruststore.p12",
         password: "ballerina"
     }
 });
 
 http:JwtAuthnHandler jwtAuthnHandler09 = new(jwtAuthProvider09);
 
-listener http:Listener listener09 = new(9100, config = {
+listener http:Listener listener09 = new(9098, config = {
     auth: {
         authnHandlers: [jwtAuthnHandler09]
     },
@@ -42,13 +43,11 @@ listener http:Listener listener09 = new(9100, config = {
 });
 
 @http:ServiceConfig {
-    auth: {
-        scopes: ["test-scope"]
-    }
+    basePath: "/echo"
 }
-service echo9 on listener09 {
+service echo09 on listener09 {
 
-    resource function test9(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+    resource function test(http:Caller caller, http:Request req) {
+        checkpanic caller -> respond(());
     }
 }

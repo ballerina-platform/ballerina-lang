@@ -33,27 +33,11 @@ listener http:Listener listener05 = new(9094, config = {
 });
 
 @http:ServiceConfig {
-    basePath: "/echo",
-    auth: {
-        enabled: true,
-        scopes: ["scope2"]
-    }
+    basePath: "/echo"
 }
 service echo05 on listener05 {
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test"
-    }
-    resource function echo(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/path/{id}"
-    }
-    resource function path(http:Caller caller, http:Request req, string id) {
+    resource function test(http:Caller caller, http:Request req) {
         checkpanic caller->respond(());
     }
 }
