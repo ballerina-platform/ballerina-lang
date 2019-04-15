@@ -40,7 +40,7 @@ public type PackageParser object {
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
         map<VariableDcl> localVarMap = {};
         FuncBodyParser bodyParser = new(self.reader, self.typeParser, self.globalVarMap, localVarMap, typeDefs);
-        DiagnosticPos pos = bodyParser.parseDiagnosticPos();
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
         var isDeclaration = self.reader.readBoolean();
         var visibility = parseVisibility(self.reader);
@@ -78,7 +78,6 @@ public type PackageParser object {
 
     public function parsePackage() returns Package {
         ModuleID pkgId = self.reader.readModuleIDCpRef();
-        string sourceFileName = self.reader.readStringCpRef();
         ImportModule[] importModules = self.parseImportMods();
         TypeDef?[] typeDefs = self.parseTypeDefs();
         GlobalVariableDcl?[] globalVars = self.parseGlobalVars();
@@ -101,8 +100,7 @@ public type PackageParser object {
                     functions : funcs,
                     name : { value: pkgId.name }, 
                     org : { value: pkgId.org }, 
-                    versionValue : { value: pkgId.modVersion },
-                    sourceFileName: { value: sourceFileName } };
+                    versionValue : { value: pkgId.modVersion }};
     }
 
     function getBasicBlocks(FuncBodyParser bodyParser) returns BasicBlock?[] {
@@ -154,6 +152,7 @@ public type PackageParser object {
     }
 
     function parseTypeDef() returns TypeDef {
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         string name = self.reader.readStringCpRef();
         Visibility visibility = parseVisibility(self.reader);
         var bType = self.typeParser.parseType();
@@ -169,7 +168,8 @@ public type PackageParser object {
             attachedFuncs = funcs;
         }
 
-        return { name: { value: name }, visibility: visibility, typeValue: bType, attachedFuncs: attachedFuncs };
+        return { pos:pos, name: { value: name }, visibility: visibility, 
+                    typeValue:bType, attachedFuncs:attachedFuncs };
     }
 
     function parseGlobalVars() returns GlobalVariableDcl?[] {       
@@ -251,5 +251,14 @@ public function parseVisibility(BirChannelReader reader) returns Visibility {
     }
     error err = error("unknown variable visiblity tag " + b);
         panic err;
+}
+
+public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPos {
+    int sLine = reader.readInt32();
+    int eLine = reader.readInt32();
+    int sCol = reader.readInt32();
+    int eCol = reader.readInt32();
+    string sourceFileName = reader.readStringCpRef();
+    return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol, sourceFileName:sourceFileName};
 }
 

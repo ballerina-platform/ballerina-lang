@@ -39,7 +39,6 @@ public type BirEmitter object {
         println("################################# Begin bir program #################################");
         println();
         println("package ", self.pkg.org.value, "/", self.pkg.name.value, ";");
-        println("// FileName: ", self.pkg.sourceFileName.value);
         // println("version - " + pkg.versionValue);
         
         println(); // empty line

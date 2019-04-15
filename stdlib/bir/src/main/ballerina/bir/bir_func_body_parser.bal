@@ -50,7 +50,7 @@ public type FuncBodyParser object {
     }
 
     public function parseInstruction() returns Instruction {
-        DiagnosticPos pos = self.parseDiagnosticPos();
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var kindTag = self.reader.readInt8();
         InstructionKind kind = INS_KIND_CONST_LOAD;
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vars
@@ -172,7 +172,7 @@ public type FuncBodyParser object {
     }
     
     public function parseTerminator() returns Terminator {
-        DiagnosticPos pos = self.parseDiagnosticPos();
+        DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var kindTag = self.reader.readInt8();
         if (kindTag == INS_BRANCH){
             TerminatorKind kind = TERMINATOR_BRANCH;
@@ -242,14 +242,6 @@ public type FuncBodyParser object {
         error err = error("term instrucion kind " + kindTag + " not impl.");
         panic err;
     }
-    
-     public function parseDiagnosticPos() returns DiagnosticPos {
-         int sLine = self.reader.readInt32();
-         int eLine = self.reader.readInt32();
-         int sCol = self.reader.readInt32();
-         int eCol = self.reader.readInt32();
-         return { sLine:sLine, eLine:eLine, sCol:sCol, eCol:eCol};
-     }
 
     public function parseVarRef() returns VarRef {
         VarKind kind = parseVarKind(self.reader);

@@ -23,7 +23,6 @@ public type Package record {|
     Name org = {};
     BType?[] types = [];
     Name versionValue = {};
-    Name sourceFileName;
 |};
 
 public type ImportModule record {
@@ -34,6 +33,7 @@ public type ImportModule record {
 
 public type TypeDef record {
     Name name = {};
+    DiagnosticPos pos;
     Visibility visibility = "PACKAGE_PRIVATE";
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
@@ -299,6 +299,7 @@ public type DiagnosticPos record {|
     int eLine = -1;
     int sCol = -1;
     int eCol = -1;
+    string sourceFileName = "";
 |};
 
 public type ConstantLoad record {|
