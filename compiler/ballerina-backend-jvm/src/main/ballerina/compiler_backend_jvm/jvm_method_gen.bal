@@ -20,7 +20,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(untaint func.name.value);
-
     int returnVarRefIndex = -1;
 
     // generate method desc
@@ -598,7 +597,9 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     return userMainFunc;
 }
 
-function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg) {
+function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg,  string mainClass,
+                            string initClass) {
+    
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
     
     BalToJVMIndexMap indexMap = new;
@@ -608,14 +609,13 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     errorGen.generateTryIns(endLabel, handlerLabel);
     
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-    string mainClass = lookupFullQualifiedClassName(pkgName + userMainFunc.name.value);
 
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, mainClass, initFuncName, 
+        mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName,
                 "(Lorg/ballerinalang/jvm/Strand;)V", false);
     }
 
@@ -759,13 +759,13 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
-                                                                importedPkg.name.value);
+                                                                INIT_CLASS_NAME);
             mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                    "(Lorg/ballerinalang/jvm/Strand;)Ljava/lang/Object;", false);
-            mv.visitInsn(POP);
+                    "(Lorg/ballerinalang/jvm/Strand;)V", false);
+          //  mv.visitInsn(POP);
         }
         generateInitFunctionInvocation(importedPkg, mv);
     }
@@ -842,28 +842,30 @@ type BalToJVMIndexMap object {
     }
 };
 
-function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
+function generateFrameClasses(bir:Package pkg, JavaClass class, map<byte[]> pkgEntries) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
-    foreach var func in pkg.functions {
-        generateFrameClassForFunction(pkgName, func, pkgEntries);
+    foreach var func in class.functions {
+        generateFrameClassForFunction(pkgName, class.sourceFileName, func, pkgEntries);
     }
 
-    foreach var typeDef in pkg.typeDefs {
+    foreach var typeDef in class.typeDefs {
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=typeDef.typeValue);
+                generateFrameClassForFunction(pkgName, class.sourceFileName, func, pkgEntries,
+                                              attachedType=typeDef.typeValue);
             }
         }
     }
 }
 
-function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
-                                        bir:BType? attachedType = ()) {
+function generateFrameClassForFunction (string pkgName, string sourceFileName, bir:Function? func, 
+                                        map<byte[]> pkgEntries, bir:BType? attachedType = ()) {
     bir:Function currentFunc = getFunction(untaint func);
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+    cw.visitSource(sourceFileName);
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw);
 
@@ -896,6 +898,10 @@ function getFrameClassName(string pkgName, string funcName, bir:BType attachedTy
 # Cleanup type name by replacing '$' with '_'.
 function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
+}
+
+function cleanupFileName(string name) returns string {
+    return name.replace(".bal","");
 }
 
 function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName) {

@@ -24,6 +24,13 @@ public type JarFile record {|
     map<byte[]> jarEntries;
 |};
 
+public type JavaClass record {|
+    string sourceFileName;
+    bir:TypeDef?[] typeDefs = [];
+    bir:Function?[] functions = [];
+    map<(bir:AsyncCall,string)> lambdaCalls = {};
+|};
+
 bir:BIRContext currentBIRContext = new;
 
 public function main(string... args) {

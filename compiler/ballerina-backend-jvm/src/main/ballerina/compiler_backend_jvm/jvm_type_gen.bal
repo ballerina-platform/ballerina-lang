@@ -15,8 +15,6 @@
 // under the License.
 
 
-# Name of the class to which the types will be added as static fields.
-string typeOwnerClass = "";
 
 # # Create static fields to hold the user defined types.
 #
@@ -63,14 +61,14 @@ public function generateUserDefinedTypes(jvm:MethodVisitor mv, bir:TypeDef?[] ty
             panic err;
         }
 
-        mv.visitFieldInsn(PUTSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitFieldInsn(PUTSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
     }
 
     // Populate the field types
     foreach var optionalTypeDef in typeDefs {
         bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
         fieldName = getTypeFieldName(typeDef.name.value);
-        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+        mv.visitFieldInsn(GETSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
 
         bir:BType bType = typeDef.typeValue;
         if (bType is bir:BRecordType) {
@@ -554,7 +552,7 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 # + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:Name typeName) {
     string fieldName = getTypeFieldName(typeName.value);
-    mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
+    mv.visitFieldInsn(GETSTATIC, INIT_CLASS_NAME, fieldName, io:sprintf("L%s;", BTYPE));
 }
 
 # Return the name of the field that holds the instance of a given type.

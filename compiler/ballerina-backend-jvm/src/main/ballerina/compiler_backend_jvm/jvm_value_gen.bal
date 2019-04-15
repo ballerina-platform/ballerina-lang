@@ -45,6 +45,7 @@ public type ObjectGenerator object {
     private function createObjectValueClass(bir:BObjectType objectType, string className, bir:TypeDef typeDef) 
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+        cw.visitSource(typeDef.pos.sourceFileName);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), ABSTRACT_OBJECT_VALUE, [OBJECT_VALUE]);
 
         bir:BObjectField?[] fields = objectType.fields;
