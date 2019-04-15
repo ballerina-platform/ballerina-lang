@@ -315,6 +315,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
+
+        if (pkgId.equals(enclPackageID)) {
+            dlog.error(importPkgNode.pos, DiagnosticCode.SELF_IMPORT_NOT_ALLOWED);
+            return;
+        }
+
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
