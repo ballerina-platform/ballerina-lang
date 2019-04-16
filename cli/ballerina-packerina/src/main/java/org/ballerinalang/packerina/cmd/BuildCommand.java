@@ -78,6 +78,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = "--siddhiruntime", description = "enable siddhi runtime for stream processing")
+    private boolean siddhiRuntimeFlag;
+
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -95,7 +98,8 @@ public class BuildCommand implements BLauncherCmd {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag);
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
+                    siddhiRuntimeFlag);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -174,7 +178,7 @@ public class BuildCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-                                                  offline, lockEnabled, skiptests, experimentalFlag);
+                    offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
         }
         Runtime.getRuntime().exit(0);
     }
