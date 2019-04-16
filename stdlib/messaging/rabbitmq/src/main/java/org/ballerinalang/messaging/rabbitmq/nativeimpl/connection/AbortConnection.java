@@ -16,54 +16,45 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
+package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 
-import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
+import org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Closes a RabbitMQ Channel.
+ * Aborts a RabbitMQ Connection.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "close",
+        functionName = "abortConnection",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.CHANNEL_OBJECT,
+                structType = RabbitMQConstants.CONNECTION_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Close.class);
+public class AbortConnection extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        Channel channel = RabbitMQUtils.getNativeObject(channelBObject,
-                RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
+        BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
         BValue closeCode = context.getNullableRefArgument(1);
         BValue closeMessage = context.getNullableRefArgument(2);
-        try {
-            ChannelUtils.handleCloseChannel(channel, closeCode, closeMessage, context);
-            channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, null);
-        } catch (BallerinaException exception) {
-            LOGGER.error("I/O exception while closing the channel", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
-        }
+        BValue timeout = context.getNullableRefArgument(3);
+        Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
+                RabbitMQConstants.CONNECTION_NATIVE_OBJECT, Connection.class, context);
+        ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeout);
+        connectionBObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, null);
     }
 }

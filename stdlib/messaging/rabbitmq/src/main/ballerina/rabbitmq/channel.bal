@@ -39,7 +39,7 @@ public type Channel client object {
 
     # Closes this channel.
     #
-    # + return - Possible error when closing the channel
+    # + return - Possible error when closing the channel.
     public function close() returns error? = external;
 
     # Actively declare a server-named exclusive, autodelete, non-durable queue or queue with the given configurations.
@@ -92,6 +92,23 @@ public type Channel client object {
     # + queueName - The name of the queue.
     # + return - An error if an I/O error is encountered or nil if successful.
     public remote function queuePurge(string queueName) returns error? = external;
+
+    # Closes the RabbitMQ `Channel`.
+    #
+    # + closeCode - The close code (See under "Reply Codes" in the AMQP specification).
+    # + closeMessage - A message indicating the reason for closing the channel.
+    # + return - An `error` if an I/O problem is encountered.
+    public function close(int? closeCode = (), string? closeMessage = ()) returns error? = external;
+
+    # Aborts the RabbitMQ `Channel`.
+    # Forces the `Channel` to close and waits for all the close operations to complete.
+    # Any encountered exceptions in the close operations are silently discarded.
+    #
+    # + closeCode - The close code (See under "Reply Codes" in the AMQP specification).
+    # + closeMessage - A message indicating the reason for closing the channel.
+    # + return - An `error` if an I/O problem is encountered.
+    public function abortChannel(int? closeCode = (), string? closeMessage = (), int? timeout = ())
+                                                                               returns error? = external;
 };
 
 # Holds the parameters used to declare a queue.

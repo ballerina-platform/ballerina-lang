@@ -18,16 +18,20 @@
 
 package org.ballerinalang.messaging.rabbitmq.util;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -55,13 +59,95 @@ public class ChannelUtils {
     /**
      * Closes the channel.
      *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeMessage The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeCode    A message indicating the reason for closing the channel.
+     */
+    public static void handleAbortChannel(Channel channel, BValue closeCode, BValue closeMessage, Context context) {
+        boolean validCloseCode = closeCode instanceof BInteger;
+        boolean validCloseMessage = closeMessage instanceof BString;
+        if (validCloseCode && validCloseMessage) {
+            abort(channel, Math.toIntExact(((BInteger) closeCode).intValue()), closeMessage.stringValue(), context);
+        } else {
+            abort(channel, context);
+        }
+    }
+
+    /**
+     * Aborts the channel.
+     *
      * @param channel RabbitMQ Channel object.
-     * @param context Context.
+     */
+    public static void abort(Channel channel, Context context) {
+        try {
+            channel.abort();
+        } catch (IOException exception) {
+            RabbitMQUtils.returnError(RabbitMQConstants.ABORT_CHANNEL_ERROR
+                    + " " + exception.getMessage(), context, exception);
+        }
+    }
+
+    /**
+     * Aborts the channel.
+     *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     * @param context      Context.
+     */
+    public static void abort(Channel channel, int closeCode, String closeMessage, Context context) {
+        try {
+            channel.abort(closeCode, closeMessage);
+        } catch (IOException exception) {
+            RabbitMQUtils.returnError(RabbitMQConstants.ABORT_CHANNEL_ERROR
+                    + " " + exception.getMessage(), context, exception);
+        }
+    }
+
+    /**
+     * Closes the channel.
+     *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     * @param context      Context.
+     */
+    public static void handleCloseChannel(Channel channel, BValue closeCode, BValue closeMessage, Context context) {
+        boolean validCloseCode = closeCode instanceof BInteger;
+        boolean validCloseMessage = closeMessage instanceof BString;
+        if (validCloseCode && validCloseMessage) {
+            close(channel, Math.toIntExact(((BInteger) closeCode).intValue()), closeMessage.stringValue(), context);
+        } else {
+            close(channel, context);
+        }
+    }
+
+
+    /**
+     * Closes the channel.
+     *
+     * @param channel RabbitMQ Channel object.
      */
     public static void close(Channel channel, Context context) {
         try {
             channel.close();
-        } catch (TimeoutException | IOException exception) {
+        } catch (IOException | TimeoutException exception) {
+            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CHANNEL_ERROR
+                    + " " + exception.getMessage(), context, exception);
+        }
+    }
+
+    /**
+     * Closes the channel.
+     *
+     * @param channel      RabbitMQ Channel object.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     */
+    public static void close(Channel channel, int closeCode, String closeMessage, Context context) {
+        try {
+            channel.close(closeCode, closeMessage);
+        } catch (IOException | TimeoutException exception) {
             RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CHANNEL_ERROR
                     + " " + exception.getMessage(), context, exception);
         }
@@ -90,6 +176,7 @@ public class ChannelUtils {
      * @param durable    True if we are declaring a durable queue (the queue will survive a server restart).
      * @param exclusive  True if we are declaring an exclusive queue (restricted to this connection).
      * @param autoDelete True if we are declaring an autodelete queue (server will delete it when no longer in use).
+     * @param arguments  Other properties (construction arguments) for the queue.
      */
     public static void queueDeclare(Channel channel, String queueName, boolean durable, boolean exclusive,
                                     boolean autoDelete) {

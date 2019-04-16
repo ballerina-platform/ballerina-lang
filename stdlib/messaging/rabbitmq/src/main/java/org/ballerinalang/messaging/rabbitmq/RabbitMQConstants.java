@@ -43,6 +43,7 @@ public class RabbitMQConstants {
 
     // Channel errors
     public static final String CLOSE_CHANNEL_ERROR = "An error occurred while closing the channel";
+    public static final String ABORT_CHANNEL_ERROR = "An error occurred while aborting the channel";
 
     // Connection constant fields
     public static final String CONNECTION_OBJECT = "Connection";

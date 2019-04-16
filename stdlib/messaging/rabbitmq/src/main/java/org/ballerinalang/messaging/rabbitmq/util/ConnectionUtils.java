@@ -25,6 +25,7 @@ import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -62,14 +63,12 @@ public class ConnectionUtils {
             connectionFactory.setPort(port);
 
             if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_USER) != null) {
-                connectionFactory.setUsername
-                        (RabbitMQUtils.getStringFromBValue(connectionConfig,
-                                RabbitMQConstants.RABBITMQ_CONNECTION_USER));
+                connectionFactory.setUsername(RabbitMQUtils.getStringFromBValue(connectionConfig,
+                        RabbitMQConstants.RABBITMQ_CONNECTION_USER));
             }
             if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_PASS) != null) {
-                connectionFactory.setPassword
-                        (RabbitMQUtils.getStringFromBValue(connectionConfig,
-                                RabbitMQConstants.RABBITMQ_CONNECTION_PASS));
+                connectionFactory.setPassword(RabbitMQUtils.getStringFromBValue(connectionConfig,
+                        RabbitMQConstants.RABBITMQ_CONNECTION_PASS));
             }
             if (connectionConfig.get(RabbitMQConstants.RABBITMQ_CONNECTION_TIMEOUT) != null) {
                 connectionFactory.setConnectionTimeout(RabbitMQUtils.getIntFromBValue(connectionConfig,
@@ -97,18 +96,68 @@ public class ConnectionUtils {
     /**
      * Handles closing the given connection.
      *
-     * @param connection RabbitMQ Connection object.
-     * @param timeout    Timeout (in milliseconds) for completing all the close-related
-     *                   operations, use -1 for infinity.
-     * @param context    Context.
+     * @param connection   RabbitMQ Connection object.
+     * @param timeout      Timeout (in milliseconds) for completing all the close-related
+     *                     operations, use -1 for infinity.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     * @param context      Context.
      */
-    public static void handleCloseConnection(Connection connection, BValue timeout, Context context) {
+    public static void handleCloseConnection(Connection connection, BValue closeCode, BValue closeMessage,
+                                             BValue timeout, Context context) {
         boolean validTimeout = timeout instanceof BInteger;
-        if (!validTimeout) {
+        boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
+        if (!validTimeout && !validCloseCode) {
             closeConnection(connection, context);
-        } else {
+        } else if (validTimeout && validCloseCode) {
             closeConnection(connection,
-                    Math.toIntExact(((BInteger) timeout).intValue()), context);
+                    Math.toIntExact(((BInteger) closeCode).intValue()),
+                    closeMessage.stringValue(),
+                    Math.toIntExact(((BInteger) timeout).intValue()),
+                    context);
+        } else if (validTimeout && !validCloseCode) {
+            closeConnection(connection,
+                    Math.toIntExact(((BInteger) timeout).intValue()),
+                    context);
+        } else if (!validTimeout && validCloseCode) {
+            closeConnection(connection,
+                    Math.toIntExact(((BInteger) closeCode).intValue()),
+                    closeMessage.stringValue(),
+                    context);
+        } else {
+            throw new BallerinaException("Error in closing the connection");
+        }
+    }
+
+    /**
+     * Handles aborting the given connection.
+     *
+     * @param connection   RabbitMQ Connection object.
+     * @param timeout      Timeout (in milliseconds) for completing all the close-related
+     *                     operations, use -1 for infinity.
+     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
+     * @param closeMessage A message indicating the reason for closing the connection.
+     */
+    public static void handleAbortConnection(Connection connection, BValue closeCode, BValue closeMessage,
+                                             BValue timeout) {
+        boolean validTimeout = timeout instanceof BInteger;
+        boolean validCloseCode = (closeCode instanceof BInteger) && (closeMessage instanceof BString);
+        if (!validTimeout && !validCloseCode) {
+            abortConnection(connection);
+        } else if (validTimeout && validCloseCode) {
+            abortConnection(connection,
+                    Math.toIntExact(((BInteger) closeCode).intValue()),
+                    closeMessage.stringValue(),
+                    Math.toIntExact(((BInteger) timeout).intValue()));
+        } else if (validTimeout && !validCloseCode) {
+            abortConnection(connection,
+                    Math.toIntExact(((BInteger) timeout).intValue()));
+        } else if (!validTimeout && validCloseCode) {
+            abortConnection(connection,
+                    Math.toIntExact(((BInteger) closeCode).intValue()),
+                    closeMessage.stringValue());
+        } else {
+            throw new BallerinaException("Error in closing the connection");
         }
     }
 
@@ -132,6 +181,22 @@ public class ConnectionUtils {
      * Closes the connection.
      *
      * @param connection RabbitMQ Connection object.
+     * @param context    Context.
+     */
+    private static void closeConnection(Connection connection, int closeCode, String closeMessage, Context context) {
+        try {
+            connection.close(closeCode, closeMessage);
+        } catch (IOException exception) {
+            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
+            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
+                    context, exception);
+        }
+    }
+
+    /**
+     * Closes the connection.
+     *
+     * @param connection RabbitMQ Connection object.
      * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
      * @param context    Context.
      */
@@ -143,6 +208,62 @@ public class ConnectionUtils {
             RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
                     context, exception);
         }
+    }
+
+    /**
+     * Closes the connection.
+     *
+     * @param connection RabbitMQ Connection object.
+     * @param context    Context.
+     */
+    private static void closeConnection(Connection connection, int closeCode, String closeMessage, int timeout,
+                                        Context context) {
+        try {
+            connection.close(closeCode, closeMessage, timeout);
+        } catch (IOException exception) {
+            LOGGER.error(RabbitMQConstants.CLOSE_CONNECTION_ERROR, exception);
+            RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
+                    context, exception);
+        }
+    }
+
+    /**
+     * Aborts the connection.
+     *
+     * @param connection RabbitMQ Connection object.
+     */
+    private static void abortConnection(Connection connection) {
+        connection.abort();
+    }
+
+    /**
+     * Closes the connection.
+     *
+     * @param connection RabbitMQ Connection object.
+     */
+    private static void abortConnection(Connection connection, int closeCode, String closeMessage) {
+        connection.abort(closeCode, closeMessage);
+    }
+
+    /**
+     * Closes the connection.
+     *
+     * @param connection RabbitMQ Connection object.
+     * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
+     */
+    private static void abortConnection(Connection connection, int timeout) {
+        connection.abort(timeout);
+    }
+
+    /**
+     * Closes the connection.
+     *
+     * @param connection RabbitMQ Connection object.
+     * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
+     */
+    private static void abortConnection(Connection connection, int closeCode, String closeMessage,
+                                        int timeout) {
+        connection.abort(closeCode, closeMessage, timeout);
     }
 
     /**

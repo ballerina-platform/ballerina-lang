@@ -34,20 +34,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Closes a RabbitMQ Channel.
+ * Aborts a RabbitMQ Channel.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "close",
+        functionName = "abortChannel",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = RabbitMQConstants.CHANNEL_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
+public class AbortChannel extends BlockingNativeCallableUnit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Close.class);
 
@@ -59,10 +59,10 @@ public class Close extends BlockingNativeCallableUnit {
         BValue closeCode = context.getNullableRefArgument(1);
         BValue closeMessage = context.getNullableRefArgument(2);
         try {
-            ChannelUtils.handleCloseChannel(channel, closeCode, closeMessage, context);
+            ChannelUtils.handleAbortChannel(channel, closeCode, closeMessage, context);
             channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, null);
         } catch (BallerinaException exception) {
-            LOGGER.error("I/O exception while closing the channel", exception);
+            LOGGER.error("I/O exception while aborting the channel", exception);
             RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
         }
     }
