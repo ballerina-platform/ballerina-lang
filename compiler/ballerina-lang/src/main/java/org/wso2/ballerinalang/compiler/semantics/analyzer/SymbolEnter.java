@@ -139,6 +139,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
+    private List<PackageID> importedPackages;
     private int typePrecedence;
 
     private SymbolEnv env;
@@ -161,6 +162,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.importedPackages = new ArrayList<>();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -202,6 +204,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
+
+        importedPackages.add(pkgNode.packageID);
 
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
@@ -315,15 +319,50 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
-
-        if (pkgId.equals(enclPackageID)) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.SELF_IMPORT_NOT_ALLOWED);
-            return;
-        }
-
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
+            return;
+        }
+
+        // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
+        // entry package has a version. So we check import cycles which starts with the entry package in next step.
+        if (importedPackages.contains(pkgId)) {
+            int index = importedPackages.indexOf(pkgId);
+            // Generate the import cycle.
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = index; i < importedPackages.size(); i++) {
+                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+            }
+            // Append the current package to complete the cycle.
+            stringBuilder.append(pkgId);
+            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
+            return;
+        }
+
+        boolean samePkg = false;
+        // Get the entry package.
+        PackageID entryPackage = importedPackages.get(0);
+        if (entryPackage.isUnnamed == pkgId.isUnnamed) {
+            samePkg = (!entryPackage.isUnnamed) || (entryPackage.sourceFileName.equals(pkgId.sourceFileName));
+        }
+        // Check whether the package which we have encountered is the same as the entry package. We don't need to
+        // check the version here because we cannot import two different versions of the same package at the moment.
+        if (samePkg && entryPackage.orgName.equals(pkgId.orgName) && entryPackage.name.equals(pkgId.name)) {
+            StringBuilder stringBuilder = new StringBuilder();
+            String entryPackageString = importedPackages.get(0).toString();
+            // We need to remove the package.
+            int packageIndex = entryPackageString.indexOf(":");
+            if (packageIndex != -1) {
+                entryPackageString = entryPackageString.substring(0, packageIndex);
+            }
+            // Generate the import cycle.
+            stringBuilder.append(entryPackageString).append(" -> ");
+            for (int i = 1; i < importedPackages.size(); i++) {
+                stringBuilder.append(importedPackages.get(i).toString()).append(" -> ");
+            }
+            stringBuilder.append(pkgId);
+            dlog.error(importPkgNode.pos, DiagnosticCode.CYCLIC_MODULE_IMPORTS_DETECTED, stringBuilder.toString());
             return;
         }
 
