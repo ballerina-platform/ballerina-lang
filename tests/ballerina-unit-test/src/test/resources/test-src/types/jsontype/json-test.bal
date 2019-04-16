@@ -12,7 +12,8 @@ function toString (json msg) returns (string?) {
 }
 
 function testParse (string jsonStr) returns (json | error) {
-    return internal:parseJson(jsonStr);
+    io:StringReader reader = new(jsonStr);
+    return reader.readJson();
 }
 
 function testGetKeys () returns (string[]?, string[]?, string[]?, string[]?) {
@@ -61,7 +62,8 @@ function testToXMLWithOptions (json msg) returns (xml | error?) {
 
 function testStringToJSONConversion() returns (json | error) {
     string s = "{\"foo\": \"bar\"}";
-    return internal:parseJson(s);
+    io:StringReader reader = new(s);
+    return reader.readJson();
 }
 
 function testJSONArrayToJsonAssignment() returns (json) {

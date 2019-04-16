@@ -65,7 +65,7 @@ function test7(){
     s.filter(function (string s) returns (boolean, int) {return (true, 1);});
     s.filter(function (string s) {});
     s.filter(function (person p) {});
-    _ = s.filter(function (string s) returns (person) {return null;});
+    _ = s.filter(function (string s) returns (person) {return ();});
 }
 
 function test8() {
@@ -97,10 +97,48 @@ function test11() {
     map<any> z = {a:"1", b:"2"};
 
     map<any> m = z.filter(function (any s) returns boolean {
-          return s == null;
+          return s == ();
     });
 
     any x = z.filter(function (any s) returns boolean {
-         return s == null;
+         return s == ();
     });
+}
+
+function testVarInLHS() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var filtered = numbers.filter(function (int i) returns boolean {
+            return i >= 0;
+        });
+    float avg = filtered.average();
+}
+
+function testVarInLHS2() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var mapped = numbers.map(function(int value) returns float {
+            return float.convert(value);
+        }).filter(function (float value) returns boolean {
+            return value > 0;
+        }).map(function (float value) returns (string, float) {
+            return (string.convert(value), value);
+        });
+}
+
+function testIndexBasedAccess() {
+    int[] numbers = [-5, -3, 2, 7, 12];
+    var x = numbers.filter(function (int i) returns boolean {
+            return i >= 0;
+        })[0];
+}
+
+int[] globalNumbers = [-5, -3, 2, 7, 12];
+
+function testAnydataInLHS() {
+    anydata mapped = globalNumbers.map(function(int value) returns float {
+               return float.convert(value);
+           }).filter(function (float value) returns boolean {
+               return value > 0;
+           }).map(function (float value) returns (string, float) {
+               return (string.convert(value), value);
+           });
 }

@@ -20,8 +20,9 @@ function testCheck () returns error? {
     return a;
 }
 
-function testCheckFunction () returns error?{
-    check ab:ep -> invoke1("foo");
+function testCheckFunction () returns error? {
+    ab:DummyEndpoint dummyEp = ab:getDummyEndpoint();
+    check dummyEp->invoke1("foo");
     return ();
 }
 

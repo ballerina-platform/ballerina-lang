@@ -7,3 +7,4 @@ target
 .gitignore
 tsconfig.json
 tslint.json
+docs

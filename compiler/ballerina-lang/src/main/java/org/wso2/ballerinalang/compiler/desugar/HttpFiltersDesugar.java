@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -352,9 +351,7 @@ public class HttpFiltersDesugar {
         foreach.varType = filterType;
         BMapType mapType = new BMapType(TypeTags.RECORD, filterType, symTable.mapType.tsymbol);
         foreach.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(mapType);
-        foreach.nillableResultType = new BUnionType(null, memberTypes, true);
+        foreach.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
 
         foreach.variableDefinitionNode = variableDefinition;
 

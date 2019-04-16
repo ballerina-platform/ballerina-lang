@@ -38,20 +38,16 @@ boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
 http:ClientEndpointConfig? hubClientConfig = ();
 
-final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
-final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
-final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
-final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
-//TODO:add pool options
+HubPersistenceStore? hubPersistenceStoreImpl = ();
+boolean hubPersistenceEnabled = false;
 
 # Function to attach and start the Ballerina WebSub Hub service.
 #
 # + hubServiceListener - The `http:Listener` to which the service is attached
 function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
-    _ = hubServiceListener.__attach(hubService, {});
-    _ = hubServiceListener.__start();
+    checkpanic hubServiceListener.__attach(hubService);
+    checkpanic hubServiceListener.__start();
 }
 
 # Function to retrieve if persistence is enabled for the Hub.
@@ -90,7 +86,7 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
     RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
     boolean remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                     default = remotePublish.enabled ?: false);
+                                     defaultValue = remotePublish.enabled ?: false);
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
     if (remotePublishModeAsConfig == "") {

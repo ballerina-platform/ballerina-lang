@@ -13,8 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
-type Person record {
+type Person record {|
     string name = "";
     int age = 0;
     Person? parent = ();
@@ -25,59 +26,66 @@ type Person record {
     float score = 0.0;
     boolean alive = false;
     Person[]? children?;
-    !...
-};
+|};
 
-type Student record {
+type Student record {|
     string name = "";
     int age = 0;
-    !...
-};
+|};
 
-type Person2 record {
+type Person2 record {|
     string name = "";
     int age = 0;
-    !...
-};
+|};
 
-type StructWithDefaults record {
+type StructWithDefaults record {|
     string s = "string value";
     int a = 45;
     float f = 5.3;
     boolean b = true;
     json j = ();
     byte[] blb = [];
-    !...
-};
+|};
 
 
-type StructWithoutDefaults record {
+type StructWithoutDefaults record {|
     string s = "";
     int a = 0;
     float f = 0.0;
     boolean b = false;
     json j = {};
     byte[] blb = [];
-    !...
-};
+|};
 
 type T1 record {
     int x = 0;
     int y = 0;
 };
 
-type T2 record {
+type T2 record {|
     int x = 0;
     int y = 0;
     int z = 0;
-    !...
-};
+|};
     
 public type TX record {
     int x = 0;
     int y = 0;
     byte[] b = [];
 };
+
+type Manager record {
+    string name = "";
+    int age = 0;
+    Manager? parent = ();
+};
+
+type Engineer record {
+    string name = "";
+    int age = 0;
+    Engineer? parent = ();
+};
+
 
 function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     json j = {  name:"Child",
@@ -141,4 +149,36 @@ function testArrayToJsonFail() returns json|error {
 function testIncompatibleImplicitConversion() returns int|error {
     json operationReq = { "toInt": "abjd" };
     return int.convert(operationReq.toInt);
+}
+
+function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer {
+    Manager p = { name: "Waruna", age: 25, parent: () };
+    Manager p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    Engineer e =  Engineer.convert(p); // Cyclic value will be check with isLikeType method.
+    return e;
+}
+
+function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
+    Manager p = { name: "Waruna", age: 25, parent: () };
+    Manager p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    json j =  check json.convert(p); // Cyclic value will be check with isLikeType method.
+    return j;
+}
+
+function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|error {
+    Manager p = { name: "Waruna", age: 25, parent: () };
+    Manager p2 = { name: "Milinda", age: 25, parent:p };
+    p.parent = p2;
+    anydata a = p;
+    basicMatch(a);
+    map<anydata> m =  check map<anydata>.convert(p); // Cyclic value will be check when stamping the value.
+    return m;
+}
+
+function basicMatch(any a) {
+    match a {
+            var {var1, var2, var3} => io:println("Matched");
+    }
 }

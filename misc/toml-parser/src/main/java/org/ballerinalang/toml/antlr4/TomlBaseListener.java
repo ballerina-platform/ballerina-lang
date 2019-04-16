@@ -280,18 +280,6 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMlBasicString(TomlParser.MlBasicStringContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMlBasicString(TomlParser.MlBasicStringContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterMlBasicStringDelim(TomlParser.MlBasicStringDelimContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -316,13 +304,13 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMlBasicChar(TomlParser.MlBasicCharContext ctx) { }
+	@Override public void enterMlBasicString(TomlParser.MlBasicStringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMlBasicChar(TomlParser.MlBasicCharContext ctx) { }
+	@Override public void exitMlBasicString(TomlParser.MlBasicStringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

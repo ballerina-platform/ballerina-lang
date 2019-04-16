@@ -19,11 +19,11 @@ function testAccessConstantWithType() returns Colombo {
 type AB "A"|"B";
 
 function testAccessFiniteType() returns foo:AB {
-    return foo:A;
+    return foo:getA();
 }
 
  function testReturnFiniteType() returns AB {
-     return foo:A; // Valid because this is same as `return "A";`
+     return foo:getA(); // Valid because this is same as `return "A";`
  }
 
 function testAccessTypeWithContInDef() returns foo:CD {
@@ -241,4 +241,14 @@ function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatTy
     foo:FiniteFloatType f2 = 4.0;
 
     return (f1, f2);
+}
+
+// -----------------------------------------------------------
+
+function testNilWithoutType() returns () {
+    return foo:NilWithoutType;
+}
+
+function testNilWithType() returns () {
+    return foo:NilWithType;
 }

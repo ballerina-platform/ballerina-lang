@@ -26,7 +26,7 @@ service echoService0 on new http:Listener(9090) {
         var response = callNextResource0();
         if (response is http:Response) {
             outResponse.setTextPayload("Hello, World!");
-            _ = caller -> respond(outResponse);
+            checkpanic caller->respond(outResponse);
         } else {
             error err = error ("error occurred");
             panic err;
@@ -36,14 +36,14 @@ service echoService0 on new http:Listener(9090) {
     resource function resourceTwo (http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 
     resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }
 

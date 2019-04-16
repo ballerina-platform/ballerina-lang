@@ -18,16 +18,16 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -136,6 +136,14 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2002);
     }
 
+    @Test(description = "Test record var ref rest parameter types")
+    public void testRestParameterType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
+    }
+
     // TODO: Uncomment below tests once record literal is supported with var ref
 //
 //    @Test(description = "Test simple record variable definition")
@@ -180,37 +188,45 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 17);
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         final String undefinedSymbol = "undefined symbol ";
         final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 46, 12);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 46, 19);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 46, 40);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 46, 48);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 46, 66);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 43, 12);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 43, 19);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 41);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 49);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 63);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 46, 35);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 43, 33);
         BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 65, 35);
+                MessageFormat.format(expectingClosedRecord, "'Age'"), 62, 33);
         BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'Person'", 72, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 97, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 98, 12);
+                "not enough fields to match to closed record type 'Person'", 69, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 94, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 95, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'Bar'", 98, 27);
+                "incompatible types: expected 'string', found 'Bar'", 95, 27);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'record type', found 'int'", 99, 38);
+                "incompatible types: expected 'record type', found 'int'", 96, 38);
         BAssertUtil.validateError(resultNegative, ++i,
-                "record literal is not supported for record binding pattern", 100, 38);
+                "record literal is not supported for record binding pattern", 97, 38);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'Person', found 'Age'", 109, 19);
+                "incompatible types: expected 'Person', found 'Age'", 106, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "multiple matching record references found for field 'name'", 111, 5);
+                "multiple matching record references found for field 'name'", 108, 5);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 122, 5);
+                "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 119, 5);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 122, 27);
+                "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 119, 26);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown type 'Data'", 123, 6);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown type 'Data'", 128, 6);
+        BAssertUtil.validateError(resultNegative, ++i,
+                                  "incompatible types: expected 'map<int>', found 'map<anydata|error>'", 161, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                                  "incompatible types: expected 'map<anydata>', found 'map<any|error>'", 164, 16);
     }
 }

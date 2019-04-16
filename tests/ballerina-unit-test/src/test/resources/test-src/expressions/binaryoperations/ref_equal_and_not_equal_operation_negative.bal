@@ -25,8 +25,8 @@ function checkRefEqualityOfArraysOfDifferentTypes() returns boolean {
     string[2] b = ["", ""];
     boolean bool1 = a === b && !(a !== b);
 
-    (float|int)[] c = [];
-    (boolean|xml)[] d = [];
+    (float|int)?[] c = [];
+    (boolean|xml)?[] d = [];
     boolean bool2 = c === d && !(c !== d);
 
     return bool1 && bool2;

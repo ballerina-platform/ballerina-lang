@@ -29,7 +29,7 @@ service serverService on new http:Listener(9218) {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Backend server sent response");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -43,7 +43,7 @@ service proxyService on new http:Listener(9219) {
     }
     resource function sayHello (http:Caller caller, http:Request req) {
         string url = untaint req.rawPath;
-        sendRequest(url, req, caller);
+        sendRequest(url, untaint req, caller);
     }
 }
 
@@ -57,9 +57,9 @@ function sendRequest(string url, http:Request req, http:Caller caller) {
     http:Caller listenerEP = caller;
     var response = clientEP->forward("", req);
     if (response is http:Response) {
-        _ = listenerEP->respond(response);
-    } else if (response is error) {
-        _ = listenerEP->respond(response.reason());
+        checkpanic listenerEP->respond(response);
+    } else {
+        checkpanic listenerEP->respond(response.reason());
     }
 }
 

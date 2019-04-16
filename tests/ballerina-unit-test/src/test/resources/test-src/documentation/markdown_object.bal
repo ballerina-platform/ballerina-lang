@@ -18,7 +18,7 @@ type TestConnector object {
 
 # overriden description
 # + return - description
-function TestConnector.testAction() returns boolean {
+public function TestConnector.testAction() returns boolean {
     boolean value = false;
     return value;
 }
@@ -26,7 +26,7 @@ function TestConnector.testAction() returns boolean {
 # overriden description
 # + ep - endpoint
 # + return - description
-function TestConnector.testSend(string ep) returns boolean {
+public function TestConnector.testSend(string ep) returns boolean {
     boolean value = false;
     return value;
 }

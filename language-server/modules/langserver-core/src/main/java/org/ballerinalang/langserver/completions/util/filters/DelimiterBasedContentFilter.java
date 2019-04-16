@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.index.LSIndexException;
@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +56,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
     private static final Logger logger = LoggerFactory.getLogger(DelimiterBasedContentFilter.class);
 
     @Override
-    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext ctx) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
 
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 3);
 
@@ -120,12 +118,14 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
      * @return {@link ArrayList}    List of filtered symbol info
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
-            LSServiceOperationContext context, String pkgName, String delimiter) {
+            LSContext context, String pkgName, String delimiter) {
 
         LSIndexImpl lsIndex = context.get(LSGlobalContextKeys.LS_INDEX_KEY);
         // Extract the package symbol
+        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage currentBLangPkg = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        Optional bLangImport = CommonUtil.getCurrentFileImports(currentBLangPkg, context)
+        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentBLangPkg);
+        Optional bLangImport = CommonUtil.getCurrentFileImports(sourceOwnerPkg, context)
                 .stream()
                 .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
                 .findFirst();
@@ -135,9 +135,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             String realOrgName;
             if (bLangImport.isPresent()) {
                 // There is an added import statement.
-                PackageID pkgId = ((BLangImportPackage) bLangImport.get()).symbol.pkgID;
-                realPackageName = pkgId.getName().getValue();
-                realOrgName = pkgId.getOrgName().getValue();
+                realPackageName = CommonUtil.getPackageNameComponentsCombined(((BLangImportPackage) bLangImport.get()));
+                realOrgName = ((BLangImportPackage) bLangImport.get()).getOrgName().getValue();
             } else {
                 realPackageName = pkgName;
                 realOrgName = "";
@@ -187,13 +186,16 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 }
                 
                 funcDTOs.forEach(fDto ->
-                        this.populateIdCompletionMap(completionMap, fDto.getPackageId(), fDto.getCompletionItem()));
+                        CommonUtil.populateIdCompletionMap(completionMap, fDto.getPackageId(),
+                                fDto.getCompletionItem()));
                 recordDTOs.forEach(rDto ->
-                        this.populateIdCompletionMap(completionMap, rDto.getPackageId(), rDto.getCompletionItem()));
+                        CommonUtil.populateIdCompletionMap(completionMap, rDto.getPackageId(),
+                                rDto.getCompletionItem()));
                 objDTOs.forEach(objDto ->
-                        this.populateIdCompletionMap(completionMap, objDto.getPackageId(), objDto.getCompletionItem()));
+                        CommonUtil.populateIdCompletionMap(completionMap, objDto.getPackageId(),
+                                objDto.getCompletionItem()));
                 otherTypeDTOs.forEach(otherDto ->
-                        this.populateIdCompletionMap(completionMap, otherDto.getPackageId(),
+                        CommonUtil.populateIdCompletionMap(completionMap, otherDto.getPackageId(),
                                 otherDto.getCompletionItem()));
                 
                 return Either.forLeft(CommonUtil.fillCompletionWithPkgImport(completionMap, context));
@@ -204,20 +206,11 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         }
     }
     
-    private Either<List<CompletionItem>, List<SymbolInfo>> filterSymbolsOnFallback(LSServiceOperationContext context,
+    private Either<List<CompletionItem>, List<SymbolInfo>> filterSymbolsOnFallback(LSContext context,
                                                                                    String pkgName, String delimiter) {
         List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredSymbols = FilterUtils.getInvocationAndFieldSymbolsOnVar(context, pkgName,
                 delimiter, visibleSymbols);
         return Either.forRight(filteredSymbols);
-    }
-    
-    private void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
-                                         CompletionItem completionItem) {
-        if (map.containsKey(id)) {
-            map.get(id).add(completionItem);
-        } else {
-            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
-        }
     }
 }

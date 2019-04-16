@@ -17,11 +17,11 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -67,7 +67,7 @@ public class WorkerFlushTest {
 
         BValue[] returns = BRunUtil.invoke(result, "errorTest");
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, "error3");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
     }
 
     @Test
@@ -83,5 +83,20 @@ public class WorkerFlushTest {
         String result =
                 "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$12(flush-workers.bal:184)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void flushInDefaultError() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "err");
+    }
+
+    @Test
+    public void flushInDefault() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
+        Assert.assertEquals(returns[0].stringValue(), "25");
     }
 }

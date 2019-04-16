@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -72,11 +73,8 @@ public final class ClientCall {
         if (compressor != Codec.Identity.NONE) {
             outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
-        outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
-        if (advertisedEncodings != null) {
-            outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
-        }
+        outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
         outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
@@ -91,10 +89,10 @@ public final class ClientCall {
      */
     public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
-            throw new IllegalStateException(String.valueOf("Client connection us already setup."));
+            throw new IllegalStateException("Client connection us already setup.");
         }
         if (cancelCalled) {
-            throw new IllegalStateException(String.valueOf("Client call was cancelled."));
+            throw new IllegalStateException("Client call was cancelled.");
         }
         Compressor compressor;
         String compressorName = outboundMessage.getHeader("grpc-encoding");
@@ -185,7 +183,8 @@ public final class ClientCall {
         try {
             InputStream resp = method.streamRequest(message);
             outboundMessage.sendMessage(resp);
-
+        } catch (StatusRuntimeException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to stream message")
                     .asRuntimeException();

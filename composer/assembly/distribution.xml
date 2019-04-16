@@ -27,5 +27,11 @@
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                packages/font/build
+            </directory>
+            <outputDirectory>./font</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>

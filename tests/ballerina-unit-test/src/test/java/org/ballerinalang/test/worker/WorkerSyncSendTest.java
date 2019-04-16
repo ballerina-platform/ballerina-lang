@@ -17,11 +17,13 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -80,7 +82,7 @@ public class WorkerSyncSendTest {
 
         BValue[] returns = BRunUtil.invoke(result, "errorResult");
         Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).reason, "error3");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "error3");
     }
 
     @Test
@@ -95,5 +97,78 @@ public class WorkerSyncSendTest {
         Assert.assertNotNull(expectedException);
         String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:273)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void basicSyncSendTest() {
+        BValue[] returns = BRunUtil.invoke(result, "basicSyncSendTest");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+    }
+
+    @Test
+    public void multipleSyncSendWithPanic() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "multipleSyncSendWithPanic");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: err from panic from w2 {}\n\tat $lambda$18(sync-send.bal:322)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void multipleSyncSendWithPanicInSend() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "multipleSyncSendWithPanicInSend");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: err from panic from w1 w1 {}\n\tat $lambda$19(sync-send.bal:337)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void syncSendWithPanicInReceive() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "syncSendWithPanicInReceive");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: err from panic from w2 {}\n\tat $lambda$22(sync-send.bal:366)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void panicWithMultipleSendStmtsTest() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "panicWithMultipleSendStmtsTest");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: err from panic from w3w3 {}\n\tat $lambda$25(sync-send.bal:403)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test(enabled = false)
+    public void errorResultWithMultipleWorkers() {
+        BValue[] returns = BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("err returned from w2", ((BError) returns[0]).getReason());
+    }
+
+    @Test
+    public void testComplexTypeSend() {
+        BValue[] returns = BRunUtil.invoke(result, "testComplexType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "Rec");
+        Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
     }
 }

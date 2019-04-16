@@ -1,27 +1,24 @@
-type Department record {
+type Department record {|
     string dptName = "";
     Person[] employees = [];
-	!...
-};
+|};
 
-type Person record {
+type Person record {|
     string name = "default first name";
     string lname = "";
     map<any> adrs = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
-	!...
-};
+|};
 
-type Family record {
+type Family record {|
     string spouse = "";
     int noOfChildren = 0;
     string[] children = [];
-	!...
-};
+|};
 
-type Employee record {
+type Employee record {|
     string name = "default first name";
     string lname = "";
     map<any> address = {};
@@ -29,8 +26,7 @@ type Employee record {
     Family family = {};
     Person? parent = ();
     string designation = "";
-	!...
-};
+|};
 
 function testStructOfStruct () returns (string) {
 
@@ -104,13 +100,12 @@ function testNestedStructInit () returns (Person) {
     return p1;
 }
 
-type NegativeValTest record {
+type NegativeValTest record {|
     int negativeInt = -9;
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
     float negativeSpaceFloat = -24.99;
-	!...
-};
+|};
 
 function getStructNegativeValues () returns (int, int, float, float) {
     NegativeValTest tmp = {};
@@ -156,12 +151,11 @@ function testStructWithRecordKeyword() returns Employee {
     return emp;
 }
 
-type PersonA record {
+type PersonA record {|
     string fname = "";
     string lname = "";
     function() returns string fullName?;
-    !...
-};
+|};
 
 function testFuncPtrAsRecordField() returns string {
     PersonA p = {fname:"John", lname:"Doe"};
@@ -172,26 +166,23 @@ function testFuncPtrAsRecordField() returns string {
     return p.fullName.call();
 }
 
-public type InMemoryModeConfig record {
+public type InMemoryModeConfig record {|
     string name = "";
     string username = "";
     string password = "";
     map<any> dbOptions = {};
-    !...
-};
+|};
 
-public type ServerModeConfig record {
+public type ServerModeConfig record {|
     string host;
     int port;
     *InMemoryModeConfig;
-    !...
-};
+|};
 
-public type EmbeddedModeConfig record {
+public type EmbeddedModeConfig record {|
     string path;
     *InMemoryModeConfig;
-    !...
-};
+|};
 
 function testAmbiguityResolution() returns (string, string, string) {
     string s1 = init({});
@@ -210,12 +201,11 @@ function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) return
     }
 }
 
-type PersonB record {
+type PersonB record {|
     string fname = "";
     string lname = "";
     (function (string, string) returns string)? getName = ();
-    !...
-};
+|};
 
 function testNilableFuncPtrInvocation() returns string? {
     PersonB bob = {fname:"Bob", lname:"White"};
@@ -232,25 +222,22 @@ function testNilableFuncPtrInvocation2() returns string? {
     return x;
 }
 
-public type A record {
+public type A record {|
     string a;
     string b;
     string c;
-    !...
-};
+|};
 
-public type B record {
+public type B record {|
     string f;
     int g?;
     *A;
-    !...
-};
+|};
 
-public type C record {
+public type C record {|
     string i;
     *A;
-    !...
-};
+|};
 
 function testAmbiguityResolution2() returns (string, string, string, string){
     string s1 = resolve({a:"", b:"", c:""});

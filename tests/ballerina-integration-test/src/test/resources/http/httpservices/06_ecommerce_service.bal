@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
@@ -23,7 +39,7 @@ service CustomerMgtService on serviceEndpoint5 {
 
         http:Response res = new;
         res.setJsonPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -43,8 +59,8 @@ service Ecommerce on serviceEndpoint5 {
         http:Request clientRequest = new;
         var clientResponse = productsService->get(untaint reqPath, message = clientRequest);
         if (clientResponse is http:Response) {
-            _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+            checkpanic caller->respond(clientResponse);
+        } else {
             io:println("Error occurred while reading product response");
         }
     }
@@ -58,7 +74,7 @@ service Ecommerce on serviceEndpoint5 {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
             clientRequest.setPayload(untaint jsonReq);
-        } else if (jsonReq is error) {
+        } else {
             io:println("Error occurred while reading products payload");
         }
 
@@ -66,10 +82,10 @@ service Ecommerce on serviceEndpoint5 {
         var clientRes = productsService->post("/productsservice", clientRequest);
         if (clientRes is http:Response) {
             clientResponse = clientRes;
-        } else if (clientRes is error) {
+        } else {
             io:println("Error occurred while reading locator response");
         }
-        _ = caller->respond(clientResponse);
+        checkpanic caller->respond(clientResponse);
     }
 
     @http:ResourceConfig {
@@ -80,8 +96,8 @@ service Ecommerce on serviceEndpoint5 {
         http:Request clientRequest = new;
         var clientResponse = productsService->get("/orderservice/orders", message = clientRequest);
         if (clientResponse is http:Response) {
-            _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+            checkpanic caller->respond(clientResponse);
+        } else {
             io:println("Error occurred while reading orders response");
         }
     }
@@ -94,8 +110,8 @@ service Ecommerce on serviceEndpoint5 {
         http:Request clientRequest = new;
         var clientResponse = productsService->post("/orderservice/orders", clientRequest);
         if (clientResponse is http:Response) {
-            _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+            checkpanic caller->respond(clientResponse);
+        } else {
             io:println("Error occurred while writing orders respons");
         }
     }
@@ -108,8 +124,8 @@ service Ecommerce on serviceEndpoint5 {
         http:Request clientRequest = new;
         var clientResponse = productsService->get("/customerservice/customers", message = clientRequest);
         if (clientResponse is http:Response) {
-            _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+            checkpanic caller->respond(clientResponse);
+        } else {
             io:println("Error occurred while reading customers response");
         }
     }
@@ -122,8 +138,8 @@ service Ecommerce on serviceEndpoint5 {
         http:Request clientRequest = new;
         var clientResponse = productsService->post("/customerservice/customers", clientRequest);
         if (clientResponse is http:Response) {
-            _ = caller->respond(clientResponse);
-        } else if (clientResponse is error) {
+            checkpanic caller->respond(clientResponse);
+        } else {
             io:println("Error occurred while writing customers response");
         }
     }
@@ -148,7 +164,7 @@ service OrderMgtService on serviceEndpoint5 {
 
         http:Response res = new;
         res.setJsonPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -168,10 +184,10 @@ service productmgt on serviceEndpoint5 {
         var result = json.convert(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
-        } else if (result is error) {
+        } else {
             res.setPayload(result.reason());
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -187,8 +203,8 @@ service productmgt on serviceEndpoint5 {
 
             http:Response res = new;
             res.setPayload(payload);
-            _ = caller->respond(res);
-        } else if (jsonReq is error) {
+            checkpanic caller->respond(res);
+        } else {
             io:println("Error occurred while reading bank locator request");
         }
     }

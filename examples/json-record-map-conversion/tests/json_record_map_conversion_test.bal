@@ -31,14 +31,14 @@ function testFunc() {
 
     json jt2 = "Punke";
     int jt3 = 30;
-    json jt4 = {
-        "title": "Inception",
-        "year": "2010",
-        "released": "16 Jul 2010",
-        "writer": {
-            "fname": "Christopher",
-            "lname": "Nolan",
-            "age": 30
+    Movie jt4 = {
+        title: "Inception",
+        year: "2010",
+        released: "16 Jul 2010",
+        writer: {
+            fname: "Christopher",
+            lname: "Nolan",
+            age: 30
         }
     };
 

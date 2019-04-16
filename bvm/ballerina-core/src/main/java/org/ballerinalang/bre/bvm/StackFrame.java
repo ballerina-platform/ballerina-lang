@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -69,10 +70,17 @@ public class StackFrame {
     // Indicate this frame belong to a transaction participant
     TransactionParticipantType trxParticipant;
 
+    // RefReg index of returning error value of the frame, -1 if not returning error
+    int errorRetReg = -1;
+
+    public WDChannels wdChannels;
+
+    public CallableUnitInfo.ChannelDetails[] workerSendInChannels;
+
     public StackFrame() {}
 
     public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
-                      int invocationFlags) {
+                      int invocationFlags, CallableUnitInfo.ChannelDetails[] workerSendInChannels) {
         if (ci.maxLongRegs > 0) {
             this.longRegs = new long[ci.maxLongRegs];
         }
@@ -94,12 +102,48 @@ public class StackFrame {
         this.code = packageInfo.getInstructions();
         this.retReg = retReg;
         this.invocationFlags = invocationFlags;
+        this.wdChannels = new WDChannels();
+        this.workerSendInChannels = workerSendInChannels;
     }
 
     enum TransactionParticipantType {
         LOCAL_PARTICIPANT,
         REMOTE_PARTICIPANT,
         NON_PARTICIPANT
+    }
+
+    public void handleChannelPanic(BError error, WDChannels parentChannels) {
+        for (int i = 0; i < workerSendInChannels.length; i++) {
+            WorkerDataChannel channel;
+            CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+            } else {
+                channel = parentChannels.getWorkerDataChannel(channelDetails.name);
+            }
+            if (channelDetails.send) {
+                channel.setSendPanic(error);
+            } else {
+                channel.setReceiverPanic(error);
+            }
+        }
+    }
+
+    public void handleChannelError(BRefType value, WDChannels parentChannels) {
+        for (int i = 0; i < workerSendInChannels.length; i++) {
+            WorkerDataChannel channel;
+            CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
+            } else {
+                channel = parentChannels.getWorkerDataChannel(channelDetails.name);
+            }
+            if (channelDetails.send) {
+                channel.setSendError(value);
+            } else {
+                channel.setRecieveError(value);
+            }
+        }
     }
 
 }

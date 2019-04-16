@@ -20,9 +20,16 @@ package org.wso2.ballerinalang.compiler.bir;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.IsLike;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Locale;
@@ -50,7 +57,16 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIRNode.BIRPackage birPackage) {
         sb.append("module ").append(birPackage.name).append(";").append("\n\n");
+        birPackage.importModules.forEach(birImpModule -> birImpModule.accept(this));
+        sb.append("\n");
         birPackage.functions.forEach(birFunction -> birFunction.accept(this));
+    }
+
+    public void visit(BIRNode.BIRImportModule birImpModule) {
+        sb.append("import ").append(birImpModule.org).append("/");
+        sb.append(birImpModule.name).append(":").append(birImpModule.version).append(";");
+        writePosition(birImpModule.pos);
+        sb.append("\n");
     }
 
     public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
@@ -62,13 +78,28 @@ public class BIREmitter extends BIRVisitor {
         sb.append("function ").append(birFunction.name).append("(");
         StringJoiner sj = new StringJoiner(",");
         birFunction.type.paramTypes.forEach(paramType -> sj.add(paramType.toString()));
-        sb.append(sj.toString()).append(")").append(" -> ").append(birFunction.type.retType).append(" {\n");
+        sb.append(sj.toString()).append(")").append(" -> ").append(birFunction.type.retType);
+        sb.append(" {");
+        writePosition(birFunction.pos);
+        sb.append("\n");
 
         birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
         sb.append("\n");
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
         sb.deleteCharAt(sb.lastIndexOf("\n"));
+        if (!birFunction.errorTable.isEmpty()) {
+            sb.append("\tError Table \n\t\tBB\t|errorOp\n");
+            birFunction.errorTable.forEach(entry -> {
+                entry.accept(this);
+            });
+        }
         sb.append("}\n\n");
+    }
+
+    public void visit(BIRNode.BIRErrorEntry errorEntry) {
+        sb.append("\t\t").append(errorEntry.trapBB.id).append("\t|");
+        errorEntry.errorOp.accept(this);
+        sb.append("\n");
     }
 
     public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
@@ -103,6 +134,27 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
+    public void visit(BIRTerminator.AsyncCall birAsyncCall) {
+        sb.append("\t\t");
+        if (birAsyncCall.lhsOp != null) {
+            birAsyncCall.lhsOp.accept(this);
+            sb.append(" = ");
+        }
+        sb.append(birAsyncCall.name.getValue()).append("(");
+        List<BIROperand> args = birAsyncCall.args;
+        for (int i = 0; i < args.size(); i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            BIROperand arg = args.get(i);
+            arg.accept(this);
+        }
+        sb.append(") ->> ");
+        sb.append(birAsyncCall.thenBB.id);
+
+        sb.append(";\n");
+    }
+
     // Non-terminating instructions
     public void visit(BIRNonTerminator.Move birMove) {
         sb.append("\t\t");
@@ -133,6 +185,57 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birConstantLoad.value).append(";\n");
     }
 
+    public void visit(NewStructure birNewStructure) {
+        sb.append("\t\t");
+        birNewStructure.lhsOp.accept(this);
+        sb.append(" = ").append(birNewStructure.kind.name().toLowerCase(Locale.ENGLISH)).append(";\n");
+    }
+
+    public void visit(NewArray birNewArray) {
+        sb.append("\t\t");
+        birNewArray.lhsOp.accept(this);
+        sb.append(" = ").append(birNewArray.kind.name().toLowerCase(Locale.ENGLISH)).append(" [");
+        birNewArray.sizeOp.accept(this);
+        sb.append("];\n");
+    }
+
+    public void visit(FieldAccess birFieldAccess) {
+        sb.append("\t\t");
+        birFieldAccess.lhsOp.accept(this);
+        sb.append("[");
+        birFieldAccess.keyOp.accept(this);
+        sb.append("] = ").append(birFieldAccess.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birFieldAccess.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(TypeCast birTypeCast) {
+        sb.append("\t\t");
+        birTypeCast.lhsOp.accept(this);
+        sb.append(" = ").append(birTypeCast.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birTypeCast.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(IsLike birIsLike) {
+        sb.append("\t\t");
+        birIsLike.lhsOp.accept(this);
+        sb.append(" = ");
+        birIsLike.rhsOp.accept(this);
+        sb.append(" ").append(birIsLike.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        //TODO emit type
+        sb.append(";\n");
+    }
+
+    public void visit(TypeTest birTypeTest) {
+        sb.append("\t\t");
+        birTypeTest.lhsOp.accept(this);
+        sb.append(" = ");
+        birTypeTest.rhsOp.accept(this);
+        sb.append(" ").append(birTypeTest.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        //TODO emit type
+        sb.append(";\n");
+    }
 
     // Terminating instructions
 
@@ -151,13 +254,30 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birBranch.falseBB.id).append("];\n");
     }
 
-
-    // Operands
-    public void visit(BIROperand.BIRVarRef birVarRef) {
-        sb.append(birVarRef.variableDcl.name);
+    public void visit(BIRNonTerminator.NewError birNewError) {
+        sb.append("\t\t");
+        birNewError.lhsOp.accept(this);
+        sb.append(" = ").append(birNewError.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birNewError.reasonOp.accept(this);
+        sb.append(" ");
+        birNewError.detailOp.accept(this);
+        sb.append(";\n");
     }
 
-    public void visit(BIROperand.BIRConstant birConstant) {
-        sb.append("const ").append(birConstant.value);
+    public void visit(BIRTerminator.Panic birPanic) {
+        sb.append("\t\t").append(birPanic.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birPanic.errorOp.accept(this);
+        sb.append(";\n");
+    }
+    
+    // Operands
+    public void visit(BIROperand birOp) {
+        sb.append(birOp.variableDcl.name);
+    }
+
+
+    private void writePosition(DiagnosticPos pos) {
+        sb.append("\t\t// pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
+        sb.append(pos.eLine).append(":").append(pos.eCol).append("]");
     }
 }

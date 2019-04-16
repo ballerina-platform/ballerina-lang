@@ -8,7 +8,9 @@ observe:Counter globalCounter = new("total_orders",
                                     desc = "Total quantity required");
 
 // Make sure you start the service with `--observe`, or metrics enabled.
-@http:ServiceConfig { basePath: "/online-store-service" }
+@http:ServiceConfig {
+    basePath: "/online-store-service"
+}
 service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {
@@ -35,7 +37,10 @@ service onlineStoreService on new http:Listener(9090) {
         //or type. Subsequent invocations of register() will simply retrieve the stored metrics instance
         //for the provided name and tags fields, and use that instance for the subsequent operations on the
         //counter instance.
-        _ = registeredCounter.register();
+        error? result = registeredCounter.register();
+        if (result is error) {
+            log:printError("Error in registering counter", err = result);
+        }
 
         //Increase the amount of the registered counter instance by amount 10.
         registeredCounter.increment(amount = 10);
@@ -53,7 +58,7 @@ service onlineStoreService on new http:Listener(9090) {
         res.setPayload("Order Processed!");
 
         // Send the response back to the caller.
-        var result = caller->respond(res);
+        result = caller->respond(res);
         if (result is error) {
             log:printError("Error sending response", err = result);
         }

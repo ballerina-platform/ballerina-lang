@@ -35,7 +35,22 @@
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t\t\n\t}\n}",
-      "insertTextFormat":"Snippet"
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":0
+            },
+            "end":{
+              "line":0,
+              "character":0
+            }
+          },
+          "newText":"import ballerina/http;\n"
+        }
+      ]
     },
     {
       "label":"service/webSocket",
@@ -43,7 +58,22 @@
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"service ${1:serviceName} on new http:WebSocketListener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
-      "insertTextFormat":"Snippet"
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":0
+            },
+            "end":{
+              "line":0,
+              "character":0
+            }
+          },
+          "newText":"import ballerina/http;\n"
+        }
+      ]
     },
     {
       "label":"service/webSub",
@@ -51,7 +81,45 @@
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"service ${1:websubSubscriber} on new websub:Listener(9092) {\n\tresource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tresource function onNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
-      "insertTextFormat":"Snippet"
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":0
+            },
+            "end":{
+              "line":0,
+              "character":0
+            }
+          },
+          "newText":"import ballerina/websub;\n"
+        }
+      ]
+    },
+    {
+      "label": "service/gRPC",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "190",
+      "insertText": "service ${1:serviceName} on new grpc:Listener(9092) {\n\tresource function ${2:newResource}(grpc:Caller caller, ${3:string} request) {\n\t\t\n\t}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/grpc;\n"
+        }
+      ]
     },
     {
       "label":"annotation",
@@ -102,6 +170,14 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"final",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"final ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"const",
       "kind":"Keyword",
       "detail":"Keyword",
@@ -110,19 +186,19 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"extern",
-      "kind":"Keyword",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"extern ",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"error",
       "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"listener",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"listener ",
       "insertTextFormat":"Snippet"
     },
     {
@@ -143,7 +219,9 @@
       "label":"TableConfig",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"TableConfig represents properties used during table initialization.\n",
+      "documentation":{
+        "left":"TableConfig represents properties used during table initialization.\n"
+      },
       "sortText":"170",
       "insertText":"TableConfig"
     },

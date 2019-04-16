@@ -44,13 +44,13 @@ public class BallerinaXmlAttribVariableReferenceImpl extends BallerinaVariableRe
   @Override
   @NotNull
   public BallerinaVariableReference getVariableReference() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
+    return findNotNullChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
   @NotNull
   public BallerinaXmlAttrib getXmlAttrib() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaXmlAttrib.class));
+    return findNotNullChildByClass(BallerinaXmlAttrib.class);
   }
 
 }

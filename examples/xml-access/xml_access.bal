@@ -12,11 +12,11 @@ public function main() {
                 <!--Price: $10-->
                 </book>`;
     
-    // You can access child XML items using the field-based or index-based syntax.
+    // You can access child XML items using field-based or index-based access expressions.
     io:println(bookXML.author.fname);
     io:println(bookXML["author"]["fname"]);
 
-    // Accessing a non existing child will returns nil.
+    // Accessing a non existing child will return `nil`.
     io:println(bookXML.ISBN.code);
     io:println(bookXML["ISBN"]["code"]);
 

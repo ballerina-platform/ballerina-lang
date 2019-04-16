@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_data_binding.bal
-#Service deployment:
+#Service deployment
 Initiating service(s) in 'http_data_binding.bal'
 [ballerina/http] started HTTP/WS server connector 0.0.0.0:9090

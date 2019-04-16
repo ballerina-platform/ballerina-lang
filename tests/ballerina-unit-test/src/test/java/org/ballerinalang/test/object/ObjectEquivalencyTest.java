@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -112,13 +112,6 @@ public class ObjectEquivalencyTest {
         Assert.assertEquals(returns[2].stringValue(), "ENG2CMB");
     }
 
-    @Test(description = "Test struct equivalency with function type which has structs")
-    public void testStructEquivalencyWithFunctionType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStructEquivalencyWithFunctionType");
-        Assert.assertEquals(returns[0].stringValue(), "anyStruct{\"s\":\"sss\"}");
-        Assert.assertEquals(returns[1].stringValue(), "someStruct{\"s\":\"sss\"}");
-    }
-    
     @Test(description = "Test tuple equivalency with object equivalency ")
     public void testTupleMatchWithObjectEquivalency() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
@@ -127,8 +120,8 @@ public class ObjectEquivalencyTest {
 
     @Test(description = "Test object equivalency negative",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'eq2:FooObj', found 'eq:BarObj'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'eq:BarObj' cannot be cast to 'eq2:FooObj'\"\\}.*")
     public void testObjectEqViewFromThirdPackageNegative() {
         BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
     }
@@ -152,5 +145,13 @@ public class ObjectEquivalencyTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectMemberOrder");
         Assert.assertEquals(returns[0].stringValue(), "{age:45, name:\"Doe\", address:\"\"}");
         Assert.assertEquals(returns[1].stringValue(), "{age:35, name:\"John\", address:\"\"}");
+    }
+
+    @Test(description = "Test inherent type violation with nil value.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"" +
+                    "invalid value for object field 'x': expected value of type 'string', found 'null'\"\\}.*")
+    public void testInherentTypeViolationWithNilType() {
+        BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }
 }

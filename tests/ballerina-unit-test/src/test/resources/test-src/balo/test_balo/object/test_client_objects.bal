@@ -5,8 +5,9 @@ function testCheck () returns error? {
     return a;
 }
 
-function testCheckFunction () returns error?{
-    check foo:dyEP -> invoke1("foo");
+function testCheckFunction () returns error? {
+    foo:DummyEndpoint dyEP = foo:getDummyEndpoint();
+    check dyEP->invoke1("foo");
     return ();
 }
 

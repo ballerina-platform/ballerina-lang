@@ -43,9 +43,9 @@ import java.util.List;
  * Utilities for DTO manipulation.
  */
 public class DTOUtil {
-    
+
     private static final Gson gson = new Gson();
-    
+
     /**
      * Get the BLangPackageContent for the package symbol.
      * @param packageSymbol                     packageSymbol to generate the DAO
@@ -58,7 +58,7 @@ public class DTOUtil {
                 .setOrgName(packageID.getOrgName().getValue())
                 .setVersion(packageID.getPackageVersion().getValue())
                 .build();
-        
+
         List<BObjectTypeSymbol> objects = new ArrayList<>();
         List<BRecordTypeSymbol> records = new ArrayList<>();
         List<BInvokableSymbol> invokableSymbols = new ArrayList<>();
@@ -69,7 +69,10 @@ public class DTOUtil {
             if (symbol.kind != null) {
                 switch (symbol.kind) {
                     case OBJECT:
-                        objects.add((BObjectTypeSymbol) symbol);
+                        // Omit ballerina services from indexes.
+                        if ((symbol.flags & Flags.SERVICE) != Flags.SERVICE) {
+                            objects.add((BObjectTypeSymbol) symbol);
+                        }
                         break;
                     case RECORD:
                         records.add((BRecordTypeSymbol) symbol);
@@ -84,7 +87,7 @@ public class DTOUtil {
                 otherTypes.add((BTypeSymbol) symbol);
             }
         });
-        
+
         return new BLangPackageContent.BLangPackageContentBuilder()
                 .setPackageSymbolDTO(packageSymbolDTO)
                 .setObjectTypeSymbols(objects)
@@ -157,7 +160,7 @@ public class DTOUtil {
     public static BRecordTypeSymbolDTO getRecordTypeSymbolDTO(int pkgId, BRecordTypeSymbol symbol) {
         CompletionItem completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
         boolean isPrivate = !((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
-        
+
         return new BRecordTypeSymbolDTO.BRecordTypeSymbolDTOBuilder()
                 .setPackageId(pkgId)
                 .setName(symbol.getName().getValue())
@@ -174,7 +177,7 @@ public class DTOUtil {
      */
     public static OtherTypeSymbolDTO getOtherTypeSymbolDTO(int pkgId, BTypeSymbol symbol) {
         CompletionItem completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
-        
+
         return new OtherTypeSymbolDTO.OtherTypeSymbolDTOBuilder()
                 .setPackageId(pkgId)
                 .setName(symbol.getName().getValue())
@@ -193,7 +196,7 @@ public class DTOUtil {
 
     /**
      * Get the Completion Item from the json.
-     * 
+     *
      * @param jsonVal   Json value to convert
      * @return {@link CompletionItem}   Converted Completion item
      */

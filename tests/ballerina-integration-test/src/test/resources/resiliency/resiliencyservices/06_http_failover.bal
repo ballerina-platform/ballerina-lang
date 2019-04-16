@@ -33,7 +33,7 @@ http:FailoverClient foBackendEP05 = new({
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
-        { url: "http://localhost:3000/inavalidEP" },
+        { url: "http://localhost:3467/inavalidEP" },
         { url: "http://localhost:8085/delay" },
         { url: "http://localhost:8085/mock" }
     ]
@@ -48,7 +48,7 @@ service failoverDemoService05 on failoverEP05 {
         path: "/index"
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
-        string startIndex = <string>foBackendEP05.succeededEndpointIndex;
+        string startIndex = string.convert(foBackendEP05.succeededEndpointIndex);
         var backendRes = foBackendEP05->forward("/", request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
@@ -56,7 +56,7 @@ service failoverDemoService05 on failoverEP05 {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendRes is error) {
+        } else {
             http:Response response = new;
             response.statusCode = 500;
             response.setPayload(<string> backendRes.detail().message);

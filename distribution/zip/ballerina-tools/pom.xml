@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.1-SNAPSHOT</version>
+        <version>0.990.4-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -64,7 +64,19 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-encoding</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-file</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-filepath</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -112,6 +124,18 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-activemq-artemis</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-rabbitmq</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-log-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -148,7 +172,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-runtime-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -166,7 +190,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-swagger</artifactId>
+            <artifactId>ballerina-openapi</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -196,17 +220,28 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-utils</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-llvm</artifactId>
+            <artifactId>ballerina-privacy</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
-
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jvm</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-bir</artifactId>
@@ -227,12 +262,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-to-ballerina-generator</artifactId>
+            <artifactId>openapi-to-ballerina-generator</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-codegen</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-client-generator</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
@@ -293,15 +328,19 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-llvm</artifactId>
+            <artifactId>ballerina-bir</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-backend-llvm</artifactId>
+            <artifactId>ballerina-jvm</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>llvm-platform</artifactId>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-backend-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
     </dependencies>
 
@@ -385,7 +424,9 @@
                                 ballerina-cache,
                                 ballerina-config-api,
                                 ballerina-crypto,
+                                ballerina-encoding,
                                 ballerina-file,
+                                ballerina-filepath,
                                 ballerina-grpc,
                                 ballerina-h2,
                                 ballerina-http,
@@ -399,16 +440,18 @@
                                 ballerina-mysql,
                                 ballerina-observability,
                                 ballerina-reflect,
-                                ballerina-runtime,
+                                ballerina-runtime-api,
                                 ballerina-sql,
                                 ballerina-streams,
-                                ballerina-swagger,
+                                ballerina-openapi,
                                 ballerina-system,
                                 ballerina-task,
                                 ballerina-time,
                                 ballerina-transactions,
+                                ballerina-utils,
                                 ballerina-websub,
-                                ballerina-llvm,
+                                ballerina-privacy,
+                                ballerina-jvm,
                                 ballerina-bir,
                                 <!-- other artifacts -->
                                 ballerina,
@@ -471,7 +514,17 @@
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-encoding-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-file-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-filepath-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -541,7 +594,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-runtime-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-runtime-api-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -556,7 +609,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-swagger-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -581,7 +634,17 @@
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-utils-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-websub-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
@@ -591,7 +654,7 @@
                                 </resource>
                                 <resource>
                                     <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-llvm-ballerina-sources-zip/ballerina
+                                        ${project.build.directory}/extracted-distributions/ballerina-jvm-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

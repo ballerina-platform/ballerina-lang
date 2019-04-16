@@ -16,9 +16,9 @@
 
 
 import ballerina/cache;
-import ballerina/runtime;
-import ballerina/log;
 import ballerina/io;
+import ballerina/log;
+import ballerina/runtime;
 
 # Representation of Authorization Handler for HTTP
 #
@@ -31,7 +31,7 @@ public type HttpAuthzHandler object {
     public cache:Cache negativeAuthzCache;
 
     public function __init(auth:AuthStoreProvider authStoreProvider, cache:Cache positiveAuthzCache,
-                                                                                    cache:Cache negativeAuthzCache) {
+                           cache:Cache negativeAuthzCache) {
         self.authStoreProvider = authStoreProvider;
         self.positiveAuthzCache = positiveAuthzCache;
         self.negativeAuthzCache = negativeAuthzCache;
@@ -51,8 +51,8 @@ public type HttpAuthzHandler object {
     # + method - HTTP method name
     # + scopes - Array of scopes
     # + return - true if authorization check is a success, else false
-    function handle(string username, string serviceName, string resourceName, string method,
-                                                                                    string[] scopes) returns (boolean);
+    function handle(string username, string serviceName, string resourceName, string method, string[] scopes)
+                 returns boolean;
     # Tries to retrieve authorization decision from the cached information, if any
     #
     # + authzCacheKey - Cache key
@@ -63,18 +63,18 @@ public type HttpAuthzHandler object {
     #
     # + authzCacheKey - Cache key
     # + authorized - boolean flag to indicate the authorization decision
-    function cacheAuthzResult (string authzCacheKey, boolean authorized);
+    function cacheAuthzResult(string authzCacheKey, boolean authorized);
 };
 
-function HttpAuthzHandler.handle (string username, string serviceName, string resourceName, string method,
-                                                                                    string[] scopes) returns (boolean) {
+function HttpAuthzHandler.handle(string username, string serviceName, string resourceName, string method,
+                                 string[] scopes) returns boolean {
     // first, check in the cache. cache key is <username>-<resource>-<http method>-<scopes-separated-by-colon>,
     // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().userPrincipal.userId +
-                                                    "-" + serviceName +  "-" + resourceName + "-" + method;
+    string authzCacheKey = runtime:getInvocationContext().principal.userId +
+        "-" + serviceName + "-" + resourceName + "-" + method;
 
-    string[] authCtxtScopes = runtime:getInvocationContext().userPrincipal.scopes;
-    //TODO: Make sure userPrincipal.scopes array is sorted to prevent cache-misses that could happen due to ordering
+    string[] authCtxtScopes = runtime:getInvocationContext().principal.scopes;
+    //TODO: Make sure principal.scopes array is sorted to prevent cache-misses that could happen due to ordering
     if (authCtxtScopes.length() > 0) {
         authzCacheKey += "-";
         foreach var authCtxtScope in authCtxtScopes {
@@ -82,7 +82,7 @@ function HttpAuthzHandler.handle (string username, string serviceName, string re
         }
     }
 
-    var authorizedFromCache =  self.authorizeFromCache(authzCacheKey);
+    var authorizedFromCache = self.authorizeFromCache(authzCacheKey);
     if (authorizedFromCache is boolean) {
         return authorizedFromCache;
     } else {
@@ -103,9 +103,9 @@ function HttpAuthzHandler.handle (string username, string serviceName, string re
                 return authorized;
             } else {
                 self.cacheAuthzResult(authzCacheKey, false);
-                log:printDebug(function() returns string {
+                log:printDebug(function () returns string {
                     return "No scopes found for user: " + username + " to access resource: " + resourceName +
-                                ", method:" + method;
+                        ", method:" + method;
                 });
                 return false;
             }
@@ -121,15 +121,15 @@ function HttpAuthzHandler.handle (string username, string serviceName, string re
 # + method - HTTP method name
 # + return - true if there is a match between resource and user scopes, else false
 function checkForScopeMatch (string[] resourceScopes, string[] userScopes, string resourceName, string method)
-                                                                                                    returns boolean {
+                                                                                               returns boolean {
     boolean authorized = matchScopes(resourceScopes, userScopes);
     if (authorized) {
-        log:printDebug(function() returns string {
+        log:printDebug(function () returns string {
             return "Successfully authorized to access resource: " + resourceName + ", method: " + method;
         });
     } else {
-        log:printDebug(function() returns string {
-            return"Authorization failure for resource: " + resourceName + ", method: " + method;
+        log:printDebug(function () returns string {
+            return "Authorization failure for resource: " + resourceName + ", method: " + method;
         });
     }
     return authorized;
@@ -147,7 +147,7 @@ function HttpAuthzHandler.authorizeFromCache(string authzCacheKey) returns (bool
     return ();
 }
 
-function HttpAuthzHandler.cacheAuthzResult (string authzCacheKey, boolean authorized) {
+function HttpAuthzHandler.cacheAuthzResult(string authzCacheKey, boolean authorized) {
     if (authorized) {
         self.positiveAuthzCache.put(authzCacheKey, authorized);
     } else {
@@ -160,7 +160,7 @@ function HttpAuthzHandler.cacheAuthzResult (string authzCacheKey, boolean author
 # + scopesOfResource - Scopes of resource
 # + scopesForRequest - Scopes of the user
 # + return - true if there is a match, else false
-function matchScopes (string[] scopesOfResource, string[] scopesForRequest) returns (boolean) {
+function matchScopes(string[] scopesOfResource, string[] scopesForRequest) returns boolean {
     foreach var scopeForRequest in scopesForRequest {
         foreach var scopeOfResource in scopesOfResource {
             if (scopeForRequest == scopeOfResource) {
@@ -172,8 +172,8 @@ function matchScopes (string[] scopesOfResource, string[] scopesForRequest) retu
     return false;
 }
 
-function HttpAuthzHandler.canHandle (Request req) returns (boolean) {
-    if (runtime:getInvocationContext().userPrincipal.username.length() == 0) {
+function HttpAuthzHandler.canHandle(Request req) returns boolean {
+    if (runtime:getInvocationContext().principal.username.length() == 0) {
         log:printError("Username not set in auth context. Unable to authorize");
         return false;
     }

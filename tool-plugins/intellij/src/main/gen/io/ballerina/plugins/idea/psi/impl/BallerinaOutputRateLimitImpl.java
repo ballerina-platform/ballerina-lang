@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOutputRateLimitImpl extends BallerinaCompositeElementImpl implements BallerinaOutputRateLimit {
+public class BallerinaOutputRateLimitImpl extends ASTWrapperPsiElement implements BallerinaOutputRateLimit {
 
   public BallerinaOutputRateLimitImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,7 +45,7 @@ public class BallerinaOutputRateLimitImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaTimeScale getTimeScale() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTimeScale.class);
+    return findChildByClass(BallerinaTimeScale.class);
   }
 
   @Override
@@ -86,7 +87,7 @@ public class BallerinaOutputRateLimitImpl extends BallerinaCompositeElementImpl 
   @Override
   @NotNull
   public PsiElement getOutput() {
-    return notNullChild(findChildByType(OUTPUT));
+    return findNotNullChildByType(OUTPUT);
   }
 
   @Override

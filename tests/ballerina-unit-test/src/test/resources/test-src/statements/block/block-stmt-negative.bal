@@ -94,12 +94,11 @@ function testUnreachableBreak() returns (string){
     return "done";
 }
 
-public type testError record {
+public type testError record {|
     string message;
     error cause;
     string code?;
-    !...
-};
+|};
 
 function testUnreachableThrow (int value) returns (string) {
     if (value > 10) {

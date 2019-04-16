@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.statements.foreach;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,14 +41,11 @@ public class ForeachXMLTypedBindingPatternsTests {
             "        </p:address>\n" +
             "        <q:ID>1131313</q:ID>\n" +
             "    </p:person> ";
-    private String expectedXml2 = "0:\n" +
-            "         1:<p:name xmlns:p=\"foo\" xmlns:q=\"bar\">bob</p:name> 2:\n" +
-            "         3:<p:address xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
+    private String expectedXml2 = "0:<p:name xmlns:p=\"foo\" xmlns:q=\"bar\">bob</p:name> " +
+            "1:<p:address xmlns:p=\"foo\" xmlns:q=\"bar\">\n" +
             "            <p:city>NY</p:city>\n" +
             "            <q:country>US</q:country>\n" +
-            "        </p:address> 4:\n" +
-            "         5:<q:ID xmlns:q=\"bar\" xmlns:p=\"foo\">1131313</q:ID> 6:\n" +
-            "     ";
+            "        </p:address> 2:<q:ID xmlns:q=\"bar\" xmlns:p=\"foo\">1131313</q:ID> ";
 
     @BeforeClass
     public void setup() {

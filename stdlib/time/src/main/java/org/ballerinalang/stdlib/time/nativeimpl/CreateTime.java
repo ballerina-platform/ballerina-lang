@@ -18,10 +18,11 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Create a time from the given time components.
@@ -30,23 +31,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "createTime",
-        args = {@Argument(name = "years", type = TypeKind.INT),
-                @Argument(name = "months", type = TypeKind.INT),
-                @Argument(name = "days", type = TypeKind.INT),
-                @Argument(name = "hours", type = TypeKind.INT),
-                @Argument(name = "minutes", type = TypeKind.INT),
-                @Argument(name = "seconds", type = TypeKind.INT),
-                @Argument(name = "milliseconds", type = TypeKind.INT),
-                @Argument(name = "zoneID", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
-                                  structPackage = "ballerina/time")},
-        isPublic = true
+        functionName = "createTime"
 )
 public class CreateTime extends AbstractTimeFunction {
 
-    @Override
-    public void execute(Context context) {
+    @Override public void execute(Context context) {
         int years = (int) context.getIntArgument(0);
         int months = (int) context.getIntArgument(1);
         int dates = (int) context.getIntArgument(2);
@@ -55,7 +44,12 @@ public class CreateTime extends AbstractTimeFunction {
         int seconds = (int) context.getIntArgument(5);
         int milliSeconds = (int) context.getIntArgument(6);
         String zoneId = context.getStringArgument(0);
-        context.setReturnValues(
-                createDateTime(context, years, months, dates, hours, minutes, seconds, milliSeconds, zoneId));
+        try {
+            BMap<String, BValue> timeVal = createDateTime(context, years, months, dates, hours, minutes, seconds,
+                    milliSeconds, zoneId);
+            context.setReturnValues(timeVal);
+        } catch (BallerinaException e) {
+            context.setReturnValues(TimeUtils.getTimeError(context, e.getMessage()));
+        }
     }
 }

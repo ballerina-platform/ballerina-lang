@@ -4,4 +4,3 @@
 // production outcome. This example can be extended to make decisions based on the output of the streaming rules.
 // Ballerina Streams is an experimental feature. Please use `--experimental` flag when compiling Ballerina files
 // which have streaming constructs.
-

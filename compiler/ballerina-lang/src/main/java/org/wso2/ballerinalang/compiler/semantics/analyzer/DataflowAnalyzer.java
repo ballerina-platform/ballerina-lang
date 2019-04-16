@@ -19,11 +19,14 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -75,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -173,45 +177,60 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 
+ *
  * Responsible for performing data flow analysis.
  * <p>
  * The following validations are done here:-
  * <ul>
  * <li>Uninitialized variable referencing validation</li>
  * </ul>
- * 
+ *
  * @since 0.985.0
  */
 public class DataflowAnalyzer extends BLangNodeVisitor {
 
+    private final SymbolResolver symResolver;
+    private final Names names;
     private SymbolEnv env;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
+    private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private boolean flowTerminated = false;
-    private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
+    private Deque<BSymbol> currDependentSymbol;
+    private final GlobalVariableRefAnalyzer globalVariableRefAnalyzer;
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.names = Names.getInstance(context);
+        this.currDependentSymbol = new ArrayDeque<>();
+        this.globalVariableRefAnalyzer = GlobalVariableRefAnalyzer.getInstance(context);
+
     }
 
     public static DataflowAnalyzer getInstance(CompilerContext context) {
@@ -224,12 +243,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     /**
      * Perform data-flow analysis on a package.
-     * 
+     *
      * @param pkgNode Package to perform data-flow analysis.
      * @return Data-flow analyzed package
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
+        this.globalNodeDependsOn = new LinkedHashMap<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
@@ -241,7 +261,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        // Rearrange the top level nodes so that global variables come on top
+        List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
+        pkgNode.topLevelNodes.forEach(topLevelNode -> {
+            if (!sortedListOfNodes.contains(topLevelNode)) {
+                sortedListOfNodes.add(topLevelNode);
+            }
+        });
+        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
+        globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -267,6 +296,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService service) {
+        this.currDependentSymbol.push(service.serviceTypeDefinition.symbol);
+        for (BLangExpression attachedExpr : service.attachedExprs) {
+            analyzeNode(attachedExpr, env);
+        }
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -291,19 +325,29 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        if (variable.expr != null) {
-            analyzeNode(variable.expr, env);
-            this.uninitializedVars.remove(variable.symbol);
-            return;
+        boolean validVariable = variable.symbol != null;
+        if (validVariable) {
+            this.currDependentSymbol.push(variable.symbol);
         }
+        try {
+            if (variable.expr != null) {
+                analyzeNode(variable.expr, env);
+                this.uninitializedVars.remove(variable.symbol);
+                return;
+            }
 
-        // Handle package/object level variables
-        BSymbol owner = variable.symbol.owner;
-        if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
-            return;
+            // Handle package/object level variables
+            BSymbol owner = variable.symbol.owner;
+            if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
+                return;
+            }
+
+            addUninitializedVar(variable);
+        } finally {
+            if (validVariable) {
+                this.currDependentSymbol.pop();
+            }
         }
-
-        addUninitializedVar(variable);
     }
 
     @Override
@@ -504,11 +548,58 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
+        BSymbol owner = this.env.scope.owner;
+        if (owner.kind == SymbolKind.FUNCTION) {
+            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) owner;
+            Name name = names.fromIdNode(invocationExpr.name);
+            // Todo: we need to handle function pointer referring global variable, passed into a function.
+            // i.e 'foo' is a function pointer pointing to a function referring a global variable G1, then we pass
+            // that pointer into 'bar', now 'bar' may have a dependency on G1.
+
+            // Todo: test lambdas and function arguments
+
+            BSymbol dependsOnFunctionSym = symResolver.lookupSymbol(this.env, name, SymTag.FUNCTION);
+            if (symTable.notFoundSymbol != dependsOnFunctionSym) {
+                addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
+            }
+        } else if (invocationExpr.symbol != null && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
+            BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            BSymbol curDependent = this.currDependentSymbol.peek();
+            if (curDependent != null && isGlobalVarSymbol(curDependent)) {
+                addDependency(curDependent, invokableProviderSymbol);
+            }
+        }
+    }
+
+    private boolean isGlobalVarSymbol(BSymbol symbol) {
+        return symbol != null &&
+                symbol.owner != null &&
+                symbol.owner.tag == SymTag.PACKAGE &&
+                (symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
+    }
+
+    /**
+     * Register dependent symbol to the provider symbol.
+     * Let global int a = b, a depend on b.
+     * Let func foo() { returns b + 1; }, where b is a global var, then foo depends on b.
+     *
+     * @param dependent dependent.
+     * @param provider object which provides a value.
+     */
+    private void addDependency(BSymbol dependent, BSymbol provider) {
+        if (dependent.pkgID != provider.pkgID) {
+            return;
+        }
+        Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
+        providers.add(provider);
     }
 
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
+        if (this.currDependentSymbol.peek() != null) {
+            addDependency(this.currDependentSymbol.peek(), typeInitExpr.type.tsymbol);
+        }
     }
 
     @Override
@@ -601,6 +692,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
+            bLangLambdaFunction.function.closureVarSymbols.forEach(closureVarSymbol -> {
+                if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                    this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                            closureVarSymbol.bSymbol);
+                }
+            });
             return;
         }
 
@@ -657,6 +754,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeNode(checkedExpr.expr, env);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanicExpr) {
+        analyzeNode(checkPanicExpr.expr, env);
     }
 
     @Override
@@ -775,6 +877,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
+            if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
+                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                        closureVarSymbol.bSymbol);
+            }
+        });
     }
 
     @Override
@@ -824,16 +932,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        this.currDependentSymbol.push(objectTypeNode.symbol);
+
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         objectTypeNode.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
-            objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            if (objectTypeNode.initFunction.body == null) {
+                // if the __init() function is defined as an outside function definition
+                Optional<BLangFunction> outerFuncDef =
+                        objectEnv.enclPkg.functions.stream()
+                                .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
+                                .findFirst();
+                outerFuncDef.ifPresent(bLangFunction -> objectTypeNode.initFunction = bLangFunction);
+            }
+
+            if (objectTypeNode.initFunction.body != null) {
+                objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            }
         }
 
-        if (!anonymousModelHelper.isAnonymousType(objectTypeNode.symbol) &&
-                !Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
+        if (!Symbols.isFlagOn(objectTypeNode.symbol.flags, Flags.ABSTRACT)) {
             Stream.concat(objectTypeNode.fields.stream(), objectTypeNode.referencedFields.stream())
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
@@ -844,6 +964,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         objectTypeNode.functions.forEach(function -> analyzeNode(function, env));
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -931,9 +1052,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorDestructure recordDestructure) {
-        analyzeNode(recordDestructure.expr, env);
-        checkAssignment(recordDestructure.varRef);
+    public void visit(BLangErrorDestructure errorDestructure) {
+        analyzeNode(errorDestructure.expr, env);
+        checkAssignment(errorDestructure.varRef);
     }
 
     @Override
@@ -943,10 +1064,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
+        varRefExpr.recordRefFields.forEach(expr -> analyzeNode(expr.variableReference, env));
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
+        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.detail, env);
     }
 
     @Override
@@ -971,7 +1095,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangVariable var = bLangRecordVariableDef.var;
         if (var.expr == null) {
             addUninitializedVar(var);
-            return;
         }
     }
 
@@ -981,6 +1104,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        BLangVariable var = bLangErrorVariableDef.errorVariable;
+        if (var.expr == null) {
+            addUninitializedVar(var);
+        }
     }
 
     @Override
@@ -1000,7 +1127,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     /**
      * Analyze a branch and returns the set of uninitialized variables for that branch.
      * This method will not update the current uninitialized variables set.
-     * 
+     *
      * @param node Branch node to be analyzed
      * @param env Symbol environment
      * @return Result of the branch.
@@ -1059,6 +1186,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
+        recordGlobalVariableReferenceRelationship(symbol);
+
         InitStatus initStatus = this.uninitializedVars.get(symbol);
         if (initStatus == null) {
             return;
@@ -1072,6 +1201,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.dlog.error(pos, DiagnosticCode.PARTIALLY_INITIALIZED_VARIABLE, symbol.name);
     }
 
+    private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
+        BSymbol ownerSymbol = this.env.scope.owner;
+        boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
+        // Restrict to observations made in pkg level.
+        if (isInPkgLevel && isGlobalVarSymbol(symbol)) {
+            BSymbol dependent = this.currDependentSymbol.peek();
+            addDependency(dependent, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && isGlobalVarSymbol(symbol)) {
+            // Global variable ref from non package level.
+            BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
+            addDependency(invokableOwnerSymbol, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.OBJECT && isGlobalVarSymbol(symbol)) {
+            // Global variable reference from a field assignment of an object or a service.
+            // Or global variable reference from a __init function of an object or a service.
+            addDependency(ownerSymbol, symbol);
+        }
+    }
+
     private boolean isObjectMemberAccessWithSelf(BLangAccessExpression fieldAccessExpr) {
         if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return false;
@@ -1082,10 +1229,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkAssignment(BLangExpression varRef) {
         switch (varRef.getKind()) {
             case RECORD_VARIABLE_REF:
-                ((BLangRecordVarRef) varRef).recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRef;
+                recordVarRef.recordRefFields.forEach(field -> checkAssignment(field.variableReference));
+                if (recordVarRef.restParam != null) {
+                    checkAssignment((BLangExpression) recordVarRef.restParam);
+                }
                 return;
             case TUPLE_VARIABLE_REF:
-                ((BLangTupleVarRef) varRef).expressions.forEach(expr -> checkAssignment(expr));
+                ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);
+                return;
+            case ERROR_VARIABLE_REF:
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
+                checkAssignment(errorVarRef.reason);
+                checkAssignment(errorVarRef.detail);
                 return;
             case INDEX_BASED_ACCESS_EXPR:
             case FIELD_BASED_ACCESS_EXPR:

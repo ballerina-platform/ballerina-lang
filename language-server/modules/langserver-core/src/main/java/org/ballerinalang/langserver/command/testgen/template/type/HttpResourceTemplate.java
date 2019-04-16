@@ -41,12 +41,18 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     private final List<String[]> resourceMethods;
     private final String resourcePath;
     private final String serviceUriStrName;
+    private final String httpEndpoint;
 
-    public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangFunction resource) {
+    public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangFunction resource,
+                                String httpEndpoint) {
         super(null, null);
+        this.httpEndpoint = httpEndpoint;
         this.serviceUriStrName = serviceUriStrName;
         this.resourceMethods = new ArrayList<>();
         String resourceName = resource.name.value;
+
+        // Add default method
+        resourceMethods.add(new String[]{resourceName, "get"});
 
         // Resource path
         String tempResourcePath = basePath + "/" + resourceName;
@@ -56,13 +62,14 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
         if (annAttachments.size() > 0) {
             for (BLangAnnotationAttachment annotation : annAttachments) {
                 List<String> methods = searchArrayField(HttpConstants.ANN_RESOURCE_ATTR_METHODS, annotation);
-                methods.forEach(resourceMethod -> resourceMethods.add(new String[]{resourceName, resourceMethod}));
+                if (!methods.isEmpty()) {
+                    // has method annotation
+                    resourceMethods.clear();
+                    methods.forEach(resourceMethod -> resourceMethods.add(new String[]{resourceName, resourceMethod}));
+                }
                 Optional<String> annotPath = searchStringField(HttpConstants.ANN_RESOURCE_ATTR_PATH, annotation);
                 tempResourcePath = basePath + annotPath.filter(path -> (!"/".equals(path))).orElse("");
             }
-        } else {
-            // Or else, add default resource method
-            resourceMethods.add(new String[]{resourceName, "get"});
         }
 
         // Remove path variables
@@ -101,6 +108,7 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
             resourceOutput.put(PlaceHolder.OTHER.get("resourcePath"), resourcePath);
             resourceOutput.put(PlaceHolder.OTHER.get("additionalParams"), additionalParams);
             resourceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
+            resourceOutput.put(PlaceHolder.OTHER.get("endpointName"), httpEndpoint);
             methods.append(resourceOutput.getRenderedContent());
         }
         rendererOutput.append(PlaceHolder.OTHER.get("resources"), methods.toString());

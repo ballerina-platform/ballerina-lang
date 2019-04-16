@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 http:Client backendClientEP = new("http://localhost:8080", config = {
-    // Timeout configuration
+    // Timeout configuration.
     timeoutMillis: 10000
 
 });
@@ -23,7 +23,7 @@ service timeoutService on new http:Listener(9090) {
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and an `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
@@ -35,7 +35,7 @@ service timeoutService on new http:Listener(9090) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errorMessage = <string> backendResponse.detail().message;
@@ -56,7 +56,9 @@ service timeoutService on new http:Listener(9090) {
 }
 
 // This sample service is used to mock connection timeouts.
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service helloWorld on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET"],

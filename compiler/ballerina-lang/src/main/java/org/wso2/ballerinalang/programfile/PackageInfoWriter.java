@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -88,10 +87,6 @@ public class PackageInfoWriter {
                 case CP_ENTRY_INTEGER:
                     long longVal = ((IntegerCPEntry) cpEntry).getValue();
                     dataOutStream.writeLong(longVal);
-                    break;
-                case CP_ENTRY_BYTE:
-                    byte byteVal = ((ByteCPEntry) cpEntry).getValue();
-                    dataOutStream.writeByte(byteVal);
                     break;
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();
@@ -247,6 +242,7 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
             dataOutStream.writeInt(packageVarInfo.flags);
             dataOutStream.writeInt(packageVarInfo.globalMemIndex);
+            dataOutStream.writeBoolean(packageVarInfo.isIdentifierLiteral);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());
         }
@@ -330,6 +326,9 @@ public class PackageInfoWriter {
             case TypeTags.RECORD:
                 writeRecordTypeDefInfo(dataOutStream, (RecordTypeInfo) typeDefInfo.typeInfo);
                 break;
+            case TypeTags.ERROR:
+                writeErrorTypeDefInfo(dataOutStream, (ErrorTypeInfo) typeDefInfo.typeInfo);
+                break;
             case TypeTags.FINITE:
                 writeFiniteTypeDefInfo(dataOutStream, (FiniteTypeInfo) typeDefInfo.typeInfo);
                 break;
@@ -378,6 +377,13 @@ public class PackageInfoWriter {
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, recordInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeErrorTypeDefInfo(DataOutputStream dataOutStream, ErrorTypeInfo errorTypeInfo)
+            throws IOException {
+        dataOutStream.writeInt(errorTypeInfo.reasonTypeSigCPIndex);
+        dataOutStream.writeInt(errorTypeInfo.detailTypeSigCPIndex);
+        writeAttributeInfoEntries(dataOutStream, errorTypeInfo.getAttributeInfoEntries());
     }
 
     private static void writeFiniteTypeDefInfo(DataOutputStream dataOutStream,
@@ -613,6 +619,8 @@ public class PackageInfoWriter {
 
         dataOutStream.writeInt(localVariableInfo.scopeStartLineNumber);
         dataOutStream.writeInt(localVariableInfo.scopeEndLineNumber);
+
+        dataOutStream.writeBoolean(localVariableInfo.isIdentifierLiteral);
 
         int[] attachmentsIndexes = localVariableInfo.attachmentIndexes;
         dataOutStream.writeShort(attachmentsIndexes.length);

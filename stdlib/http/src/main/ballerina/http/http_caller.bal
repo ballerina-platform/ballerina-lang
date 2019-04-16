@@ -30,7 +30,7 @@ public type HttpCaller client object {
     public function __init(string url, ClientEndpointConfig config) {
         self.config = config;
         self.url = url;
-        self.caller = createSimpleHttpClient(url, self.config);
+        self.caller = createSimpleHttpClient(url, self.config, globalHttpClientConnPool);
     }
 
     # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
@@ -39,10 +39,8 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativePost(self.url, self.config, path, req);
+    public remote function post(@sensitive string path, RequestMessage message) returns Response|error {
+        return nativePost(self.url, self.config, path, <Request>message);
     }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -51,10 +49,8 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                    message = ()) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeHead(self.url, self.config, path, req);
+    public remote function head(@sensitive string path, RequestMessage message = ()) returns Response|error {
+        return nativeHead(self.url, self.config, path, <Request>message);
     }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -63,10 +59,8 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativePut(self.url, self.config, path, req);
+    public remote function put(@sensitive string path, RequestMessage message) returns Response|error {
+        return nativePut(self.url, self.config, path, <Request>message);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -76,10 +70,8 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
-                                                        |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeExecute(self.url, self.config, httpVerb, path, req);
+    public remote function execute(@sensitive string httpVerb, @sensitive string path, RequestMessage message) returns Response|error {
+        return nativeExecute(self.url, self.config, httpVerb, path, <Request>message);
     }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -88,10 +80,8 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativePatch(self.url, self.config, path, req);
+    public remote function patch(@sensitive string path, RequestMessage message) returns Response|error {
+        return nativePatch(self.url, self.config, path, <Request>message);
     }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -100,10 +90,8 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeDelete(self.url, self.config, path, req);
+    public remote function delete(@sensitive string path, RequestMessage message) returns Response|error {
+        return nativeDelete(self.url, self.config, path, <Request>message);
     }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -112,10 +100,8 @@ public type HttpCaller client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                        message = ()) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeGet(self.url, self.config, path, req);
+    public remote function get(@sensitive string path, RequestMessage message = ()) returns Response|error {
+        return nativeGet(self.url, self.config, path, <Request>message);
     }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -124,10 +110,8 @@ public type HttpCaller client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        Request req = buildRequest(message);
-        return nativeOptions(self.url, self.config, path, req);
+    public remote function options(@sensitive string path, RequestMessage message = ()) returns Response|error {
+        return nativeOptions(self.url, self.config, path, <Request>message);
     }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -148,77 +132,72 @@ public type HttpCaller client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
-                                                    io:ReadableByteChannel|mime:Entity[]|() message)
-                           returns HttpFuture|error {
-        Request req = buildRequest(message);
-        return nativeSubmit(self.url, self.config, httpVerb, path, req);
+    public remote function submit(@sensitive string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+        return nativeSubmit(self.url, self.config, httpVerb, path, <Request>message);
     }
 
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
-    public remote extern function getResponse(HttpFuture httpFuture) returns Response|error;
+    public remote function getResponse(HttpFuture httpFuture) returns Response|error = external;
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public remote extern function hasPromise(HttpFuture httpFuture) returns (boolean);
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean = external;
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an `error` if the invocation fails
-    public remote extern function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error = external;
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public remote extern function getPromisedResponse(PushPromise promise) returns Response|error;
+    public remote function getPromisedResponse(PushPromise promise) returns Response|error = external;
 
     # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
-    public remote extern function rejectPromise(PushPromise promise);
+    public remote function rejectPromise(PushPromise promise) = external;
 };
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-extern function nativePost(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativePost(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeHead(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeHead(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativePut(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativePut(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeExecute(string url, ClientEndpointConfig config, @sensitive string httpVerb, @sensitive string path,
-                                                        Request req) returns Response|error;
+function nativeExecute(string url, ClientEndpointConfig config, @sensitive string httpVerb, @sensitive string path,
+                                                        Request req) returns Response|error = external;
 
-extern function nativePatch(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativePatch(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeDelete(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeDelete(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeGet(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeGet(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeOptions(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error;
+function nativeOptions(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
-extern function nativeSubmit(string url, ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
-                                                            returns HttpFuture|error;
+function nativeSubmit(string url, ClientEndpointConfig config, @sensitive string httpVerb, string path, Request req)
+                                                            returns HttpFuture|error = external;
 
-extern function nativeForward(string url, ClientEndpointConfig config, @sensitive string path, Request req)
-                                                            returns Response|error;
+function nativeForward(string url, ClientEndpointConfig config, @sensitive string path, Request req) returns Response|error = external;
 
 # Defines a timeout error occurred during service invocation.
 #
 # + message - An explanation on what went wrong
 # + cause - The error which caused the `HttpTimeoutError`
 # + statusCode - HTTP status code
-public type HttpTimeoutError record {
+public type HttpTimeoutError record {|
     string message = "";
     error? cause = ();
     int statusCode = 0;
-    !...
-};
+|};
 

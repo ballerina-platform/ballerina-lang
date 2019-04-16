@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.RecordTypeInfo;
@@ -53,12 +54,28 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        BMap<String, BValue> implicitInitValue = new BMap<>(this);
+        this.fields.entrySet().stream()
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .forEach(entry -> {
+                    BValue value = entry.getValue().fieldType.getZeroValue();
+                    implicitInitValue.put(entry.getKey(), value);
+                });
+
+        return (V) implicitInitValue;
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BMap<>(this);
+        BMap<String, BValue> implicitInitValue = new BMap<>(this);
+        this.fields.entrySet().stream()
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .forEach(entry -> {
+                    BValue value = entry.getValue().fieldType.getEmptyValue();
+                    implicitInitValue.put(entry.getKey(), value);
+                });
+
+        return (V) implicitInitValue;
     }
 
     @Override

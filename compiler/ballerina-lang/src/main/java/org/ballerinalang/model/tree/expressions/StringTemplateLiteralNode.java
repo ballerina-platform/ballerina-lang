@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * string name = "James";.
- * string a = string `my name is {{strings:toUpper(name)}}`
+ * string a = string `my name is ${strings:toUpper(name)}`
  *
  * @since 0.94
  */

@@ -37,23 +37,21 @@ import java.io.File;
  */
 public class PkgRunFunctionNegativeTestCase extends BaseTest {
 
-    private String sourceRoot = (new File("src/test/resources/run/package/")).getAbsolutePath();
-
-    @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <PKG>:")
-    public void testInvalidSourceArg() throws BallerinaTestException {
-        String sourceArg = "entry:";
-        LogLeecher errLogLeecher = new LogLeecher("error: ballerina source does not exist 'entry:'",
+    @Test(description = "test insufficient arguments")
+    public void testInsufficientArguments() throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: insufficient arguments to call the 'main' function",
                                                   LeecherType.ERROR);
-        balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+        balClient.runMain((new File("src/test/resources/run/package")).getAbsolutePath(), "multiple_params",
+                          new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(10000);
     }
 
-    @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
-    public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
-        String sourceArg = "pkg_with_colons:colonsInName:WrongFunction";
-        LogLeecher errLogLeecher = new LogLeecher("'colonsInName:WrongFunction' function not found in " +
-                                                          "'pkg_with_colons'", LeecherType.ERROR);
-        balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+    @Test(description = "test too many arguments")
+    public void testTooManyArguments() throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: too many arguments to call the 'main' function",
+                                                  LeecherType.ERROR);
+        balClient.runMain((new File("src/test/resources/run/package")).getAbsolutePath(), "no_params",
+                          new String[]{}, new String[]{"extra"}, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(10000);
     }
 }

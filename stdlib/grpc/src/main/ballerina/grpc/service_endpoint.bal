@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public type Listener object {
@@ -39,11 +41,11 @@ public type Listener object {
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
-    # + serviceType - The type of the service to be registered.
-    # + annotationData - Annotations attached to the service.
+    # + s - The type of the service to be registered.
+    # + name - Name of the service.
     # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     # Gets called when the endpoint is being initialize during module init time.
@@ -56,44 +58,65 @@ public type Listener object {
         self.init(self.port, self.config);
     }
 
-    extern function init(int port, ServiceEndpointConfiguration config);
+    function init(int port, ServiceEndpointConfiguration config) = external;
 
 
-    extern function register(service serviceType, map<any> annotationData) returns error?;
+    function register(service serviceType, string? name) returns error? = external;
 
-    extern function start() returns error?;
+    function start() returns error? = external;
 
-    extern function stop() returns error?;
+    function stop() returns error? = external;
 };
+
+# Maximum number of requests that can be processed at a given time on a single connection.
+const int MAX_PIPELINED_REQUESTS = 10;
+
+# Constant for the default listener endpoint timeout
+const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
 # Represents the gRPC server endpoint configuration.
 #
 # + host - The server hostname.
+# + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
+#               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + secureSocket - The SSL configurations for the client endpoint.
-public type ServiceEndpointConfiguration record {
+# + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
+# + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+#                   disable timeout.
+# + requestLimits - Configures the parameters for request validation.
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1
+public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
-    !...
-};
+    string httpVersion = "2.0";
+    RequestLimits? requestLimits = ();
+    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+|};
 
-# SecureSocket struct represents SSL/TLS options to be used for gRPC service.
+# Configures the SSL/TLS options to be used for HTTP service.
 #
-# + trustStore - TrustStore related options.
-# + keyStore - KeyStore related options.
-# + certFile - A file containing the certificate of the server.
-# + keyFile - A file containing the private key of the server.
-# + keyPassword - Password of the private key if it is encrypted.
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the server trusts.
-# + protocol - SSL/TLS protocol related options.
-# + certValidation - Certificate validation against CRL or OCSP related options.
-# + ciphers - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-#             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-# + sslVerifyClient - The type of client certificate verification.
-# + shareSession - Enable/disable new ssl session creation.
-# + ocspStapling - Enable/disable ocsp stapling.
-public type ServiceSecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+# + trustStore - Configures the trust store to be used
+# + keyStore - Configures the key store to be used
+# + certFile - A file containing the certificate of the server
+# + keyFile - A file containing the private key of the server
+# + keyPassword - Password of the private key if it is encrypted
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the server trusts
+# + protocol - SSL/TLS protocol related options
+# + certValidation - Certificate validation against CRL or OCSP related options
+# + ciphers - List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+#             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
+# + sslVerifyClient - The type of client certificate verification
+# + shareSession - Enable/disable new SSL session creation
+# + ocspStapling - Enable/disable OCSP stapling
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
+public type ServiceSecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
@@ -104,5 +127,20 @@ public type ServiceSecureSocket record {
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
-    !...
-};
+    int handshakeTimeout?;
+    int sessionTimeout?;
+|};
+
+# Configures limits for requests. If these limits are violated, the request is rejected.
+#
+# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
+#                  `414 - URI Too Long` response.
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
+#                   `413 - Payload Too Large` response.
+# + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
+#                       `413 - Payload Too Large` response.
+public type RequestLimits record {|
+    int maxUriLength = -1;
+    int maxHeaderSize = -1;
+    int maxEntityBodySize = -1;
+|};

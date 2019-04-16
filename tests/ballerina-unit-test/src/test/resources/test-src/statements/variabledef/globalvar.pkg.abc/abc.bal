@@ -4,6 +4,6 @@ import globalvar.pkg.efg;
 
 
 function getStringInPkg() returns (string){
-    int val = cde:sample;
-    return efg:stringval;
+    int val = cde:getSample();
+    return efg:getStringVal();
 }

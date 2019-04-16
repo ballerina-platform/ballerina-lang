@@ -34,6 +34,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -60,7 +62,7 @@ public class ServiceDesugar {
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
     private static final String START_METHOD = "__start";
-    private static final String STOP_METHOD = "__start";
+    private static final String STOP_METHOD = "__stop";
     private static final String ATTACH_METHOD = "__attach";
     private static final String LISTENER = "$LISTENER";
 
@@ -115,7 +117,8 @@ public class ServiceDesugar {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
 
         // Create method invocation
-        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
+                lifeCycleFunction.body);
     }
 
     void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
@@ -161,32 +164,35 @@ public class ServiceDesugar {
             // Find correct symbol.
             final Name functionName = names
                     .fromString(Symbols.getAttachedFuncSymbolName(attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
-            BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
+            BInvokableSymbol methodRef = (BInvokableSymbol) symResolver
                     .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
                             functionName, SymTag.INVOKABLE);
-
-            // TODO : De-sugar annotations map.
 
             // Create method invocation
             List<BLangExpression> args = new ArrayList<>();
             args.add(ASTBuilderUtil.createVariableRef(pos, service.variableNode.symbol));
-            args.add(ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType));
 
-            addMethodInvocation(pos, listenerVarRef, methodInvocationSymbol, args, attachments);
+            BLangLiteral serviceName = ASTBuilderUtil.createLiteral(pos, symTable.stringType, service.name.value);
+            List<BLangNamedArgsExpression> namedArgs = Collections.singletonList(
+                    ASTBuilderUtil.createNamedArg("name", serviceName));
+
+            addMethodInvocation(pos, listenerVarRef, methodRef, args, namedArgs, attachments);
         }
     }
 
-    private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef,
-            BInvokableSymbol methodInvocationSymbol, List<BLangExpression> args, BLangBlockStmt body) {
+    private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
+                                     List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
+                                     BLangBlockStmt body) {
         // Create method invocation
-        final BLangInvocation methodInvocation = ASTBuilderUtil
-                .createInvocationExprForMethod(pos, methodInvocationSymbol, args, symResolver);
+        final BLangInvocation methodInvocation =
+                ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);
         methodInvocation.expr = varRef;
+        methodInvocation.namedArgs.addAll(namedArgs);
 
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
-        if (((BInvokableType) methodInvocationSymbol.type).retType.tag == TypeTags.UNION
-                && ((BUnionType) ((BInvokableType) methodInvocationSymbol.type).retType).memberTypes.stream()
+        if (((BInvokableType) methodRefSymbol.type).retType.tag == TypeTags.UNION
+                && ((BUnionType) ((BInvokableType) methodRefSymbol.type).retType).getMemberTypes().stream()
                 .anyMatch(type -> type.tag == TypeTags.ERROR)) {
             final BLangCheckedExpr checkExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.anyType);
             checkExpr.equivalentErrorTypeList.add(symTable.errorType);

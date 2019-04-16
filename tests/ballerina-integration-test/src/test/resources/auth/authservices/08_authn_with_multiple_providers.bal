@@ -17,24 +17,28 @@
 import ballerina/http;
 
 http:AuthProvider jwtAuthProvider1 = {
-    scheme: "jwt",
-    issuer: "example1",
-    audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    config: {
+        issuer: "example1",
+        audience: ["ballerina"],
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 
 http:AuthProvider jwtAuthProvider2 = {
-    scheme: "jwt",
-    issuer: "example2",
-    audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    scheme: http:JWT_AUTH,
+    config: {
+        issuer: "example2",
+        audience: ["ballerina"],
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 };
 
@@ -51,6 +55,6 @@ listener http:Listener listener08 = new(9099, config = {
 service echo8 on listener08 {
 
     resource function test8(http:Caller caller, http:Request req) {
-        _ = caller->respond(());
+        checkpanic caller->respond(());
     }
 }

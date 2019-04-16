@@ -1,31 +1,63 @@
 import ballerina/http;
 
-service <http:Service> serviceName1 {newResource (endpoint caller,http:Request request) {
-http:Response res = new;
-res.setPayload("sd");var d =0;_ =caller->respond(res);}
+service serviceName1 on new http:Listener(9090){
+    resource function newResource(http:Caller caller, http:Request request) {
+    json? payload;
+          (http:Response | error | ()) clientResponse;
+        (json | error) jsonMsg = req.getJsonPayload();
+        http:Response res = new;
+        res.setPayload("sd");
+        var d = 0;
+        checkpanic caller->respond(res);
+    }
 }
 
-endpoint http:Listener listener {port: 8080};
+listener http:Listener listenerEP = new(8080);
 
-service serviceName2   bind listener{}
+service serviceName2 on listenerEP {
 
-service <http:Service> serviceName3   bind {port:9090}{}
+}
 
-service<http:Service> serviceName4{newResource1 (endpoint caller,http:Request request){
-http:Response res = new;
-res.setPayload("sd");
-_ = caller->respond(res);}newResource2 (endpoint caller,http:Request request){
-endpoint http:Listener listener1 {port: 8080};
+service serviceName3 on new http:Listener(9090) {
 
-http:Response res = new;
-res.setPayload("sd");
-_ = caller->respond(res);}
+}
 
-newResource3(endpoint caller, http:Request request) {
-        worker  default {http:Response res = new;res.setPayload("sd"); _ = caller->respond(res);        }
-
-  worker  worker1{http:Response res = new;
-                   res.setPayload("sd");
-       _ = caller->respond(res);}
+service serviceName4 on new http:Listener(9090) {
+        public    resource     function newResource1(http:Caller caller, http:Request request) {
+        http:Response res = new;
+        res.setPayload("sd");
+        checkpanic caller->respond(res);
     }
+
+ private   resource     function newResource2(http:Caller caller, http:Request request) {
+        http:Listener listener1 = new(8080);
+
+        http:Response res = new;
+        res.setPayload("sd");
+        checkpanic caller->respond(res);
+    }
+
+  resource         function newResource3(http:Caller caller, http:Request request)=external;
+
+    resource function send(http:Caller caller, http:Request request) {
+                var result = caller->respond({
+                    "send": "Success!!"
+                });
+            }
+
+    resource function send2(http:Caller caller,
+    http:Request request) {
+            http:Client locationEP = new("http://www.mocky.io");
+            var jsonMsg = req.getJsonPayload();
+
+            if (jsonMsg is json) {
+                string nameString = jsonMsg["name"].toString();
+                http:Response | error clientResponse;
+
+                if (nameString == "sanFrancisco") {
+                    clientResponse =
+                    locationEP->post("/v2/594e018c1100002811d6d39a", ());
+                }
+            }
+        }
 }

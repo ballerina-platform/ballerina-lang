@@ -1,12 +1,12 @@
 function checkStringTemplateWithText() returns (string) {
     string firstName = "John";
     string lastName = "Smith";
-    string s = string `Hello {{firstName + " " + string `{{lastName}}`}} !!!`;
+    string s = string `Hello ${firstName + " " + string `${lastName}} !!!`;
     return s;
 }
 
-function checkSpaceBetweenBraces() returns (string) {
+function checkSpaceBetweenDollarAndBrace() returns (string) {
     string name = "Ballerina";
-    string s = string `Hello {{name} }`;
+    string s = string `He\llo $ {name}}`;
     return s;
 }

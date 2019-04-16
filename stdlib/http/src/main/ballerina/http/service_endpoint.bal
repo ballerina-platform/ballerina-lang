@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/log;
 import ballerina/system;
 
@@ -39,8 +40,8 @@ public type Listener object {
         return self.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
@@ -55,31 +56,35 @@ public type Listener object {
     # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
-    public extern function initEndpoint() returns error?;
+    public function initEndpoint() returns error? = external;
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
+    # + name - Name of the service
     # + return - An `error` if there is any error occured during the service attachment process or else nil
-    extern function register(service s, map<any> annotationData) returns error?;
+    function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    extern function start();
+    function start() = external;
 
     # Stops the registered service.
-    extern function stop();
+    function stop() = external;
 };
 
-function Listener.init(ServiceEndpointConfiguration c) {
+public function Listener.init(ServiceEndpointConfiguration c) {
     self.config = c;
-    var providers = self.config.authProviders;
-    if (providers is AuthProvider[]) {
-        var secureSocket = self.config.secureSocket;
-        if (secureSocket is ServiceSecureSocket) {
-            addAuthFiltersForSecureListener(self.config, self.instanceId);
-        } else {
-            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-            panic err;
+    var authProviders = self.config.authProviders;
+    if (authProviders is AuthProvider[]) {
+        var providers = authProviders;
+        if (providers.length() > 0) {
+            var secureSocket = self.config.secureSocket;
+            if (secureSocket is ServiceSecureSocket) {
+                addAuthFiltersForSecureListener(self.config, self.instanceId);
+            } else {
+                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                panic err;
+            }
         }
     }
     var err = self.initEndpoint();
@@ -92,21 +97,19 @@ function Listener.init(ServiceEndpointConfiguration c) {
 #
 # + host - The remote host name/IP
 # + port - The remote port
-public type Remote record {
+public type Remote record {|
     string host = "";
     int port = 0;
-    !...
-};
+|};
 
 # Presents a read-only view of the local address.
 #
 # + host - The local host name/IP
 # + port - The local port
-public type Local record {
+public type Local record {|
     string host = "";
     int port = 0;
-    !...
-};
+|};
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
 #
@@ -116,12 +119,11 @@ public type Local record {
 #                   `413 - Payload Too Large` response.
 # + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
-public type RequestLimits record {
+public type RequestLimits record {|
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...
-};
+|};
 
 # Provides a set of configurations for HTTP service endpoints.
 #
@@ -142,7 +144,7 @@ public type RequestLimits record {
 # + authProviders - The array of authentication providers which are used to authenticate the users
 # + positiveAuthzCache - Caching configurations for positive authorizations
 # + negativeAuthzCache - Caching configurations for negative authorizations
-public type ServiceEndpointConfiguration record {
+public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
@@ -154,7 +156,7 @@ public type ServiceEndpointConfiguration record {
     AuthProvider[]? authProviders = ();
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-};
+|};
 
 # Configures the SSL/TLS options to be used for HTTP service.
 #
@@ -170,10 +172,12 @@ public type ServiceEndpointConfiguration record {
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
+# + handshakeTimeout - SSL handshake time out
+# + sessionTimeout - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
-public type ServiceSecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+public type ServiceSecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
@@ -187,9 +191,10 @@ public type ServiceSecureSocket record {
                         "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
+    int? handshakeTimeout = ();
+    int? sessionTimeout = ();
     ServiceOcspStapling? ocspStapling = ();
-    !...
-};
+|};
 
 # Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
 #
@@ -198,49 +203,25 @@ public type ServiceSecureSocket record {
 # + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
-public type AuthCacheConfig record {
+public type AuthCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
     int expiryTimeMillis = 5 * 1000; // 5 seconds;
     float evictionFactor = 1;
-    !...
-};
+|};
 
 # Configuration for authentication providers.
 #
-# + scheme - Authentication scheme
 # + id - Authentication provider instance id
-# + authStoreProvider - Authentication store provider (file, LDAP, etc.) implementation
-# + authStoreProviderConfig - Auth store related configurations
-# + issuer - Identifier of the token issuer
-# + audience - Identifier of the token recipients
-# + trustStore - Trustore configurations
-# + certificateAlias - Token signed key alias
-# + clockSkew - Time in seconds to mitigate clock skew
-# + keyStore - `KeyStore` instance providing key store related configurations
-# + keyAlias - The Key Alias
-# + keyPassword - The Key password
-# + expTime - Expiry time
-# + signingAlg - The signing algorithm which is used to sign the JWT token
-# + propagateJwt - `true` if propagating authentication info as JWT
-public type AuthProvider record {
-    string scheme = "";
+# + scheme - Authentication scheme
+# + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
+# + config - Configuration related to the selected authentication provider.
+public type AuthProvider record {|
     string id = "";
-    string authStoreProvider = "";
-    auth:LdapAuthProviderConfig? authStoreProviderConfig = ();
-    string issuer = "";
-    string audience = "";
-    TrustStore? trustStore = ();
-    string certificateAlias = "";
-    int clockSkew = 0;
-    KeyStore? keyStore = ();
-    string keyAlias = "";
-    string keyPassword = "";
-    int expTime = 0;
-    string signingAlg = "";
-    boolean propagateJwt = false;
-    !...
-};
+    InboundAuthScheme? scheme = ();
+    AuthStoreProvider? authStoreProvider = ();
+    auth:LdapAuthProviderConfig|auth:ConfigAuthProviderConfig|auth:JWTAuthProviderConfig? config = ();
+|};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
@@ -282,137 +263,103 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, st
 function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
     // parse and create authentication handlers
     AuthHandlerRegistry registry = new;
-    AuthProvider[] authProviderList = [];
     Filter[] authFilters = [];
-
-    var providers = config.authProviders;
-    if (providers is AuthProvider[]) {
-        authProviderList = providers;
-    } else {
-        return authFilters;
-    }
-
-    foreach var provider in authProviderList {
-        if (provider.id.length() > 0) {
-            registry.add(provider.id, createAuthHandler(provider, instanceId));
-        } else {
-            string providerId = system:uuid();
-            registry.add(providerId, createAuthHandler(provider, instanceId));
-        }
-    }
-
-    AuthnHandlerChain authnHandlerChain = new(registry);
-    AuthnFilter authnFilter = new(authnHandlerChain);
-    cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
-    capacity = config.positiveAuthzCache.capacity,
-    evictionFactor = config.positiveAuthzCache.evictionFactor);
-    cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
-    capacity = config.negativeAuthzCache.capacity,
-    evictionFactor = config.negativeAuthzCache.evictionFactor);
-    auth:AuthStoreProvider authStoreProvider = new;
-
-    foreach var provider in authProviderList {
-        if (provider.scheme == AUTHN_SCHEME_BASIC) {
-            if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
-                var authStoreProviderConfig = provider.authStoreProviderConfig;
-                if (authStoreProviderConfig is auth:LdapAuthProviderConfig) {
-                    auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
-                    authStoreProvider = ldapAuthStoreProvider;
+    var authProviderList = config.authProviders;
+    if (authProviderList is AuthProvider[]) {
+        if (authProviderList.length() > 0) {
+            foreach var provider in authProviderList {
+                if (provider.id.length() > 0) {
+                    registry.add(provider.id, createAuthHandler(provider, instanceId));
                 } else {
-                    error e = error("Authstore config not provided for : " + provider.authStoreProvider);
-                    panic e;
+                    string providerId = system:uuid();
+                    registry.add(providerId, createAuthHandler(provider, instanceId));
                 }
-            } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
-                auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = configAuthStoreProvider;
-            } else {
-                error configError = error("Unsupported auth store provider : " + provider.authStoreProvider);
-                panic configError;
             }
+
+            AuthnHandlerChain authnHandlerChain = new(registry);
+            AuthnFilter authnFilter = new(authnHandlerChain);
+            cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
+            capacity = config.positiveAuthzCache.capacity,
+            evictionFactor = config.positiveAuthzCache.evictionFactor);
+            cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
+            capacity = config.negativeAuthzCache.capacity,
+            evictionFactor = config.negativeAuthzCache.evictionFactor);
+            auth:AuthStoreProvider authStoreProvider = new;
+
+            foreach var provider in authProviderList {
+                var authProviderConfig = provider.config;
+                if (provider.scheme == BASIC_AUTH) {
+                    if (provider.authStoreProvider == LDAP_AUTH_STORE) {
+                        if (authProviderConfig is auth:LdapAuthProviderConfig) {
+                            auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
+                            authStoreProvider = ldapAuthStoreProvider;
+                        } else {
+                            error e = error("LDAP auth provider config not provided");
+                            panic e;
+                        }
+                    } else if (provider.authStoreProvider == CONFIG_AUTH_STORE) {
+                        auth:ConfigAuthStoreProvider configAuthStoreProvider;
+                        if (authProviderConfig is auth:ConfigAuthProviderConfig) {
+                            configAuthStoreProvider = new(authProviderConfig);
+                        } else {
+                            configAuthStoreProvider = new({});
+                        }
+                        authStoreProvider = configAuthStoreProvider;
+                    } else {
+                        error configError = error("Unsupported auth store provider");
+                        panic configError;
+                    }
+                }
+            }
+
+            HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
+            AuthzFilter authzFilter = new(authzHandler);
+            authFilters[0] = authnFilter;
+            authFilters[1] = authzFilter;
         }
     }
-
-HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
-    AuthzFilter authzFilter = new(authzHandler);
-    authFilters[0] = authnFilter;
-    authFilters[1] = authzFilter;
     return authFilters;
 }
 
-function createBasicAuthHandler() returns HttpAuthnHandler {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
-    HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-    return basicAuthHandler;
-}
-
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
-    if (authProvider.scheme == AUTHN_SCHEME_BASIC) {
+    var authProviderConfig = authProvider.config;
+    if (authProvider.scheme == BASIC_AUTH) {
         auth:AuthStoreProvider authStoreProvider = new;
-        if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
-            if (authProvider.propagateJwt) {
-                auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
-                authStoreProvider = configAuthProvider;
+        if (authProvider.authStoreProvider == CONFIG_AUTH_STORE) {
+            auth:ConfigAuthStoreProvider configAuthStoreProvider;
+            if (authProviderConfig is auth:ConfigAuthProviderConfig) {
+                configAuthStoreProvider = new(authProviderConfig);
             } else {
-                auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = configAuthStoreProvider;
+                configAuthStoreProvider = new({});
             }
-        } else if (authProvider.authStoreProvider == AUTH_PROVIDER_LDAP) {
-            var authStoreProviderConfig = authProvider.authStoreProviderConfig;
-            if (authStoreProviderConfig is auth:LdapAuthProviderConfig) {
-                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
-                if (authProvider.propagateJwt) {
-                    auth:LdapJwtAuthProvider ldapAuthProvider =
-                    new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
-                    authStoreProvider = ldapAuthProvider;
-                } else {
-                    authStoreProvider = ldapAuthStoreProvider;
-                }
+            authStoreProvider = configAuthStoreProvider;
+        } else if (authProvider.authStoreProvider == LDAP_AUTH_STORE) {
+            if (authProviderConfig is auth:LdapAuthProviderConfig) {
+                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
+                authStoreProvider = ldapAuthStoreProvider;
             } else {
-                error e = error("Authstore config not provided for : " + authProvider.authStoreProvider);
+                error e = error("LDAP auth provider config not provided");
                 panic e;
             }
         } else {
-            // other auth providers are unsupported yet
-            error e = error("Invalid auth provider: " + authProvider.authStoreProvider);
+            error e = error("Unsupported auth store provider");
             panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
         return basicAuthHandler;
-    } else if (authProvider.scheme == AUTH_SCHEME_JWT){
-        auth:JWTAuthProviderConfig jwtConfig = {};
-        jwtConfig.issuer = authProvider.issuer;
-        jwtConfig.audience = authProvider.audience;
-        jwtConfig.certificateAlias = authProvider.certificateAlias;
-        jwtConfig.clockSkew = authProvider.clockSkew;
-        jwtConfig.trustStoreFilePath = authProvider.trustStore.path ?: "";
-        jwtConfig.trustStorePassword = authProvider.trustStore.password ?: "";
-        auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
-        HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-        return jwtAuthnHandler;
+    } else if (authProvider.scheme == JWT_AUTH){
+        if (authProviderConfig is auth:JWTAuthProviderConfig) {
+            auth:JWTAuthProvider jwtAuthProvider = new(authProviderConfig);
+            HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
+            return jwtAuthnHandler;
+        } else {
+            error e = error("JWT auth provider config not provided");
+            panic e;
+        }
     } else {
-        error e = error("Invalid auth scheme: " + authProvider.scheme);
+        error e = error("Unsupported auth scheme");
         panic e;
     }
-}
-
-function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns auth:InferredJwtAuthProviderConfig {
-    //ConfigJwtAuthProviderConfig
-    string defaultIssuer = "ballerina";
-    string defaultAudience = "ballerina";
-    int defaultExpTime = 300; // in seconds
-    string defaultSignAlg = "RS256";
-
-    auth:InferredJwtAuthProviderConfig jwtAuthConfig = {};
-    jwtAuthConfig.issuer = authProvider.issuer == "" ? defaultIssuer : authProvider.issuer;
-    jwtAuthConfig.expTime = authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime;
-    jwtAuthConfig.signingAlg = authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg;
-    jwtAuthConfig.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
-    jwtAuthConfig.keyAlias = authProvider.keyAlias;
-    jwtAuthConfig.keyPassword = authProvider.keyPassword;
-    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path ?: "";
-    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password ?: "";
-    return jwtAuthConfig;
 }
 
 //////////////////////////////////
@@ -434,8 +381,8 @@ public type WebSocketListener object {
         return self.httpEndpoint.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.httpEndpoint.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.httpEndpoint.register(s, name);
     }
 
 

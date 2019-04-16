@@ -304,7 +304,7 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns (any[],
     return (publishedEvents, globalEmployeeArray);
 }
 
-Member[] globalMemberArray = [];
+Member?[] globalMemberArray = [];
 
 function testStreamsPublishingForStructurallyEquivalentObjects() returns (any[], any[]) {
     globalMemberArray = [];
@@ -313,7 +313,7 @@ function testStreamsPublishingForStructurallyEquivalentObjects() returns (any[],
     memberStream.subscribe(addCaptainToGlobalMemberArray);
     Captain c1 = new("Maryam", 123456);
     Captain c2 = new("Ziyad", 654321);
-    Captain[] publishedCaptains = [c1, c2];
+    Captain?[] publishedCaptains = [c1, c2];
     foreach var event in publishedCaptains {
         memberStream.publish(event);
     }

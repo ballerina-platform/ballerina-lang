@@ -10,12 +10,6 @@ type Bar record {
 
 type Baz 1|2;
 
-public Foo foo = new ();
-
-public Bar b = {s:"K"};
-
-public Baz baz = 1;
-
 object {
              public string s = "";
              public Baz z = 1;

@@ -20,6 +20,8 @@ package org.ballerinalang.test.debugger;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -38,6 +40,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -111,6 +114,9 @@ public class VMDebuggerTest {
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 5, STEP_IN, 1));
+        // Add another debug point. For closure variables at desugar we add a map for every function and every block
+        // node and this has the same position as the function node.
+        debugPoints.add(Util.createDebugPoint(".", FILE, 11, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 12, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, STEP_IN, 1));
@@ -206,6 +212,22 @@ public class VMDebuggerTest {
         ExpectedResults expRes = new ExpectedResults(debugPoints, 8, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing nested IfCondition.")
+    public void testNestedIf() {
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test_nested_if.bal", 18);
+        String file = "test_nested_if.bal";
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 20, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 21, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 29, RESUME, 1));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 4, 0, new ArrayList<>(), false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_nested_if.bal", breakPoints, expRes);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
@@ -339,6 +361,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
@@ -346,6 +369,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
@@ -369,7 +393,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 35, 0, new ArrayList<>(), false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 37, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
@@ -393,7 +417,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(255)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 7, variables, false);
@@ -420,7 +444,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(255)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
         variables.add(Util.createVariable("args", "Local", new BValueArray(new String[]{"Hello", "World"})));
         variables.add(Util.createVariable("x", "Local", new BInteger(10)));
@@ -429,6 +453,26 @@ public class VMDebuggerTest {
         ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 7, variables, false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing identifier literals")
+    public void testIdentifierLiterals() {
+        String file = "test_identifier_literals.bal";
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 7);
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 7, RESUME, 1));
+
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("int literal $ global", "Global", new BInteger(23)));
+        variables.add(Util.createVariable("string literal $$ global", "Global", new BString("literal")));
+        variables.add(Util.createVariable("float literal $$$ local", "Local", new BFloat(34.43)));
+        variables.add(Util.createVariable("decimal literal $$$$ local", "Local",
+                new BDecimal(new BigDecimal("21.1"))));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 2, variables, false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_identifier_literals.bal", breakPoints, expRes);
     }
 
     @Test(description = "Test debugging when multi-packages available")
@@ -487,7 +531,7 @@ public class VMDebuggerTest {
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
         variables.add(Util.createVariable("gNewStr", "Global", new BString("")));
-        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 0)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte(0)));
 
         // Expected global variables count should be 6 in this case
         // Reason: Variable 'gPerson' is not yet initialized. Thus, its current value is null

@@ -1,31 +1,81 @@
 import ballerina/io;
 
-type KeyNotFoundError record {
-    string message;
-    error? cause;
-    string key;
+type Foo record {
+    string s;
+    int i;
+    float f;
 };
 
-// The values of this map are constrained to the values of the optional string type.
-map<string?> values = {"key1": "value1", "key2": ()};
+function testStructuredMatchPatternsBasic1() returns string {
+    Foo foo1 = {s: "S", i: 23, f: 5.6};
 
-// This function returns either a `string`, a `KeyNotFoundError` or nil.
-function getValue(string key) returns string?|KeyNotFoundError {
-    if (!values.hasKey(key)) {
-        KeyNotFoundError err = {message: "key '" + key + "' not found", key: key};
-        return err;
-    } else {
-        return values[key];
+    match foo1 {
+        var {s, i: integer, f} => return "Matched Values : " + s + ", " + integer + ", " + f;
     }
+
+    return "Default";
 }
 
-function print(string?|KeyNotFoundError result) {
-    // This match statement executes the code block based on the type of the result variable reference.
-    match   result{string   value=>io:println("value: " + value)  ;
-  ()=>io:println("value is ()") ;
-                   KeyNotFoundError  e=>{
-    io:println(e.message) ; match getValue("key1") {
-                                            string value => io:println("value: " + value);() => io:println("value is ()");
-                                            KeyNotFoundError sd => {io:println(sd.message);
-                                          }}}}
+function testStructuredMatchPatternsBasic2() returns string {
+    (string, (int, float)) a = ("S", (23, 5.6));
+
+    match a {
+        var (s, (i, f)) => return "Matched Values : " + s + ", " + i + ", " + f;
+    }
+
+    return "Default";
+}
+
+function testStructuredMatchPatternsBasic3() returns string {
+    (string, int, float) a = ("S", 23, 5.6);
+
+    match a {
+        var (s, i, f) => return "Matched Values : " + s + ", " + i + ", " + f;
+    }
+
+    return "Default";
+}
+
+type Foo1 record {
+    string s;
+    int i;
+    (float, int, boolean) fib;
+};
+
+function testStructuredMatchPatternsBasic4() returns string {
+    Foo1 foo2 = {s: "S", i: 23, fib: (5.6, 3, true)};
+
+       match foo2 {
+        var {s, i: integer, fib: (a, b, c)} => {
+            integer += 1;
+            a += 1;
+            b += 1;
+            return "Matched Values : " + s + ", " + integer + ", " + a + ", " + b + ", " + c;
+        }
+  }
+
+    return "Default";
+}
+
+function foo(string | int | boolean a) returns string {
+       match a {
+         12 => return "Value is '12'";
+       "Hello" => return "Value is 'Hello'";
+           15 => return "Value is '15'";
+    true => return "Value is 'true'";
+              false => return "Value is 'false'";"HelloAgain" => return "Value is 'HelloAgain'";
+ }
+
+    return "Value is 'Default'";
+}
+
+function typeGuard1((string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float x) returns string {
+    match x {
+        var (s, i) if s is string => {return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);}
+        var (s, i) if s is float => {return "Matched with float : " + io:sprintf("%s", s + 4.5) + " with " + io:sprintf("%s", i);}
+        var {var1, var2} if var2 is int => {return "Matched with record int : " + io:sprintf("%s", var1) + " with " + io:sprintf("%s", var2 + 12);}
+        var {var1, var2} if var2 is ClosedBar1 => {return "Matched with record with ClosedBar1 : "+ io:sprintf("%s", var1) + " with " + io:sprintf("%s" , var2.var1);}
+        var (s, i) if i is boolean => {return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);}
+        var y => {return "Matched with default type - float : " + io:sprintf("%s", y);}
+    }
 }

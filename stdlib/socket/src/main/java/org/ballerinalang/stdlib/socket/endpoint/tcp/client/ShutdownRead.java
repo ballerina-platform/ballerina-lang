@@ -58,7 +58,10 @@ public class ShutdownRead extends BlockingNativeCallableUnit {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
         final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
         try {
-            socketChannel.shutdownInput();
+            // SocketChannel can be null if something happen during the onAccept. Hence the null check.
+            if (socketChannel != null) {
+                socketChannel.shutdownInput();
+            }
         } catch (ClosedChannelException e) {
             context.setReturnValues(SocketUtils.createSocketError(context, "Socket already closed"));
             return;

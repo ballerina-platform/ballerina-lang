@@ -6,7 +6,7 @@ function floattoint(float value) returns (int) {
     return result;
 }
 
-function floattointWithError(float value) returns (int | error) {
+function floattointWithError(float value) returns int|error {
     int | error result = <int>value;
     return result;
 }
@@ -18,21 +18,21 @@ function inttofloat(int value) returns (float) {
     return result;
 }
 
-function stringtoint(string value) returns (int|error) {
+function stringtoint(string value) returns int|error {
     int result;
     //string to int should be a unsafe conversion
     result = check int.convert(value);
     return result;
 }
 
-function testJsonIntToString() returns (string|error) {
+function testJsonIntToString() returns string|error {
     json j = 5;
     int value;
     value = check trap <int>j;
-    return <string> value;
+    return string.convert(value);
 }
 
-function stringtofloat(string value) returns (float|error) {
+function stringtofloat(string value) returns float|error {
     float result;
     //string to float should be a conversion
     result = check float.convert(value);
@@ -42,35 +42,27 @@ function stringtofloat(string value) returns (float|error) {
 function inttostring(int value) returns (string) {
     string result;
     //int to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function floattostring(float value) returns (string) {
     string result;
     //float to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function booleantostring(boolean value) returns (string) {
     string result;
     //boolean to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
 function booleanappendtostring(boolean value) returns (string) {
     string result;
     result = value + "-append-" + value;
-    return result;
-}
-
-function anyfloattostring() returns (string) {
-    any value = 5.5;
-    string result;
-    //any to string should be a conversion
-    result = <string>value;
     return result;
 }
 
@@ -82,14 +74,14 @@ function anyjsontostring() returns (string) {
     return result;
 }
 
-function testJsonToStringCast() returns (string|error) {
+function testJsonToStringCast() returns string|error {
     json j = "hello";
     string value;
     value = check trap <string> j;
     return value;
 }
 
-function testJSONObjectToStringCast() returns (string | error) {
+function testJSONObjectToStringCast() returns string|error {
     json j = {"foo":"bar"};
     var value = string.convert(j);
     //TODO : Handle error
@@ -97,21 +89,21 @@ function testJSONObjectToStringCast() returns (string | error) {
     return value;
 }
 
-function testJsonToInt() returns (int|error){
+function testJsonToInt() returns int|error {
     json j = 5;
     int value;
     value = check trap <int>j;
     return value;
 }
 
-function testJsonToFloat() returns (float|error){
+function testJsonToFloat() returns float|error {
     json j = 7.65;
     float value;
     value = check trap <float>j;
     return value;
 }
 
-function testJsonToBoolean() returns (boolean|error){
+function testJsonToBoolean() returns boolean|error {
     json j = true;
     boolean value;
     value = check trap <boolean>j;
@@ -154,11 +146,11 @@ function testStructToStruct() returns (Student) {
 }
 
 //function testNullStructToStruct() returns (Student) {
-//    Person | null p;
+//    Person | () p;
 //    return <Student> p;
 //}
 
-function testStructAsAnyToStruct() returns (Person|error) {
+function testStructAsAnyToStruct() returns Person|error {
     Person p1 = { name:"Supun",
                     age:25,
                     parent:{name:"Parent", age:50},
@@ -217,28 +209,28 @@ function testBooleanInJsonToInt() returns int|error {
     return value;
 }
 
-function testIncompatibleJsonToInt() returns (int|error) {
+function testIncompatibleJsonToInt() returns int|error {
     json j = "hello";
     int value;
     value = check int.convert(j);
     return value;
 }
 
-function testIntInJsonToFloat() returns (float|error) {
+function testIntInJsonToFloat() returns float|error {
     json j = 7;
     float value;
     value = check float.convert(j);
     return value;
 }
 
-function testIncompatibleJsonToFloat() returns (float|error) {
+function testIncompatibleJsonToFloat() returns float|error {
     json j = "hello";
     float value;
     value = check float.convert(j);
     return value;
 }
 
-function testIncompatibleJsonToBoolean() returns (boolean|error) {
+function testIncompatibleJsonToBoolean() returns boolean|error {
     json j = "hello";
     boolean value;
     value = check boolean.convert(j);
@@ -281,7 +273,7 @@ function testNullJsonToBoolean() returns boolean {
     return value;
 }
 
-function testAnyIntToJson() returns (json|error) {
+function testAnyIntToJson() returns json|error {
     any a = 8;
     json value;
     value = <json> a;
@@ -325,14 +317,14 @@ function testAnyStructToJson() returns json {
     return value;
 }
 
-function testAnyNullToJson() returns (json|error) {
-    any a = null;
+function testAnyNullToJson() returns json|error {
+    any a = ();
     json value;
     value = check json.convert(a);
     return value;
 }
 
-function testAnyJsonToJson() returns (json|error) {
+function testAnyJsonToJson() returns json|error {
     json j = {home:"SriLanka"};
     any a = j;
     json value;
@@ -363,7 +355,7 @@ type B record {
     string x;
 };
 
-function testCompatibleStructForceCasting() returns (A | error) {
+function testCompatibleStructForceCasting() returns A|error {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
@@ -376,7 +368,7 @@ function testCompatibleStructForceCasting() returns (A | error) {
     return c;
 }
 
-function testInCompatibleStructForceCasting() returns (A | error) {
+function testInCompatibleStructForceCasting() returns A|error {
     B b = {x: "x-valueof-b"};
     A a = check A.convert(b);
 
@@ -385,7 +377,7 @@ function testInCompatibleStructForceCasting() returns (A | error) {
     return a;
 }
 
-function testAnyToIntWithoutErrors() returns (int | error) {
+function testAnyToIntWithoutErrors() returns int|error {
     any a = 6;
     int s;
     s = check trap <int> a;
@@ -394,7 +386,7 @@ function testAnyToIntWithoutErrors() returns (int | error) {
     return s;
 }
 
-function testAnyToFloatWithoutErrors() returns (float | error) {
+function testAnyToFloatWithoutErrors() returns float|error {
     any a = 6.99;
     float s;
     s = check trap <float> a;
@@ -403,7 +395,7 @@ function testAnyToFloatWithoutErrors() returns (float | error) {
     return s;
 }
 
-function testAnyToBooleanWithoutErrors() returns (boolean | error) {
+function testAnyToBooleanWithoutErrors() returns boolean|error {
     any a = true;
     boolean s;
     s = check trap <boolean> a;
@@ -412,7 +404,7 @@ function testAnyToBooleanWithoutErrors() returns (boolean | error) {
     return s;
 }
 
-function testAnyToBooleanWithErrors() returns (boolean | error) {
+function testAnyToBooleanWithErrors() returns boolean|error {
     map<any> m = { one: "one" };
     any a = m;
     boolean b;
@@ -422,8 +414,8 @@ function testAnyToBooleanWithErrors() returns (boolean | error) {
     return b;
 }
 
-function testAnyNullToBooleanWithErrors() returns (boolean | error) {
-    any a = null;
+function testAnyNullToBooleanWithErrors() returns boolean|error {
+    any a = ();
     boolean b;
     b = check trap <boolean> a;
     //TODO Handle error
@@ -431,7 +423,7 @@ function testAnyNullToBooleanWithErrors() returns (boolean | error) {
     return b;
 }
 
-function testAnyToIntWithErrors() returns (int | error) {
+function testAnyToIntWithErrors() returns int|error {
     any a = "foo";
     int b;
     b = check trap <int> a;
@@ -440,8 +432,8 @@ function testAnyToIntWithErrors() returns (int | error) {
     return b;
 }
 
-function testAnyNullToIntWithErrors() returns (int | error) {
-    any a = null;
+function testAnyNullToIntWithErrors() returns int|error {
+    any a = ();
     int b;
     b = check trap <int> a;
     //TODO Handle error
@@ -449,7 +441,7 @@ function testAnyNullToIntWithErrors() returns (int | error) {
     return b;
 }
 
-function testAnyToFloatWithErrors() returns (float | error) {
+function testAnyToFloatWithErrors() returns float|error {
     any a = "foo";
     float b;
     b = check trap <float> a;
@@ -458,8 +450,8 @@ function testAnyToFloatWithErrors() returns (float | error) {
     return b;
 }
 
-function testAnyNullToFloatWithErrors() returns (float | error) {
-    any a = null;
+function testAnyNullToFloatWithErrors() returns float|error {
+    any a = ();
     float b;
     b = check trap <float> a;
     //TODO Handle error
@@ -476,21 +468,21 @@ function testAnyToMapWithErrors() returns (map<any> | error) {
     return b;
 }
 
-function testAnyNullToString() returns (string) {
-    any a = null;
+function testAnyNullToString() returns string {
+    any a = ();
     string s;
     s = string.convert(a);
     return s;
 }
 
-function testSameTypeCast() returns (int) {
+function testSameTypeCast() returns int {
     int a = 10;
 
     int b = <int> a;
     return b;
 }
 
-function testJSONValueCasting() returns (string | error, int | error, float | error, boolean | error) {
+function testJSONValueCasting() returns (string|error, int|error, float|error, boolean|error) {
 
     // json to string
     json j1 = "hello";
@@ -516,8 +508,8 @@ function testAnyToTable() returns table<Employee>|error {
 
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
-    _ = tb.add(e1);
-    _ = tb.add(e2);
+    checkpanic tb.add(e1);
+    checkpanic tb.add(e2);
 
     any anyValue = tb;
     var casted = check trap <table<Employee>> anyValue;
@@ -528,10 +520,3 @@ type Employee record {
     int id;
     string name;
 };
-
-
-
-
-
-
- 

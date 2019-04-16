@@ -406,7 +406,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             } else if (udType instanceof BUnionType) {
                 try {
                     BUnionType bUnionType = (BUnionType) udType;
-                    for (BType type : bUnionType.memberTypes) {
+                    for (BType type : bUnionType.getMemberTypes()) {
                         if (type.tsymbol != null && isReferencedRegardlessPkgs(type.tsymbol.name.getValue(),
                                                                                type.tsymbol.owner)) {
                             addLocation(userDefinedType, type.tsymbol.owner.pkgID.name.getValue(),
@@ -667,12 +667,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         Location l = new Location();
         Range r = new Range();
         TextDocumentPositionParams position = this.context.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = new LSDocument(position.getTextDocument().getUri()).getPath().getParent();
+        String parentPath = new LSDocument(position.getTextDocument().getUri()).getSourceRoot();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
-            Path filePath = Paths.get(CommonUtil
-                                              .getPackageURI(currentPackageName, parentPath.toString(),
-                                                             ownerPackageName), fileName);
+            Path filePath = Paths.get(CommonUtil.getPackageURI(currentPackageName, parentPath, ownerPackageName),
+                                      fileName);
             l.setUri(filePath.toUri().toString());
 
             // Subtract 1 to convert the token lines and char positions to zero based indexing

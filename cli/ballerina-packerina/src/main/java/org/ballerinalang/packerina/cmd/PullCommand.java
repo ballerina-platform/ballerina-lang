@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.cmd;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -112,11 +113,18 @@ public class PullCommand implements BLauncherCmd {
         Patten patten = remoteRepo.calculate(packageID);
         if (patten != Patten.NULL) {
             Converter converter = remoteRepo.getConverterInstance();
-            patten.convertToSources(converter, packageID).collect(Collectors.toList());
-
+            List<CompilerInput> compilerInputs = patten.convertToSources(converter, packageID)
+                                                       .collect(Collectors.toList());
+            if (compilerInputs.size() == 0) {
+                // Exit status, zero for OK, non-zero for error
+                Runtime.getRuntime().exit(1);
+            }
         } else {
             outStream.println("couldn't find module " + patten);
+            // Exit status, zero for OK, non-zero for error
+            Runtime.getRuntime().exit(1);
         }
+        // Exit status, zero for OK, non-zero for error
         Runtime.getRuntime().exit(0);
     }
 

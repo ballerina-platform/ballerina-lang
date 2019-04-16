@@ -26,7 +26,6 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
@@ -36,7 +35,6 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -59,7 +57,6 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -126,16 +123,16 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BDecimalArray} to JSON.
+     * Convert {@link BValueArray} to JSON.
      *
-     * @param decimalArray {@link BDecimalArray} to be converted to JSON
+     * @param decimalArray {@link BValueArray} to be converted to JSON
      * @return JSON representation of the provided decimalArray
      */
-    private static BValueArray convertDecimalArrayToJSON(BDecimalArray decimalArray) {
+    private static BValueArray convertDecimalArrayToJSON(BValueArray decimalArray) {
         BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < decimalArray.size(); i++) {
-            BigDecimal value = decimalArray.get(i);
-            json.append(new BDecimal(value));
+            BDecimal value = (BDecimal) decimalArray.getRefValue(i);
+            json.append(value);
         }
         return json;
     }
@@ -177,15 +174,15 @@ public class JSONUtils {
      * @return JSON representation of the provided bArray
      */
     public static BValueArray convertArrayToJSON(BNewArray bArray) {
-        if (bArray instanceof BDecimalArray) {
-            return convertArrayToJSON(bArray);
-        } else if (bArray instanceof BValueArray) {
+        if (bArray instanceof BValueArray) {
             if (((BValueArray) bArray).elementType == BTypes.typeInt) {
                 return convertIntArrayToJSON((BValueArray) bArray);
             } else if (((BValueArray) bArray).elementType == BTypes.typeBoolean) {
                 return convertBooleanArrayToJSON((BValueArray) bArray);
             } else if (((BValueArray) bArray).elementType == BTypes.typeFloat) {
                 return convertFloatArrayToJSON((BValueArray) bArray);
+            } else if (((BValueArray) bArray).elementType == BTypes.typeDecimal) {
+                return convertDecimalArrayToJSON((BValueArray) bArray);
             } else if (((BValueArray) bArray).elementType == BTypes.typeString) {
                 return convertStringArrayToJSON((BValueArray) bArray);
             } else {
@@ -245,24 +242,10 @@ public class JSONUtils {
         }
 
         BMap<String, BValue> json = new BMap<>(targetType);
-        if (targetType.getConstrainedType() == null) {
-            for (Entry<String, BValue> structField : map.getMap().entrySet()) {
-                String key = structField.getKey();
-                BValue value = structField.getValue();
-                populateJSON(json, key, value, BTypes.typeJSON);
-            }
-        } else {
-            if (!BVM.checkCast(map, targetType.getConstrainedType())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                        targetType, map.getType());
-            }
-
-            for (Entry<String, BField> fieldEntry :
-                    ((BStructureType) targetType.getConstrainedType()).getFields().entrySet()) {
-                String key = fieldEntry.getKey();
-                BValue value = map.get(key);
-                populateJSON(json, key, value, fieldEntry.getValue().fieldType);
-            }
+        for (Entry<String, BValue> structField : map.getMap().entrySet()) {
+            String key = structField.getKey();
+            BValue value = structField.getValue();
+            populateJSON(json, key, value, BTypes.typeJSON);
         }
         return json;
     }
@@ -751,7 +734,7 @@ public class JSONUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 BUnionType type = (BUnionType) targetType;
-                if (jsonValue == null && type.isNullable()) {
+                if (jsonValue == null && type.isNilable()) {
                     return null;
                 }
                 List<BType> matchingTypes = type.getMemberTypes().stream()
@@ -856,8 +839,6 @@ public class JSONUtils {
                 return jsonArrayToBIntArray(jsonArray);
             case TypeTags.FLOAT_TAG:
                 return jsonArrayToBFloatArray(jsonArray);
-            case TypeTags.DECIMAL_TAG:
-                return jsonArrayToBDecimalArray(jsonArray);
             case TypeTags.STRING_TAG:
                 return jsonArrayToBStringArray(jsonArray);
             case TypeTags.BOOLEAN_TAG:
@@ -893,15 +874,6 @@ public class JSONUtils {
             floatArray.add(i, ((BFloat) convertJSON(jsonValue, BTypes.typeFloat)).floatValue());
         }
         return floatArray;
-    }
-
-    private static BDecimalArray jsonArrayToBDecimalArray(BValueArray arrayNode) {
-        BDecimalArray decimalArray = new BDecimalArray();
-        for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.getRefValue(i);
-            decimalArray.add(i, ((BDecimal) convertJSON(jsonValue, BTypes.typeDecimal)).decimalValue());
-        }
-        return decimalArray;
     }
 
     private static BValueArray jsonArrayToBStringArray(BValueArray arrayNode) {

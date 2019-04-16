@@ -257,27 +257,31 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private void downloadProtocexe() throws IOException {
         if (protocExePath == null) {
-            File protocExeFile = new File(TMP_DIRECTORY_PATH, "protoc-" + OSDetector.getDetectedClassifier() + ".exe");
+            String protocFilename = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+            File protocExeFile = new File(TMP_DIRECTORY_PATH, protocFilename);
             protocExePath = protocExeFile.getAbsolutePath(); // if file already exists will do nothing
             if (!protocExeFile.exists()) {
-                outStream.println("Downloading proc executor.");
+                outStream.println("Downloading protoc executor file - " + protocFilename);
                 String protocDownloadurl = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion
                         + "-" + OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
+                File tempDownloadFile = new File(TMP_DIRECTORY_PATH,
+                        "protoc-" + OSDetector.getDetectedClassifier() + ".exe.download");
                 try {
-                    downloadFile(new URL(protocDownloadurl), protocExeFile);
+                    downloadFile(new URL(protocDownloadurl), tempDownloadFile);
+                    Files.move(tempDownloadFile.toPath(), protocExeFile.toPath());
                     //set application user permissions to 455
                     grantPermission(protocExeFile);
                 } catch (BalGenToolException e) {
                     Files.deleteIfExists(Paths.get(protocExePath));
                     throw e;
                 }
-                outStream.println("Download successfully completed.");
+                outStream.println("Download successfully completed. Executor file path - " + protocExeFile.getPath());
             } else {
                 grantPermission(protocExeFile);
-                outStream.println("Continue with existing protoc executor.");
+                outStream.println("Continue with existing protoc executor file at " + protocExeFile.getPath());
             }
         } else {
-            outStream.println("Continue with provided protoc executor at " + protocExePath);
+            outStream.println("Continue with provided protoc executor file at " + protocExePath);
         }
     }
     
@@ -296,7 +300,6 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        
         stringBuilder.append("  ballerina " + COMPONENT_IDENTIFIER + " --input chat.proto\n");
     }
     

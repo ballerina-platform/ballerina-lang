@@ -44,7 +44,7 @@ public class BallerinaBinaryExpressionImpl extends BallerinaExpressionImpl imple
   @Override
   @NotNull
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return findNotNullChildByClass(BallerinaExpression.class);
   }
 
 }

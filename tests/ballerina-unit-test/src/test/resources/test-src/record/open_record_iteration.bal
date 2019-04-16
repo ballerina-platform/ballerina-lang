@@ -25,7 +25,7 @@ type RestrictedFoo record {
     string c = "";
     string d = "";
     string e = "";
-    string...
+    string...;
 };
 
 type Grades record {
@@ -38,14 +38,14 @@ type RestrictedGrades record {
     int maths = 0;
     int physics = 0;
     int chemistry = 0;
-    int...
+    int...;
 };
 
 type RestrictedBar record {
     float x = 0.0;
     float y = 0.0;
     float z = 0.0;
-    float...
+    float...;
 };
 
 function testForeachWithOpenRecords() returns (string[], any[]) {

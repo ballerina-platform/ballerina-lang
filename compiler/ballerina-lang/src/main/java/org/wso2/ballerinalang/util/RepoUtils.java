@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.util.EmbeddedExecutorError;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.InputStream;
@@ -47,6 +48,9 @@ public class RepoUtils {
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+
+    private static final String BALLERINA_ORG = "ballerina";
+    private static final String BALLERINAX_ORG = "ballerinax";
 
     /**
      * Create and get the home repository path.
@@ -159,11 +163,43 @@ public class RepoUtils {
     /**
      * Validates the org-name and package name.
      *
-     * @param pkgName The org-name or package name.
-     * @return True if valid org-name or package name, else false.
+     * @param pkgName The package name.
+     * @return True if valid package name, else false.
      */
     public static boolean validatePkg(String pkgName) {
         String validRegex = "^[a-zA-Z0-9_.]*$";
         return Pattern.matches(validRegex, pkgName);
+    }
+
+    /**
+     * Check if the org-name is a reserved org-name in ballerina.
+     *
+     * @param orgName The org-name
+     * @return True if the org-name is reserved, else false.
+     */
+    public static boolean isReservedOrgName(String orgName) {
+        return orgName.equals(BALLERINA_ORG) || orgName.equals(BALLERINAX_ORG);
+    }
+
+    /**
+     * Check if ballerina version is from a stable release or a nightly build.
+     *
+     * @return True if ballerina version is from a nightly build, else false.
+     */
+    public static boolean isANightlyBuild() {
+        return getBallerinaVersion().contains("SNAPSHOT");
+    }
+
+    /**
+     * Get nested error message.
+     * @param embeddedExecutorError The execution error.
+     * @return Error message.
+     */
+    public static String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
+        if (embeddedExecutorError.getCause() == null) {
+            return embeddedExecutorError.getMessage();
+        } else {
+            return getInnerErrorMessage(embeddedExecutorError.getCause());
+        }
     }
 }

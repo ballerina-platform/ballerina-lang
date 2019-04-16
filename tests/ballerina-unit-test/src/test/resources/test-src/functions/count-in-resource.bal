@@ -21,6 +21,6 @@ service TestService on testEP {
 
         http:Response res = new;
         res.setJsonPayload(untaint jsonArray);
-        _ = caller -> respond(res);
+        checkpanic caller->respond(res);
     }
 }

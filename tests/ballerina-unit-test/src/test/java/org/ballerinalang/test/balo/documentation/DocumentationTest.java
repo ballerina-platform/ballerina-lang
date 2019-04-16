@@ -18,11 +18,12 @@
 
 package org.ballerinalang.test.balo.documentation;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -100,5 +101,10 @@ public class DocumentationTest {
         Assert.assertNotNull(isMaleFuncSymbol.markdownDocumentation.returnValueDescription);
         Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.returnValueDescription
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "True if male");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_documentation", "testorg", "foo");
     }
 }

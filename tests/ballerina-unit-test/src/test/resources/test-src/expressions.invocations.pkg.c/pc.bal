@@ -4,5 +4,5 @@ import expressions.invocations.pkg.b;
 
 function testInitInvocation() returns (int) {
 
-    return a:a1;
+    return a: getA1();
 }

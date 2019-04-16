@@ -21,6 +21,14 @@ import ballerina/http;
 
 listener http:MockListener testEP = new(9090);
 
+h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
 @http:ServiceConfig { 
     basePath: "/foo" 
 }
@@ -31,14 +39,6 @@ service MyService on testEP {
         path: "/bar1"
     }
     resource function myResource1 (http:Caller caller, http:Request req) {
-        h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
-
         var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
         json result = {};
@@ -46,10 +46,10 @@ service MyService on testEP {
             var ret = json.convert(selectRet);
             if (ret is json) {
                 result = ret;
-            } else if (ret is error) {
+            } else {
                 result = { Error: ret.reason() };
             }
-        } else if (selectRet is error) {
+        } else {
             result = { Error: selectRet.reason() };
         }
 
@@ -66,13 +66,6 @@ service MyService on testEP {
         path: "/bar2"
     }
     resource function myResource2 (http:Caller caller, http:Request req) {
-        h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1 }
-        });
 
         var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
@@ -83,10 +76,10 @@ service MyService on testEP {
             if (ret is json) {
                 result = ret;
                 statusVal = "SUCCESS";
-            } else if (ret is error) {
+            } else {
                 result = { Error: ret.reason() };
             }
-        } else if (selectRet is error) {
+        } else {
             result = { Error: selectRet.reason() };
         }
         json j = { status: statusVal, resp: { value: result } };
@@ -98,4 +91,8 @@ service MyService on testEP {
             io:println("Error sending response");
         }
     }
+}
+
+function closeConnectionPool() {
+    checkpanic testDB.stop();
 }

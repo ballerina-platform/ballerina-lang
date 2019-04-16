@@ -111,7 +111,7 @@ public class RepoHierarchyTestCase extends BaseTest {
     public void testRunningModuleX() throws BallerinaTestException {
         String outputMessage = "Print A from Home";
         LogLeecher clientLeecher = new LogLeecher(outputMessage);
-        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+        balClient.runMain("run", new String[]{"x"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(10000);
     }
@@ -131,7 +131,7 @@ public class RepoHierarchyTestCase extends BaseTest {
 
         String outputMessage = "Print A from Proj";
         LogLeecher clientLeecher = new LogLeecher(outputMessage);
-        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+        balClient.runMain("run", new String[]{"x"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(5000);
     }
@@ -149,7 +149,7 @@ public class RepoHierarchyTestCase extends BaseTest {
 
         String outputMessage = "Print A from Home";
         LogLeecher clientLeecher = new LogLeecher(outputMessage);
-        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+        balClient.runMain("run", new String[]{"x"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(5000);
     }
@@ -167,7 +167,7 @@ public class RepoHierarchyTestCase extends BaseTest {
 
         String outputMessage = "Print A from Home";
         LogLeecher clientLeecher = new LogLeecher(outputMessage);
-        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+        balClient.runMain("run", new String[]{"x"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(5000);
     }

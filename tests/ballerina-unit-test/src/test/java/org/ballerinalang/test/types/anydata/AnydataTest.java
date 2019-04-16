@@ -18,9 +18,6 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -31,6 +28,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -330,7 +330,7 @@ public class AnydataTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
                      "((int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
-                             "[][]|null,string),int,float)");
+                             "[][],string),int,float)");
         assertEquals(returns[0].stringValue(), "(([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\"), 123, 23.45)");
     }
@@ -367,5 +367,29 @@ public class AnydataTest {
         assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
         assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
         assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
+    }
+
+    @Test
+    public void testArraysWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testArraysWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTuplesWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testTuplesWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testMapsWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapsWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testRecordsWithErrorsAsAnydata() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordsWithErrorsAsAnydata");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

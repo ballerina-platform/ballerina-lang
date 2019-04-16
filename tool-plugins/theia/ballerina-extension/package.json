@@ -9,15 +9,21 @@
     "src"
   ],
   "dependencies": {
-    "@theia/callhierarchy": "^0.3.13",
-    "@theia/core": "^0.3.13",
-    "@theia/languages": "^0.3.13",
-    "@theia/monaco": "^0.3.13",
-    "@theia/preview": "^0.3.13",
+    "@ballerina/diagram": "^0.99.0-RC3",
+    "@ballerina/distribution": "^0.99.0-RC3",
+    "@ballerina/font": "^0.99.0-RC3",
+    "@ballerina/lang-service": "^0.99.0-RC3",
+    "@ballerina/theme": "^0.99.0-RC3",
+    "@theia/callhierarchy": "next",
+    "@theia/core": "next",
+    "@theia/languages": "next",
+    "@theia/monaco": "next",
+    "@theia/preview": "next",
     "@types/request-promise": "^4.1.42",
-    "axios": "^0.18.0",
     "request-promise": "^4.2.2",
-    "typescript": "^2.9.2",
+    "semantic-ui-react": "^0.85.0",
+    "typescript": "^3.1.6",
+    "vscode-ripgrep": "^1.2.5",
     "vscode-textmate": "^4.0.1"
   },
   "devDependencies": {

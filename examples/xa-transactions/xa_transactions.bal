@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/h2;
+import ballerina/sql;
 
 // Create an endpoint for the first database named testdb1. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
@@ -34,27 +35,18 @@ public function main() {
     transaction {
         // This is the first remote function to participate in the transaction. It inserts
         // customer name to the first DB and gets the generated key.
-        var result = testDB1->updateWithGeneratedKeys("INSERT INTO
-                                CUSTOMER(NAME) VALUES ('Anne')", ());
-        string generatedKey = "";
-        if (result is (int, string[])) {
-            var (count, ids) = result;
-            generatedKey = ids[0];
+        var result = testDB1->update("INSERT INTO CUSTOMER(NAME)
+                                        VALUES ('Anne')");
+        int key = -1;
+        if (result is sql:UpdateResult) {
+            int count = result.updatedRowCount;
+            key = <int>result.generatedKeys.ID;
             io:println("Inserted row count: " + count);
-            io:println("Generated key: " + generatedKey);
+            io:println("Generated key: " + key);
         } else {
             io:println("Insert to student table failed: " + result.reason());
         }
 
-        //Converte the returned key into integer.
-        ret = int.convert(generatedKey);
-        int key = -1;
-        if (ret is int) {
-            key = ret;
-        } else {
-            io:println("Converting key to string failed: " + ret.reason());
-        }
-        io:println("Generated key for the inserted row: " + key);
         // This is the second remote function to participate in the transaction. It inserts the
         // salary info to the second DB along with the key generated in the first DB.
         ret = testDB2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, ?)",
@@ -75,9 +67,9 @@ public function main() {
     ret = testDB2->update("DROP TABLE SALARY");
     handleUpdate(ret, "Drop Table SALARY");
 
-    // Close the connection pool.
-    testDB1.stop();
-    testDB2.stop();
+    // Stop database clients.
+    stopClient(testDB1);
+    stopClient(testDB2);
 }
 
 function onCommitFunction(string transactionId) {
@@ -88,11 +80,18 @@ function onAbortFunction(string transactionId) {
     io:println("Transaction: " + transactionId + " aborted");
 }
 
-// Function to handle return of the update operation.
-function handleUpdate(int|error returned, string message) {
-    if (returned is int) {
-        io:println(message + " status: " + returned);
+// Function to handle return values of the `update()` remote function.
+function handleUpdate(sql:UpdateResult|error returned, string message) {
+    if (returned is sql:UpdateResult) {
+        io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + returned.reason());
+    }
+}
+
+function stopClient(h2:Client db) {
+    var stopRet = db.stop();
+    if (stopRet is error) {
+        io:println(stopRet.detail().message);
     }
 }

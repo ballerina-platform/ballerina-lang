@@ -21,10 +21,8 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
-import com.intellij.psi.StubBasedPsiElement;
-import io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub;
 
-public interface BallerinaFunctionDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaFunctionDefinitionStub> {
+public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
   BallerinaAttachedObject getAttachedObject();
@@ -49,6 +47,9 @@ public interface BallerinaFunctionDefinition extends BallerinaNamedElement, Ball
 
   @NotNull
   PsiElement getFunction();
+
+  @Nullable
+  PsiElement getPrivate();
 
   @Nullable
   PsiElement getPublic();

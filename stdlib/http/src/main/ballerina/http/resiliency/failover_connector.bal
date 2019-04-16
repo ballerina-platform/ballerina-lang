@@ -26,7 +26,7 @@
 //public type FailoverConfig record {
 //    int[] failoverCodes = [];
 //    int interval = 0;
-//    !...
+//    !...;
 //};
 //
 //// TODO: This can be made package private
@@ -40,7 +40,7 @@
 //    CallerActions[] failoverClientsArray = [];
 //    boolean[] failoverCodesIndex = [];
 //    int failoverInterval = 0;
-//    !...
+//    !...;
 //};
 //
 //# Failover caller actions which provides failover capabilities to the failover client endpoint.

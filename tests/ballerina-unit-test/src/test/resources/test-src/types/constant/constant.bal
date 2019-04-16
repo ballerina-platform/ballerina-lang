@@ -1,6 +1,20 @@
 const nameWithoutType = "Ballerina";
 const string nameWithType = "Ballerina";
 
+const nilWithoutType = ();
+
+function testNilWithoutType() returns () {
+    return nilWithoutType;
+}
+
+const () nilWithType = ();
+
+function testNilWithType() returns () {
+    return nilWithType;
+}
+
+// -----------------------------------------------------------
+
 function testConstWithTypeInReturn() returns string {
     return nameWithType;
 }

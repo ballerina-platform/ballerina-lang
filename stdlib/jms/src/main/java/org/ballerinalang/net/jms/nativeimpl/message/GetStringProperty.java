@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.Objects;
@@ -40,12 +40,12 @@ import javax.jms.Message;
  * Get a string property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "getStringProperty",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "Message",
-                             structPackage = "ballerina/jms"),
+                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {
                 @Argument(name = "key", type = TypeKind.STRING),
         },
@@ -59,7 +59,7 @@ public class GetStringProperty extends AbstractBlockingAction {
 
         Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
         Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           Constants.JMS_MESSAGE_OBJECT,
+                                                           JmsConstants.JMS_MESSAGE_OBJECT,
                                                            Message.class,
                                                            context);
         String key = context.getStringArgument(0);

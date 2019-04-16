@@ -27,7 +27,7 @@ function testFunc() {
     string out6 = "Cat";
     string out7 = "Dog";
     string out8 = "Mouse";
-    string out9 = "No Match";
+    string out9 = "Match All";
 
 
     test:assertEquals(outputs[0], out1);

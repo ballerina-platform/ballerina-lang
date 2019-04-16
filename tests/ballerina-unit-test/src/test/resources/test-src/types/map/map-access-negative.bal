@@ -9,8 +9,6 @@ function accessAllFields() {
     any a = fruits.*;
 }
 
-map<int> globalM;
-
 function accessUninitMap() {
     map<int> ints;
     ints["0"] = 0;
@@ -18,8 +16,6 @@ function accessUninitMap() {
     map<int> m1 = getUninitializedMap11(ints);
 
     map<int> m2 = getUninitializedMap21();
-
-    globalM["a"] = 100;
 }
 
 

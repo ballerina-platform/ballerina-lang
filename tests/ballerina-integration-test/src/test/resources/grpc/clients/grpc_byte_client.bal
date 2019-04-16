@@ -17,6 +17,11 @@
 import ballerina/io;
 import ballerina/grpc;
 
+public function main() {
+    string response = testByteArray();
+    io:println(response);
+}
+
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
     string statement = "Lion in Town.";
@@ -32,17 +37,36 @@ function testByteArray() returns (string) {
     }
 }
 
+function testLargeByteArray(string filePath) returns (string) {
+    byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
+    io:ReadableByteChannel rch = untaint io:openReadableFile(filePath);
+    var resultBytes = rch.read(10000);
+    byte[] bytes = [];
+    if (resultBytes is (byte[], int)) {
+        (bytes, _) = resultBytes;
+    } else {
+        return io:sprintf("File read error: %s - %s", resultBytes.reason(), <string>resultBytes.detail().message);
+    }
+    var addResponse = blockingEp->checkBytes(bytes);
+    if (addResponse is error) {
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+    } else {
+        byte[] result = [];
+        (result, _) = addResponse;
+        if(result == bytes) {
+            return "30KB file content transmitted successfully";
+        } else {
+            return "Error while transmitting file content";
+        }
+    }
+}
+
 public type byteServiceBlockingClient client object {
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -59,26 +83,18 @@ public type byteServiceBlockingClient client object {
         var value = byte[].convert(result);
         if (value is byte[]) {
             return (value, resHeaders);
-        } else if (value is error) {
-            return value;
         } else {
-            error err = error("Invalid response message type");
-            return err;
+            return value;
         }
     }
 };
 
 public type byteServiceClient client object {
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;

@@ -5,6 +5,7 @@ import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
+import { Block } from "./block";
 import { Condition } from "./condition";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -43,7 +44,6 @@ export const If: React.StatelessComponent<{
         p4.x = p1.x - (config.flowCtrl.condition.height / 2);
         p4.y = conditionProps.y;
 
-        children.push(DiagramUtils.getComponents(model.body));
         if (model.elseStatement) {
             children.push(DiagramUtils.getComponents(model.elseStatement));
         }
@@ -54,7 +54,7 @@ export const If: React.StatelessComponent<{
         const r3 = { x: 0, y: 0 };
         const r4 = { x: 0, y: 0 };
 
-        r1.x = conditionProps.x + (config.flowCtrl.condition.height / 2);
+        r1.x = conditionProps.x + (config.flowCtrl.condition.height / 2) - config.flowCtrl.leftMargin;
         r1.y = conditionProps.y;
 
         r2.x = conditionProps.x + model.body.viewState.bBox.w;
@@ -75,8 +75,9 @@ export const If: React.StatelessComponent<{
                     <polyline className="condition-line"
                         points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
                     />
-                    <ArrowHead direction={"left"} {...r4} />
+                    <ArrowHead direction={"left"} className="condition-arrow-head" {...r4} />
                     <Condition {...conditionProps} astModel={model} />
+                    {model.body && <Block model={model.body} visibleEndpoints={model.VisibleEndpoints} />}
                     {children}
                 </g>
             </g>);

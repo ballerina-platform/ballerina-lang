@@ -18,27 +18,28 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/socket;
 
-listener http:Listener echoEP  = new(58291);
+listener http:Listener echoEP = new(58291);
 
 @http:ServiceConfig { basePath: "/echo" }
 service echo on echoEP {
 
     @http:ResourceConfig {
-        methods:["POST"],
-        path:"/"
+        methods: ["POST"],
+        path: "/"
     }
-    resource function echo1 (http:Caller caller, http:Request req) {
-        socket:Client socketClient = new({host: "localhost", port: 54387, callbackService: ClientService});
+    resource function echo1(http:Caller caller, http:Request req) {
+        socket:Client socketClient = new({ host: "localhost", port: 54387, callbackService: ClientService });
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
-	        byte[] payloadByte = payload.toByteArray("UTF-8");
-	        var writeResult = socketClient->write(payloadByte);
+            byte[] payloadByte = payload.toByteArray("UTF-8");
+            var writeResult = socketClient->write(payloadByte);
             if (writeResult is int) {
-                io:println("Number of byte written: ", writeResult);
-                _ = caller -> accepted();
-            } else if (writeResult is error) {
-                string errMsg = <string> writeResult.detail().message;
+                io:println("Number of bytes written: ", writeResult);
+                checkpanic caller->accepted();
+            } else {
+                io:println("Write error!!!");
+                string errMsg = <string>writeResult.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
                 var responseError = caller->respond(resp);
@@ -46,8 +47,8 @@ service echo on echoEP {
                     io:println("Error sending response: ", responseError.detail().message);
                 }
             }
-        } else if (payload is error) {
-            string errMsg = <string> payload.detail().message;
+        } else {
+            string errMsg = <string>payload.detail().message;
             resp.statusCode = 500;
             resp.setPayload(untaint errMsg);
             var responseError = caller->respond(resp);
@@ -64,24 +65,30 @@ service ClientService = service {
         io:println("connect: ", caller.remotePort);
     }
 
-	resource function onReadReady (socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller) {
         io:println("New content received for callback");
-        var str = getString(content);
-        if (str is string) {
-            io:println(untaint str);
-        } else if (str is error) {
-            io:println(str.reason());
-        }
-        var closeResult =  caller->close();
-        if (closeResult is error) {
-            io:println(closeResult.detail().message);
+        var result = caller->read();
+        if (result is (byte[], int)) {
+            var (content, length) = result;
+            if (length > 0) {
+                var str = getString(content);
+                if (str is string) {
+                    io:println(untaint str);
+                } else {
+                    io:println(str.reason());
+                }
+                var closeResult = caller->close();
+                if (closeResult is error) {
+                    io:println(closeResult.detail().message);
+                } else {
+                    io:println("Client connection closed successfully.");
+                }
+            } else {
+                io:println("Client close: ", caller.remotePort);
+            }
         } else {
-            io:println("Client connection closed successfully.");
+            io:println(result);
         }
-    }
-
-    resource function onClose(socket:Caller caller) {
-		io:println("Leave: ", caller.remotePort);
     }
 
     resource function onError(socket:Caller caller, error er) {

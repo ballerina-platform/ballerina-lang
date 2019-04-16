@@ -10,8 +10,11 @@ listener file:Listener localFolder = new ({
     path: "target/fs",
     recursive: false
 });
+
 service fileSystem on localFolder {
-    resource function onCreate (file:FileEvent m) {
+
+    resource function onCreate(file:FileEvent m) {
+    
     }
 }
 ```

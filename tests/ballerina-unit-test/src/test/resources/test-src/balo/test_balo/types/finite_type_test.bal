@@ -218,3 +218,115 @@ function testTypeDefWithFunctions2() returns int {
 
     return -1;
 }
+
+function testStringOnlyFiniteTypeAssignmentToTypeWithString() returns boolean {
+    foo:State a = "on";
+    string b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|boolean c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testIntOnlyFiniteTypeAssignmentToTypeWithInt() returns boolean {
+    foo:NumberSet a = 2;
+    int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testFloatOnlyFiniteTypeAssignmentToTypeWithFloat() returns boolean {
+    foo:FloatValue a = 2.0;
+    float b = a;
+    boolean assignmentSuccessful = a == b;
+
+    float|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean() returns boolean {
+    foo:BooleanValue a = true;
+    boolean b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
+    foo:ByteValue a = 12;
+    byte b = a;
+    boolean assignmentSuccessful = a == b;
+
+    byte|foo:Person c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testFiniteTypeAssignmentToBroaderType() returns boolean {
+    foo:CombinedState a = "off";
+    string|int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c;
+
+    foo:StringOrInt d = a;
+    assignmentSuccessful = assignmentSuccessful && a == d;
+
+    b = d;
+    return assignmentSuccessful && a == d;
+}
+
+function testFiniteTypeWithConstAssignmentToBroaderType() returns boolean {
+    foo:AB ab = foo:A;
+    string s = ab;
+    boolean assignmentSuccessful = ab == s;
+
+    ab = "b";
+    s = ab;
+    return assignmentSuccessful && ab == s;
+}
+
+function testFiniteTypeWithConstAndTypeAssignmentToBroaderType() returns boolean {
+    foo:ABInt ab = foo:A;
+    foo:AB|int s = ab;
+    boolean assignmentSuccessful = ab == s;
+
+    ab = "b";
+    string|int s2 = ab;
+    assignmentSuccessful = assignmentSuccessful && ab == s2;
+
+    ab = 12;
+    s2 = ab;
+    return assignmentSuccessful && ab == s2;
+}
+
+function testFiniteTypesAsUnionsAsBroaderTypes_1() returns boolean {
+    foo:W a = "foo";
+    foo:X b = a;
+    boolean assignmentSuccessful = a == b && b == foo:FOO;
+
+    a = true;
+    b = a;
+    assignmentSuccessful = assignmentSuccessful && a == b && b == true;
+
+    a = 2.0;
+    foo:Y c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c && c == 2.0;
+
+    a = 1;
+    foo:Z d = a;
+    return assignmentSuccessful && a == d && a == 1;
+}
+
+function testFiniteTypesAsUnionsAsBroaderTypes_2() returns boolean {
+    foo:X a = true;
+    foo:Y b = a;
+    boolean assignmentSuccessful = a == b && a == true;
+
+    b = 2.0;
+    foo:Z c = b;
+    return assignmentSuccessful && b == c && c == 2.0;
+}

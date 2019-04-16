@@ -40,6 +40,9 @@ public class PackagingTestUtils {
      * @throws IOException throw an exception if an issue occurs
      */
     public static void deleteFiles(Path dirPath) throws IOException {
+        if (dirPath == null) {
+            return;
+        }
         Files.walk(dirPath)
              .sorted(Comparator.reverseOrder())
              .forEach(path -> {

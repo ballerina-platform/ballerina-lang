@@ -25,7 +25,7 @@ function arrayReturnTest() returns (string[]) {
 
 function testNestedArrayInit() returns (int[][]) {
     int[][] array = [[1,2,3], [6,7,8,9]];
-            
+
     return array;
 }
 
@@ -42,6 +42,20 @@ function testArrayOfMapsInit() returns (map<any>[]) {
 }
 
 function floatArrayInitWithInt() returns (float[]) {
-    float[] abc = [2.0, 4.0, 5.0];
+    float[] abc = [2, 4, 5];
     return abc;
+}
+
+public type FiniteType "Terminating"|"NotTerminating"|"BestEffort"|"NotBestEffort";
+
+function finiteTypeArray() returns FiniteType {
+    FiniteType?[]? var1 = ["Terminating"];
+    if var1 is FiniteType?[] {
+        var temp = var1[0];
+        if (temp is FiniteType) {
+            return temp;
+        }
+    }
+    error e = error ("FAILED TEST");
+    panic e;
 }

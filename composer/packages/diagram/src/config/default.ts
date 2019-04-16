@@ -14,6 +14,13 @@ export class DiagramConfig {
 
     public statement = {
         actionHeight: STATEMENT_HEIGHT * 2,
+        expanded: {
+            bottomMargin: 10,
+            footer: 10,
+            header: 40,
+            margin: 20,
+            offset: 45,
+        },
         height: STATEMENT_HEIGHT,
         margin: {
             bottom: 0,
@@ -116,6 +123,7 @@ export class DiagramConfig {
         },
         leftMargin: STATEMENT_HEIGHT,
         leftMarginDefault: 60,
+        paddingTop: STATEMENT_HEIGHT / 4,
         rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
     };
@@ -126,6 +134,16 @@ export class DiagramConfig {
             leftMargin: 30
         },
         menuTriggerMargin: 12
+    };
+
+    public frame = {
+        header: {
+            height: STATEMENT_HEIGHT,
+            width: 70
+        },
+        leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
+        topMargin: 5,
     };
 }
 

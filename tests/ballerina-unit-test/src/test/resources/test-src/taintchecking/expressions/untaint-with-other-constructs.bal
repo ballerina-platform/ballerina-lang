@@ -1,4 +1,4 @@
-public string globalvariable = "input4";
+string globalvariable = "input4";
 
 function untaintWithAddOperatorInReturn () returns (string) {
     string data1 = "input1";

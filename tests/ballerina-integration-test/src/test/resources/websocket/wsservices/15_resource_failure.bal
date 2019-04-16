@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerina/io;
 
-final string ASSOCIATED_CONNECTION4 = "ASSOCIATED_CONNECTION";
 service simple7 on new http:Listener(9097) {
 
     @http:ResourceConfig {
@@ -36,27 +35,27 @@ service castErrror = @http:WebSocketServiceConfig {idleTimeoutInSeconds: 10} ser
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
         val = returnVal;
     }
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
         val = returnVal;
     }
     resource function onPing(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
         val = returnVal;
     }
     resource function onIdleTimeout(http:WebSocketCaller wsEp) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
         val = returnVal;
     }
     resource function onClose(http:WebSocketCaller wsEp, int code, string reason) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
+        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
         val = returnVal;
     }
 };

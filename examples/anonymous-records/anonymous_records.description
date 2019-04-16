@@ -1,0 +1,3 @@
+// Record types can be defined in-line as well. These types do not have a type name associated with them.
+// Such anonymous record types can be used in instances where there is no need to refer to the record type by its name
+// (e.g., records as record or object fields, records as function parameters).

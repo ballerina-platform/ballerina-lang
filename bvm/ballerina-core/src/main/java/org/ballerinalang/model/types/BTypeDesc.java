@@ -18,6 +18,7 @@
 
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -33,12 +34,12 @@ public class BTypeDesc extends BType {
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        return (V) new BTypeDescValue(BTypes.typeNull);
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return null;
+        return getZeroValue();
     }
 
     @Override

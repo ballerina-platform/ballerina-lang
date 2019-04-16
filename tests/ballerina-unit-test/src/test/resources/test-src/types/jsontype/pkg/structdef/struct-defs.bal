@@ -1,7 +1,6 @@
 
-public type Person record {
+public type Person record {|
     string name;
     int age;
     string address;
-    !...
-};
+|};

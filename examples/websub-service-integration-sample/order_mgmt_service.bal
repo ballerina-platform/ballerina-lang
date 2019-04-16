@@ -10,7 +10,7 @@ listener http:Listener httpListener = new(9090);
 // need to subscribe to, to receive notifications when an order is placed
 final string ORDER_TOPIC = "http://localhost:9090/ordermgt/ordertopic";
 
-// An in-memory map to which orders will be added for demonstration
+// An in-memory `map` to which orders will be added for demonstration
 map<json> orderMap = {};
 
 // Invoke the function that start up a Ballerina WebSub Hub, register the topic
@@ -23,16 +23,16 @@ websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 }
 service orderMgt on httpListener {
 
-    // Resource accepting discovery requests
+    // Resource accepting discovery requests.
     // Requests received at this resource would respond with a Link Header
-    // indicating the topic to subscribe to and the hub(s) to subscribe at
+    // indicating the topic to subscribe to and the hub(s) to subscribe at.
     @http:ResourceConfig {
         methods: ["GET", "HEAD"],
         path: "/order"
     }
     resource function discoverPlaceOrder(http:Caller caller, http:Request req) {
         http:Response response = new;
-        // Add a link header indicating the hub and topic
+        // Add a link header indicating the hub and topic.
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], ORDER_TOPIC);
         response.statusCode = 202;
         var result = caller->respond(response);
@@ -41,7 +41,7 @@ service orderMgt on httpListener {
         }
     }
 
-    // Resource accepting order placement requests
+    // Resource accepting order placement requests.
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/order"
@@ -60,7 +60,7 @@ service orderMgt on httpListener {
                log:printError("Error responding on ordering", err = result);
             }
 
-            // Publish the update to the Hub, to notify subscribers
+            // Publish the update to the Hub, to notify subscribers.
             string orderCreatedNotification = "New Order Added: " + orderId;
             log:printInfo(orderCreatedNotification);
             result = webSubHub.publishUpdate(ORDER_TOPIC,
@@ -77,7 +77,7 @@ service orderMgt on httpListener {
 }
 
 // Start up a Ballerina WebSub Hub on port 9191 and register the topic against
-// which updates will be published
+// which updates will be published.
 function startHubAndRegisterTopic() returns websub:WebSubHub {
     var hubStartUpResult = websub:startHub(new http:Listener(9191));
     websub:WebSubHub internalHub = hubStartUpResult is websub:HubStartedUpError

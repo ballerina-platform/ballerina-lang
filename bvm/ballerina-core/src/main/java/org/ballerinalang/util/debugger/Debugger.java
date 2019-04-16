@@ -413,7 +413,7 @@ public class Debugger {
 
         for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
-            if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
+            if (packVarInfo.isIdentifierLiteral() || !packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
                 int pkgIndex = ctx.currentFrame.callableUnitInfo.getPackageInfo().pkgIndex;
                 VariableDTO variableDTO = constructGlobalVariable(ctx, packVarInfo, pkgIndex);
                 if (variableDTO.getValue() != null || packVarInfo.getType().getTag() == TypeTags.JSON_TAG) {
@@ -429,7 +429,7 @@ public class Debugger {
 
         localVarAttrInfo.getLocalVariables().forEach(variableInfo -> {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
-            if (!variableInfo.getVariableName().contains(META_DATA_VAR_PATTERN)) {
+            if (variableInfo.isIdentifierLiteral() || !variableInfo.getVariableName().contains(META_DATA_VAR_PATTERN)) {
                 VariableDTO variableDTO = constructLocalVariable(ctx.currentFrame, variableInfo);
 
                 // Show only the variables within the current scope
@@ -461,7 +461,7 @@ public class Debugger {
                         packVarInfo.getGlobalMemIndex())));
                 break;
             case TypeTags.BYTE_TAG:
-                variableDTO.setBValue(new BByte((byte) (ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
+                variableDTO.setBValue(new BByte((ctx.programFile.globalMemArea.getIntField(pkgIndex,
                         packVarInfo.getGlobalMemIndex()))));
                 break;
             case TypeTags.FLOAT_TAG:
@@ -500,7 +500,7 @@ public class Debugger {
                 variableDTO.setBValue(new BInteger(sf.longRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.BYTE_TAG:
-                variableDTO.setBValue(new BByte((byte) sf.intRegs[variableInfo.getVariableIndex()]));
+                variableDTO.setBValue(new BByte(sf.longRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.FLOAT_TAG:
                 variableDTO.setBValue(new BFloat(sf.doubleRegs[variableInfo.getVariableIndex()]));

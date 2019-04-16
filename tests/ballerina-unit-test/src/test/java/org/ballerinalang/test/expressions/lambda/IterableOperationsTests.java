@@ -16,15 +16,15 @@
  */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,7 +51,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 26);
+        Assert.assertEquals(negative.getErrorCount(), 31);
 
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'int.foreach'", 6, 5);
@@ -93,8 +93,21 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
         BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
                 "require at least '2' variables", 99, 27);
-        BAssertUtil.validateError(negative, index, "not enough variables are defined for iterable type 'map', require" +
+        BAssertUtil.validateError(negative, index++,
+                                  "not enough variables are defined for iterable type 'map', require" +
                 " at least '2' variables", 103, 22);
+        BAssertUtil.validateError(negative, index++,
+                                  "cannot assign return value of 'filter' operation here, use a reduce operation",
+                                  110, 5);
+        BAssertUtil.validateError(negative, index++, "undefined symbol 'filtered'", 113, 17);
+        BAssertUtil.validateError(negative, index++,
+                                  "cannot assign return value of 'map' operation here, use a reduce operation",
+                                  118, 5);
+        BAssertUtil.validateError(negative, index++,
+                                  "invalid operation: type '(int) collection' does not support indexing", 129, 13);
+        BAssertUtil.validateError(negative, index,
+                                  "cannot assign return value of 'map' operation here, use a reduce operation",
+                                  141, 19);
     }
 
     @Test
@@ -218,7 +231,7 @@ public class IterableOperationsTests {
         BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "7");
+        Assert.assertEquals(returns[0].stringValue(), "35");
         Assert.assertEquals(returns[1].stringValue(), "3");
         Assert.assertEquals(returns[2].stringValue(), "{\"0\":<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>, " +
                 "\"1\":<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>}");

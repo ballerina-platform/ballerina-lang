@@ -27,7 +27,7 @@ service errorService on new http:WebSocketListener(9094) {
     }
 
     resource function onText(http:WebSocketCaller ep, string text) {
-        log:printError(string `text received: {{text}}`);
+        log:printError(string `text received: ${text}`);
         var returnVal = ep->pushText(text);
         if (returnVal is error) {
              panic returnVal;
@@ -39,6 +39,6 @@ service errorService on new http:WebSocketListener(9094) {
     }
 
     resource function onClose(http:WebSocketCaller ep, int statusCode, string reason) {
-        log:printError(string `Connection closed with {{statusCode}}, {{reason}}`);
+        log:printError(string `Connection closed with ${statusCode}, ${reason}`);
     }
 }

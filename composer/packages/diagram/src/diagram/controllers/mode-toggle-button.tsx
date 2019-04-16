@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button, Icon, Menu } from "semantic-ui-react";
+import { Button, Icon, Menu, Popup } from "semantic-ui-react";
 import { DiagramContext, DiagramMode } from "../diagram-context";
 
 export const ModeToggleButton: StatelessComponent<{}> = () => {
@@ -15,19 +15,26 @@ export const ModeToggleButton: StatelessComponent<{}> = () => {
                 return (
                     <Menu.Item>
                         <Button.Group size="tiny">
-                            <Button
-                                disabled={hasSyntaxErrors}
-                                icon
-                                onClick={() => {
-                                    if (currentMode === DiagramMode.ACTION) {
-                                        changeMode(DiagramMode.DEFAULT);
-                                    } else {
-                                        changeMode(DiagramMode.ACTION);
-                                    }
-                                }}
-                            >
-                                <Icon className={`fw ${icon}`} title={toolTip} />
-                            </Button>
+                            <Popup
+                                trigger={
+                                    <Button
+                                        disabled={hasSyntaxErrors}
+                                        icon
+                                        onClick={() => {
+                                            if (currentMode === DiagramMode.ACTION) {
+                                                changeMode(DiagramMode.DEFAULT);
+                                            } else {
+                                                changeMode(DiagramMode.ACTION);
+                                            }
+                                        }}
+                                    >
+                                        <Icon className={`fw ${icon}`} />
+                                    </Button>
+                                }
+                                content={toolTip}
+                                size="mini"
+                                inverted
+                            />
                         </Button.Group>
                     </Menu.Item>
                 );

@@ -1,0 +1,7 @@
+// This is the service definition for the server streaming scenario.
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+service HelloWorld {
+	rpc lotsOfReplies (google.protobuf.StringValue)
+			returns (stream google.protobuf.StringValue);
+}

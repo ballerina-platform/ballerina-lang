@@ -34,17 +34,9 @@ public class CommandConstants {
 
     public static final String ARG_KEY_MODULE_NAME = "module";
 
-    public static final String ARG_KEY_FUNC_NAME = "function.name";
+    public static final String ARG_KEY_SERVICE_NAME = "service.name";
 
-    public static final String ARG_KEY_FUNC_LOCATION = "function.location";
-
-    public static final String ARG_KEY_RETURN_TYPE = "function.returns";
-
-    public static final String ARG_KEY_VAR_NAME = "var.name";
-
-    public static final String ARG_KEY_RETURN_DEFAULT_VAL = "function.returns.default";
-
-    public static final String ARG_KEY_FUNC_ARGS = "function.arguments";
+    public static final String ARG_KEY_FUNCTION_NAME = "function.name";
 
     public static final String ARG_KEY_NODE_TYPE = "node.type";
 
@@ -52,11 +44,16 @@ public class CommandConstants {
 
     public static final String ARG_KEY_NODE_COLUMN = "node.column";
 
+    public static final String ARG_KEY_MESSAGE_TYPE = "message.type";
+
+    public static final String ARG_KEY_MESSAGE = "message";
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";
 
     public static final String CREATE_VARIABLE_TITLE = "Create Local Variable";
+
+    public static final String IGNORE_RETURN_TITLE = "Ignore Return Value";
 
     public static final String CREATE_FUNCTION_TITLE = "Create Function ";
 
@@ -71,21 +68,4 @@ public class CommandConstants {
     public static final String CREATE_INITIALIZER_TITLE = "Create Initializer";
 
     public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
-
-    // Commands List
-    public static final String CMD_IMPORT_MODULE = "IMPORT_MODULE";
-
-    public static final String CMD_CREATE_FUNCTION = "CREATE_FUNC";
-
-    public static final String CMD_CREATE_TEST = "CREATE_TEST";
-
-    public static final String CMD_CREATE_VARIABLE = "CREATE_VAR";
-
-    public static final String CMD_ADD_DOCUMENTATION = "ADD_DOC";
-
-    public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
-
-    public static final String CMD_CREATE_INITIALIZER = "CREATE_INITIALIZER";
-
-    public static final String CMD_PULL_MODULE = "PULL_MODULE";
 }

@@ -27,6 +27,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -49,9 +50,9 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
@@ -138,9 +139,14 @@ public class LSCompilerUtil {
         options.put(COMPILER_PHASE, phase);
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
+        options.put(SKIP_TESTS, String.valueOf(false));
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
+
+        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
+        }
 
         Path sourceRootPath = document.getSourceRootPath();
         if (isBallerinaProject(document.getSourceRoot(), document.getURIString())) {
@@ -247,6 +253,24 @@ public class LSCompilerUtil {
 
         String fileRoot = findProjectRoot(parentPath.toString());
         return fileRoot != null ? fileRoot : parentPath.toString();
+    }
+
+    /**
+     * Get the project dir for given file.
+     *
+     * @param filePath file path
+     * @return {@link String} project directory path or null if not in a project
+     */
+    public static String getProjectDir(Path filePath) {
+        if (filePath == null || filePath.getParent() == null) {
+            return null;
+        }
+        Path parentPath = filePath.getParent();
+        if (parentPath == null) {
+            return null;
+        }
+
+        return findProjectRoot(parentPath.toString());
     }
 
     /**

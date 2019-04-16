@@ -26,14 +26,17 @@ public function main() {
         error? connErr = ep->send(greet + " " + name);
         if (connErr is error) {
             io:println("Error from Connector: " + connErr.reason() + " - "
-                                           + <string>connErr.detail().message);
+                                            + <string>connErr.detail().message);
         } else {
             io:println("send greeting: " + greet + " " + name);
         }
     }
 
     // Once all the messages are sent, the server notifies the caller with a `complete` message.
-    _ = ep->complete();
+    error? result = ep->complete();
+    if (result is error) {
+        io:println("Error in sending complete message", result);
+    }
 
     while (total == 0) {}
     io:println("completed successfully");
@@ -51,7 +54,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         io:println("Error reported from server: " + err.reason() + " - "
-                                          + <string>err.detail().message);
+                                                + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.

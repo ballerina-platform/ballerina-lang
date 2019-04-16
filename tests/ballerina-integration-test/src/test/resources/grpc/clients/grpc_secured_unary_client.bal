@@ -31,7 +31,7 @@ function testUnarySecuredBlocking() returns (string) {
                 name: "TLSv1.2",
                 versions: ["TLSv1.2","TLSv1.1"]
             },
-            ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
+            ciphers:["TLS_RSA_WITH_AES_128_CBC_SHA"],
             certValidation : {
                 enable: false
             },
@@ -53,16 +53,11 @@ function testUnarySecuredBlocking() returns (string) {
 
 public type HelloWorldBlockingClient client object {
 
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -82,16 +77,11 @@ public type HelloWorldBlockingClient client object {
 
 public type HelloWorldClient client object {
 
-    private grpc:Client grpcClient = new;
-    private grpc:ClientEndpointConfig config = {};
-    private string url;
+    private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
-        self.config = config ?: {};
-        self.url = url;
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(self.url, self.config);
+        grpc:Client c = new(url, config = config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;

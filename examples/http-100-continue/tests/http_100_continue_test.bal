@@ -24,7 +24,7 @@ function testFunc() {
     var response = httpEndpoint->post("/hello", "Hello from client");
     if (response is http:Response) {
         test:assertEquals(response.getTextPayload(), response1);
-    } else if (response is error) {
+    } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
 }

@@ -2,32 +2,32 @@
   "ws": [
     {
       "ws": "\n    ",
-      "i": 89,
+      "i": 87,
       "text": "if",
       "static": true
     },
     {
       "ws": " ",
-      "i": 95,
+      "i": 93,
       "text": "{",
       "static": true
     },
     {
       "ws": "\n\n    ",
-      "i": 98,
+      "i": 96,
       "text": "}",
       "static": true
     }
   ],
   "position": {
     "startColumn": 5,
-    "startLine": 17,
+    "startLine": 14,
     "endColumn": 6,
-    "endLine": 19
+    "endLine": 16
   },
-  "id": "62e1e18a-3650-4242-98e0-c1ccb12dbc62",
+  "id": "f5052854-3c18-42fb-aa08-1a4dac9e778c",
   "body": {
-    "id": "4ddce881-69d1-4d2d-a278-4d83d6f966b3",
+    "id": "c1b4e383-bd88-463f-825f-ad01323e3e5f",
     "statements": [],
     "kind": "Block"
   },
@@ -35,24 +35,24 @@
     "ws": [
       {
         "ws": " ",
-        "i": 91,
+        "i": 89,
         "text": "(",
         "static": true
       },
       {
         "ws": "",
-        "i": 93,
+        "i": 91,
         "text": ")",
         "static": true
       }
     ],
     "position": {
       "startColumn": 8,
-      "startLine": 17,
+      "startLine": 14,
       "endColumn": 14,
-      "endLine": 17
+      "endLine": 14
     },
-    "id": "11db7715-8833-4a90-b3d9-f2c243624442",
+    "id": "18016896-fc50-4733-9565-2125d5a8901b",
     "symbolType": [
       "boolean"
     ],
@@ -61,18 +61,18 @@
         "ws": [
           {
             "ws": "",
-            "i": 92,
+            "i": 90,
             "text": "true",
             "static": false
           }
         ],
         "position": {
           "startColumn": 9,
-          "startLine": 17,
+          "startLine": 14,
           "endColumn": 13,
-          "endLine": 17
+          "endLine": 14
         },
-        "id": "c5d062e6-7ad5-45bf-bec3-4014a056971e",
+        "id": "196353a1-067d-488c-83c0-c8352905cba5",
         "symbolType": [
           "boolean"
         ],

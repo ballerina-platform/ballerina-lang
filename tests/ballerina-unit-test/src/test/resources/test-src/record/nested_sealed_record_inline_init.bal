@@ -1,6 +1,6 @@
 string child = "Bob";
 
-type Person record {
+type Person record {|
     string name = "default first name";
     string fname = "";
     string lname = "";
@@ -8,15 +8,13 @@ type Person record {
     int age = 999;
 
     Family family = {spouse : "Jane"};
-    !...
-};
+|};
 
-type Family record {
+type Family record {|
     string spouse = "";
     int noOfChildren = 0;
     string[] children = ["Alex", child];
-    !...
-};
+|};
 
 function testCreateStruct () returns Person {
     Person emp = {lname:"Doe"};

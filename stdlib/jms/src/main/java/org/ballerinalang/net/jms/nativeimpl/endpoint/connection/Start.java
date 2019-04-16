@@ -26,7 +26,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Connection;
@@ -38,16 +38,17 @@ import javax.jms.JMSException;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jms",
+        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         isPublic = true
 )
 public class Start implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
-        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, Constants.JMS_CONNECTION,
+        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, JmsConstants.JMS_CONNECTION,
                                                                  Connection.class, context);
         try {
             connection.start();

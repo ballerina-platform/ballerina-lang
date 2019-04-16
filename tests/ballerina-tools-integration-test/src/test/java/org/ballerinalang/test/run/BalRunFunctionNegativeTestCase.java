@@ -37,24 +37,24 @@ import java.io.File;
  */
 public class BalRunFunctionNegativeTestCase extends BaseTest {
 
-    private String sourceRootPath = "src/test/resources/run/file/";
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
-    @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <FILE_NAME>:")
-    public void testInvalidSourceArg() throws BallerinaTestException {
-        String sourceArg = (new File(sourceRootPath + "test_entry_function.bal")).getAbsolutePath() + ":";
-        LogLeecher errLogLeecher = new LogLeecher("error: ballerina source does not exist '" + sourceArg + "'",
-                LeecherType.ERROR);
-        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+    @Test(description = "test insufficient arguments")
+    public void testInsufficientArguments() throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: insufficient arguments to call the 'main' function",
+                                                  LeecherType.ERROR);
+        balClient.runMain((new File("src/test/resources/run/file/test_main_with_multiple_typed_params.bal"))
+                                  .getAbsolutePath(), new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
-    public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
-        String sourceArg = (new File(sourceRootPath + "test_entry_function_with_colons.bal")).getAbsolutePath() +
-                ":colonsInName:WrongFunction";
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: 'colonsInName:WrongFunction' function not found in " +
-                                                          "'test_entry_function_with_colons.bal'", LeecherType.ERROR);
-        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+    @Test(description = "test too many arguments")
+    public void testTooManyArguments() throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: too many arguments to call the 'main' function",
+                                                  LeecherType.ERROR);
+        balClient.runMain((new File("src/test/resources/run/file/test_main_with_no_params.bal"))
+                                  .getAbsolutePath(), new String[]{}, new String[]{"extra"},
+                          new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 }

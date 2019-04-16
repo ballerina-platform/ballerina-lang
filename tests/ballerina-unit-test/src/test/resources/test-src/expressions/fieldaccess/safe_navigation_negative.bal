@@ -26,7 +26,7 @@ function testErrorLiftingAcessWithoutErrorOnLHS () returns any {
     return x;
 }
 
-function testFieldAcessWithoutErrorLifting () returns any {
+function testFieldAcessWithoutErrorLifting () returns any|error {
     error e = error("custom error");
     Info inf = {address1 : e};
     Person prsn = {info1 : inf};
@@ -41,7 +41,7 @@ function testErrorLiftingOnRHS() {
 }
 
 function testErrorLiftingOnArray() returns Person|error {
-    Person[]|error p = error(" ");
+    Person?[]|error p = error(" ");
     return p[0];
 }
 

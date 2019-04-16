@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines a channel that accepts xml messages.
+// Defines a `channel` that accepts `xml` messages.
 channel<xml> xmlChn = new;
 
 public function main(string... args) {
@@ -32,4 +32,6 @@ public function main(string... args) {
         msg -> xmlChn;
         io:println("Sent message from w3");
     }
+
+    wait w1;
 }

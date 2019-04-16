@@ -23,11 +23,10 @@ listener http:Listener serviceEndpoint2 = new(9102);
 listener http:Listener serviceEndpoint3 = new(9103);
 
 http:ServiceEndpointConfiguration httpsEPConfig = {
-    port:9104,
     secureSocket: {
         keyStore: {
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
         }
     }
 };
@@ -64,8 +63,8 @@ service testRedirect on serviceEndpoint3 {
         http:Response finalResponse = new;
         if (response is http:Response) {
             finalResponse.setPayload(response.resolvedRequestedURI);
-            _ = caller->respond(finalResponse);
-        } else if (response is error) {
+            checkpanic caller->respond(finalResponse);
+        } else {
             io:println("Connector error!");
         }
     }
@@ -83,8 +82,8 @@ service testRedirect on serviceEndpoint3 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            _ = caller->respond(untaint value);
-        } else if (response is error) {
+            checkpanic caller->respond(untaint value);
+        } else {
             io:println("Connector error!");
         }
     }
@@ -100,11 +99,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -120,11 +119,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -140,11 +139,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else  {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -160,11 +159,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -180,11 +179,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -200,11 +199,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -222,8 +221,8 @@ service testRedirect on serviceEndpoint3 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            _ = caller->respond(untaint value);
-        } else if (response is error) {
+            checkpanic caller->respond(untaint value);
+        } else {
             io:println("Connector error!");
         }
     }
@@ -239,11 +238,11 @@ service testRedirect on serviceEndpoint3 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = caller->respond(untaint value);
-            } else if (value is error) {
+                checkpanic caller->respond(untaint value);
+            } else {
                 io:println("Payload error!");
             }
-        } else if (response is error) {
+        } else {
             io:println("Connector error!");
         }
     }
@@ -260,7 +259,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function redirect1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9102/redirect2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9102/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -269,7 +268,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function round1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
     }
 
     @http:ResourceConfig {
@@ -278,7 +277,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function round2(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
+        checkpanic caller->redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
     }
 
     @http:ResourceConfig {
@@ -287,7 +286,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function round3(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
+        checkpanic caller->redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
     }
 
     @http:ResourceConfig {
@@ -296,7 +295,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function round4(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
+        checkpanic caller->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
     }
 
     @http:ResourceConfig {
@@ -305,7 +304,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function round5(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9102/redirect2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9102/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -314,7 +313,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function qpWithRelativePath(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/processQP?key=value&lang=ballerina"
+        checkpanic caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/processQP?key=value&lang=ballerina"
             ]);
     }
 
@@ -324,7 +323,7 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function qpWithAbsolutePath(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
+        checkpanic caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
                 "http://localhost:9103/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
@@ -335,7 +334,7 @@ service redirect1 on serviceEndpoint3 {
     resource function processQP(http:Caller caller, http:Request req) {
         map<string> paramsMap = req.getQueryParams();
         string returnVal = paramsMap.key + ":" + paramsMap.lang;
-        _ = caller->respond(untaint returnVal);
+        checkpanic caller->respond(untaint returnVal);
     }
 }
 
@@ -351,7 +350,7 @@ service redirect2 on serviceEndpoint2 {
     resource function redirect2(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("hello world");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -360,7 +359,7 @@ service redirect2 on serviceEndpoint2 {
     }
     resource function test303(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
+        checkpanic caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
     }
 }
 
@@ -376,7 +375,7 @@ service redirect3 on httpsEP {
     }
     resource function firstRedirect(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect3/result"]);
+        checkpanic caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect3/result"]);
     }
 
     @http:ResourceConfig {
@@ -384,6 +383,6 @@ service redirect3 on httpsEP {
         path:"/result"
     }
     resource function finalResult(http:Caller caller, http:Request req) {
-        _ = caller -> respond("HTTPs Result");
+        checkpanic caller->respond("HTTPs Result");
     }
 }

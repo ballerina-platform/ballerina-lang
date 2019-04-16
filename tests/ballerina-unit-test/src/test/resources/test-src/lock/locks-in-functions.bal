@@ -106,6 +106,7 @@ function throwErrorInsideLock() returns (int, string) {
         lockWithinLockString1 = "second worker string";
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
     }
+    error? waitResult = trap wait w1;
     return (lockWithinLockInt1, lockWithinLockString1);
 }
 

@@ -1,2 +1,2 @@
 // A match statement is a value switching construct that allows selective code execution based on
-// the value of the expression that is being tested.
+// matching the value of the expression that is being matched against the pattern.

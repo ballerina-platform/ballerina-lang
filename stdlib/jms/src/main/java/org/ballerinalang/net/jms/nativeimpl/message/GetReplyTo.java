@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
-import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Destination;
@@ -45,12 +45,13 @@ import javax.jms.Topic;
  * Get a float property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "getReplyTo",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina/jms"),
-        returnType = { @ReturnType(type = TypeKind.OBJECT, structType = "Destination",
-                                        structPackage = "ballerina/jms")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = JmsConstants.DESTINATION_OBJ_NAME,
+                                  structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)},
         isPublic = true
 )
 public class GetReplyTo extends AbstractBlockingAction {
@@ -59,25 +60,25 @@ public class GetReplyTo extends AbstractBlockingAction {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
         Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                        Constants.JMS_MESSAGE_OBJECT,
-                                                        Message.class,
-                                                        context);
-        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, 
-                                        Constants.BALLERINA_PACKAGE_JMS,
-                                        Constants.JMS_DESTINATION_STRUCT_NAME);
+                                                           JmsConstants.JMS_MESSAGE_OBJECT,
+                                                           Message.class,
+                                                           context);
+        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context,
+                                                                           JmsConstants.BALLERINA_PACKAGE_JMS,
+                                                                           JmsConstants.JMS_DESTINATION_STRUCT_NAME);
         try {
             Destination destination = message.getJMSReplyTo();
             if (destination instanceof Queue) {
                 Queue replyTo = (Queue) destination;
-                bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
-                bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getQueueName()));
-                bStruct.put(Constants.DESTINATION_TYPE, new BString("queue"));
+                bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, replyTo);
+                bStruct.put(JmsConstants.DESTINATION_NAME, new BString(replyTo.getQueueName()));
+                bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("queue"));
                 context.setReturnValues(bStruct);
             } else if (destination instanceof Topic) {
                 Topic replyTo = (Topic) destination;
-                bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
-                bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getTopicName()));
-                bStruct.put(Constants.DESTINATION_TYPE, new BString("topic"));
+                bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, replyTo);
+                bStruct.put(JmsConstants.DESTINATION_NAME, new BString(replyTo.getTopicName()));
+                bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("topic"));
                 context.setReturnValues(bStruct);
             } else {
                 context.setReturnValues(BLangVMErrors.createError(context, "ReplyTo header has not been set"));

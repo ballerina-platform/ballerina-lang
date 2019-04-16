@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-// Define the end point to the call the `mockHelloService`.
+// Define the endpoint to the call the `mockHelloService`.
 http:Client backendClientEP = new("http://localhost:8080", config = {
         // Retry configuration options.
         retryConfig: {
@@ -10,17 +10,17 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // Initial retry interval in milliseconds.
             interval: 3000,
 
-            // Number of retry attempts before giving up
+            // Number of retry attempts before giving up.
             count: 3,
 
-            // Multiplier of the retry interval to exponentailly
-            // increase; retry interval
+            // Multiplier of the retry interval to exponentially
+            // increase; retry interval.
             backOffFactor: 2.0,
 
-            // Upper limit of the retry interval in milliseconds
+            // Upper limit of the retry interval in milliseconds.
             // If `interval` into `backOffFactor` value exceeded
             // `maxWaitInterval` interval value. `maxWaitInterval`
-            // will be considered as the retry intrval.
+            // will be considered as the retry interval.
             maxWaitInterval: 20000
 
         },
@@ -42,7 +42,7 @@ service retryDemoService on new http:Listener(9090) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
@@ -56,7 +56,7 @@ service retryDemoService on new http:Listener(9090) {
                                 err = responseToCaller);
             }
 
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errCause = <string> backendResponse.detail().message;
@@ -70,12 +70,14 @@ service retryDemoService on new http:Listener(9090) {
     }
 }
 
-public int counter = 0;
+int counter = 0;
 
 // This sample service is used to mock connection timeouts and service outages.
 // The service outage is mocked by stopping/starting this service.
 // This should run separately from the `retryDemoService` service.
-@http:ServiceConfig { basePath: "/hello" }
+@http:ServiceConfig {
+    basePath: "/hello"
+}
 service mockHelloService on new http:Listener(8080) {
 
     @http:ResourceConfig {

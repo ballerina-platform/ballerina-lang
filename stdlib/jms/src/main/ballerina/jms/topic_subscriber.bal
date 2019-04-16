@@ -19,31 +19,41 @@ import ballerina/log;
 # JMS TopicSubscriber endpoint
 #
 # + consumerActions - Handles all the caller actions related to the TopicSubscriber endpoint
-# + config - Used to store configurations related to JMS TopicSubscriber
+# + session - Session of the topic subscriber
+# + messageSelector - The message selector for the topic subscriber
 public type TopicSubscriber object {
 
     *AbstractListener;
 
     public TopicSubscriberCaller consumerActions = new;
-    public TopicSubscriberEndpointConfiguration config = {};
+    public Session? session;
+    public string messageSelector = "";
 
     # Initialize the TopicSubscriber endpoint
     #
-    # + c - Configurations related to the TopicSubscriber endpoint
-    public function __init(TopicSubscriberEndpointConfiguration c) {
-        self.config = c;
+    # + c - The JMS Session object or Configurations related to the receiver
+    # + topicPattern - Name or the pattern of the topic subscription
+    # + messageSelector - JMS selector statement
+    # + identifier - Unique identifier for the subscription
+    public function __init(Session|ReceiverEndpointConfiguration c, string? topicPattern = (), string messageSelector =
+        "") {
         self.consumerActions.topicSubscriber = self;
-        var session = c.session;
-        if (session is Session) {
-             var topicPattern = c.topicPattern;
-             if (topicPattern is string) {
-                 self.createSubscriber(session, c.messageSelector);
-                 log:printInfo("Subscriber created for topic " + topicPattern);
-             } else {
-                 log:printInfo("Topic subscriber is not properly initialized for topic");
-             }
+        self.messageSelector = messageSelector;
+        if (c is Session) {
+            self.session = c;
         } else {
-            log:printInfo("Topic subscriber is not properly initialized for topic");
+            Connection conn = new({
+                    initialContextFactory: c.initialContextFactory,
+                    providerUrl: c.providerUrl,
+                    connectionFactoryName: c.connectionFactoryName,
+                    properties: c.properties
+                });
+            self.session = new Session(conn, {
+                    acknowledgementMode: c.acknowledgementMode
+                });
+        }
+        if (topicPattern is string) {
+            self.createSubscriber(self.session, messageSelector, topicPattern);
         }
     }
 
@@ -52,13 +62,13 @@ public type TopicSubscriber object {
     # + serviceType - Type descriptor of the service
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
-    public function __attach(service serviceType, map<any> data) returns error? {
-        return self.registerListener(serviceType, self.consumerActions, data);
+    public function __attach(service serviceType, string? name = ()) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, name);
     }
 
-    extern function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error?;
+    function registerListener(service serviceType, TopicSubscriberCaller actions, string? name) returns error? = external;
 
-    extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
+    function createSubscriber(Session? session, string messageSelector, string|Destination dest) = external;
 
     # Start TopicSubscriber endpoint
     #
@@ -81,21 +91,7 @@ public type TopicSubscriber object {
         return self.closeSubscriber(self.consumerActions);
     }
 
-    extern function closeSubscriber(TopicSubscriberCaller actions) returns error?;
-};
-
-# Configuration related to topic subscriber endpoint
-#
-# + session - Session object used to create topic subscriber
-# + topicPattern - Topic name pattern
-# + messageSelector - Message selector condition to filter messages
-# + identifier - Identifier of topic subscriber endpoint
-public type TopicSubscriberEndpointConfiguration record {
-    Session? session = ();
-    string? topicPattern = ();
-    string messageSelector = "";
-    string identifier = "";
-    !...
+    function closeSubscriber(TopicSubscriberCaller actions) returns error? = external;
 };
 
 # Remote functions that topic subscriber endpoint could perform
@@ -109,51 +105,53 @@ public type TopicSubscriberCaller client object {
     #
     # + message - JMS message to be acknowledged
     # + return - error on failure to acknowledge a received message
-    public remote extern function acknowledge(Message message) returns error?;
+    public remote function acknowledge(Message message) returns error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error.
-    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 
     # Synchronously receive a message from the JMS provider
     #
     # + destination - Destination to subscribe to
     # + timeoutInMilliSeconds - Time to wait until a message is received
     # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
-    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
-};
-
-remote function TopicSubscriberCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
-        error)? {
-    var subscriber = self.topicSubscriber;
-    if (subscriber is TopicSubscriber) {
-          var session = subscriber.config.session;
-          if (session is Session) {
-            validateTopic(destination);
-            subscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
-            log:printInfo("Subscriber created for topic " + destination.destinationName);
-          } else {
-            log:printInfo("Session is (), Topic subscriber is not properly initialized");
-          }
-    } else {
-        log:printInfo("Topic subscriber is not properly initialized");
+    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?
+    {
+        var subscriber = self.topicSubscriber;
+        if (subscriber is TopicSubscriber) {
+            var session = subscriber.session;
+            if (session is Session) {
+                validateTopic(destination);
+                subscriber.createSubscriber(session, subscriber.messageSelector, destination);
+                log:printInfo("Subscriber created for topic " + destination.destinationName);
+            } else {
+                log:printInfo("Session is (), Topic subscriber is not properly initialized");
+            }
+        } else {
+            log:printInfo("Topic subscriber is not properly initialized");
+        }
+        var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+        var returnVal = self.topicSubscriber.closeSubscriber(self);
+        return result;
     }
-    var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-    var returnVal = self.topicSubscriber.closeSubscriber(self);
-    return result;
-}
+};
 
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        map<any> errorDetail = { message: errorMessage };
+        map<anydata> errorDetail = {
+            message: errorMessage
+        };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        map<any> errorDetail = { message: errorMessage };
+        map<anydata> errorDetail = {
+            message: errorMessage
+        };
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
         panic topicSubscriberConfigError;
     }

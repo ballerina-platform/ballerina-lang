@@ -148,10 +148,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
-        if (funcNode.receiver != null) {
-            this.acceptNode(funcNode.receiver);
-        }
-
         if (funcNode.requiredParams != null) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
@@ -186,7 +182,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                     HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
                 try {
                     BUnionType bUnionType = (BUnionType) userDefinedType.type;
-                    for (BType type : bUnionType.memberTypes) {
+                    for (BType type : bUnionType.getMemberTypes()) {
                         if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
                                                                                                      .typeName
                                                                                                      .getValue())) {

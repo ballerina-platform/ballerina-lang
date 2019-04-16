@@ -1,3 +1,5 @@
+import ballerina/io;
+
 // Sample XML taken from: https://www.w3schools.com/xml/books.xml
 xml bookstore = xml `<bookstore>
                         <book category="cooking">
@@ -112,4 +114,37 @@ function chainedIterableOps() returns xml[] {
                                                     return xml ` `;
                                                 });
     return authors;
+}
+
+xml theXml = xml `<book>the book</book>`;
+xml bitOfText = xml `bit of text\u2702\u2705`;
+xml compositeXml = theXml + bitOfText;
+
+xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+        <p:name>bob</p:name>
+        <p:address>
+            <p:city>NY</p:city>
+            <q:country>US</q:country>
+        </p:address>
+        <q:ID>1131313</q:ID>
+    </p:person>`;
+
+function xmlSequenceIter() returns string {
+    string result = "";
+
+    foreach xml|string elem in compositeXml {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    return result;
+}
+
+function xmlCharItemIter() returns string {
+    string result = "";
+
+    foreach xml|string elem in bitOfText {
+        string str = io:sprintf("%s\n", elem);
+        result += str;
+    }
+    return result;
 }

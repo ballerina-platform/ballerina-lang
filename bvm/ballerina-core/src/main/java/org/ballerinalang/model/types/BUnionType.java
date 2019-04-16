@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,27 +47,41 @@ public class BUnionType extends BType {
      * @param memberTypes of the union type
      */
     public BUnionType(List<BType> memberTypes) {
-        super(null, null, BValue.class);
+        super(String.join("|", memberTypes.stream().map(BType::toString).collect(Collectors.toList())), null,
+              BValue.class);
         this.memberTypes = memberTypes;
         this.nullable = memberTypes.contains(BTypes.typeNull);
+    }
+
+    public BUnionType(BType[] memberTypes) {
+        this(Arrays.asList(memberTypes));
     }
 
     public List<BType> getMemberTypes() {
         return memberTypes;
     }
 
-    public boolean isNullable() {
+    @Override
+    public boolean isNilable() {
         return nullable;
     }
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        if (nullable || memberTypes.stream().anyMatch(BType::isNilable)) {
+            return null;
+        }
+
+        return memberTypes.get(0).getZeroValue();
     }
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return null;
+        if (nullable || memberTypes.stream().anyMatch(BType::isNilable)) {
+            return null;
+        }
+
+        return memberTypes.get(0).getEmptyValue();
     }
 
     @Override
@@ -89,12 +104,12 @@ public class BUnionType extends BType {
             return false;
         }
         BUnionType that = (BUnionType) o;
-        return Objects.equals(memberTypes, that.memberTypes);
+        return memberTypes.containsAll(that.memberTypes) && that.memberTypes.containsAll(memberTypes);
     }
 
     @Override
     public int hashCode() {
-
         return Objects.hash(super.hashCode(), memberTypes);
     }
 }
+

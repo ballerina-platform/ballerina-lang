@@ -26,9 +26,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangLiteral extends BLangExpression implements LiteralNode {
 
-    public int typeTag;
     public Object value;
     public String originalValue;
+    public boolean isJSONContext;
+    public boolean isFiniteContext;
+    public boolean isConstant;
 
     @Override
     public Object getValue() {
@@ -62,7 +64,8 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     @Override
     public String toString() {
-        return String.valueOf(value);
+        // To distinguish between `()` and `null`
+        return value == null ? originalValue : String.valueOf(value);
     }
 
 }

@@ -1,0 +1,148 @@
+/**
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+ 
+/*---------------------------
+       Diagram Globals 
+----------------------------*/
+
+@diagram-base-light-color: @offWhite;
+@diagram-base-dark-color: @black;
+
+@diagram-font: @fontName;
+@diagram-font-size: @fontSize;
+
+@light-diagram-background-color: @diagram-base-light-color;
+@dark-diagram-background-color: @diagram-base-dark-color;
+@light-diagram-base-text-color: @dark-diagram-background-color;
+@dark-diagram-base-text-color: @light-diagram-background-color;
+
+
+/*-------------------
+       Panel 
+--------------------*/
+
+@light-diagram-panel-header-background-color: @light-diagram-background-color;
+@dark-diagram-panel-header-background-color: @dark-diagram-background-color;
+@light-diagram-panel-header-text-color: @light-diagram-base-text-color;
+@dark-diagram-panel-header-text-color: @dark-diagram-base-text-color;
+@light-diagram-panel-body-background-color: @light-diagram-background-color;
+@dark-diagram-panel-body-background-color: @dark-diagram-background-color;
+@light-diagram-expanded-func-frame-color: #bbb;
+@dark-diagram-expanded-func-frame-color: #bbb;
+@light-diagram-collapse-func-color: #aaa;
+@dark-diagram-collapse-func-color: #aaa;
+
+
+
+/*-------------------
+       Stroke 
+--------------------*/
+
+@light-diagram-arrow-head-color: @light-diagram-stroke-color;
+@dark-diagram-arrow-head-color: @dark-diagram-stroke-color;
+
+@light-diagram-stroke-color: @light-diagram-base-text-color;
+@dark-diagram-stroke-color: @dark-diagram-base-text-color;
+
+@diagram-stroke-width: 1px;
+
+
+/*-------------------
+       Statement
+--------------------*/
+
+@diagram-statement-font-size: @diagram-font-size;
+
+
+/*-------------------
+       Lifeline
+--------------------*/
+
+@light-diagram-life-line-stroke-color: @light-diagram-stroke-color;
+@dark-diagram-life-line-stroke-color: @dark-diagram-stroke-color;
+@light-diagram-life-line-text-color: @light-diagram-base-text-color;
+@dark-diagram-life-line-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-life-line-head-background-color: @diagram-base-dark-color;
+@dark-diagram-life-line-head-background-color: @diagram-base-dark-color;
+@light-diagram-life-line-head-stroke-color: @light-diagram-life-line-stroke-color;
+@dark-diagram-life-line-head-stroke-color: @dark-diagram-life-line-stroke-color;
+@light-diagram-life-line-head-text-color: @light-diagram-base-text-color;
+@dark-diagram-life-line-head-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-life-line-worker-stroke-color: @blue;
+@dark-diagram-life-line-worker-stroke-color: @blue;
+@light-diagram-life-line-endpoint-stroke-color: @teal;
+@dark-diagram-life-line-endpoint-stroke-color: @teal;
+@light-diagram-life-line-endpoint-stroke-activity-color: @light-diagram-life-line-endpoint-stroke-color;
+@dark-diagram-life-line-endpoint-stroke-activity-color: @dark-diagram-life-line-endpoint-stroke-color;
+
+@diagram-life-line-stroke-width: @diagram-stroke-width;
+@diagram-life-line-head-font-size: calc(@diagram-font-size + 2px);
+
+
+/*--- Condition ---*/
+
+@light-diagram-condition-stroke-color: @light-diagram-stroke-color;
+@dark-diagram-condition-stroke-color: @dark-diagram-stroke-color;
+@light-diagram-condition-case-background-color: @light-diagram-background-color;
+@dark-diagram-condition-case-background-color: @dark-diagram-background-color;
+
+@light-diagram-condition-background-color: @white;
+@dark-diagram-condition-background-color: @diagram-base-dark-color;
+@light-diagram-condition-text-color: @light-diagram-stroke-color;
+@dark-diagram-condition-text-color: @dark-diagram-stroke-color;
+
+@light-diagram-condition-line-stroke-color: @light-diagram-life-line-worker-stroke-color;
+@dark-diagram-condition-line-stroke-color: @dark-diagram-life-line-worker-stroke-color;
+
+@light-diagram-condition-line-worker-arrow-head-color: @light-diagram-condition-line-stroke-color;
+@dark-diagram-condition-line-worker-arrow-head-color: @dark-diagram-condition-line-stroke-color;
+
+@diagram-condition-stroke-width: @diagram-stroke-width;
+@diagram-condition-line-stroke-width: @diagram-stroke-width;
+
+
+/*-------------------
+       Menu 
+--------------------*/
+
+@diagram-menu-trigger-background-color: @primaryColor;
+@diagram-menu-trigger-text-color: @white;
+
+@dark-diagram-menu-trigger-background-color: @diagram-menu-trigger-background-color;
+@dark-diagram-menu-trigger-text-color: @diagram-menu-trigger-text-color;
+
+@light-diagram-menu-trigger-background-color: @diagram-menu-trigger-background-color;
+@light-diagram-menu-trigger-text-color: @diagram-menu-trigger-text-color;
+
+@dark-diagram-menu-item-background-color: @dark-diagram-background-color;
+@dark-diagram-menu-item-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-menu-item-background-color: #eaeaea;
+@light-diagram-menu-item-text-color: @light-diagram-base-text-color;
+
+@dark-diagram-menu-item-hover-background-color: @dark-diagram-background-color;
+@dark-diagram-menu-item-hover-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-menu-item-hover-background-color: #d7d7d7;
+@light-diagram-menu-item-hover-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-top-menu-background-color: #fff;
+@dark-diagram-top-menu-background-color: #000;

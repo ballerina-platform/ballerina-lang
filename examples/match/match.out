@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run match.bal
 value is: 0
 value is: 1
@@ -9,4 +9,4 @@ value is: 4
 Cat
 Dog
 Mouse
-No Match
+Match All

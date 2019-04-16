@@ -1,5 +1,5 @@
 import ballerina/io;
-// Import transactions module in order to use participant annotation.
+// Import `ballerina/transactions` module in order to use participant annotation.
 import ballerina/transactions;
 
 

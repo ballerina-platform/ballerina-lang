@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.test.expressions.ternary;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -338,5 +338,11 @@ public class TernaryExpressionTest {
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'int'", 6, 29);
         BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'boolean', found 'int'", 7, 13);
         BAssertUtil.validateError(compileResult, 2, "incompatible types: expected 'string', found 'boolean'", 13, 30);
+    }
+
+    @Test
+    public void testErrorInTernary() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testErrorInTernary");
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 7);
     }
 }

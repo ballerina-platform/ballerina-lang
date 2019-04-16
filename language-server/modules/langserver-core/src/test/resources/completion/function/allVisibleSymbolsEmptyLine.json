@@ -9,7 +9,9 @@
       "label":"const2",
       "kind":"Variable",
       "detail":"string",
-      "documentation":"Constant",
+      "documentation":{
+        "left":"Constant"
+      },
       "sortText":"110",
       "insertText":"const2"
     },

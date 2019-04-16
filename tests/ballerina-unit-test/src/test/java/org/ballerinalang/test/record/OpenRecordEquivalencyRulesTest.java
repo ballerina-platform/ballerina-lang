@@ -18,15 +18,15 @@
 
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -61,9 +61,9 @@ public class OpenRecordEquivalencyRulesTest {
         CompileResult negative = BCompileUtil.compile("test-src/record/equiv_rules_neg_cr_to_or.bal");
         int index = 0;
         assertEquals(negative.getErrorCount(), 3);
-        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 29, 24);
-        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 40, 24);
-        validateError(negative, index, "incompatible types: expected 'AnotherPerson', found 'Person3'", 53, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person1'", 28, 24);
+        validateError(negative, index++, "incompatible types: expected 'AnotherPerson', found 'Person2'", 38, 24);
+        validateError(negative, index, "incompatible types: expected 'AnotherPerson', found 'Person3'", 50, 24);
     }
 
     @Test(description = "Test assigning a closed record to an open record type variable")

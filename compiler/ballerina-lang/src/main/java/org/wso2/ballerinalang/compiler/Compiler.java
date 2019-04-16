@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class Compiler {
     }
 
     public List<BLangPackage> build() {
-        return compilePackages();
+        return compilePackages(true);
     }
 
     public BLangPackage build(String sourcePackage) {
@@ -119,8 +120,20 @@ public class Compiler {
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 
+
+    /**
+     * Writes the given binary content as a java archive to specified location with the name.
+     *
+     * @param jarContent the binary content of jar
+     * @param outputPath path to be used for writing the jar file
+     * @param targetFileName file name of the jar to be used
+     */
+    public void write(byte[] jarContent, Path outputPath, String targetFileName) {
+        this.binaryFileWriter.write(jarContent, outputPath, targetFileName);
+    }
+
     public void list() {
-        compilePackages().forEach(this.dependencyTree::listDependencyPackages);
+        compilePackages(true).forEach(this.dependencyTree::listDependencyPackages);
     }
 
     public void list(String sourcePackage) {
@@ -139,12 +152,27 @@ public class Compiler {
         return this.binaryFileWriter.genExecutable(entryPackageNode);
     }
 
-
+    public List<BLangPackage> compilePackages(boolean isBuild) {
+        List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
+        if (pkgList.size() == 0) {
+            return new ArrayList<>();
+        }
+        if (isBuild) {
+            outStream.println("Compiling source");
+        }
+        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild);
+        // If it is a build and dlog is not empty, compilation should fail
+        if (isBuild && this.dlog.errorCount > 0) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
+        return compiledPackages;
+    }
     // private methods
 
     private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild) {
         // TODO This is hack to load the builtin package. We will fix this with BALO support
         this.compilerDriver.loadBuiltinPackage();
+        this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
@@ -160,19 +188,6 @@ public class Compiler {
                 .filter(pkgNode -> pkgNode.symbol != null)
                 .forEach(this.compilerDriver::compilePackage);
         return packages;
-    }
-
-    private List<BLangPackage> compilePackages() {
-        List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
-        if (pkgList.size() == 0) {
-            return new ArrayList<>();
-        }
-        outStream.println("Compiling source");
-        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), true);
-        if (this.dlog.errorCount > 0) {
-            throw new BLangCompilerException("compilation contains errors");
-        }
-        return compiledPackages;
     }
 
     private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {

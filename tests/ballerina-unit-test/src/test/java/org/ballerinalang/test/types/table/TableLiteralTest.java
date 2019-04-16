@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -27,7 +24,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,7 +37,6 @@ import java.io.PrintStream;
 
 import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
-
 
 /**
  * Class to test table literal.
@@ -318,14 +316,6 @@ public class TableLiteralTest {
                 "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, {\"id\":2, " +
                 "\"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}, {\"id\":3, \"age\":42, " +
                 "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
-    }
-
-    @Test(priority = 1,
-          description = "Test struct with any typed field",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Unsupported column type for table : any.*")
-    public void testTableWithAnyDataToJson() {
-        BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }
 
     @Test(priority = 1,

@@ -43,15 +43,14 @@ public class ExecutorUtils {
      * Run a function in a balx that lives within jars.
      *
      * @param balxResource URI of the balx resource
-     * @param functionName the function name, if a function is to be invoked
      * @param args         arguments passed to the function
      * @return execution results
      */
-    public static BValue[] executeFunction(URI balxResource, String functionName, String... args) {
+    public static BValue[] executeFunction(URI balxResource, String... args) {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        return BLangProgramRunner.runEntryFunc(programFile, functionName, args);
+        return BLangProgramRunner.runMainFunc(programFile, args);
     }
     
     /**

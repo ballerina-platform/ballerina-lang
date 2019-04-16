@@ -16,18 +16,20 @@
 
 import ballerina/reflect;
 
+# The `Node` object represents a node in the linkedlist data structure.
 public type Node object {
     public any? data;
     public Node? next;
     public Node? prev;
 
-    function __init(Node? prev, any? data, Node? next) {
+    public function __init(Node? prev, any? data, Node? next) {
         self.prev = prev;
         self.data = data;
         self.next = next;
     }
 };
 
+# The `LinkedList` object which represents the linked list data structure.
 public type LinkedList object {
     public Node? first;
     public Node? last;
@@ -35,7 +37,7 @@ public type LinkedList object {
     public int size = 0;
     public boolean ascend = true;
 
-    function __init() {
+    public function __init() {
         self.first = ();
         self.last = ();
         self.curr = ();
@@ -43,7 +45,8 @@ public type LinkedList object {
         self.ascend = true;
     }
 
-    // Returns whether the list is empty.
+    # Checks if the linked list is empty.
+    # + return - Returns `true` if the linked list is empty, otherwise returns `false`.
     public function isEmpty() returns boolean {
         var value = self.first;
         if (value is Node) {
@@ -53,19 +56,21 @@ public type LinkedList object {
         }
     }
 
-    // Reset the iterator head to the front of the list.
+    # Moves the cursoer to the front/head of the linked list.
     public function resetToFront() {
         self.curr = ();
         self.ascend = true;
     }
 
-    // Reset the iterator head to the rear of the list.
+    # Moves the cursor to the end of the linked list if the cursor is not already at the last element of the linked
+    # list.
     public function resetToRear() {
         self.curr = ();
         self.ascend = false;
     }
 
-    // When iterating, indicates whethers there's a node next to the self.current node.
+    # Returns true if the linked list has more elements starting from the current cursor location.
+    # + return - Returns `true` if there are more elements onwards from the current cursor location, otherwise `false`.
     public function hasNext() returns boolean {
         var c = self.curr;
         if (c is Node) {
@@ -76,7 +81,8 @@ public type LinkedList object {
         }
     }
 
-    // When iterating, indicates whethers there's a node prior to the self.current node.
+    # Returns `true` if there are prior elements to the current element/cursor location, otherwise false.
+    # + return - Returns true, if there are elements prior to the current cursor location, otherwise `false`.
     public function hasPrevious() returns boolean {
         var c = self.curr;
         if (c is Node) {
@@ -87,7 +93,8 @@ public type LinkedList object {
         }
     }
 
-    // Iterates to the next node and returns it's data.
+    # Returns the next element of the linked list and moves the cursor to the next element.
+    # + return - The next element from the current cursor location.
     public function next() returns any? {
         if (self.hasNext()) {
             var c = self.curr;
@@ -106,7 +113,8 @@ public type LinkedList object {
         }
     }
 
-    // Iterates to the previous node and returns it's data.
+    # Returns the previous element of the linked list and moves the cursor to the previous element.
+    # + return - The previous element from the current cursor location.
     public function previous() returns any? {
         if (self.hasPrevious()) {
             var c = self.curr;
@@ -125,7 +133,7 @@ public type LinkedList object {
         }
     }
 
-    // Removes the self.current node.
+    # Removes the element at the current cursor location.
     public function removeCurrent() {
         var c = self.curr;
         if (c is Node) {
@@ -135,12 +143,13 @@ public type LinkedList object {
         }
     }
 
-    // Returns the number of elements in this list.
+    # Returns the current number of elements in the linked list.
+    # + return - The number of elements in the linked list.
     public function getSize() returns int {
         return self.size;
     }
 
-    // Removes all of the elements from this list.
+    # Empties the linked list.
     public function clear() {
         // TODO: unlink every node and clean up properly.
         //match self.first {
@@ -164,12 +173,14 @@ public type LinkedList object {
         self.size = 0;
     }
 
-    // Removes the first occurrence of the specified element from this list.
+    # Removes the first occurence of the element pass as `elem` and return `true` of the removal is successful.
+    # + return - Return `true` if removal is successful otherwise `false`.
     public function removeFirstOccurrence(any? elem) returns boolean {
         return self.remove(elem);
     }
 
-    // Removes the first occurrence of the specified element from this list.
+    # Removes the first occurence of the element pass as `elem` and return `true` of the removal is successful.
+    # + return - Return `true` if removal is successful otherwise `false`.
     public function remove(any? elem) returns boolean {
         // TODO: find a way to loop, and implement properly
         //match elem {
@@ -207,7 +218,8 @@ public type LinkedList object {
         return false;
     }
 
-    // Returns the self.first element in this list.
+    # Returns the first element of the linked list, without moving the cursor.
+    # + return - First element of the linked list.
     public function getFirst() returns any? {
         var n = self.first;
         if (n is Node) {
@@ -217,7 +229,8 @@ public type LinkedList object {
         }
     }
 
-    // Returns the self.last element in this list.
+    # Returns the last element of the linked list, without moving the cursor.
+    # + return - Last element of the linked list.
     public function getLast() returns any? {
         var n = self.last;
         if (n is Node) {
@@ -227,17 +240,20 @@ public type LinkedList object {
         }
     }
 
-    // Inserts the specified element at the beginning of this list.
+    # Adds a new element to the front of the linked list without moving the cursor.
+    # + data - Data to be added to the front of the linked list.
     public function addFirst(any data) {
         self.linkFirst(data);
     }
 
-    // Inserts the specified element at the end of this list.
+    # Adds a new element to the end of the linked list without moving the cursor.
+    # + data - Data to be added to the end of the linked list.
     public function addLast(any data) {
         self.linkLast(data);
     }
 
-    // Removes and returns the self.first element from this list.
+    # Removes the first element in the linked list without moving the cursor.
+    # + return - Returns the removed element.
     public function removeFirst() returns any? {
         var f = self.first;
         if (f is Node) {
@@ -247,7 +263,8 @@ public type LinkedList object {
         }
     }
 
-    // Removes and returns the last element from this list.
+    # Removes the last element in the linked list without moving the cursor.
+    # + return - Returns the removed element.
     public function removeLast() returns any? {
         var l = self.last;
         if (l is Node) {
@@ -257,6 +274,8 @@ public type LinkedList object {
         }
     }
 
+    # Insert a new element before the current cursor location.
+    # + data - Data to be inserted.
     public function insertBeforeCurrent(any data) {
         var c = self.curr;
         if (c is Node) {
@@ -366,7 +385,7 @@ public type LinkedList object {
             self.last = prev;
         }
 
-        if (reflect:equals(x, self.curr)) {
+        if (x === self.curr) {
             if (self.ascend) {
                 self.curr = prev;
             } else {
@@ -378,6 +397,8 @@ public type LinkedList object {
         return data;
     }
 
+    # Returns the first element which is added to the linked list.
+    # + return - The dequeued element.
     public function dequeue() returns any? {
         var value = self.first;
         if (value is Node) {
@@ -394,6 +415,8 @@ public type LinkedList object {
         }
     }
 
+    # Creates an array from the elements in the linked list and return it. The cursor will not be changed.
+    # + return - An array of elements in the linked list.
     public function asArray() returns any[] {
         any[] arr = [self.size - 1];
         Node? temp;
@@ -412,5 +435,91 @@ public type LinkedList object {
             }
         }
         return arr;
+    }
+
+    # Adds elements of an array to the current cursor location and moves the cursor to the end of the list.
+    # + return - The array to be added to the linked list.
+    public function addAll(any[] data) {
+        foreach any d in data {
+            self.addLast(d);
+        }
+    }
+};
+
+# This class implements a merge sort algorithm to sort timestamp values for state persistence.
+public type IntSort object {
+
+    # Sorts a given array of int values.
+    # + arr - The array of int values to be sorted.
+    public function sort(int[] arr) {
+        self.sortInternal(arr, 0, arr.length() - 1);
+    }
+
+    function sortInternal(int[] arr, int l, int r) {
+        if (l < r) {
+            // Find the middle point
+            int m = (l + r) / 2;
+
+            // Sort first and second halves
+            self.sortInternal(arr, l, m);
+            self.sortInternal(arr, m + 1, r);
+
+            // Merge the sorted halves
+            self.merge(arr, l, m, r);
+        }
+    }
+
+    function merge(int[] arr, int l, int m, int r) {
+        // Find sizes of two subarrays to be merged
+        int n1 = m - l + 1;
+        int n2 = r - m;
+
+        // Create temp arrays
+        int[] L = [];
+        int[] R = [];
+
+        // Copy data to temp arrays
+        int i = 0;
+        while (i < n1) {
+            L[i] = arr[l + i];
+            i = i + 1;
+        }
+
+        int j = 0;
+        while (j < n2) {
+            R[j] = arr[m + 1 + j];
+            j = j + 1;
+        }
+
+        // Initial indexes of first and second subarrays
+        i = 0;
+        j = 0;
+
+        // Initial index of merged subarry array
+        int k = l;
+        while (i < n1 && j < n2) {
+            if (L[i] <= R[j]) {
+                arr[k] = L[i];
+                i += 1;
+            } else {
+                arr[k] = R[j];
+                j += 1;
+            }
+            k += 1;
+        }
+
+        // Copy remaining elements of L[] if any
+        while (i < n1) {
+            arr[k] = L[i];
+            i += 1;
+            k += 1;
+        }
+
+        // Copy remaining elements of R[] if any
+        while (j < n2) {
+            arr[k] = R[j];
+            j += 1;
+            k += 1;
+        }
     }
 };

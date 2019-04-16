@@ -23,6 +23,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
 import { join } from "path";
+import { DidChangeConfigurationParams } from 'vscode-languageclient';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -89,21 +90,6 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
 	}
-	// Handle messages from the webview
-	diagramViewPanel.webview.onDidReceiveMessage(message => {
-		switch (message.command) {
-			case 'astModified':
-				if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
-					preventDiagramUpdate = true;
-					const ast = JSON.parse(message.ast);
-					langClient.triggerASTDidChange(ast, activeEditor.document.uri)
-						.then(() => {
-							preventDiagramUpdate = false;
-						});	
-				}
-				return;
-		}
-	}, undefined, context.subscriptions);
 
 	diagramViewPanel.onDidDispose(() => {
 		diagramViewPanel = undefined;
@@ -137,6 +123,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 
     ballerinaExtInstance.onReady().then(() => {
+		const args: DidChangeConfigurationParams = {
+            settings: workspace.getConfiguration('ballerina'),
+        };
+        langClient.sendNotification("workspace/didChangeConfiguration", args);
         langClient.onNotification('window/showTextDocument', (location: Location) => {
             if (location.uri !== undefined) {
                 window.showTextDocument(Uri.parse(location.uri.toString()), {selection: location.range});

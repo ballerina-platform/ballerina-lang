@@ -6,6 +6,76 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
+      "label":"close()",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/builtin_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "sortText":"121",
+      "insertText":"close();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"hasNext()(boolean)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/builtin_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "sortText":"121",
+      "insertText":"hasNext()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getNext()(any)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/builtin_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "sortText":"121",
+      "insertText":"getNext()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"add(any data)(error?)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/builtin_  \n  \nAdd record to the table.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    A record with data  \n"
+        }
+      },
+      "sortText":"121",
+      "insertText":"add(${1:data})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"remove(function (any) returns (boolean) func)(int|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n"
+        }
+      },
+      "sortText":"121",
+      "insertText":"remove(${1:func})",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"foreach(\u003c@lambda:function\u003e)",
       "kind":"Function",
       "detail":"Function",
@@ -18,7 +88,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"map(function() returns (any) {\n\t${1}\n});",
+      "insertText":"map(function () returns any {\n\t${1}\n})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -26,7 +96,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"filter(function() returns (boolean) {\n\t${1}\n});",
+      "insertText":"filter(function() returns (boolean) {\n\t${1}\n})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -34,7 +104,15 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"count();",
+      "insertText":"count()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"select(functionReference)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"select(${1:functionReference})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -42,7 +120,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"length();",
+      "insertText":"length()",
       "insertTextFormat":"Snippet"
     },
     {
@@ -50,7 +128,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"freeze();",
+      "insertText":"freeze()",
       "insertTextFormat":"Snippet"
     },
     {
@@ -58,7 +136,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"isFrozen();",
+      "insertText":"isFrozen()",
       "insertTextFormat":"Snippet"
     },
     {
@@ -66,7 +144,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"stamp(${1});",
+      "insertText":"stamp(${1})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -74,15 +152,15 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"clone();",
+      "insertText":"clone()",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"create(anydata a)",
+      "label":"convert(anydata a)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"create(${1});",
+      "insertText":"convert(${1})",
       "insertTextFormat":"Snippet"
     }
   ]

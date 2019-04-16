@@ -151,13 +151,13 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
         metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",
                 "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
         metricRegistry.counter(new MetricId(connectorName + "_2XX_requests_total",
-                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+                "Total number of requests that resulted in HTTP 2xx successful responses", tags)).register();
         metricRegistry.counter(new MetricId(connectorName + "_3XX_requests_total",
-                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+                "Total number of requests that resulted in HTTP 3xx redirections", tags)).register();
         metricRegistry.counter(new MetricId(connectorName + "_4XX_requests_total",
-                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+                "Total number of requests that resulted in HTTP 4xx client errors", tags)).register();
         metricRegistry.counter(new MetricId(connectorName + "_5XX_requests_total",
-                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+                "Total number of requests that resulted in HTTP 5xx server errors", tags)).register();
 
         if (statusCode >= 100 && statusCode < 200) {
             metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",

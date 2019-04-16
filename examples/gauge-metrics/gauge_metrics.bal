@@ -9,7 +9,9 @@ import ballerina/observe;
 observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
 
 // Make sure you start the service with `--observe`, or metrics enabled.
-@http:ServiceConfig { basePath: "/online-store-service" }
+@http:ServiceConfig {
+    basePath: "/online-store-service"
+}
 service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {
@@ -48,7 +50,11 @@ service onlineStoreService on new http:Listener(9090) {
         //or type. And subsequent invocations of register() will simply retrieve the stored metrics instance
         //for the provided name and tags fields, and use that instance for the subsequent operations on the
         //counter instance.
-        _ = registeredGaugeWithTags.register();
+        error? result = registeredGaugeWithTags.register();
+        if (result is error) {
+            log:printError("Error in registering gauge", err = result);
+        }
+
         //Set the value of the gauge with the new value.
         registeredGaugeWithTags.increment();
         float value = registeredGaugeWithTags.getValue();
@@ -83,13 +89,13 @@ service onlineStoreService on new http:Listener(9090) {
 
         io:println("------------------------------------------");
 
-        //Send reponse to the client.
+        //Send response to the client.
         http:Response res = new;
         // Use a util method to set a string payload.
         res.setPayload("Order Processed!");
 
         // Send the response back to the caller.
-        var result = caller->respond(res);
+        result = caller->respond(res);
 
         if (result is error) {
             log:printError("Error sending response", err = result);

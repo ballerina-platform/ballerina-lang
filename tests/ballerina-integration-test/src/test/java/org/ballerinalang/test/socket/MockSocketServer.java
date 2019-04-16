@@ -28,6 +28,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -40,17 +41,18 @@ public class MockSocketServer implements Runnable {
 
     public static final int SERVER_PORT = 54387;
     private static final String POISON_PILL = "Bye";
-    private String receivedString;
+    private boolean execute = true;
+    private Selector selector = null;
 
     private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         final int read = client.read(buffer);
         if (read == -1) {
             client.close();
+            return;
         }
         byte[] readBytes = buffer.array();
-        String deserializeContent = new String(readBytes).trim();
-        receivedString = deserializeContent;
+        String deserializeContent = new String(readBytes, StandardCharsets.UTF_8.name()).trim();
         if (POISON_PILL.equals(deserializeContent)) {
             client.close();
             log.info("Not accepting client messages anymore");
@@ -66,21 +68,17 @@ public class MockSocketServer implements Runnable {
         client.register(selector, SelectionKey.OP_READ);
     }
 
-    String getReceivedString() {
-        return receivedString;
-    }
-
     @Override
     public void run() {
         try {
-            Selector selector = Selector.open();
+            selector = Selector.open();
             ServerSocketChannel serverSocket = ServerSocketChannel.open();
             serverSocket.bind(new InetSocketAddress("localhost", SERVER_PORT));
             serverSocket.configureBlocking(false);
             serverSocket.register(selector, SelectionKey.OP_ACCEPT);
             ByteBuffer buffer = ByteBuffer.allocate(256);
 
-            while (true) {
+            while (execute) {
                 try {
                     final int select = selector.select();
                     if (select == 0) {
@@ -103,6 +101,19 @@ public class MockSocketServer implements Runnable {
             }
         } catch (Throwable e) {
             log.error(e.getMessage());
+        }
+    }
+
+    public void stop() {
+        execute = false;
+        if (selector == null) {
+            return;
+        }
+        selector.wakeup();
+        try {
+            selector.close();
+        } catch (IOException e) {
+            // Do nothing.
         }
     }
 }

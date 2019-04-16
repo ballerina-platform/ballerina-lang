@@ -33,39 +33,47 @@ See [Mutual SSL Example](https://ballerina.io/learn/by-example/mutual-ssl.html).
 
 See [Caching Example](https://ballerina.io/learn/by-example/caching.html), [HTTP Disable Chunking Example](https://ballerina.io/learn/by-example/http-disable-chunking.html).
 
-### WebSockets
+### WebSocket
 
-The module also provides support for WebSockets. There are two types of WebSocket endpoints: `WebSocketClient` and `WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
+The module also provides support for WebSocket. There are two types of WebSocket endpoints: `WebSocketClient` and 
+`WebSocketListener`. Both endpoints support all WebSocket frames. The `WebSocketClient` has a callback service.
 
-There are also two types of services for WebSocket: `WebSocketService` and `WebSocketClientService`. The callback service for `WebSocketClient` is always a `WebSocketClientService`. The WebSocket services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these resources.
+There are two types of services for WebSocket. The service of the server has the `WebSockerCaller` as the resource
+ parameter, and the callback service of the client has `WebSocketClient` as the resource parameter. The WebSocket 
+ services have a fixed set of resources that do not have a resource config. The incoming messages are passed to these 
+ resources.
 
-**WebSocket upgrade**: During a WebSocket upgrade, the initial message is an HTTP request. To intercept this request and make the upgrade explicitly with custom headers, the user must create an HTTP resource with WebSocket specific configurations as follows:
+**WebSocket upgrade**: During a WebSocket upgrade, the initial message received is an HTTP request. To intercept this 
+request and perform the upgrade explicitly with custom headers, the user must create an HTTP resource with 
+WebSocket-specific configurations as follows:
 ```ballerina
- @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/{name}",
-            upgradeService: chatApp
-        }
-    }
-    resource function upgrader(http:Caller caller, http:Request req, string name) {
+@http:ResourceConfig {
+    webSocketUpgrade: {
+        upgradePath: "/{name}",
+        upgradeService: chatApp
     }
 }
+resource function upgrader(http:Caller caller, http:Request req, string name) {
+}
 ```
-Here `upgradeService` is a `WebSocketService`.
+The `upgradeService` is a server callback service.
 
-**onOpen resource**: As soon as the WebSocket handshake is completed and the connection is established, the `onOpen` resource is dispatched. This resource is only available in the `WebSocketService`.
+**onOpen resource**: As soon as the WebSocket handshake is completed and the connection is established, the `onOpen` 
+resource is dispatched. This resource is only available in the service of the server.
 
-**onText resource**: Received Text messages are dispatched to this resource.
+**onText resource**: The received text messages are dispatched to this resource.
 
-**onBinary resource**: Received Binary messages are dispatched to this resource.
+**onBinary resource**: The received binary messages are dispatched to this resource.
 
-**onPing and onPong resources**: Received ping and pong messages are dispatched to these resources respectively as a `blob`
+**onPing and onPong resources**: The received ping and pong messages are dispatched to these resources respectively.
 
-**onIdleTimeout**: This resource is dispatched when idle timeout is reached. idleTimeout has to be configured by the user in WebSocket service configuration.
+**onIdleTimeout**: This resource is dispatched when the idle timeout is reached. idleTimeout has to be configured by the 
+user in either the WebSocket service or client configuration.
 
-**onClose**: This resource is dispatched when a close message is received.
+**onClose**: This resource is dispatched when a close frame with a statusCode and a reason is received.
 
-**onError**: This resource is dispatched when an error occurs in the WebSocket connection. This will always be followed by a connection closure with an appropriate WebSocket close frame.
+**onError**: This resource is dispatched when an error occurs in the WebSocket connection. This will always be preceded 
+by a connection closure with an appropriate close frame.
 
 See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), 
 [HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html),
@@ -98,7 +106,7 @@ http:Client clientEndpoint = new("https://my-simple-backend.com");
 The defined `Client` endpoint can be used to call a remote service as follows:
 
 ``` ballerina
-// Send a GET request to the specified endpoint
+// Send a GET request to the specified endpoint.
 var response = clientEndpoint->get("/get?id=123");
 ```
 
@@ -113,15 +121,15 @@ Then a `Service` can be defined and attached to the above `Listener` endpoint as
 
 ```ballerina
 // By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
-@http:ServiceConfig { basePath:"/helloWorld" }
+@http:ServiceConfig { basePath: "/helloWorld" }
 service helloWorld on helloWorldEP {
 
    // All resource functions are invoked with arguments of server connector and request.
    @http:ResourceConfig {
-        methods:["POST"],
-        path:"/{name}",
-        body:"message"
-    }
+       methods: ["POST"],
+       path: "/{name}",
+       body: "message"
+   }
    resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.

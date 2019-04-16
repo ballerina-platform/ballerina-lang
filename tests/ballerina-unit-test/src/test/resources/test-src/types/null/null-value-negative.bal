@@ -16,7 +16,7 @@ function testNullForValueType1() {
     int a = ();
 }
 
-function testLogicalOperationOnNull2() returns (any) {
+function testArithmaticOperationOnNull() returns (any) {
     return (null + null);
 }
 
@@ -26,4 +26,8 @@ function testNullForValueType2() {
 
 function testNullForValueType3() {
     json j = null;
+}
+
+function testArithmaticOperationOnNull2() returns (any) {
+    return (() + ());
 }

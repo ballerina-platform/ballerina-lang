@@ -48,12 +48,6 @@ public class TesterinaReport {
             }
         }
 
-        if (!testSummary.passedTests.isEmpty()) {
-            for (TesterinaResult passedResult : testSummary.passedTests) {
-                outStream.println("\t[pass] " + passedResult.getTestFunctionName());
-            }
-            outStream.println();
-        }
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
         outStream.println();

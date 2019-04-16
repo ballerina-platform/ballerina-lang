@@ -26,17 +26,18 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
+import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
 
 /**
  * {@code Send} is the send action implementation of the topic producer Connector.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
+@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+                   packageName = JmsConstants.JMS,
                    functionName = "send",
                    receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "TopicPublisher",
-                                        structPackage = "ballerina/jms"),
+                                        structType = JmsConstants.TOPIC_PUBLISHER_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = { @Argument(name = "message", type = TypeKind.OBJECT) },
                    isPublic = true
 )

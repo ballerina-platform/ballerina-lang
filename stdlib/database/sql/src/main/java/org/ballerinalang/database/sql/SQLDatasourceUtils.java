@@ -20,7 +20,6 @@ package org.ballerinalang.database.sql;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
@@ -30,10 +29,12 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -45,6 +46,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -77,6 +79,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
@@ -87,12 +91,10 @@ import javax.transaction.xa.XAResource;
  */
 public class SQLDatasourceUtils {
 
-    private static final String ORACLE_DATABASE_NAME = "oracle";
-    public static final String POSTGRES_DATABASE_NAME = "postgresql";
     private static final String POSTGRES_DOUBLE = "float8";
     public static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
     private static final int ORACLE_CURSOR_TYPE = -10;
-    private static final String TIME_FIELD = "time";
+    private static final String POOL_MAP_KEY = UUID.randomUUID().toString();
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = obtainIntegerValue(value);
@@ -413,7 +415,7 @@ public class SQLDatasourceUtils {
         if (value != null) {
             if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                BValue timeVal = ((BMap<String, BValue>) value).get(Constants.STRUCT_TIME_FIELD);
                 long time = ((BInteger) timeVal).intValue();
                 val = new Date(time);
             } else if (value instanceof BInteger) {
@@ -454,7 +456,7 @@ public class SQLDatasourceUtils {
         if (value != null) {
             if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                BValue timeVal = ((BMap<String, BValue>) value).get(Constants.STRUCT_TIME_FIELD);
                 long time = ((BInteger) timeVal).intValue();
                 val = new Timestamp(time);
             } else if (value instanceof BInteger) {
@@ -495,7 +497,7 @@ public class SQLDatasourceUtils {
         if (value != null) {
             if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                BValue timeVal = ((BMap<String, BValue>) value).get(Constants.STRUCT_TIME_FIELD);
                 long time = ((BInteger) timeVal).intValue();
                 val = new Time(time);
             } else if (value instanceof BInteger) {
@@ -665,7 +667,7 @@ public class SQLDatasourceUtils {
     public static void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
-                if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
+                if (Constants.DatabaseNames.ORACLE.equals(databaseProductName)) {
                     // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
                     // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
                     // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc
@@ -733,6 +735,13 @@ public class SQLDatasourceUtils {
                 arrayData[i] = ((BValueArray) value).getFloat(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.DOUBLE };
+        case TypeTags.DECIMAL_TAG:
+            arrayLength = (int) ((BValueArray) value).size();
+            arrayData = new BigDecimal[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+                arrayData[i] = ((BValueArray) value).getRefValue(i).value();
+            }
+            return new Object[] { arrayData, Constants.SQLDataTypes.DECIMAL };
         case TypeTags.STRING_TAG:
             arrayLength = (int) ((BValueArray) value).size();
             arrayData = new String[arrayLength];
@@ -821,6 +830,9 @@ public class SQLDatasourceUtils {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 structData[i] = ((BBoolean) bValue).booleanValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                structData[i] = ((BDecimal) bValue).decimalValue();
                 break;
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) field.getFieldType()).getElementType();
@@ -979,6 +991,8 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.DOUBLE;
         case TypeTags.BOOLEAN_TAG:
             return Constants.SQLDataTypes.BOOLEAN;
+        case TypeTags.DECIMAL_TAG:
+            return Constants.SQLDataTypes.DECIMAL;
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
@@ -1112,6 +1126,10 @@ public class SQLDatasourceUtils {
     public static BError getSQLConnectorError(Context context, Throwable throwable) {
         String detailedErrorMessage =
             throwable.getMessage() != null ? throwable.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        return getSQLConnectorError(context, detailedErrorMessage);
+    }
+
+    public static BError getSQLConnectorError(Context context, String detailedErrorMessage) {
         BMap<String, BValue> sqlClientErrorDetailRecord = BLangConnectorSPIUtil
                 .createBStruct(context, Constants.SQL_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME,
                         detailedErrorMessage);
@@ -1140,72 +1158,181 @@ public class SQLDatasourceUtils {
     }
 
     public static BMap<String, BValue> createServerBasedDBClient(Context context, String dbType,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
-        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
-        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
-        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
+            BMap<String, BValue> clientEndpointConfig, String urlOptions,
+            BMap<String, BRefType> globalPoolOptions) {
+        String host = clientEndpointConfig.get(Constants.EndpointConfig.HOST).stringValue();
+        int port = (int) ((BInteger) clientEndpointConfig.get(Constants.EndpointConfig.PORT)).intValue();
+        String name = clientEndpointConfig.get(Constants.EndpointConfig.NAME).stringValue();
+        String username = clientEndpointConfig.get(Constants.EndpointConfig.USERNAME).stringValue();
+        String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
+        BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.POOL_OPTIONS);
+        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        if (userProvidedPoolOptionsNotPresent) {
+            poolOptions = globalPoolOptions;
+        }
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
+        String jdbcUrl = constructJDBCURL(dbType, host, port, name, username, password, urlOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withHostOrPath(host).withPort(port)
-                .withJdbcUrl("").withOptions(options).withUsername(username).withPassword(password).withDbName(name)
-                .withUrlOptions(urlOptions).build();
-        return createSQLDataSource(context, sqlDatasourceParams);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl(jdbcUrl)
+                .withPoolOptions(poolOptionsWrapper).withUsername(username).withPassword(password).withDbName(name)
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
+        return createSQLClient(context, sqlDatasourceParams);
     }
 
-    public static BMap<String, BValue> createSQLDBClient(Context context,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig) {
-        String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
-        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+    public static BMap<String, BValue> createSQLDBClient(Context context, BMap<String, BValue> clientEndpointConfig,
+            BMap<String, BRefType> globalPoolOptions) {
+        String url = clientEndpointConfig.get(Constants.EndpointConfig.URL).stringValue();
+        String username = clientEndpointConfig.get(Constants.EndpointConfig.USERNAME).stringValue();
+        String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
+        BMap<String, BRefType> dbOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.DB_OPTIONS);
+        BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.POOL_OPTIONS);
+        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        if (userProvidedPoolOptionsNotPresent) {
+            poolOptions = globalPoolOptions;
+        }
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withOptions(options)
-                .withOptions(options).withJdbcUrl(url).withHostOrPath("").withPort(0).withUsername(username)
-                .withPassword(password).withDbName("").withUrlOptions("").withDbOptionsMap(dbOptions).build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("")
+                .withPoolOptions(poolOptionsWrapper).withJdbcUrl(url).withUsername(username).withPassword(password)
+                .withDbName("").withDbOptionsMap(dbOptions).withIsGlobalDatasource(userProvidedPoolOptionsNotPresent)
+                .build();
 
-        return createSQLDataSource(context, sqlDatasourceParams);
+        return createSQLClient(context, sqlDatasourceParams);
     }
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
-        String modeRecordType = clientEndpointConfig.getName();
+            BMap<String, BValue> clientEndpointConfig, String urlOptions,
+            BMap<String, BRefType> globalPoolOptions) {
+        String modeRecordType = clientEndpointConfig.getType().getName();
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         int port = -1;
         if (modeRecordType.equals(Constants.SERVER_MODE)) {
             dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);;
-            port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+            hostOrPath = clientEndpointConfig.get(Constants.EndpointConfig.HOST).stringValue();
+            port = (int) ((BInteger) clientEndpointConfig.get(Constants.EndpointConfig.PORT)).intValue();
         } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
             dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);;
+            hostOrPath = clientEndpointConfig.get(Constants.EndpointConfig.PATH).stringValue();;
         }
         dbType = dbType + dbPostfix;
-        String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
-        String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
-        org.ballerinalang.connector.api.Struct options = clientEndpointConfig
-                .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
+        String name = clientEndpointConfig.get(Constants.EndpointConfig.NAME).stringValue();
+        String username = clientEndpointConfig.get(Constants.EndpointConfig.USERNAME).stringValue();
+        String password = clientEndpointConfig.get(Constants.EndpointConfig.PASSWORD).stringValue();
+        BMap<String, BRefType> poolOptions = (BMap<String, BRefType>) clientEndpointConfig
+                .get(Constants.EndpointConfig.POOL_OPTIONS);
+        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
+        if (userProvidedPoolOptionsNotPresent) {
+            poolOptions = globalPoolOptions;
+        }
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withOptions(options).withJdbcUrl("")
-                .withDbType(dbType).withHostOrPath(hostOrPath).withPort(port).withUsername(username)
-                .withPassword(password).withDbName(name).withUrlOptions(urlOptions).build();
+        String jdbcUrl = constructJDBCURL(dbType, hostOrPath, port, name, username, password, urlOptions);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
+                .withJdbcUrl(jdbcUrl).withDbType(dbType).withUsername(username).withPassword(password).withDbName(name)
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
+        return createSQLClient(context, sqlDatasourceParams);
+    }
 
-        return createSQLDataSource(context, sqlDatasourceParams);
+    protected static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+            BMap<String, BRefType> poolOptions) {
+        return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
+    }
+
+    protected static void addDatasourceContainer(BMap<String, BRefType> poolOptions,
+            ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
+        poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
+    }
+
+    private static String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String username,
+            String password, String dbOptions) {
+        StringBuilder jdbcUrl = new StringBuilder();
+        dbType = dbType.toUpperCase(Locale.ENGLISH);
+        hostOrPath = hostOrPath.replaceAll("/$", "");
+        switch (dbType) {
+        case Constants.DBTypes.MYSQL:
+            if (port <= 0) {
+                port = Constants.DefaultPort.MYSQL;
+            }
+            jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.SQLSERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.SQLSERVER;
+            }
+            jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
+                    .append(dbName);
+            break;
+        case Constants.DBTypes.ORACLE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.ORACLE;
+            }
+            jdbcUrl.append("jdbc:oracle:thin:").append(username).append("/").append(password).append("@")
+                    .append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.SYBASE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.SYBASE;
+            }
+            jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.POSTGRESQL:
+            if (port <= 0) {
+                port = Constants.DefaultPort.POSTGRES;
+            }
+            jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.IBMDB2:
+            if (port <= 0) {
+                port = Constants.DefaultPort.IBMDB2;
+            }
+            jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.HSQLDB_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.HSQLDB_SERVER;
+            }
+            jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
+                    .append(dbName);
+            break;
+        case Constants.DBTypes.HSQLDB_FILE:
+            jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        case Constants.DBTypes.H2_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.H2_SERVER;
+            }
+            jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.H2_FILE:
+            jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        case Constants.DBTypes.H2_MEMORY:
+            jdbcUrl.append("jdbc:h2:mem:").append(dbName);
+            break;
+        case Constants.DBTypes.DERBY_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.DERBY_SERVER;
+            }
+            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.DERBY_FILE:
+            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        default:
+            throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
+        }
+        return dbOptions.isEmpty() ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
     }
 
     private static void registerArrayOutParameter(PreparedStatement stmt, int index, int sqlType,
             String structuredSQLType, String databaseProductName) throws SQLException {
-        if (databaseProductName.equals(POSTGRES_DATABASE_NAME)) {
+        if (databaseProductName.equals(Constants.DatabaseNames.POSTGRESQL)) {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
         } else {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
@@ -1218,7 +1345,7 @@ public class SQLDatasourceUtils {
             stmt.setNull(index + 1, sqlType);
         } else {
             // In POSTGRESQL, need to pass "float8" to indicate DOUBLE value.
-            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && POSTGRES_DATABASE_NAME
+            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && Constants.DatabaseNames.POSTGRESQL
                     .equals(databaseProductName)) {
                 structuredSQLType = POSTGRES_DOUBLE;
             }
@@ -1227,13 +1354,13 @@ public class SQLDatasourceUtils {
         }
     }
 
-    private static BMap<String, BValue> createSQLDataSource(Context context,
+    private static BMap<String, BValue> createSQLClient(Context context,
             SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
-        SQLDatasource datasource = new SQLDatasource();
-        datasource.init(sqlDatasourceParams);
+        SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
+                .retrieveDatasource(sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
-        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, sqlDatasource);
         return sqlClient;
     }
 
@@ -1469,7 +1596,7 @@ public class SQLDatasourceUtils {
         int miliSecond = 0;
         int timeZoneOffSet = -1;
         if (fractionStr.startsWith(".")) {
-            int milliSecondPartLength = 0;
+            int milliSecondPartLength;
             if (fractionStr.endsWith("Z")) { //timezone is given as Z
                 timeZoneOffSet = 0;
                 String fractionPart = fractionStr.substring(1, fractionStr.lastIndexOf("Z"));
@@ -1479,28 +1606,27 @@ public class SQLDatasourceUtils {
                 int lastIndexOfPlus = fractionStr.lastIndexOf("+");
                 int lastIndexofMinus = fractionStr.lastIndexOf("-");
                 if ((lastIndexOfPlus > 0) || (lastIndexofMinus > 0)) { //timezone +/-hh:mm
-                    String timeOffSetStr = null;
+                    String timeOffSetStr;
                     if (lastIndexOfPlus > 0) {
                         timeOffSetStr = fractionStr.substring(lastIndexOfPlus + 1);
                         String fractionPart = fractionStr.substring(1, lastIndexOfPlus);
                         miliSecond = Integer.parseInt(fractionPart);
                         milliSecondPartLength = fractionPart.trim().length();
                         timeZoneOffSet = 1;
-                    } else if (lastIndexofMinus > 0) {
+                    } else {
                         timeOffSetStr = fractionStr.substring(lastIndexofMinus + 1);
                         String fractionPart = fractionStr.substring(1, lastIndexofMinus);
                         miliSecond = Integer.parseInt(fractionPart);
                         milliSecondPartLength = fractionPart.trim().length();
                         timeZoneOffSet = -1;
                     }
-                    if (timeOffSetStr != null) {
-                        if (timeOffSetStr.charAt(2) != ':') {
-                            throw new BallerinaException("invalid time zone format: " + fractionStr);
-                        }
-                        int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
-                        int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
-                        timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+                    if (timeOffSetStr.charAt(2) != ':') {
+                        throw new BallerinaException("invalid time zone format: " + fractionStr);
                     }
+                    int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
+                    int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
+                    timeZoneOffSet = ((hours * 60) + minits) * 60000 * timeZoneOffSet;
+
                 } else { //no timezone
                     miliSecond = Integer.parseInt(fractionStr.substring(1));
                     milliSecondPartLength = fractionStr.substring(1).trim().length();
@@ -1587,7 +1713,7 @@ public class SQLDatasourceUtils {
                 return conn;
             }
         }
-        String connectorId = datasource.getConnectorId();
+        String connectorId = retrieveConnectorId(context);
         boolean isXAConnection = datasource.isXAConnection();
         TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
         String globalTxId = transactionLocalContext.getGlobalTransactionId();
@@ -1614,28 +1740,32 @@ public class SQLDatasourceUtils {
     }
 
     public static String createJDBCDbOptions(String propertiesBeginSymbol, String separator,
-            Map<String, Value> dbOptions) {
+            BMap<String, BRefType> dbOptions) {
         StringJoiner dbOptionsStringJoiner = new StringJoiner(separator, propertiesBeginSymbol, "");
-        for (Map.Entry<String, Value> entry : dbOptions.entrySet()) {
-            String dataValue = null;
-            Value value = entry.getValue();
-            if (value != null) {
-                switch (value.getType()) {
-                case INT:
-                    dataValue = Long.toString(value.getIntValue());
-                    break;
-                case FLOAT:
-                    dataValue = Double.toString(value.getFloatValue());
-                    break;
-                case BOOLEAN:
-                    dataValue = Boolean.toString(value.getBooleanValue());
-                    break;
-                default:
-                    dataValue = value.getStringValue();
-                }
+        dbOptions.getMap().forEach((key, value) -> {
+            if (isSupportedDbOptionType(value)) {
+                dbOptionsStringJoiner
+                        .add(key + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + value.value());
+            } else {
+                throw new BallerinaException("Unsupported type for the db option: " + key);
             }
-            dbOptionsStringJoiner.add(entry.getKey() + Constants.JDBCUrlSeparators.EQUAL_SYMBOL + dataValue);
-        }
+        });
         return dbOptionsStringJoiner.toString();
+    }
+
+    protected static boolean isSupportedDbOptionType(BValue value) {
+        boolean supported = false;
+        if (value != null) {
+            int typeTag = value.getType().getTag();
+            supported = (typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.INT_TAG || typeTag == TypeTags.FLOAT_TAG
+                    || typeTag == TypeTags.BOOLEAN_TAG || typeTag == TypeTags.DECIMAL_TAG
+                    || typeTag == TypeTags.BYTE_TAG);
+        }
+        return supported;
+    }
+
+    private static String retrieveConnectorId(Context context) {
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
     }
 }

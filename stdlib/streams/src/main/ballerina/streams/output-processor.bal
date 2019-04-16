@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The `OutputProcess` object is responsible for sending the output (only the events of type `streams:CURRENT` to the
+# destination stream. It takes a function pointer `outputFunc` which actually has the logic to process the output.
 public type OutputProcess object {
 
     private function (map<anydata>[]) outputFunc;
@@ -22,11 +24,15 @@ public type OutputProcess object {
         self.outputFunc = outputFunc;
     }
 
-    public function process(StreamEvent[] streamEvents) {
+    # Sends the output to the streaming action. most of the time the output is published to a destination stream
+    # at the streaming action. Only the events with type `streams:CURRENT` are passed to the `outputFunc`.
+    # + streamEvents - The array of stream events to be filtered out for CURRENT events.
+    public function process(StreamEvent?[] streamEvents) {
         int index = 0;
         map<anydata>[] events = [];
         int i = 0;
-        foreach var event in streamEvents {
+        foreach var ev in streamEvents {
+            StreamEvent event = <StreamEvent> ev;
             if (event.eventType == "CURRENT") {
                 map<anydata> outputData = {};
                 foreach var (k, v) in event.data {
@@ -43,6 +49,9 @@ public type OutputProcess object {
     }
 };
 
+# Creates and return a `OutputProcess` object.
+# + outputFunc - The function pointer to a lambda function created out of the statements in the streaming action
+# + return - Returns a ` OutputProcess` object.
 public function createOutputProcess(function (map<anydata>[]) outputFunc) returns OutputProcess {
     OutputProcess outputProcess = new(outputFunc);
     return outputProcess;

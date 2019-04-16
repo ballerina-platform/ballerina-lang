@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type IOError record {
+public type IOError record {|
     string message;
     int id;
-    !...
-};
+|};

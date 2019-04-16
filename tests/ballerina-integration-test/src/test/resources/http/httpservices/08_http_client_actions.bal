@@ -30,7 +30,7 @@ service backEndService on new http:Listener(9097) {
         path: "/greeting"
     }
     resource function replyText(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello");
+        checkpanic caller->respond("Hello");
     }
 
     @http:ResourceConfig {
@@ -40,9 +40,9 @@ service backEndService on new http:Listener(9097) {
     resource function sendByteChannel(http:Caller caller, http:Request req) {
         var byteChannel = req.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            _ = caller->respond(untaint byteChannel);
-        } else if (byteChannel is error) {
-            _ = caller->respond(untaint byteChannel.reason());
+            checkpanic caller->respond(untaint byteChannel);
+        } else {
+            checkpanic caller->respond(untaint byteChannel.reason());
         }
     }
 
@@ -58,44 +58,44 @@ service backEndService on new http:Listener(9097) {
                 if (mime:TEXT_PLAIN == baseType) {
                     var textValue = req.getTextPayload();
                     if (textValue is string) {
-                        _ = caller->respond(untaint textValue);
-                    } else if (textValue is error) {
-                        _ = caller->respond(untaint textValue.reason());
+                        checkpanic caller->respond(untaint textValue);
+                    } else {
+                        checkpanic caller->respond(untaint textValue.reason());
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
                     if (xmlValue is xml) {
-                        _ = caller->respond(untaint xmlValue);
-                    } else if (xmlValue is error) {
-                        _ = caller->respond(untaint xmlValue.reason());
+                        checkpanic caller->respond(untaint xmlValue);
+                    } else {
+                        checkpanic caller->respond(untaint xmlValue.reason());
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
                     if (jsonValue is json) {
-                        _ = caller->respond(untaint jsonValue);
-                    } else if (jsonValue is error) {
-                        _ = caller->respond(untaint jsonValue.reason());
+                        checkpanic caller->respond(untaint jsonValue);
+                    } else {
+                        checkpanic caller->respond(untaint jsonValue.reason());
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
                     if (blobValue is byte[]) {
-                        _ = caller->respond(untaint blobValue);
-                    } else if (blobValue is error) {
-                        _ = caller->respond(untaint blobValue.reason());
+                        checkpanic caller->respond(untaint blobValue);
+                    } else {
+                        checkpanic caller->respond(untaint blobValue.reason());
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
                     if (bodyParts is mime:Entity[]) {
-                    _ = caller->respond(untaint bodyParts);
-                    } else if (bodyParts is error) {
-                    _ = caller->respond(untaint bodyParts.reason());
+                    checkpanic caller->respond(untaint bodyParts);
+                    } else {
+                    checkpanic caller->respond(untaint bodyParts.reason());
                     }
                 }
-            } else if (mediaType is error) {
-                _ = caller->respond("Error in parsing media type");
+            } else {
+                checkpanic caller->respond("Error in parsing media type");
             }
         } else {
-            _ = caller->respond(());
+            checkpanic caller->respond(());
         }
     }
 }
@@ -117,7 +117,7 @@ service testService on new http:Listener(9098) {
             var result = response1.getTextPayload();
             if (result is string) {
                 value = result;
-            } else if (result is error) {
+            } else {
                 value = result.reason();
             }
         }
@@ -128,7 +128,7 @@ service testService on new http:Listener(9098) {
             var result = response2.getTextPayload();
             if (result is string) {
                 value = value + result;
-            } else if (result is error) {
+            } else {
                 value = value + result.reason();
             }
         }
@@ -140,11 +140,11 @@ service testService on new http:Listener(9098) {
             var result = response3.getTextPayload();
             if (result is string) {
                 value = value + result;
-            } else if (result is error) {
+            } else {
                 value = value + result.reason();
             }
         }
-        _ = caller->respond(untaint value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -159,14 +159,14 @@ service testService on new http:Listener(9098) {
             var returnValue = clientResponse.getTextPayload();
             if (returnValue is string) {
                 value = returnValue;
-            } else if (returnValue is error) {
+            } else {
                 value = <string> returnValue.detail().message;
             }
-        } else if (clientResponse is error) {
+        } else  {
             value = clientResponse.reason();
         }
 
-        _ = caller->respond(untaint value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -180,7 +180,7 @@ service testService on new http:Listener(9098) {
             var result = textResponse.getTextPayload();
             if (result is string) {
                 value = result;
-            } else if (result is error) {
+            } else  {
                 value = result.reason();
             }
         }
@@ -190,7 +190,7 @@ service testService on new http:Listener(9098) {
             var result = xmlResponse.getXmlPayload();
             if (result is xml) {
                 value = value + result.getTextValue();
-            } else if (result is error) {
+            } else {
                 value = value + result.reason();
             }
         }
@@ -200,11 +200,11 @@ service testService on new http:Listener(9098) {
             var result = jsonResponse.getJsonPayload();
             if (result is json) {
                 value = value + result.toString();
-            } else if (result is error) {
+            } else {
                 value = value + result.reason();
             }
         }
-        _ = caller->respond(untaint value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -217,14 +217,14 @@ service testService on new http:Listener(9098) {
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         var textResponse = clientEP2->post("/test1/directPayload", binaryValue);
         if (textResponse is http:Response) {
-            var result = textResponse.getPayloadAsString();
+            var result = textResponse.getTextPayload();
             if (result is string) {
                 value = result;
-            } else if (result is error) {
+            } else {
                 value = result.reason();
             }
         }
-        _ = caller->respond(untaint value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -237,19 +237,19 @@ service testService on new http:Listener(9098) {
         if (byteChannel is io:ReadableByteChannel) {
             var res = clientEP2->post("/test1/byteChannel", untaint byteChannel);
             if (res is http:Response) {
-                var result = res.getPayloadAsString();
+                var result = res.getTextPayload();
                 if (result is string) {
                     value = result;
-                } else if (result is error) {
+                } else {
                     value = result.reason();
                 }
-            } else if (res is error) {
+            } else {
                 value = res.reason();
             }
-        } else if (byteChannel is error) {
+        } else {
             value = byteChannel.reason();
         }
-        _ = caller->respond(untaint value);
+        checkpanic caller->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -276,7 +276,7 @@ service testService on new http:Listener(9098) {
                             var payload = bodyPart.getJson();
                             if (payload is json) {
                                 value = payload.toString();
-                            } else if (payload is error) {
+                            } else {
                                 value = payload.reason();
                             }
                         }
@@ -284,20 +284,20 @@ service testService on new http:Listener(9098) {
                             var textVal = bodyPart.getText();
                             if (textVal is string) {
                                 value = value + textVal;
-                            } else if (textVal is error) {
+                            } else {
                                 value = value + textVal.reason();
                             }
                         }
-                    } else if (mediaType is error) {
+                    } else {
                         value = value + mediaType.reason();
                     }
                 }
-            } else if (returnParts is error) {
+            } else {
                 value = returnParts.reason();
             }
-        } else if (res is error) {
+        } else {
             value = res.reason();
         }
-        _ = caller->respond(untaint value);
+        checkpanic caller->respond(untaint value);
     }
 }

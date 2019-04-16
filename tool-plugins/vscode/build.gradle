@@ -1,0 +1,27 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+apply from: "$rootDir/gradle/jsProject.gradle"
+
+configurations {
+    dist {
+      transitive false
+    }
+}
+
+task npmBuild(type: Exec) {
+    outputs.dir("$buildDir/out")
+    outputs.cacheIf { true } 
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'cmd', '/c', 'npm', 'run', 'package'
+    } else {
+        commandLine 'npm', 'run', 'package'
+    }
+}
+
+dependencies {
+    dist project(':composer-library')
+}
+
+build {
+    dependsOn npmBuild
+}

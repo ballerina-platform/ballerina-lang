@@ -1,0 +1,26 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+apply from: "$rootDir/gradle/jsProject.gradle"
+
+task npmBuild(type: Exec) {
+
+    PatternSet patternSet = new PatternSet();
+	patternSet.exclude("**/node_modules/**");
+    patternSet.exclude("**/packages/**/build/**");
+    patternSet.exclude("**/packages/**/lib/**");
+
+    FileTree src = files('.').asFileTree;
+    inputs.files(src.matching(patternSet))
+
+    outputs.dir("$buildDir/packages/distribution/build")
+    outputs.cacheIf { true }
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'cmd', '/c', 'npm', 'run', 'build'
+    } else {
+        commandLine 'npm', 'run', 'build'
+    }
+}
+
+build {
+    dependsOn npmBuild
+}

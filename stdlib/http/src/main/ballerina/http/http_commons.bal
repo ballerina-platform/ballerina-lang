@@ -98,6 +98,12 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
 
+# The types of messages that are accepted by HTTP `client` when sending out the outbound request.
+public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+
+# The types of messages that are accepted by HTTP `listener` when sending out the outbound response.
+public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #
 # `FORWARD`: Forward the specified payload
@@ -111,69 +117,45 @@ public const COMPRESSION_NEVER = "NEVER";
 # `NONE`: No operation should be performed
 public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD|HTTP_NONE;
 
-# A record for providing trust store related configurations.
-#
-# + path - Path to the trust store file
-# + password - Trust store password
-public type TrustStore record {
-    string path = "";
-    string password = "";
-    !...
-};
-
-# A record for providing key store related configurations.
-#
-# + path - Path to the key store file
-# + password - Key store password
-public type KeyStore record {
-    string path = "";
-    string password = "";
-    !...
-};
-
 # A record for configuring SSL/TLS protocol and version to be used.
 #
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
-public type Protocols record {
+public type Protocols record {|
     string name = "";
     string[] versions = [];
-    !...
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of `validateCertEnabled`
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ValidateCert record {
+public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {
+public type ServiceOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...
-};
+|};
 
 # A record for providing configurations for content compression.
 #
 # + enable - The status of compression
 # + contentTypes - Content types which are allowed for compression
-public type CompressionConfig record {
+public type CompressionConfig record {|
     Compression enable = COMPRESSION_AUTO;
     string[] contentTypes = [];
-    !...
-};
+|};
 
 type HTTPError record {
     string message = "";
@@ -188,14 +170,16 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
+public function parseHeader(string headerValue) returns (string, map<any>)|error = external;
 
-function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
+function buildRequest(RequestMessage message) returns Request {
     Request request = new;
     if (message is ()) {
+        request.noEntityBody = true;
         return request;
     } else if (message is Request) {
         request = message;
+        request.noEntityBody = !request.checkEntityBodyAvailability();
     } else if (message is string) {
         request.setTextPayload(message);
     } else if (message is xml) {
@@ -206,13 +190,13 @@ function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime
         request.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         request.setBodyParts(message);
     }
     return request;
 }
 
-function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Response {
+function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
     if (message is ()) {
         return response;
@@ -228,7 +212,7 @@ function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mi
         response.setBinaryPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
-    } else if (message is mime:Entity[]) {
+    } else {
         response.setBodyParts(message);
     }
     return response;
@@ -363,4 +347,4 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 }
 
 //Resolve a given path against a given URI.
-extern function resolve(string baseUrl, string path) returns string|error;
+function resolve(string baseUrl, string path) returns string|error = external;

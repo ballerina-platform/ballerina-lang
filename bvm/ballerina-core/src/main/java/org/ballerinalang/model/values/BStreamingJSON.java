@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.JSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
@@ -27,6 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.List;
 
 /**
  * {@link BStreamingJSON} represent a JSON array generated from a {@link JSONDataSource}.
@@ -191,7 +193,7 @@ public class BStreamingJSON extends BValueArray {
         }
 
         @Override
-        public void stamp(BType type) {
+        public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
 
         }
     }

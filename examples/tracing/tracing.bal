@@ -24,23 +24,31 @@ service hello on new http:Listener(9234) {
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
         //Finish `MyRootChildSpan` span.
-        _ = observe:finishSpan(childSpanId);
+        error? result = observe:finishSpan(childSpanId);
+        if (result is error) {
+            log:printError("Error in finishing span", err = result);
+        }
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
         //Finish `MyRootParentSpan` span.
-        _ = observe:finishSpan(rootParentSpanId);
+        result = observe:finishSpan(rootParentSpanId);
+        if (result is error) {
+            log:printError("Error in finishing span", err = result);
+        }
 
         //Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
 
         //Finish the created child span `MyFirstLogicSpan`, which was attached to the system trace.
-        _ = observe:finishSpan(spanId);
-
+        result = observe:finishSpan(spanId);
+        if (result is error) {
+            log:printError("Error in finishing span", err = result);
+        }
         //Use a util method to set a string payload.
         res.setPayload("Hello, World!");
 
         //Send the response back to the caller.
-        var result = caller->respond(res);
+        result = caller->respond(res);
 
         if (result is error) {
            log:printError("Error sending response", err = result);

@@ -17,8 +17,6 @@
 import ballerina/http;
 import ballerina/log;
 
-final string REMOTE_BACKEND_URL3 = "ws://localhost:15200/websocket";
-final string ASSOCIATED_CONNECTION3 = "ASSOCIATED_CONNECTION";
 final string strData2 = "data";
 final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
 
@@ -28,12 +26,10 @@ final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
 service PingPongTestService2 on new http:WebSocketListener(9095) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-         http:WebSocketClient wsClientEp = new(
-            REMOTE_BACKEND_URL3,
-            config = {callbackService: clientCallbackService2,
-            readyOnConnect: false});
-        wsEp.attributes[ASSOCIATED_CONNECTION3] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION3] = wsEp;
+        http:WebSocketClient wsClientEp = new("ws://localhost:15200/websocket", config = { callbackService:
+            clientCallbackService2, readyOnConnect: false });
+        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
+        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
         if (returnVal is error) {
              panic returnVal;
@@ -51,7 +47,7 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
         }
 
         if (text == "ping-remote-server") {
-            clientEp = getAssociatedClientEndpoint2(wsEp);
+            clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->ping(APPLICATION_DATA3);
             if (returnVal is error) {
                  panic returnVal;
@@ -59,7 +55,7 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
         }
 
         if (text == "tell-remote-server-to-ping") {
-            clientEp = getAssociatedClientEndpoint2(wsEp);
+            clientEp = getAssociatedClientEndpoint(wsEp);
             log:printInfo(clientEp.response.getHeader("upgrade"));
             var returnVal = clientEp->pushText("ping");
             if (returnVal is error) {
@@ -67,14 +63,14 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
             }
         }
         if (text == "custom-headers") {
-            clientEp = getAssociatedClientEndpoint2(wsEp);
+            clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(text + ":X-some-header");
             if (returnVal is error) {
                  panic returnVal;
             }
         }
         if (text == "server-headers") {
-            clientEp = getAssociatedClientEndpoint2(wsEp);
+            clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
             if (returnVal is error) {
                  panic returnVal;
@@ -101,7 +97,7 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
 service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketClient wsEp, string text) {
-        http:WebSocketCaller serverEp = getAssociatedListener2(wsEp);
+        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {
              panic returnVal;
@@ -109,7 +105,7 @@ service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
     }
 
     resource function onPing(http:WebSocketClient wsEp, byte[] localData) {
-        http:WebSocketCaller serverEp = getAssociatedListener2(wsEp);
+        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText("ping-from-remote-server-received");
         if (returnVal is error) {
              panic returnVal;
@@ -117,21 +113,10 @@ service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
     }
 
     resource function onPong(http:WebSocketClient wsEp, byte[] localData) {
-        http:WebSocketCaller serverEp = getAssociatedListener2(wsEp);
+        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText("pong-from-remote-server-received");
         if (returnVal is error) {
              panic returnVal;
         }
     }
 };
-
-public function getAssociatedClientEndpoint2(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
-    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION3];
-    return returnVal;
-
-}
-
-public function getAssociatedListener2(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
-    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION3];
-    return returnVal;
-}

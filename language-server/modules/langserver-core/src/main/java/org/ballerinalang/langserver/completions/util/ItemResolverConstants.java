@@ -27,6 +27,8 @@ public class ItemResolverConstants {
     public static final String BUT = "but";
     public static final String RETURN = "return";
     public static final String IF = "if";
+    public static final String ELSE = "else";
+    public static final String ELSE_IF = "else if";
     public static final String FORK = "fork";
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
@@ -52,6 +54,7 @@ public class ItemResolverConstants {
     public static final String SERVICE = "service/http";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSUB = "service/webSub";
+    public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";
@@ -68,7 +71,6 @@ public class ItemResolverConstants {
     public static final String PACKAGE_TYPE = "Package";
     public static final String CONSTANT_TYPE = "Constant";
     public static final String FUNCTION_TYPE = "Function";
-    public static final String RESOURCE_TYPE = "Resource";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
     public static final String STATEMENT_TYPE = "Statement";
@@ -86,7 +88,6 @@ public class ItemResolverConstants {
     public static final String VAR_KEYWORD = "var";
     public static final String CHECK_KEYWORD = "check";
     public static final String WAIT_KEYWORD = "wait";
-    public static final String EXTERN_KEYWORD = "extern";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
@@ -99,6 +100,7 @@ public class ItemResolverConstants {
     public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";
     public static final String ITR_FILTER_LABEL = "filter(<@lambda:function>)";
     public static final String ITR_COUNT_LABEL = "count()";
+    public static final String ITR_SELECT_LABEL = "select(functionReference)";
     public static final String ITR_MIN_LABEL = "min()";
     public static final String ITR_MAX_LABEL = "max()";
     public static final String ITR_AVERAGE_LABEL = "average()";
@@ -113,5 +115,12 @@ public class ItemResolverConstants {
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
+    public static final String BUILTIN_HASKEY_LABEL = "hasKey(string s)";
+    public static final String BUILTIN_REMOVE_LABEL = "remove(string s)";
+    public static final String BUILTIN_KEYS_LABEL = "keys()";
+    public static final String BUILTIN_GET_VALUES_LABEL = "values()";
+    public static final String BUILTIN_CLEAR_LABEL = "clear()";
     public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
+    public static final String BUILTIN_DETAIL_LABEL = "detail()";
+    public static final String BUILTIN_REASON_LABEL = "reason()";
 }

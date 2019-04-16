@@ -108,7 +108,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitParse(@NotNull SiddhiQLParser.ParseContext ctx) {
@@ -120,7 +120,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public SiddhiApp visitSiddhi_app(@NotNull SiddhiQLParser.Siddhi_appContext ctx) {
@@ -167,7 +167,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitDefinition_stream_final(@NotNull SiddhiQLParser.Definition_stream_finalContext ctx) {
@@ -179,7 +179,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public StreamDefinition visitDefinition_stream(@NotNull SiddhiQLParser.Definition_streamContext ctx) {
@@ -232,7 +232,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitFunction_name(@NotNull SiddhiQLParser.Function_nameContext ctx) {
@@ -244,7 +244,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitFunction_body(@NotNull SiddhiQLParser.Function_bodyContext ctx) {
@@ -257,7 +257,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitLanguage_name(@NotNull SiddhiQLParser.Language_nameContext ctx) {
@@ -269,7 +269,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitDefinition_trigger_final(@NotNull SiddhiQLParser.Definition_trigger_finalContext ctx) {
@@ -281,7 +281,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitDefinition_trigger(@NotNull SiddhiQLParser.Definition_triggerContext ctx) {
@@ -300,7 +300,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitTrigger_name(@NotNull SiddhiQLParser.Trigger_nameContext ctx) {
@@ -312,7 +312,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitDefinition_table_final(@NotNull SiddhiQLParser.Definition_table_finalContext ctx) {
@@ -324,7 +324,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TableDefinition visitDefinition_table(@NotNull SiddhiQLParser.Definition_tableContext ctx) {
@@ -399,7 +399,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitPartition_final(@NotNull SiddhiQLParser.Partition_finalContext ctx) {
@@ -411,7 +411,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Partition visitPartition(@NotNull SiddhiQLParser.PartitionContext ctx) {
@@ -434,7 +434,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public PartitionType visitPartition_with_stream(@NotNull SiddhiQLParser.Partition_with_streamContext ctx) {
@@ -465,7 +465,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public RangePartitionType.RangePartitionProperty[] visitCondition_ranges(
@@ -485,7 +485,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitCondition_range(@NotNull SiddhiQLParser.Condition_rangeContext ctx) {
@@ -502,7 +502,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitQuery_final(@NotNull SiddhiQLParser.Query_finalContext ctx) {
@@ -514,7 +514,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Query visitQuery(@NotNull SiddhiQLParser.QueryContext ctx) {
@@ -550,7 +550,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Annotation visitApp_annotation(@NotNull SiddhiQLParser.App_annotationContext ctx) {
@@ -568,7 +568,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Annotation visitAnnotation(@NotNull SiddhiQLParser.AnnotationContext ctx) {
@@ -590,7 +590,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Element visitAnnotation_element(@NotNull SiddhiQLParser.Annotation_elementContext ctx) {
@@ -611,7 +611,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public SingleInputStream visitStandard_stream(@NotNull SiddhiQLParser.Standard_streamContext ctx) {
@@ -651,7 +651,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitJoin_stream(@NotNull SiddhiQLParser.Join_streamContext ctx) {
@@ -704,7 +704,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitJoin_source(@NotNull SiddhiQLParser.Join_sourceContext ctx) {
@@ -743,7 +743,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitPattern_stream(@NotNull SiddhiQLParser.Pattern_streamContext ctx) {
@@ -768,7 +768,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitEvery_pattern_source_chain(@NotNull SiddhiQLParser.Every_pattern_source_chainContext ctx) {
@@ -830,7 +830,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitPattern_source_chain(@NotNull SiddhiQLParser.Pattern_source_chainContext ctx) {
@@ -1042,7 +1042,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitLogical_stateful_source(@NotNull SiddhiQLParser.Logical_stateful_sourceContext ctx) {
@@ -1076,7 +1076,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public CountStateElement visitPattern_collection_stateful_source(
@@ -1107,7 +1107,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public StateInputStream visitSequence_stream(@NotNull SiddhiQLParser.Sequence_streamContext ctx) {
@@ -1261,7 +1261,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public StateElement visitSequence_source_chain(@NotNull SiddhiQLParser.Sequence_source_chainContext ctx) {
@@ -1300,7 +1300,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public BasicSingleInputStream visitBasic_source(@NotNull SiddhiQLParser.Basic_sourceContext ctx) {
@@ -1326,7 +1326,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public List<StreamHandler> visitBasic_source_stream_handlers(
@@ -1340,7 +1340,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      */
@@ -1355,7 +1355,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public StreamStateElement visitStandard_stateful_source(
@@ -1391,7 +1391,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public CountStateElement visitSequence_collection_stateful_source(
@@ -1440,7 +1440,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public AnonymousInputStream visitAnonymous_stream(@NotNull SiddhiQLParser.Anonymous_streamContext ctx) {
@@ -1484,7 +1484,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Filter visitFilter(@NotNull SiddhiQLParser.FilterContext ctx) {
@@ -1498,7 +1498,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public StreamFunction visitStream_function(@NotNull SiddhiQLParser.Stream_functionContext ctx) {
@@ -1514,7 +1514,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Window visitWindow(@NotNull SiddhiQLParser.WindowContext ctx) {
@@ -1548,7 +1548,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Selector visitQuery_section(@NotNull SiddhiQLParser.Query_sectionContext ctx) {
@@ -1586,7 +1586,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public List<Variable> visitGroup_by(@NotNull SiddhiQLParser.Group_byContext ctx) {
@@ -1602,7 +1602,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitHaving(@NotNull SiddhiQLParser.HavingContext ctx) {
@@ -1611,7 +1611,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      */
@@ -1627,7 +1627,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      */
@@ -1642,7 +1642,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      */
@@ -1663,7 +1663,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public OutputStream visitQuery_output(@NotNull SiddhiQLParser.Query_outputContext ctx) {
@@ -1791,7 +1791,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public OutputStream.OutputEventType visitOutput_event_type(@NotNull SiddhiQLParser.Output_event_typeContext ctx) {
@@ -1813,7 +1813,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public UpdateSet visitSet_clause(@NotNull SiddhiQLParser.Set_clauseContext ctx) {
@@ -1831,7 +1831,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public OutputRate visitOutput_rate(@NotNull SiddhiQLParser.Output_rateContext ctx) {
@@ -1869,7 +1869,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitOutput_rate_type(@NotNull SiddhiQLParser.Output_rate_typeContext ctx) {
@@ -1895,7 +1895,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitOutput_attribute(@NotNull SiddhiQLParser.Output_attributeContext ctx) {
@@ -1921,7 +1921,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitOr_math_operation(@NotNull SiddhiQLParser.Or_math_operationContext ctx) {
@@ -1940,7 +1940,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitAnd_math_operation(@NotNull SiddhiQLParser.And_math_operationContext ctx) {
@@ -1959,7 +1959,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitEquality_math_operation(@NotNull SiddhiQLParser.Equality_math_operationContext ctx) {
@@ -1983,7 +1983,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitGreaterthan_lessthan_math_operation(
@@ -2013,7 +2013,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitAddition_math_operation(@NotNull SiddhiQLParser.Addition_math_operationContext ctx) {
@@ -2036,7 +2036,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitMultiplication_math_operation(
@@ -2063,7 +2063,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Expression visitNot_math_operation(@NotNull SiddhiQLParser.Not_math_operationContext ctx) {
@@ -2077,7 +2077,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitIn_math_operation(@NotNull SiddhiQLParser.In_math_operationContext ctx) {
@@ -2091,7 +2091,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitBasic_math_operation(@NotNull SiddhiQLParser.Basic_math_operationContext ctx) {
@@ -2115,7 +2115,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitFunction_operation(@NotNull SiddhiQLParser.Function_operationContext ctx) {
@@ -2146,7 +2146,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitAttribute_list(@NotNull SiddhiQLParser.Attribute_listContext ctx) {
@@ -2164,7 +2164,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitNull_check(@NotNull SiddhiQLParser.Null_checkContext ctx) {
@@ -2203,7 +2203,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitStream_reference(@NotNull SiddhiQLParser.Stream_referenceContext ctx) {
@@ -2223,7 +2223,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Variable visitAttribute_reference(@NotNull SiddhiQLParser.Attribute_referenceContext ctx) {
@@ -2278,7 +2278,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Integer visitAttribute_index(@NotNull SiddhiQLParser.Attribute_indexContext ctx) {
@@ -2299,7 +2299,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitProperty_name(@NotNull SiddhiQLParser.Property_nameContext ctx) {
@@ -2321,7 +2321,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Source visitSource(@NotNull SiddhiQLParser.SourceContext ctx) {
@@ -2339,7 +2339,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitName(@NotNull SiddhiQLParser.NameContext ctx) {
@@ -2357,7 +2357,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object[] visitCollect(@NotNull SiddhiQLParser.CollectContext ctx) {
@@ -2383,7 +2383,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitAttribute_type(@NotNull SiddhiQLParser.Attribute_typeContext ctx) {
@@ -2422,7 +2422,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public JoinInputStream.Type visitJoin(@NotNull SiddhiQLParser.JoinContext ctx) {
@@ -2446,7 +2446,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Constant visitConstant_value(@NotNull SiddhiQLParser.Constant_valueContext ctx) {
@@ -2489,7 +2489,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public String visitId(@NotNull SiddhiQLParser.IdContext ctx) {
@@ -2501,7 +2501,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public Object visitKeyword(@NotNull SiddhiQLParser.KeywordContext ctx) {
@@ -2513,7 +2513,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitTime_value(@NotNull SiddhiQLParser.Time_valueContext ctx) {
@@ -2551,7 +2551,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitYear_value(@NotNull SiddhiQLParser.Year_valueContext ctx) {
@@ -2566,7 +2566,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitMonth_value(@NotNull SiddhiQLParser.Month_valueContext ctx) {
@@ -2581,7 +2581,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitWeek_value(@NotNull SiddhiQLParser.Week_valueContext ctx) {
@@ -2596,7 +2596,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitDay_value(@NotNull SiddhiQLParser.Day_valueContext ctx) {
@@ -2611,7 +2611,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitHour_value(@NotNull SiddhiQLParser.Hour_valueContext ctx) {
@@ -2626,7 +2626,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitMinute_value(@NotNull SiddhiQLParser.Minute_valueContext ctx) {
@@ -2641,7 +2641,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitSecond_value(@NotNull SiddhiQLParser.Second_valueContext ctx) {
@@ -2656,7 +2656,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public TimeConstant visitMillisecond_value(@NotNull SiddhiQLParser.Millisecond_valueContext ctx) {
@@ -2671,7 +2671,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public DoubleConstant visitSigned_double_value(@NotNull SiddhiQLParser.Signed_double_valueContext ctx) {
@@ -2685,7 +2685,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public LongConstant visitSigned_long_value(@NotNull SiddhiQLParser.Signed_long_valueContext ctx) {
@@ -2699,7 +2699,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public FloatConstant visitSigned_float_value(@NotNull SiddhiQLParser.Signed_float_valueContext ctx) {
@@ -2713,7 +2713,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public IntConstant visitSigned_int_value(@NotNull SiddhiQLParser.Signed_int_valueContext ctx) {
@@ -2727,7 +2727,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public BoolConstant visitBool_value(@NotNull SiddhiQLParser.Bool_valueContext ctx) {
@@ -2741,7 +2741,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      *
-     * @param ctx
+     * @param ctx Siddhi query parser context
      */
     @Override
     public StringConstant visitString_value(@NotNull SiddhiQLParser.String_valueContext ctx) {

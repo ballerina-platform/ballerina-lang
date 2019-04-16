@@ -84,7 +84,7 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
 
     @NotNull
     private String getMinorVersion(@NotNull String version) {
-        return version.contains(".") ? version.split("[.]")[1] : "";
+        return version.contains(".") ? version.replace('-', '.').split("[.]")[1] : "";
     }
 
     @NotNull

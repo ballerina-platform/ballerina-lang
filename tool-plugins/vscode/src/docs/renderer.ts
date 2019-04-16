@@ -5,29 +5,34 @@ import { getLibraryWebViewContent } from '../utils';
 export function render(context: ExtensionContext, langClient: ExtendedLangClient)
     : string {
 
-    const body = `<div id="ballerina-documentation" class="documentation-container" />`;
+    const body = `
+        <div id="ballerina-documentation" class="documentation-container" >
+            <i class="fw fw-loader fw-spin fw-3x root-loader"></i>
+        </div>
+    `;
     const bodyCss = "documentation";
-    const styles = ``;
+    const styles = "";
     const script = `
-            let astJson;
-            const el = document.getElementById("ballerina-documentation");
-            window.addEventListener('message', event => {
-                switch (event.data.command) {
-                    case 'update':
-                        astJson = event.data.json;
-                        if (window.ballerinaComposer) {
-                            ballerinaComposer.renderDocPreview(astJson, el);
-                        }
-                        break;
-                }
-            });
-
-            function loadedScript() {
-                if(astJson) {
-                    ballerinaComposer.renderDocPreview(astJson, el);
-                }
+        const el = document.getElementById("ballerina-documentation");
+        window.addEventListener('message', event => {
+            switch (event.data.command) {
+                case 'update':
+                    const astJson = event.data.json;
+                    if (window.ballerinaComposer) {
+                        ballerinaComposer.renderDocPreview(astJson, el);
+                    }
+                    break;
+                case 'scroll':
+                    const anchor = event.data.anchor;
+                    location.href = "#" + anchor;
+                    break;
             }
-        `;
+        });
+
+        function loadedScript() {
+            vscode.postMessage({message: "loaded-doc-preview"});
+        }
+    `;
 
     return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }

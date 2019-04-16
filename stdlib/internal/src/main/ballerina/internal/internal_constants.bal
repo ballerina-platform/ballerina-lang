@@ -15,7 +15,7 @@
 // under the License.
 
 # Constant for the internal error code
-public final string INTERNAL_ERROR_CODE = "{ballerina/internal}InternalError";
+public const INTERNAL_ERROR_CODE = "{ballerina/internal}InternalError";
 
 # Constant for the compression error code
-public final string COMPRESSION_ERROR_CODE = "{ballerina/internal}CompressionError";
+public const COMPRESSION_ERROR_CODE = "{ballerina/internal}CompressionError";

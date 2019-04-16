@@ -18,25 +18,25 @@
 # Logs the specified value at DEBUG level.
 #
 # + msg - The message to be logged
-public extern function printDebug(string | (function() returns (string)) msg);
+public function printDebug(string | (function() returns (string)) msg) = external;
 
 # Logs the specified message at ERROR level.
 #
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public extern function printError(string | (function() returns (string)) msg, error? err = ());
+public function printError(string | (function() returns (string)) msg, error? err = ()) = external;
 
 # Logs the specified message at INFO level.
 #
 # + msg - The message to be logged
-public extern function printInfo(string | (function() returns (string)) msg);
+public function printInfo(string | (function() returns (string)) msg) = external;
 
 # Logs the specified message at TRACE level.
 #
 # + msg - The message to be logged
-public extern function printTrace(string | (function() returns (string)) msg);
+public function printTrace(string | (function() returns (string)) msg) = external;
 
 # Logs the specified message at WARN level.
 #
 # + msg - The message to be logged
-public extern function printWarn(string | (function() returns (string)) msg);
+public function printWarn(string | (function() returns (string)) msg) = external;

@@ -87,7 +87,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private Map<DefinitionID, List<CompilerPlugin>> processorMap;
     private Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
     private Map<CompilerPlugin, BType> serviceListenerMap;
-    private boolean pluginLoaded = false;
 
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
@@ -114,6 +113,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.processorMap = new HashMap<>();
         this.resourceTypeProcessorMap = new HashMap<>();
         this.serviceListenerMap = new HashMap<>();
+
+        ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
+        pluginLoader.forEach(plugin -> pluginList.add(plugin));
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
@@ -204,18 +206,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     // private methods
 
     private void loadPlugins() {
-        if (pluginLoaded) {
-            return;
-        }
-        ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
-        pluginLoader.forEach(this::initPlugin);
-        pluginLoaded = true;
+        pluginList.forEach(this::initPlugin);
     }
 
     private void initPlugin(CompilerPlugin plugin) {
-        // Cache the plugin implementation class
-        pluginList.add(plugin);
-
         handleAnnotationProcesses(plugin);
         handleServiceTypeProcesses(plugin);
         plugin.setCompilerContext(context);

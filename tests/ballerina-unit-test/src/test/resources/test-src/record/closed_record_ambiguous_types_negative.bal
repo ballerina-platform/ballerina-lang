@@ -14,26 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type InMemoryModeConfig record {
+public type InMemoryModeConfig record {|
     string name = "";
     string username = "";
     string password = "";
     map<any> dbOptions = {};
-    !...
-};
+|};
 
-public type ServerModeConfig record {
+public type ServerModeConfig record {|
     string host = "localhost";
     int port = 9090;
     *InMemoryModeConfig;
-    !...
-};
+|};
 
-public type EmbeddedModeConfig record {
+public type EmbeddedModeConfig record {|
     string path = "";
     *InMemoryModeConfig;
-    !...
-};
+|};
 
 function testAmbiguityResolution() returns (string, string, string) {
     string s1 = init({});

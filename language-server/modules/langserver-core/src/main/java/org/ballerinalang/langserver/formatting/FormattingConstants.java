@@ -30,6 +30,7 @@ public class FormattingConstants {
     public static final String DO_INDENT = "doIndent";
     public static final String INDENTED_START_COLUMN = "indentedStartColumn";
     public static final String FORMATTING_CONFIG = "formattingConfig";
+    public static final String USE_PARENT_INDENTATION = "useParentIndentation";
 
     public static final String WS = "ws";
     public static final String TEXT = "text";

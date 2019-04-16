@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaRecordRestFieldDefinition {
+public class BallerinaRecordRestFieldDefinitionImpl extends ASTWrapperPsiElement implements BallerinaRecordRestFieldDefinition {
 
   public BallerinaRecordRestFieldDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,25 @@ public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeEl
   @Override
   @Nullable
   public BallerinaSealedLiteral getSealedLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSealedLiteral.class);
+    return findChildByClass(BallerinaSealedLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @Nullable
   public PsiElement getEllipsis() {
     return findChildByType(ELLIPSIS);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getSemicolon() {
+    return findNotNullChildByType(SEMICOLON);
   }
 
 }

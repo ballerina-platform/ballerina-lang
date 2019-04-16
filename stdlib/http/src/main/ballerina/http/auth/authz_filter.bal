@@ -36,8 +36,8 @@ public type AuthzFilter object {
     # + request - `Request` instance
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
-    public function filterRequest (Caller caller, Request request, FilterContext context) returns boolean {
-		// first check if the resource is marked to be authenticated. If not, no need to authorize.
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
+        // first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
             reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
         ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
@@ -50,11 +50,16 @@ public type AuthzFilter object {
         string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
         boolean authorized;
         if (scopes is string[]) {
-            if (self.authzHandler.canHandle(request)) {
-                authorized = self.authzHandler.handle(runtime:getInvocationContext().userPrincipal.username,
-                    context.serviceName, context.resourceName, request.method, scopes);
+            if (scopes.length() > 0) {
+                if (self.authzHandler.canHandle(request)) {
+                    authorized = self.authzHandler.handle(runtime:getInvocationContext().principal.username,
+                        context.serviceName, context.resourceName, request.method, scopes);
+                } else {
+                    authorized = false;
+                }
             } else {
-                authorized = false;
+                // scopes are not defined, no need to authorize
+                authorized = true;
             }
         } else {
             // scopes are not defined, no need to authorize

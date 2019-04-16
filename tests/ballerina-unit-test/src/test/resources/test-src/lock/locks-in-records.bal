@@ -31,21 +31,19 @@ type Student record {
     int score = 0;
 };
 
-public type CircuitBreakerInferredConfig record {
+public type CircuitBreakerInferredConfig record {|
     float failureThreshold = 0.0;
     int resetTimeMillis = 0;
     boolean[] statusCodes = [];
     int noOfBuckets = 0;
     RollingWindow rollingWindow = {};
-    !...
-};
+|};
 
-public type RollingWindow record {
+public type RollingWindow record {|
     int requestVolumeThreshold = 10;
     int timeWindowMillis = 60000;
     int bucketSizeMillis = 10000;
-    !...
-};
+|};
 
 public type Bucket record {
     int id = 0;

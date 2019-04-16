@@ -15,9 +15,7 @@
  */
 package org.ballerinalang.net.grpc;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -36,6 +34,7 @@ public final class DecompressorRegistry {
             new Codec.Gzip(),
             Codec.Identity.NONE);
     private final ConcurrentMap<String, Decompressor> decompressors;
+    private final Set<String> advertisedDecompressors;
 
     /**
      * Returns the default instance.
@@ -48,8 +47,12 @@ public final class DecompressorRegistry {
 
     private DecompressorRegistry(Decompressor... cs) {
         decompressors = new ConcurrentHashMap<>();
+        advertisedDecompressors = new HashSet<>();
         for (Decompressor c : cs) {
             decompressors.put(c.getMessageEncoding(), c);
+            if (!Codec.Identity.NONE.getMessageEncoding().equals(c.getMessageEncoding())) {
+                advertisedDecompressors.add(c.getMessageEncoding());
+            }
         }
     }
 
@@ -74,16 +77,10 @@ public final class DecompressorRegistry {
             throw new IllegalArgumentException("Comma is currently not allowed in message encoding");
         }
         decompressors.put(encoding, decompressor);
+        advertisedDecompressors.add(encoding);
     }
 
     public Set<String> getAdvertisedMessageEncodings() {
-        Set<String> advertisedDecompressors = new HashSet<>(decompressors.size());
-        for (Map.Entry<String, Decompressor> entry : decompressors.entrySet()) {
-            if (Codec.Identity.NONE.getMessageEncoding().equals(entry.getKey())) {
-                continue;
-            }
-            advertisedDecompressors.add(entry.getKey());
-        }
-        return Collections.unmodifiableSet(advertisedDecompressors);
+        return advertisedDecompressors;
     }
 }

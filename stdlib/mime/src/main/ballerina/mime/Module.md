@@ -30,12 +30,12 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-@http:ServiceConfig {basePath:"/test"}
+@http:ServiceConfig { basePath:"/test" }
 service test on new http:Listener(9090) {
 
    @http:ResourceConfig {
-       methods:["POST"],
-       path:"/multipleparts"
+       methods: ["POST"],
+       path: "/multipleparts"
    }
    // The resource that handles multipart requests.
    resource function multipartResource(http:Caller caller, http:Request request) {
@@ -52,7 +52,7 @@ service test on new http:Listener(9090) {
             response.setPayload(untaint content);
         } else if (bodyParts is error) {
             // If there is an error while getting the body parts, set the response code as 500 and 
-            //set the error message as the response message.
+            // set the error message as the response message.
             response.statusCode = 500;
             response.setPayload(untaint bodyParts.reason());
         }
@@ -65,7 +65,7 @@ service test on new http:Listener(9090) {
 }
 
 // The function that handles the content based on the body part type.
-function handleContent(mime:Entity bodyPart) returns (string) {
+function handleContent(mime:Entity bodyPart) returns string {
    var mediaType = mime:getMediaType(bodyPart.getContentType());
    if (mediaType is mime:MediaType) {
         // Get the base type of the specific body part.
@@ -106,7 +106,7 @@ The sample given below creates a multipart request. It includes two body parts w
 // Create a JSON body part.
 mime:Entity bodyPart1 = new;
 // Set the JSON content.
-bodyPart1.setJson({"bodyPart":"jsonPart"});
+bodyPart1.setJson({"bodyPart": "jsonPart"});
 
 // Create another body part using an XML file.
 mime:Entity bodyPart2 = new;

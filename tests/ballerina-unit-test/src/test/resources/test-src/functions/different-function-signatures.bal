@@ -122,7 +122,7 @@ function testFuncWithUnionTypedDefaultParam() returns json {
 
 // ------------------- Test function signature with null as default parameter value
 
-function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
+function funcWithNilDefaultParamExpr_1(string? s = ()) returns string? {
     return s;
 }
 

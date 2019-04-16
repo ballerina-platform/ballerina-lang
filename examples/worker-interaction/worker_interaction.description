@@ -1,7 +1,6 @@
-// A worker can be used to handle background tasks of an application.
-// Workers interact with each other by sending messages. 
-// Messages are sent over a communication channel, which is transparent to the user.
-// Worker sync send waits until the message is delivered.
-// FLush can be used to check if all messages are successfully sent to a given worker.
-// Both sync send and flush may fail if a receiving worker returned an error before receiving the messages.
+// Workers interact with each other by sending and receiving messages.
+// Messages are sent and received over a communication channel that is transparent to the user.
+// Worker asynchronous send does not wait until the message is delivered where as worker synchronous send waits until the message is delivered.
+// Flush can be used to check if all asynchronous messages sent to a given worker is successful.
+// Both synchronous send and flush may fail if a receiving worker returned an error before receiving the messages.
 // Similarly they may panic if a receiver panicked.

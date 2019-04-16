@@ -6,116 +6,116 @@
   "source": "function/source/iterableOperation2.bal",
   "items": [
     {
-      "label":"foreach(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"foreach(function(float value) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "foreach(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "foreach(function(float value) {\n\t${1}\n});",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"map(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"map(function(float value) returns (any) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "map(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "map(function (float value) returns any {\n\t${1}\n})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"filter(\u003c@lambda:function\u003e)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"filter(function(float value) returns (boolean) {\n\t${1}\n});",
-      "insertTextFormat":"Snippet"
+      "label": "filter(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "filter(function(float value) returns (boolean) {\n\t${1}\n})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"count()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"count();",
-      "insertTextFormat":"Snippet"
+      "label": "count()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "count()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"min()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"min();",
-      "insertTextFormat":"Snippet"
+      "label": "min()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "min()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"max()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"max();",
-      "insertTextFormat":"Snippet"
+      "label": "max()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "max()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"average()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"average();",
-      "insertTextFormat":"Snippet"
+      "label": "average()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "average()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"sum()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"sum();",
-      "insertTextFormat":"Snippet"
+      "label": "sum()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "sum()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"length()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"length();",
-      "insertTextFormat":"Snippet"
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"freeze()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"freeze();",
-      "insertTextFormat":"Snippet"
+      "label": "freeze()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "freeze()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"isFrozen()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"isFrozen();",
-      "insertTextFormat":"Snippet"
+      "label": "isFrozen()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "isFrozen()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"stamp(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"stamp(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "stamp(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "stamp(${1})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"clone()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"clone();",
-      "insertTextFormat":"Snippet"
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"create(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"create(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "convert(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
