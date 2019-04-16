@@ -259,4 +259,4 @@ const string TYPES_ERROR =  "typeError";
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 
 // Name of the class to which the types will be added as static fields.
-const string INIT_CLASS_NAME = "$Init";
+const string INIT_CLASS_NAME = "___init";

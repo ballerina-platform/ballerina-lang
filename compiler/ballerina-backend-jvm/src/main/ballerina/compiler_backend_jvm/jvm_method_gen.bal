@@ -48,7 +48,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
-        generateInitFunctionInvocation(module, mv);
+        generateInitFunctionInvocation(module, mv, localVarOffset);
         generateUserDefinedTypes(mv, module.typeDefs);
     }
 
@@ -627,15 +627,6 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
-    if (hasInitFunction(pkg)) {
-        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName,
-                "(Lorg/ballerinalang/jvm/Strand;)V", false);
-    }
-
     boolean isVoidFunction = userMainFunc.typeValue.retType is bir:BTypeNil;
 
     if (!isVoidFunction) {
@@ -653,8 +644,8 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // schedule the init method
-        string lambdaName = io:sprintf("$lambda$%s$%s$%s$", pkgName, mainClass, initFuncName);
-        mv.visitInvokeDynamicInsn(mainClass, lambdaName, true);
+        string lambdaName = io:sprintf("$lambda$%s$%s$%s$", pkgName, initClass, initFuncName);
+        mv.visitInvokeDynamicInsn(initClass, lambdaName, true);
 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "schedule", 
             io:sprintf("([L%s;L%s;)L%s;", OBJECT, CONSUMER, FUTURE_VALUE), false);
@@ -678,10 +669,9 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
         paramIndex += 1;
     }
 
- 
     // invoke the user's main method
     string lambdaName = "$lambda$main$";
-    mv.visitInvokeDynamicInsn(mainClass, lambdaName, isVoidFunction);
+    mv.visitInvokeDynamicInsn(initClass, lambdaName, isVoidFunction);
 
     //submit to the scheduler
     if (isVoidFunction) {
@@ -721,7 +711,6 @@ function generateMainMethod(bir:Function userMainFunc, jvm:ClassWriter cw, bir:P
     }
 
     errorGen.generateCatchInsForMain(endLabel, handlerLabel);
-    mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "shutdown", "()V", false);
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(paramTypes.length() + 5, 10);
@@ -913,21 +902,18 @@ function getModuleInitFuncName(bir:Package module) returns string {
     }
 }
 
-function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
+function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv, int localVarOffset) {
     foreach var mod in pkg.importModules {
         bir:Package importedPkg = lookupModule(mod, currentBIRContext);
         if (hasInitFunction(importedPkg)) {
             string initFuncName = cleanupFunctionName(getModuleInitFuncName(importedPkg));
             string moduleClassName = getModuleLevelClassName(importedPkg.org.value, importedPkg.name.value,
                                                                 INIT_CLASS_NAME);
-            mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>", "()V", false);
+            mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
                     "(Lorg/ballerinalang/jvm/Strand;)V", false);
-          //  mv.visitInsn(POP);
         }
-        generateInitFunctionInvocation(importedPkg, mv);
+        generateInitFunctionInvocation(importedPkg, mv, localVarOffset);
     }
 }
 

@@ -78,7 +78,7 @@ public class BLangVMErrors {
 
     public static void printStackTraceOnMainMethodError(ErrorValue errorValue) {
         StackTraceElement[] stackTrace = errorValue.getStackTrace();
-        StackTraceElement[] stackWithoutJavaMain = Arrays.copyOf(stackTrace, stackTrace.length - 1);
+        StackTraceElement[] stackWithoutJavaMain = Arrays.copyOf(stackTrace, stackTrace.length - 3);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors
                 .getPrintableStackTrace(getErrorMessage(errorValue), stackWithoutJavaMain));
     }

@@ -102,7 +102,7 @@ public type BirEmitter object {
             }
         }
     }
-    
+
     function emitFunction(Function bFunction, string tabs) {
         self.posEmitter.emitPosition(bFunction.pos);
         string visibility =  bFunction.visibility;

@@ -148,7 +148,7 @@ type TerminatorGenerator object {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + callIns.thenBB.id.value);
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
-    
+
     function genStaticCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {
         string methodName = callIns.name.value;
         string methodDesc = "(Lorg/ballerinalang/jvm/Strand;";
@@ -167,7 +167,6 @@ type TerminatorGenerator object {
         bir:BType? returnType = callIns.lhsOp.typeValue;
         string returnTypeDesc = generateReturnType(returnType);
         methodDesc = methodDesc + returnTypeDesc;
-
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + methodName);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
     }
